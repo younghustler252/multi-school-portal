@@ -1,0 +1,170 @@
+
+---
+
+## **Swagger.yaml (starter)**
+
+```yaml
+openapi: 3.0.0
+info:
+  title: School Portal API
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+paths:
+  /auth/register:
+    post:
+      summary: Register user & create school
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+                - firstName
+                - lastName
+                - schoolName
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                schoolName:
+                  type: string
+      responses:
+        '201':
+          description: Registration successful
+  /school/me:
+    get:
+      summary: Get current school
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: School details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/School'
+  /school/update:
+    patch:
+      summary: Update school info (post-onboarding)
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                address:
+                  type: string
+                contactEmail:
+                  type: string
+                logoUrl:
+                  type: string
+                timezone:
+                  type: string
+      responses:
+        '200':
+          description: School updated
+  /school/profile/complete:
+    post:
+      summary: Complete school profile (onboarding)
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - schoolType
+                - address
+                - contactEmail
+              properties:
+                schoolType:
+                  type: string
+                  enum: [PRIVATE, PUBLIC, TRAINING_CENTER]
+                address:
+                  type: string
+                contactEmail:
+                  type: string
+                subscriptionPlan:
+                  type: string
+                  enum: [free, premium, enterprise]
+      responses:
+        '200':
+          description: School profile completed
+  /school/upload-document:
+    post:
+      summary: Upload verification document
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - documentType
+                - fileUrl
+              properties:
+                documentType:
+                  type: string
+                  enum: [CAC, MINISTRY_APPROVAL, TAX_ID, ACCREDITATION, OTHER]
+                fileUrl:
+                  type: string
+      responses:
+        '200':
+          description: Document uploaded
+  /school/onboarding/complete:
+    post:
+      summary: Complete onboarding and activate school
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: School onboarding completed
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    School:
+      type: object
+      properties:
+        name:
+          type: string
+        schoolType:
+          type: string
+          enum: [PRIVATE, PUBLIC, TRAINING_CENTER]
+        subscriptionPlan:
+          type: string
+          enum: [free, premium, enterprise]
+        address:
+          type: string
+        contactEmail:
+          type: string
+        logoUrl:
+          type: string
+        timezone:
+          type: string
+        verificationStatus:
+          type: string
+          enum: [PENDING, APPROVED, REJECTED]
+        isActive:
+          type: boolean
+        isProfileComplete:
+          type: boolean
