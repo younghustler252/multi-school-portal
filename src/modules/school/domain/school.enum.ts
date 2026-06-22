@@ -1,0 +1,38 @@
+// school.enum.ts
+
+export enum SchoolType {
+	PRIMARY = "PRIMARY",
+	SECONDARY = "SECONDARY",
+	COMBINED = "COMBINED",
+	POLYTECHNIC = "POLYTECHNIC",
+	COLLEGE = "COLLEGE",
+	UNIVERSITY = "UNIVERSITY",
+}
+
+export enum OwnershipType {
+	PRIVATE = "PRIVATE",
+	PUBLIC = "PUBLIC",
+	GOVERNMENT = "GOVERNMENT",
+	RELIGIOUS = "RELIGIOUS",
+}
+
+export enum SchoolStatus {
+	PENDING = "PENDING",
+	ACTIVE = "ACTIVE",
+	SUSPENDED = "SUSPENDED",
+	INACTIVE = "INACTIVE",
+}
+
+export enum VerificationStatus {
+	PENDING = "PENDING",
+	VERIFIED = "VERIFIED",
+	REJECTED = "REJECTED",
+}
+
+export enum SubscriptionStatus {
+	TRIAL = "TRIAL",
+	ACTIVE = "ACTIVE",
+	EXPIRED = "EXPIRED",
+	CANCELLED = "CANCELLED",
+	SUSPENDED = "SUSPENDED",
+}
