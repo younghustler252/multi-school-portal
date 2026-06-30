@@ -1,0 +1,149 @@
+// =====================
+// BILLING / SUBSCRIPTION MODULE
+// =====================
+
+model Plan {
+  id                String   @id @default(uuid())
+
+  // plan identity
+  name              String   @unique
+  description       String?
+
+  // limits (-1 = unlimited)
+  studentLimit      Int
+  staffLimit        Int
+
+  // features
+  smsNotifications  Boolean  @default(false)
+  reportCardPdf     Boolean  @default(false)
+  paymentCollection Boolean  @default(false)
+  customGrading     Boolean  @default(false)
+  multipleBranches  Boolean  @default(false)
+  prioritySupport   Boolean  @default(false)
+
+  // pricing (kobo)
+  monthlyPriceKobo  Int      @default(0)
+  yearlyPriceKobo   Int      @default(0)
+
+  // control flags
+  isPublic          Boolean  @default(true)
+  isActive          Boolean  @default(true)
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  subscriptions     Subscription[]
+}
+
+// =====================
+// SUBSCRIPTION (core billing engine)
+// =====================
+
+model Subscription {
+  id                    String             @id @default(uuid())
+
+  schoolId              String
+  planId                String
+
+  status                SubscriptionStatus @default(trialing)
+  billingCycle          BillingCycle       @default(monthly)
+
+  currentPeriodStart    DateTime
+  currentPeriodEnd      DateTime
+
+  trialEndsAt           DateTime?
+
+  cancelAtPeriodEnd     Boolean            @default(false)
+  cancelledAt           DateTime?
+
+  // discount system
+  couponId              String?
+  discountedPriceKobo   Int?
+
+  // payment provider (Paystack)
+  paystackCustomerCode        String?
+  paystackSubscriptionCode    String?
+
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  school                School   @relation(fields: [schoolId], references: [id])
+  plan                  Plan     @relation(fields: [planId], references: [id])
+  coupon                Coupon?  @relation(fields: [couponId], references: [id])
+
+  billingHistory       BillingHistory[]
+}
+
+// =====================
+// COUPONS / DISCOUNTS
+// =====================
+
+model Coupon {
+  id              String   @id @default(uuid())
+
+  code            String   @unique
+  description     String?
+
+  discountType    DiscountType
+  discountValue   Int
+
+  maxUses         Int?
+  usedCount       Int      @default(0)
+
+  validFrom       DateTime
+  validUntil      DateTime?
+
+  isActive        Boolean  @default(true)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  subscriptions   Subscription[]
+}
+
+// =====================
+// BILLING HISTORY (payment logs)
+// =====================
+
+model BillingHistory {
+  id                String        @id @default(uuid())
+
+  subscriptionId    String
+
+  amountKobo        Int
+  status            PaymentStatus @default(pending)
+
+  billingCycle      BillingCycle
+
+  paystackReference String?
+
+  paidAt            DateTime?
+  failureReason     String?
+
+  createdAt         DateTime @default(now())
+
+  subscription      Subscription @relation(fields: [subscriptionId], references: [id])
+}
+
+// =====================
+// ENUMS
+// =====================
+
+enum SubscriptionStatus {
+  trialing
+  active
+  past_due
+  suspended
+  cancelled
+  expired
+}
+
+enum BillingCycle {
+  monthly
+  yearly
+}
+
+enum DiscountType {
+  percentage
+  fixed_amount
+}

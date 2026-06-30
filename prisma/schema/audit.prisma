@@ -1,0 +1,25 @@
+// ===== AUDIT LOG =====
+
+model AuditLog {
+  id         String     @id @default(uuid())
+  userId     String?
+  schoolId   String?
+  actorType  ActorType  @default(user)
+  action     String     // e.g. "school.verified", "student.created"
+  entity     String     // e.g. "School", "Student"
+  entityId   String?
+  oldValue   Json?
+  newValue   Json?
+  ipAddress  String?
+  userAgent  String?
+  metadata   Json?
+  createdAt  DateTime   @default(now())
+  school     School?    @relation(fields: [schoolId], references: [id])
+}
+
+enum ActorType {
+  user
+  system
+  super_admin
+  webhook
+}

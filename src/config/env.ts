@@ -1,0 +1,134 @@
+import dotenv from "dotenv";
+import path   from "path";
+import { z }  from "zod";
+
+/*
+|--------------------------------------------------------------------------
+| LOAD ENV FILE
+|--------------------------------------------------------------------------
+*/
+const NODE_ENV = process.env.NODE_ENV || "development";
+const envFile  = NODE_ENV === "production" ? ".env.production" : ".env.development";
+
+dotenv.config({
+    path: path.resolve(process.cwd(), envFile),
+});
+
+/*
+|--------------------------------------------------------------------------
+| ENV SCHEMA VALIDATION
+| App won't start if any required variable is missing
+|--------------------------------------------------------------------------
+*/
+const envSchema = z.object({
+
+    // ── App ──────────────────────────────────────────────────────────────
+    NODE_ENV:         z.enum(["development", "production", "test"]).default("development"),
+    PORT:             z.string().default("5000"),
+    APP_BASE_DOMAIN:  z.string(),
+    ADMIN_SUBDOMAIN:  z.string().default("admin"),
+
+    // ── Database ─────────────────────────────────────────────────────────
+    DATABASE_URL:     z.string().url(),
+
+    // ── JWT ──────────────────────────────────────────────────────────────
+    JWT_ACCESS_SECRET:      z.string().min(10),
+    JWT_REFRESH_SECRET:     z.string().min(10),
+    JWT_ACCESS_EXPIRES_IN:  z.string().default("15m"),
+    JWT_REFRESH_EXPIRES_IN: z.string().default("7d"),
+
+    // ── Supabase ─────────────────────────────────────────────────────────
+    SUPABASE_URL:         z.string().url(),
+    SUPABASE_SERVICE_KEY: z.string(),
+    SUPABASE_BUCKET:      z.string(),
+
+    // ── Email ────────────────────────────────────────────────────────────
+    SMTP_HOST: z.string(),
+    SMTP_PORT: z.string().default("587"),
+    SMTP_USER: z.string(),
+    SMTP_PASS: z.string(),
+    SMTP_FROM: z.string(),
+
+    // ── SMS ──────────────────────────────────────────────────────────────
+    TERMII_API_KEY:   z.string(),
+    TERMII_SENDER_ID: z.string(),
+
+    // ── Paystack ─────────────────────────────────────────────────────────
+    PAYSTACK_SECRET_KEY: z.string(),
+    PAYSTACK_PUBLIC_KEY: z.string(),
+
+    // ── Redis ────────────────────────────────────────────────────────────
+    REDIS_HOST: z.string().default("localhost"),
+    REDIS_PORT: z.string().default("6379"),
+});
+
+/*
+|--------------------------------------------------------------------------
+| PARSE + VALIDATE
+|--------------------------------------------------------------------------
+*/
+const parsed = envSchema.safeParse(process.env);
+
+if (!parsed.success) {
+    console.error("❌ Invalid environment variables:");
+    console.error(parsed.error.flatten().fieldErrors);
+    process.exit(1);
+}
+
+/*
+|--------------------------------------------------------------------------
+| EXPORT
+|--------------------------------------------------------------------------
+*/
+export const env = {
+    // ── App ──────────────────────────────────────────────────────────────
+    NODE_ENV:        parsed.data.NODE_ENV,
+    PORT:            parsed.data.PORT,
+    APP_BASE_DOMAIN: parsed.data.APP_BASE_DOMAIN,
+    ADMIN_SUBDOMAIN: parsed.data.ADMIN_SUBDOMAIN,
+
+    // ── Database ─────────────────────────────────────────────────────────
+    DATABASE_URL:    parsed.data.DATABASE_URL,
+
+    // ── JWT ──────────────────────────────────────────────────────────────
+    jwt: {
+        accessSecret:     parsed.data.JWT_ACCESS_SECRET,
+        refreshSecret:    parsed.data.JWT_REFRESH_SECRET,
+        accessExpiresIn:  parsed.data.JWT_ACCESS_EXPIRES_IN,
+        refreshExpiresIn: parsed.data.JWT_REFRESH_EXPIRES_IN,
+    },
+
+    // ── Supabase ─────────────────────────────────────────────────────────
+    supabase: {
+        url:        parsed.data.SUPABASE_URL,
+        serviceKey: parsed.data.SUPABASE_SERVICE_KEY,
+        bucket:     parsed.data.SUPABASE_BUCKET,
+    },
+
+    // ── Email ────────────────────────────────────────────────────────────
+    smtp: {
+        host: parsed.data.SMTP_HOST,
+        port: parseInt(parsed.data.SMTP_PORT),
+        user: parsed.data.SMTP_USER,
+        pass: parsed.data.SMTP_PASS,
+        from: parsed.data.SMTP_FROM,
+    },
+
+    // ── SMS ──────────────────────────────────────────────────────────────
+    termii: {
+        apiKey:   parsed.data.TERMII_API_KEY,
+        senderId: parsed.data.TERMII_SENDER_ID,
+    },
+
+    // ── Paystack ─────────────────────────────────────────────────────────
+    paystack: {
+        secretKey: parsed.data.PAYSTACK_SECRET_KEY,
+        publicKey: parsed.data.PAYSTACK_PUBLIC_KEY,
+    },
+
+    // ── Redis ────────────────────────────────────────────────────────────
+    redis: {
+        host: parsed.data.REDIS_HOST,
+        port: parseInt(parsed.data.REDIS_PORT),
+    },
+} as const;

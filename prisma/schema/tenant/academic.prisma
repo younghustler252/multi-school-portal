@@ -1,0 +1,90 @@
+// ===== ACADEMIC (tenant schema) =====
+
+model Session {
+  id        String   @id @default(uuid())
+  name      String   // e.g. "2024/2025"
+  startDate DateTime
+  endDate   DateTime
+  isCurrent Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  terms     Term[]
+}
+
+model Term {
+  id          String   @id @default(uuid())
+  sessionId   String
+  name        TermName
+  startDate   DateTime
+  endDate     DateTime
+  isCurrent   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  session     Session      @relation(fields: [sessionId], references: [id])
+  attendances  Attendance[]
+  grades       Grade[]
+  feeInvoices  FeeInvoice[]
+  enrolments   Enrolment[]
+  reportCards  ReportCard[]
+}
+
+enum TermName {
+  first
+  second
+  third
+}
+
+model Class {
+  id            String   @id @default(uuid())
+  name          String
+  level         String?
+  capacity      Int?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  enrolments    Enrolment[]
+  classSubjects ClassSubject[]
+}
+
+model Subject {
+  id            String   @id @default(uuid())
+  name          String
+  code          String?  @unique
+  description   String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  classSubjects ClassSubject[]
+}
+
+model ClassSubject {
+  id        String   @id @default(uuid())
+  classId   String
+  subjectId String
+  staffId   String
+  createdAt DateTime @default(now())
+  class     Class    @relation(fields: [classId], references: [id])
+  subject   Subject  @relation(fields: [subjectId], references: [id])
+  staff     Staff    @relation(fields: [staffId], references: [id])
+  grades    Grade[]
+}
+
+model Enrolment {
+  id        String          @id @default(uuid())
+  studentId String
+  classId   String
+  termId    String
+  status    EnrolmentStatus @default(active)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  student   Student         @relation(fields: [studentId], references: [id])
+  class     Class           @relation(fields: [classId], references: [id])
+  term      Term            @relation(fields: [termId], references: [id])
+
+  @@unique([studentId, termId])
+}
+
+enum EnrolmentStatus {
+  active
+  withdrawn
+  transferred
+  completed
+}

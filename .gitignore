@@ -33,3 +33,5 @@ coverage/
 tmp/
 temp/
 
+
+/srcV2/generated/prisma
