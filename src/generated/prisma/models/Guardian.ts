@@ -232,7 +232,6 @@ export type GuardianWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Guardian"> | Date | string
   studentLinks?: Prisma.StudentGuardianListRelationFilter
   payments?: Prisma.PaymentListRelationFilter
-  notifications?: Prisma.SchoolNotificationListRelationFilter
 }
 
 export type GuardianOrderByWithRelationInput = {
@@ -249,7 +248,6 @@ export type GuardianOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   studentLinks?: Prisma.StudentGuardianOrderByRelationAggregateInput
   payments?: Prisma.PaymentOrderByRelationAggregateInput
-  notifications?: Prisma.SchoolNotificationOrderByRelationAggregateInput
 }
 
 export type GuardianWhereUniqueInput = Prisma.AtLeast<{
@@ -269,7 +267,6 @@ export type GuardianWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Guardian"> | Date | string
   studentLinks?: Prisma.StudentGuardianListRelationFilter
   payments?: Prisma.PaymentListRelationFilter
-  notifications?: Prisma.SchoolNotificationListRelationFilter
 }, "id" | "userId">
 
 export type GuardianOrderByWithAggregationInput = {
@@ -320,7 +317,6 @@ export type GuardianCreateInput = {
   updatedAt?: Date | string
   studentLinks?: Prisma.StudentGuardianCreateNestedManyWithoutGuardianInput
   payments?: Prisma.PaymentCreateNestedManyWithoutGuardianInput
-  notifications?: Prisma.SchoolNotificationCreateNestedManyWithoutGuardianInput
 }
 
 export type GuardianUncheckedCreateInput = {
@@ -337,7 +333,6 @@ export type GuardianUncheckedCreateInput = {
   updatedAt?: Date | string
   studentLinks?: Prisma.StudentGuardianUncheckedCreateNestedManyWithoutGuardianInput
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutGuardianInput
-  notifications?: Prisma.SchoolNotificationUncheckedCreateNestedManyWithoutGuardianInput
 }
 
 export type GuardianUpdateInput = {
@@ -354,7 +349,6 @@ export type GuardianUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   studentLinks?: Prisma.StudentGuardianUpdateManyWithoutGuardianNestedInput
   payments?: Prisma.PaymentUpdateManyWithoutGuardianNestedInput
-  notifications?: Prisma.SchoolNotificationUpdateManyWithoutGuardianNestedInput
 }
 
 export type GuardianUncheckedUpdateInput = {
@@ -371,7 +365,6 @@ export type GuardianUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   studentLinks?: Prisma.StudentGuardianUncheckedUpdateManyWithoutGuardianNestedInput
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutGuardianNestedInput
-  notifications?: Prisma.SchoolNotificationUncheckedUpdateManyWithoutGuardianNestedInput
 }
 
 export type GuardianCreateManyInput = {
@@ -498,22 +491,6 @@ export type GuardianUpdateOneWithoutPaymentsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.GuardianUpdateToOneWithWhereWithoutPaymentsInput, Prisma.GuardianUpdateWithoutPaymentsInput>, Prisma.GuardianUncheckedUpdateWithoutPaymentsInput>
 }
 
-export type GuardianCreateNestedOneWithoutNotificationsInput = {
-  create?: Prisma.XOR<Prisma.GuardianCreateWithoutNotificationsInput, Prisma.GuardianUncheckedCreateWithoutNotificationsInput>
-  connectOrCreate?: Prisma.GuardianCreateOrConnectWithoutNotificationsInput
-  connect?: Prisma.GuardianWhereUniqueInput
-}
-
-export type GuardianUpdateOneWithoutNotificationsNestedInput = {
-  create?: Prisma.XOR<Prisma.GuardianCreateWithoutNotificationsInput, Prisma.GuardianUncheckedCreateWithoutNotificationsInput>
-  connectOrCreate?: Prisma.GuardianCreateOrConnectWithoutNotificationsInput
-  upsert?: Prisma.GuardianUpsertWithoutNotificationsInput
-  disconnect?: Prisma.GuardianWhereInput | boolean
-  delete?: Prisma.GuardianWhereInput | boolean
-  connect?: Prisma.GuardianWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.GuardianUpdateToOneWithWhereWithoutNotificationsInput, Prisma.GuardianUpdateWithoutNotificationsInput>, Prisma.GuardianUncheckedUpdateWithoutNotificationsInput>
-}
-
 export type GuardianCreateWithoutStudentLinksInput = {
   id?: string
   userId?: string | null
@@ -527,7 +504,6 @@ export type GuardianCreateWithoutStudentLinksInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   payments?: Prisma.PaymentCreateNestedManyWithoutGuardianInput
-  notifications?: Prisma.SchoolNotificationCreateNestedManyWithoutGuardianInput
 }
 
 export type GuardianUncheckedCreateWithoutStudentLinksInput = {
@@ -543,7 +519,6 @@ export type GuardianUncheckedCreateWithoutStudentLinksInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutGuardianInput
-  notifications?: Prisma.SchoolNotificationUncheckedCreateNestedManyWithoutGuardianInput
 }
 
 export type GuardianCreateOrConnectWithoutStudentLinksInput = {
@@ -575,7 +550,6 @@ export type GuardianUpdateWithoutStudentLinksInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   payments?: Prisma.PaymentUpdateManyWithoutGuardianNestedInput
-  notifications?: Prisma.SchoolNotificationUpdateManyWithoutGuardianNestedInput
 }
 
 export type GuardianUncheckedUpdateWithoutStudentLinksInput = {
@@ -591,7 +565,6 @@ export type GuardianUncheckedUpdateWithoutStudentLinksInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutGuardianNestedInput
-  notifications?: Prisma.SchoolNotificationUncheckedUpdateManyWithoutGuardianNestedInput
 }
 
 export type GuardianCreateWithoutPaymentsInput = {
@@ -607,7 +580,6 @@ export type GuardianCreateWithoutPaymentsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   studentLinks?: Prisma.StudentGuardianCreateNestedManyWithoutGuardianInput
-  notifications?: Prisma.SchoolNotificationCreateNestedManyWithoutGuardianInput
 }
 
 export type GuardianUncheckedCreateWithoutPaymentsInput = {
@@ -623,7 +595,6 @@ export type GuardianUncheckedCreateWithoutPaymentsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   studentLinks?: Prisma.StudentGuardianUncheckedCreateNestedManyWithoutGuardianInput
-  notifications?: Prisma.SchoolNotificationUncheckedCreateNestedManyWithoutGuardianInput
 }
 
 export type GuardianCreateOrConnectWithoutPaymentsInput = {
@@ -655,7 +626,6 @@ export type GuardianUpdateWithoutPaymentsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   studentLinks?: Prisma.StudentGuardianUpdateManyWithoutGuardianNestedInput
-  notifications?: Prisma.SchoolNotificationUpdateManyWithoutGuardianNestedInput
 }
 
 export type GuardianUncheckedUpdateWithoutPaymentsInput = {
@@ -671,87 +641,6 @@ export type GuardianUncheckedUpdateWithoutPaymentsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   studentLinks?: Prisma.StudentGuardianUncheckedUpdateManyWithoutGuardianNestedInput
-  notifications?: Prisma.SchoolNotificationUncheckedUpdateManyWithoutGuardianNestedInput
-}
-
-export type GuardianCreateWithoutNotificationsInput = {
-  id?: string
-  userId?: string | null
-  firstName: string
-  lastName: string
-  email: string
-  phone?: string | null
-  occupation?: string | null
-  address?: string | null
-  isActive?: boolean
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  studentLinks?: Prisma.StudentGuardianCreateNestedManyWithoutGuardianInput
-  payments?: Prisma.PaymentCreateNestedManyWithoutGuardianInput
-}
-
-export type GuardianUncheckedCreateWithoutNotificationsInput = {
-  id?: string
-  userId?: string | null
-  firstName: string
-  lastName: string
-  email: string
-  phone?: string | null
-  occupation?: string | null
-  address?: string | null
-  isActive?: boolean
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  studentLinks?: Prisma.StudentGuardianUncheckedCreateNestedManyWithoutGuardianInput
-  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutGuardianInput
-}
-
-export type GuardianCreateOrConnectWithoutNotificationsInput = {
-  where: Prisma.GuardianWhereUniqueInput
-  create: Prisma.XOR<Prisma.GuardianCreateWithoutNotificationsInput, Prisma.GuardianUncheckedCreateWithoutNotificationsInput>
-}
-
-export type GuardianUpsertWithoutNotificationsInput = {
-  update: Prisma.XOR<Prisma.GuardianUpdateWithoutNotificationsInput, Prisma.GuardianUncheckedUpdateWithoutNotificationsInput>
-  create: Prisma.XOR<Prisma.GuardianCreateWithoutNotificationsInput, Prisma.GuardianUncheckedCreateWithoutNotificationsInput>
-  where?: Prisma.GuardianWhereInput
-}
-
-export type GuardianUpdateToOneWithWhereWithoutNotificationsInput = {
-  where?: Prisma.GuardianWhereInput
-  data: Prisma.XOR<Prisma.GuardianUpdateWithoutNotificationsInput, Prisma.GuardianUncheckedUpdateWithoutNotificationsInput>
-}
-
-export type GuardianUpdateWithoutNotificationsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  studentLinks?: Prisma.StudentGuardianUpdateManyWithoutGuardianNestedInput
-  payments?: Prisma.PaymentUpdateManyWithoutGuardianNestedInput
-}
-
-export type GuardianUncheckedUpdateWithoutNotificationsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  studentLinks?: Prisma.StudentGuardianUncheckedUpdateManyWithoutGuardianNestedInput
-  payments?: Prisma.PaymentUncheckedUpdateManyWithoutGuardianNestedInput
 }
 
 
@@ -762,13 +651,11 @@ export type GuardianUncheckedUpdateWithoutNotificationsInput = {
 export type GuardianCountOutputType = {
   studentLinks: number
   payments: number
-  notifications: number
 }
 
 export type GuardianCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   studentLinks?: boolean | GuardianCountOutputTypeCountStudentLinksArgs
   payments?: boolean | GuardianCountOutputTypeCountPaymentsArgs
-  notifications?: boolean | GuardianCountOutputTypeCountNotificationsArgs
 }
 
 /**
@@ -795,13 +682,6 @@ export type GuardianCountOutputTypeCountPaymentsArgs<ExtArgs extends runtime.Typ
   where?: Prisma.PaymentWhereInput
 }
 
-/**
- * GuardianCountOutputType without action
- */
-export type GuardianCountOutputTypeCountNotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.SchoolNotificationWhereInput
-}
-
 
 export type GuardianSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -817,7 +697,6 @@ export type GuardianSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   updatedAt?: boolean
   studentLinks?: boolean | Prisma.Guardian$studentLinksArgs<ExtArgs>
   payments?: boolean | Prisma.Guardian$paymentsArgs<ExtArgs>
-  notifications?: boolean | Prisma.Guardian$notificationsArgs<ExtArgs>
   _count?: boolean | Prisma.GuardianCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["guardian"]>
 
@@ -867,7 +746,6 @@ export type GuardianOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs =
 export type GuardianInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   studentLinks?: boolean | Prisma.Guardian$studentLinksArgs<ExtArgs>
   payments?: boolean | Prisma.Guardian$paymentsArgs<ExtArgs>
-  notifications?: boolean | Prisma.Guardian$notificationsArgs<ExtArgs>
   _count?: boolean | Prisma.GuardianCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type GuardianIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -878,7 +756,6 @@ export type $GuardianPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   objects: {
     studentLinks: Prisma.$StudentGuardianPayload<ExtArgs>[]
     payments: Prisma.$PaymentPayload<ExtArgs>[]
-    notifications: Prisma.$SchoolNotificationPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1288,7 +1165,6 @@ export interface Prisma__GuardianClient<T, Null = never, ExtArgs extends runtime
   readonly [Symbol.toStringTag]: "PrismaPromise"
   studentLinks<T extends Prisma.Guardian$studentLinksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Guardian$studentLinksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StudentGuardianPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   payments<T extends Prisma.Guardian$paymentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Guardian$paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  notifications<T extends Prisma.Guardian$notificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Guardian$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SchoolNotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1767,30 +1643,6 @@ export type Guardian$paymentsArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.PaymentScalarFieldEnum | Prisma.PaymentScalarFieldEnum[]
-}
-
-/**
- * Guardian.notifications
- */
-export type Guardian$notificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the SchoolNotification
-   */
-  select?: Prisma.SchoolNotificationSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the SchoolNotification
-   */
-  omit?: Prisma.SchoolNotificationOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.SchoolNotificationInclude<ExtArgs> | null
-  where?: Prisma.SchoolNotificationWhereInput
-  orderBy?: Prisma.SchoolNotificationOrderByWithRelationInput | Prisma.SchoolNotificationOrderByWithRelationInput[]
-  cursor?: Prisma.SchoolNotificationWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.SchoolNotificationScalarFieldEnum | Prisma.SchoolNotificationScalarFieldEnum[]
 }
 
 /**

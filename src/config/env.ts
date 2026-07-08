@@ -43,11 +43,11 @@ const envSchema = z.object({
     SUPABASE_BUCKET:      z.string(),
 
     // ── Email ────────────────────────────────────────────────────────────
-    SMTP_HOST: z.string(),
-    SMTP_PORT: z.string().default("587"),
-    SMTP_USER: z.string(),
-    SMTP_PASS: z.string(),
-    SMTP_FROM: z.string(),
+    SMTP_HOST: z.string().optional(),
+    SMTP_PORT: z.string().default("587").optional(),
+    SMTP_USER: z.string().optional(),
+    SMTP_PASS: z.string().optional(),
+    SMTP_FROM: z.string().default("noreply@hotspotportal.local").optional(),
 
     // ── SMS ──────────────────────────────────────────────────────────────
     TERMII_API_KEY:   z.string(),
@@ -60,6 +60,11 @@ const envSchema = z.object({
     // ── Redis ────────────────────────────────────────────────────────────
     REDIS_HOST: z.string().default("localhost"),
     REDIS_PORT: z.string().default("6379"),
+
+    //brevo 
+    BREVO_API_KEY:      z.string().min(1).optional(),
+    BREVO_SENDER_EMAIL: z.string().email().optional(),
+    BREVO_SENDER_NAME:  z.string().min(1).default("Hotspot Support").optional(),
 });
 
 /*
@@ -107,12 +112,13 @@ export const env = {
 
     // ── Email ────────────────────────────────────────────────────────────
     smtp: {
-        host: parsed.data.SMTP_HOST,
-        port: parseInt(parsed.data.SMTP_PORT),
-        user: parsed.data.SMTP_USER,
-        pass: parsed.data.SMTP_PASS,
-        from: parsed.data.SMTP_FROM,
+        host: parsed.data.SMTP_HOST || "",
+        port: parseInt(parsed.data.SMTP_PORT || "587"),
+        user: parsed.data.SMTP_USER || "",
+        pass: parsed.data.SMTP_PASS || "",
+        from: parsed.data.SMTP_FROM || "noreply@hotspotportal.local",
     },
+
 
     // ── SMS ──────────────────────────────────────────────────────────────
     termii: {
@@ -130,5 +136,11 @@ export const env = {
     redis: {
         host: parsed.data.REDIS_HOST,
         port: parseInt(parsed.data.REDIS_PORT),
+    },
+
+     brevo: {
+        apiKey:      parsed.data.BREVO_API_KEY || "",
+        senderEmail: parsed.data.BREVO_SENDER_EMAIL || "",
+        senderName:  parsed.data.BREVO_SENDER_NAME || "Hotspot Support",
     },
 } as const;

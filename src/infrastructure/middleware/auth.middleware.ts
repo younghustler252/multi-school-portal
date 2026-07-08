@@ -1,13 +1,12 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
-import { env } from "../../config/env";
-import { UnauthorizedError } from "../../shared/errors/domain.error";
-
+import jwt                                 from "jsonwebtoken";
+import { env }                             from "../../config/env";
+import { UnauthorizedError } from "../../shared/errors/domain.errors";
 /*
 |--------------------------------------------------------------------------
 | AUTH MIDDLEWARE
 | Verifies JWT access token on protected routes
-| Attaches decoded user payload to req.user
+| Checks Authorization header first (mobile), then cookie (web)
 |--------------------------------------------------------------------------
 */
 
@@ -18,19 +17,33 @@ interface JwtPayload {
     schoolId: string | null;
 }
 
+const extractToken = (req: Request): string | null => {
+    // 1. Check Authorization header (mobile / Postman)
+    const authHeader = req.headers.authorization;
+    if (authHeader?.startsWith("Bearer ")) {
+        return authHeader.split(" ")[1];
+    }
+
+    // 2. Check HttpOnly cookie (web / Next.js)
+    if (req.cookies?.accessToken) {
+        return req.cookies.accessToken;
+    }
+
+    return null;
+};
+
 export const authenticate = (
     req:  Request,
     res:  Response,
     next: NextFunction,
 ): void => {
     try {
-        const authHeader = req.headers.authorization;
+        const token = extractToken(req);
 
-        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        if (!token) {
             throw new UnauthorizedError("No token provided");
         }
 
-        const token   = authHeader.split(" ")[1];
         const decoded = jwt.verify(
             token,
             env.jwt.accessSecret,
@@ -63,7 +76,6 @@ export const authenticate = (
 |--------------------------------------------------------------------------
 | OPTIONAL AUTH
 | Attaches user if token present but doesn't block if missing
-| Useful for routes that behave differently for logged in users
 |--------------------------------------------------------------------------
 */
 export const optionalAuthenticate = (
@@ -71,11 +83,46 @@ export const optionalAuthenticate = (
     res:  Response,
     next: NextFunction,
 ): void => {
-    const authHeader = req.headers.authorization;
+    const token = extractToken(req);
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        return next();
-    }
+    if (!token) return next();
 
     authenticate(req, res, next);
+};
+
+/*
+|--------------------------------------------------------------------------
+| CLEAR AUTH COOKIES
+| Called on logout
+|--------------------------------------------------------------------------
+*/
+export const clearAuthCookies = (res: Response): void => {
+    res.clearCookie("accessToken",  { httpOnly: true, sameSite: "strict" });
+    res.clearCookie("refreshToken", { httpOnly: true, sameSite: "strict" });
+};
+
+/*
+|--------------------------------------------------------------------------
+| SET AUTH COOKIES
+| Called after login/register — sets tokens in HttpOnly cookies
+|--------------------------------------------------------------------------
+*/
+export const setAuthCookies = (
+    res:          Response,
+    accessToken:  string,
+    refreshToken: string,
+): void => {
+    res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure:   env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge:   15 * 60 * 1000,              // 15 minutes
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure:   env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge:   7 * 24 * 60 * 60 * 1000,    // 7 days
+    });
 };

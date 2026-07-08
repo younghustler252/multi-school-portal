@@ -16,7 +16,7 @@ model Staff {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   classSubjects ClassSubject[]
-  notifications  SchoolNotificationRecipient[]
+  // notifications  SchoolNotificationRecipient[]
 }
 
 enum StaffRole {
@@ -57,7 +57,7 @@ model Student {
   grades          Grade[]
   feeInvoices     FeeInvoice[]
   reportCards     ReportCard[]
-  notifications  SchoolNotificationRecipient[]
+  // notifications  SchoolNotificationRecipient[]
 }
 
 model Guardian {
@@ -74,7 +74,7 @@ model Guardian {
   updatedAt   DateTime  @updatedAt
   studentLinks StudentGuardian[]
   payments    Payment[]
-  notifications  SchoolNotificationRecipient[]
+  // notifications  SchoolNotificationRecipient[]
 
 }
 

@@ -1,77 +1,59 @@
 // =====================
 // BILLING / SUBSCRIPTION MODULE
 // =====================
-
 model Plan {
-  id                String   @id @default(uuid())
-
-  // plan identity
-  name              String   @unique
-  description       String?
+  id               String   @id @default(uuid())
+  name             String   @unique
+  description      String?
 
   // limits (-1 = unlimited)
-  studentLimit      Int
-  staffLimit        Int
+  studentLimit     Int
+  staffLimit       Int
+  features         Json     @default("{}")
 
-  // features
-  smsNotifications  Boolean  @default(false)
-  reportCardPdf     Boolean  @default(false)
-  paymentCollection Boolean  @default(false)
-  customGrading     Boolean  @default(false)
-  multipleBranches  Boolean  @default(false)
-  prioritySupport   Boolean  @default(false)
+  monthlyPriceKobo Int      @default(0)
+  yearlyPriceKobo  Int      @default(0)
+  setupFeeKobo     Int      @default(0)
 
-  // pricing (kobo)
-  monthlyPriceKobo  Int      @default(0)
-  yearlyPriceKobo   Int      @default(0)
+  // flags
+  isPublic         Boolean  @default(true)
+  isActive         Boolean  @default(true)
+  isCustom         Boolean  @default(false)  // enterprise custom plans
 
-  // control flags
-  isPublic          Boolean  @default(true)
-  isActive          Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  subscriptions     Subscription[]
+  subscriptions    Subscription[]
 }
-
 // =====================
 // SUBSCRIPTION (core billing engine)
 // =====================
-
 model Subscription {
-  id                    String             @id @default(uuid())
-
-  schoolId              String
-  planId                String
-
-  status                SubscriptionStatus @default(trialing)
-  billingCycle          BillingCycle       @default(monthly)
-
-  currentPeriodStart    DateTime
-  currentPeriodEnd      DateTime
-
-  trialEndsAt           DateTime?
-
-  cancelAtPeriodEnd     Boolean            @default(false)
-  cancelledAt           DateTime?
-
-  // discount system
-  couponId              String?
-  discountedPriceKobo   Int?
-
-  // payment provider (Paystack)
-  paystackCustomerCode        String?
-  paystackSubscriptionCode    String?
-
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
-
-  school                School   @relation(fields: [schoolId], references: [id])
-  plan                  Plan     @relation(fields: [planId], references: [id])
-  coupon                Coupon?  @relation(fields: [couponId], references: [id])
-
-  billingHistory       BillingHistory[]
+  id                       String             @id @default(uuid())
+  schoolId                 String
+  planId                   String
+  status                   SubscriptionStatus @default(active)
+  billingCycle             BillingCycle       @default(monthly)
+  currentPeriodStart       DateTime
+  currentPeriodEnd         DateTime
+  trialEndsAt              DateTime?
+  cancelAtPeriodEnd        Boolean            @default(false)
+  cancelledAt              DateTime?
+  couponId                 String?
+  discountedPriceKobo      Int?
+  setupFeePaid             Boolean            @default(false)
+  setupFeePaidAt           DateTime?
+  paystackCustomerCode     String?
+  paystackSubscriptionCode String?
+  nextBillingDate          DateTime?
+  lastBillingAttemptAt     DateTime?
+  failedBillingCount       Int                @default(0)
+  createdAt                DateTime           @default(now())
+  updatedAt                DateTime           @updatedAt
+  school                   School             @relation(fields: [schoolId], references: [id])
+  plan                     Plan               @relation(fields: [planId], references: [id])
+  coupon                   Coupon?            @relation(fields: [couponId], references: [id])
+  billingHistory           BillingHistory[]
 }
 
 // =====================

@@ -28,10 +28,12 @@ export type AggregateSubscription = {
 
 export type SubscriptionAvgAggregateOutputType = {
   discountedPriceKobo: number | null
+  failedBillingCount: number | null
 }
 
 export type SubscriptionSumAggregateOutputType = {
   discountedPriceKobo: number | null
+  failedBillingCount: number | null
 }
 
 export type SubscriptionMinAggregateOutputType = {
@@ -47,8 +49,13 @@ export type SubscriptionMinAggregateOutputType = {
   cancelledAt: Date | null
   couponId: string | null
   discountedPriceKobo: number | null
+  setupFeePaid: boolean | null
+  setupFeePaidAt: Date | null
   paystackCustomerCode: string | null
   paystackSubscriptionCode: string | null
+  nextBillingDate: Date | null
+  lastBillingAttemptAt: Date | null
+  failedBillingCount: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -66,8 +73,13 @@ export type SubscriptionMaxAggregateOutputType = {
   cancelledAt: Date | null
   couponId: string | null
   discountedPriceKobo: number | null
+  setupFeePaid: boolean | null
+  setupFeePaidAt: Date | null
   paystackCustomerCode: string | null
   paystackSubscriptionCode: string | null
+  nextBillingDate: Date | null
+  lastBillingAttemptAt: Date | null
+  failedBillingCount: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -85,8 +97,13 @@ export type SubscriptionCountAggregateOutputType = {
   cancelledAt: number
   couponId: number
   discountedPriceKobo: number
+  setupFeePaid: number
+  setupFeePaidAt: number
   paystackCustomerCode: number
   paystackSubscriptionCode: number
+  nextBillingDate: number
+  lastBillingAttemptAt: number
+  failedBillingCount: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -95,10 +112,12 @@ export type SubscriptionCountAggregateOutputType = {
 
 export type SubscriptionAvgAggregateInputType = {
   discountedPriceKobo?: true
+  failedBillingCount?: true
 }
 
 export type SubscriptionSumAggregateInputType = {
   discountedPriceKobo?: true
+  failedBillingCount?: true
 }
 
 export type SubscriptionMinAggregateInputType = {
@@ -114,8 +133,13 @@ export type SubscriptionMinAggregateInputType = {
   cancelledAt?: true
   couponId?: true
   discountedPriceKobo?: true
+  setupFeePaid?: true
+  setupFeePaidAt?: true
   paystackCustomerCode?: true
   paystackSubscriptionCode?: true
+  nextBillingDate?: true
+  lastBillingAttemptAt?: true
+  failedBillingCount?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -133,8 +157,13 @@ export type SubscriptionMaxAggregateInputType = {
   cancelledAt?: true
   couponId?: true
   discountedPriceKobo?: true
+  setupFeePaid?: true
+  setupFeePaidAt?: true
   paystackCustomerCode?: true
   paystackSubscriptionCode?: true
+  nextBillingDate?: true
+  lastBillingAttemptAt?: true
+  failedBillingCount?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -152,8 +181,13 @@ export type SubscriptionCountAggregateInputType = {
   cancelledAt?: true
   couponId?: true
   discountedPriceKobo?: true
+  setupFeePaid?: true
+  setupFeePaidAt?: true
   paystackCustomerCode?: true
   paystackSubscriptionCode?: true
+  nextBillingDate?: true
+  lastBillingAttemptAt?: true
+  failedBillingCount?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -258,8 +292,13 @@ export type SubscriptionGroupByOutputType = {
   cancelledAt: Date | null
   couponId: string | null
   discountedPriceKobo: number | null
+  setupFeePaid: boolean
+  setupFeePaidAt: Date | null
   paystackCustomerCode: string | null
   paystackSubscriptionCode: string | null
+  nextBillingDate: Date | null
+  lastBillingAttemptAt: Date | null
+  failedBillingCount: number
   createdAt: Date
   updatedAt: Date
   _count: SubscriptionCountAggregateOutputType | null
@@ -300,8 +339,13 @@ export type SubscriptionWhereInput = {
   cancelledAt?: Prisma.DateTimeNullableFilter<"Subscription"> | Date | string | null
   couponId?: Prisma.StringNullableFilter<"Subscription"> | string | null
   discountedPriceKobo?: Prisma.IntNullableFilter<"Subscription"> | number | null
+  setupFeePaid?: Prisma.BoolFilter<"Subscription"> | boolean
+  setupFeePaidAt?: Prisma.DateTimeNullableFilter<"Subscription"> | Date | string | null
   paystackCustomerCode?: Prisma.StringNullableFilter<"Subscription"> | string | null
   paystackSubscriptionCode?: Prisma.StringNullableFilter<"Subscription"> | string | null
+  nextBillingDate?: Prisma.DateTimeNullableFilter<"Subscription"> | Date | string | null
+  lastBillingAttemptAt?: Prisma.DateTimeNullableFilter<"Subscription"> | Date | string | null
+  failedBillingCount?: Prisma.IntFilter<"Subscription"> | number
   createdAt?: Prisma.DateTimeFilter<"Subscription"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Subscription"> | Date | string
   school?: Prisma.XOR<Prisma.SchoolScalarRelationFilter, Prisma.SchoolWhereInput>
@@ -323,8 +367,13 @@ export type SubscriptionOrderByWithRelationInput = {
   cancelledAt?: Prisma.SortOrderInput | Prisma.SortOrder
   couponId?: Prisma.SortOrderInput | Prisma.SortOrder
   discountedPriceKobo?: Prisma.SortOrderInput | Prisma.SortOrder
+  setupFeePaid?: Prisma.SortOrder
+  setupFeePaidAt?: Prisma.SortOrderInput | Prisma.SortOrder
   paystackCustomerCode?: Prisma.SortOrderInput | Prisma.SortOrder
   paystackSubscriptionCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  nextBillingDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastBillingAttemptAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  failedBillingCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   school?: Prisma.SchoolOrderByWithRelationInput
@@ -349,8 +398,13 @@ export type SubscriptionWhereUniqueInput = Prisma.AtLeast<{
   cancelledAt?: Prisma.DateTimeNullableFilter<"Subscription"> | Date | string | null
   couponId?: Prisma.StringNullableFilter<"Subscription"> | string | null
   discountedPriceKobo?: Prisma.IntNullableFilter<"Subscription"> | number | null
+  setupFeePaid?: Prisma.BoolFilter<"Subscription"> | boolean
+  setupFeePaidAt?: Prisma.DateTimeNullableFilter<"Subscription"> | Date | string | null
   paystackCustomerCode?: Prisma.StringNullableFilter<"Subscription"> | string | null
   paystackSubscriptionCode?: Prisma.StringNullableFilter<"Subscription"> | string | null
+  nextBillingDate?: Prisma.DateTimeNullableFilter<"Subscription"> | Date | string | null
+  lastBillingAttemptAt?: Prisma.DateTimeNullableFilter<"Subscription"> | Date | string | null
+  failedBillingCount?: Prisma.IntFilter<"Subscription"> | number
   createdAt?: Prisma.DateTimeFilter<"Subscription"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Subscription"> | Date | string
   school?: Prisma.XOR<Prisma.SchoolScalarRelationFilter, Prisma.SchoolWhereInput>
@@ -372,8 +426,13 @@ export type SubscriptionOrderByWithAggregationInput = {
   cancelledAt?: Prisma.SortOrderInput | Prisma.SortOrder
   couponId?: Prisma.SortOrderInput | Prisma.SortOrder
   discountedPriceKobo?: Prisma.SortOrderInput | Prisma.SortOrder
+  setupFeePaid?: Prisma.SortOrder
+  setupFeePaidAt?: Prisma.SortOrderInput | Prisma.SortOrder
   paystackCustomerCode?: Prisma.SortOrderInput | Prisma.SortOrder
   paystackSubscriptionCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  nextBillingDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastBillingAttemptAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  failedBillingCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.SubscriptionCountOrderByAggregateInput
@@ -399,8 +458,13 @@ export type SubscriptionScalarWhereWithAggregatesInput = {
   cancelledAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Subscription"> | Date | string | null
   couponId?: Prisma.StringNullableWithAggregatesFilter<"Subscription"> | string | null
   discountedPriceKobo?: Prisma.IntNullableWithAggregatesFilter<"Subscription"> | number | null
+  setupFeePaid?: Prisma.BoolWithAggregatesFilter<"Subscription"> | boolean
+  setupFeePaidAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Subscription"> | Date | string | null
   paystackCustomerCode?: Prisma.StringNullableWithAggregatesFilter<"Subscription"> | string | null
   paystackSubscriptionCode?: Prisma.StringNullableWithAggregatesFilter<"Subscription"> | string | null
+  nextBillingDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Subscription"> | Date | string | null
+  lastBillingAttemptAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Subscription"> | Date | string | null
+  failedBillingCount?: Prisma.IntWithAggregatesFilter<"Subscription"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Subscription"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Subscription"> | Date | string
 }
@@ -415,8 +479,13 @@ export type SubscriptionCreateInput = {
   cancelAtPeriodEnd?: boolean
   cancelledAt?: Date | string | null
   discountedPriceKobo?: number | null
+  setupFeePaid?: boolean
+  setupFeePaidAt?: Date | string | null
   paystackCustomerCode?: string | null
   paystackSubscriptionCode?: string | null
+  nextBillingDate?: Date | string | null
+  lastBillingAttemptAt?: Date | string | null
+  failedBillingCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   school: Prisma.SchoolCreateNestedOneWithoutSubscriptionsInput
@@ -438,8 +507,13 @@ export type SubscriptionUncheckedCreateInput = {
   cancelledAt?: Date | string | null
   couponId?: string | null
   discountedPriceKobo?: number | null
+  setupFeePaid?: boolean
+  setupFeePaidAt?: Date | string | null
   paystackCustomerCode?: string | null
   paystackSubscriptionCode?: string | null
+  nextBillingDate?: Date | string | null
+  lastBillingAttemptAt?: Date | string | null
+  failedBillingCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   billingHistory?: Prisma.BillingHistoryUncheckedCreateNestedManyWithoutSubscriptionInput
@@ -455,8 +529,13 @@ export type SubscriptionUpdateInput = {
   cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   discountedPriceKobo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  setupFeePaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  setupFeePaidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paystackCustomerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubscriptionCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextBillingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastBillingAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedBillingCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   school?: Prisma.SchoolUpdateOneRequiredWithoutSubscriptionsNestedInput
@@ -478,8 +557,13 @@ export type SubscriptionUncheckedUpdateInput = {
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   couponId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountedPriceKobo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  setupFeePaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  setupFeePaidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paystackCustomerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubscriptionCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextBillingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastBillingAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedBillingCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   billingHistory?: Prisma.BillingHistoryUncheckedUpdateManyWithoutSubscriptionNestedInput
@@ -498,8 +582,13 @@ export type SubscriptionCreateManyInput = {
   cancelledAt?: Date | string | null
   couponId?: string | null
   discountedPriceKobo?: number | null
+  setupFeePaid?: boolean
+  setupFeePaidAt?: Date | string | null
   paystackCustomerCode?: string | null
   paystackSubscriptionCode?: string | null
+  nextBillingDate?: Date | string | null
+  lastBillingAttemptAt?: Date | string | null
+  failedBillingCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -514,8 +603,13 @@ export type SubscriptionUpdateManyMutationInput = {
   cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   discountedPriceKobo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  setupFeePaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  setupFeePaidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paystackCustomerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubscriptionCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextBillingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastBillingAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedBillingCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -533,8 +627,13 @@ export type SubscriptionUncheckedUpdateManyInput = {
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   couponId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountedPriceKobo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  setupFeePaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  setupFeePaidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paystackCustomerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubscriptionCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextBillingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastBillingAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedBillingCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -562,14 +661,20 @@ export type SubscriptionCountOrderByAggregateInput = {
   cancelledAt?: Prisma.SortOrder
   couponId?: Prisma.SortOrder
   discountedPriceKobo?: Prisma.SortOrder
+  setupFeePaid?: Prisma.SortOrder
+  setupFeePaidAt?: Prisma.SortOrder
   paystackCustomerCode?: Prisma.SortOrder
   paystackSubscriptionCode?: Prisma.SortOrder
+  nextBillingDate?: Prisma.SortOrder
+  lastBillingAttemptAt?: Prisma.SortOrder
+  failedBillingCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type SubscriptionAvgOrderByAggregateInput = {
   discountedPriceKobo?: Prisma.SortOrder
+  failedBillingCount?: Prisma.SortOrder
 }
 
 export type SubscriptionMaxOrderByAggregateInput = {
@@ -585,8 +690,13 @@ export type SubscriptionMaxOrderByAggregateInput = {
   cancelledAt?: Prisma.SortOrder
   couponId?: Prisma.SortOrder
   discountedPriceKobo?: Prisma.SortOrder
+  setupFeePaid?: Prisma.SortOrder
+  setupFeePaidAt?: Prisma.SortOrder
   paystackCustomerCode?: Prisma.SortOrder
   paystackSubscriptionCode?: Prisma.SortOrder
+  nextBillingDate?: Prisma.SortOrder
+  lastBillingAttemptAt?: Prisma.SortOrder
+  failedBillingCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -604,14 +714,20 @@ export type SubscriptionMinOrderByAggregateInput = {
   cancelledAt?: Prisma.SortOrder
   couponId?: Prisma.SortOrder
   discountedPriceKobo?: Prisma.SortOrder
+  setupFeePaid?: Prisma.SortOrder
+  setupFeePaidAt?: Prisma.SortOrder
   paystackCustomerCode?: Prisma.SortOrder
   paystackSubscriptionCode?: Prisma.SortOrder
+  nextBillingDate?: Prisma.SortOrder
+  lastBillingAttemptAt?: Prisma.SortOrder
+  failedBillingCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type SubscriptionSumOrderByAggregateInput = {
   discountedPriceKobo?: Prisma.SortOrder
+  failedBillingCount?: Prisma.SortOrder
 }
 
 export type SubscriptionScalarRelationFilter = {
@@ -785,8 +901,13 @@ export type SubscriptionCreateWithoutSchoolInput = {
   cancelAtPeriodEnd?: boolean
   cancelledAt?: Date | string | null
   discountedPriceKobo?: number | null
+  setupFeePaid?: boolean
+  setupFeePaidAt?: Date | string | null
   paystackCustomerCode?: string | null
   paystackSubscriptionCode?: string | null
+  nextBillingDate?: Date | string | null
+  lastBillingAttemptAt?: Date | string | null
+  failedBillingCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   plan: Prisma.PlanCreateNestedOneWithoutSubscriptionsInput
@@ -806,8 +927,13 @@ export type SubscriptionUncheckedCreateWithoutSchoolInput = {
   cancelledAt?: Date | string | null
   couponId?: string | null
   discountedPriceKobo?: number | null
+  setupFeePaid?: boolean
+  setupFeePaidAt?: Date | string | null
   paystackCustomerCode?: string | null
   paystackSubscriptionCode?: string | null
+  nextBillingDate?: Date | string | null
+  lastBillingAttemptAt?: Date | string | null
+  failedBillingCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   billingHistory?: Prisma.BillingHistoryUncheckedCreateNestedManyWithoutSubscriptionInput
@@ -855,8 +981,13 @@ export type SubscriptionScalarWhereInput = {
   cancelledAt?: Prisma.DateTimeNullableFilter<"Subscription"> | Date | string | null
   couponId?: Prisma.StringNullableFilter<"Subscription"> | string | null
   discountedPriceKobo?: Prisma.IntNullableFilter<"Subscription"> | number | null
+  setupFeePaid?: Prisma.BoolFilter<"Subscription"> | boolean
+  setupFeePaidAt?: Prisma.DateTimeNullableFilter<"Subscription"> | Date | string | null
   paystackCustomerCode?: Prisma.StringNullableFilter<"Subscription"> | string | null
   paystackSubscriptionCode?: Prisma.StringNullableFilter<"Subscription"> | string | null
+  nextBillingDate?: Prisma.DateTimeNullableFilter<"Subscription"> | Date | string | null
+  lastBillingAttemptAt?: Prisma.DateTimeNullableFilter<"Subscription"> | Date | string | null
+  failedBillingCount?: Prisma.IntFilter<"Subscription"> | number
   createdAt?: Prisma.DateTimeFilter<"Subscription"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Subscription"> | Date | string
 }
@@ -871,8 +1002,13 @@ export type SubscriptionCreateWithoutPlanInput = {
   cancelAtPeriodEnd?: boolean
   cancelledAt?: Date | string | null
   discountedPriceKobo?: number | null
+  setupFeePaid?: boolean
+  setupFeePaidAt?: Date | string | null
   paystackCustomerCode?: string | null
   paystackSubscriptionCode?: string | null
+  nextBillingDate?: Date | string | null
+  lastBillingAttemptAt?: Date | string | null
+  failedBillingCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   school: Prisma.SchoolCreateNestedOneWithoutSubscriptionsInput
@@ -892,8 +1028,13 @@ export type SubscriptionUncheckedCreateWithoutPlanInput = {
   cancelledAt?: Date | string | null
   couponId?: string | null
   discountedPriceKobo?: number | null
+  setupFeePaid?: boolean
+  setupFeePaidAt?: Date | string | null
   paystackCustomerCode?: string | null
   paystackSubscriptionCode?: string | null
+  nextBillingDate?: Date | string | null
+  lastBillingAttemptAt?: Date | string | null
+  failedBillingCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   billingHistory?: Prisma.BillingHistoryUncheckedCreateNestedManyWithoutSubscriptionInput
@@ -935,8 +1076,13 @@ export type SubscriptionCreateWithoutCouponInput = {
   cancelAtPeriodEnd?: boolean
   cancelledAt?: Date | string | null
   discountedPriceKobo?: number | null
+  setupFeePaid?: boolean
+  setupFeePaidAt?: Date | string | null
   paystackCustomerCode?: string | null
   paystackSubscriptionCode?: string | null
+  nextBillingDate?: Date | string | null
+  lastBillingAttemptAt?: Date | string | null
+  failedBillingCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   school: Prisma.SchoolCreateNestedOneWithoutSubscriptionsInput
@@ -956,8 +1102,13 @@ export type SubscriptionUncheckedCreateWithoutCouponInput = {
   cancelAtPeriodEnd?: boolean
   cancelledAt?: Date | string | null
   discountedPriceKobo?: number | null
+  setupFeePaid?: boolean
+  setupFeePaidAt?: Date | string | null
   paystackCustomerCode?: string | null
   paystackSubscriptionCode?: string | null
+  nextBillingDate?: Date | string | null
+  lastBillingAttemptAt?: Date | string | null
+  failedBillingCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   billingHistory?: Prisma.BillingHistoryUncheckedCreateNestedManyWithoutSubscriptionInput
@@ -999,8 +1150,13 @@ export type SubscriptionCreateWithoutBillingHistoryInput = {
   cancelAtPeriodEnd?: boolean
   cancelledAt?: Date | string | null
   discountedPriceKobo?: number | null
+  setupFeePaid?: boolean
+  setupFeePaidAt?: Date | string | null
   paystackCustomerCode?: string | null
   paystackSubscriptionCode?: string | null
+  nextBillingDate?: Date | string | null
+  lastBillingAttemptAt?: Date | string | null
+  failedBillingCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   school: Prisma.SchoolCreateNestedOneWithoutSubscriptionsInput
@@ -1021,8 +1177,13 @@ export type SubscriptionUncheckedCreateWithoutBillingHistoryInput = {
   cancelledAt?: Date | string | null
   couponId?: string | null
   discountedPriceKobo?: number | null
+  setupFeePaid?: boolean
+  setupFeePaidAt?: Date | string | null
   paystackCustomerCode?: string | null
   paystackSubscriptionCode?: string | null
+  nextBillingDate?: Date | string | null
+  lastBillingAttemptAt?: Date | string | null
+  failedBillingCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1053,8 +1214,13 @@ export type SubscriptionUpdateWithoutBillingHistoryInput = {
   cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   discountedPriceKobo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  setupFeePaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  setupFeePaidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paystackCustomerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubscriptionCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextBillingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastBillingAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedBillingCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   school?: Prisma.SchoolUpdateOneRequiredWithoutSubscriptionsNestedInput
@@ -1075,8 +1241,13 @@ export type SubscriptionUncheckedUpdateWithoutBillingHistoryInput = {
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   couponId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountedPriceKobo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  setupFeePaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  setupFeePaidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paystackCustomerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubscriptionCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextBillingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastBillingAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedBillingCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1093,8 +1264,13 @@ export type SubscriptionCreateManySchoolInput = {
   cancelledAt?: Date | string | null
   couponId?: string | null
   discountedPriceKobo?: number | null
+  setupFeePaid?: boolean
+  setupFeePaidAt?: Date | string | null
   paystackCustomerCode?: string | null
   paystackSubscriptionCode?: string | null
+  nextBillingDate?: Date | string | null
+  lastBillingAttemptAt?: Date | string | null
+  failedBillingCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1109,8 +1285,13 @@ export type SubscriptionUpdateWithoutSchoolInput = {
   cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   discountedPriceKobo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  setupFeePaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  setupFeePaidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paystackCustomerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubscriptionCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextBillingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastBillingAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedBillingCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plan?: Prisma.PlanUpdateOneRequiredWithoutSubscriptionsNestedInput
@@ -1130,8 +1311,13 @@ export type SubscriptionUncheckedUpdateWithoutSchoolInput = {
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   couponId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountedPriceKobo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  setupFeePaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  setupFeePaidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paystackCustomerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubscriptionCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextBillingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastBillingAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedBillingCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   billingHistory?: Prisma.BillingHistoryUncheckedUpdateManyWithoutSubscriptionNestedInput
@@ -1149,8 +1335,13 @@ export type SubscriptionUncheckedUpdateManyWithoutSchoolInput = {
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   couponId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountedPriceKobo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  setupFeePaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  setupFeePaidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paystackCustomerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubscriptionCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextBillingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastBillingAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedBillingCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1167,8 +1358,13 @@ export type SubscriptionCreateManyPlanInput = {
   cancelledAt?: Date | string | null
   couponId?: string | null
   discountedPriceKobo?: number | null
+  setupFeePaid?: boolean
+  setupFeePaidAt?: Date | string | null
   paystackCustomerCode?: string | null
   paystackSubscriptionCode?: string | null
+  nextBillingDate?: Date | string | null
+  lastBillingAttemptAt?: Date | string | null
+  failedBillingCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1183,8 +1379,13 @@ export type SubscriptionUpdateWithoutPlanInput = {
   cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   discountedPriceKobo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  setupFeePaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  setupFeePaidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paystackCustomerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubscriptionCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextBillingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastBillingAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedBillingCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   school?: Prisma.SchoolUpdateOneRequiredWithoutSubscriptionsNestedInput
@@ -1204,8 +1405,13 @@ export type SubscriptionUncheckedUpdateWithoutPlanInput = {
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   couponId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountedPriceKobo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  setupFeePaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  setupFeePaidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paystackCustomerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubscriptionCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextBillingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastBillingAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedBillingCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   billingHistory?: Prisma.BillingHistoryUncheckedUpdateManyWithoutSubscriptionNestedInput
@@ -1223,8 +1429,13 @@ export type SubscriptionUncheckedUpdateManyWithoutPlanInput = {
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   couponId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountedPriceKobo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  setupFeePaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  setupFeePaidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paystackCustomerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubscriptionCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextBillingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastBillingAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedBillingCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1241,8 +1452,13 @@ export type SubscriptionCreateManyCouponInput = {
   cancelAtPeriodEnd?: boolean
   cancelledAt?: Date | string | null
   discountedPriceKobo?: number | null
+  setupFeePaid?: boolean
+  setupFeePaidAt?: Date | string | null
   paystackCustomerCode?: string | null
   paystackSubscriptionCode?: string | null
+  nextBillingDate?: Date | string | null
+  lastBillingAttemptAt?: Date | string | null
+  failedBillingCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1257,8 +1473,13 @@ export type SubscriptionUpdateWithoutCouponInput = {
   cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   discountedPriceKobo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  setupFeePaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  setupFeePaidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paystackCustomerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubscriptionCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextBillingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastBillingAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedBillingCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   school?: Prisma.SchoolUpdateOneRequiredWithoutSubscriptionsNestedInput
@@ -1278,8 +1499,13 @@ export type SubscriptionUncheckedUpdateWithoutCouponInput = {
   cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   discountedPriceKobo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  setupFeePaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  setupFeePaidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paystackCustomerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubscriptionCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextBillingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastBillingAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedBillingCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   billingHistory?: Prisma.BillingHistoryUncheckedUpdateManyWithoutSubscriptionNestedInput
@@ -1297,8 +1523,13 @@ export type SubscriptionUncheckedUpdateManyWithoutCouponInput = {
   cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   discountedPriceKobo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  setupFeePaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  setupFeePaidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paystackCustomerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubscriptionCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextBillingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastBillingAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedBillingCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1347,8 +1578,13 @@ export type SubscriptionSelect<ExtArgs extends runtime.Types.Extensions.Internal
   cancelledAt?: boolean
   couponId?: boolean
   discountedPriceKobo?: boolean
+  setupFeePaid?: boolean
+  setupFeePaidAt?: boolean
   paystackCustomerCode?: boolean
   paystackSubscriptionCode?: boolean
+  nextBillingDate?: boolean
+  lastBillingAttemptAt?: boolean
+  failedBillingCount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   school?: boolean | Prisma.SchoolDefaultArgs<ExtArgs>
@@ -1371,8 +1607,13 @@ export type SubscriptionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   cancelledAt?: boolean
   couponId?: boolean
   discountedPriceKobo?: boolean
+  setupFeePaid?: boolean
+  setupFeePaidAt?: boolean
   paystackCustomerCode?: boolean
   paystackSubscriptionCode?: boolean
+  nextBillingDate?: boolean
+  lastBillingAttemptAt?: boolean
+  failedBillingCount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   school?: boolean | Prisma.SchoolDefaultArgs<ExtArgs>
@@ -1393,8 +1634,13 @@ export type SubscriptionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   cancelledAt?: boolean
   couponId?: boolean
   discountedPriceKobo?: boolean
+  setupFeePaid?: boolean
+  setupFeePaidAt?: boolean
   paystackCustomerCode?: boolean
   paystackSubscriptionCode?: boolean
+  nextBillingDate?: boolean
+  lastBillingAttemptAt?: boolean
+  failedBillingCount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   school?: boolean | Prisma.SchoolDefaultArgs<ExtArgs>
@@ -1415,13 +1661,18 @@ export type SubscriptionSelectScalar = {
   cancelledAt?: boolean
   couponId?: boolean
   discountedPriceKobo?: boolean
+  setupFeePaid?: boolean
+  setupFeePaidAt?: boolean
   paystackCustomerCode?: boolean
   paystackSubscriptionCode?: boolean
+  nextBillingDate?: boolean
+  lastBillingAttemptAt?: boolean
+  failedBillingCount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type SubscriptionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "schoolId" | "planId" | "status" | "billingCycle" | "currentPeriodStart" | "currentPeriodEnd" | "trialEndsAt" | "cancelAtPeriodEnd" | "cancelledAt" | "couponId" | "discountedPriceKobo" | "paystackCustomerCode" | "paystackSubscriptionCode" | "createdAt" | "updatedAt", ExtArgs["result"]["subscription"]>
+export type SubscriptionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "schoolId" | "planId" | "status" | "billingCycle" | "currentPeriodStart" | "currentPeriodEnd" | "trialEndsAt" | "cancelAtPeriodEnd" | "cancelledAt" | "couponId" | "discountedPriceKobo" | "setupFeePaid" | "setupFeePaidAt" | "paystackCustomerCode" | "paystackSubscriptionCode" | "nextBillingDate" | "lastBillingAttemptAt" | "failedBillingCount" | "createdAt" | "updatedAt", ExtArgs["result"]["subscription"]>
 export type SubscriptionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   school?: boolean | Prisma.SchoolDefaultArgs<ExtArgs>
   plan?: boolean | Prisma.PlanDefaultArgs<ExtArgs>
@@ -1461,8 +1712,13 @@ export type $SubscriptionPayload<ExtArgs extends runtime.Types.Extensions.Intern
     cancelledAt: Date | null
     couponId: string | null
     discountedPriceKobo: number | null
+    setupFeePaid: boolean
+    setupFeePaidAt: Date | null
     paystackCustomerCode: string | null
     paystackSubscriptionCode: string | null
+    nextBillingDate: Date | null
+    lastBillingAttemptAt: Date | null
+    failedBillingCount: number
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["subscription"]>
@@ -1904,8 +2160,13 @@ export interface SubscriptionFieldRefs {
   readonly cancelledAt: Prisma.FieldRef<"Subscription", 'DateTime'>
   readonly couponId: Prisma.FieldRef<"Subscription", 'String'>
   readonly discountedPriceKobo: Prisma.FieldRef<"Subscription", 'Int'>
+  readonly setupFeePaid: Prisma.FieldRef<"Subscription", 'Boolean'>
+  readonly setupFeePaidAt: Prisma.FieldRef<"Subscription", 'DateTime'>
   readonly paystackCustomerCode: Prisma.FieldRef<"Subscription", 'String'>
   readonly paystackSubscriptionCode: Prisma.FieldRef<"Subscription", 'String'>
+  readonly nextBillingDate: Prisma.FieldRef<"Subscription", 'DateTime'>
+  readonly lastBillingAttemptAt: Prisma.FieldRef<"Subscription", 'DateTime'>
+  readonly failedBillingCount: Prisma.FieldRef<"Subscription", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Subscription", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Subscription", 'DateTime'>
 }

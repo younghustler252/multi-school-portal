@@ -34,6 +34,8 @@ model School {
   suspensionReason       String?
   isActive               Boolean            @default(false)
 
+  schemaName  String?  @unique 
+
   // Paystack subaccount for fee collection
   paystackSubaccountCode  String?
   paystackSubaccountId    String?
@@ -237,77 +239,59 @@ enum OtpType {
 // =====================
 // BILLING / SUBSCRIPTION MODULE
 // =====================
-
 model Plan {
-  id                String   @id @default(uuid())
-
-  // plan identity
-  name              String   @unique
-  description       String?
+  id               String   @id @default(uuid())
+  name             String   @unique
+  description      String?
 
   // limits (-1 = unlimited)
-  studentLimit      Int
-  staffLimit        Int
+  studentLimit     Int
+  staffLimit       Int
+  features         Json     @default("{}")
 
-  // features
-  smsNotifications  Boolean  @default(false)
-  reportCardPdf     Boolean  @default(false)
-  paymentCollection Boolean  @default(false)
-  customGrading     Boolean  @default(false)
-  multipleBranches  Boolean  @default(false)
-  prioritySupport   Boolean  @default(false)
+  monthlyPriceKobo Int      @default(0)
+  yearlyPriceKobo  Int      @default(0)
+  setupFeeKobo     Int      @default(0)
 
-  // pricing (kobo)
-  monthlyPriceKobo  Int      @default(0)
-  yearlyPriceKobo   Int      @default(0)
+  // flags
+  isPublic         Boolean  @default(true)
+  isActive         Boolean  @default(true)
+  isCustom         Boolean  @default(false)  // enterprise custom plans
 
-  // control flags
-  isPublic          Boolean  @default(true)
-  isActive          Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  subscriptions     Subscription[]
+  subscriptions    Subscription[]
 }
-
 // =====================
 // SUBSCRIPTION (core billing engine)
 // =====================
-
 model Subscription {
-  id                    String             @id @default(uuid())
-
-  schoolId              String
-  planId                String
-
-  status                SubscriptionStatus @default(trialing)
-  billingCycle          BillingCycle       @default(monthly)
-
-  currentPeriodStart    DateTime
-  currentPeriodEnd      DateTime
-
-  trialEndsAt           DateTime?
-
-  cancelAtPeriodEnd     Boolean            @default(false)
-  cancelledAt           DateTime?
-
-  // discount system
-  couponId              String?
-  discountedPriceKobo   Int?
-
-  // payment provider (Paystack)
-  paystackCustomerCode        String?
-  paystackSubscriptionCode    String?
-
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
-
-  school                School   @relation(fields: [schoolId], references: [id])
-  plan                  Plan     @relation(fields: [planId], references: [id])
-  coupon                Coupon?  @relation(fields: [couponId], references: [id])
-
-  billingHistory       BillingHistory[]
+  id                       String             @id @default(uuid())
+  schoolId                 String
+  planId                   String
+  status                   SubscriptionStatus @default(active)
+  billingCycle             BillingCycle       @default(monthly)
+  currentPeriodStart       DateTime
+  currentPeriodEnd         DateTime
+  trialEndsAt              DateTime?
+  cancelAtPeriodEnd        Boolean            @default(false)
+  cancelledAt              DateTime?
+  couponId                 String?
+  discountedPriceKobo      Int?
+  setupFeePaid             Boolean            @default(false)
+  setupFeePaidAt           DateTime?
+  paystackCustomerCode     String?
+  paystackSubscriptionCode String?
+  nextBillingDate          DateTime?
+  lastBillingAttemptAt     DateTime?
+  failedBillingCount       Int                @default(0)
+  createdAt                DateTime           @default(now())
+  updatedAt                DateTime           @updatedAt
+  school                   School             @relation(fields: [schoolId], references: [id])
+  plan                     Plan               @relation(fields: [planId], references: [id])
+  coupon                   Coupon?            @relation(fields: [couponId], references: [id])
+  billingHistory           BillingHistory[]
 }
 
 // =====================
@@ -507,7 +491,7 @@ model Staff {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   classSubjects ClassSubject[]
-  notifications  SchoolNotificationRecipient[]
+  // notifications  SchoolNotificationRecipient[]
 }
 
 enum StaffRole {
@@ -548,7 +532,7 @@ model Student {
   grades          Grade[]
   feeInvoices     FeeInvoice[]
   reportCards     ReportCard[]
-  notifications  SchoolNotificationRecipient[]
+  // notifications  SchoolNotificationRecipient[]
 }
 
 model Guardian {
@@ -565,7 +549,7 @@ model Guardian {
   updatedAt   DateTime  @updatedAt
   studentLinks StudentGuardian[]
   payments    Payment[]
-  notifications  SchoolNotificationRecipient[]
+  // notifications  SchoolNotificationRecipient[]
 
 }
 
@@ -844,49 +828,48 @@ enum PaymentStatus {
 }
 
 model SchoolNotification {
-  id           String                        @id @default(uuid())
-  title        String
-  message      String
-  type         SchoolNotificationType
-  targetType   TargetType               
-  sentById     String                   
-  metadata     Json?
-  sentAt       DateTime?
-  createdAt    DateTime                      @default(now())
-  updatedAt    DateTime                      @updatedAt
+    id         String                       @id @default(uuid())
+    title      String
+    message    String
+    type       SchoolNotificationType
+    targetType TargetType
+    sentById   String
+    metadata   Json?
+    sentAt     DateTime?
+    createdAt  DateTime                     @default(now())
+    updatedAt  DateTime                     @updatedAt
+    recipients SchoolNotificationRecipient[]
 
-  recipients   SchoolNotificationRecipient[]
-
-  @@index([type])
-  @@index([createdAt(sort: Desc)])
+    @@index([type])
+    @@index([createdAt(sort: Desc)])
 }
 
 model SchoolNotificationRecipient {
-  id             String               @id @default(uuid())
-  notificationId String
-  // one of these will be set depending on recipient type
-  studentId      String?
-  guardianId     String?
-  staffId        String?
-  channel        NotificationChannel
-  status         DeliveryStatus       @default(PENDING)
-  priority       NotificationPriority @default(NORMAL)
-  retryCount     Int                  @default(0)
-  failedReason   String?
-  providerMsgId  String?
-  readAt         DateTime?
-  deliveredAt    DateTime?
-  createdAt      DateTime             @default(now())
-  updatedAt      DateTime             @updatedAt
+    id             String               @id @default(uuid())
+    notificationId String
+    studentId      String?
+    guardianId     String?
+    staffId        String?
+    channel        NotificationChannel
+    status         DeliveryStatus       @default(PENDING)
+    priority       NotificationPriority @default(NORMAL)
+    retryCount     Int                  @default(0)
+    failedReason   String?
+    providerMsgId  String?
+    readAt         DateTime?
+    deliveredAt    DateTime?
+    createdAt      DateTime             @default(now())
+    updatedAt      DateTime             @updatedAt
 
-  notification   SchoolNotification   @relation(fields: [notificationId], references: [id], onDelete: Cascade)
-  student        Student?             @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  guardian       Guardian?            @relation(fields: [guardianId], references: [id], onDelete: Cascade)
-  staff          Staff?               @relation(fields: [staffId], references: [id], onDelete: Cascade)
+    notification   SchoolNotification   @relation(fields: [notificationId], references: [id], onDelete: Cascade)
 
-  @@unique([notificationId, channel, studentId, guardianId, staffId])
-  @@index([status])
-  @@index([status, priority, createdAt])
+    // No relations to Student, Guardian, Staff
+    // These are resolved in application code using the tenant Prisma client
+    // Cross-schema foreign keys are not supported in PostgreSQL
+
+    @@unique([notificationId, channel, studentId, guardianId, staffId])
+    @@index([status])
+    @@index([status, priority, createdAt])
 }
 
 enum SchoolNotificationType {

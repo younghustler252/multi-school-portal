@@ -1,0 +1,80 @@
+import { Router }           from "express";
+import { container }        from "../../../container";
+import { AuthController }   from "../controllers/auth.controller";
+import { validate }         from "../../../infrastructure/middleware/validate.middleware";
+import { authenticate }     from "../../../infrastructure/middleware/auth.middleware";
+import { LoginDto }         from "../dtos/login.dto";
+import {
+    VerifyEmailDto,
+    ResendOtpDto,
+}                           from "../dtos/otp.dto";
+import {
+    ForgotPasswordDto,
+    ResetPasswordDto,
+}                           from "../dtos/password.dto";
+
+import { RegisterDto } from "../dtos/register.dto";
+
+/*
+|--------------------------------------------------------------------------
+| AUTH ROUTES
+|--------------------------------------------------------------------------
+*/
+
+const router = Router();
+
+// ── Lazy resolve controller ───────────────────────────────────────────────
+// Resolved on first request, not at import time
+// This ensures container is fully built before resolution
+const ctrl = () => container.resolve<AuthController>("authController");
+
+// ── Public routes ─────────────────────────────────────────────────────────
+router.post(
+    "/register",
+    validate(RegisterDto),
+    (req, res, next) => ctrl().register(req, res, next),
+);
+
+router.post(
+    "/verify-email",
+    validate(VerifyEmailDto),
+    (req, res, next) => ctrl().verifyEmail(req, res, next),
+);
+
+router.post(
+    "/login",
+    validate(LoginDto),
+    (req, res, next) => ctrl().login(req, res, next),
+);
+
+router.post(
+    "/refresh",
+    (req, res, next) => ctrl().refreshToken(req, res, next),
+);
+
+router.post(
+    "/forgot-password",
+    validate(ForgotPasswordDto),
+    (req, res, next) => ctrl().forgotPassword(req, res, next),
+);
+
+router.post(
+    "/reset-password",
+    validate(ResetPasswordDto),
+    (req, res, next) => ctrl().resetPassword(req, res, next),
+);
+
+router.post(
+    "/resend-otp",
+    validate(ResendOtpDto),
+    (req, res, next) => ctrl().resendOtp(req, res, next),
+);
+
+// ── Protected routes ──────────────────────────────────────────────────────
+router.post(
+    "/logout",
+    authenticate,
+    (req, res, next) => ctrl().logout(req, res, next),
+);
+
+export default router;

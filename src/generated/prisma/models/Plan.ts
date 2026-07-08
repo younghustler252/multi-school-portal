@@ -31,6 +31,7 @@ export type PlanAvgAggregateOutputType = {
   staffLimit: number | null
   monthlyPriceKobo: number | null
   yearlyPriceKobo: number | null
+  setupFeeKobo: number | null
 }
 
 export type PlanSumAggregateOutputType = {
@@ -38,6 +39,7 @@ export type PlanSumAggregateOutputType = {
   staffLimit: number | null
   monthlyPriceKobo: number | null
   yearlyPriceKobo: number | null
+  setupFeeKobo: number | null
 }
 
 export type PlanMinAggregateOutputType = {
@@ -46,16 +48,12 @@ export type PlanMinAggregateOutputType = {
   description: string | null
   studentLimit: number | null
   staffLimit: number | null
-  smsNotifications: boolean | null
-  reportCardPdf: boolean | null
-  paymentCollection: boolean | null
-  customGrading: boolean | null
-  multipleBranches: boolean | null
-  prioritySupport: boolean | null
   monthlyPriceKobo: number | null
   yearlyPriceKobo: number | null
+  setupFeeKobo: number | null
   isPublic: boolean | null
   isActive: boolean | null
+  isCustom: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -66,16 +64,12 @@ export type PlanMaxAggregateOutputType = {
   description: string | null
   studentLimit: number | null
   staffLimit: number | null
-  smsNotifications: boolean | null
-  reportCardPdf: boolean | null
-  paymentCollection: boolean | null
-  customGrading: boolean | null
-  multipleBranches: boolean | null
-  prioritySupport: boolean | null
   monthlyPriceKobo: number | null
   yearlyPriceKobo: number | null
+  setupFeeKobo: number | null
   isPublic: boolean | null
   isActive: boolean | null
+  isCustom: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -86,16 +80,13 @@ export type PlanCountAggregateOutputType = {
   description: number
   studentLimit: number
   staffLimit: number
-  smsNotifications: number
-  reportCardPdf: number
-  paymentCollection: number
-  customGrading: number
-  multipleBranches: number
-  prioritySupport: number
+  features: number
   monthlyPriceKobo: number
   yearlyPriceKobo: number
+  setupFeeKobo: number
   isPublic: number
   isActive: number
+  isCustom: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -107,6 +98,7 @@ export type PlanAvgAggregateInputType = {
   staffLimit?: true
   monthlyPriceKobo?: true
   yearlyPriceKobo?: true
+  setupFeeKobo?: true
 }
 
 export type PlanSumAggregateInputType = {
@@ -114,6 +106,7 @@ export type PlanSumAggregateInputType = {
   staffLimit?: true
   monthlyPriceKobo?: true
   yearlyPriceKobo?: true
+  setupFeeKobo?: true
 }
 
 export type PlanMinAggregateInputType = {
@@ -122,16 +115,12 @@ export type PlanMinAggregateInputType = {
   description?: true
   studentLimit?: true
   staffLimit?: true
-  smsNotifications?: true
-  reportCardPdf?: true
-  paymentCollection?: true
-  customGrading?: true
-  multipleBranches?: true
-  prioritySupport?: true
   monthlyPriceKobo?: true
   yearlyPriceKobo?: true
+  setupFeeKobo?: true
   isPublic?: true
   isActive?: true
+  isCustom?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -142,16 +131,12 @@ export type PlanMaxAggregateInputType = {
   description?: true
   studentLimit?: true
   staffLimit?: true
-  smsNotifications?: true
-  reportCardPdf?: true
-  paymentCollection?: true
-  customGrading?: true
-  multipleBranches?: true
-  prioritySupport?: true
   monthlyPriceKobo?: true
   yearlyPriceKobo?: true
+  setupFeeKobo?: true
   isPublic?: true
   isActive?: true
+  isCustom?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -162,16 +147,13 @@ export type PlanCountAggregateInputType = {
   description?: true
   studentLimit?: true
   staffLimit?: true
-  smsNotifications?: true
-  reportCardPdf?: true
-  paymentCollection?: true
-  customGrading?: true
-  multipleBranches?: true
-  prioritySupport?: true
+  features?: true
   monthlyPriceKobo?: true
   yearlyPriceKobo?: true
+  setupFeeKobo?: true
   isPublic?: true
   isActive?: true
+  isCustom?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -269,16 +251,13 @@ export type PlanGroupByOutputType = {
   description: string | null
   studentLimit: number
   staffLimit: number
-  smsNotifications: boolean
-  reportCardPdf: boolean
-  paymentCollection: boolean
-  customGrading: boolean
-  multipleBranches: boolean
-  prioritySupport: boolean
+  features: runtime.JsonValue
   monthlyPriceKobo: number
   yearlyPriceKobo: number
+  setupFeeKobo: number
   isPublic: boolean
   isActive: boolean
+  isCustom: boolean
   createdAt: Date
   updatedAt: Date
   _count: PlanCountAggregateOutputType | null
@@ -312,16 +291,13 @@ export type PlanWhereInput = {
   description?: Prisma.StringNullableFilter<"Plan"> | string | null
   studentLimit?: Prisma.IntFilter<"Plan"> | number
   staffLimit?: Prisma.IntFilter<"Plan"> | number
-  smsNotifications?: Prisma.BoolFilter<"Plan"> | boolean
-  reportCardPdf?: Prisma.BoolFilter<"Plan"> | boolean
-  paymentCollection?: Prisma.BoolFilter<"Plan"> | boolean
-  customGrading?: Prisma.BoolFilter<"Plan"> | boolean
-  multipleBranches?: Prisma.BoolFilter<"Plan"> | boolean
-  prioritySupport?: Prisma.BoolFilter<"Plan"> | boolean
+  features?: Prisma.JsonFilter<"Plan">
   monthlyPriceKobo?: Prisma.IntFilter<"Plan"> | number
   yearlyPriceKobo?: Prisma.IntFilter<"Plan"> | number
+  setupFeeKobo?: Prisma.IntFilter<"Plan"> | number
   isPublic?: Prisma.BoolFilter<"Plan"> | boolean
   isActive?: Prisma.BoolFilter<"Plan"> | boolean
+  isCustom?: Prisma.BoolFilter<"Plan"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Plan"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Plan"> | Date | string
   subscriptions?: Prisma.SubscriptionListRelationFilter
@@ -333,16 +309,13 @@ export type PlanOrderByWithRelationInput = {
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   studentLimit?: Prisma.SortOrder
   staffLimit?: Prisma.SortOrder
-  smsNotifications?: Prisma.SortOrder
-  reportCardPdf?: Prisma.SortOrder
-  paymentCollection?: Prisma.SortOrder
-  customGrading?: Prisma.SortOrder
-  multipleBranches?: Prisma.SortOrder
-  prioritySupport?: Prisma.SortOrder
+  features?: Prisma.SortOrder
   monthlyPriceKobo?: Prisma.SortOrder
   yearlyPriceKobo?: Prisma.SortOrder
+  setupFeeKobo?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  isCustom?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   subscriptions?: Prisma.SubscriptionOrderByRelationAggregateInput
@@ -357,16 +330,13 @@ export type PlanWhereUniqueInput = Prisma.AtLeast<{
   description?: Prisma.StringNullableFilter<"Plan"> | string | null
   studentLimit?: Prisma.IntFilter<"Plan"> | number
   staffLimit?: Prisma.IntFilter<"Plan"> | number
-  smsNotifications?: Prisma.BoolFilter<"Plan"> | boolean
-  reportCardPdf?: Prisma.BoolFilter<"Plan"> | boolean
-  paymentCollection?: Prisma.BoolFilter<"Plan"> | boolean
-  customGrading?: Prisma.BoolFilter<"Plan"> | boolean
-  multipleBranches?: Prisma.BoolFilter<"Plan"> | boolean
-  prioritySupport?: Prisma.BoolFilter<"Plan"> | boolean
+  features?: Prisma.JsonFilter<"Plan">
   monthlyPriceKobo?: Prisma.IntFilter<"Plan"> | number
   yearlyPriceKobo?: Prisma.IntFilter<"Plan"> | number
+  setupFeeKobo?: Prisma.IntFilter<"Plan"> | number
   isPublic?: Prisma.BoolFilter<"Plan"> | boolean
   isActive?: Prisma.BoolFilter<"Plan"> | boolean
+  isCustom?: Prisma.BoolFilter<"Plan"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Plan"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Plan"> | Date | string
   subscriptions?: Prisma.SubscriptionListRelationFilter
@@ -378,16 +348,13 @@ export type PlanOrderByWithAggregationInput = {
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   studentLimit?: Prisma.SortOrder
   staffLimit?: Prisma.SortOrder
-  smsNotifications?: Prisma.SortOrder
-  reportCardPdf?: Prisma.SortOrder
-  paymentCollection?: Prisma.SortOrder
-  customGrading?: Prisma.SortOrder
-  multipleBranches?: Prisma.SortOrder
-  prioritySupport?: Prisma.SortOrder
+  features?: Prisma.SortOrder
   monthlyPriceKobo?: Prisma.SortOrder
   yearlyPriceKobo?: Prisma.SortOrder
+  setupFeeKobo?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  isCustom?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.PlanCountOrderByAggregateInput
@@ -406,16 +373,13 @@ export type PlanScalarWhereWithAggregatesInput = {
   description?: Prisma.StringNullableWithAggregatesFilter<"Plan"> | string | null
   studentLimit?: Prisma.IntWithAggregatesFilter<"Plan"> | number
   staffLimit?: Prisma.IntWithAggregatesFilter<"Plan"> | number
-  smsNotifications?: Prisma.BoolWithAggregatesFilter<"Plan"> | boolean
-  reportCardPdf?: Prisma.BoolWithAggregatesFilter<"Plan"> | boolean
-  paymentCollection?: Prisma.BoolWithAggregatesFilter<"Plan"> | boolean
-  customGrading?: Prisma.BoolWithAggregatesFilter<"Plan"> | boolean
-  multipleBranches?: Prisma.BoolWithAggregatesFilter<"Plan"> | boolean
-  prioritySupport?: Prisma.BoolWithAggregatesFilter<"Plan"> | boolean
+  features?: Prisma.JsonWithAggregatesFilter<"Plan">
   monthlyPriceKobo?: Prisma.IntWithAggregatesFilter<"Plan"> | number
   yearlyPriceKobo?: Prisma.IntWithAggregatesFilter<"Plan"> | number
+  setupFeeKobo?: Prisma.IntWithAggregatesFilter<"Plan"> | number
   isPublic?: Prisma.BoolWithAggregatesFilter<"Plan"> | boolean
   isActive?: Prisma.BoolWithAggregatesFilter<"Plan"> | boolean
+  isCustom?: Prisma.BoolWithAggregatesFilter<"Plan"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Plan"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Plan"> | Date | string
 }
@@ -426,16 +390,13 @@ export type PlanCreateInput = {
   description?: string | null
   studentLimit: number
   staffLimit: number
-  smsNotifications?: boolean
-  reportCardPdf?: boolean
-  paymentCollection?: boolean
-  customGrading?: boolean
-  multipleBranches?: boolean
-  prioritySupport?: boolean
+  features?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   monthlyPriceKobo?: number
   yearlyPriceKobo?: number
+  setupFeeKobo?: number
   isPublic?: boolean
   isActive?: boolean
+  isCustom?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutPlanInput
@@ -447,16 +408,13 @@ export type PlanUncheckedCreateInput = {
   description?: string | null
   studentLimit: number
   staffLimit: number
-  smsNotifications?: boolean
-  reportCardPdf?: boolean
-  paymentCollection?: boolean
-  customGrading?: boolean
-  multipleBranches?: boolean
-  prioritySupport?: boolean
+  features?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   monthlyPriceKobo?: number
   yearlyPriceKobo?: number
+  setupFeeKobo?: number
   isPublic?: boolean
   isActive?: boolean
+  isCustom?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutPlanInput
@@ -468,16 +426,13 @@ export type PlanUpdateInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   studentLimit?: Prisma.IntFieldUpdateOperationsInput | number
   staffLimit?: Prisma.IntFieldUpdateOperationsInput | number
-  smsNotifications?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  reportCardPdf?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  paymentCollection?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  customGrading?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  multipleBranches?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  prioritySupport?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  features?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   monthlyPriceKobo?: Prisma.IntFieldUpdateOperationsInput | number
   yearlyPriceKobo?: Prisma.IntFieldUpdateOperationsInput | number
+  setupFeeKobo?: Prisma.IntFieldUpdateOperationsInput | number
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isCustom?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscriptions?: Prisma.SubscriptionUpdateManyWithoutPlanNestedInput
@@ -489,16 +444,13 @@ export type PlanUncheckedUpdateInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   studentLimit?: Prisma.IntFieldUpdateOperationsInput | number
   staffLimit?: Prisma.IntFieldUpdateOperationsInput | number
-  smsNotifications?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  reportCardPdf?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  paymentCollection?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  customGrading?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  multipleBranches?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  prioritySupport?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  features?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   monthlyPriceKobo?: Prisma.IntFieldUpdateOperationsInput | number
   yearlyPriceKobo?: Prisma.IntFieldUpdateOperationsInput | number
+  setupFeeKobo?: Prisma.IntFieldUpdateOperationsInput | number
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isCustom?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutPlanNestedInput
@@ -510,16 +462,13 @@ export type PlanCreateManyInput = {
   description?: string | null
   studentLimit: number
   staffLimit: number
-  smsNotifications?: boolean
-  reportCardPdf?: boolean
-  paymentCollection?: boolean
-  customGrading?: boolean
-  multipleBranches?: boolean
-  prioritySupport?: boolean
+  features?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   monthlyPriceKobo?: number
   yearlyPriceKobo?: number
+  setupFeeKobo?: number
   isPublic?: boolean
   isActive?: boolean
+  isCustom?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -530,16 +479,13 @@ export type PlanUpdateManyMutationInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   studentLimit?: Prisma.IntFieldUpdateOperationsInput | number
   staffLimit?: Prisma.IntFieldUpdateOperationsInput | number
-  smsNotifications?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  reportCardPdf?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  paymentCollection?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  customGrading?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  multipleBranches?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  prioritySupport?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  features?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   monthlyPriceKobo?: Prisma.IntFieldUpdateOperationsInput | number
   yearlyPriceKobo?: Prisma.IntFieldUpdateOperationsInput | number
+  setupFeeKobo?: Prisma.IntFieldUpdateOperationsInput | number
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isCustom?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -550,16 +496,13 @@ export type PlanUncheckedUpdateManyInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   studentLimit?: Prisma.IntFieldUpdateOperationsInput | number
   staffLimit?: Prisma.IntFieldUpdateOperationsInput | number
-  smsNotifications?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  reportCardPdf?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  paymentCollection?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  customGrading?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  multipleBranches?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  prioritySupport?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  features?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   monthlyPriceKobo?: Prisma.IntFieldUpdateOperationsInput | number
   yearlyPriceKobo?: Prisma.IntFieldUpdateOperationsInput | number
+  setupFeeKobo?: Prisma.IntFieldUpdateOperationsInput | number
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isCustom?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -570,16 +513,13 @@ export type PlanCountOrderByAggregateInput = {
   description?: Prisma.SortOrder
   studentLimit?: Prisma.SortOrder
   staffLimit?: Prisma.SortOrder
-  smsNotifications?: Prisma.SortOrder
-  reportCardPdf?: Prisma.SortOrder
-  paymentCollection?: Prisma.SortOrder
-  customGrading?: Prisma.SortOrder
-  multipleBranches?: Prisma.SortOrder
-  prioritySupport?: Prisma.SortOrder
+  features?: Prisma.SortOrder
   monthlyPriceKobo?: Prisma.SortOrder
   yearlyPriceKobo?: Prisma.SortOrder
+  setupFeeKobo?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  isCustom?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -589,6 +529,7 @@ export type PlanAvgOrderByAggregateInput = {
   staffLimit?: Prisma.SortOrder
   monthlyPriceKobo?: Prisma.SortOrder
   yearlyPriceKobo?: Prisma.SortOrder
+  setupFeeKobo?: Prisma.SortOrder
 }
 
 export type PlanMaxOrderByAggregateInput = {
@@ -597,16 +538,12 @@ export type PlanMaxOrderByAggregateInput = {
   description?: Prisma.SortOrder
   studentLimit?: Prisma.SortOrder
   staffLimit?: Prisma.SortOrder
-  smsNotifications?: Prisma.SortOrder
-  reportCardPdf?: Prisma.SortOrder
-  paymentCollection?: Prisma.SortOrder
-  customGrading?: Prisma.SortOrder
-  multipleBranches?: Prisma.SortOrder
-  prioritySupport?: Prisma.SortOrder
   monthlyPriceKobo?: Prisma.SortOrder
   yearlyPriceKobo?: Prisma.SortOrder
+  setupFeeKobo?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  isCustom?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -617,16 +554,12 @@ export type PlanMinOrderByAggregateInput = {
   description?: Prisma.SortOrder
   studentLimit?: Prisma.SortOrder
   staffLimit?: Prisma.SortOrder
-  smsNotifications?: Prisma.SortOrder
-  reportCardPdf?: Prisma.SortOrder
-  paymentCollection?: Prisma.SortOrder
-  customGrading?: Prisma.SortOrder
-  multipleBranches?: Prisma.SortOrder
-  prioritySupport?: Prisma.SortOrder
   monthlyPriceKobo?: Prisma.SortOrder
   yearlyPriceKobo?: Prisma.SortOrder
+  setupFeeKobo?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  isCustom?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -636,6 +569,7 @@ export type PlanSumOrderByAggregateInput = {
   staffLimit?: Prisma.SortOrder
   monthlyPriceKobo?: Prisma.SortOrder
   yearlyPriceKobo?: Prisma.SortOrder
+  setupFeeKobo?: Prisma.SortOrder
 }
 
 export type PlanScalarRelationFilter = {
@@ -663,16 +597,13 @@ export type PlanCreateWithoutSubscriptionsInput = {
   description?: string | null
   studentLimit: number
   staffLimit: number
-  smsNotifications?: boolean
-  reportCardPdf?: boolean
-  paymentCollection?: boolean
-  customGrading?: boolean
-  multipleBranches?: boolean
-  prioritySupport?: boolean
+  features?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   monthlyPriceKobo?: number
   yearlyPriceKobo?: number
+  setupFeeKobo?: number
   isPublic?: boolean
   isActive?: boolean
+  isCustom?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -683,16 +614,13 @@ export type PlanUncheckedCreateWithoutSubscriptionsInput = {
   description?: string | null
   studentLimit: number
   staffLimit: number
-  smsNotifications?: boolean
-  reportCardPdf?: boolean
-  paymentCollection?: boolean
-  customGrading?: boolean
-  multipleBranches?: boolean
-  prioritySupport?: boolean
+  features?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   monthlyPriceKobo?: number
   yearlyPriceKobo?: number
+  setupFeeKobo?: number
   isPublic?: boolean
   isActive?: boolean
+  isCustom?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -719,16 +647,13 @@ export type PlanUpdateWithoutSubscriptionsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   studentLimit?: Prisma.IntFieldUpdateOperationsInput | number
   staffLimit?: Prisma.IntFieldUpdateOperationsInput | number
-  smsNotifications?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  reportCardPdf?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  paymentCollection?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  customGrading?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  multipleBranches?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  prioritySupport?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  features?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   monthlyPriceKobo?: Prisma.IntFieldUpdateOperationsInput | number
   yearlyPriceKobo?: Prisma.IntFieldUpdateOperationsInput | number
+  setupFeeKobo?: Prisma.IntFieldUpdateOperationsInput | number
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isCustom?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -739,16 +664,13 @@ export type PlanUncheckedUpdateWithoutSubscriptionsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   studentLimit?: Prisma.IntFieldUpdateOperationsInput | number
   staffLimit?: Prisma.IntFieldUpdateOperationsInput | number
-  smsNotifications?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  reportCardPdf?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  paymentCollection?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  customGrading?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  multipleBranches?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  prioritySupport?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  features?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   monthlyPriceKobo?: Prisma.IntFieldUpdateOperationsInput | number
   yearlyPriceKobo?: Prisma.IntFieldUpdateOperationsInput | number
+  setupFeeKobo?: Prisma.IntFieldUpdateOperationsInput | number
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isCustom?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -790,16 +712,13 @@ export type PlanSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   description?: boolean
   studentLimit?: boolean
   staffLimit?: boolean
-  smsNotifications?: boolean
-  reportCardPdf?: boolean
-  paymentCollection?: boolean
-  customGrading?: boolean
-  multipleBranches?: boolean
-  prioritySupport?: boolean
+  features?: boolean
   monthlyPriceKobo?: boolean
   yearlyPriceKobo?: boolean
+  setupFeeKobo?: boolean
   isPublic?: boolean
   isActive?: boolean
+  isCustom?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   subscriptions?: boolean | Prisma.Plan$subscriptionsArgs<ExtArgs>
@@ -812,16 +731,13 @@ export type PlanSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   description?: boolean
   studentLimit?: boolean
   staffLimit?: boolean
-  smsNotifications?: boolean
-  reportCardPdf?: boolean
-  paymentCollection?: boolean
-  customGrading?: boolean
-  multipleBranches?: boolean
-  prioritySupport?: boolean
+  features?: boolean
   monthlyPriceKobo?: boolean
   yearlyPriceKobo?: boolean
+  setupFeeKobo?: boolean
   isPublic?: boolean
   isActive?: boolean
+  isCustom?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["plan"]>
@@ -832,16 +748,13 @@ export type PlanSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   description?: boolean
   studentLimit?: boolean
   staffLimit?: boolean
-  smsNotifications?: boolean
-  reportCardPdf?: boolean
-  paymentCollection?: boolean
-  customGrading?: boolean
-  multipleBranches?: boolean
-  prioritySupport?: boolean
+  features?: boolean
   monthlyPriceKobo?: boolean
   yearlyPriceKobo?: boolean
+  setupFeeKobo?: boolean
   isPublic?: boolean
   isActive?: boolean
+  isCustom?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["plan"]>
@@ -852,21 +765,18 @@ export type PlanSelectScalar = {
   description?: boolean
   studentLimit?: boolean
   staffLimit?: boolean
-  smsNotifications?: boolean
-  reportCardPdf?: boolean
-  paymentCollection?: boolean
-  customGrading?: boolean
-  multipleBranches?: boolean
-  prioritySupport?: boolean
+  features?: boolean
   monthlyPriceKobo?: boolean
   yearlyPriceKobo?: boolean
+  setupFeeKobo?: boolean
   isPublic?: boolean
   isActive?: boolean
+  isCustom?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type PlanOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "studentLimit" | "staffLimit" | "smsNotifications" | "reportCardPdf" | "paymentCollection" | "customGrading" | "multipleBranches" | "prioritySupport" | "monthlyPriceKobo" | "yearlyPriceKobo" | "isPublic" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["plan"]>
+export type PlanOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "studentLimit" | "staffLimit" | "features" | "monthlyPriceKobo" | "yearlyPriceKobo" | "setupFeeKobo" | "isPublic" | "isActive" | "isCustom" | "createdAt" | "updatedAt", ExtArgs["result"]["plan"]>
 export type PlanInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   subscriptions?: boolean | Prisma.Plan$subscriptionsArgs<ExtArgs>
   _count?: boolean | Prisma.PlanCountOutputTypeDefaultArgs<ExtArgs>
@@ -885,16 +795,13 @@ export type $PlanPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     description: string | null
     studentLimit: number
     staffLimit: number
-    smsNotifications: boolean
-    reportCardPdf: boolean
-    paymentCollection: boolean
-    customGrading: boolean
-    multipleBranches: boolean
-    prioritySupport: boolean
+    features: runtime.JsonValue
     monthlyPriceKobo: number
     yearlyPriceKobo: number
+    setupFeeKobo: number
     isPublic: boolean
     isActive: boolean
+    isCustom: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["plan"]>
@@ -1326,16 +1233,13 @@ export interface PlanFieldRefs {
   readonly description: Prisma.FieldRef<"Plan", 'String'>
   readonly studentLimit: Prisma.FieldRef<"Plan", 'Int'>
   readonly staffLimit: Prisma.FieldRef<"Plan", 'Int'>
-  readonly smsNotifications: Prisma.FieldRef<"Plan", 'Boolean'>
-  readonly reportCardPdf: Prisma.FieldRef<"Plan", 'Boolean'>
-  readonly paymentCollection: Prisma.FieldRef<"Plan", 'Boolean'>
-  readonly customGrading: Prisma.FieldRef<"Plan", 'Boolean'>
-  readonly multipleBranches: Prisma.FieldRef<"Plan", 'Boolean'>
-  readonly prioritySupport: Prisma.FieldRef<"Plan", 'Boolean'>
+  readonly features: Prisma.FieldRef<"Plan", 'Json'>
   readonly monthlyPriceKobo: Prisma.FieldRef<"Plan", 'Int'>
   readonly yearlyPriceKobo: Prisma.FieldRef<"Plan", 'Int'>
+  readonly setupFeeKobo: Prisma.FieldRef<"Plan", 'Int'>
   readonly isPublic: Prisma.FieldRef<"Plan", 'Boolean'>
   readonly isActive: Prisma.FieldRef<"Plan", 'Boolean'>
+  readonly isCustom: Prisma.FieldRef<"Plan", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Plan", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Plan", 'DateTime'>
 }

@@ -3,8 +3,13 @@ import cors                                          from "cors";
 import helmet                                        from "helmet";
 import morgan                                        from "morgan";
 import rateLimit                                     from "express-rate-limit";
+import cookieParser from "cookie-parser";
 import { env }                                       from "./config/env";
 import { errorHandler } from "./infrastructure/middleware/error-handler.middleware";
+import { resolveTenant } from "./infrastructure/middleware/tenant-resolver.middleware";
+
+import routes from "./routes";
+
 const app = express();
 
 // ── Security ─────────────────────────────────────────────────────────────
@@ -44,6 +49,8 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 if (env.NODE_ENV !== "test") {
     app.use(morgan(env.NODE_ENV === "production" ? "combined" : "dev"));
 }
+app.use(cookieParser());
+app.use(resolveTenant);
 
 // ── Health Check ─────────────────────────────────────────────────────────
 app.get("/health", (req: Request, res: Response) => {
@@ -56,8 +63,7 @@ app.get("/health", (req: Request, res: Response) => {
 });
 
 // ── API Routes ───────────────────────────────────────────────────────────
-// app.use("/api/v1/auth",   authRouter);
-// app.use("/api/v1/school", schoolRouter);
+app.use("/api/v1", routes);
 
 // ── 404 Handler ──────────────────────────────────────────────────────────
 app.use((req: Request, res: Response) => {

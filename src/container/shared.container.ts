@@ -5,6 +5,9 @@ import { TenantContext }     from "../infrastructure/database/prisma/tenant.cont
 import { MailService }       from "../infrastructure/mail/mail.service";
 import { SmsService }        from "../infrastructure/sms/sms.service";
 import { SupabaseStorageService } from "../infrastructure/storage/supabase-storage.service";
+import { PaystackProvider } from "../infrastructure/payments/paystack.provider";
+import { TokenService } from "../shared/services/token.service";
+import { PasswordService } from "../shared/services/password.service";
 
 /*
 |--------------------------------------------------------------------------
@@ -29,10 +32,10 @@ export const registerShared = (container: AwilixContainer): void => {
         storageService: asClass(SupabaseStorageService).singleton(),
 
         // ── Payments (uncomment when built) ──────────────────────────────
-        // paystackProvider: asClass(PaystackProvider).singleton(),
+        paystackProvider: asClass(PaystackProvider).singleton(),
 
         // ── Shared Services (uncomment when built) ───────────────────────
-        // tokenService:    asClass(TokenService).singleton(),
-        // passwordService: asClass(PasswordService).singleton(),
+        tokenService:    asClass(TokenService).singleton(),
+        passwordService: asClass(PasswordService).singleton(),
     });
 };

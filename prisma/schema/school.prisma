@@ -21,6 +21,8 @@ model School {
   suspensionReason       String?
   isActive               Boolean            @default(false)
 
+  schemaName  String?  @unique 
+
   // Paystack subaccount for fee collection
   paystackSubaccountCode  String?
   paystackSubaccountId    String?

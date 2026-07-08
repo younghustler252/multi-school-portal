@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { AppError, ValidationError } from "../../shared/errors/domain.error";
+import { AppError, ValidationError } from "../../shared/errors/domain.errors";
 import { env }                             from "../../config/env";
 
 /*
@@ -18,6 +18,7 @@ export const errorHandler = (
     console.error("❌ Error:", err);
 
     // ── Zod Validation Error ─────────────────────────────────────────────
+   // ── Zod Validation Error ─────────────────────────────────────────────────
     if (err.name === "ZodError") {
         const fields = err.errors.reduce((acc: any, e: any) => {
             acc[e.path.join(".")] = e.message;

@@ -1,141 +1,140 @@
-import { School } from "../domain/school.entity";
-import { SchoolDocument } from "../models/school.document";
+import { School,SchoolDocument } from "../../../generated/prisma/client";
+import { IMapper }                 from "../../../infrastructure/repository/base.repository";
+import {
+    SchoolEntity,
+    SchoolDocumentEntity,
+}                                  from "../domain/school.entity";
 
-export class SchoolMapper {
-    
-    /**
-     * DB → Domain
-     */
-    static toDomain(doc: SchoolDocument): School {
-        return new School({
-            id: doc._id.toString(),
+/*
+|--------------------------------------------------------------------------
+| SCHOOL MAPPER
+| Converts raw Prisma School model → clean domain entity
+|--------------------------------------------------------------------------
+*/
 
-            name: doc.name,
-            slug: doc.slug,
-            subdomain: doc.subdomain,
-            schoolCode: doc.schoolCode,
+// ── School Response (safe to return to client) ────────────────────────────
+export interface SchoolResponseData {
+    id:                 string;
+    name:               string;
+    subdomain:          string;
+    email:              string;
+    phone:              string | null;
+    address:            string | null;
+    city:               string | null;
+    state:              string | null;
+    country:            string;
+    timezone:           string;
+    logoUrl:            string | null;
+    schoolCategory:     string;
+    schoolOwnership:    string;
+    status:             string;
+    verificationStatus: string;
+    isActive:           boolean;
+    createdAt:          Date;
+}
 
-            email: doc.email,
-            phone: doc.phone,
+// ── Document Response ─────────────────────────────────────────────────────
+export interface SchoolDocumentResponseData {
+    id:              string;
+    schoolId:        string;
+    type:            string;
+    fileUrl:         string;
+    status:          string;
+    rejectionReason: string | null;
+    verifiedAt:      Date | null;
+    createdAt:       Date;
+}
 
-            address: doc.address,
-            city: doc.city,
-            state: doc.state,
-            country: doc.country,
-            timezone: doc.timezone,
+export class SchoolMapper implements IMapper<School, SchoolEntity> {
 
-            logo: doc.logo,
-            website: doc.website,
-
-            schoolType: doc.schoolType,
-            ownershipType: doc.ownershipType,
-
-            status: doc.status,
-            verificationStatus: doc.verificationStatus,
-            subscriptionStatus: doc.subscriptionStatus,
-
-            currentPlanId: doc.currentPlanId,
-            studentLimit: doc.studentLimit,
-
-            currentAcademicSession: doc.currentAcademicSession,
-            currentTerm: doc.currentTerm,
-
-            trialEndsAt: doc.trialEndsAt,
-            verifiedAt: doc.verifiedAt,
-
-            createdBy: doc.createdBy.toString(),
-
-            createdAt: doc.createdAt,
-            updatedAt: doc.updatedAt,
-            deletedAt: doc.deletedAt,
-        });
-    }
-
-    /**
-     * Domain → DB (CREATE ONLY)
-     * IMPORTANT: no id, no timestamps
-     */
-    static toPersistenceCreate(school: School): Record<string, any> {
-        const props = school.getProps();
-
+    // ── DB model → Domain entity ──────────────────────────────────────────
+    toDomain(raw: School): SchoolEntity {
         return {
-            name: props.name,
-            slug: props.slug,
-            subdomain: props.subdomain,
-            schoolCode: props.schoolCode,
-
-            email: props.email,
-            phone: props.phone,
-
-            address: props.address,
-            city: props.city,
-            state: props.state,
-            country: props.country,
-            timezone: props.timezone,
-
-            logo: props.logo,
-            website: props.website,
-
-            schoolType: props.schoolType,
-            ownershipType: props.ownershipType,
-
-            status: props.status,
-            verificationStatus: props.verificationStatus,
-            subscriptionStatus: props.subscriptionStatus,
-
-            currentPlanId: props.currentPlanId,
-            studentLimit: props.studentLimit,
-
-            currentAcademicSession: props.currentAcademicSession,
-            currentTerm: props.currentTerm,
-
-            trialEndsAt: props.trialEndsAt,
-
-            createdBy: props.createdBy,
+            id:                      raw.id,
+            name:                    raw.name,
+            subdomain:               raw.subdomain,
+            schemaName:              raw.schemaName,
+            email:                   raw.email,
+            phone:                   raw.phone,
+            address:                 raw.address,
+            city:                    raw.city,
+            state:                   raw.state,
+            country:                 raw.country,
+            timezone:                raw.timezone,
+            logoUrl:                 raw.logoUrl,
+            schoolCategory:          raw.schoolCategory,
+            schoolOwnership:         raw.schoolOwnership,
+            status:                  raw.status,
+            verificationStatus:      raw.verificationStatus,
+            verifiedAt:              raw.verifiedAt,
+            verifiedById:            raw.verifiedById,
+            suspendedAt:             raw.suspendedAt,
+            suspensionReason:        raw.suspensionReason,
+            isActive:                raw.isActive,
+            paystackSubaccountCode:  raw.paystackSubaccountCode,
+            paystackSubaccountId:    raw.paystackSubaccountId,
+            settlementBankCode:      raw.settlementBankCode,
+            settlementAccountNumber: raw.settlementAccountNumber,
+            createdAt:               raw.createdAt,
+            updatedAt:               raw.updatedAt,
         };
     }
 
-    /**
-     * Domain → DB (UPDATE ONLY)
-     * IMPORTANT: no createdBy, no createdAt
-     */
-    static toPersistenceUpdate(school: School): Record<string, any> {
-        const props = school.getProps();
-
+    // ── Domain entity → API response ──────────────────────────────────────
+    toResponse(entity: SchoolEntity): SchoolResponseData {
         return {
-            name: props.name,
-            slug: props.slug,
-            subdomain: props.subdomain,
+            id:                 entity.id,
+            name:               entity.name,
+            subdomain:          entity.subdomain,
+            email:              entity.email,
+            phone:              entity.phone,
+            address:            entity.address,
+            city:               entity.city,
+            state:              entity.state,
+            country:            entity.country,
+            timezone:           entity.timezone,
+            logoUrl:            entity.logoUrl,
+            schoolCategory:     entity.schoolCategory,
+            schoolOwnership:    entity.schoolOwnership,
+            status:             entity.status,
+            verificationStatus: entity.verificationStatus,
+            isActive:           entity.isActive,
+            createdAt:          entity.createdAt,
+        };
+    }
+}
 
-            email: props.email,
-            phone: props.phone,
+// ── School Document Mapper ────────────────────────────────────────────────
+export class SchoolDocumentMapper
+    implements IMapper<SchoolDocument, SchoolDocumentEntity>
+{
+    toDomain(raw: SchoolDocument): SchoolDocumentEntity {
+        return {
+            id:              raw.id,
+            schoolId:        raw.schoolId,
+            type:            raw.type,
+            fileUrl:         raw.fileUrl,
+            status:          raw.status,
+            rejectionReason: raw.rejectionReason,
+            verifiedAt:      raw.verifiedAt,
+            verifiedById:    raw.verifiedById,
+            apiVerified:     raw.apiVerified,
+            apiResponse:     raw.apiResponse,
+            createdAt:       raw.createdAt,
+            updatedAt:       raw.updatedAt,
+        };
+    }
 
-            address: props.address,
-            city: props.city,
-            state: props.state,
-            country: props.country,
-            timezone: props.timezone,
-
-            logo: props.logo,
-            website: props.website,
-
-            schoolType: props.schoolType,
-            ownershipType: props.ownershipType,
-
-            status: props.status,
-            verificationStatus: props.verificationStatus,
-            subscriptionStatus: props.subscriptionStatus,
-
-            currentPlanId: props.currentPlanId,
-            studentLimit: props.studentLimit,
-
-            currentAcademicSession: props.currentAcademicSession,
-            currentTerm: props.currentTerm,
-
-            trialEndsAt: props.trialEndsAt,
-            verifiedAt: props.verifiedAt,
-
-            updatedAt: new Date(),
+    toResponse(entity: SchoolDocumentEntity): SchoolDocumentResponseData {
+        return {
+            id:              entity.id,
+            schoolId:        entity.schoolId,
+            type:            entity.type,
+            fileUrl:         entity.fileUrl,
+            status:          entity.status,
+            rejectionReason: entity.rejectionReason,
+            verifiedAt:      entity.verifiedAt,
+            createdAt:       entity.createdAt,
         };
     }
 }

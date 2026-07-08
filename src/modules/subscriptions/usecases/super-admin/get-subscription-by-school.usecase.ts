@@ -1,0 +1,50 @@
+import { ISubscriptionRepository }  from "../../repository/subscription.repository";
+import { IPlanRepository }          from "../../../plans/repositories/plan.repository";
+import { SubscriptionMapper }       from "../../mappers/subscription.mapper";
+import { NotFoundError }            from "../../../../shared/errors/domain.errors";
+import { SubscriptionErrorMessage } from "../../domain/subscription.enums";
+
+/*
+|--------------------------------------------------------------------------
+| GET SUBSCRIPTION BY SCHOOL USE CASE
+| Super admin views a specific school's subscription
+|--------------------------------------------------------------------------
+*/
+
+interface Dependencies {
+    subscriptionRepository: ISubscriptionRepository;
+    planRepository:         IPlanRepository;
+    subscriptionMapper:     SubscriptionMapper;
+}
+
+export class GetSubscriptionBySchoolUseCase {
+    private readonly subscriptionRepository: ISubscriptionRepository;
+    private readonly planRepository:         IPlanRepository;
+    private readonly subscriptionMapper:     SubscriptionMapper;
+
+    constructor({
+        subscriptionRepository,
+        planRepository,
+        subscriptionMapper,
+    }: Dependencies) {
+        this.subscriptionRepository = subscriptionRepository;
+        this.planRepository         = planRepository;
+        this.subscriptionMapper     = subscriptionMapper;
+    }
+
+    async execute(schoolId: string): Promise<any> {
+        const subscription = await this.subscriptionRepository
+            .findActiveBySchoolId(schoolId);
+
+        if (!subscription) {
+            throw new NotFoundError(SubscriptionErrorMessage.NOT_FOUND);
+        }
+
+        const plan = await this.planRepository.findById(subscription.planId);
+
+        return {
+            subscription: this.subscriptionMapper.toResponse(subscription),
+            plan,
+        };
+    }
+}

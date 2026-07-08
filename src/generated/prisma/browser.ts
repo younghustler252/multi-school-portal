@@ -78,6 +78,11 @@ export type AuditLog = Prisma.AuditLogModel
  */
 export type PlatformNotification = Prisma.PlatformNotificationModel
 /**
+ * Model PlatformNotificationRecipient
+ * 
+ */
+export type PlatformNotificationRecipient = Prisma.PlatformNotificationRecipientModel
+/**
  * Model Staff
  * 
  */
@@ -167,3 +172,8 @@ export type Payment = Prisma.PaymentModel
  * 
  */
 export type SchoolNotification = Prisma.SchoolNotificationModel
+/**
+ * Model SchoolNotificationRecipient
+ * 
+ */
+export type SchoolNotificationRecipient = Prisma.SchoolNotificationRecipientModel

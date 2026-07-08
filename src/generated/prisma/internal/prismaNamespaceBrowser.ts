@@ -63,6 +63,7 @@ export const ModelName = {
   BillingHistory: 'BillingHistory',
   AuditLog: 'AuditLog',
   PlatformNotification: 'PlatformNotification',
+  PlatformNotificationRecipient: 'PlatformNotificationRecipient',
   Staff: 'Staff',
   Student: 'Student',
   Guardian: 'Guardian',
@@ -80,7 +81,8 @@ export const ModelName = {
   FeeType: 'FeeType',
   FeeInvoice: 'FeeInvoice',
   Payment: 'Payment',
-  SchoolNotification: 'SchoolNotification'
+  SchoolNotification: 'SchoolNotification',
+  SchoolNotificationRecipient: 'SchoolNotificationRecipient'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -120,6 +122,7 @@ export const SchoolScalarFieldEnum = {
   suspendedAt: 'suspendedAt',
   suspensionReason: 'suspensionReason',
   isActive: 'isActive',
+  schemaName: 'schemaName',
   paystackSubaccountCode: 'paystackSubaccountCode',
   paystackSubaccountId: 'paystackSubaccountId',
   settlementBankCode: 'settlementBankCode',
@@ -220,16 +223,13 @@ export const PlanScalarFieldEnum = {
   description: 'description',
   studentLimit: 'studentLimit',
   staffLimit: 'staffLimit',
-  smsNotifications: 'smsNotifications',
-  reportCardPdf: 'reportCardPdf',
-  paymentCollection: 'paymentCollection',
-  customGrading: 'customGrading',
-  multipleBranches: 'multipleBranches',
-  prioritySupport: 'prioritySupport',
+  features: 'features',
   monthlyPriceKobo: 'monthlyPriceKobo',
   yearlyPriceKobo: 'yearlyPriceKobo',
+  setupFeeKobo: 'setupFeeKobo',
   isPublic: 'isPublic',
   isActive: 'isActive',
+  isCustom: 'isCustom',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -250,8 +250,13 @@ export const SubscriptionScalarFieldEnum = {
   cancelledAt: 'cancelledAt',
   couponId: 'couponId',
   discountedPriceKobo: 'discountedPriceKobo',
+  setupFeePaid: 'setupFeePaid',
+  setupFeePaidAt: 'setupFeePaidAt',
   paystackCustomerCode: 'paystackCustomerCode',
   paystackSubscriptionCode: 'paystackSubscriptionCode',
+  nextBillingDate: 'nextBillingDate',
+  lastBillingAttemptAt: 'lastBillingAttemptAt',
+  failedBillingCount: 'failedBillingCount',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -313,19 +318,36 @@ export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typ
 
 export const PlatformNotificationScalarFieldEnum = {
   id: 'id',
-  schoolId: 'schoolId',
   title: 'title',
   message: 'message',
   type: 'type',
-  channel: 'channel',
-  isRead: 'isRead',
-  readAt: 'readAt',
-  sentAt: 'sentAt',
+  state: 'state',
+  createdByAdminId: 'createdByAdminId',
   metadata: 'metadata',
-  createdAt: 'createdAt'
+  sentAt: 'sentAt',
+  completedAt: 'completedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type PlatformNotificationScalarFieldEnum = (typeof PlatformNotificationScalarFieldEnum)[keyof typeof PlatformNotificationScalarFieldEnum]
+
+
+export const PlatformNotificationRecipientScalarFieldEnum = {
+  id: 'id',
+  notificationId: 'notificationId',
+  schoolId: 'schoolId',
+  channel: 'channel',
+  status: 'status',
+  retryCount: 'retryCount',
+  failedReason: 'failedReason',
+  readAt: 'readAt',
+  deliveredAt: 'deliveredAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PlatformNotificationRecipientScalarFieldEnum = (typeof PlatformNotificationRecipientScalarFieldEnum)[keyof typeof PlatformNotificationRecipientScalarFieldEnum]
 
 
 export const StaffScalarFieldEnum = {
@@ -600,19 +622,36 @@ export const SchoolNotificationScalarFieldEnum = {
   title: 'title',
   message: 'message',
   type: 'type',
-  channel: 'channel',
-  sentById: 'sentById',
   targetType: 'targetType',
-  isRead: 'isRead',
-  readAt: 'readAt',
-  sentAt: 'sentAt',
+  sentById: 'sentById',
   metadata: 'metadata',
+  sentAt: 'sentAt',
   createdAt: 'createdAt',
-  studentId: 'studentId',
-  guardianId: 'guardianId'
+  updatedAt: 'updatedAt'
 } as const
 
 export type SchoolNotificationScalarFieldEnum = (typeof SchoolNotificationScalarFieldEnum)[keyof typeof SchoolNotificationScalarFieldEnum]
+
+
+export const SchoolNotificationRecipientScalarFieldEnum = {
+  id: 'id',
+  notificationId: 'notificationId',
+  studentId: 'studentId',
+  guardianId: 'guardianId',
+  staffId: 'staffId',
+  channel: 'channel',
+  status: 'status',
+  priority: 'priority',
+  retryCount: 'retryCount',
+  failedReason: 'failedReason',
+  providerMsgId: 'providerMsgId',
+  readAt: 'readAt',
+  deliveredAt: 'deliveredAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SchoolNotificationRecipientScalarFieldEnum = (typeof SchoolNotificationRecipientScalarFieldEnum)[keyof typeof SchoolNotificationRecipientScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -629,6 +668,13 @@ export const NullableJsonNullValueInput = {
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {

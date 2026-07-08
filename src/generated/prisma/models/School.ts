@@ -45,6 +45,7 @@ export type SchoolMinAggregateOutputType = {
   suspendedAt: Date | null
   suspensionReason: string | null
   isActive: boolean | null
+  schemaName: string | null
   paystackSubaccountCode: string | null
   paystackSubaccountId: string | null
   settlementBankCode: string | null
@@ -74,6 +75,7 @@ export type SchoolMaxAggregateOutputType = {
   suspendedAt: Date | null
   suspensionReason: string | null
   isActive: boolean | null
+  schemaName: string | null
   paystackSubaccountCode: string | null
   paystackSubaccountId: string | null
   settlementBankCode: string | null
@@ -103,6 +105,7 @@ export type SchoolCountAggregateOutputType = {
   suspendedAt: number
   suspensionReason: number
   isActive: number
+  schemaName: number
   paystackSubaccountCode: number
   paystackSubaccountId: number
   settlementBankCode: number
@@ -134,6 +137,7 @@ export type SchoolMinAggregateInputType = {
   suspendedAt?: true
   suspensionReason?: true
   isActive?: true
+  schemaName?: true
   paystackSubaccountCode?: true
   paystackSubaccountId?: true
   settlementBankCode?: true
@@ -163,6 +167,7 @@ export type SchoolMaxAggregateInputType = {
   suspendedAt?: true
   suspensionReason?: true
   isActive?: true
+  schemaName?: true
   paystackSubaccountCode?: true
   paystackSubaccountId?: true
   settlementBankCode?: true
@@ -192,6 +197,7 @@ export type SchoolCountAggregateInputType = {
   suspendedAt?: true
   suspensionReason?: true
   isActive?: true
+  schemaName?: true
   paystackSubaccountCode?: true
   paystackSubaccountId?: true
   settlementBankCode?: true
@@ -294,6 +300,7 @@ export type SchoolGroupByOutputType = {
   suspendedAt: Date | null
   suspensionReason: string | null
   isActive: boolean
+  schemaName: string | null
   paystackSubaccountCode: string | null
   paystackSubaccountId: string | null
   settlementBankCode: string | null
@@ -344,6 +351,7 @@ export type SchoolWhereInput = {
   suspendedAt?: Prisma.DateTimeNullableFilter<"School"> | Date | string | null
   suspensionReason?: Prisma.StringNullableFilter<"School"> | string | null
   isActive?: Prisma.BoolFilter<"School"> | boolean
+  schemaName?: Prisma.StringNullableFilter<"School"> | string | null
   paystackSubaccountCode?: Prisma.StringNullableFilter<"School"> | string | null
   paystackSubaccountId?: Prisma.StringNullableFilter<"School"> | string | null
   settlementBankCode?: Prisma.StringNullableFilter<"School"> | string | null
@@ -354,7 +362,7 @@ export type SchoolWhereInput = {
   subscriptions?: Prisma.SubscriptionListRelationFilter
   documents?: Prisma.SchoolDocumentListRelationFilter
   auditLogs?: Prisma.AuditLogListRelationFilter
-  platformNotifications?: Prisma.PlatformNotificationListRelationFilter
+  platformNotificationRecipients?: Prisma.PlatformNotificationRecipientListRelationFilter
 }
 
 export type SchoolOrderByWithRelationInput = {
@@ -378,6 +386,7 @@ export type SchoolOrderByWithRelationInput = {
   suspendedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   suspensionReason?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  schemaName?: Prisma.SortOrderInput | Prisma.SortOrder
   paystackSubaccountCode?: Prisma.SortOrderInput | Prisma.SortOrder
   paystackSubaccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   settlementBankCode?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -388,13 +397,14 @@ export type SchoolOrderByWithRelationInput = {
   subscriptions?: Prisma.SubscriptionOrderByRelationAggregateInput
   documents?: Prisma.SchoolDocumentOrderByRelationAggregateInput
   auditLogs?: Prisma.AuditLogOrderByRelationAggregateInput
-  platformNotifications?: Prisma.PlatformNotificationOrderByRelationAggregateInput
+  platformNotificationRecipients?: Prisma.PlatformNotificationRecipientOrderByRelationAggregateInput
 }
 
 export type SchoolWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   subdomain?: string
   email?: string
+  schemaName?: string
   AND?: Prisma.SchoolWhereInput | Prisma.SchoolWhereInput[]
   OR?: Prisma.SchoolWhereInput[]
   NOT?: Prisma.SchoolWhereInput | Prisma.SchoolWhereInput[]
@@ -425,8 +435,8 @@ export type SchoolWhereUniqueInput = Prisma.AtLeast<{
   subscriptions?: Prisma.SubscriptionListRelationFilter
   documents?: Prisma.SchoolDocumentListRelationFilter
   auditLogs?: Prisma.AuditLogListRelationFilter
-  platformNotifications?: Prisma.PlatformNotificationListRelationFilter
-}, "id" | "subdomain" | "email">
+  platformNotificationRecipients?: Prisma.PlatformNotificationRecipientListRelationFilter
+}, "id" | "subdomain" | "email" | "schemaName">
 
 export type SchoolOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -449,6 +459,7 @@ export type SchoolOrderByWithAggregationInput = {
   suspendedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   suspensionReason?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  schemaName?: Prisma.SortOrderInput | Prisma.SortOrder
   paystackSubaccountCode?: Prisma.SortOrderInput | Prisma.SortOrder
   paystackSubaccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   settlementBankCode?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -484,6 +495,7 @@ export type SchoolScalarWhereWithAggregatesInput = {
   suspendedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"School"> | Date | string | null
   suspensionReason?: Prisma.StringNullableWithAggregatesFilter<"School"> | string | null
   isActive?: Prisma.BoolWithAggregatesFilter<"School"> | boolean
+  schemaName?: Prisma.StringNullableWithAggregatesFilter<"School"> | string | null
   paystackSubaccountCode?: Prisma.StringNullableWithAggregatesFilter<"School"> | string | null
   paystackSubaccountId?: Prisma.StringNullableWithAggregatesFilter<"School"> | string | null
   settlementBankCode?: Prisma.StringNullableWithAggregatesFilter<"School"> | string | null
@@ -513,6 +525,7 @@ export type SchoolCreateInput = {
   suspendedAt?: Date | string | null
   suspensionReason?: string | null
   isActive?: boolean
+  schemaName?: string | null
   paystackSubaccountCode?: string | null
   paystackSubaccountId?: string | null
   settlementBankCode?: string | null
@@ -523,7 +536,7 @@ export type SchoolCreateInput = {
   subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutSchoolInput
   documents?: Prisma.SchoolDocumentCreateNestedManyWithoutSchoolInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutSchoolInput
-  platformNotifications?: Prisma.PlatformNotificationCreateNestedManyWithoutSchoolInput
+  platformNotificationRecipients?: Prisma.PlatformNotificationRecipientCreateNestedManyWithoutSchoolInput
 }
 
 export type SchoolUncheckedCreateInput = {
@@ -547,6 +560,7 @@ export type SchoolUncheckedCreateInput = {
   suspendedAt?: Date | string | null
   suspensionReason?: string | null
   isActive?: boolean
+  schemaName?: string | null
   paystackSubaccountCode?: string | null
   paystackSubaccountId?: string | null
   settlementBankCode?: string | null
@@ -557,7 +571,7 @@ export type SchoolUncheckedCreateInput = {
   subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
   documents?: Prisma.SchoolDocumentUncheckedCreateNestedManyWithoutSchoolInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutSchoolInput
-  platformNotifications?: Prisma.PlatformNotificationUncheckedCreateNestedManyWithoutSchoolInput
+  platformNotificationRecipients?: Prisma.PlatformNotificationRecipientUncheckedCreateNestedManyWithoutSchoolInput
 }
 
 export type SchoolUpdateInput = {
@@ -581,6 +595,7 @@ export type SchoolUpdateInput = {
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspensionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  schemaName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubaccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubaccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementBankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -591,7 +606,7 @@ export type SchoolUpdateInput = {
   subscriptions?: Prisma.SubscriptionUpdateManyWithoutSchoolNestedInput
   documents?: Prisma.SchoolDocumentUpdateManyWithoutSchoolNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutSchoolNestedInput
-  platformNotifications?: Prisma.PlatformNotificationUpdateManyWithoutSchoolNestedInput
+  platformNotificationRecipients?: Prisma.PlatformNotificationRecipientUpdateManyWithoutSchoolNestedInput
 }
 
 export type SchoolUncheckedUpdateInput = {
@@ -615,6 +630,7 @@ export type SchoolUncheckedUpdateInput = {
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspensionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  schemaName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubaccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubaccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementBankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -625,7 +641,7 @@ export type SchoolUncheckedUpdateInput = {
   subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
   documents?: Prisma.SchoolDocumentUncheckedUpdateManyWithoutSchoolNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
-  platformNotifications?: Prisma.PlatformNotificationUncheckedUpdateManyWithoutSchoolNestedInput
+  platformNotificationRecipients?: Prisma.PlatformNotificationRecipientUncheckedUpdateManyWithoutSchoolNestedInput
 }
 
 export type SchoolCreateManyInput = {
@@ -649,6 +665,7 @@ export type SchoolCreateManyInput = {
   suspendedAt?: Date | string | null
   suspensionReason?: string | null
   isActive?: boolean
+  schemaName?: string | null
   paystackSubaccountCode?: string | null
   paystackSubaccountId?: string | null
   settlementBankCode?: string | null
@@ -678,6 +695,7 @@ export type SchoolUpdateManyMutationInput = {
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspensionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  schemaName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubaccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubaccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementBankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -707,6 +725,7 @@ export type SchoolUncheckedUpdateManyInput = {
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspensionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  schemaName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubaccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubaccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementBankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -736,6 +755,7 @@ export type SchoolCountOrderByAggregateInput = {
   suspendedAt?: Prisma.SortOrder
   suspensionReason?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  schemaName?: Prisma.SortOrder
   paystackSubaccountCode?: Prisma.SortOrder
   paystackSubaccountId?: Prisma.SortOrder
   settlementBankCode?: Prisma.SortOrder
@@ -765,6 +785,7 @@ export type SchoolMaxOrderByAggregateInput = {
   suspendedAt?: Prisma.SortOrder
   suspensionReason?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  schemaName?: Prisma.SortOrder
   paystackSubaccountCode?: Prisma.SortOrder
   paystackSubaccountId?: Prisma.SortOrder
   settlementBankCode?: Prisma.SortOrder
@@ -794,6 +815,7 @@ export type SchoolMinOrderByAggregateInput = {
   suspendedAt?: Prisma.SortOrder
   suspensionReason?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  schemaName?: Prisma.SortOrder
   paystackSubaccountCode?: Prisma.SortOrder
   paystackSubaccountId?: Prisma.SortOrder
   settlementBankCode?: Prisma.SortOrder
@@ -908,20 +930,18 @@ export type SchoolUpdateOneWithoutAuditLogsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.SchoolUpdateToOneWithWhereWithoutAuditLogsInput, Prisma.SchoolUpdateWithoutAuditLogsInput>, Prisma.SchoolUncheckedUpdateWithoutAuditLogsInput>
 }
 
-export type SchoolCreateNestedOneWithoutPlatformNotificationsInput = {
-  create?: Prisma.XOR<Prisma.SchoolCreateWithoutPlatformNotificationsInput, Prisma.SchoolUncheckedCreateWithoutPlatformNotificationsInput>
-  connectOrCreate?: Prisma.SchoolCreateOrConnectWithoutPlatformNotificationsInput
+export type SchoolCreateNestedOneWithoutPlatformNotificationRecipientsInput = {
+  create?: Prisma.XOR<Prisma.SchoolCreateWithoutPlatformNotificationRecipientsInput, Prisma.SchoolUncheckedCreateWithoutPlatformNotificationRecipientsInput>
+  connectOrCreate?: Prisma.SchoolCreateOrConnectWithoutPlatformNotificationRecipientsInput
   connect?: Prisma.SchoolWhereUniqueInput
 }
 
-export type SchoolUpdateOneWithoutPlatformNotificationsNestedInput = {
-  create?: Prisma.XOR<Prisma.SchoolCreateWithoutPlatformNotificationsInput, Prisma.SchoolUncheckedCreateWithoutPlatformNotificationsInput>
-  connectOrCreate?: Prisma.SchoolCreateOrConnectWithoutPlatformNotificationsInput
-  upsert?: Prisma.SchoolUpsertWithoutPlatformNotificationsInput
-  disconnect?: Prisma.SchoolWhereInput | boolean
-  delete?: Prisma.SchoolWhereInput | boolean
+export type SchoolUpdateOneRequiredWithoutPlatformNotificationRecipientsNestedInput = {
+  create?: Prisma.XOR<Prisma.SchoolCreateWithoutPlatformNotificationRecipientsInput, Prisma.SchoolUncheckedCreateWithoutPlatformNotificationRecipientsInput>
+  connectOrCreate?: Prisma.SchoolCreateOrConnectWithoutPlatformNotificationRecipientsInput
+  upsert?: Prisma.SchoolUpsertWithoutPlatformNotificationRecipientsInput
   connect?: Prisma.SchoolWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.SchoolUpdateToOneWithWhereWithoutPlatformNotificationsInput, Prisma.SchoolUpdateWithoutPlatformNotificationsInput>, Prisma.SchoolUncheckedUpdateWithoutPlatformNotificationsInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SchoolUpdateToOneWithWhereWithoutPlatformNotificationRecipientsInput, Prisma.SchoolUpdateWithoutPlatformNotificationRecipientsInput>, Prisma.SchoolUncheckedUpdateWithoutPlatformNotificationRecipientsInput>
 }
 
 export type SchoolCreateWithoutDocumentsInput = {
@@ -945,6 +965,7 @@ export type SchoolCreateWithoutDocumentsInput = {
   suspendedAt?: Date | string | null
   suspensionReason?: string | null
   isActive?: boolean
+  schemaName?: string | null
   paystackSubaccountCode?: string | null
   paystackSubaccountId?: string | null
   settlementBankCode?: string | null
@@ -954,7 +975,7 @@ export type SchoolCreateWithoutDocumentsInput = {
   users?: Prisma.UserCreateNestedManyWithoutSchoolInput
   subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutSchoolInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutSchoolInput
-  platformNotifications?: Prisma.PlatformNotificationCreateNestedManyWithoutSchoolInput
+  platformNotificationRecipients?: Prisma.PlatformNotificationRecipientCreateNestedManyWithoutSchoolInput
 }
 
 export type SchoolUncheckedCreateWithoutDocumentsInput = {
@@ -978,6 +999,7 @@ export type SchoolUncheckedCreateWithoutDocumentsInput = {
   suspendedAt?: Date | string | null
   suspensionReason?: string | null
   isActive?: boolean
+  schemaName?: string | null
   paystackSubaccountCode?: string | null
   paystackSubaccountId?: string | null
   settlementBankCode?: string | null
@@ -987,7 +1009,7 @@ export type SchoolUncheckedCreateWithoutDocumentsInput = {
   users?: Prisma.UserUncheckedCreateNestedManyWithoutSchoolInput
   subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutSchoolInput
-  platformNotifications?: Prisma.PlatformNotificationUncheckedCreateNestedManyWithoutSchoolInput
+  platformNotificationRecipients?: Prisma.PlatformNotificationRecipientUncheckedCreateNestedManyWithoutSchoolInput
 }
 
 export type SchoolCreateOrConnectWithoutDocumentsInput = {
@@ -1027,6 +1049,7 @@ export type SchoolUpdateWithoutDocumentsInput = {
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspensionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  schemaName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubaccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubaccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementBankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1036,7 +1059,7 @@ export type SchoolUpdateWithoutDocumentsInput = {
   users?: Prisma.UserUpdateManyWithoutSchoolNestedInput
   subscriptions?: Prisma.SubscriptionUpdateManyWithoutSchoolNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutSchoolNestedInput
-  platformNotifications?: Prisma.PlatformNotificationUpdateManyWithoutSchoolNestedInput
+  platformNotificationRecipients?: Prisma.PlatformNotificationRecipientUpdateManyWithoutSchoolNestedInput
 }
 
 export type SchoolUncheckedUpdateWithoutDocumentsInput = {
@@ -1060,6 +1083,7 @@ export type SchoolUncheckedUpdateWithoutDocumentsInput = {
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspensionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  schemaName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubaccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubaccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementBankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1069,7 +1093,7 @@ export type SchoolUncheckedUpdateWithoutDocumentsInput = {
   users?: Prisma.UserUncheckedUpdateManyWithoutSchoolNestedInput
   subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
-  platformNotifications?: Prisma.PlatformNotificationUncheckedUpdateManyWithoutSchoolNestedInput
+  platformNotificationRecipients?: Prisma.PlatformNotificationRecipientUncheckedUpdateManyWithoutSchoolNestedInput
 }
 
 export type SchoolCreateWithoutUsersInput = {
@@ -1093,6 +1117,7 @@ export type SchoolCreateWithoutUsersInput = {
   suspendedAt?: Date | string | null
   suspensionReason?: string | null
   isActive?: boolean
+  schemaName?: string | null
   paystackSubaccountCode?: string | null
   paystackSubaccountId?: string | null
   settlementBankCode?: string | null
@@ -1102,7 +1127,7 @@ export type SchoolCreateWithoutUsersInput = {
   subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutSchoolInput
   documents?: Prisma.SchoolDocumentCreateNestedManyWithoutSchoolInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutSchoolInput
-  platformNotifications?: Prisma.PlatformNotificationCreateNestedManyWithoutSchoolInput
+  platformNotificationRecipients?: Prisma.PlatformNotificationRecipientCreateNestedManyWithoutSchoolInput
 }
 
 export type SchoolUncheckedCreateWithoutUsersInput = {
@@ -1126,6 +1151,7 @@ export type SchoolUncheckedCreateWithoutUsersInput = {
   suspendedAt?: Date | string | null
   suspensionReason?: string | null
   isActive?: boolean
+  schemaName?: string | null
   paystackSubaccountCode?: string | null
   paystackSubaccountId?: string | null
   settlementBankCode?: string | null
@@ -1135,7 +1161,7 @@ export type SchoolUncheckedCreateWithoutUsersInput = {
   subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
   documents?: Prisma.SchoolDocumentUncheckedCreateNestedManyWithoutSchoolInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutSchoolInput
-  platformNotifications?: Prisma.PlatformNotificationUncheckedCreateNestedManyWithoutSchoolInput
+  platformNotificationRecipients?: Prisma.PlatformNotificationRecipientUncheckedCreateNestedManyWithoutSchoolInput
 }
 
 export type SchoolCreateOrConnectWithoutUsersInput = {
@@ -1175,6 +1201,7 @@ export type SchoolUpdateWithoutUsersInput = {
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspensionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  schemaName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubaccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubaccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementBankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1184,7 +1211,7 @@ export type SchoolUpdateWithoutUsersInput = {
   subscriptions?: Prisma.SubscriptionUpdateManyWithoutSchoolNestedInput
   documents?: Prisma.SchoolDocumentUpdateManyWithoutSchoolNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutSchoolNestedInput
-  platformNotifications?: Prisma.PlatformNotificationUpdateManyWithoutSchoolNestedInput
+  platformNotificationRecipients?: Prisma.PlatformNotificationRecipientUpdateManyWithoutSchoolNestedInput
 }
 
 export type SchoolUncheckedUpdateWithoutUsersInput = {
@@ -1208,6 +1235,7 @@ export type SchoolUncheckedUpdateWithoutUsersInput = {
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspensionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  schemaName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubaccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubaccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementBankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1217,7 +1245,7 @@ export type SchoolUncheckedUpdateWithoutUsersInput = {
   subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
   documents?: Prisma.SchoolDocumentUncheckedUpdateManyWithoutSchoolNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
-  platformNotifications?: Prisma.PlatformNotificationUncheckedUpdateManyWithoutSchoolNestedInput
+  platformNotificationRecipients?: Prisma.PlatformNotificationRecipientUncheckedUpdateManyWithoutSchoolNestedInput
 }
 
 export type SchoolCreateWithoutSubscriptionsInput = {
@@ -1241,6 +1269,7 @@ export type SchoolCreateWithoutSubscriptionsInput = {
   suspendedAt?: Date | string | null
   suspensionReason?: string | null
   isActive?: boolean
+  schemaName?: string | null
   paystackSubaccountCode?: string | null
   paystackSubaccountId?: string | null
   settlementBankCode?: string | null
@@ -1250,7 +1279,7 @@ export type SchoolCreateWithoutSubscriptionsInput = {
   users?: Prisma.UserCreateNestedManyWithoutSchoolInput
   documents?: Prisma.SchoolDocumentCreateNestedManyWithoutSchoolInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutSchoolInput
-  platformNotifications?: Prisma.PlatformNotificationCreateNestedManyWithoutSchoolInput
+  platformNotificationRecipients?: Prisma.PlatformNotificationRecipientCreateNestedManyWithoutSchoolInput
 }
 
 export type SchoolUncheckedCreateWithoutSubscriptionsInput = {
@@ -1274,6 +1303,7 @@ export type SchoolUncheckedCreateWithoutSubscriptionsInput = {
   suspendedAt?: Date | string | null
   suspensionReason?: string | null
   isActive?: boolean
+  schemaName?: string | null
   paystackSubaccountCode?: string | null
   paystackSubaccountId?: string | null
   settlementBankCode?: string | null
@@ -1283,7 +1313,7 @@ export type SchoolUncheckedCreateWithoutSubscriptionsInput = {
   users?: Prisma.UserUncheckedCreateNestedManyWithoutSchoolInput
   documents?: Prisma.SchoolDocumentUncheckedCreateNestedManyWithoutSchoolInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutSchoolInput
-  platformNotifications?: Prisma.PlatformNotificationUncheckedCreateNestedManyWithoutSchoolInput
+  platformNotificationRecipients?: Prisma.PlatformNotificationRecipientUncheckedCreateNestedManyWithoutSchoolInput
 }
 
 export type SchoolCreateOrConnectWithoutSubscriptionsInput = {
@@ -1323,6 +1353,7 @@ export type SchoolUpdateWithoutSubscriptionsInput = {
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspensionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  schemaName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubaccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubaccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementBankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1332,7 +1363,7 @@ export type SchoolUpdateWithoutSubscriptionsInput = {
   users?: Prisma.UserUpdateManyWithoutSchoolNestedInput
   documents?: Prisma.SchoolDocumentUpdateManyWithoutSchoolNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutSchoolNestedInput
-  platformNotifications?: Prisma.PlatformNotificationUpdateManyWithoutSchoolNestedInput
+  platformNotificationRecipients?: Prisma.PlatformNotificationRecipientUpdateManyWithoutSchoolNestedInput
 }
 
 export type SchoolUncheckedUpdateWithoutSubscriptionsInput = {
@@ -1356,6 +1387,7 @@ export type SchoolUncheckedUpdateWithoutSubscriptionsInput = {
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspensionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  schemaName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubaccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubaccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementBankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1365,7 +1397,7 @@ export type SchoolUncheckedUpdateWithoutSubscriptionsInput = {
   users?: Prisma.UserUncheckedUpdateManyWithoutSchoolNestedInput
   documents?: Prisma.SchoolDocumentUncheckedUpdateManyWithoutSchoolNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
-  platformNotifications?: Prisma.PlatformNotificationUncheckedUpdateManyWithoutSchoolNestedInput
+  platformNotificationRecipients?: Prisma.PlatformNotificationRecipientUncheckedUpdateManyWithoutSchoolNestedInput
 }
 
 export type SchoolCreateWithoutAuditLogsInput = {
@@ -1389,6 +1421,7 @@ export type SchoolCreateWithoutAuditLogsInput = {
   suspendedAt?: Date | string | null
   suspensionReason?: string | null
   isActive?: boolean
+  schemaName?: string | null
   paystackSubaccountCode?: string | null
   paystackSubaccountId?: string | null
   settlementBankCode?: string | null
@@ -1398,7 +1431,7 @@ export type SchoolCreateWithoutAuditLogsInput = {
   users?: Prisma.UserCreateNestedManyWithoutSchoolInput
   subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutSchoolInput
   documents?: Prisma.SchoolDocumentCreateNestedManyWithoutSchoolInput
-  platformNotifications?: Prisma.PlatformNotificationCreateNestedManyWithoutSchoolInput
+  platformNotificationRecipients?: Prisma.PlatformNotificationRecipientCreateNestedManyWithoutSchoolInput
 }
 
 export type SchoolUncheckedCreateWithoutAuditLogsInput = {
@@ -1422,6 +1455,7 @@ export type SchoolUncheckedCreateWithoutAuditLogsInput = {
   suspendedAt?: Date | string | null
   suspensionReason?: string | null
   isActive?: boolean
+  schemaName?: string | null
   paystackSubaccountCode?: string | null
   paystackSubaccountId?: string | null
   settlementBankCode?: string | null
@@ -1431,7 +1465,7 @@ export type SchoolUncheckedCreateWithoutAuditLogsInput = {
   users?: Prisma.UserUncheckedCreateNestedManyWithoutSchoolInput
   subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
   documents?: Prisma.SchoolDocumentUncheckedCreateNestedManyWithoutSchoolInput
-  platformNotifications?: Prisma.PlatformNotificationUncheckedCreateNestedManyWithoutSchoolInput
+  platformNotificationRecipients?: Prisma.PlatformNotificationRecipientUncheckedCreateNestedManyWithoutSchoolInput
 }
 
 export type SchoolCreateOrConnectWithoutAuditLogsInput = {
@@ -1471,6 +1505,7 @@ export type SchoolUpdateWithoutAuditLogsInput = {
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspensionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  schemaName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubaccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubaccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementBankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1480,7 +1515,7 @@ export type SchoolUpdateWithoutAuditLogsInput = {
   users?: Prisma.UserUpdateManyWithoutSchoolNestedInput
   subscriptions?: Prisma.SubscriptionUpdateManyWithoutSchoolNestedInput
   documents?: Prisma.SchoolDocumentUpdateManyWithoutSchoolNestedInput
-  platformNotifications?: Prisma.PlatformNotificationUpdateManyWithoutSchoolNestedInput
+  platformNotificationRecipients?: Prisma.PlatformNotificationRecipientUpdateManyWithoutSchoolNestedInput
 }
 
 export type SchoolUncheckedUpdateWithoutAuditLogsInput = {
@@ -1504,6 +1539,7 @@ export type SchoolUncheckedUpdateWithoutAuditLogsInput = {
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspensionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  schemaName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubaccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubaccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementBankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1513,10 +1549,10 @@ export type SchoolUncheckedUpdateWithoutAuditLogsInput = {
   users?: Prisma.UserUncheckedUpdateManyWithoutSchoolNestedInput
   subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
   documents?: Prisma.SchoolDocumentUncheckedUpdateManyWithoutSchoolNestedInput
-  platformNotifications?: Prisma.PlatformNotificationUncheckedUpdateManyWithoutSchoolNestedInput
+  platformNotificationRecipients?: Prisma.PlatformNotificationRecipientUncheckedUpdateManyWithoutSchoolNestedInput
 }
 
-export type SchoolCreateWithoutPlatformNotificationsInput = {
+export type SchoolCreateWithoutPlatformNotificationRecipientsInput = {
   id?: string
   name: string
   subdomain: string
@@ -1537,6 +1573,7 @@ export type SchoolCreateWithoutPlatformNotificationsInput = {
   suspendedAt?: Date | string | null
   suspensionReason?: string | null
   isActive?: boolean
+  schemaName?: string | null
   paystackSubaccountCode?: string | null
   paystackSubaccountId?: string | null
   settlementBankCode?: string | null
@@ -1549,7 +1586,7 @@ export type SchoolCreateWithoutPlatformNotificationsInput = {
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutSchoolInput
 }
 
-export type SchoolUncheckedCreateWithoutPlatformNotificationsInput = {
+export type SchoolUncheckedCreateWithoutPlatformNotificationRecipientsInput = {
   id?: string
   name: string
   subdomain: string
@@ -1570,6 +1607,7 @@ export type SchoolUncheckedCreateWithoutPlatformNotificationsInput = {
   suspendedAt?: Date | string | null
   suspensionReason?: string | null
   isActive?: boolean
+  schemaName?: string | null
   paystackSubaccountCode?: string | null
   paystackSubaccountId?: string | null
   settlementBankCode?: string | null
@@ -1582,23 +1620,23 @@ export type SchoolUncheckedCreateWithoutPlatformNotificationsInput = {
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutSchoolInput
 }
 
-export type SchoolCreateOrConnectWithoutPlatformNotificationsInput = {
+export type SchoolCreateOrConnectWithoutPlatformNotificationRecipientsInput = {
   where: Prisma.SchoolWhereUniqueInput
-  create: Prisma.XOR<Prisma.SchoolCreateWithoutPlatformNotificationsInput, Prisma.SchoolUncheckedCreateWithoutPlatformNotificationsInput>
+  create: Prisma.XOR<Prisma.SchoolCreateWithoutPlatformNotificationRecipientsInput, Prisma.SchoolUncheckedCreateWithoutPlatformNotificationRecipientsInput>
 }
 
-export type SchoolUpsertWithoutPlatformNotificationsInput = {
-  update: Prisma.XOR<Prisma.SchoolUpdateWithoutPlatformNotificationsInput, Prisma.SchoolUncheckedUpdateWithoutPlatformNotificationsInput>
-  create: Prisma.XOR<Prisma.SchoolCreateWithoutPlatformNotificationsInput, Prisma.SchoolUncheckedCreateWithoutPlatformNotificationsInput>
+export type SchoolUpsertWithoutPlatformNotificationRecipientsInput = {
+  update: Prisma.XOR<Prisma.SchoolUpdateWithoutPlatformNotificationRecipientsInput, Prisma.SchoolUncheckedUpdateWithoutPlatformNotificationRecipientsInput>
+  create: Prisma.XOR<Prisma.SchoolCreateWithoutPlatformNotificationRecipientsInput, Prisma.SchoolUncheckedCreateWithoutPlatformNotificationRecipientsInput>
   where?: Prisma.SchoolWhereInput
 }
 
-export type SchoolUpdateToOneWithWhereWithoutPlatformNotificationsInput = {
+export type SchoolUpdateToOneWithWhereWithoutPlatformNotificationRecipientsInput = {
   where?: Prisma.SchoolWhereInput
-  data: Prisma.XOR<Prisma.SchoolUpdateWithoutPlatformNotificationsInput, Prisma.SchoolUncheckedUpdateWithoutPlatformNotificationsInput>
+  data: Prisma.XOR<Prisma.SchoolUpdateWithoutPlatformNotificationRecipientsInput, Prisma.SchoolUncheckedUpdateWithoutPlatformNotificationRecipientsInput>
 }
 
-export type SchoolUpdateWithoutPlatformNotificationsInput = {
+export type SchoolUpdateWithoutPlatformNotificationRecipientsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   subdomain?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1619,6 +1657,7 @@ export type SchoolUpdateWithoutPlatformNotificationsInput = {
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspensionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  schemaName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubaccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubaccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementBankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1631,7 +1670,7 @@ export type SchoolUpdateWithoutPlatformNotificationsInput = {
   auditLogs?: Prisma.AuditLogUpdateManyWithoutSchoolNestedInput
 }
 
-export type SchoolUncheckedUpdateWithoutPlatformNotificationsInput = {
+export type SchoolUncheckedUpdateWithoutPlatformNotificationRecipientsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   subdomain?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1652,6 +1691,7 @@ export type SchoolUncheckedUpdateWithoutPlatformNotificationsInput = {
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspensionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  schemaName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubaccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackSubaccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementBankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1674,7 +1714,7 @@ export type SchoolCountOutputType = {
   subscriptions: number
   documents: number
   auditLogs: number
-  platformNotifications: number
+  platformNotificationRecipients: number
 }
 
 export type SchoolCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1682,7 +1722,7 @@ export type SchoolCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions
   subscriptions?: boolean | SchoolCountOutputTypeCountSubscriptionsArgs
   documents?: boolean | SchoolCountOutputTypeCountDocumentsArgs
   auditLogs?: boolean | SchoolCountOutputTypeCountAuditLogsArgs
-  platformNotifications?: boolean | SchoolCountOutputTypeCountPlatformNotificationsArgs
+  platformNotificationRecipients?: boolean | SchoolCountOutputTypeCountPlatformNotificationRecipientsArgs
 }
 
 /**
@@ -1726,8 +1766,8 @@ export type SchoolCountOutputTypeCountAuditLogsArgs<ExtArgs extends runtime.Type
 /**
  * SchoolCountOutputType without action
  */
-export type SchoolCountOutputTypeCountPlatformNotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.PlatformNotificationWhereInput
+export type SchoolCountOutputTypeCountPlatformNotificationRecipientsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PlatformNotificationRecipientWhereInput
 }
 
 
@@ -1752,6 +1792,7 @@ export type SchoolSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   suspendedAt?: boolean
   suspensionReason?: boolean
   isActive?: boolean
+  schemaName?: boolean
   paystackSubaccountCode?: boolean
   paystackSubaccountId?: boolean
   settlementBankCode?: boolean
@@ -1762,7 +1803,7 @@ export type SchoolSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   subscriptions?: boolean | Prisma.School$subscriptionsArgs<ExtArgs>
   documents?: boolean | Prisma.School$documentsArgs<ExtArgs>
   auditLogs?: boolean | Prisma.School$auditLogsArgs<ExtArgs>
-  platformNotifications?: boolean | Prisma.School$platformNotificationsArgs<ExtArgs>
+  platformNotificationRecipients?: boolean | Prisma.School$platformNotificationRecipientsArgs<ExtArgs>
   _count?: boolean | Prisma.SchoolCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["school"]>
 
@@ -1787,6 +1828,7 @@ export type SchoolSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   suspendedAt?: boolean
   suspensionReason?: boolean
   isActive?: boolean
+  schemaName?: boolean
   paystackSubaccountCode?: boolean
   paystackSubaccountId?: boolean
   settlementBankCode?: boolean
@@ -1816,6 +1858,7 @@ export type SchoolSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   suspendedAt?: boolean
   suspensionReason?: boolean
   isActive?: boolean
+  schemaName?: boolean
   paystackSubaccountCode?: boolean
   paystackSubaccountId?: boolean
   settlementBankCode?: boolean
@@ -1845,6 +1888,7 @@ export type SchoolSelectScalar = {
   suspendedAt?: boolean
   suspensionReason?: boolean
   isActive?: boolean
+  schemaName?: boolean
   paystackSubaccountCode?: boolean
   paystackSubaccountId?: boolean
   settlementBankCode?: boolean
@@ -1853,13 +1897,13 @@ export type SchoolSelectScalar = {
   updatedAt?: boolean
 }
 
-export type SchoolOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "subdomain" | "email" | "phone" | "address" | "city" | "state" | "country" | "timezone" | "logoUrl" | "schoolCategory" | "schoolOwnership" | "status" | "verificationStatus" | "verifiedAt" | "verifiedById" | "suspendedAt" | "suspensionReason" | "isActive" | "paystackSubaccountCode" | "paystackSubaccountId" | "settlementBankCode" | "settlementAccountNumber" | "createdAt" | "updatedAt", ExtArgs["result"]["school"]>
+export type SchoolOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "subdomain" | "email" | "phone" | "address" | "city" | "state" | "country" | "timezone" | "logoUrl" | "schoolCategory" | "schoolOwnership" | "status" | "verificationStatus" | "verifiedAt" | "verifiedById" | "suspendedAt" | "suspensionReason" | "isActive" | "schemaName" | "paystackSubaccountCode" | "paystackSubaccountId" | "settlementBankCode" | "settlementAccountNumber" | "createdAt" | "updatedAt", ExtArgs["result"]["school"]>
 export type SchoolInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   users?: boolean | Prisma.School$usersArgs<ExtArgs>
   subscriptions?: boolean | Prisma.School$subscriptionsArgs<ExtArgs>
   documents?: boolean | Prisma.School$documentsArgs<ExtArgs>
   auditLogs?: boolean | Prisma.School$auditLogsArgs<ExtArgs>
-  platformNotifications?: boolean | Prisma.School$platformNotificationsArgs<ExtArgs>
+  platformNotificationRecipients?: boolean | Prisma.School$platformNotificationRecipientsArgs<ExtArgs>
   _count?: boolean | Prisma.SchoolCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type SchoolIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1872,7 +1916,7 @@ export type $SchoolPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     subscriptions: Prisma.$SubscriptionPayload<ExtArgs>[]
     documents: Prisma.$SchoolDocumentPayload<ExtArgs>[]
     auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
-    platformNotifications: Prisma.$PlatformNotificationPayload<ExtArgs>[]
+    platformNotificationRecipients: Prisma.$PlatformNotificationRecipientPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1895,6 +1939,7 @@ export type $SchoolPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     suspendedAt: Date | null
     suspensionReason: string | null
     isActive: boolean
+    schemaName: string | null
     paystackSubaccountCode: string | null
     paystackSubaccountId: string | null
     settlementBankCode: string | null
@@ -2299,7 +2344,7 @@ export interface Prisma__SchoolClient<T, Null = never, ExtArgs extends runtime.T
   subscriptions<T extends Prisma.School$subscriptionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.School$subscriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   documents<T extends Prisma.School$documentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.School$documentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SchoolDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   auditLogs<T extends Prisma.School$auditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.School$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  platformNotifications<T extends Prisma.School$platformNotificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.School$platformNotificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PlatformNotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  platformNotificationRecipients<T extends Prisma.School$platformNotificationRecipientsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.School$platformNotificationRecipientsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PlatformNotificationRecipientPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2349,6 +2394,7 @@ export interface SchoolFieldRefs {
   readonly suspendedAt: Prisma.FieldRef<"School", 'DateTime'>
   readonly suspensionReason: Prisma.FieldRef<"School", 'String'>
   readonly isActive: Prisma.FieldRef<"School", 'Boolean'>
+  readonly schemaName: Prisma.FieldRef<"School", 'String'>
   readonly paystackSubaccountCode: Prisma.FieldRef<"School", 'String'>
   readonly paystackSubaccountId: Prisma.FieldRef<"School", 'String'>
   readonly settlementBankCode: Prisma.FieldRef<"School", 'String'>
@@ -2844,27 +2890,27 @@ export type School$auditLogsArgs<ExtArgs extends runtime.Types.Extensions.Intern
 }
 
 /**
- * School.platformNotifications
+ * School.platformNotificationRecipients
  */
-export type School$platformNotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type School$platformNotificationRecipientsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the PlatformNotification
+   * Select specific fields to fetch from the PlatformNotificationRecipient
    */
-  select?: Prisma.PlatformNotificationSelect<ExtArgs> | null
+  select?: Prisma.PlatformNotificationRecipientSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the PlatformNotification
+   * Omit specific fields from the PlatformNotificationRecipient
    */
-  omit?: Prisma.PlatformNotificationOmit<ExtArgs> | null
+  omit?: Prisma.PlatformNotificationRecipientOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.PlatformNotificationInclude<ExtArgs> | null
-  where?: Prisma.PlatformNotificationWhereInput
-  orderBy?: Prisma.PlatformNotificationOrderByWithRelationInput | Prisma.PlatformNotificationOrderByWithRelationInput[]
-  cursor?: Prisma.PlatformNotificationWhereUniqueInput
+  include?: Prisma.PlatformNotificationRecipientInclude<ExtArgs> | null
+  where?: Prisma.PlatformNotificationRecipientWhereInput
+  orderBy?: Prisma.PlatformNotificationRecipientOrderByWithRelationInput | Prisma.PlatformNotificationRecipientOrderByWithRelationInput[]
+  cursor?: Prisma.PlatformNotificationRecipientWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.PlatformNotificationScalarFieldEnum | Prisma.PlatformNotificationScalarFieldEnum[]
+  distinct?: Prisma.PlatformNotificationRecipientScalarFieldEnum | Prisma.PlatformNotificationRecipientScalarFieldEnum[]
 }
 
 /**

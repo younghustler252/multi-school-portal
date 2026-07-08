@@ -145,12 +145,36 @@ export type PlatformNotificationType = (typeof PlatformNotificationType)[keyof t
 
 
 export const NotificationChannel = {
-  in_app: 'in_app',
-  email: 'email',
-  sms: 'sms'
+  IN_APP: 'IN_APP',
+  EMAIL: 'EMAIL',
+  SMS: 'SMS'
 } as const
 
 export type NotificationChannel = (typeof NotificationChannel)[keyof typeof NotificationChannel]
+
+
+export const NotificationState = {
+  DRAFT: 'DRAFT',
+  QUEUED: 'QUEUED',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type NotificationState = (typeof NotificationState)[keyof typeof NotificationState]
+
+
+export const DeliveryStatus = {
+  PENDING: 'PENDING',
+  QUEUED: 'QUEUED',
+  SENT: 'SENT',
+  DELIVERED: 'DELIVERED',
+  READ: 'READ',
+  FAILED: 'FAILED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type DeliveryStatus = (typeof DeliveryStatus)[keyof typeof DeliveryStatus]
 
 
 export const StaffRole = {
@@ -270,14 +294,24 @@ export const SchoolNotificationType = {
 export type SchoolNotificationType = (typeof SchoolNotificationType)[keyof typeof SchoolNotificationType]
 
 
+export const NotificationPriority = {
+  LOW: 'LOW',
+  NORMAL: 'NORMAL',
+  HIGH: 'HIGH',
+  CRITICAL: 'CRITICAL'
+} as const
+
+export type NotificationPriority = (typeof NotificationPriority)[keyof typeof NotificationPriority]
+
+
 export const TargetType = {
-  student: 'student',
-  guardian: 'guardian',
-  staff: 'staff',
-  all_parents: 'all_parents',
-  all_students: 'all_students',
-  all_staff: 'all_staff',
-  everyone: 'everyone'
+  STUDENT: 'STUDENT',
+  GUARDIAN: 'GUARDIAN',
+  STAFF: 'STAFF',
+  ALL_PARENTS: 'ALL_PARENTS',
+  ALL_STUDENTS: 'ALL_STUDENTS',
+  ALL_STAFF: 'ALL_STAFF',
+  EVERYONE: 'EVERYONE'
 } as const
 
 export type TargetType = (typeof TargetType)[keyof typeof TargetType]

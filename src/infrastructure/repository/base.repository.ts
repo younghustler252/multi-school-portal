@@ -1,81 +1,193 @@
 import { PrismaClient } from "../../generated/prisma/client";
-import { PaginationParams }  from "../../shared/utils/pagination";
+import {
+    parsePagination,
+    buildPaginationMeta,
+}                                   from "../../shared/utils/pagination";
+import type { PaginationMeta }      from "../../shared/utils/api-response";
 
 /*
 |--------------------------------------------------------------------------
 | BASE REPOSITORY
-| Generic CRUD operations every repository inherits
-| T  = Domain entity type
-| ID = ID type (default string)
+| Generic Prisma repository — extended by every module repository
+| T  = Domain entity type (what the mapper returns)
+| DM = Database model type (raw Prisma result)
 |--------------------------------------------------------------------------
 */
 
-export abstract class BaseRepository<T> {
-    protected readonly prisma: PrismaClient;
+export interface IMapper<DM, T> {
+    toDomain(raw: DM): T;
+}
+
+export interface PaginateParams {
+    page?:    number;
+    limit?:   number;
+    where?:   Record<string, any>;
+    orderBy?: Record<string, any>;
+    include?: Record<string, any>;
+}
+
+export interface PaginatedResult<T> {
+    data: T[];
+    meta: PaginationMeta;
+}
+
+export abstract class BaseRepository<T, DM = any> {
+    protected readonly prisma:  PrismaClient;
+    protected readonly mapper:  IMapper<DM, T>;
+
+    // Each subclass declares which Prisma model delegate to use
+    // e.g. "user", "school", "student"
     protected abstract readonly modelName: string;
 
-    constructor(prisma: PrismaClient) {
+    constructor(prisma: PrismaClient, mapper: IMapper<DM, T>) {
         this.prisma = prisma;
+        this.mapper = mapper;
     }
 
-    // ── Helpers ─────────────────────────────────────────────────────────
-    protected getModel(): any {
+    // ── Get Prisma model delegate ────────────────────────────────────────
+    protected model(): any {
         return (this.prisma as any)[this.modelName];
     }
 
-    // ── Find by ID ───────────────────────────────────────────────────────
-    async findById(id: string): Promise<T | null> {
-        return this.getModel().findUnique({
-            where: { id },
-        });
+    // ── Mapper helpers ───────────────────────────────────────────────────
+    protected mapOne(raw: DM | null): T | null {
+        if (!raw) return null;
+        return this.mapper.toDomain(raw);
     }
 
-    // ── Find all with pagination ─────────────────────────────────────────
-    async findAll(
-        pagination: PaginationParams,
-        where:      Record<string, any> = {},
-    ): Promise<{ data: T[]; total: number }> {
-        const [data, total] = await Promise.all([
-            this.getModel().findMany({
+    protected mapMany(raws: DM[]): T[] {
+        if (!Array.isArray(raws)) return [];
+        return raws.map(raw => this.mapper.toDomain(raw));
+    }
+
+    // ── Find by ID ───────────────────────────────────────────────────────
+    async findById(
+        id:       string,
+        include?: Record<string, any>,
+    ): Promise<T | null> {
+        const raw = await this.model().findUnique({
+            where: { id },
+            ...(include && { include }),
+        });
+
+        return this.mapOne(raw);
+    }
+
+    // ── Find one ─────────────────────────────────────────────────────────
+    async findOne(
+        where:    Record<string, any>,
+        include?: Record<string, any>,
+    ): Promise<T | null> {
+        const raw = await this.model().findFirst({
+            where,
+            ...(include && { include }),
+        });
+
+        return this.mapOne(raw);
+    }
+
+    // ── Find many ────────────────────────────────────────────────────────
+    async findMany(
+        where:    Record<string, any> = {},
+        include?: Record<string, any>,
+        orderBy?: Record<string, any>,
+    ): Promise<T[]> {
+        const raws = await this.model().findMany({
+            where,
+            ...(include && { include }),
+            ...(orderBy && { orderBy }),
+        });
+
+        return this.mapMany(raws);
+    }
+
+    // ── Paginate ─────────────────────────────────────────────────────────
+    async paginate(params: PaginateParams): Promise<PaginatedResult<T>> {
+        const { page, limit, skip } = parsePagination({
+            page:  params.page,
+            limit: params.limit,
+        });
+
+        const where   = params.where   ?? {};
+        const orderBy = params.orderBy ?? { createdAt: "desc" };
+
+        const [raws, total] = await Promise.all([
+            this.model().findMany({
                 where,
-                skip:  pagination.skip,
-                take:  pagination.limit,
-                orderBy: { createdAt: "desc" },
+                skip,
+                take:    limit,
+                orderBy,
+                ...(params.include && { include: params.include }),
             }),
-            this.getModel().count({ where }),
+            this.model().count({ where }),
         ]);
 
-        return { data, total };
+        return {
+            data: this.mapMany(raws),
+            meta: buildPaginationMeta(total, page, limit),
+        };
     }
 
     // ── Create ───────────────────────────────────────────────────────────
-    async create(data: Partial<T>): Promise<T> {
-        return this.getModel().create({ data });
+    async create(
+        data:     Record<string, any>,
+        include?: Record<string, any>,
+    ): Promise<T> {
+        const raw = await this.model().create({
+            data,
+            ...(include && { include }),
+        });
+
+        return this.mapper.toDomain(raw);
     }
 
     // ── Update ───────────────────────────────────────────────────────────
-    async update(id: string, data: Partial<T>): Promise<T> {
-        return this.getModel().update({
+    async update(
+        id:       string,
+        data:     Record<string, any>,
+        include?: Record<string, any>,
+    ): Promise<T> {
+        const raw = await this.model().update({
             where: { id },
             data,
+            ...(include && { include }),
         });
+
+        return this.mapper.toDomain(raw);
     }
 
     // ── Delete ───────────────────────────────────────────────────────────
     async delete(id: string): Promise<T> {
-        return this.getModel().delete({
+        const raw = await this.model().delete({
             where: { id },
         });
+
+        return this.mapper.toDomain(raw);
     }
 
     // ── Exists ───────────────────────────────────────────────────────────
     async exists(where: Record<string, any>): Promise<boolean> {
-        const count = await this.getModel().count({ where });
+        const count = await this.model().count({ where });
         return count > 0;
     }
 
     // ── Count ────────────────────────────────────────────────────────────
     async count(where: Record<string, any> = {}): Promise<number> {
-        return this.getModel().count({ where });
+        return this.model().count({ where });
+    }
+
+    // ── Upsert ───────────────────────────────────────────────────────────
+    async upsert(
+        where:  Record<string, any>,
+        create: Record<string, any>,
+        update: Record<string, any>,
+    ): Promise<T> {
+        const raw = await this.model().upsert({
+            where,
+            create,
+            update,
+        });
+
+        return this.mapper.toDomain(raw);
     }
 }

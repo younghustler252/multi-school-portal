@@ -1,87 +1,61 @@
-import { 
+import {
+    SchoolCategory,
+    SchoolOwnership,
     SchoolStatus,
     VerificationStatus,
-    SchoolType,
-    OwnershipType,
-    SubscriptionStatus,
-} from "./school.enum";
+    DocumentType,
+    DocumentStatus,
+}                       from "../../../generated/prisma/enums";
 
+/*
+|--------------------------------------------------------------------------
+| SCHOOL DOMAIN ENTITIES
+|--------------------------------------------------------------------------
+*/
 
-export interface SchoolProps {
-    id: string;
-
-    name: string;
-    slug: string;
-    subdomain: string;
-    schoolCode: string;
-
-    email: string;
-    phone?: string;
-
-    address?: string;
-    city?: string;
-    state?: string;
-    country?: string;
-    timezone?: string;
-
-    logo?: string;
-    website?: string;
-
-    schoolType: SchoolType;
-    ownershipType: OwnershipType;
-
-    status: SchoolStatus;
-    verificationStatus: VerificationStatus;
-    subscriptionStatus: SubscriptionStatus;
-
-    currentPlanId?: string;
-
-    studentLimit?: number;
-
-    currentAcademicSession?: string;
-    currentTerm?: string;
-
-    trialEndsAt?: Date;
-    verifiedAt?: Date;
-
-    createdBy: string;
-
-    createdAt: Date;
-    updatedAt: Date;
-    deletedAt?: Date;
+// ── School Entity ─────────────────────────────────────────────────────────
+export interface SchoolEntity {
+    id:                     string;
+    name:                   string;
+    subdomain:              string;
+    schemaName:             string | null;
+    email:                  string;
+    phone:                  string | null;
+    address:                string | null;
+    city:                   string | null;
+    state:                  string | null;
+    country:                string;
+    timezone:               string;
+    logoUrl:                string | null;
+    schoolCategory:         SchoolCategory;
+    schoolOwnership:        SchoolOwnership;
+    status:                 SchoolStatus;
+    verificationStatus:     VerificationStatus;
+    verifiedAt:             Date | null;
+    verifiedById:           string | null;
+    suspendedAt:            Date | null;
+    suspensionReason:       string | null;
+    isActive:               boolean;
+    paystackSubaccountCode: string | null;
+    paystackSubaccountId:   string | null;
+    settlementBankCode:     string | null;
+    settlementAccountNumber: string | null;
+    createdAt:              Date;
+    updatedAt:              Date;
 }
-export class School {
-    constructor(private props: SchoolProps) {}
 
-    getProps(): SchoolProps {
-        return this.props;
-    }
-
-    get id(): string {
-        return this.props.id;
-    }
-
-    get status(): SchoolStatus {
-        return this.props.status;
-    }
-
-    activate(): void {
-        this.props.status = SchoolStatus.ACTIVE;
-    }
-
-    suspend(): void {
-        this.props.status = SchoolStatus.SUSPENDED;
-    }
-
-    verify(): void {
-        this.props.verificationStatus = VerificationStatus.VERIFIED;
-        this.props.verifiedAt = new Date();
-    }
-
-    canAccessPlatform(): boolean {
-        return (
-            this.props.status === SchoolStatus.ACTIVE &&
-            this.props.subscriptionStatus === SubscriptionStatus.ACTIVE
-        );
-    }
+// ── School Document Entity ────────────────────────────────────────────────
+export interface SchoolDocumentEntity {
+    id:              string;
+    schoolId:        string;
+    type:            DocumentType;
+    fileUrl:         string;
+    status:          DocumentStatus;
+    rejectionReason: string | null;
+    verifiedAt:      Date | null;
+    verifiedById:    string | null;
+    apiVerified:     boolean;
+    apiResponse:     any | null;
+    createdAt:       Date;
+    updatedAt:       Date;
 }

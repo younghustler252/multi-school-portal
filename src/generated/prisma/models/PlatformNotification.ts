@@ -26,80 +26,84 @@ export type AggregatePlatformNotification = {
 
 export type PlatformNotificationMinAggregateOutputType = {
   id: string | null
-  schoolId: string | null
   title: string | null
   message: string | null
   type: $Enums.PlatformNotificationType | null
-  isRead: boolean | null
-  readAt: Date | null
+  state: $Enums.NotificationState | null
+  createdByAdminId: string | null
   sentAt: Date | null
+  completedAt: Date | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type PlatformNotificationMaxAggregateOutputType = {
   id: string | null
-  schoolId: string | null
   title: string | null
   message: string | null
   type: $Enums.PlatformNotificationType | null
-  isRead: boolean | null
-  readAt: Date | null
+  state: $Enums.NotificationState | null
+  createdByAdminId: string | null
   sentAt: Date | null
+  completedAt: Date | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type PlatformNotificationCountAggregateOutputType = {
   id: number
-  schoolId: number
   title: number
   message: number
   type: number
-  channel: number
-  isRead: number
-  readAt: number
-  sentAt: number
+  state: number
+  createdByAdminId: number
   metadata: number
+  sentAt: number
+  completedAt: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
 
 export type PlatformNotificationMinAggregateInputType = {
   id?: true
-  schoolId?: true
   title?: true
   message?: true
   type?: true
-  isRead?: true
-  readAt?: true
+  state?: true
+  createdByAdminId?: true
   sentAt?: true
+  completedAt?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type PlatformNotificationMaxAggregateInputType = {
   id?: true
-  schoolId?: true
   title?: true
   message?: true
   type?: true
-  isRead?: true
-  readAt?: true
+  state?: true
+  createdByAdminId?: true
   sentAt?: true
+  completedAt?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type PlatformNotificationCountAggregateInputType = {
   id?: true
-  schoolId?: true
   title?: true
   message?: true
   type?: true
-  channel?: true
-  isRead?: true
-  readAt?: true
-  sentAt?: true
+  state?: true
+  createdByAdminId?: true
   metadata?: true
+  sentAt?: true
+  completedAt?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -177,16 +181,16 @@ export type PlatformNotificationGroupByArgs<ExtArgs extends runtime.Types.Extens
 
 export type PlatformNotificationGroupByOutputType = {
   id: string
-  schoolId: string | null
   title: string
   message: string
   type: $Enums.PlatformNotificationType
-  channel: $Enums.NotificationChannel[]
-  isRead: boolean
-  readAt: Date | null
-  sentAt: Date | null
+  state: $Enums.NotificationState
+  createdByAdminId: string
   metadata: runtime.JsonValue | null
+  sentAt: Date | null
+  completedAt: Date | null
   createdAt: Date
+  updatedAt: Date
   _count: PlatformNotificationCountAggregateOutputType | null
   _min: PlatformNotificationMinAggregateOutputType | null
   _max: PlatformNotificationMaxAggregateOutputType | null
@@ -212,32 +216,32 @@ export type PlatformNotificationWhereInput = {
   OR?: Prisma.PlatformNotificationWhereInput[]
   NOT?: Prisma.PlatformNotificationWhereInput | Prisma.PlatformNotificationWhereInput[]
   id?: Prisma.StringFilter<"PlatformNotification"> | string
-  schoolId?: Prisma.StringNullableFilter<"PlatformNotification"> | string | null
   title?: Prisma.StringFilter<"PlatformNotification"> | string
   message?: Prisma.StringFilter<"PlatformNotification"> | string
   type?: Prisma.EnumPlatformNotificationTypeFilter<"PlatformNotification"> | $Enums.PlatformNotificationType
-  channel?: Prisma.EnumNotificationChannelNullableListFilter<"PlatformNotification">
-  isRead?: Prisma.BoolFilter<"PlatformNotification"> | boolean
-  readAt?: Prisma.DateTimeNullableFilter<"PlatformNotification"> | Date | string | null
-  sentAt?: Prisma.DateTimeNullableFilter<"PlatformNotification"> | Date | string | null
+  state?: Prisma.EnumNotificationStateFilter<"PlatformNotification"> | $Enums.NotificationState
+  createdByAdminId?: Prisma.StringFilter<"PlatformNotification"> | string
   metadata?: Prisma.JsonNullableFilter<"PlatformNotification">
+  sentAt?: Prisma.DateTimeNullableFilter<"PlatformNotification"> | Date | string | null
+  completedAt?: Prisma.DateTimeNullableFilter<"PlatformNotification"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"PlatformNotification"> | Date | string
-  school?: Prisma.XOR<Prisma.SchoolNullableScalarRelationFilter, Prisma.SchoolWhereInput> | null
+  updatedAt?: Prisma.DateTimeFilter<"PlatformNotification"> | Date | string
+  recipients?: Prisma.PlatformNotificationRecipientListRelationFilter
 }
 
 export type PlatformNotificationOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  schoolId?: Prisma.SortOrderInput | Prisma.SortOrder
   title?: Prisma.SortOrder
   message?: Prisma.SortOrder
   type?: Prisma.SortOrder
-  channel?: Prisma.SortOrder
-  isRead?: Prisma.SortOrder
-  readAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  sentAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  state?: Prisma.SortOrder
+  createdByAdminId?: Prisma.SortOrder
   metadata?: Prisma.SortOrderInput | Prisma.SortOrder
+  sentAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  school?: Prisma.SchoolOrderByWithRelationInput
+  updatedAt?: Prisma.SortOrder
+  recipients?: Prisma.PlatformNotificationRecipientOrderByRelationAggregateInput
 }
 
 export type PlatformNotificationWhereUniqueInput = Prisma.AtLeast<{
@@ -245,31 +249,31 @@ export type PlatformNotificationWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.PlatformNotificationWhereInput | Prisma.PlatformNotificationWhereInput[]
   OR?: Prisma.PlatformNotificationWhereInput[]
   NOT?: Prisma.PlatformNotificationWhereInput | Prisma.PlatformNotificationWhereInput[]
-  schoolId?: Prisma.StringNullableFilter<"PlatformNotification"> | string | null
   title?: Prisma.StringFilter<"PlatformNotification"> | string
   message?: Prisma.StringFilter<"PlatformNotification"> | string
   type?: Prisma.EnumPlatformNotificationTypeFilter<"PlatformNotification"> | $Enums.PlatformNotificationType
-  channel?: Prisma.EnumNotificationChannelNullableListFilter<"PlatformNotification">
-  isRead?: Prisma.BoolFilter<"PlatformNotification"> | boolean
-  readAt?: Prisma.DateTimeNullableFilter<"PlatformNotification"> | Date | string | null
-  sentAt?: Prisma.DateTimeNullableFilter<"PlatformNotification"> | Date | string | null
+  state?: Prisma.EnumNotificationStateFilter<"PlatformNotification"> | $Enums.NotificationState
+  createdByAdminId?: Prisma.StringFilter<"PlatformNotification"> | string
   metadata?: Prisma.JsonNullableFilter<"PlatformNotification">
+  sentAt?: Prisma.DateTimeNullableFilter<"PlatformNotification"> | Date | string | null
+  completedAt?: Prisma.DateTimeNullableFilter<"PlatformNotification"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"PlatformNotification"> | Date | string
-  school?: Prisma.XOR<Prisma.SchoolNullableScalarRelationFilter, Prisma.SchoolWhereInput> | null
+  updatedAt?: Prisma.DateTimeFilter<"PlatformNotification"> | Date | string
+  recipients?: Prisma.PlatformNotificationRecipientListRelationFilter
 }, "id">
 
 export type PlatformNotificationOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  schoolId?: Prisma.SortOrderInput | Prisma.SortOrder
   title?: Prisma.SortOrder
   message?: Prisma.SortOrder
   type?: Prisma.SortOrder
-  channel?: Prisma.SortOrder
-  isRead?: Prisma.SortOrder
-  readAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  sentAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  state?: Prisma.SortOrder
+  createdByAdminId?: Prisma.SortOrder
   metadata?: Prisma.SortOrderInput | Prisma.SortOrder
+  sentAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.PlatformNotificationCountOrderByAggregateInput
   _max?: Prisma.PlatformNotificationMaxOrderByAggregateInput
   _min?: Prisma.PlatformNotificationMinOrderByAggregateInput
@@ -280,16 +284,16 @@ export type PlatformNotificationScalarWhereWithAggregatesInput = {
   OR?: Prisma.PlatformNotificationScalarWhereWithAggregatesInput[]
   NOT?: Prisma.PlatformNotificationScalarWhereWithAggregatesInput | Prisma.PlatformNotificationScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"PlatformNotification"> | string
-  schoolId?: Prisma.StringNullableWithAggregatesFilter<"PlatformNotification"> | string | null
   title?: Prisma.StringWithAggregatesFilter<"PlatformNotification"> | string
   message?: Prisma.StringWithAggregatesFilter<"PlatformNotification"> | string
   type?: Prisma.EnumPlatformNotificationTypeWithAggregatesFilter<"PlatformNotification"> | $Enums.PlatformNotificationType
-  channel?: Prisma.EnumNotificationChannelNullableListFilter<"PlatformNotification">
-  isRead?: Prisma.BoolWithAggregatesFilter<"PlatformNotification"> | boolean
-  readAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PlatformNotification"> | Date | string | null
-  sentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PlatformNotification"> | Date | string | null
+  state?: Prisma.EnumNotificationStateWithAggregatesFilter<"PlatformNotification"> | $Enums.NotificationState
+  createdByAdminId?: Prisma.StringWithAggregatesFilter<"PlatformNotification"> | string
   metadata?: Prisma.JsonNullableWithAggregatesFilter<"PlatformNotification">
+  sentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PlatformNotification"> | Date | string | null
+  completedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PlatformNotification"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PlatformNotification"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"PlatformNotification"> | Date | string
 }
 
 export type PlatformNotificationCreateInput = {
@@ -297,27 +301,29 @@ export type PlatformNotificationCreateInput = {
   title: string
   message: string
   type: $Enums.PlatformNotificationType
-  channel?: Prisma.PlatformNotificationCreatechannelInput | $Enums.NotificationChannel[]
-  isRead?: boolean
-  readAt?: Date | string | null
-  sentAt?: Date | string | null
+  state?: $Enums.NotificationState
+  createdByAdminId: string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sentAt?: Date | string | null
+  completedAt?: Date | string | null
   createdAt?: Date | string
-  school?: Prisma.SchoolCreateNestedOneWithoutPlatformNotificationsInput
+  updatedAt?: Date | string
+  recipients?: Prisma.PlatformNotificationRecipientCreateNestedManyWithoutNotificationInput
 }
 
 export type PlatformNotificationUncheckedCreateInput = {
   id?: string
-  schoolId?: string | null
   title: string
   message: string
   type: $Enums.PlatformNotificationType
-  channel?: Prisma.PlatformNotificationCreatechannelInput | $Enums.NotificationChannel[]
-  isRead?: boolean
-  readAt?: Date | string | null
-  sentAt?: Date | string | null
+  state?: $Enums.NotificationState
+  createdByAdminId: string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sentAt?: Date | string | null
+  completedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
+  recipients?: Prisma.PlatformNotificationRecipientUncheckedCreateNestedManyWithoutNotificationInput
 }
 
 export type PlatformNotificationUpdateInput = {
@@ -325,41 +331,43 @@ export type PlatformNotificationUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumPlatformNotificationTypeFieldUpdateOperationsInput | $Enums.PlatformNotificationType
-  channel?: Prisma.PlatformNotificationUpdatechannelInput | $Enums.NotificationChannel[]
-  isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  state?: Prisma.EnumNotificationStateFieldUpdateOperationsInput | $Enums.NotificationState
+  createdByAdminId?: Prisma.StringFieldUpdateOperationsInput | string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  school?: Prisma.SchoolUpdateOneWithoutPlatformNotificationsNestedInput
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  recipients?: Prisma.PlatformNotificationRecipientUpdateManyWithoutNotificationNestedInput
 }
 
 export type PlatformNotificationUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  schoolId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumPlatformNotificationTypeFieldUpdateOperationsInput | $Enums.PlatformNotificationType
-  channel?: Prisma.PlatformNotificationUpdatechannelInput | $Enums.NotificationChannel[]
-  isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  state?: Prisma.EnumNotificationStateFieldUpdateOperationsInput | $Enums.NotificationState
+  createdByAdminId?: Prisma.StringFieldUpdateOperationsInput | string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  recipients?: Prisma.PlatformNotificationRecipientUncheckedUpdateManyWithoutNotificationNestedInput
 }
 
 export type PlatformNotificationCreateManyInput = {
   id?: string
-  schoolId?: string | null
   title: string
   message: string
   type: $Enums.PlatformNotificationType
-  channel?: Prisma.PlatformNotificationCreatechannelInput | $Enums.NotificationChannel[]
-  isRead?: boolean
-  readAt?: Date | string | null
-  sentAt?: Date | string | null
+  state?: $Enums.NotificationState
+  createdByAdminId: string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sentAt?: Date | string | null
+  completedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PlatformNotificationUpdateManyMutationInput = {
@@ -367,349 +375,282 @@ export type PlatformNotificationUpdateManyMutationInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumPlatformNotificationTypeFieldUpdateOperationsInput | $Enums.PlatformNotificationType
-  channel?: Prisma.PlatformNotificationUpdatechannelInput | $Enums.NotificationChannel[]
-  isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  state?: Prisma.EnumNotificationStateFieldUpdateOperationsInput | $Enums.NotificationState
+  createdByAdminId?: Prisma.StringFieldUpdateOperationsInput | string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PlatformNotificationUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  schoolId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumPlatformNotificationTypeFieldUpdateOperationsInput | $Enums.PlatformNotificationType
-  channel?: Prisma.PlatformNotificationUpdatechannelInput | $Enums.NotificationChannel[]
-  isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  state?: Prisma.EnumNotificationStateFieldUpdateOperationsInput | $Enums.NotificationState
+  createdByAdminId?: Prisma.StringFieldUpdateOperationsInput | string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type PlatformNotificationListRelationFilter = {
-  every?: Prisma.PlatformNotificationWhereInput
-  some?: Prisma.PlatformNotificationWhereInput
-  none?: Prisma.PlatformNotificationWhereInput
-}
-
-export type PlatformNotificationOrderByRelationAggregateInput = {
-  _count?: Prisma.SortOrder
-}
-
-export type EnumNotificationChannelNullableListFilter<$PrismaModel = never> = {
-  equals?: $Enums.NotificationChannel[] | Prisma.ListEnumNotificationChannelFieldRefInput<$PrismaModel> | null
-  has?: $Enums.NotificationChannel | Prisma.EnumNotificationChannelFieldRefInput<$PrismaModel> | null
-  hasEvery?: $Enums.NotificationChannel[] | Prisma.ListEnumNotificationChannelFieldRefInput<$PrismaModel>
-  hasSome?: $Enums.NotificationChannel[] | Prisma.ListEnumNotificationChannelFieldRefInput<$PrismaModel>
-  isEmpty?: boolean
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PlatformNotificationCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  schoolId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   message?: Prisma.SortOrder
   type?: Prisma.SortOrder
-  channel?: Prisma.SortOrder
-  isRead?: Prisma.SortOrder
-  readAt?: Prisma.SortOrder
-  sentAt?: Prisma.SortOrder
+  state?: Prisma.SortOrder
+  createdByAdminId?: Prisma.SortOrder
   metadata?: Prisma.SortOrder
+  sentAt?: Prisma.SortOrder
+  completedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PlatformNotificationMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  schoolId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   message?: Prisma.SortOrder
   type?: Prisma.SortOrder
-  isRead?: Prisma.SortOrder
-  readAt?: Prisma.SortOrder
+  state?: Prisma.SortOrder
+  createdByAdminId?: Prisma.SortOrder
   sentAt?: Prisma.SortOrder
+  completedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PlatformNotificationMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  schoolId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   message?: Prisma.SortOrder
   type?: Prisma.SortOrder
-  isRead?: Prisma.SortOrder
-  readAt?: Prisma.SortOrder
+  state?: Prisma.SortOrder
+  createdByAdminId?: Prisma.SortOrder
   sentAt?: Prisma.SortOrder
+  completedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
-export type PlatformNotificationCreateNestedManyWithoutSchoolInput = {
-  create?: Prisma.XOR<Prisma.PlatformNotificationCreateWithoutSchoolInput, Prisma.PlatformNotificationUncheckedCreateWithoutSchoolInput> | Prisma.PlatformNotificationCreateWithoutSchoolInput[] | Prisma.PlatformNotificationUncheckedCreateWithoutSchoolInput[]
-  connectOrCreate?: Prisma.PlatformNotificationCreateOrConnectWithoutSchoolInput | Prisma.PlatformNotificationCreateOrConnectWithoutSchoolInput[]
-  createMany?: Prisma.PlatformNotificationCreateManySchoolInputEnvelope
-  connect?: Prisma.PlatformNotificationWhereUniqueInput | Prisma.PlatformNotificationWhereUniqueInput[]
-}
-
-export type PlatformNotificationUncheckedCreateNestedManyWithoutSchoolInput = {
-  create?: Prisma.XOR<Prisma.PlatformNotificationCreateWithoutSchoolInput, Prisma.PlatformNotificationUncheckedCreateWithoutSchoolInput> | Prisma.PlatformNotificationCreateWithoutSchoolInput[] | Prisma.PlatformNotificationUncheckedCreateWithoutSchoolInput[]
-  connectOrCreate?: Prisma.PlatformNotificationCreateOrConnectWithoutSchoolInput | Prisma.PlatformNotificationCreateOrConnectWithoutSchoolInput[]
-  createMany?: Prisma.PlatformNotificationCreateManySchoolInputEnvelope
-  connect?: Prisma.PlatformNotificationWhereUniqueInput | Prisma.PlatformNotificationWhereUniqueInput[]
-}
-
-export type PlatformNotificationUpdateManyWithoutSchoolNestedInput = {
-  create?: Prisma.XOR<Prisma.PlatformNotificationCreateWithoutSchoolInput, Prisma.PlatformNotificationUncheckedCreateWithoutSchoolInput> | Prisma.PlatformNotificationCreateWithoutSchoolInput[] | Prisma.PlatformNotificationUncheckedCreateWithoutSchoolInput[]
-  connectOrCreate?: Prisma.PlatformNotificationCreateOrConnectWithoutSchoolInput | Prisma.PlatformNotificationCreateOrConnectWithoutSchoolInput[]
-  upsert?: Prisma.PlatformNotificationUpsertWithWhereUniqueWithoutSchoolInput | Prisma.PlatformNotificationUpsertWithWhereUniqueWithoutSchoolInput[]
-  createMany?: Prisma.PlatformNotificationCreateManySchoolInputEnvelope
-  set?: Prisma.PlatformNotificationWhereUniqueInput | Prisma.PlatformNotificationWhereUniqueInput[]
-  disconnect?: Prisma.PlatformNotificationWhereUniqueInput | Prisma.PlatformNotificationWhereUniqueInput[]
-  delete?: Prisma.PlatformNotificationWhereUniqueInput | Prisma.PlatformNotificationWhereUniqueInput[]
-  connect?: Prisma.PlatformNotificationWhereUniqueInput | Prisma.PlatformNotificationWhereUniqueInput[]
-  update?: Prisma.PlatformNotificationUpdateWithWhereUniqueWithoutSchoolInput | Prisma.PlatformNotificationUpdateWithWhereUniqueWithoutSchoolInput[]
-  updateMany?: Prisma.PlatformNotificationUpdateManyWithWhereWithoutSchoolInput | Prisma.PlatformNotificationUpdateManyWithWhereWithoutSchoolInput[]
-  deleteMany?: Prisma.PlatformNotificationScalarWhereInput | Prisma.PlatformNotificationScalarWhereInput[]
-}
-
-export type PlatformNotificationUncheckedUpdateManyWithoutSchoolNestedInput = {
-  create?: Prisma.XOR<Prisma.PlatformNotificationCreateWithoutSchoolInput, Prisma.PlatformNotificationUncheckedCreateWithoutSchoolInput> | Prisma.PlatformNotificationCreateWithoutSchoolInput[] | Prisma.PlatformNotificationUncheckedCreateWithoutSchoolInput[]
-  connectOrCreate?: Prisma.PlatformNotificationCreateOrConnectWithoutSchoolInput | Prisma.PlatformNotificationCreateOrConnectWithoutSchoolInput[]
-  upsert?: Prisma.PlatformNotificationUpsertWithWhereUniqueWithoutSchoolInput | Prisma.PlatformNotificationUpsertWithWhereUniqueWithoutSchoolInput[]
-  createMany?: Prisma.PlatformNotificationCreateManySchoolInputEnvelope
-  set?: Prisma.PlatformNotificationWhereUniqueInput | Prisma.PlatformNotificationWhereUniqueInput[]
-  disconnect?: Prisma.PlatformNotificationWhereUniqueInput | Prisma.PlatformNotificationWhereUniqueInput[]
-  delete?: Prisma.PlatformNotificationWhereUniqueInput | Prisma.PlatformNotificationWhereUniqueInput[]
-  connect?: Prisma.PlatformNotificationWhereUniqueInput | Prisma.PlatformNotificationWhereUniqueInput[]
-  update?: Prisma.PlatformNotificationUpdateWithWhereUniqueWithoutSchoolInput | Prisma.PlatformNotificationUpdateWithWhereUniqueWithoutSchoolInput[]
-  updateMany?: Prisma.PlatformNotificationUpdateManyWithWhereWithoutSchoolInput | Prisma.PlatformNotificationUpdateManyWithWhereWithoutSchoolInput[]
-  deleteMany?: Prisma.PlatformNotificationScalarWhereInput | Prisma.PlatformNotificationScalarWhereInput[]
-}
-
-export type PlatformNotificationCreatechannelInput = {
-  set: $Enums.NotificationChannel[]
+export type PlatformNotificationScalarRelationFilter = {
+  is?: Prisma.PlatformNotificationWhereInput
+  isNot?: Prisma.PlatformNotificationWhereInput
 }
 
 export type EnumPlatformNotificationTypeFieldUpdateOperationsInput = {
   set?: $Enums.PlatformNotificationType
 }
 
-export type PlatformNotificationUpdatechannelInput = {
-  set?: $Enums.NotificationChannel[]
-  push?: $Enums.NotificationChannel | $Enums.NotificationChannel[]
+export type EnumNotificationStateFieldUpdateOperationsInput = {
+  set?: $Enums.NotificationState
 }
 
-export type PlatformNotificationCreateWithoutSchoolInput = {
+export type PlatformNotificationCreateNestedOneWithoutRecipientsInput = {
+  create?: Prisma.XOR<Prisma.PlatformNotificationCreateWithoutRecipientsInput, Prisma.PlatformNotificationUncheckedCreateWithoutRecipientsInput>
+  connectOrCreate?: Prisma.PlatformNotificationCreateOrConnectWithoutRecipientsInput
+  connect?: Prisma.PlatformNotificationWhereUniqueInput
+}
+
+export type PlatformNotificationUpdateOneRequiredWithoutRecipientsNestedInput = {
+  create?: Prisma.XOR<Prisma.PlatformNotificationCreateWithoutRecipientsInput, Prisma.PlatformNotificationUncheckedCreateWithoutRecipientsInput>
+  connectOrCreate?: Prisma.PlatformNotificationCreateOrConnectWithoutRecipientsInput
+  upsert?: Prisma.PlatformNotificationUpsertWithoutRecipientsInput
+  connect?: Prisma.PlatformNotificationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PlatformNotificationUpdateToOneWithWhereWithoutRecipientsInput, Prisma.PlatformNotificationUpdateWithoutRecipientsInput>, Prisma.PlatformNotificationUncheckedUpdateWithoutRecipientsInput>
+}
+
+export type PlatformNotificationCreateWithoutRecipientsInput = {
   id?: string
   title: string
   message: string
   type: $Enums.PlatformNotificationType
-  channel?: Prisma.PlatformNotificationCreatechannelInput | $Enums.NotificationChannel[]
-  isRead?: boolean
-  readAt?: Date | string | null
-  sentAt?: Date | string | null
+  state?: $Enums.NotificationState
+  createdByAdminId: string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sentAt?: Date | string | null
+  completedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
-export type PlatformNotificationUncheckedCreateWithoutSchoolInput = {
+export type PlatformNotificationUncheckedCreateWithoutRecipientsInput = {
   id?: string
   title: string
   message: string
   type: $Enums.PlatformNotificationType
-  channel?: Prisma.PlatformNotificationCreatechannelInput | $Enums.NotificationChannel[]
-  isRead?: boolean
-  readAt?: Date | string | null
+  state?: $Enums.NotificationState
+  createdByAdminId: string
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sentAt?: Date | string | null
-  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  completedAt?: Date | string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
-export type PlatformNotificationCreateOrConnectWithoutSchoolInput = {
+export type PlatformNotificationCreateOrConnectWithoutRecipientsInput = {
   where: Prisma.PlatformNotificationWhereUniqueInput
-  create: Prisma.XOR<Prisma.PlatformNotificationCreateWithoutSchoolInput, Prisma.PlatformNotificationUncheckedCreateWithoutSchoolInput>
+  create: Prisma.XOR<Prisma.PlatformNotificationCreateWithoutRecipientsInput, Prisma.PlatformNotificationUncheckedCreateWithoutRecipientsInput>
 }
 
-export type PlatformNotificationCreateManySchoolInputEnvelope = {
-  data: Prisma.PlatformNotificationCreateManySchoolInput | Prisma.PlatformNotificationCreateManySchoolInput[]
-  skipDuplicates?: boolean
+export type PlatformNotificationUpsertWithoutRecipientsInput = {
+  update: Prisma.XOR<Prisma.PlatformNotificationUpdateWithoutRecipientsInput, Prisma.PlatformNotificationUncheckedUpdateWithoutRecipientsInput>
+  create: Prisma.XOR<Prisma.PlatformNotificationCreateWithoutRecipientsInput, Prisma.PlatformNotificationUncheckedCreateWithoutRecipientsInput>
+  where?: Prisma.PlatformNotificationWhereInput
 }
 
-export type PlatformNotificationUpsertWithWhereUniqueWithoutSchoolInput = {
-  where: Prisma.PlatformNotificationWhereUniqueInput
-  update: Prisma.XOR<Prisma.PlatformNotificationUpdateWithoutSchoolInput, Prisma.PlatformNotificationUncheckedUpdateWithoutSchoolInput>
-  create: Prisma.XOR<Prisma.PlatformNotificationCreateWithoutSchoolInput, Prisma.PlatformNotificationUncheckedCreateWithoutSchoolInput>
+export type PlatformNotificationUpdateToOneWithWhereWithoutRecipientsInput = {
+  where?: Prisma.PlatformNotificationWhereInput
+  data: Prisma.XOR<Prisma.PlatformNotificationUpdateWithoutRecipientsInput, Prisma.PlatformNotificationUncheckedUpdateWithoutRecipientsInput>
 }
 
-export type PlatformNotificationUpdateWithWhereUniqueWithoutSchoolInput = {
-  where: Prisma.PlatformNotificationWhereUniqueInput
-  data: Prisma.XOR<Prisma.PlatformNotificationUpdateWithoutSchoolInput, Prisma.PlatformNotificationUncheckedUpdateWithoutSchoolInput>
-}
-
-export type PlatformNotificationUpdateManyWithWhereWithoutSchoolInput = {
-  where: Prisma.PlatformNotificationScalarWhereInput
-  data: Prisma.XOR<Prisma.PlatformNotificationUpdateManyMutationInput, Prisma.PlatformNotificationUncheckedUpdateManyWithoutSchoolInput>
-}
-
-export type PlatformNotificationScalarWhereInput = {
-  AND?: Prisma.PlatformNotificationScalarWhereInput | Prisma.PlatformNotificationScalarWhereInput[]
-  OR?: Prisma.PlatformNotificationScalarWhereInput[]
-  NOT?: Prisma.PlatformNotificationScalarWhereInput | Prisma.PlatformNotificationScalarWhereInput[]
-  id?: Prisma.StringFilter<"PlatformNotification"> | string
-  schoolId?: Prisma.StringNullableFilter<"PlatformNotification"> | string | null
-  title?: Prisma.StringFilter<"PlatformNotification"> | string
-  message?: Prisma.StringFilter<"PlatformNotification"> | string
-  type?: Prisma.EnumPlatformNotificationTypeFilter<"PlatformNotification"> | $Enums.PlatformNotificationType
-  channel?: Prisma.EnumNotificationChannelNullableListFilter<"PlatformNotification">
-  isRead?: Prisma.BoolFilter<"PlatformNotification"> | boolean
-  readAt?: Prisma.DateTimeNullableFilter<"PlatformNotification"> | Date | string | null
-  sentAt?: Prisma.DateTimeNullableFilter<"PlatformNotification"> | Date | string | null
-  metadata?: Prisma.JsonNullableFilter<"PlatformNotification">
-  createdAt?: Prisma.DateTimeFilter<"PlatformNotification"> | Date | string
-}
-
-export type PlatformNotificationCreateManySchoolInput = {
-  id?: string
-  title: string
-  message: string
-  type: $Enums.PlatformNotificationType
-  channel?: Prisma.PlatformNotificationCreatechannelInput | $Enums.NotificationChannel[]
-  isRead?: boolean
-  readAt?: Date | string | null
-  sentAt?: Date | string | null
-  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  createdAt?: Date | string
-}
-
-export type PlatformNotificationUpdateWithoutSchoolInput = {
+export type PlatformNotificationUpdateWithoutRecipientsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumPlatformNotificationTypeFieldUpdateOperationsInput | $Enums.PlatformNotificationType
-  channel?: Prisma.PlatformNotificationUpdatechannelInput | $Enums.NotificationChannel[]
-  isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  state?: Prisma.EnumNotificationStateFieldUpdateOperationsInput | $Enums.NotificationState
+  createdByAdminId?: Prisma.StringFieldUpdateOperationsInput | string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type PlatformNotificationUncheckedUpdateWithoutSchoolInput = {
+export type PlatformNotificationUncheckedUpdateWithoutRecipientsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumPlatformNotificationTypeFieldUpdateOperationsInput | $Enums.PlatformNotificationType
-  channel?: Prisma.PlatformNotificationUpdatechannelInput | $Enums.NotificationChannel[]
-  isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  state?: Prisma.EnumNotificationStateFieldUpdateOperationsInput | $Enums.NotificationState
+  createdByAdminId?: Prisma.StringFieldUpdateOperationsInput | string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type PlatformNotificationUncheckedUpdateManyWithoutSchoolInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  message?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.EnumPlatformNotificationTypeFieldUpdateOperationsInput | $Enums.PlatformNotificationType
-  channel?: Prisma.PlatformNotificationUpdatechannelInput | $Enums.NotificationChannel[]
-  isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+
+/**
+ * Count Type PlatformNotificationCountOutputType
+ */
+
+export type PlatformNotificationCountOutputType = {
+  recipients: number
 }
 
+export type PlatformNotificationCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  recipients?: boolean | PlatformNotificationCountOutputTypeCountRecipientsArgs
+}
+
+/**
+ * PlatformNotificationCountOutputType without action
+ */
+export type PlatformNotificationCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PlatformNotificationCountOutputType
+   */
+  select?: Prisma.PlatformNotificationCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * PlatformNotificationCountOutputType without action
+ */
+export type PlatformNotificationCountOutputTypeCountRecipientsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PlatformNotificationRecipientWhereInput
+}
 
 
 export type PlatformNotificationSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  schoolId?: boolean
   title?: boolean
   message?: boolean
   type?: boolean
-  channel?: boolean
-  isRead?: boolean
-  readAt?: boolean
-  sentAt?: boolean
+  state?: boolean
+  createdByAdminId?: boolean
   metadata?: boolean
+  sentAt?: boolean
+  completedAt?: boolean
   createdAt?: boolean
-  school?: boolean | Prisma.PlatformNotification$schoolArgs<ExtArgs>
+  updatedAt?: boolean
+  recipients?: boolean | Prisma.PlatformNotification$recipientsArgs<ExtArgs>
+  _count?: boolean | Prisma.PlatformNotificationCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["platformNotification"]>
 
 export type PlatformNotificationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  schoolId?: boolean
   title?: boolean
   message?: boolean
   type?: boolean
-  channel?: boolean
-  isRead?: boolean
-  readAt?: boolean
-  sentAt?: boolean
+  state?: boolean
+  createdByAdminId?: boolean
   metadata?: boolean
+  sentAt?: boolean
+  completedAt?: boolean
   createdAt?: boolean
-  school?: boolean | Prisma.PlatformNotification$schoolArgs<ExtArgs>
+  updatedAt?: boolean
 }, ExtArgs["result"]["platformNotification"]>
 
 export type PlatformNotificationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  schoolId?: boolean
   title?: boolean
   message?: boolean
   type?: boolean
-  channel?: boolean
-  isRead?: boolean
-  readAt?: boolean
-  sentAt?: boolean
+  state?: boolean
+  createdByAdminId?: boolean
   metadata?: boolean
+  sentAt?: boolean
+  completedAt?: boolean
   createdAt?: boolean
-  school?: boolean | Prisma.PlatformNotification$schoolArgs<ExtArgs>
+  updatedAt?: boolean
 }, ExtArgs["result"]["platformNotification"]>
 
 export type PlatformNotificationSelectScalar = {
   id?: boolean
-  schoolId?: boolean
   title?: boolean
   message?: boolean
   type?: boolean
-  channel?: boolean
-  isRead?: boolean
-  readAt?: boolean
-  sentAt?: boolean
+  state?: boolean
+  createdByAdminId?: boolean
   metadata?: boolean
+  sentAt?: boolean
+  completedAt?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type PlatformNotificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "schoolId" | "title" | "message" | "type" | "channel" | "isRead" | "readAt" | "sentAt" | "metadata" | "createdAt", ExtArgs["result"]["platformNotification"]>
+export type PlatformNotificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "message" | "type" | "state" | "createdByAdminId" | "metadata" | "sentAt" | "completedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["platformNotification"]>
 export type PlatformNotificationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  school?: boolean | Prisma.PlatformNotification$schoolArgs<ExtArgs>
+  recipients?: boolean | Prisma.PlatformNotification$recipientsArgs<ExtArgs>
+  _count?: boolean | Prisma.PlatformNotificationCountOutputTypeDefaultArgs<ExtArgs>
 }
-export type PlatformNotificationIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  school?: boolean | Prisma.PlatformNotification$schoolArgs<ExtArgs>
-}
-export type PlatformNotificationIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  school?: boolean | Prisma.PlatformNotification$schoolArgs<ExtArgs>
-}
+export type PlatformNotificationIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type PlatformNotificationIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
 
 export type $PlatformNotificationPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "PlatformNotification"
   objects: {
-    school: Prisma.$SchoolPayload<ExtArgs> | null
+    recipients: Prisma.$PlatformNotificationRecipientPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    schoolId: string | null
     title: string
     message: string
     type: $Enums.PlatformNotificationType
-    channel: $Enums.NotificationChannel[]
-    isRead: boolean
-    readAt: Date | null
-    sentAt: Date | null
+    state: $Enums.NotificationState
+    createdByAdminId: string
     metadata: runtime.JsonValue | null
+    sentAt: Date | null
+    completedAt: Date | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["platformNotification"]>
   composites: {}
 }
@@ -1104,7 +1045,7 @@ readonly fields: PlatformNotificationFieldRefs;
  */
 export interface Prisma__PlatformNotificationClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  school<T extends Prisma.PlatformNotification$schoolArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PlatformNotification$schoolArgs<ExtArgs>>): Prisma.Prisma__SchoolClient<runtime.Types.Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  recipients<T extends Prisma.PlatformNotification$recipientsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PlatformNotification$recipientsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PlatformNotificationRecipientPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1135,16 +1076,16 @@ export interface Prisma__PlatformNotificationClient<T, Null = never, ExtArgs ext
  */
 export interface PlatformNotificationFieldRefs {
   readonly id: Prisma.FieldRef<"PlatformNotification", 'String'>
-  readonly schoolId: Prisma.FieldRef<"PlatformNotification", 'String'>
   readonly title: Prisma.FieldRef<"PlatformNotification", 'String'>
   readonly message: Prisma.FieldRef<"PlatformNotification", 'String'>
   readonly type: Prisma.FieldRef<"PlatformNotification", 'PlatformNotificationType'>
-  readonly channel: Prisma.FieldRef<"PlatformNotification", 'NotificationChannel[]'>
-  readonly isRead: Prisma.FieldRef<"PlatformNotification", 'Boolean'>
-  readonly readAt: Prisma.FieldRef<"PlatformNotification", 'DateTime'>
-  readonly sentAt: Prisma.FieldRef<"PlatformNotification", 'DateTime'>
+  readonly state: Prisma.FieldRef<"PlatformNotification", 'NotificationState'>
+  readonly createdByAdminId: Prisma.FieldRef<"PlatformNotification", 'String'>
   readonly metadata: Prisma.FieldRef<"PlatformNotification", 'Json'>
+  readonly sentAt: Prisma.FieldRef<"PlatformNotification", 'DateTime'>
+  readonly completedAt: Prisma.FieldRef<"PlatformNotification", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"PlatformNotification", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"PlatformNotification", 'DateTime'>
 }
     
 
@@ -1399,10 +1340,6 @@ export type PlatformNotificationCreateManyAndReturnArgs<ExtArgs extends runtime.
    */
   data: Prisma.PlatformNotificationCreateManyInput | Prisma.PlatformNotificationCreateManyInput[]
   skipDuplicates?: boolean
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.PlatformNotificationIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1473,10 +1410,6 @@ export type PlatformNotificationUpdateManyAndReturnArgs<ExtArgs extends runtime.
    * Limit how many PlatformNotifications to update.
    */
   limit?: number
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.PlatformNotificationIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1546,22 +1479,27 @@ export type PlatformNotificationDeleteManyArgs<ExtArgs extends runtime.Types.Ext
 }
 
 /**
- * PlatformNotification.school
+ * PlatformNotification.recipients
  */
-export type PlatformNotification$schoolArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type PlatformNotification$recipientsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the School
+   * Select specific fields to fetch from the PlatformNotificationRecipient
    */
-  select?: Prisma.SchoolSelect<ExtArgs> | null
+  select?: Prisma.PlatformNotificationRecipientSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the School
+   * Omit specific fields from the PlatformNotificationRecipient
    */
-  omit?: Prisma.SchoolOmit<ExtArgs> | null
+  omit?: Prisma.PlatformNotificationRecipientOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SchoolInclude<ExtArgs> | null
-  where?: Prisma.SchoolWhereInput
+  include?: Prisma.PlatformNotificationRecipientInclude<ExtArgs> | null
+  where?: Prisma.PlatformNotificationRecipientWhereInput
+  orderBy?: Prisma.PlatformNotificationRecipientOrderByWithRelationInput | Prisma.PlatformNotificationRecipientOrderByWithRelationInput[]
+  cursor?: Prisma.PlatformNotificationRecipientWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PlatformNotificationRecipientScalarFieldEnum | Prisma.PlatformNotificationRecipientScalarFieldEnum[]
 }
 
 /**

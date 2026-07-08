@@ -1,76 +1,111 @@
-import { ISchoolRepository } from "./school.repository";
-import { School } from "../domain/school.entity";
-import { SchoolModel } from "../models/school.model";
-import { SchoolMapper } from "../mappers/school.mapper";
+import { PrismaClient, Prisma }         from "../../../generated/prisma/client";
+import { BaseRepository }       from "../../../infrastructure/repository/base.repository";
+import { SchoolMapper, SchoolDocumentMapper } from "../mappers/school.mapper";
+import {
+    SchoolEntity,
+    SchoolDocumentEntity,
+}                               from "../domain/school.entity";
+import { ISchoolRepository }    from "./school.repository";
 
-export class SchoolRepository implements ISchoolRepository {
-    
-    async create(school: School): Promise<School> {
-        const data = SchoolMapper.toPersistenceCreate(school);
+/*
+|--------------------------------------------------------------------------
+| SCHOOL REPOSITORY IMPLEMENTATION
+|--------------------------------------------------------------------------
+*/
 
-        const created = await SchoolModel.create(data);
+export class SchoolRepositoryImpl
+    extends BaseRepository<SchoolEntity>
+    implements ISchoolRepository
+{
+    protected readonly modelName       = "school";
+    private readonly documentMapper:   SchoolDocumentMapper;
 
-        return SchoolMapper.toDomain(created);
+    constructor({
+        prismaClient,
+        schoolMapper,
+        schoolDocumentMapper,
+    }: {
+        prismaClient:         PrismaClient;
+        schoolMapper:         SchoolMapper;
+        schoolDocumentMapper: SchoolDocumentMapper;
+    }) {
+        super(prismaClient, schoolMapper);
+        this.documentMapper = schoolDocumentMapper;
     }
 
-    async findById(id: string): Promise<School | null> {
-        const doc = await SchoolModel.findById(id);
-
-        if (!doc) return null;
-
-        return SchoolMapper.toDomain(doc);
+    // ── Find by subdomain ─────────────────────────────────────────────────
+    async findBySubdomain(subdomain: string): Promise<SchoolEntity | null> {
+        return this.findOne({ subdomain });
     }
 
-    async findBySlug(slug: string): Promise<School | null> {
-        const doc = await SchoolModel.findOne({ slug });
-
-        if (!doc) return null;
-
-        return SchoolMapper.toDomain(doc);
+    // ── Find by email ─────────────────────────────────────────────────────
+    async findByEmail(email: string): Promise<SchoolEntity | null> {
+        return this.findOne({ email });
     }
 
-    async findByEmail(email: string): Promise<School | null> {
-        const doc = await SchoolModel.findOne({ email });
-
-        if (!doc) return null;
-
-        return SchoolMapper.toDomain(doc);
+    // ── Find by schema name ───────────────────────────────────────────────
+    async findBySchemaName(schemaName: string): Promise<SchoolEntity | null> {
+        return this.findOne({ schemaName });
     }
 
-    async update(id: string, school: Partial<School>): Promise<School | null> {
-        const existing = await SchoolModel.findById(id);
-        if (!existing) return null;
+    // ── Update logo ───────────────────────────────────────────────────────
+    async updateLogo(id: string, logoUrl: string): Promise<SchoolEntity> {
+        return this.update(id, { logoUrl });
+    }
 
-        const domain = SchoolMapper.toDomain(existing);
-
-        // merge updates into domain props safely
-        const updatedDomain = new School({
-            ...domain.getProps(),
-            ...school,
-            updatedAt: new Date(),
+    // ── Update Paystack subaccount ────────────────────────────────────────
+    async updatePaystackSubaccount(
+        id:             string,
+        subaccountCode: string,
+        subaccountId:   string,
+        bankCode:       string,
+        accountNumber:  string,
+    ): Promise<SchoolEntity> {
+        return this.update(id, {
+            paystackSubaccountCode:  subaccountCode,
+            paystackSubaccountId:    subaccountId,
+            settlementBankCode:      bankCode,
+            settlementAccountNumber: accountNumber,
         });
-
-        const updateData = SchoolMapper.toPersistenceUpdate(updatedDomain);
-
-        const doc = await SchoolModel.findByIdAndUpdate(
-            id,
-            { $set: updateData },
-            {
-                returnDocument: "after",
-            }
-        );
-
-        if (!doc) return null;
-
-        return SchoolMapper.toDomain(doc);
     }
 
-    async delete(id: string): Promise<void> {
-        await SchoolModel.findByIdAndUpdate(id, {
-            $set: {
-                deletedAt: new Date(),
-                status: "DELETED",
-            },
+    // ── Create document ───────────────────────────────────────────────────
+    async createDocument(
+        data: Prisma.SchoolDocumentCreateInput,
+    ): Promise<SchoolDocumentEntity> {
+        const raw = await this.prisma.schoolDocument.create({ data });
+        return this.documentMapper.toDomain(raw);
+    }
+
+    // ── Find document by ID ───────────────────────────────────────────────
+    async findDocumentById(id: string): Promise<SchoolDocumentEntity | null> {
+        const raw = await this.prisma.schoolDocument.findUnique({
+            where: { id },
         });
+        if (!raw) return null;
+        return this.documentMapper.toDomain(raw);
+    }
+
+    // ── Find all documents for school ─────────────────────────────────────
+    async findDocumentsBySchoolId(
+        schoolId: string,
+    ): Promise<SchoolDocumentEntity[]> {
+        const raws = await this.prisma.schoolDocument.findMany({
+            where:   { schoolId },
+            orderBy: { createdAt: "desc" },
+        });
+        return raws.map(raw => this.documentMapper.toDomain(raw));
+    }
+
+    // ── Update document ───────────────────────────────────────────────────
+    async updateDocument(
+        id:   string,
+        data: Prisma.SchoolDocumentUpdateInput,
+    ): Promise<SchoolDocumentEntity> {
+        const raw = await this.prisma.schoolDocument.update({
+            where: { id },
+            data,
+        });
+        return this.documentMapper.toDomain(raw);
     }
 }

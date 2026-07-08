@@ -29,14 +29,11 @@ export type SchoolNotificationMinAggregateOutputType = {
   title: string | null
   message: string | null
   type: $Enums.SchoolNotificationType | null
-  sentById: string | null
   targetType: $Enums.TargetType | null
-  isRead: boolean | null
-  readAt: Date | null
+  sentById: string | null
   sentAt: Date | null
   createdAt: Date | null
-  studentId: string | null
-  guardianId: string | null
+  updatedAt: Date | null
 }
 
 export type SchoolNotificationMaxAggregateOutputType = {
@@ -44,14 +41,11 @@ export type SchoolNotificationMaxAggregateOutputType = {
   title: string | null
   message: string | null
   type: $Enums.SchoolNotificationType | null
-  sentById: string | null
   targetType: $Enums.TargetType | null
-  isRead: boolean | null
-  readAt: Date | null
+  sentById: string | null
   sentAt: Date | null
   createdAt: Date | null
-  studentId: string | null
-  guardianId: string | null
+  updatedAt: Date | null
 }
 
 export type SchoolNotificationCountAggregateOutputType = {
@@ -59,16 +53,12 @@ export type SchoolNotificationCountAggregateOutputType = {
   title: number
   message: number
   type: number
-  channel: number
-  sentById: number
   targetType: number
-  isRead: number
-  readAt: number
-  sentAt: number
+  sentById: number
   metadata: number
+  sentAt: number
   createdAt: number
-  studentId: number
-  guardianId: number
+  updatedAt: number
   _all: number
 }
 
@@ -78,14 +68,11 @@ export type SchoolNotificationMinAggregateInputType = {
   title?: true
   message?: true
   type?: true
-  sentById?: true
   targetType?: true
-  isRead?: true
-  readAt?: true
+  sentById?: true
   sentAt?: true
   createdAt?: true
-  studentId?: true
-  guardianId?: true
+  updatedAt?: true
 }
 
 export type SchoolNotificationMaxAggregateInputType = {
@@ -93,14 +80,11 @@ export type SchoolNotificationMaxAggregateInputType = {
   title?: true
   message?: true
   type?: true
-  sentById?: true
   targetType?: true
-  isRead?: true
-  readAt?: true
+  sentById?: true
   sentAt?: true
   createdAt?: true
-  studentId?: true
-  guardianId?: true
+  updatedAt?: true
 }
 
 export type SchoolNotificationCountAggregateInputType = {
@@ -108,16 +92,12 @@ export type SchoolNotificationCountAggregateInputType = {
   title?: true
   message?: true
   type?: true
-  channel?: true
-  sentById?: true
   targetType?: true
-  isRead?: true
-  readAt?: true
-  sentAt?: true
+  sentById?: true
   metadata?: true
+  sentAt?: true
   createdAt?: true
-  studentId?: true
-  guardianId?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -198,16 +178,12 @@ export type SchoolNotificationGroupByOutputType = {
   title: string
   message: string
   type: $Enums.SchoolNotificationType
-  channel: $Enums.NotificationChannel[]
-  sentById: string
   targetType: $Enums.TargetType
-  isRead: boolean
-  readAt: Date | null
-  sentAt: Date | null
+  sentById: string
   metadata: runtime.JsonValue | null
+  sentAt: Date | null
   createdAt: Date
-  studentId: string | null
-  guardianId: string | null
+  updatedAt: Date
   _count: SchoolNotificationCountAggregateOutputType | null
   _min: SchoolNotificationMinAggregateOutputType | null
   _max: SchoolNotificationMaxAggregateOutputType | null
@@ -236,18 +212,13 @@ export type SchoolNotificationWhereInput = {
   title?: Prisma.StringFilter<"SchoolNotification"> | string
   message?: Prisma.StringFilter<"SchoolNotification"> | string
   type?: Prisma.EnumSchoolNotificationTypeFilter<"SchoolNotification"> | $Enums.SchoolNotificationType
-  channel?: Prisma.EnumNotificationChannelNullableListFilter<"SchoolNotification">
-  sentById?: Prisma.StringFilter<"SchoolNotification"> | string
   targetType?: Prisma.EnumTargetTypeFilter<"SchoolNotification"> | $Enums.TargetType
-  isRead?: Prisma.BoolFilter<"SchoolNotification"> | boolean
-  readAt?: Prisma.DateTimeNullableFilter<"SchoolNotification"> | Date | string | null
-  sentAt?: Prisma.DateTimeNullableFilter<"SchoolNotification"> | Date | string | null
+  sentById?: Prisma.StringFilter<"SchoolNotification"> | string
   metadata?: Prisma.JsonNullableFilter<"SchoolNotification">
+  sentAt?: Prisma.DateTimeNullableFilter<"SchoolNotification"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"SchoolNotification"> | Date | string
-  studentId?: Prisma.StringNullableFilter<"SchoolNotification"> | string | null
-  guardianId?: Prisma.StringNullableFilter<"SchoolNotification"> | string | null
-  student?: Prisma.XOR<Prisma.StudentNullableScalarRelationFilter, Prisma.StudentWhereInput> | null
-  guardian?: Prisma.XOR<Prisma.GuardianNullableScalarRelationFilter, Prisma.GuardianWhereInput> | null
+  updatedAt?: Prisma.DateTimeFilter<"SchoolNotification"> | Date | string
+  recipients?: Prisma.SchoolNotificationRecipientListRelationFilter
 }
 
 export type SchoolNotificationOrderByWithRelationInput = {
@@ -255,18 +226,13 @@ export type SchoolNotificationOrderByWithRelationInput = {
   title?: Prisma.SortOrder
   message?: Prisma.SortOrder
   type?: Prisma.SortOrder
-  channel?: Prisma.SortOrder
-  sentById?: Prisma.SortOrder
   targetType?: Prisma.SortOrder
-  isRead?: Prisma.SortOrder
-  readAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  sentAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  sentById?: Prisma.SortOrder
   metadata?: Prisma.SortOrderInput | Prisma.SortOrder
+  sentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  studentId?: Prisma.SortOrderInput | Prisma.SortOrder
-  guardianId?: Prisma.SortOrderInput | Prisma.SortOrder
-  student?: Prisma.StudentOrderByWithRelationInput
-  guardian?: Prisma.GuardianOrderByWithRelationInput
+  updatedAt?: Prisma.SortOrder
+  recipients?: Prisma.SchoolNotificationRecipientOrderByRelationAggregateInput
 }
 
 export type SchoolNotificationWhereUniqueInput = Prisma.AtLeast<{
@@ -277,18 +243,13 @@ export type SchoolNotificationWhereUniqueInput = Prisma.AtLeast<{
   title?: Prisma.StringFilter<"SchoolNotification"> | string
   message?: Prisma.StringFilter<"SchoolNotification"> | string
   type?: Prisma.EnumSchoolNotificationTypeFilter<"SchoolNotification"> | $Enums.SchoolNotificationType
-  channel?: Prisma.EnumNotificationChannelNullableListFilter<"SchoolNotification">
-  sentById?: Prisma.StringFilter<"SchoolNotification"> | string
   targetType?: Prisma.EnumTargetTypeFilter<"SchoolNotification"> | $Enums.TargetType
-  isRead?: Prisma.BoolFilter<"SchoolNotification"> | boolean
-  readAt?: Prisma.DateTimeNullableFilter<"SchoolNotification"> | Date | string | null
-  sentAt?: Prisma.DateTimeNullableFilter<"SchoolNotification"> | Date | string | null
+  sentById?: Prisma.StringFilter<"SchoolNotification"> | string
   metadata?: Prisma.JsonNullableFilter<"SchoolNotification">
+  sentAt?: Prisma.DateTimeNullableFilter<"SchoolNotification"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"SchoolNotification"> | Date | string
-  studentId?: Prisma.StringNullableFilter<"SchoolNotification"> | string | null
-  guardianId?: Prisma.StringNullableFilter<"SchoolNotification"> | string | null
-  student?: Prisma.XOR<Prisma.StudentNullableScalarRelationFilter, Prisma.StudentWhereInput> | null
-  guardian?: Prisma.XOR<Prisma.GuardianNullableScalarRelationFilter, Prisma.GuardianWhereInput> | null
+  updatedAt?: Prisma.DateTimeFilter<"SchoolNotification"> | Date | string
+  recipients?: Prisma.SchoolNotificationRecipientListRelationFilter
 }, "id">
 
 export type SchoolNotificationOrderByWithAggregationInput = {
@@ -296,16 +257,12 @@ export type SchoolNotificationOrderByWithAggregationInput = {
   title?: Prisma.SortOrder
   message?: Prisma.SortOrder
   type?: Prisma.SortOrder
-  channel?: Prisma.SortOrder
-  sentById?: Prisma.SortOrder
   targetType?: Prisma.SortOrder
-  isRead?: Prisma.SortOrder
-  readAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  sentAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  sentById?: Prisma.SortOrder
   metadata?: Prisma.SortOrderInput | Prisma.SortOrder
+  sentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  studentId?: Prisma.SortOrderInput | Prisma.SortOrder
-  guardianId?: Prisma.SortOrderInput | Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.SchoolNotificationCountOrderByAggregateInput
   _max?: Prisma.SchoolNotificationMaxOrderByAggregateInput
   _min?: Prisma.SchoolNotificationMinOrderByAggregateInput
@@ -319,16 +276,12 @@ export type SchoolNotificationScalarWhereWithAggregatesInput = {
   title?: Prisma.StringWithAggregatesFilter<"SchoolNotification"> | string
   message?: Prisma.StringWithAggregatesFilter<"SchoolNotification"> | string
   type?: Prisma.EnumSchoolNotificationTypeWithAggregatesFilter<"SchoolNotification"> | $Enums.SchoolNotificationType
-  channel?: Prisma.EnumNotificationChannelNullableListFilter<"SchoolNotification">
-  sentById?: Prisma.StringWithAggregatesFilter<"SchoolNotification"> | string
   targetType?: Prisma.EnumTargetTypeWithAggregatesFilter<"SchoolNotification"> | $Enums.TargetType
-  isRead?: Prisma.BoolWithAggregatesFilter<"SchoolNotification"> | boolean
-  readAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SchoolNotification"> | Date | string | null
-  sentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SchoolNotification"> | Date | string | null
+  sentById?: Prisma.StringWithAggregatesFilter<"SchoolNotification"> | string
   metadata?: Prisma.JsonNullableWithAggregatesFilter<"SchoolNotification">
+  sentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SchoolNotification"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SchoolNotification"> | Date | string
-  studentId?: Prisma.StringNullableWithAggregatesFilter<"SchoolNotification"> | string | null
-  guardianId?: Prisma.StringNullableWithAggregatesFilter<"SchoolNotification"> | string | null
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SchoolNotification"> | Date | string
 }
 
 export type SchoolNotificationCreateInput = {
@@ -336,16 +289,13 @@ export type SchoolNotificationCreateInput = {
   title: string
   message: string
   type: $Enums.SchoolNotificationType
-  channel?: Prisma.SchoolNotificationCreatechannelInput | $Enums.NotificationChannel[]
-  sentById: string
   targetType: $Enums.TargetType
-  isRead?: boolean
-  readAt?: Date | string | null
-  sentAt?: Date | string | null
+  sentById: string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sentAt?: Date | string | null
   createdAt?: Date | string
-  student?: Prisma.StudentCreateNestedOneWithoutNotificationsInput
-  guardian?: Prisma.GuardianCreateNestedOneWithoutNotificationsInput
+  updatedAt?: Date | string
+  recipients?: Prisma.SchoolNotificationRecipientCreateNestedManyWithoutNotificationInput
 }
 
 export type SchoolNotificationUncheckedCreateInput = {
@@ -353,16 +303,13 @@ export type SchoolNotificationUncheckedCreateInput = {
   title: string
   message: string
   type: $Enums.SchoolNotificationType
-  channel?: Prisma.SchoolNotificationCreatechannelInput | $Enums.NotificationChannel[]
-  sentById: string
   targetType: $Enums.TargetType
-  isRead?: boolean
-  readAt?: Date | string | null
-  sentAt?: Date | string | null
+  sentById: string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sentAt?: Date | string | null
   createdAt?: Date | string
-  studentId?: string | null
-  guardianId?: string | null
+  updatedAt?: Date | string
+  recipients?: Prisma.SchoolNotificationRecipientUncheckedCreateNestedManyWithoutNotificationInput
 }
 
 export type SchoolNotificationUpdateInput = {
@@ -370,16 +317,13 @@ export type SchoolNotificationUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumSchoolNotificationTypeFieldUpdateOperationsInput | $Enums.SchoolNotificationType
-  channel?: Prisma.SchoolNotificationUpdatechannelInput | $Enums.NotificationChannel[]
-  sentById?: Prisma.StringFieldUpdateOperationsInput | string
   targetType?: Prisma.EnumTargetTypeFieldUpdateOperationsInput | $Enums.TargetType
-  isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sentById?: Prisma.StringFieldUpdateOperationsInput | string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  student?: Prisma.StudentUpdateOneWithoutNotificationsNestedInput
-  guardian?: Prisma.GuardianUpdateOneWithoutNotificationsNestedInput
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  recipients?: Prisma.SchoolNotificationRecipientUpdateManyWithoutNotificationNestedInput
 }
 
 export type SchoolNotificationUncheckedUpdateInput = {
@@ -387,16 +331,13 @@ export type SchoolNotificationUncheckedUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumSchoolNotificationTypeFieldUpdateOperationsInput | $Enums.SchoolNotificationType
-  channel?: Prisma.SchoolNotificationUpdatechannelInput | $Enums.NotificationChannel[]
-  sentById?: Prisma.StringFieldUpdateOperationsInput | string
   targetType?: Prisma.EnumTargetTypeFieldUpdateOperationsInput | $Enums.TargetType
-  isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sentById?: Prisma.StringFieldUpdateOperationsInput | string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  studentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  guardianId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  recipients?: Prisma.SchoolNotificationRecipientUncheckedUpdateManyWithoutNotificationNestedInput
 }
 
 export type SchoolNotificationCreateManyInput = {
@@ -404,16 +345,12 @@ export type SchoolNotificationCreateManyInput = {
   title: string
   message: string
   type: $Enums.SchoolNotificationType
-  channel?: Prisma.SchoolNotificationCreatechannelInput | $Enums.NotificationChannel[]
-  sentById: string
   targetType: $Enums.TargetType
-  isRead?: boolean
-  readAt?: Date | string | null
-  sentAt?: Date | string | null
+  sentById: string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sentAt?: Date | string | null
   createdAt?: Date | string
-  studentId?: string | null
-  guardianId?: string | null
+  updatedAt?: Date | string
 }
 
 export type SchoolNotificationUpdateManyMutationInput = {
@@ -421,14 +358,12 @@ export type SchoolNotificationUpdateManyMutationInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumSchoolNotificationTypeFieldUpdateOperationsInput | $Enums.SchoolNotificationType
-  channel?: Prisma.SchoolNotificationUpdatechannelInput | $Enums.NotificationChannel[]
-  sentById?: Prisma.StringFieldUpdateOperationsInput | string
   targetType?: Prisma.EnumTargetTypeFieldUpdateOperationsInput | $Enums.TargetType
-  isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sentById?: Prisma.StringFieldUpdateOperationsInput | string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SchoolNotificationUncheckedUpdateManyInput = {
@@ -436,26 +371,12 @@ export type SchoolNotificationUncheckedUpdateManyInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumSchoolNotificationTypeFieldUpdateOperationsInput | $Enums.SchoolNotificationType
-  channel?: Prisma.SchoolNotificationUpdatechannelInput | $Enums.NotificationChannel[]
-  sentById?: Prisma.StringFieldUpdateOperationsInput | string
   targetType?: Prisma.EnumTargetTypeFieldUpdateOperationsInput | $Enums.TargetType
-  isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sentById?: Prisma.StringFieldUpdateOperationsInput | string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  studentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  guardianId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-}
-
-export type SchoolNotificationListRelationFilter = {
-  every?: Prisma.SchoolNotificationWhereInput
-  some?: Prisma.SchoolNotificationWhereInput
-  none?: Prisma.SchoolNotificationWhereInput
-}
-
-export type SchoolNotificationOrderByRelationAggregateInput = {
-  _count?: Prisma.SortOrder
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SchoolNotificationCountOrderByAggregateInput = {
@@ -463,16 +384,12 @@ export type SchoolNotificationCountOrderByAggregateInput = {
   title?: Prisma.SortOrder
   message?: Prisma.SortOrder
   type?: Prisma.SortOrder
-  channel?: Prisma.SortOrder
-  sentById?: Prisma.SortOrder
   targetType?: Prisma.SortOrder
-  isRead?: Prisma.SortOrder
-  readAt?: Prisma.SortOrder
-  sentAt?: Prisma.SortOrder
+  sentById?: Prisma.SortOrder
   metadata?: Prisma.SortOrder
+  sentAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  studentId?: Prisma.SortOrder
-  guardianId?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SchoolNotificationMaxOrderByAggregateInput = {
@@ -480,14 +397,11 @@ export type SchoolNotificationMaxOrderByAggregateInput = {
   title?: Prisma.SortOrder
   message?: Prisma.SortOrder
   type?: Prisma.SortOrder
-  sentById?: Prisma.SortOrder
   targetType?: Prisma.SortOrder
-  isRead?: Prisma.SortOrder
-  readAt?: Prisma.SortOrder
+  sentById?: Prisma.SortOrder
   sentAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  studentId?: Prisma.SortOrder
-  guardianId?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SchoolNotificationMinOrderByAggregateInput = {
@@ -495,381 +409,137 @@ export type SchoolNotificationMinOrderByAggregateInput = {
   title?: Prisma.SortOrder
   message?: Prisma.SortOrder
   type?: Prisma.SortOrder
-  sentById?: Prisma.SortOrder
   targetType?: Prisma.SortOrder
-  isRead?: Prisma.SortOrder
-  readAt?: Prisma.SortOrder
+  sentById?: Prisma.SortOrder
   sentAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  studentId?: Prisma.SortOrder
-  guardianId?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
-export type SchoolNotificationCreateNestedManyWithoutStudentInput = {
-  create?: Prisma.XOR<Prisma.SchoolNotificationCreateWithoutStudentInput, Prisma.SchoolNotificationUncheckedCreateWithoutStudentInput> | Prisma.SchoolNotificationCreateWithoutStudentInput[] | Prisma.SchoolNotificationUncheckedCreateWithoutStudentInput[]
-  connectOrCreate?: Prisma.SchoolNotificationCreateOrConnectWithoutStudentInput | Prisma.SchoolNotificationCreateOrConnectWithoutStudentInput[]
-  createMany?: Prisma.SchoolNotificationCreateManyStudentInputEnvelope
-  connect?: Prisma.SchoolNotificationWhereUniqueInput | Prisma.SchoolNotificationWhereUniqueInput[]
-}
-
-export type SchoolNotificationUncheckedCreateNestedManyWithoutStudentInput = {
-  create?: Prisma.XOR<Prisma.SchoolNotificationCreateWithoutStudentInput, Prisma.SchoolNotificationUncheckedCreateWithoutStudentInput> | Prisma.SchoolNotificationCreateWithoutStudentInput[] | Prisma.SchoolNotificationUncheckedCreateWithoutStudentInput[]
-  connectOrCreate?: Prisma.SchoolNotificationCreateOrConnectWithoutStudentInput | Prisma.SchoolNotificationCreateOrConnectWithoutStudentInput[]
-  createMany?: Prisma.SchoolNotificationCreateManyStudentInputEnvelope
-  connect?: Prisma.SchoolNotificationWhereUniqueInput | Prisma.SchoolNotificationWhereUniqueInput[]
-}
-
-export type SchoolNotificationUpdateManyWithoutStudentNestedInput = {
-  create?: Prisma.XOR<Prisma.SchoolNotificationCreateWithoutStudentInput, Prisma.SchoolNotificationUncheckedCreateWithoutStudentInput> | Prisma.SchoolNotificationCreateWithoutStudentInput[] | Prisma.SchoolNotificationUncheckedCreateWithoutStudentInput[]
-  connectOrCreate?: Prisma.SchoolNotificationCreateOrConnectWithoutStudentInput | Prisma.SchoolNotificationCreateOrConnectWithoutStudentInput[]
-  upsert?: Prisma.SchoolNotificationUpsertWithWhereUniqueWithoutStudentInput | Prisma.SchoolNotificationUpsertWithWhereUniqueWithoutStudentInput[]
-  createMany?: Prisma.SchoolNotificationCreateManyStudentInputEnvelope
-  set?: Prisma.SchoolNotificationWhereUniqueInput | Prisma.SchoolNotificationWhereUniqueInput[]
-  disconnect?: Prisma.SchoolNotificationWhereUniqueInput | Prisma.SchoolNotificationWhereUniqueInput[]
-  delete?: Prisma.SchoolNotificationWhereUniqueInput | Prisma.SchoolNotificationWhereUniqueInput[]
-  connect?: Prisma.SchoolNotificationWhereUniqueInput | Prisma.SchoolNotificationWhereUniqueInput[]
-  update?: Prisma.SchoolNotificationUpdateWithWhereUniqueWithoutStudentInput | Prisma.SchoolNotificationUpdateWithWhereUniqueWithoutStudentInput[]
-  updateMany?: Prisma.SchoolNotificationUpdateManyWithWhereWithoutStudentInput | Prisma.SchoolNotificationUpdateManyWithWhereWithoutStudentInput[]
-  deleteMany?: Prisma.SchoolNotificationScalarWhereInput | Prisma.SchoolNotificationScalarWhereInput[]
-}
-
-export type SchoolNotificationUncheckedUpdateManyWithoutStudentNestedInput = {
-  create?: Prisma.XOR<Prisma.SchoolNotificationCreateWithoutStudentInput, Prisma.SchoolNotificationUncheckedCreateWithoutStudentInput> | Prisma.SchoolNotificationCreateWithoutStudentInput[] | Prisma.SchoolNotificationUncheckedCreateWithoutStudentInput[]
-  connectOrCreate?: Prisma.SchoolNotificationCreateOrConnectWithoutStudentInput | Prisma.SchoolNotificationCreateOrConnectWithoutStudentInput[]
-  upsert?: Prisma.SchoolNotificationUpsertWithWhereUniqueWithoutStudentInput | Prisma.SchoolNotificationUpsertWithWhereUniqueWithoutStudentInput[]
-  createMany?: Prisma.SchoolNotificationCreateManyStudentInputEnvelope
-  set?: Prisma.SchoolNotificationWhereUniqueInput | Prisma.SchoolNotificationWhereUniqueInput[]
-  disconnect?: Prisma.SchoolNotificationWhereUniqueInput | Prisma.SchoolNotificationWhereUniqueInput[]
-  delete?: Prisma.SchoolNotificationWhereUniqueInput | Prisma.SchoolNotificationWhereUniqueInput[]
-  connect?: Prisma.SchoolNotificationWhereUniqueInput | Prisma.SchoolNotificationWhereUniqueInput[]
-  update?: Prisma.SchoolNotificationUpdateWithWhereUniqueWithoutStudentInput | Prisma.SchoolNotificationUpdateWithWhereUniqueWithoutStudentInput[]
-  updateMany?: Prisma.SchoolNotificationUpdateManyWithWhereWithoutStudentInput | Prisma.SchoolNotificationUpdateManyWithWhereWithoutStudentInput[]
-  deleteMany?: Prisma.SchoolNotificationScalarWhereInput | Prisma.SchoolNotificationScalarWhereInput[]
-}
-
-export type SchoolNotificationCreateNestedManyWithoutGuardianInput = {
-  create?: Prisma.XOR<Prisma.SchoolNotificationCreateWithoutGuardianInput, Prisma.SchoolNotificationUncheckedCreateWithoutGuardianInput> | Prisma.SchoolNotificationCreateWithoutGuardianInput[] | Prisma.SchoolNotificationUncheckedCreateWithoutGuardianInput[]
-  connectOrCreate?: Prisma.SchoolNotificationCreateOrConnectWithoutGuardianInput | Prisma.SchoolNotificationCreateOrConnectWithoutGuardianInput[]
-  createMany?: Prisma.SchoolNotificationCreateManyGuardianInputEnvelope
-  connect?: Prisma.SchoolNotificationWhereUniqueInput | Prisma.SchoolNotificationWhereUniqueInput[]
-}
-
-export type SchoolNotificationUncheckedCreateNestedManyWithoutGuardianInput = {
-  create?: Prisma.XOR<Prisma.SchoolNotificationCreateWithoutGuardianInput, Prisma.SchoolNotificationUncheckedCreateWithoutGuardianInput> | Prisma.SchoolNotificationCreateWithoutGuardianInput[] | Prisma.SchoolNotificationUncheckedCreateWithoutGuardianInput[]
-  connectOrCreate?: Prisma.SchoolNotificationCreateOrConnectWithoutGuardianInput | Prisma.SchoolNotificationCreateOrConnectWithoutGuardianInput[]
-  createMany?: Prisma.SchoolNotificationCreateManyGuardianInputEnvelope
-  connect?: Prisma.SchoolNotificationWhereUniqueInput | Prisma.SchoolNotificationWhereUniqueInput[]
-}
-
-export type SchoolNotificationUpdateManyWithoutGuardianNestedInput = {
-  create?: Prisma.XOR<Prisma.SchoolNotificationCreateWithoutGuardianInput, Prisma.SchoolNotificationUncheckedCreateWithoutGuardianInput> | Prisma.SchoolNotificationCreateWithoutGuardianInput[] | Prisma.SchoolNotificationUncheckedCreateWithoutGuardianInput[]
-  connectOrCreate?: Prisma.SchoolNotificationCreateOrConnectWithoutGuardianInput | Prisma.SchoolNotificationCreateOrConnectWithoutGuardianInput[]
-  upsert?: Prisma.SchoolNotificationUpsertWithWhereUniqueWithoutGuardianInput | Prisma.SchoolNotificationUpsertWithWhereUniqueWithoutGuardianInput[]
-  createMany?: Prisma.SchoolNotificationCreateManyGuardianInputEnvelope
-  set?: Prisma.SchoolNotificationWhereUniqueInput | Prisma.SchoolNotificationWhereUniqueInput[]
-  disconnect?: Prisma.SchoolNotificationWhereUniqueInput | Prisma.SchoolNotificationWhereUniqueInput[]
-  delete?: Prisma.SchoolNotificationWhereUniqueInput | Prisma.SchoolNotificationWhereUniqueInput[]
-  connect?: Prisma.SchoolNotificationWhereUniqueInput | Prisma.SchoolNotificationWhereUniqueInput[]
-  update?: Prisma.SchoolNotificationUpdateWithWhereUniqueWithoutGuardianInput | Prisma.SchoolNotificationUpdateWithWhereUniqueWithoutGuardianInput[]
-  updateMany?: Prisma.SchoolNotificationUpdateManyWithWhereWithoutGuardianInput | Prisma.SchoolNotificationUpdateManyWithWhereWithoutGuardianInput[]
-  deleteMany?: Prisma.SchoolNotificationScalarWhereInput | Prisma.SchoolNotificationScalarWhereInput[]
-}
-
-export type SchoolNotificationUncheckedUpdateManyWithoutGuardianNestedInput = {
-  create?: Prisma.XOR<Prisma.SchoolNotificationCreateWithoutGuardianInput, Prisma.SchoolNotificationUncheckedCreateWithoutGuardianInput> | Prisma.SchoolNotificationCreateWithoutGuardianInput[] | Prisma.SchoolNotificationUncheckedCreateWithoutGuardianInput[]
-  connectOrCreate?: Prisma.SchoolNotificationCreateOrConnectWithoutGuardianInput | Prisma.SchoolNotificationCreateOrConnectWithoutGuardianInput[]
-  upsert?: Prisma.SchoolNotificationUpsertWithWhereUniqueWithoutGuardianInput | Prisma.SchoolNotificationUpsertWithWhereUniqueWithoutGuardianInput[]
-  createMany?: Prisma.SchoolNotificationCreateManyGuardianInputEnvelope
-  set?: Prisma.SchoolNotificationWhereUniqueInput | Prisma.SchoolNotificationWhereUniqueInput[]
-  disconnect?: Prisma.SchoolNotificationWhereUniqueInput | Prisma.SchoolNotificationWhereUniqueInput[]
-  delete?: Prisma.SchoolNotificationWhereUniqueInput | Prisma.SchoolNotificationWhereUniqueInput[]
-  connect?: Prisma.SchoolNotificationWhereUniqueInput | Prisma.SchoolNotificationWhereUniqueInput[]
-  update?: Prisma.SchoolNotificationUpdateWithWhereUniqueWithoutGuardianInput | Prisma.SchoolNotificationUpdateWithWhereUniqueWithoutGuardianInput[]
-  updateMany?: Prisma.SchoolNotificationUpdateManyWithWhereWithoutGuardianInput | Prisma.SchoolNotificationUpdateManyWithWhereWithoutGuardianInput[]
-  deleteMany?: Prisma.SchoolNotificationScalarWhereInput | Prisma.SchoolNotificationScalarWhereInput[]
-}
-
-export type SchoolNotificationCreatechannelInput = {
-  set: $Enums.NotificationChannel[]
+export type SchoolNotificationScalarRelationFilter = {
+  is?: Prisma.SchoolNotificationWhereInput
+  isNot?: Prisma.SchoolNotificationWhereInput
 }
 
 export type EnumSchoolNotificationTypeFieldUpdateOperationsInput = {
   set?: $Enums.SchoolNotificationType
 }
 
-export type SchoolNotificationUpdatechannelInput = {
-  set?: $Enums.NotificationChannel[]
-  push?: $Enums.NotificationChannel | $Enums.NotificationChannel[]
-}
-
 export type EnumTargetTypeFieldUpdateOperationsInput = {
   set?: $Enums.TargetType
 }
 
-export type SchoolNotificationCreateWithoutStudentInput = {
+export type SchoolNotificationCreateNestedOneWithoutRecipientsInput = {
+  create?: Prisma.XOR<Prisma.SchoolNotificationCreateWithoutRecipientsInput, Prisma.SchoolNotificationUncheckedCreateWithoutRecipientsInput>
+  connectOrCreate?: Prisma.SchoolNotificationCreateOrConnectWithoutRecipientsInput
+  connect?: Prisma.SchoolNotificationWhereUniqueInput
+}
+
+export type SchoolNotificationUpdateOneRequiredWithoutRecipientsNestedInput = {
+  create?: Prisma.XOR<Prisma.SchoolNotificationCreateWithoutRecipientsInput, Prisma.SchoolNotificationUncheckedCreateWithoutRecipientsInput>
+  connectOrCreate?: Prisma.SchoolNotificationCreateOrConnectWithoutRecipientsInput
+  upsert?: Prisma.SchoolNotificationUpsertWithoutRecipientsInput
+  connect?: Prisma.SchoolNotificationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SchoolNotificationUpdateToOneWithWhereWithoutRecipientsInput, Prisma.SchoolNotificationUpdateWithoutRecipientsInput>, Prisma.SchoolNotificationUncheckedUpdateWithoutRecipientsInput>
+}
+
+export type SchoolNotificationCreateWithoutRecipientsInput = {
   id?: string
   title: string
   message: string
   type: $Enums.SchoolNotificationType
-  channel?: Prisma.SchoolNotificationCreatechannelInput | $Enums.NotificationChannel[]
-  sentById: string
   targetType: $Enums.TargetType
-  isRead?: boolean
-  readAt?: Date | string | null
-  sentAt?: Date | string | null
+  sentById: string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sentAt?: Date | string | null
   createdAt?: Date | string
-  guardian?: Prisma.GuardianCreateNestedOneWithoutNotificationsInput
+  updatedAt?: Date | string
 }
 
-export type SchoolNotificationUncheckedCreateWithoutStudentInput = {
+export type SchoolNotificationUncheckedCreateWithoutRecipientsInput = {
   id?: string
   title: string
   message: string
   type: $Enums.SchoolNotificationType
-  channel?: Prisma.SchoolNotificationCreatechannelInput | $Enums.NotificationChannel[]
-  sentById: string
   targetType: $Enums.TargetType
-  isRead?: boolean
-  readAt?: Date | string | null
-  sentAt?: Date | string | null
-  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  createdAt?: Date | string
-  guardianId?: string | null
-}
-
-export type SchoolNotificationCreateOrConnectWithoutStudentInput = {
-  where: Prisma.SchoolNotificationWhereUniqueInput
-  create: Prisma.XOR<Prisma.SchoolNotificationCreateWithoutStudentInput, Prisma.SchoolNotificationUncheckedCreateWithoutStudentInput>
-}
-
-export type SchoolNotificationCreateManyStudentInputEnvelope = {
-  data: Prisma.SchoolNotificationCreateManyStudentInput | Prisma.SchoolNotificationCreateManyStudentInput[]
-  skipDuplicates?: boolean
-}
-
-export type SchoolNotificationUpsertWithWhereUniqueWithoutStudentInput = {
-  where: Prisma.SchoolNotificationWhereUniqueInput
-  update: Prisma.XOR<Prisma.SchoolNotificationUpdateWithoutStudentInput, Prisma.SchoolNotificationUncheckedUpdateWithoutStudentInput>
-  create: Prisma.XOR<Prisma.SchoolNotificationCreateWithoutStudentInput, Prisma.SchoolNotificationUncheckedCreateWithoutStudentInput>
-}
-
-export type SchoolNotificationUpdateWithWhereUniqueWithoutStudentInput = {
-  where: Prisma.SchoolNotificationWhereUniqueInput
-  data: Prisma.XOR<Prisma.SchoolNotificationUpdateWithoutStudentInput, Prisma.SchoolNotificationUncheckedUpdateWithoutStudentInput>
-}
-
-export type SchoolNotificationUpdateManyWithWhereWithoutStudentInput = {
-  where: Prisma.SchoolNotificationScalarWhereInput
-  data: Prisma.XOR<Prisma.SchoolNotificationUpdateManyMutationInput, Prisma.SchoolNotificationUncheckedUpdateManyWithoutStudentInput>
-}
-
-export type SchoolNotificationScalarWhereInput = {
-  AND?: Prisma.SchoolNotificationScalarWhereInput | Prisma.SchoolNotificationScalarWhereInput[]
-  OR?: Prisma.SchoolNotificationScalarWhereInput[]
-  NOT?: Prisma.SchoolNotificationScalarWhereInput | Prisma.SchoolNotificationScalarWhereInput[]
-  id?: Prisma.StringFilter<"SchoolNotification"> | string
-  title?: Prisma.StringFilter<"SchoolNotification"> | string
-  message?: Prisma.StringFilter<"SchoolNotification"> | string
-  type?: Prisma.EnumSchoolNotificationTypeFilter<"SchoolNotification"> | $Enums.SchoolNotificationType
-  channel?: Prisma.EnumNotificationChannelNullableListFilter<"SchoolNotification">
-  sentById?: Prisma.StringFilter<"SchoolNotification"> | string
-  targetType?: Prisma.EnumTargetTypeFilter<"SchoolNotification"> | $Enums.TargetType
-  isRead?: Prisma.BoolFilter<"SchoolNotification"> | boolean
-  readAt?: Prisma.DateTimeNullableFilter<"SchoolNotification"> | Date | string | null
-  sentAt?: Prisma.DateTimeNullableFilter<"SchoolNotification"> | Date | string | null
-  metadata?: Prisma.JsonNullableFilter<"SchoolNotification">
-  createdAt?: Prisma.DateTimeFilter<"SchoolNotification"> | Date | string
-  studentId?: Prisma.StringNullableFilter<"SchoolNotification"> | string | null
-  guardianId?: Prisma.StringNullableFilter<"SchoolNotification"> | string | null
-}
-
-export type SchoolNotificationCreateWithoutGuardianInput = {
-  id?: string
-  title: string
-  message: string
-  type: $Enums.SchoolNotificationType
-  channel?: Prisma.SchoolNotificationCreatechannelInput | $Enums.NotificationChannel[]
   sentById: string
-  targetType: $Enums.TargetType
-  isRead?: boolean
-  readAt?: Date | string | null
-  sentAt?: Date | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sentAt?: Date | string | null
   createdAt?: Date | string
-  student?: Prisma.StudentCreateNestedOneWithoutNotificationsInput
+  updatedAt?: Date | string
 }
 
-export type SchoolNotificationUncheckedCreateWithoutGuardianInput = {
-  id?: string
-  title: string
-  message: string
-  type: $Enums.SchoolNotificationType
-  channel?: Prisma.SchoolNotificationCreatechannelInput | $Enums.NotificationChannel[]
-  sentById: string
-  targetType: $Enums.TargetType
-  isRead?: boolean
-  readAt?: Date | string | null
-  sentAt?: Date | string | null
-  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  createdAt?: Date | string
-  studentId?: string | null
-}
-
-export type SchoolNotificationCreateOrConnectWithoutGuardianInput = {
+export type SchoolNotificationCreateOrConnectWithoutRecipientsInput = {
   where: Prisma.SchoolNotificationWhereUniqueInput
-  create: Prisma.XOR<Prisma.SchoolNotificationCreateWithoutGuardianInput, Prisma.SchoolNotificationUncheckedCreateWithoutGuardianInput>
+  create: Prisma.XOR<Prisma.SchoolNotificationCreateWithoutRecipientsInput, Prisma.SchoolNotificationUncheckedCreateWithoutRecipientsInput>
 }
 
-export type SchoolNotificationCreateManyGuardianInputEnvelope = {
-  data: Prisma.SchoolNotificationCreateManyGuardianInput | Prisma.SchoolNotificationCreateManyGuardianInput[]
-  skipDuplicates?: boolean
+export type SchoolNotificationUpsertWithoutRecipientsInput = {
+  update: Prisma.XOR<Prisma.SchoolNotificationUpdateWithoutRecipientsInput, Prisma.SchoolNotificationUncheckedUpdateWithoutRecipientsInput>
+  create: Prisma.XOR<Prisma.SchoolNotificationCreateWithoutRecipientsInput, Prisma.SchoolNotificationUncheckedCreateWithoutRecipientsInput>
+  where?: Prisma.SchoolNotificationWhereInput
 }
 
-export type SchoolNotificationUpsertWithWhereUniqueWithoutGuardianInput = {
-  where: Prisma.SchoolNotificationWhereUniqueInput
-  update: Prisma.XOR<Prisma.SchoolNotificationUpdateWithoutGuardianInput, Prisma.SchoolNotificationUncheckedUpdateWithoutGuardianInput>
-  create: Prisma.XOR<Prisma.SchoolNotificationCreateWithoutGuardianInput, Prisma.SchoolNotificationUncheckedCreateWithoutGuardianInput>
+export type SchoolNotificationUpdateToOneWithWhereWithoutRecipientsInput = {
+  where?: Prisma.SchoolNotificationWhereInput
+  data: Prisma.XOR<Prisma.SchoolNotificationUpdateWithoutRecipientsInput, Prisma.SchoolNotificationUncheckedUpdateWithoutRecipientsInput>
 }
 
-export type SchoolNotificationUpdateWithWhereUniqueWithoutGuardianInput = {
-  where: Prisma.SchoolNotificationWhereUniqueInput
-  data: Prisma.XOR<Prisma.SchoolNotificationUpdateWithoutGuardianInput, Prisma.SchoolNotificationUncheckedUpdateWithoutGuardianInput>
-}
-
-export type SchoolNotificationUpdateManyWithWhereWithoutGuardianInput = {
-  where: Prisma.SchoolNotificationScalarWhereInput
-  data: Prisma.XOR<Prisma.SchoolNotificationUpdateManyMutationInput, Prisma.SchoolNotificationUncheckedUpdateManyWithoutGuardianInput>
-}
-
-export type SchoolNotificationCreateManyStudentInput = {
-  id?: string
-  title: string
-  message: string
-  type: $Enums.SchoolNotificationType
-  channel?: Prisma.SchoolNotificationCreatechannelInput | $Enums.NotificationChannel[]
-  sentById: string
-  targetType: $Enums.TargetType
-  isRead?: boolean
-  readAt?: Date | string | null
-  sentAt?: Date | string | null
-  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  createdAt?: Date | string
-  guardianId?: string | null
-}
-
-export type SchoolNotificationUpdateWithoutStudentInput = {
+export type SchoolNotificationUpdateWithoutRecipientsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumSchoolNotificationTypeFieldUpdateOperationsInput | $Enums.SchoolNotificationType
-  channel?: Prisma.SchoolNotificationUpdatechannelInput | $Enums.NotificationChannel[]
-  sentById?: Prisma.StringFieldUpdateOperationsInput | string
   targetType?: Prisma.EnumTargetTypeFieldUpdateOperationsInput | $Enums.TargetType
-  isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sentById?: Prisma.StringFieldUpdateOperationsInput | string
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  guardian?: Prisma.GuardianUpdateOneWithoutNotificationsNestedInput
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type SchoolNotificationUncheckedUpdateWithoutStudentInput = {
+export type SchoolNotificationUncheckedUpdateWithoutRecipientsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumSchoolNotificationTypeFieldUpdateOperationsInput | $Enums.SchoolNotificationType
-  channel?: Prisma.SchoolNotificationUpdatechannelInput | $Enums.NotificationChannel[]
-  sentById?: Prisma.StringFieldUpdateOperationsInput | string
   targetType?: Prisma.EnumTargetTypeFieldUpdateOperationsInput | $Enums.TargetType
-  isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  guardianId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-}
-
-export type SchoolNotificationUncheckedUpdateManyWithoutStudentInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  message?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.EnumSchoolNotificationTypeFieldUpdateOperationsInput | $Enums.SchoolNotificationType
-  channel?: Prisma.SchoolNotificationUpdatechannelInput | $Enums.NotificationChannel[]
   sentById?: Prisma.StringFieldUpdateOperationsInput | string
-  targetType?: Prisma.EnumTargetTypeFieldUpdateOperationsInput | $Enums.TargetType
-  isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  guardianId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type SchoolNotificationCreateManyGuardianInput = {
-  id?: string
-  title: string
-  message: string
-  type: $Enums.SchoolNotificationType
-  channel?: Prisma.SchoolNotificationCreatechannelInput | $Enums.NotificationChannel[]
-  sentById: string
-  targetType: $Enums.TargetType
-  isRead?: boolean
-  readAt?: Date | string | null
-  sentAt?: Date | string | null
-  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  createdAt?: Date | string
-  studentId?: string | null
+
+/**
+ * Count Type SchoolNotificationCountOutputType
+ */
+
+export type SchoolNotificationCountOutputType = {
+  recipients: number
 }
 
-export type SchoolNotificationUpdateWithoutGuardianInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  message?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.EnumSchoolNotificationTypeFieldUpdateOperationsInput | $Enums.SchoolNotificationType
-  channel?: Prisma.SchoolNotificationUpdatechannelInput | $Enums.NotificationChannel[]
-  sentById?: Prisma.StringFieldUpdateOperationsInput | string
-  targetType?: Prisma.EnumTargetTypeFieldUpdateOperationsInput | $Enums.TargetType
-  isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  student?: Prisma.StudentUpdateOneWithoutNotificationsNestedInput
+export type SchoolNotificationCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  recipients?: boolean | SchoolNotificationCountOutputTypeCountRecipientsArgs
 }
 
-export type SchoolNotificationUncheckedUpdateWithoutGuardianInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  message?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.EnumSchoolNotificationTypeFieldUpdateOperationsInput | $Enums.SchoolNotificationType
-  channel?: Prisma.SchoolNotificationUpdatechannelInput | $Enums.NotificationChannel[]
-  sentById?: Prisma.StringFieldUpdateOperationsInput | string
-  targetType?: Prisma.EnumTargetTypeFieldUpdateOperationsInput | $Enums.TargetType
-  isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  studentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+/**
+ * SchoolNotificationCountOutputType without action
+ */
+export type SchoolNotificationCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SchoolNotificationCountOutputType
+   */
+  select?: Prisma.SchoolNotificationCountOutputTypeSelect<ExtArgs> | null
 }
 
-export type SchoolNotificationUncheckedUpdateManyWithoutGuardianInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  message?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.EnumSchoolNotificationTypeFieldUpdateOperationsInput | $Enums.SchoolNotificationType
-  channel?: Prisma.SchoolNotificationUpdatechannelInput | $Enums.NotificationChannel[]
-  sentById?: Prisma.StringFieldUpdateOperationsInput | string
-  targetType?: Prisma.EnumTargetTypeFieldUpdateOperationsInput | $Enums.TargetType
-  isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  studentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+/**
+ * SchoolNotificationCountOutputType without action
+ */
+export type SchoolNotificationCountOutputTypeCountRecipientsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SchoolNotificationRecipientWhereInput
 }
-
 
 
 export type SchoolNotificationSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -877,18 +547,14 @@ export type SchoolNotificationSelect<ExtArgs extends runtime.Types.Extensions.In
   title?: boolean
   message?: boolean
   type?: boolean
-  channel?: boolean
-  sentById?: boolean
   targetType?: boolean
-  isRead?: boolean
-  readAt?: boolean
-  sentAt?: boolean
+  sentById?: boolean
   metadata?: boolean
+  sentAt?: boolean
   createdAt?: boolean
-  studentId?: boolean
-  guardianId?: boolean
-  student?: boolean | Prisma.SchoolNotification$studentArgs<ExtArgs>
-  guardian?: boolean | Prisma.SchoolNotification$guardianArgs<ExtArgs>
+  updatedAt?: boolean
+  recipients?: boolean | Prisma.SchoolNotification$recipientsArgs<ExtArgs>
+  _count?: boolean | Prisma.SchoolNotificationCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["schoolNotification"]>
 
 export type SchoolNotificationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -896,18 +562,12 @@ export type SchoolNotificationSelectCreateManyAndReturn<ExtArgs extends runtime.
   title?: boolean
   message?: boolean
   type?: boolean
-  channel?: boolean
-  sentById?: boolean
   targetType?: boolean
-  isRead?: boolean
-  readAt?: boolean
-  sentAt?: boolean
+  sentById?: boolean
   metadata?: boolean
+  sentAt?: boolean
   createdAt?: boolean
-  studentId?: boolean
-  guardianId?: boolean
-  student?: boolean | Prisma.SchoolNotification$studentArgs<ExtArgs>
-  guardian?: boolean | Prisma.SchoolNotification$guardianArgs<ExtArgs>
+  updatedAt?: boolean
 }, ExtArgs["result"]["schoolNotification"]>
 
 export type SchoolNotificationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -915,18 +575,12 @@ export type SchoolNotificationSelectUpdateManyAndReturn<ExtArgs extends runtime.
   title?: boolean
   message?: boolean
   type?: boolean
-  channel?: boolean
-  sentById?: boolean
   targetType?: boolean
-  isRead?: boolean
-  readAt?: boolean
-  sentAt?: boolean
+  sentById?: boolean
   metadata?: boolean
+  sentAt?: boolean
   createdAt?: boolean
-  studentId?: boolean
-  guardianId?: boolean
-  student?: boolean | Prisma.SchoolNotification$studentArgs<ExtArgs>
-  guardian?: boolean | Prisma.SchoolNotification$guardianArgs<ExtArgs>
+  updatedAt?: boolean
 }, ExtArgs["result"]["schoolNotification"]>
 
 export type SchoolNotificationSelectScalar = {
@@ -934,53 +588,38 @@ export type SchoolNotificationSelectScalar = {
   title?: boolean
   message?: boolean
   type?: boolean
-  channel?: boolean
-  sentById?: boolean
   targetType?: boolean
-  isRead?: boolean
-  readAt?: boolean
-  sentAt?: boolean
+  sentById?: boolean
   metadata?: boolean
+  sentAt?: boolean
   createdAt?: boolean
-  studentId?: boolean
-  guardianId?: boolean
+  updatedAt?: boolean
 }
 
-export type SchoolNotificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "message" | "type" | "channel" | "sentById" | "targetType" | "isRead" | "readAt" | "sentAt" | "metadata" | "createdAt" | "studentId" | "guardianId", ExtArgs["result"]["schoolNotification"]>
+export type SchoolNotificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "message" | "type" | "targetType" | "sentById" | "metadata" | "sentAt" | "createdAt" | "updatedAt", ExtArgs["result"]["schoolNotification"]>
 export type SchoolNotificationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  student?: boolean | Prisma.SchoolNotification$studentArgs<ExtArgs>
-  guardian?: boolean | Prisma.SchoolNotification$guardianArgs<ExtArgs>
+  recipients?: boolean | Prisma.SchoolNotification$recipientsArgs<ExtArgs>
+  _count?: boolean | Prisma.SchoolNotificationCountOutputTypeDefaultArgs<ExtArgs>
 }
-export type SchoolNotificationIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  student?: boolean | Prisma.SchoolNotification$studentArgs<ExtArgs>
-  guardian?: boolean | Prisma.SchoolNotification$guardianArgs<ExtArgs>
-}
-export type SchoolNotificationIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  student?: boolean | Prisma.SchoolNotification$studentArgs<ExtArgs>
-  guardian?: boolean | Prisma.SchoolNotification$guardianArgs<ExtArgs>
-}
+export type SchoolNotificationIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type SchoolNotificationIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
 
 export type $SchoolNotificationPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "SchoolNotification"
   objects: {
-    student: Prisma.$StudentPayload<ExtArgs> | null
-    guardian: Prisma.$GuardianPayload<ExtArgs> | null
+    recipients: Prisma.$SchoolNotificationRecipientPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     title: string
     message: string
     type: $Enums.SchoolNotificationType
-    channel: $Enums.NotificationChannel[]
-    sentById: string
     targetType: $Enums.TargetType
-    isRead: boolean
-    readAt: Date | null
-    sentAt: Date | null
+    sentById: string
     metadata: runtime.JsonValue | null
+    sentAt: Date | null
     createdAt: Date
-    studentId: string | null
-    guardianId: string | null
+    updatedAt: Date
   }, ExtArgs["result"]["schoolNotification"]>
   composites: {}
 }
@@ -1375,8 +1014,7 @@ readonly fields: SchoolNotificationFieldRefs;
  */
 export interface Prisma__SchoolNotificationClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  student<T extends Prisma.SchoolNotification$studentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SchoolNotification$studentArgs<ExtArgs>>): Prisma.Prisma__StudentClient<runtime.Types.Result.GetResult<Prisma.$StudentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  guardian<T extends Prisma.SchoolNotification$guardianArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SchoolNotification$guardianArgs<ExtArgs>>): Prisma.Prisma__GuardianClient<runtime.Types.Result.GetResult<Prisma.$GuardianPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  recipients<T extends Prisma.SchoolNotification$recipientsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SchoolNotification$recipientsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SchoolNotificationRecipientPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1410,16 +1048,12 @@ export interface SchoolNotificationFieldRefs {
   readonly title: Prisma.FieldRef<"SchoolNotification", 'String'>
   readonly message: Prisma.FieldRef<"SchoolNotification", 'String'>
   readonly type: Prisma.FieldRef<"SchoolNotification", 'SchoolNotificationType'>
-  readonly channel: Prisma.FieldRef<"SchoolNotification", 'NotificationChannel[]'>
-  readonly sentById: Prisma.FieldRef<"SchoolNotification", 'String'>
   readonly targetType: Prisma.FieldRef<"SchoolNotification", 'TargetType'>
-  readonly isRead: Prisma.FieldRef<"SchoolNotification", 'Boolean'>
-  readonly readAt: Prisma.FieldRef<"SchoolNotification", 'DateTime'>
-  readonly sentAt: Prisma.FieldRef<"SchoolNotification", 'DateTime'>
+  readonly sentById: Prisma.FieldRef<"SchoolNotification", 'String'>
   readonly metadata: Prisma.FieldRef<"SchoolNotification", 'Json'>
+  readonly sentAt: Prisma.FieldRef<"SchoolNotification", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"SchoolNotification", 'DateTime'>
-  readonly studentId: Prisma.FieldRef<"SchoolNotification", 'String'>
-  readonly guardianId: Prisma.FieldRef<"SchoolNotification", 'String'>
+  readonly updatedAt: Prisma.FieldRef<"SchoolNotification", 'DateTime'>
 }
     
 
@@ -1674,10 +1308,6 @@ export type SchoolNotificationCreateManyAndReturnArgs<ExtArgs extends runtime.Ty
    */
   data: Prisma.SchoolNotificationCreateManyInput | Prisma.SchoolNotificationCreateManyInput[]
   skipDuplicates?: boolean
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.SchoolNotificationIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1748,10 +1378,6 @@ export type SchoolNotificationUpdateManyAndReturnArgs<ExtArgs extends runtime.Ty
    * Limit how many SchoolNotifications to update.
    */
   limit?: number
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.SchoolNotificationIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1821,41 +1447,27 @@ export type SchoolNotificationDeleteManyArgs<ExtArgs extends runtime.Types.Exten
 }
 
 /**
- * SchoolNotification.student
+ * SchoolNotification.recipients
  */
-export type SchoolNotification$studentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type SchoolNotification$recipientsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Student
+   * Select specific fields to fetch from the SchoolNotificationRecipient
    */
-  select?: Prisma.StudentSelect<ExtArgs> | null
+  select?: Prisma.SchoolNotificationRecipientSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Student
+   * Omit specific fields from the SchoolNotificationRecipient
    */
-  omit?: Prisma.StudentOmit<ExtArgs> | null
+  omit?: Prisma.SchoolNotificationRecipientOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.StudentInclude<ExtArgs> | null
-  where?: Prisma.StudentWhereInput
-}
-
-/**
- * SchoolNotification.guardian
- */
-export type SchoolNotification$guardianArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Guardian
-   */
-  select?: Prisma.GuardianSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Guardian
-   */
-  omit?: Prisma.GuardianOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.GuardianInclude<ExtArgs> | null
-  where?: Prisma.GuardianWhereInput
+  include?: Prisma.SchoolNotificationRecipientInclude<ExtArgs> | null
+  where?: Prisma.SchoolNotificationRecipientWhereInput
+  orderBy?: Prisma.SchoolNotificationRecipientOrderByWithRelationInput | Prisma.SchoolNotificationRecipientOrderByWithRelationInput[]
+  cursor?: Prisma.SchoolNotificationRecipientWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SchoolNotificationRecipientScalarFieldEnum | Prisma.SchoolNotificationRecipientScalarFieldEnum[]
 }
 
 /**

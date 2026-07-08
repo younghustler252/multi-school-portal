@@ -1,47 +1,46 @@
 model SchoolNotification {
-  id           String                        @id @default(uuid())
-  title        String
-  message      String
-  type         SchoolNotificationType
-  targetType   TargetType               
-  sentById     String                   
-  metadata     Json?
-  sentAt       DateTime?
-  createdAt    DateTime                      @default(now())
-  updatedAt    DateTime                      @updatedAt
+    id         String                       @id @default(uuid())
+    title      String
+    message    String
+    type       SchoolNotificationType
+    targetType TargetType
+    sentById   String
+    metadata   Json?
+    sentAt     DateTime?
+    createdAt  DateTime                     @default(now())
+    updatedAt  DateTime                     @updatedAt
+    recipients SchoolNotificationRecipient[]
 
-  recipients   SchoolNotificationRecipient[]
-
-  @@index([type])
-  @@index([createdAt(sort: Desc)])
+    @@index([type])
+    @@index([createdAt(sort: Desc)])
 }
 
 model SchoolNotificationRecipient {
-  id             String               @id @default(uuid())
-  notificationId String
-  // one of these will be set depending on recipient type
-  studentId      String?
-  guardianId     String?
-  staffId        String?
-  channel        NotificationChannel
-  status         DeliveryStatus       @default(PENDING)
-  priority       NotificationPriority @default(NORMAL)
-  retryCount     Int                  @default(0)
-  failedReason   String?
-  providerMsgId  String?
-  readAt         DateTime?
-  deliveredAt    DateTime?
-  createdAt      DateTime             @default(now())
-  updatedAt      DateTime             @updatedAt
+    id             String               @id @default(uuid())
+    notificationId String
+    studentId      String?
+    guardianId     String?
+    staffId        String?
+    channel        NotificationChannel
+    status         DeliveryStatus       @default(PENDING)
+    priority       NotificationPriority @default(NORMAL)
+    retryCount     Int                  @default(0)
+    failedReason   String?
+    providerMsgId  String?
+    readAt         DateTime?
+    deliveredAt    DateTime?
+    createdAt      DateTime             @default(now())
+    updatedAt      DateTime             @updatedAt
 
-  notification   SchoolNotification   @relation(fields: [notificationId], references: [id], onDelete: Cascade)
-  student        Student?             @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  guardian       Guardian?            @relation(fields: [guardianId], references: [id], onDelete: Cascade)
-  staff          Staff?               @relation(fields: [staffId], references: [id], onDelete: Cascade)
+    notification   SchoolNotification   @relation(fields: [notificationId], references: [id], onDelete: Cascade)
 
-  @@unique([notificationId, channel, studentId, guardianId, staffId])
-  @@index([status])
-  @@index([status, priority, createdAt])
+    // No relations to Student, Guardian, Staff
+    // These are resolved in application code using the tenant Prisma client
+    // Cross-schema foreign keys are not supported in PostgreSQL
+
+    @@unique([notificationId, channel, studentId, guardianId, staffId])
+    @@index([status])
+    @@index([status, priority, createdAt])
 }
 
 enum SchoolNotificationType {

@@ -396,6 +396,7 @@ export const ModelName = {
   BillingHistory: 'BillingHistory',
   AuditLog: 'AuditLog',
   PlatformNotification: 'PlatformNotification',
+  PlatformNotificationRecipient: 'PlatformNotificationRecipient',
   Staff: 'Staff',
   Student: 'Student',
   Guardian: 'Guardian',
@@ -413,7 +414,8 @@ export const ModelName = {
   FeeType: 'FeeType',
   FeeInvoice: 'FeeInvoice',
   Payment: 'Payment',
-  SchoolNotification: 'SchoolNotification'
+  SchoolNotification: 'SchoolNotification',
+  SchoolNotificationRecipient: 'SchoolNotificationRecipient'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -429,7 +431,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "school" | "schoolDocument" | "user" | "otp" | "refreshToken" | "invite" | "plan" | "subscription" | "coupon" | "billingHistory" | "auditLog" | "platformNotification" | "staff" | "student" | "guardian" | "studentGuardian" | "session" | "term" | "class" | "subject" | "classSubject" | "enrolment" | "attendance" | "grade" | "gradingConfig" | "reportCard" | "feeType" | "feeInvoice" | "payment" | "schoolNotification"
+    modelProps: "school" | "schoolDocument" | "user" | "otp" | "refreshToken" | "invite" | "plan" | "subscription" | "coupon" | "billingHistory" | "auditLog" | "platformNotification" | "platformNotificationRecipient" | "staff" | "student" | "guardian" | "studentGuardian" | "session" | "term" | "class" | "subject" | "classSubject" | "enrolment" | "attendance" | "grade" | "gradingConfig" | "reportCard" | "feeType" | "feeInvoice" | "payment" | "schoolNotification" | "schoolNotificationRecipient"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1318,6 +1320,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.PlatformNotificationCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.PlatformNotificationCountAggregateOutputType> | number
+        }
+      }
+    }
+    PlatformNotificationRecipient: {
+      payload: Prisma.$PlatformNotificationRecipientPayload<ExtArgs>
+      fields: Prisma.PlatformNotificationRecipientFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PlatformNotificationRecipientFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformNotificationRecipientPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PlatformNotificationRecipientFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformNotificationRecipientPayload>
+        }
+        findFirst: {
+          args: Prisma.PlatformNotificationRecipientFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformNotificationRecipientPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PlatformNotificationRecipientFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformNotificationRecipientPayload>
+        }
+        findMany: {
+          args: Prisma.PlatformNotificationRecipientFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformNotificationRecipientPayload>[]
+        }
+        create: {
+          args: Prisma.PlatformNotificationRecipientCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformNotificationRecipientPayload>
+        }
+        createMany: {
+          args: Prisma.PlatformNotificationRecipientCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PlatformNotificationRecipientCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformNotificationRecipientPayload>[]
+        }
+        delete: {
+          args: Prisma.PlatformNotificationRecipientDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformNotificationRecipientPayload>
+        }
+        update: {
+          args: Prisma.PlatformNotificationRecipientUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformNotificationRecipientPayload>
+        }
+        deleteMany: {
+          args: Prisma.PlatformNotificationRecipientDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PlatformNotificationRecipientUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PlatformNotificationRecipientUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformNotificationRecipientPayload>[]
+        }
+        upsert: {
+          args: Prisma.PlatformNotificationRecipientUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlatformNotificationRecipientPayload>
+        }
+        aggregate: {
+          args: Prisma.PlatformNotificationRecipientAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePlatformNotificationRecipient>
+        }
+        groupBy: {
+          args: Prisma.PlatformNotificationRecipientGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PlatformNotificationRecipientGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PlatformNotificationRecipientCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PlatformNotificationRecipientCountAggregateOutputType> | number
         }
       }
     }
@@ -2653,6 +2729,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    SchoolNotificationRecipient: {
+      payload: Prisma.$SchoolNotificationRecipientPayload<ExtArgs>
+      fields: Prisma.SchoolNotificationRecipientFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SchoolNotificationRecipientFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SchoolNotificationRecipientPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SchoolNotificationRecipientFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SchoolNotificationRecipientPayload>
+        }
+        findFirst: {
+          args: Prisma.SchoolNotificationRecipientFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SchoolNotificationRecipientPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SchoolNotificationRecipientFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SchoolNotificationRecipientPayload>
+        }
+        findMany: {
+          args: Prisma.SchoolNotificationRecipientFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SchoolNotificationRecipientPayload>[]
+        }
+        create: {
+          args: Prisma.SchoolNotificationRecipientCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SchoolNotificationRecipientPayload>
+        }
+        createMany: {
+          args: Prisma.SchoolNotificationRecipientCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SchoolNotificationRecipientCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SchoolNotificationRecipientPayload>[]
+        }
+        delete: {
+          args: Prisma.SchoolNotificationRecipientDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SchoolNotificationRecipientPayload>
+        }
+        update: {
+          args: Prisma.SchoolNotificationRecipientUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SchoolNotificationRecipientPayload>
+        }
+        deleteMany: {
+          args: Prisma.SchoolNotificationRecipientDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SchoolNotificationRecipientUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SchoolNotificationRecipientUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SchoolNotificationRecipientPayload>[]
+        }
+        upsert: {
+          args: Prisma.SchoolNotificationRecipientUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SchoolNotificationRecipientPayload>
+        }
+        aggregate: {
+          args: Prisma.SchoolNotificationRecipientAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSchoolNotificationRecipient>
+        }
+        groupBy: {
+          args: Prisma.SchoolNotificationRecipientGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SchoolNotificationRecipientGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SchoolNotificationRecipientCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SchoolNotificationRecipientCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -2713,6 +2863,7 @@ export const SchoolScalarFieldEnum = {
   suspendedAt: 'suspendedAt',
   suspensionReason: 'suspensionReason',
   isActive: 'isActive',
+  schemaName: 'schemaName',
   paystackSubaccountCode: 'paystackSubaccountCode',
   paystackSubaccountId: 'paystackSubaccountId',
   settlementBankCode: 'settlementBankCode',
@@ -2813,16 +2964,13 @@ export const PlanScalarFieldEnum = {
   description: 'description',
   studentLimit: 'studentLimit',
   staffLimit: 'staffLimit',
-  smsNotifications: 'smsNotifications',
-  reportCardPdf: 'reportCardPdf',
-  paymentCollection: 'paymentCollection',
-  customGrading: 'customGrading',
-  multipleBranches: 'multipleBranches',
-  prioritySupport: 'prioritySupport',
+  features: 'features',
   monthlyPriceKobo: 'monthlyPriceKobo',
   yearlyPriceKobo: 'yearlyPriceKobo',
+  setupFeeKobo: 'setupFeeKobo',
   isPublic: 'isPublic',
   isActive: 'isActive',
+  isCustom: 'isCustom',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2843,8 +2991,13 @@ export const SubscriptionScalarFieldEnum = {
   cancelledAt: 'cancelledAt',
   couponId: 'couponId',
   discountedPriceKobo: 'discountedPriceKobo',
+  setupFeePaid: 'setupFeePaid',
+  setupFeePaidAt: 'setupFeePaidAt',
   paystackCustomerCode: 'paystackCustomerCode',
   paystackSubscriptionCode: 'paystackSubscriptionCode',
+  nextBillingDate: 'nextBillingDate',
+  lastBillingAttemptAt: 'lastBillingAttemptAt',
+  failedBillingCount: 'failedBillingCount',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2906,19 +3059,36 @@ export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typ
 
 export const PlatformNotificationScalarFieldEnum = {
   id: 'id',
-  schoolId: 'schoolId',
   title: 'title',
   message: 'message',
   type: 'type',
-  channel: 'channel',
-  isRead: 'isRead',
-  readAt: 'readAt',
-  sentAt: 'sentAt',
+  state: 'state',
+  createdByAdminId: 'createdByAdminId',
   metadata: 'metadata',
-  createdAt: 'createdAt'
+  sentAt: 'sentAt',
+  completedAt: 'completedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type PlatformNotificationScalarFieldEnum = (typeof PlatformNotificationScalarFieldEnum)[keyof typeof PlatformNotificationScalarFieldEnum]
+
+
+export const PlatformNotificationRecipientScalarFieldEnum = {
+  id: 'id',
+  notificationId: 'notificationId',
+  schoolId: 'schoolId',
+  channel: 'channel',
+  status: 'status',
+  retryCount: 'retryCount',
+  failedReason: 'failedReason',
+  readAt: 'readAt',
+  deliveredAt: 'deliveredAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PlatformNotificationRecipientScalarFieldEnum = (typeof PlatformNotificationRecipientScalarFieldEnum)[keyof typeof PlatformNotificationRecipientScalarFieldEnum]
 
 
 export const StaffScalarFieldEnum = {
@@ -3193,19 +3363,36 @@ export const SchoolNotificationScalarFieldEnum = {
   title: 'title',
   message: 'message',
   type: 'type',
-  channel: 'channel',
-  sentById: 'sentById',
   targetType: 'targetType',
-  isRead: 'isRead',
-  readAt: 'readAt',
-  sentAt: 'sentAt',
+  sentById: 'sentById',
   metadata: 'metadata',
+  sentAt: 'sentAt',
   createdAt: 'createdAt',
-  studentId: 'studentId',
-  guardianId: 'guardianId'
+  updatedAt: 'updatedAt'
 } as const
 
 export type SchoolNotificationScalarFieldEnum = (typeof SchoolNotificationScalarFieldEnum)[keyof typeof SchoolNotificationScalarFieldEnum]
+
+
+export const SchoolNotificationRecipientScalarFieldEnum = {
+  id: 'id',
+  notificationId: 'notificationId',
+  studentId: 'studentId',
+  guardianId: 'guardianId',
+  staffId: 'staffId',
+  channel: 'channel',
+  status: 'status',
+  priority: 'priority',
+  retryCount: 'retryCount',
+  failedReason: 'failedReason',
+  providerMsgId: 'providerMsgId',
+  readAt: 'readAt',
+  deliveredAt: 'deliveredAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SchoolNotificationRecipientScalarFieldEnum = (typeof SchoolNotificationRecipientScalarFieldEnum)[keyof typeof SchoolNotificationRecipientScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -3222,6 +3409,13 @@ export const NullableJsonNullValueInput = {
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {
@@ -3515,9 +3709,16 @@ export type ListEnumPlatformNotificationTypeFieldRefInput<$PrismaModel> = FieldR
 
 
 /**
- * Reference to a field of type 'NotificationChannel[]'
+ * Reference to a field of type 'NotificationState'
  */
-export type ListEnumNotificationChannelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotificationChannel[]'>
+export type EnumNotificationStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotificationState'>
+    
+
+
+/**
+ * Reference to a field of type 'NotificationState[]'
+ */
+export type ListEnumNotificationStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotificationState[]'>
     
 
 
@@ -3525,6 +3726,27 @@ export type ListEnumNotificationChannelFieldRefInput<$PrismaModel> = FieldRefInp
  * Reference to a field of type 'NotificationChannel'
  */
 export type EnumNotificationChannelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotificationChannel'>
+    
+
+
+/**
+ * Reference to a field of type 'NotificationChannel[]'
+ */
+export type ListEnumNotificationChannelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotificationChannel[]'>
+    
+
+
+/**
+ * Reference to a field of type 'DeliveryStatus'
+ */
+export type EnumDeliveryStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DeliveryStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'DeliveryStatus[]'
+ */
+export type ListEnumDeliveryStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DeliveryStatus[]'>
     
 
 
@@ -3695,6 +3917,20 @@ export type EnumTargetTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$Prism
 export type ListEnumTargetTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TargetType[]'>
     
 
+
+/**
+ * Reference to a field of type 'NotificationPriority'
+ */
+export type EnumNotificationPriorityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotificationPriority'>
+    
+
+
+/**
+ * Reference to a field of type 'NotificationPriority[]'
+ */
+export type ListEnumNotificationPriorityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotificationPriority[]'>
+    
+
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -3817,6 +4053,7 @@ export type GlobalOmitConfig = {
   billingHistory?: Prisma.BillingHistoryOmit
   auditLog?: Prisma.AuditLogOmit
   platformNotification?: Prisma.PlatformNotificationOmit
+  platformNotificationRecipient?: Prisma.PlatformNotificationRecipientOmit
   staff?: Prisma.StaffOmit
   student?: Prisma.StudentOmit
   guardian?: Prisma.GuardianOmit
@@ -3835,6 +4072,7 @@ export type GlobalOmitConfig = {
   feeInvoice?: Prisma.FeeInvoiceOmit
   payment?: Prisma.PaymentOmit
   schoolNotification?: Prisma.SchoolNotificationOmit
+  schoolNotificationRecipient?: Prisma.SchoolNotificationRecipientOmit
 }
 
 /* Types for Logging */

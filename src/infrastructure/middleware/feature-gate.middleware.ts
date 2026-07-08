@@ -1,24 +1,21 @@
+// src/infrastructure/middleware/feature-gate.middleware.ts
+
 import { Request, Response, NextFunction } from "express";
 import { prisma }                          from "../database/prisma/prisma.client";
-import { FeatureNotAvailableError } from "../../shared/errors/domain.error";
+import { FeatureNotAvailableError }        from "../../shared/errors/domain.errors";
+import { PlanFeatures }                    from "../../modules/plans/domain/plan-features.interface";
+
 /*
 |--------------------------------------------------------------------------
 | FEATURE GATE MIDDLEWARE
-| Checks if the school's current plan includes a specific feature
-| Usage: router.post("/", authenticate, requireFeature("smsNotifications"), handler)
+| Checks if school's current plan includes a specific feature
+| Usage: requireFeature("smsNotifications")
 |--------------------------------------------------------------------------
 */
 
-// Map feature names to plan fields
-type PlanFeature =
-    | "smsNotifications"
-    | "reportCardPdf"
-    | "paymentCollection"
-    | "customGrading"
-    | "multipleBranches"
-    | "prioritySupport";
+type PlanFeatureKey = keyof PlanFeatures;
 
-export const requireFeature = (feature: PlanFeature) => {
+export const requireFeature = (feature: PlanFeatureKey) => {
     return async (
         req:  Request,
         res:  Response,
@@ -30,15 +27,12 @@ export const requireFeature = (feature: PlanFeature) => {
                 return;
             }
 
-            // Get school's active subscription + plan
             const subscription = await prisma.subscription.findFirst({
                 where: {
                     schoolId: req.user.schoolId,
-                    status:   "active",
+                    status:   { in: ["active", "trialing"] },
                 },
-                include: {
-                    plan: true,
-                },
+                include: { plan: true },
             });
 
             if (!subscription) {
@@ -46,7 +40,9 @@ export const requireFeature = (feature: PlanFeature) => {
                 return;
             }
 
-            const hasFeature = subscription.plan[feature];
+            // Parse features from JSON
+            const features = subscription.plan.features as unknown as PlanFeatures;
+            const hasFeature = features[feature];
 
             if (!hasFeature) {
                 next(new FeatureNotAvailableError(feature));
@@ -64,9 +60,9 @@ export const requireFeature = (feature: PlanFeature) => {
 |--------------------------------------------------------------------------
 | PLAN LIMIT CHECK
 | Checks if school has hit their student or staff limit
-| Usage: requirePlanLimit("student") before creating a student
 |--------------------------------------------------------------------------
 */
+
 type LimitType = "student" | "staff";
 
 export const requirePlanLimit = (type: LimitType) => {
@@ -76,18 +72,14 @@ export const requirePlanLimit = (type: LimitType) => {
         next: NextFunction,
     ): Promise<void> => {
         try {
-            if (!req.user?.schoolId) {
-                return next();
-            }
+            if (!req.user?.schoolId) return next();
 
             const subscription = await prisma.subscription.findFirst({
                 where: {
                     schoolId: req.user.schoolId,
-                    status:   "active",
+                    status:   { in: ["active", "trialing"] },
                 },
-                include: {
-                    plan: true,
-                },
+                include: { plan: true },
             });
 
             if (!subscription) return next();
@@ -99,11 +91,10 @@ export const requirePlanLimit = (type: LimitType) => {
             // -1 means unlimited
             if (limit === -1) return next();
 
-            // Count current records in tenant schema
-            // This uses raw query since we need to check tenant schema
-            const tableName = type === "student" ? "students" : "staff";
+            const tableName = type === "student" ? "Student" : "Staff";
             const result    = await prisma.$queryRawUnsafe<[{ count: bigint }]>(
-                `SELECT COUNT(*) as count FROM "${req.tenantSchema}"."${tableName}"
+                `SELECT COUNT(*) as count
+                 FROM "${req.tenantSchema}"."${tableName}"
                  WHERE "isActive" = true`,
             );
 
