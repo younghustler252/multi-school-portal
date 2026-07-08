@@ -3,7 +3,7 @@ import { getTenantClient }   from "../../../infrastructure/database/prisma/prism
 import { StaffMapper }       from "../mappers/staff.mapper";
 import { StaffEntity }       from "../domain/staff.entity";
 import { IStaffRepository }  from "./staff.repository";
-import staffinpu
+// import staffinpu
 import {
     PaginateParams,
     PaginatedResult,
