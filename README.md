@@ -41,7 +41,6 @@ Each school is treated as a separate tenant, with data scoped strictly to its or
 
 ---
 
-## Setup
 
 ### 1. Clone the repository
 
