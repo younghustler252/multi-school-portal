@@ -8,7 +8,6 @@ import { ZodSchema }                       from "zod";
 | Usage: router.post("/", validate(createUserDto), controller.create)
 |--------------------------------------------------------------------------
 */
-
 type RequestPart = "body" | "params" | "query";
 
 export const validate = (
@@ -20,7 +19,6 @@ export const validate = (
 
         if (!result.success) {
             const errors = result.error.flatten().fieldErrors;
-
             res.status(400).json({
                 success: false,
                 message: "Validation failed",
@@ -29,7 +27,13 @@ export const validate = (
             return;
         }
 
-        req[part] = result.data;
+        // ── Fix: can't reassign req.query directly ────────────────────────
+        if (part === "body") {
+            req.body = result.data;
+        } else if (part === "params") {
+        }
+       
+
         next();
     };
 };

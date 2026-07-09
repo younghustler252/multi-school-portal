@@ -1,4 +1,4 @@
-import { PrismaClient }      from "../../../generated/prisma/client";
+import { PrismaClient, Prisma }      from "../../../generated/prisma/client";
 import { getTenantClient }   from "../../../infrastructure/database/prisma/prisma.client";
 import { StaffMapper }       from "../mappers/staff.mapper";
 import { StaffEntity }       from "../domain/staff.entity";
@@ -96,7 +96,7 @@ export class StaffRepositoryImpl implements IStaffRepository {
     }
 
     // ── Create ────────────────────────────────────────────────────────────
-    async create(data: Record<string, any>): Promise<StaffEntity> {
+    async create(data: Prisma.StaffUncheckedCreateInput): Promise<StaffEntity> {
         const raw = await this.db.staff.create({ data });
         return this.mapper.toDomain(raw);
     }
@@ -104,7 +104,7 @@ export class StaffRepositoryImpl implements IStaffRepository {
     // ── Update ────────────────────────────────────────────────────────────
     async update(
         id:   string,
-        data: Record<string, any>,
+        data: Prisma.StaffUncheckedUpdateInput,
     ): Promise<StaffEntity> {
         const raw = await this.db.staff.update({ where: { id }, data });
         return this.mapper.toDomain(raw);

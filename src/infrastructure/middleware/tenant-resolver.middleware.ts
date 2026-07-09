@@ -25,9 +25,26 @@ export const resolveTenant = async (
         const host = req.hostname;
         const parts = host.split(".");
 
-        // Extract subdomain
-        // greenfield.schoolportal.com → greenfield
         const subdomain = parts.length > 2 ? parts[0].toLowerCase() : null;
+
+         if (env.NODE_ENV === "development") {
+            const devSchema = req.headers["x-tenant-schema"] as string | undefined;
+            const devSchoolId = req.headers["x-school-id"] as string | undefined;
+
+            if (devSchema && devSchoolId) {
+                req.tenantSchema = devSchema;
+                req.schoolId = devSchoolId;
+
+                TenantContext.run(
+                    {
+                        tenantSchema: devSchema,
+                        schoolId: devSchoolId,
+                    },
+                    () => next(),
+                );
+                return;
+            }
+        }
 
         // ── Public / admin routes — no tenant context needed ──────────────
         if (
@@ -111,4 +128,4 @@ export const requireTenant = (
     }
 
     next();
-};
+};  

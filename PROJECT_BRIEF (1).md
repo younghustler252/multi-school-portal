@@ -202,3 +202,5 @@ All open questions from session 1 are resolved. ✅
 ---
 
 *Last updated: session 2 — all open questions resolved, foundation fully locked.*
+
+<!-- *last updated: session 2 -->

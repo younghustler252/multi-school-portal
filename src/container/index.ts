@@ -24,7 +24,7 @@ import { registerSchool }        from "../modules/school/school.container";
 // import { registerUser }          from "../modules/user/user.container";
 import { registerPlans }         from "../modules/plans/plans.container";
 import { registerSubscriptions } from "../modules/subscriptions/subscription.container";
-// import { registerStaff }         from "../modules/staff/staff.container";
+import { registerStaff }         from "../modules/staff/staff.container";
 // import { registerStudents }      from "../modules/students/students.container";
 // import { registerGuardians }     from "../modules/guardians/guardians.container";
 // import { registerClasses }       from "../modules/classes/classes.container";
@@ -44,6 +44,7 @@ const modules: Array<(c: AwilixContainer) => void> = [
     // registerUser,
     registerPlans,
     registerSubscriptions,
+    registerStaff,
     // ... uncomment as you build
 ];
 
