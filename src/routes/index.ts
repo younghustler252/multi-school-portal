@@ -10,8 +10,8 @@ import studentRouter from "../modules/students/routes/student.routes";
 import guardianRouter from "../modules/guardians/routes/guardian.routes";
 import classRouter from "../modules/classes/routes/class.routes";
 import enrolmentRouter from "../modules/enrolment/routes/enrolment.routes";
+import attendanceRouter from "../modules/attendance/routes/attendance.routes";
 // import feesRouter from "../modules/fees/routes";
-// import attendanceRouter from "../modules/attendance/routes";
 // import notificationRouter from "../modules/notifications/routes";
 
 const router = Router();
@@ -25,9 +25,9 @@ router.use("/students", studentRouter);
 router.use("/guardians", guardianRouter);
 router.use("/classes", classRouter);
 router.use("/enrolments", enrolmentRouter);
+router.use("/attendance", attendanceRouter);
 
 // router.use("/fees", feesRouter);
-// router.use("/attendance", attendanceRouter);
 // router.use("/notifications", notificationRouter);
 router.use("/subscriptions", subscriptionRouter);
 export default router;
