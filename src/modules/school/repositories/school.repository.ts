@@ -1,3 +1,5 @@
+import { Prisma } from "../../../generated/prisma/client";
+
 import { SchoolEntity, SchoolDocumentEntity } from "../domain/school.entity";
 import {
     PaginatedResult,
@@ -17,8 +19,8 @@ export interface ISchoolRepository {
     findOne(where: Record<string, any>):            Promise<SchoolEntity | null>;
     findMany(where?: Record<string, any>):          Promise<SchoolEntity[]>;
     paginate(params: PaginateParams):               Promise<PaginatedResult<SchoolEntity>>;
-    create(data: Record<string, any>):              Promise<SchoolEntity>;
-    update(id: string, data: Record<string, any>):  Promise<SchoolEntity>;
+    create(data: Prisma.SchoolUncheckedCreateInput):              Promise<SchoolEntity>;
+    update(id: string, data: Prisma.SchoolUncheckedUpdateInput):  Promise<SchoolEntity>;
     delete(id: string):                             Promise<SchoolEntity>;
     exists(where: Record<string, any>):             Promise<boolean>;
     count(where?: Record<string, any>):             Promise<number>;
@@ -37,11 +39,11 @@ export interface ISchoolRepository {
     ):                                              Promise<SchoolEntity>;
 
     // ── Documents ────────────────────────────────────────────────────────
-    createDocument(data: Record<string, any>):      Promise<SchoolDocumentEntity>;
+    createDocument(data: Prisma.SchoolDocumentUncheckedCreateInput):      Promise<SchoolDocumentEntity>;
     findDocumentById(id: string):                   Promise<SchoolDocumentEntity | null>;
     findDocumentsBySchoolId(schoolId: string):      Promise<SchoolDocumentEntity[]>;
     updateDocument(
         id:   string,
-        data: Record<string, any>,
+        data: Prisma.SchoolDocumentUncheckedUpdateInput,
     ):                                              Promise<SchoolDocumentEntity>;
 }
