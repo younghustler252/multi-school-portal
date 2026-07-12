@@ -25,7 +25,7 @@ export class RejectDocumentUseCase {
         }
 
         const updatedDocument = await this.schoolRepository.updateDocument(dto.documentId, {
-            status: "REJECTED",
+            status: "rejected",
             rejectionReason: dto.reason,
             verifiedAt: null,
         });

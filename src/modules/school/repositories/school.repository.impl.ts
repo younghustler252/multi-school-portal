@@ -71,7 +71,7 @@ export class SchoolRepositoryImpl
 
     // ── Create document ───────────────────────────────────────────────────
     async createDocument(
-        data: Prisma.SchoolDocumentCreateInput,
+        data: Prisma.SchoolDocumentUncheckedCreateInput,
     ): Promise<SchoolDocumentEntity> {
         const raw = await this.prisma.schoolDocument.create({ data });
         return this.documentMapper.toDomain(raw);

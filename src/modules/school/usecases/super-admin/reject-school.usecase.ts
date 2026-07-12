@@ -29,9 +29,8 @@ export class RejectSchoolUseCase {
 
         // ── Update verification status to rejected ────────────────────────
         const updated = await this.schoolRepository.update(dto.schoolId, {
-            verificationStatus: "REJECTED",
-            status: "INACTIVE",
-            // Assuming your domain entity/repo handles a rejection reason column
+            verificationStatus: "rejected",
+            status: "deactivated",
             suspensionReason: dto.reason, 
         });
 

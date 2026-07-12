@@ -30,7 +30,7 @@ import { registerGuardians }     from "../modules/guardians/guardians.container"
 import { registerClasses }       from "../modules/classes/classes.container";
 import { registerEnrolment }     from "../modules/enrolment/enrolment.container";
 import { registerAttendance }    from "../modules/attendance/attendance.container";
-// import { registerGrades }        from "../modules/grades/grades.container";
+import { registerGrades }        from "../modules/grades/grades.container";
 // import { registerReportCards }   from "../modules/report-cards/report-cards.container";
 // import { registerFees }          from "../modules/fees/fees.container";
 // import { registerPayments }      from "../modules/payments/payments.container";
@@ -50,7 +50,7 @@ const modules: Array<(c: AwilixContainer) => void> = [
     registerClasses,
     registerEnrolment,
     registerAttendance,
-    // registerGrades,
+    registerGrades,
     // registerReportCards,
     // registerFees,
     // registerPayments,

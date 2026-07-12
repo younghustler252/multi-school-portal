@@ -3,22 +3,20 @@ import cors                                          from "cors";
 import helmet                                        from "helmet";
 import morgan                                        from "morgan";
 import rateLimit                                     from "express-rate-limit";
-import cookieParser from "cookie-parser";
+import cookieParser                                  from "cookie-parser";
 import { env }                                       from "./config/env";
-import { errorHandler } from "./infrastructure/middleware/error-handler.middleware";
-import { resolveTenant } from "./infrastructure/middleware/tenant-resolver.middleware";
-
-import routes from "./routes";
+import { errorHandler }                              from "./infrastructure/middleware/error-handler.middleware";
+import { resolveTenant, validateTenantOwnership }    from "./infrastructure/middleware/tenant-resolver.middleware";
+import { optionalAuthenticate }                      from "./infrastructure/middleware/auth.middleware";
+import routes                                        from "./routes";
 
 const app = express();
 
-// ── Security ─────────────────────────────────────────────────────────────
+// ── Security ──────────────────────────────────────────────────────────────
 app.use(helmet());
-
 app.use(cors({
     origin: (origin, callback) => {
         if (!origin) return callback(null, true);
-
         if (/https:\/\/.*\.yourapp\.com$/.test(origin)) {
             callback(null, true);
         } else if (env.NODE_ENV === "development") {
@@ -41,18 +39,29 @@ app.use(rateLimit({
     legacyHeaders:   false,
 }));
 
-// ── Body Parsing ─────────────────────────────────────────────────────────
+// ── Body Parsing ──────────────────────────────────────────────────────────
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+app.use(cookieParser());
 
-// ── Logging ──────────────────────────────────────────────────────────────
+// ── Logging ───────────────────────────────────────────────────────────────
 if (env.NODE_ENV !== "test") {
     app.use(morgan(env.NODE_ENV === "production" ? "combined" : "dev"));
 }
-app.use(cookieParser());
+
+// ── Tenant Resolution ─────────────────────────────────────────────────────
+// Resolves school from subdomain or dev headers
 app.use(resolveTenant);
 
-// ── Health Check ─────────────────────────────────────────────────────────
+// ── Optional Auth ─────────────────────────────────────────────────────────
+// Pre-populates req.user if token present — doesn't block public routes
+app.use(optionalAuthenticate);
+
+// ── Tenant Ownership Validation ───────────────────────────────────────────
+// If both req.user and req.schoolId exist — validate they match
+app.use(validateTenantOwnership);
+
+// ── Health Check ──────────────────────────────────────────────────────────
 app.get("/health", (req: Request, res: Response) => {
     res.status(200).json({
         success:     true,
@@ -62,10 +71,10 @@ app.get("/health", (req: Request, res: Response) => {
     });
 });
 
-// ── API Routes ───────────────────────────────────────────────────────────
+// ── API Routes ────────────────────────────────────────────────────────────
 app.use("/api/v1", routes);
 
-// ── 404 Handler ──────────────────────────────────────────────────────────
+// ── 404 Handler ───────────────────────────────────────────────────────────
 app.use((req: Request, res: Response) => {
     res.status(404).json({
         success: false,
@@ -73,7 +82,7 @@ app.use((req: Request, res: Response) => {
     });
 });
 
-// ── Global Error Handler ─────────────────────────────────────────────────
+// ── Global Error Handler ──────────────────────────────────────────────────
 app.use(errorHandler);
 
 export default app;
