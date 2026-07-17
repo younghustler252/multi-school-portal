@@ -15,7 +15,7 @@ export const TOKENS = {
     emailService:           "emailService",
     smsService:             "smsService",
     storageService:         "storageService",
-    paymentProvider:        "paymentProvider",
+    paystackProvider:        "paystackProvider",
     tokenService:           "tokenService",
     passwordService:        "passwordService",
 } as const;

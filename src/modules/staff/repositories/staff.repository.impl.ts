@@ -3,6 +3,7 @@ import { getTenantClient }   from "../../../infrastructure/database/prisma/prism
 import { StaffMapper }       from "../mappers/staff.mapper";
 import { StaffEntity }       from "../domain/staff.entity";
 import { IStaffRepository }  from "./staff.repository";
+import { TenantContext } from "../../../infrastructure/database/prisma/tenant.context";
 // import staffinpu
 import {
     PaginateParams,
@@ -25,10 +26,11 @@ export class StaffRepositoryImpl implements IStaffRepository {
     private readonly mapper: StaffMapper;
 
     // Tenant client is created per request via getTenantClient()
-    private get db(): PrismaClient {
-        return getTenantClient();
-    }
-
+    private get db() {
+    const schema = TenantContext.getSchema();
+    console.log("🔍 Tenant client schema:", schema);
+    return getTenantClient();
+}
     constructor({ staffMapper }: { staffMapper: StaffMapper }) {
         this.mapper = staffMapper;
     }
