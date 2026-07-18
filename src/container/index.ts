@@ -31,7 +31,7 @@ import { registerClasses }       from "../modules/classes/classes.container";
 import { registerEnrolment }     from "../modules/enrolment/enrolment.container";
 import { registerAttendance }    from "../modules/attendance/attendance.container";
 import { registerGrades }        from "../modules/grades/grades.container";
-// import { registerReportCards }   from "../modules/report-cards/report-cards.container";
+import { registerReportCards }   from "../modules/report-cards/report-cards.container";
 // import { registerFees }          from "../modules/fees/fees.container";
 // import { registerPayments }      from "../modules/payments/payments.container";
 // import { registerNotifications } from "../modules/notifications/notifications.container";

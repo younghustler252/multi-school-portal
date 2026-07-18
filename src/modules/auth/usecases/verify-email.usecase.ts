@@ -1,6 +1,6 @@
 import { IUserRepository }         from "../repositories/user.repository";
 import { IOtpRepository }          from "../repositories/otp.repository";
-import { OtpType }                 from "../../../generated/prisma/enums";
+import { OtpType }                 from "../../../generated/prisma";
 import {
     AuthErrorMessage,
     OtpExpiryMinutes,

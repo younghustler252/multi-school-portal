@@ -49,13 +49,15 @@ if (env.NODE_ENV !== "test") {
     app.use(morgan(env.NODE_ENV === "production" ? "combined" : "dev"));
 }
 
+// ── Optional Auth ─────────────────────────────────────────────────────────
+// Pre-populates req.user if token present — doesn't block public routes
+app.use(optionalAuthenticate);
+
 // ── Tenant Resolution ─────────────────────────────────────────────────────
 // Resolves school from subdomain or dev headers
 app.use(resolveTenant);
 
-// ── Optional Auth ─────────────────────────────────────────────────────────
-// Pre-populates req.user if token present — doesn't block public routes
-app.use(optionalAuthenticate);
+
 
 // ── Tenant Ownership Validation ───────────────────────────────────────────
 // If both req.user and req.schoolId exist — validate they match

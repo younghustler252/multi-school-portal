@@ -1,4 +1,4 @@
-import { Role, OtpType } from "../../../generated/prisma/enums";
+import { Role, OtpType } from "../../../generated/prisma";
 /*
 |--------------------------------------------------------------------------
 | AUTH DOMAIN ENTITIES

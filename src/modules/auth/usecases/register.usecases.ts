@@ -8,7 +8,7 @@ import { MailService }             from "../../../infrastructure/mail/mail.servi
 import { PasswordService }         from "../../../shared/services/password.service";
 import { TokenService }            from "../../../shared/services/token.service";
 import { addProvisionSchemaJob }   from "../../../infrastructure/jobs/queues/provision-schema.queue";
-import { OtpType, Role }           from "../../../generated/prisma/enums";
+import { OtpType, Role }           from "../../../generated/prisma";
 import {
     OtpExpiryMinutes,
     AuthErrorMessage,

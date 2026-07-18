@@ -12,6 +12,7 @@ import classRouter from "../modules/classes/routes/class.routes";
 import enrolmentRouter from "../modules/enrolment/routes/enrolment.routes";
 import attendanceRouter from "../modules/attendance/routes/attendance.routes";
 import gradeRouter from "../modules/grades/routes/grade.routes"
+import reportCardRouter from "../modules/report-cards/routes/report-card.routes"
 // import feesRouter from "../modules/fees/routes";
 // import notificationRouter from "../modules/notifications/routes";
 
@@ -28,6 +29,7 @@ router.use("/classes", classRouter);
 router.use("/enrolments", enrolmentRouter);
 router.use("/attendance", attendanceRouter);
 router.use("/grades", gradeRouter)
+router.use("/report-cards", reportCardRouter)
 // router.use("/fees", feesRouter);
 // router.use("/notifications", notificationRouter);
 router.use("/subscriptions", subscriptionRouter);

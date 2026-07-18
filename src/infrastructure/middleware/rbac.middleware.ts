@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { Role } from "../../generated/prisma/enums";
+import { Role } from "../../generated/prisma";
 import { UnauthorizedError, ForbiddenError } from "../../shared/errors/domain.errors";
 /*
 |--------------------------------------------------------------------------

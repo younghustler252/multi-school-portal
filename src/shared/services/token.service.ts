@@ -1,7 +1,7 @@
 import jwt                from "jsonwebtoken";
 import crypto             from "crypto";
 import { env }            from "../../config/env";
-import { Role } from "../../generated/prisma/enums";
+import { Role } from "../../generated/prisma";
 /*
 |--------------------------------------------------------------------------
 | TOKEN SERVICE

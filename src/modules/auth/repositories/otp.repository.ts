@@ -1,5 +1,5 @@
 import { OtpEntity } from "../domain/auth.entity";
-import { OtpType } from "../../../generated/prisma/enums";
+import { OtpType } from "../../../generated/prisma";
 /*
 |--------------------------------------------------------------------------
 | OTP REPOSITORY INTERFACE

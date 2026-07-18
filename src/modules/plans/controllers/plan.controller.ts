@@ -10,7 +10,7 @@ import {
     sendSuccess,
     sendCreated,
 }                             from "../../../shared/utils/api-response";
-import { Role }               from "../../../generated/prisma/enums";
+import { Role }               from "../../../generated/prisma";
 
 /*
 |--------------------------------------------------------------------------

@@ -2,17 +2,15 @@ import * as fs from "fs";
 import * as path from "path"
 
 const base = `generator client {
-  provider        = "prisma-client-js" // Standardized generator identifier string
-  output          = "../src/generated/prisma"
-  previewFeatures = ["multiSchema"]     // 1. ADD THIS PREVIEW FEATURE FLAG BLOCK!
+  provider = "prisma-client-js" // Fixed generator identifier string
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")        // 2. Map this directly to your environment parameters
-  schemas  = ["public", "school_base"]   // 3. ADD THIS: Instructs the engine to respect schema abstractions
 }
 `;
+
 
 const publicFiles = [
   "schema/school.prisma",

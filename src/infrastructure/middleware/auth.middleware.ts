@@ -78,6 +78,8 @@ export const authenticate = (
 | Attaches user if token present but doesn't block if missing
 |--------------------------------------------------------------------------
 */
+
+
 export const optionalAuthenticate = (
     req:  Request,
     res:  Response,
@@ -87,8 +89,29 @@ export const optionalAuthenticate = (
 
     if (!token) return next();
 
-    authenticate(req, res, next);
+    try {
+        // Run a safe inline verification instead of calling the strict authenticate middleware
+        const decoded = jwt.verify(
+            token,
+            env.jwt.accessSecret,
+        ) as JwtPayload;
+
+        req.user = {
+            id:       decoded.id,
+            email:    decoded.email,
+            role:     decoded.role as any,
+            schoolId: decoded.schoolId,
+        };
+
+        return next();
+    } catch (err) {
+        // Silently swallow TokenExpiredError or JsonWebTokenError 
+        // We wipe out any residual user state and let them hit public routes like /login
+        req.user = undefined;
+        return next();
+    }
 };
+
 
 /*
 |--------------------------------------------------------------------------

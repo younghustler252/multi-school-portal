@@ -5,7 +5,7 @@ import {
     VerificationStatus,
     DocumentType,
     DocumentStatus,
-}                       from "../../../generated/prisma/enums";
+}                       from "../../../generated/prisma";
 
 /*
 |--------------------------------------------------------------------------

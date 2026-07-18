@@ -345,3 +345,24 @@ CREATE TABLE IF NOT EXISTS "SchoolNotificationRecipient" (
         FOREIGN KEY ("notificationId") REFERENCES "SchoolNotification"("id")
         ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS "SchoolSettings" (
+    "id"             TEXT NOT NULL,
+    "logoUrl"        TEXT,
+    "primaryColor"   TEXT DEFAULT '#1a1a2e',
+    "secondaryColor" TEXT,
+    "motto"          TEXT,
+    "address"        TEXT,
+    "website"        TEXT,
+    "foundedYear"    INTEGER,
+    "principalName"  TEXT,
+    "stamp"          TEXT,
+    "signature"      TEXT,
+    "createdAt"      TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt"      TIMESTAMP(3) NOT NULL,
+    CONSTRAINT "SchoolSettings_pkey" PRIMARY KEY ("id")
+);
+
+-- Seed default settings on provisioning
+INSERT INTO "SchoolSettings" (id, "createdAt", "updatedAt")
+VALUES (gen_random_uuid(), now(), now());

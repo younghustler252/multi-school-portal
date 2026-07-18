@@ -9,62 +9,88 @@ export const resolveTenant = async (
     next: NextFunction,
 ): Promise<void> => {
     try {
-        // ── Development override via headers ──────────────────────────────
-        if (env.NODE_ENV === "development") {
+        let targetSchema: string | null = null;
+        let targetSchoolId: string | null = null;
+
+        if (env.NODE_ENV === "development" && (req.headers["x-tenant-schema"] || req.headers["x-school-id"])) {
             const devSchema   = req.headers["x-tenant-schema"] as string;
             const devSchoolId = req.headers["x-school-id"]     as string;
 
-            if (devSchema && devSchoolId) {
-                req.tenantSchema = devSchema;
-                req.schoolId     = devSchoolId;
+            const verifiedSchool = await prisma.school.findFirst({
+                where: { id: devSchoolId },
+                select: { id: true, schemaName: true, status: true, isActive: true }
+            });
 
-                TenantContext.run(
-                    { tenantSchema: devSchema, schoolId: devSchoolId },
-                    () => next(),
-                );
+            if (
+                !verifiedSchool || 
+                !verifiedSchool.schemaName || 
+                verifiedSchool.schemaName.trim() !== devSchema.trim()
+            ) {
+                res.status(400).json({
+                    success: false,
+                    message: "Security Violation: The provided tenant schema and school ID combination is invalid or does not exist.",
+                });
+                return;
+            }
+
+            targetSchema = verifiedSchool.schemaName;
+            targetSchoolId = verifiedSchool.id;
+        }
+
+        if (!targetSchema || !targetSchoolId) {
+            const host      = req.headers.host ?? "";
+            const parts     = host.split(".");
+            const subdomain = parts.length > 2 ? parts[0].toLowerCase() : null;
+
+            if (
+                !subdomain          ||
+                subdomain === "www" ||
+                subdomain === env.ADMIN_SUBDOMAIN
+            ) {
+                TenantContext.run({ tenantSchema: "public", schoolId: "PUBLIC" }, () => next());
+                return;
+            }
+
+            const school = await prisma.school.findFirst({
+                where: { subdomain, isActive: true },
+                select: { id: true, schemaName: true, status: true },
+            });
+
+            if (!school || !school.schemaName) {
+                res.status(404).json({
+                    success: false,
+                    message: `School portal '${subdomain}' not found`,
+                });
+                return;
+            }
+
+            if (school.status !== "active") {
+                res.status(403).json({
+                    success: false,
+                    message: "This school account is not currently active",
+                });
+                return;
+            }
+
+            targetSchema = school.schemaName;
+            targetSchoolId = school.id;
+        }
+
+        if (req.user && req.user.role !== "super_admin") {
+            if (req.user.schoolId !== targetSchoolId) {
+                res.status(403).json({
+                    success: false,
+                    message: "Access Denied: Your account credentials do not match the requested school portal context.",
+                });
                 return;
             }
         }
 
-        // ── Production — extract from subdomain ───────────────────────────
-        const host      = req.headers.host ?? "";
-        const parts     = host.split(".");
-        const subdomain = parts.length > 2 ? parts[0].toLowerCase() : null;
-
-        if (
-            !subdomain          ||
-            subdomain === "www" ||
-            subdomain === env.ADMIN_SUBDOMAIN
-        ) {
-            return next();
-        }
-
-        const school = await prisma.school.findFirst({
-            where: { subdomain, isActive: true },
-            select: { id: true, schemaName: true, status: true },
-        });
-
-        if (!school || !school.schemaName) {
-            res.status(404).json({
-                success: false,
-                message: `School portal '${subdomain}' not found`,
-            });
-            return;
-        }
-
-        if (school.status !== "active") {
-            res.status(403).json({
-                success: false,
-                message: "This school account is not currently active",
-            });
-            return;
-        }
-
-        req.tenantSchema = school.schemaName;
-        req.schoolId     = school.id;
+        req.tenantSchema = targetSchema;
+        req.schoolId     = targetSchoolId;
 
         TenantContext.run(
-            { tenantSchema: school.schemaName, schoolId: school.id },
+            { tenantSchema: targetSchema, schoolId: targetSchoolId },
             () => next(),
         );
 
@@ -73,18 +99,12 @@ export const resolveTenant = async (
     }
 };
 
-/*
-|--------------------------------------------------------------------------
-| REQUIRE TENANT
-| Checks tenant context exists on the request
-|--------------------------------------------------------------------------
-*/
 export const requireTenant = (
     req:  Request,
     res:  Response,
     next: NextFunction,
 ): void => {
-    if (!req.tenantSchema || !req.schoolId) {
+    if (!req.tenantSchema || !req.schoolId || req.schoolId === "PUBLIC") {
         res.status(400).json({
             success: false,
             message: "No school context. Please access via your school subdomain.",
@@ -94,32 +114,19 @@ export const requireTenant = (
     next();
 };
 
-/*
-|--------------------------------------------------------------------------
-| VALIDATE TENANT OWNERSHIP
-| Runs AFTER authenticate — ensures user belongs to the resolved school
-| Place this after authenticate + requireTenant in protected routes
-|--------------------------------------------------------------------------
-*/
 export const validateTenantOwnership = (
     req:  Request,
     res:  Response,
     next: NextFunction,
 ): void => {
-    // No user — skip (public routes, auth routes)
     if (!req.user) return next();
-
-    // No school context — skip (platform routes, super admin)
-    if (!req.schoolId) return next();
-
-    // Super admin can access any school
+    if (!req.schoolId || req.schoolId === "PUBLIC") return next();
     if (req.user.role === "super_admin") return next();
 
-    // User must belong to the resolved school
     if (req.user.schoolId !== req.schoolId) {
         res.status(403).json({
             success: false,
-            message: "You do not have access to this school portal.",
+            message: "Access Denied: Your account credentials do not match this school portal.",
         });
         return;
     }

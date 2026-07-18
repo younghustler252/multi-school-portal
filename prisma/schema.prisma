@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js" // Fixed generator identifier string
   output   = "../src/generated/prisma"
 }
 
