@@ -1,0 +1,899 @@
+generator client {
+  provider = "prisma-client-js" // Fixed generator identifier string
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ========================================
+// PUBLIC SCHEMA
+// ========================================
+// ===== SCHOOL =====
+model School {
+  id                 String             @id @default(uuid())
+  name               String
+  subdomain          String             @unique
+  email              String             @unique
+  phone              String?
+  address            String?
+  city               String?
+  state              String?
+  country            String             @default("Nigeria")
+  timezone           String             @default("Africa/Lagos")
+  logoUrl            String?
+  schoolCategory     SchoolCategory     @default(primary)
+  schoolOwnership    SchoolOwnership    @default(private)
+  status             SchoolStatus       @default(pending)
+  verificationStatus VerificationStatus @default(unverified)
+  verifiedAt         DateTime?
+  verifiedById       String?
+  suspendedAt        DateTime?
+  suspensionReason   String?
+  isActive           Boolean            @default(false)
+
+  schemaName String? @unique
+
+  // Paystack subaccount for fee collection
+  paystackSubaccountCode  String?
+  paystackSubaccountId    String?
+  settlementBankCode      String?
+  settlementAccountNumber String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  users                          User[]
+  subscriptions                  Subscription[]
+  documents                      SchoolDocument[]
+  auditLogs                      AuditLog[]
+  platformNotificationRecipients PlatformNotificationRecipient[]
+}
+
+enum SchoolCategory {
+  primary
+  secondary
+  primary_secondary
+}
+
+enum SchoolOwnership {
+  private
+  public
+  mission
+  international
+}
+
+enum SchoolStatus {
+  pending
+  active
+  suspended
+  deactivated
+}
+
+enum VerificationStatus {
+  unverified
+  under_review
+  verified
+  rejected
+}
+
+model SchoolDocument {
+  id              String         @id @default(uuid())
+  schoolId        String
+  type            DocumentType
+  fileUrl         String
+  status          DocumentStatus @default(pending)
+  rejectionReason String?
+  verifiedAt      DateTime?
+  verifiedById    String?
+  apiVerified     Boolean        @default(false)
+  apiResponse     Json?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  school          School         @relation(fields: [schoolId], references: [id])
+}
+
+enum DocumentType {
+  cac_certificate
+  proprietor_id
+  waec_approval
+  ministry_approval
+  other
+}
+
+enum DocumentStatus {
+  pending
+  under_review
+  approved
+  rejected
+}
+
+// =====================
+// AUTH / IDENTITY MODULE
+// =====================
+
+model User {
+  id String @id @default(uuid())
+
+  // tenant (optional for super_admin)
+  schoolId String?
+
+  // identity
+  email        String @unique
+  passwordHash String
+
+  // access control
+  role Role
+
+  // profile
+  firstName String?
+  lastName  String?
+  phone     String?
+  photoUrl  String?
+
+  // account status
+  isActive        Boolean   @default(true)
+  isEmailVerified Boolean   @default(false)
+  emailVerifiedAt DateTime?
+
+  // security tracking
+  lastLoginAt       DateTime?
+  lastLoginIp       String?
+  failedLoginCount  Int       @default(0)
+  lockedUntil       DateTime?
+  passwordChangedAt DateTime?
+
+  // timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // relations
+  school        School?        @relation(fields: [schoolId], references: [id])
+  refreshTokens RefreshToken[]
+  otps          Otp[]
+  invitesSent   Invite[]       @relation("InviteSender")
+}
+
+// =====================
+// OTP (Authentication codes)
+// =====================
+
+model Otp {
+  id String @id @default(uuid())
+
+  userId String
+  code   String
+  type   OtpType
+
+  expiresAt DateTime
+  usedAt    DateTime?
+  attempts  Int       @default(0)
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// =====================
+// REFRESH TOKENS (sessions)
+// =====================
+
+model RefreshToken {
+  id String @id @default(uuid())
+
+  userId String
+  token  String @unique
+
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// =====================
+// INVITES (staff onboarding)
+// =====================
+
+model Invite {
+  id String @id @default(uuid())
+
+  email String
+  role  Role
+
+  token    String @unique
+  schoolId String
+
+  sentById String
+
+  accepted  Boolean  @default(false)
+  expiresAt DateTime
+
+  createdAt DateTime @default(now())
+
+  sentBy User @relation("InviteSender", fields: [sentById], references: [id])
+}
+
+// =====================
+// ENUMS
+// =====================
+
+enum Role {
+  super_admin
+  school_admin
+  principal
+  teacher
+  bursar
+  student
+  guardian
+}
+
+enum OtpType {
+  email_verification
+  password_reset
+  two_factor
+}
+
+// =====================
+// BILLING / SUBSCRIPTION MODULE
+// =====================
+model Plan {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  description String?
+
+  // limits (-1 = unlimited)
+  studentLimit Int
+  staffLimit   Int
+  features     Json @default("{}")
+
+  monthlyPriceKobo Int @default(0)
+  yearlyPriceKobo  Int @default(0)
+  setupFeeKobo     Int @default(0)
+
+  // flags
+  isPublic Boolean @default(true)
+  isActive Boolean @default(true)
+  isCustom Boolean @default(false) // enterprise custom plans
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  subscriptions Subscription[]
+}
+
+// =====================
+// SUBSCRIPTION (core billing engine)
+// =====================
+model Subscription {
+  id                       String             @id @default(uuid())
+  schoolId                 String
+  planId                   String
+  status                   SubscriptionStatus @default(active)
+  billingCycle             BillingCycle       @default(monthly)
+  currentPeriodStart       DateTime
+  currentPeriodEnd         DateTime
+  trialEndsAt              DateTime?
+  cancelAtPeriodEnd        Boolean            @default(false)
+  cancelledAt              DateTime?
+  couponId                 String?
+  discountedPriceKobo      Int?
+  setupFeePaid             Boolean            @default(false)
+  setupFeePaidAt           DateTime?
+  paystackCustomerCode     String?
+  paystackSubscriptionCode String?
+  nextBillingDate          DateTime?
+  lastBillingAttemptAt     DateTime?
+  failedBillingCount       Int                @default(0)
+  createdAt                DateTime           @default(now())
+  updatedAt                DateTime           @updatedAt
+  school                   School             @relation(fields: [schoolId], references: [id])
+  plan                     Plan               @relation(fields: [planId], references: [id])
+  coupon                   Coupon?            @relation(fields: [couponId], references: [id])
+  billingHistory           BillingHistory[]
+}
+
+// =====================
+// COUPONS / DISCOUNTS
+// =====================
+
+model Coupon {
+  id String @id @default(uuid())
+
+  code        String  @unique
+  description String?
+
+  discountType  DiscountType
+  discountValue Int
+
+  maxUses   Int?
+  usedCount Int  @default(0)
+
+  validFrom  DateTime
+  validUntil DateTime?
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  subscriptions Subscription[]
+}
+
+// =====================
+// BILLING HISTORY (payment logs)
+// =====================
+
+model BillingHistory {
+  id String @id @default(uuid())
+
+  subscriptionId String
+
+  amountKobo Int
+  status     PaymentStatus @default(pending)
+
+  billingCycle BillingCycle
+
+  paystackReference String?
+
+  paidAt        DateTime?
+  failureReason String?
+
+  createdAt DateTime @default(now())
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id])
+}
+
+// =====================
+// ENUMS
+// =====================
+
+enum SubscriptionStatus {
+  trialing
+  active
+  past_due
+  suspended
+  cancelled
+  expired
+}
+
+enum BillingCycle {
+  monthly
+  yearly
+}
+
+enum DiscountType {
+  percentage
+  fixed_amount
+}
+
+// ===== AUDIT LOG =====
+
+model AuditLog {
+  id        String    @id @default(uuid())
+  userId    String?
+  schoolId  String?
+  actorType ActorType @default(user)
+  action    String // e.g. "school.verified", "student.created"
+  entity    String // e.g. "School", "Student"
+  entityId  String?
+  oldValue  Json?
+  newValue  Json?
+  ipAddress String?
+  userAgent String?
+  metadata  Json?
+  createdAt DateTime  @default(now())
+  school    School?   @relation(fields: [schoolId], references: [id])
+}
+
+enum ActorType {
+  user
+  system
+  super_admin
+  webhook
+}
+
+model PlatformNotification {
+  id               String                          @id @default(uuid())
+  title            String
+  message          String
+  type             PlatformNotificationType
+  state            NotificationState               @default(QUEUED)
+  createdByAdminId String
+  metadata         Json?
+  sentAt           DateTime?
+  completedAt      DateTime?
+  createdAt        DateTime                        @default(now())
+  updatedAt        DateTime                        @updatedAt
+  recipients       PlatformNotificationRecipient[]
+
+  @@index([state, createdAt])
+  @@index([type])
+}
+
+model PlatformNotificationRecipient {
+  id             String              @id @default(uuid())
+  notificationId String
+  schoolId       String
+  channel        NotificationChannel
+  status         DeliveryStatus      @default(PENDING)
+  retryCount     Int                 @default(0)
+  failedReason   String?
+  readAt         DateTime?
+  deliveredAt    DateTime?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  notification PlatformNotification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  school       School               @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  @@unique([notificationId, schoolId, channel])
+  @@index([schoolId, status])
+}
+
+enum PlatformNotificationType {
+  welcome
+  feature_announcement
+  subscription_expiry
+  subscription_renewed
+  subscription_failed
+  account_suspended
+  account_verified
+  account_rejected
+  system_alert
+}
+
+enum NotificationChannel {
+  IN_APP
+  EMAIL
+  SMS
+}
+
+enum NotificationState {
+  DRAFT
+  QUEUED
+  PROCESSING
+  COMPLETED
+  CANCELLED
+}
+
+enum DeliveryStatus {
+  PENDING
+  QUEUED
+  SENT
+  DELIVERED
+  READ
+  FAILED
+  CANCELLED
+}
+
+// ========================================
+// SCHOOL/TENANT SCHEMA (per tenant)
+// ========================================
+// ===== PEOPLE (tenant schema) =====
+
+model Staff {
+  id            String         @id @default(uuid())
+  userId        String         @unique
+  employeeId    String?        @unique
+  department    String?
+  designation   String?
+  qualification String?
+  gender        Gender?
+  dateOfBirth   DateTime?
+  address       String?
+  joinDate      DateTime?
+  role          StaffRole
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  classSubjects ClassSubject[]
+  // notifications  SchoolNotificationRecipient[]
+}
+
+enum StaffRole {
+  school_admin
+  principal
+  teacher
+  bursar
+  other
+}
+
+enum Gender {
+  male
+  female
+}
+
+model Student {
+  id              String            @id @default(uuid())
+  userId          String?           @unique
+  admissionNumber String?           @unique
+  firstName       String
+  lastName        String
+  middleName      String?
+  dateOfBirth     DateTime?
+  gender          Gender?
+  bloodGroup      String?
+  address         String?
+  photoUrl        String?
+  religion        String?
+  nationality     String?           @default("Nigerian")
+  stateOfOrigin   String?
+  isActive        Boolean           @default(true)
+  admittedAt      DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  enrolments      Enrolment[]
+  guardianLinks   StudentGuardian[]
+  attendances     Attendance[]
+  grades          Grade[]
+  feeInvoices     FeeInvoice[]
+  reportCards     ReportCard[]
+  // notifications  SchoolNotificationRecipient[]
+}
+
+model Guardian {
+  id           String            @id @default(uuid())
+  userId       String?           @unique
+  firstName    String
+  lastName     String
+  email        String
+  phone        String?
+  occupation   String?
+  address      String?
+  isActive     Boolean           @default(true)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  studentLinks StudentGuardian[]
+  payments     Payment[]
+  // notifications  SchoolNotificationRecipient[]
+}
+
+model StudentGuardian {
+  id         String           @id @default(uuid())
+  studentId  String
+  guardianId String
+  relation   GuardianRelation
+  isPrimary  Boolean          @default(false)
+  createdAt  DateTime         @default(now())
+  student    Student          @relation(fields: [studentId], references: [id])
+  guardian   Guardian         @relation(fields: [guardianId], references: [id])
+
+  @@unique([studentId, guardianId])
+}
+
+enum GuardianRelation {
+  father
+  mother
+  uncle
+  aunt
+  grandparent
+  sibling
+  guardian
+  other
+}
+
+// ===== ACADEMIC (tenant schema) =====
+
+model Session {
+  id        String   @id @default(uuid())
+  name      String // e.g. "2024/2025"
+  startDate DateTime
+  endDate   DateTime
+  isCurrent Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  terms     Term[]
+}
+
+model Term {
+  id          String       @id @default(uuid())
+  sessionId   String
+  name        TermName
+  startDate   DateTime
+  endDate     DateTime
+  isCurrent   Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  session     Session      @relation(fields: [sessionId], references: [id])
+  attendances Attendance[]
+  grades      Grade[]
+  feeInvoices FeeInvoice[]
+  enrolments  Enrolment[]
+  reportCards ReportCard[]
+}
+
+enum TermName {
+  first
+  second
+  third
+}
+
+model Class {
+  id            String         @id @default(uuid())
+  name          String
+  level         String?
+  capacity      Int?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  enrolments    Enrolment[]
+  classSubjects ClassSubject[]
+}
+
+model Subject {
+  id            String         @id @default(uuid())
+  name          String
+  code          String?        @unique
+  description   String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  classSubjects ClassSubject[]
+}
+
+model ClassSubject {
+  id        String   @id @default(uuid())
+  classId   String
+  subjectId String
+  staffId   String
+  createdAt DateTime @default(now())
+  class     Class    @relation(fields: [classId], references: [id])
+  subject   Subject  @relation(fields: [subjectId], references: [id])
+  staff     Staff    @relation(fields: [staffId], references: [id])
+  grades    Grade[]
+}
+
+model Enrolment {
+  id        String          @id @default(uuid())
+  studentId String
+  classId   String
+  termId    String
+  status    EnrolmentStatus @default(active)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  student   Student         @relation(fields: [studentId], references: [id])
+  class     Class           @relation(fields: [classId], references: [id])
+  term      Term            @relation(fields: [termId], references: [id])
+
+  @@unique([studentId, termId])
+}
+
+enum EnrolmentStatus {
+  active
+  withdrawn
+  transferred
+  completed
+}
+
+// ===== ATTENDANCE (tenant schema) =====
+
+model Attendance {
+  id        String           @id @default(uuid())
+  studentId String
+  termId    String
+  date      DateTime
+  status    AttendanceStatus
+  note      String?
+  createdAt DateTime         @default(now())
+  student   Student          @relation(fields: [studentId], references: [id])
+  term      Term             @relation(fields: [termId], references: [id])
+
+  @@unique([studentId, date])
+}
+
+enum AttendanceStatus {
+  present
+  absent
+  late
+  excused
+}
+
+// ===== GRADES + REPORT CARDS (tenant schema) =====
+
+model Grade {
+  id             String       @id @default(uuid())
+  studentId      String
+  termId         String
+  classSubjectId String
+  caScore        Float?
+  examScore      Float?
+  total          Float?
+  grade          String?
+  remark         String?
+  position       Int?
+  totalStudents  Int?
+  isPublished    Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  student        Student      @relation(fields: [studentId], references: [id])
+  term           Term         @relation(fields: [termId], references: [id])
+  classSubject   ClassSubject @relation(fields: [classSubjectId], references: [id])
+
+  @@unique([studentId, termId, classSubjectId])
+}
+
+model GradingConfig {
+  id        String   @id @default(uuid())
+  minScore  Float
+  maxScore  Float
+  grade     String
+  remark    String
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ReportCard {
+  id              String           @id @default(uuid())
+  studentId       String
+  termId          String
+  status          ReportCardStatus @default(draft)
+  teacherRemark   String?
+  principalRemark String?
+  totalScore      Float?
+  averageScore    Float?
+  position        Int?
+  totalStudents   Int?
+  pdfUrl          String?
+  emailSentAt     DateTime?
+  smsSentAt       DateTime?
+  generatedAt     DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  student         Student          @relation(fields: [studentId], references: [id])
+  term            Term             @relation(fields: [termId], references: [id])
+
+  @@unique([studentId, termId])
+}
+
+enum ReportCardStatus {
+  draft
+  generated
+  published
+  sent
+}
+
+// ===== FEES + PAYMENTS (tenant schema) =====
+
+model FeeType {
+  id          String       @id @default(uuid())
+  name        String
+  description String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  feeInvoices FeeInvoice[]
+}
+
+model FeeInvoice {
+  id          String        @id @default(uuid())
+  studentId   String
+  termId      String
+  feeTypeId   String
+  amountKobo  Int
+  paidKobo    Int           @default(0)
+  balanceKobo Int           @default(0)
+  status      InvoiceStatus @default(unpaid)
+  dueDate     DateTime?
+  note        String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  student     Student       @relation(fields: [studentId], references: [id])
+  term        Term          @relation(fields: [termId], references: [id])
+  feeType     FeeType       @relation(fields: [feeTypeId], references: [id])
+  payments    Payment[]
+}
+
+enum InvoiceStatus {
+  unpaid
+  partial
+  paid
+  waived
+}
+
+model Payment {
+  id               String        @id @default(uuid())
+  feeInvoiceId     String
+  guardianId       String?
+  amountKobo       Int
+  method           PaymentMethod
+  channel          String?
+  reference        String?       @unique
+  status           PaymentStatus @default(pending)
+  webhookVerified  Boolean       @default(false)
+  providerResponse Json?
+  receiptUrl       String?
+  recordedById     String?
+  paidAt           DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  feeInvoice       FeeInvoice    @relation(fields: [feeInvoiceId], references: [id])
+  guardian         Guardian?     @relation(fields: [guardianId], references: [id])
+}
+
+enum PaymentMethod {
+  paystack
+  flutterwave
+  bank_transfer
+  cash
+}
+
+enum PaymentStatus {
+  pending
+  success
+  failed
+  refunded
+}
+
+model SchoolNotification {
+  id         String                        @id @default(uuid())
+  title      String
+  message    String
+  type       SchoolNotificationType
+  targetType TargetType
+  sentById   String
+  metadata   Json?
+  sentAt     DateTime?
+  createdAt  DateTime                      @default(now())
+  updatedAt  DateTime                      @updatedAt
+  recipients SchoolNotificationRecipient[]
+
+  @@index([type])
+  @@index([createdAt(sort: Desc)])
+}
+
+model SchoolNotificationRecipient {
+  id             String               @id @default(uuid())
+  notificationId String
+  studentId      String?
+  guardianId     String?
+  staffId        String?
+  channel        NotificationChannel
+  status         DeliveryStatus       @default(PENDING)
+  priority       NotificationPriority @default(NORMAL)
+  retryCount     Int                  @default(0)
+  failedReason   String?
+  providerMsgId  String?
+  readAt         DateTime?
+  deliveredAt    DateTime?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+
+  notification SchoolNotification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  // No relations to Student, Guardian, Staff
+  // These are resolved in application code using the tenant Prisma client
+  // Cross-schema foreign keys are not supported in PostgreSQL
+
+  @@unique([notificationId, channel, studentId, guardianId, staffId])
+  @@index([status])
+  @@index([status, priority, createdAt])
+}
+
+enum SchoolNotificationType {
+  fee_invoice
+  fee_reminder
+  fee_receipt
+  report_card_ready
+  attendance_alert
+  event
+  holiday
+  broadcast
+  custom
+}
+
+enum NotificationPriority {
+  LOW
+  NORMAL
+  HIGH
+  CRITICAL
+}
+
+enum TargetType {
+  STUDENT
+  GUARDIAN
+  STAFF
+  ALL_PARENTS
+  ALL_STUDENTS
+  ALL_STAFF
+  EVERYONE
+}
