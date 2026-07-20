@@ -18,7 +18,7 @@ import feesRouter from "../modules/fees/routes/fee.routes";
 import paymentRouter from "../modules/payments/routes/payment.routes";
 import superAdminRouter from "../modules/super-admin/routes/super-admin.routes";
 import auditRouter from "../modules/audit/routes/audit.routes"
-// import notificationRouter from "../modules/notifications/routes";
+import notificationRouter from "../modules/notifications/routes/notification.routes";
 
 const router = Router();
 
@@ -27,6 +27,7 @@ router.use("/auth", authRouter);
 router.use("/users", userRouter)
 router.use("/schools", schoolRouter);
 router.use("/plans", plansRouter);
+router.use("/subscriptions", subscriptionRouter);
 router.use("/staff", staffRouter);
 router.use("/students", studentRouter);
 router.use("/guardians", guardianRouter);
@@ -39,6 +40,5 @@ router.use("/fees", feesRouter);
 router.use("/payments", paymentRouter)
 router.use("/super-admin,", superAdminRouter)
 router.use("/audit", auditRouter)
-// router.use("/notifications", notificationRouter);
-router.use("/subscriptions", subscriptionRouter);
+router.use("/notifications", notificationRouter);
 export default router;

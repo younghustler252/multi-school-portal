@@ -35,7 +35,7 @@ import { registerReportCards }   from "../modules/report-cards/report-cards.cont
 import { registerFees }          from "../modules/fees/fees.container";
 import { registerPayments }      from "../modules/payments/payments.container";
 import { registerAudit } from "../modules/audit/audit.container";
-// import { registerNotifications } from "../modules/notifications/notifications.container";
+import { registerNotifications } from "../modules/notifications/notifications.container";
 import { registerSuperAdmin }    from "../modules/super-admin/super-admin.container";
 
 const modules: Array<(c: AwilixContainer) => void> = [
@@ -56,7 +56,7 @@ const modules: Array<(c: AwilixContainer) => void> = [
     registerFees,
     registerPayments,
     registerAudit,
-    // registerNotifications,
+    registerNotifications,
     registerSuperAdmin, 
 ];
 
