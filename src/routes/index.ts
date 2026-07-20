@@ -16,7 +16,8 @@ import gradeRouter from "../modules/grades/routes/grade.routes"
 import reportCardRouter from "../modules/report-cards/routes/report-card.routes"
 import feesRouter from "../modules/fees/routes/fee.routes";
 import paymentRouter from "../modules/payments/routes/payment.routes";
-import superAdminRouter from "../modules/super-admin/routes/super-admin.routes"
+import superAdminRouter from "../modules/super-admin/routes/super-admin.routes";
+import auditRouter from "../modules/audit/routes/audit.routes"
 // import notificationRouter from "../modules/notifications/routes";
 
 const router = Router();
@@ -37,6 +38,7 @@ router.use("/report-cards", reportCardRouter)
 router.use("/fees", feesRouter);
 router.use("/payments", paymentRouter)
 router.use("/super-admin,", superAdminRouter)
+router.use("/audit", auditRouter)
 // router.use("/notifications", notificationRouter);
 router.use("/subscriptions", subscriptionRouter);
 export default router;

@@ -34,6 +34,7 @@ import { registerGrades }        from "../modules/grades/grades.container";
 import { registerReportCards }   from "../modules/report-cards/report-cards.container";
 import { registerFees }          from "../modules/fees/fees.container";
 import { registerPayments }      from "../modules/payments/payments.container";
+import { registerAudit } from "../modules/audit/audit.container";
 // import { registerNotifications } from "../modules/notifications/notifications.container";
 import { registerSuperAdmin }    from "../modules/super-admin/super-admin.container";
 
@@ -54,6 +55,7 @@ const modules: Array<(c: AwilixContainer) => void> = [
     registerReportCards,
     registerFees,
     registerPayments,
+    registerAudit,
     // registerNotifications,
     registerSuperAdmin, 
 ];
