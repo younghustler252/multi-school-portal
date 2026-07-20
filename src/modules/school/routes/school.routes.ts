@@ -93,7 +93,12 @@ router.post(
     validate(SetupPaymentDto),
     (req, res, next) => ctrl().setupPayment(req, res, next),
 );
-
+router.get(
+    "/me/dashboard",
+    authenticate,
+    requireSchoolAdmin,
+    (req, res, next) => ctrl().getDashboard(req, res, next),
+);
 // ========================================
 // SUPER ADMIN ROUTES
 // ========================================

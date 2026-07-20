@@ -7,6 +7,7 @@ import { UploadLogoUseCase }       from "../usecases/school-admin/upload-logo.us
 import { UploadDocumentUseCase }   from "../usecases/school-admin/upload-document.usecase";
 import { GetDocumentsUseCase }     from "../usecases/school-admin/get-documents.usecase";
 import { SetupPaymentUseCase }     from "../usecases/school-admin/setup-payment.usecase";
+import { GetDashboardUseCase } from "../usecases/school-admin/get-dashboard.usecase";
 
 // ── Super Admin Use Cases ─────────────────────────────────────────────────
 import { GetAllSchoolsUseCase }    from "../usecases/super-admin/get-all-schools.usecase";
@@ -18,6 +19,7 @@ import { SuspendSchoolUseCase }    from "../usecases/super-admin/suspend-school.
 import { ActivateSchoolUseCase }   from "../usecases/super-admin/activate-school.usecase";
 import { ApproveDocumentUseCase }  from "../usecases/super-admin/approve-document.usecase";
 import { RejectDocumentUseCase }   from "../usecases/super-admin/reject-document.usecase";
+
 
 import {
     sendSuccess,
@@ -60,6 +62,8 @@ export class SchoolController {
     private readonly uploadDocumentUseCase:   UploadDocumentUseCase;
     private readonly getDocumentsUseCase:     GetDocumentsUseCase;
     private readonly setupPaymentUseCase:     SetupPaymentUseCase;
+    
+
     private readonly getAllSchoolsUseCase:     GetAllSchoolsUseCase;
     private readonly getSchoolByIdUseCase:    GetSchoolByIdUseCase;
     private readonly createSchoolUseCase:     CreateSchoolUseCase;
@@ -77,6 +81,9 @@ export class SchoolController {
         uploadDocumentUseCase,
         getDocumentsUseCase,
         setupPaymentUseCase,
+        getDashboardUseCase,
+
+
         getAllSchoolsUseCase,
         getSchoolByIdUseCase,
         createSchoolUseCase,
@@ -93,6 +100,9 @@ export class SchoolController {
         this.uploadDocumentUseCase   = uploadDocumentUseCase;
         this.getDocumentsUseCase     = getDocumentsUseCase;
         this.setupPaymentUseCase     = setupPaymentUseCase;
+        this.getDashboardUseCase     = getDashboardUseCase
+
+
         this.getAllSchoolsUseCase     = getAllSchoolsUseCase;
         this.getSchoolByIdUseCase    = getSchoolByIdUseCase;
         this.createSchoolUseCase     = createSchoolUseCase;
@@ -235,6 +245,17 @@ export class SchoolController {
         } catch (err) {
             next(err);
         }
+    };
+
+    getDashboard = async (
+        req: Request, res: Response, next: NextFunction,
+    ): Promise<void> => {
+        try {
+            const result = await this.getDashboardUseCase.execute(
+                req.user!.schoolId!,
+            );
+            sendSuccess(res, result, "Dashboard data retrieved successfully");
+        } catch (err) { next(err); }
     };
 
     // ========================================
