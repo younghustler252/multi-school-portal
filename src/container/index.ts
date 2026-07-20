@@ -21,7 +21,7 @@ export const container: AwilixContainer = createContainer({
 */
 import { registerAuth }          from "../modules/auth/auth.container";
 import { registerSchool }        from "../modules/school/school.container";
-// import { registerUser }          from "../modules/user/user.container";
+import { registerUser }          from "../modules/user/user.container";
 import { registerPlans }         from "../modules/plans/plans.container";
 import { registerSubscriptions } from "../modules/subscriptions/subscription.container";
 import { registerStaff }         from "../modules/staff/staff.container";
@@ -32,16 +32,16 @@ import { registerEnrolment }     from "../modules/enrolment/enrolment.container"
 import { registerAttendance }    from "../modules/attendance/attendance.container";
 import { registerGrades }        from "../modules/grades/grades.container";
 import { registerReportCards }   from "../modules/report-cards/report-cards.container";
-// import { registerFees }          from "../modules/fees/fees.container";
-// import { registerPayments }      from "../modules/payments/payments.container";
+import { registerFees }          from "../modules/fees/fees.container";
+import { registerPayments }      from "../modules/payments/payments.container";
 // import { registerNotifications } from "../modules/notifications/notifications.container";
-// import { registerSuperAdmin }    from "../modules/super-admin/super-admin.container";
+import { registerSuperAdmin }    from "../modules/super-admin/super-admin.container";
 
 const modules: Array<(c: AwilixContainer) => void> = [
     registerShared,
     registerAuth,
     registerSchool,
-    // registerUser,
+    registerUser,
     registerPlans,
     registerSubscriptions,
     registerStaff,
@@ -51,11 +51,11 @@ const modules: Array<(c: AwilixContainer) => void> = [
     registerEnrolment,
     registerAttendance,
     registerGrades,
-    // registerReportCards,
-    // registerFees,
-    // registerPayments,
+    registerReportCards,
+    registerFees,
+    registerPayments,
     // registerNotifications,
-    // registerSuperAdmin, 
+    registerSuperAdmin, 
 ];
 
 /*

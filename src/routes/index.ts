@@ -2,6 +2,7 @@ import { Router } from "express";
 
 
 import authRouter from "../modules/auth/routes/auth.routes";
+import userRouter from "../modules/user/routes/user.routes"
 import schoolRouter from "../modules/school/routes/school.routes";
 import plansRouter from "../modules/plans/routes/plan.routes";
 import subscriptionRouter from "../modules/subscriptions/routes/subscription.routes";
@@ -13,13 +14,16 @@ import enrolmentRouter from "../modules/enrolment/routes/enrolment.routes";
 import attendanceRouter from "../modules/attendance/routes/attendance.routes";
 import gradeRouter from "../modules/grades/routes/grade.routes"
 import reportCardRouter from "../modules/report-cards/routes/report-card.routes"
-// import feesRouter from "../modules/fees/routes";
+import feesRouter from "../modules/fees/routes/fee.routes";
+import paymentRouter from "../modules/payments/routes/payment.routes";
+import superAdminRouter from "../modules/super-admin/routes/super-admin.routes"
 // import notificationRouter from "../modules/notifications/routes";
 
 const router = Router();
 
 // versioned API grouping
 router.use("/auth", authRouter);
+router.use("/users", userRouter)
 router.use("/schools", schoolRouter);
 router.use("/plans", plansRouter);
 router.use("/staff", staffRouter);
@@ -30,7 +34,9 @@ router.use("/enrolments", enrolmentRouter);
 router.use("/attendance", attendanceRouter);
 router.use("/grades", gradeRouter)
 router.use("/report-cards", reportCardRouter)
-// router.use("/fees", feesRouter);
+router.use("/fees", feesRouter);
+router.use("/payments", paymentRouter)
+router.use("/super-admin,", superAdminRouter)
 // router.use("/notifications", notificationRouter);
 router.use("/subscriptions", subscriptionRouter);
 export default router;
