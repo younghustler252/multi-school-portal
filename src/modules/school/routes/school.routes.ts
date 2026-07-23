@@ -99,6 +99,14 @@ router.get(
     requireSchoolAdmin,
     (req, res, next) => ctrl().getDashboard(req, res, next),
 );
+
+router.get(
+    "/me/setup-checklist",
+    authenticate,
+    requireSchoolAdmin,
+    (req, res, next) => ctrl().getSetupChecklist(req, res, next),
+);
+
 // ========================================
 // SUPER ADMIN ROUTES
 // ========================================

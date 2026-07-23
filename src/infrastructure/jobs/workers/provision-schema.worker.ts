@@ -6,6 +6,84 @@ import { execSync }               from "child_process";
 import { readFileSync }           from "fs";
 import { join }                   from "path";
 
+function getDefaultClasses(category?: string | null): Array<{name: string; level: string}> {
+    if (category === "primary" || category === "primary_secondary") {
+        return [
+            { name: "KG 1",      level: "Kindergarten" },
+            { name: "KG 2",      level: "Kindergarten" },
+            { name: "Primary 1", level: "Primary"      },
+            { name: "Primary 2", level: "Primary"      },
+            { name: "Primary 3", level: "Primary"      },
+            { name: "Primary 4", level: "Primary"      },
+            { name: "Primary 5", level: "Primary"      },
+            { name: "Primary 6", level: "Primary"      },
+        ];
+    }
+
+    const secondary = [
+        { name: "JSS 1", level: "Junior Secondary" },
+        { name: "JSS 2", level: "Junior Secondary" },
+        { name: "JSS 3", level: "Junior Secondary" },
+        { name: "SS 1",  level: "Senior Secondary" },
+        { name: "SS 2",  level: "Senior Secondary" },
+        { name: "SS 3",  level: "Senior Secondary" },
+    ];
+
+    if (category === "primary_secondary") {
+        // Already added primary above, just add secondary
+        return secondary;
+    }
+
+    return secondary; // default to secondary
+}
+
+function getDefaultSubjects(category?: string | null): Array<{name: string; code: string}> {
+    const coreSubjects = [
+        { name: "Mathematics",        code: "MTH" },
+        { name: "English Language",   code: "ENG" },
+        { name: "Basic Science",      code: "BSC" },
+        { name: "Social Studies",     code: "SST" },
+        { name: "Civic Education",    code: "CIV" },
+        { name: "Computer Science",   code: "CMP" },
+        { name: "Physical Education", code: "PHE" },
+        { name: "Fine Arts",          code: "ART" },
+        { name: "Music",              code: "MUS" },
+    ];
+
+    const primaryOnly = [
+        { name: "Quantitative Reasoning", code: "QNR" },
+        { name: "Verbal Reasoning",       code: "VBR" },
+        { name: "Phonics",                code: "PHN" },
+        { name: "National Values",        code: "NVE" },
+    ];
+
+    const secondaryOnly = [
+        { name: "Physics",          code: "PHY" },
+        { name: "Chemistry",        code: "CHM" },
+        { name: "Biology",          code: "BIO" },
+        { name: "Economics",        code: "ECO" },
+        { name: "Government",       code: "GOV" },
+        { name: "Literature",       code: "LIT" },
+        { name: "Geography",        code: "GEO" },
+        { name: "Agricultural Sc.", code: "AGR" },
+        { name: "Further Maths",    code: "FMT" },
+        { name: "French",           code: "FRN" },
+        { name: "Yoruba",           code: "YRB" },
+        { name: "Igbo",             code: "IGB" },
+        { name: "Hausa",            code: "HAU" },
+    ];
+
+    if (category === "primary") {
+        return [...coreSubjects, ...primaryOnly];
+    }
+
+    if (category === "primary_secondary") {
+        return [...coreSubjects, ...primaryOnly, ...secondaryOnly];
+    }
+
+    return [...coreSubjects, ...secondaryOnly];
+}
+
 export const provisionSchemaWorker = new Worker<ProvisionSchemaJobData>(
     "provision-schema",
 
@@ -101,6 +179,46 @@ export const provisionSchemaWorker = new Worker<ProvisionSchemaJobData>(
             `);
         }
         console.log(`✅ Session + terms seeded: ${schemaName}`);
+
+        // After seeding grading config and session/terms
+        // ── Seed classes based on school category ─────────────────────────────
+
+        // Get school category from public schema
+        const school = await prisma.school.findUnique({
+            where:  { id: schoolId },
+            select: { schoolCategory: true },
+        });
+
+        const classesToCreate = getDefaultClasses(school?.schoolCategory);
+
+        for (const cls of classesToCreate) {
+            await prisma.$executeRawUnsafe(`
+                INSERT INTO "${schemaName}"."Class"
+                    (id, name, level, "createdAt", "updatedAt")
+                VALUES (
+                    gen_random_uuid(),
+                    '${cls.name}',
+                    '${cls.level}',
+                    now(), now()
+                )
+            `);
+        }
+
+        // ── Seed default subjects ──────────────────────────────────────────────
+        const subjectsToCreate = getDefaultSubjects(school?.schoolCategory);
+
+        for (const subject of subjectsToCreate) {
+            await prisma.$executeRawUnsafe(`
+                INSERT INTO "${schemaName}"."Subject"
+                    (id, name, code, "createdAt", "updatedAt")
+                VALUES (
+                    gen_random_uuid(),
+                    '${subject.name}',
+                    '${subject.code}',
+                    now(), now()
+                )
+            `);
+        }
 
         // ── 5. Update school schemaName ───────────────────────────────────
         await prisma.school.update({

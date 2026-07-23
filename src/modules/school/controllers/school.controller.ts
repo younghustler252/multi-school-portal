@@ -8,6 +8,7 @@ import { UploadDocumentUseCase }   from "../usecases/school-admin/upload-documen
 import { GetDocumentsUseCase }     from "../usecases/school-admin/get-documents.usecase";
 import { SetupPaymentUseCase }     from "../usecases/school-admin/setup-payment.usecase";
 import { GetDashboardUseCase } from "../usecases/school-admin/get-dashboard.usecase";
+import { GetSetupChecklistUseCase } from "../usecases/school-admin/get-setup-checklist.usecase";
 
 // ── Super Admin Use Cases ─────────────────────────────────────────────────
 import { GetAllSchoolsUseCase }    from "../usecases/super-admin/get-all-schools.usecase";
@@ -42,6 +43,9 @@ interface Dependencies {
     uploadDocumentUseCase:  UploadDocumentUseCase;
     getDocumentsUseCase:    GetDocumentsUseCase;
     setupPaymentUseCase:    SetupPaymentUseCase;
+    getDashboardUseCase: GetDashboardUseCase;
+    getSetupChecklistUseCase: GetSetupChecklistUseCase;
+
 
     // ── Super Admin ───────────────────────────────────────────────────────
     getAllSchoolsUseCase:   GetAllSchoolsUseCase;
@@ -62,7 +66,8 @@ export class SchoolController {
     private readonly uploadDocumentUseCase:   UploadDocumentUseCase;
     private readonly getDocumentsUseCase:     GetDocumentsUseCase;
     private readonly setupPaymentUseCase:     SetupPaymentUseCase;
-    
+    private readonly getDashboardUseCase:     GetDashboardUseCase;
+    private readonly getSetupChecklistUseCase: GetSetupChecklistUseCase;
 
     private readonly getAllSchoolsUseCase:     GetAllSchoolsUseCase;
     private readonly getSchoolByIdUseCase:    GetSchoolByIdUseCase;
@@ -82,6 +87,7 @@ export class SchoolController {
         getDocumentsUseCase,
         setupPaymentUseCase,
         getDashboardUseCase,
+        getSetupChecklistUseCase,
 
 
         getAllSchoolsUseCase,
@@ -101,6 +107,7 @@ export class SchoolController {
         this.getDocumentsUseCase     = getDocumentsUseCase;
         this.setupPaymentUseCase     = setupPaymentUseCase;
         this.getDashboardUseCase     = getDashboardUseCase
+        this.getSetupChecklistUseCase = getSetupChecklistUseCase;
 
 
         this.getAllSchoolsUseCase     = getAllSchoolsUseCase;
@@ -256,6 +263,27 @@ export class SchoolController {
             );
             sendSuccess(res, result, "Dashboard data retrieved successfully");
         } catch (err) { next(err); }
+    };
+
+    // ── Get setup checklist ────────────────────────────────────────────────
+    getSetupChecklist = async (
+        req: Request,
+        res: Response,
+        next: NextFunction,
+    ): Promise<void> => {
+        try {
+            const result = await this.getSetupChecklistUseCase.execute(
+                req.user!.schoolId!,
+            );
+
+            sendSuccess(
+                res,
+                result,
+                "Setup checklist retrieved successfully",
+            );
+        } catch (err) {
+            next(err);
+        }
     };
 
     // ========================================

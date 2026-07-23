@@ -80,7 +80,7 @@ export class VerifyEmailUseCase {
             isEmailVerified:  true,
             emailVerifiedAt:  new Date(),
         });
-
+        
         return { message: "Email verified successfully. You can now login." };
     }
 }
