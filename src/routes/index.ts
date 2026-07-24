@@ -20,6 +20,7 @@ import paymentRouter from "../modules/payments/routes/payment.routes";
 import superAdminRouter from "../modules/super-admin/routes/super-admin.routes";
 import auditRouter from "../modules/audit/routes/audit.routes"
 import notificationRouter from "../modules/notifications/routes/notification.routes";
+import schoolSettingRouter from "../modules/school-settings/routes/school-settings.routes"
 
 const router = Router();
 
@@ -43,4 +44,5 @@ router.use("/payments", paymentRouter)
 router.use("/super-admin,", superAdminRouter)
 router.use("/audit", auditRouter)
 router.use("/notifications", notificationRouter);
+router.use("/school-settings", schoolSettingRouter)
 export default router;

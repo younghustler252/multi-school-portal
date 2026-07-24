@@ -18,6 +18,12 @@ import { LogoutUseCase }               from "./usecases/logout.usecase";
 import { ForgotPasswordUseCase }       from "./usecases/forgot-password.usecase";
 import { ResetPasswordUseCase }        from "./usecases/reset-password.usecase";
 import { ResendOtpUseCase }            from "./usecases/resend-otp.usecase";
+import { InviteRepositoryImpl }  from "./repositories/invite.repository.impl";
+import { ValidateInviteUseCase } from "./usecases/validate-invite.usecase";
+import { AcceptInviteUseCase }   from "./usecases/accept-invite.usecase";
+import { SendInviteUseCase }     from "./usecases/send-invite.usecase";
+
+// in register:
 
 // ── Controller ────────────────────────────────────────────────────────────
 import { AuthController }              from "./controllers/auth.controller";
@@ -31,10 +37,10 @@ import { AuthController }              from "./controllers/auth.controller";
 
 export const registerAuth = (container: AwilixContainer): void => {
     container.register({
-
+        
         // ── Mapper ───────────────────────────────────────────────────────
         userMapper:                  asClass(UserMapper).singleton(),
-
+        
         // ── Repositories ─────────────────────────────────────────────────
         userRepository:              asClass(UserRepositoryImpl).scoped(),
         otpRepository:               asClass(OtpRepositoryImpl).scoped(),
@@ -49,7 +55,12 @@ export const registerAuth = (container: AwilixContainer): void => {
         forgotPasswordUseCase:       asClass(ForgotPasswordUseCase).scoped(),
         resetPasswordUseCase:        asClass(ResetPasswordUseCase).scoped(),
         resendOtpUseCase:            asClass(ResendOtpUseCase).scoped(),
+        
 
+        inviteRepository:       asClass(InviteRepositoryImpl).scoped(),
+        validateInviteUseCase:  asClass(ValidateInviteUseCase).scoped(),
+        acceptInviteUseCase:    asClass(AcceptInviteUseCase).scoped(),
+        sendInviteUseCase:      asClass(SendInviteUseCase).scoped(),
         // ── Controller ────────────────────────────────────────────────────
         authController:              asClass(AuthController).scoped(),
     });

@@ -7,6 +7,13 @@ import { LogoutUseCase }                   from "../usecases/logout.usecase";
 import { ForgotPasswordUseCase }           from "../usecases/forgot-password.usecase";
 import { ResetPasswordUseCase }            from "../usecases/reset-password.usecase";
 import { ResendOtpUseCase }                from "../usecases/resend-otp.usecase";
+// Add imports
+import { ValidateInviteUseCase } from "../usecases/validate-invite.usecase";
+import { AcceptInviteUseCase }   from "../usecases/accept-invite.usecase";
+import { SendInviteUseCase }     from "../usecases/send-invite.usecase";
+import { ValidateInviteDto, AcceptInviteDto } from "../dtos/invite.dto";
+import { Role }                  from "../../../generated/prisma/client";
+
 import {
     setAuthCookies,
     clearAuthCookies,
@@ -34,6 +41,11 @@ interface Dependencies {
     resendOtpUseCase:      ResendOtpUseCase;
     registerUseCase: RegisterUseCase;
 
+    validateInviteUseCase: ValidateInviteUseCase;
+    acceptInviteUseCase:   AcceptInviteUseCase;
+    sendInviteUseCase:     SendInviteUseCase;
+
+
 }
 
 export class AuthController {
@@ -46,6 +58,11 @@ export class AuthController {
     private readonly resetPasswordUseCase:  ResetPasswordUseCase;
     private readonly resendOtpUseCase:      ResendOtpUseCase;
 
+    private readonly validateInviteUseCase:      ValidateInviteUseCase;
+    private readonly acceptInviteUseCase:      AcceptInviteUseCase;
+    private readonly sendInviteUseCase:      SendInviteUseCase;
+
+
     constructor({
         registerUseCase,
         verifyEmailUseCase,
@@ -55,6 +72,10 @@ export class AuthController {
         forgotPasswordUseCase,
         resetPasswordUseCase,
         resendOtpUseCase,
+
+        validateInviteUseCase,
+        sendInviteUseCase,
+        acceptInviteUseCase
     }: Dependencies) {
         this.registerUseCase       = registerUseCase;
         this.verifyEmailUseCase    = verifyEmailUseCase;
@@ -64,6 +85,10 @@ export class AuthController {
         this.forgotPasswordUseCase = forgotPasswordUseCase;
         this.resetPasswordUseCase  = resetPasswordUseCase;
         this.resendOtpUseCase      = resendOtpUseCase;
+
+        this.validateInviteUseCase = validateInviteUseCase;
+        this.acceptInviteUseCase = acceptInviteUseCase;
+        this.sendInviteUseCase = sendInviteUseCase;
     }
 
     register = async (
@@ -203,5 +228,46 @@ export class AuthController {
         } catch (err) {
             next(err);
         }
+    };
+
+        
+    validateInvite = async (
+        req: Request, res: Response, next: NextFunction,
+    ): Promise<void> => {
+        try {
+            const result = await this.validateInviteUseCase.execute(req.body);
+            sendSuccess(res, result, "Invite is valid");
+        } catch (err) { next(err); }
+    };
+
+    acceptInvite = async (
+        req: Request, res: Response, next: NextFunction,
+    ): Promise<void> => {
+        try {
+            const result = await this.acceptInviteUseCase.execute(req.body);
+
+            // Auto-login after accepting invite
+            setAuthCookies(
+                res,
+                result.tokens.accessToken,
+                result.tokens.refreshToken,
+            );
+
+            sendCreated(res, result, "Account created successfully. Welcome!");
+        } catch (err) { next(err); }
+    };
+
+    sendInvite = async (
+        req: Request, res: Response, next: NextFunction,
+    ): Promise<void> => {
+        try {
+            const result = await this.sendInviteUseCase.execute({
+                email:    req.body.email,
+                role:     req.body.role as Role,
+                schoolId: req.user!.schoolId!,
+                sentById: req.user!.id,
+            });
+            sendSuccess(res, null, result.message);
+        } catch (err) { next(err); }
     };
 }

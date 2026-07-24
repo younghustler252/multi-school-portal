@@ -3,6 +3,7 @@ import { container }        from "../../../container";
 import { AuthController }   from "../controllers/auth.controller";
 import { validate }         from "../../../infrastructure/middleware/validate.middleware";
 import { authenticate }     from "../../../infrastructure/middleware/auth.middleware";
+import { requireSchoolAdmin } from "../../../infrastructure/middleware/rbac.middleware";
 import { LoginDto }         from "../dtos/login.dto";
 import {
     VerifyEmailDto,
@@ -14,6 +15,11 @@ import {
 }                           from "../dtos/password.dto";
 
 import { RegisterDto } from "../dtos/register.dto";
+import {
+    ValidateInviteDto,
+    AcceptInviteDto,
+}                          from "../dtos/invite.dto";
+
 
 /*
 |--------------------------------------------------------------------------
@@ -75,6 +81,28 @@ router.post(
     "/logout",
     authenticate,
     (req, res, next) => ctrl().logout(req, res, next),
+);
+
+// Validate token before showing accept form
+router.post(
+    "/invite/validate",
+    validate(ValidateInviteDto),
+    (req, res, next) => ctrl().validateInvite(req, res, next),
+);
+
+// Accept invite + create account
+router.post(
+    "/invite/accept",
+    validate(AcceptInviteDto),
+    (req, res, next) => ctrl().acceptInvite(req, res, next),
+);
+
+// ── Protected — school admin sends invite ─────────────────────────────────
+router.post(
+    "/invite/send",
+    authenticate,
+    requireSchoolAdmin,
+    (req, res, next) => ctrl().sendInvite(req, res, next),
 );
 
 export default router;
