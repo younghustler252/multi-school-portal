@@ -2,6 +2,7 @@ import { Router }                from "express";
 import multer                    from "multer";
 import { container }             from "../../../container";
 import { SchoolController }      from "../controllers/school.controller";
+import { uploadLimiter } from "../../../infrastructure/middleware/rate-limit.middleware";
 import { validate }              from "../../../infrastructure/middleware/validate.middleware";
 import { authenticate }          from "../../../infrastructure/middleware/auth.middleware";
 import {
@@ -63,6 +64,7 @@ router.post(
     "/me/logo",
     authenticate,
     requireSchoolAdmin,
+    uploadLimiter,
     upload.single("logo"),
     (req, res, next) => ctrl().uploadLogo(req, res, next),
 );
@@ -72,6 +74,7 @@ router.post(
     "/me/documents",
     authenticate,
     requireSchoolAdmin,
+    uploadLimiter,
     upload.single("document"),
     validate(UploadDocumentDto),
     (req, res, next) => ctrl().uploadDocument(req, res, next),

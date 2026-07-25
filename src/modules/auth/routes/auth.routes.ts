@@ -4,6 +4,10 @@ import { AuthController }   from "../controllers/auth.controller";
 import { validate }         from "../../../infrastructure/middleware/validate.middleware";
 import { authenticate }     from "../../../infrastructure/middleware/auth.middleware";
 import { requireSchoolAdmin } from "../../../infrastructure/middleware/rbac.middleware";
+import {
+    authLimiter,
+    otpLimiter,
+}                              from "../../../infrastructure/middleware/rate-limit.middleware";
 import { LoginDto }         from "../dtos/login.dto";
 import {
     VerifyEmailDto,
@@ -37,41 +41,48 @@ const ctrl = () => container.resolve<AuthController>("authController");
 // ── Public routes ─────────────────────────────────────────────────────────
 router.post(
     "/register",
+    authLimiter,
     validate(RegisterDto),
     (req, res, next) => ctrl().register(req, res, next),
 );
 
 router.post(
     "/verify-email",
+    authLimiter,
     validate(VerifyEmailDto),
     (req, res, next) => ctrl().verifyEmail(req, res, next),
 );
 
 router.post(
     "/login",
+    authLimiter,
     validate(LoginDto),
     (req, res, next) => ctrl().login(req, res, next),
 );
 
 router.post(
     "/refresh",
+    
     (req, res, next) => ctrl().refreshToken(req, res, next),
 );
 
 router.post(
     "/forgot-password",
+    otpLimiter,
     validate(ForgotPasswordDto),
     (req, res, next) => ctrl().forgotPassword(req, res, next),
 );
 
 router.post(
     "/reset-password",
+    otpLimiter,
     validate(ResetPasswordDto),
     (req, res, next) => ctrl().resetPassword(req, res, next),
 );
 
 router.post(
     "/resend-otp",
+    authLimiter,
     validate(ResendOtpDto),
     (req, res, next) => ctrl().resendOtp(req, res, next),
 );
@@ -93,6 +104,7 @@ router.post(
 // Accept invite + create account
 router.post(
     "/invite/accept",
+    authLimiter,
     validate(AcceptInviteDto),
     (req, res, next) => ctrl().acceptInvite(req, res, next),
 );

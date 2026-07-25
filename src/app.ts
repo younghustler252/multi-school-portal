@@ -6,8 +6,11 @@ import rateLimit                                     from "express-rate-limit";
 import cookieParser                                  from "cookie-parser";
 import { env }                                       from "./config/env";
 import { errorHandler }                              from "./infrastructure/middleware/error-handler.middleware";
+import { globalLimiter } from "./infrastructure/middleware/rate-limit.middleware";
 import { resolveTenant, validateTenantOwnership }    from "./infrastructure/middleware/tenant-resolver.middleware";
-import { optionalAuthenticate }                      from "./infrastructure/middleware/auth.middleware";
+import { requireSuperAdmin } from "./infrastructure/middleware/rbac.middleware";
+import { optionalAuthenticate, authenticate }                      from "./infrastructure/middleware/auth.middleware";
+import { createBullBoardRouter } from "./infrastructure/jobs/bull-board";
 import routes                                        from "./routes";
 
 const app = express();
@@ -28,16 +31,7 @@ app.use(cors({
     credentials: true,
 }));
 
-app.use(rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max:      100,
-    message: {
-        success: false,
-        message: "Too many requests, please try again later",
-    },
-    standardHeaders: true,
-    legacyHeaders:   false,
-}));
+app.use(globalLimiter);
 
 // ── Body Parsing ──────────────────────────────────────────────────────────
 app.use(express.json({ limit: "10mb" }));
@@ -75,6 +69,12 @@ app.get("/health", (req: Request, res: Response) => {
 
 // ── API Routes ────────────────────────────────────────────────────────────
 app.use("/api/v1", routes);
+app.use(
+    "/admin/queues",
+    authenticate,
+    requireSuperAdmin,
+    createBullBoardRouter(),
+);
 
 // ── 404 Handler ───────────────────────────────────────────────────────────
 app.use((req: Request, res: Response) => {

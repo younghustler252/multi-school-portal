@@ -1,6 +1,7 @@
 import { Router }              from "express";
 import { container }           from "../../../container";
 import { PaymentController }   from "../controllers/payment.controller";
+import { webhookLimiter } from "../../../infrastructure/middleware/rate-limit.middleware";
 import { validate }            from "../../../infrastructure/middleware/validate.middleware";
 import { authenticate }        from "../../../infrastructure/middleware/auth.middleware";
 import { requireStaff }        from "../../../infrastructure/middleware/rbac.middleware";
@@ -17,6 +18,7 @@ const ctrl   = () => container.resolve<PaymentController>("paymentController");
 // ── Paystack webhook — no auth, raw body needed ───────────────────────────
 router.post(
     "/webhook/paystack",
+    webhookLimiter,
     (req, res, next) => ctrl().handleWebhook(req, res, next),
 );
 
