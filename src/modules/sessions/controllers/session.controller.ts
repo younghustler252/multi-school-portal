@@ -6,6 +6,9 @@ import { SetCurrentSessionUseCase }  from "../usecases/set-current-session.useca
 import { CreateTermUseCase }         from "../usecases/create-term.usecase";
 import { UpdateTermUseCase }         from "../usecases/update-term.usecase";
 import { SetCurrentTermUseCase }     from "../usecases/set-current-term.usecase";
+
+import { CreateCalendarEventUseCase } from "../usecases/create-calendar-event.usecase";
+import { GetCalendarEventsUseCase }   from "../usecases/get-calendar-events.usecase";
 import {
     sendSuccess,
     sendCreated,
@@ -19,6 +22,7 @@ interface Dependencies {
     createTermUseCase:        CreateTermUseCase;
     updateTermUseCase:        UpdateTermUseCase;
     setCurrentTermUseCase:    SetCurrentTermUseCase;
+    // Add to DependenyikutyCase:   GetCalendarEventsUseCase;
 }
 
 export class SessionController {
@@ -125,3 +129,29 @@ export class SessionController {
         } catch (err) { next(err); }
     };
 }
+
+
+
+// Add methods
+getCalendarEvents = async (
+    req: Request, res: Response, next: NextFunction,
+): Promise<void> => {
+    try {
+        const result = await this.getCalendarEventsUseCase.execute(
+            req.query as any,
+        );
+        sendSuccess(res, result, "Calendar events retrieved successfully");
+    } catch (err) { next(err); }
+};
+
+createCalendarEvent = async (
+    req: Request, res: Response, next: NextFunction,
+): Promise<void> => {
+    try {
+        const result = await this.createCalendarEventUseCase.execute(
+            req.body,
+            req.user!.id,
+        );
+        sendCreated(res, result, "Calendar event created successfully");
+    } catch (err) { next(err); }
+};

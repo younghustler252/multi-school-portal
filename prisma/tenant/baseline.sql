@@ -26,6 +26,22 @@ CREATE TABLE IF NOT EXISTS "Term" (
         REFERENCES "Session"("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS "CalendarEvent" (
+    "id"          TEXT NOT NULL,
+    "termId"      TEXT,
+    "sessionId"   TEXT,
+    "title"       TEXT NOT NULL,
+    "description" TEXT,
+    "startDate"   TIMESTAMP(3) NOT NULL,
+    "endDate"     TIMESTAMP(3),
+    "type"        TEXT NOT NULL DEFAULT 'event',
+    "isHoliday"   BOOLEAN NOT NULL DEFAULT false,
+    "createdById" TEXT,
+    "createdAt"   TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt"   TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "CalendarEvent_pkey" PRIMARY KEY ("id")
+);
+
 CREATE TABLE IF NOT EXISTS "Staff" (
     "id"            TEXT NOT NULL,
     "userId"        TEXT NOT NULL,

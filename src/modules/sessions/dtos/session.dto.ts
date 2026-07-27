@@ -32,3 +32,5 @@ export type CreateSessionDtoType = z.infer<typeof CreateSessionDto>;
 export type UpdateSessionDtoType = z.infer<typeof UpdateSessionDto>;
 export type CreateTermDtoType    = z.infer<typeof CreateTermDto>;
 export type UpdateTermDtoType    = z.infer<typeof UpdateTermDto>;
+
+
