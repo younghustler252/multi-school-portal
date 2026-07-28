@@ -12,26 +12,28 @@ datasource db {
 // ========================================
 // ===== SCHOOL =====
 model School {
-  id                 String             @id @default(uuid())
-  name               String
-  subdomain          String             @unique
-  email              String             @unique
-  phone              String?
-  address            String?
-  city               String?
-  state              String?
-  country            String             @default("Nigeria")
-  timezone           String             @default("Africa/Lagos")
-  logoUrl            String?
-  schoolCategory     SchoolCategory     @default(primary)
-  schoolOwnership    SchoolOwnership    @default(private)
-  status             SchoolStatus       @default(pending)
-  verificationStatus VerificationStatus @default(unverified)
-  verifiedAt         DateTime?
-  verifiedById       String?
-  suspendedAt        DateTime?
-  suspensionReason   String?
-  isActive           Boolean            @default(false)
+  id                     String             @id @default(uuid())
+  name                   String
+  subdomain              String             @unique
+  customDomain           String? // e.g. "portal.greenfieldacademy.com"
+  customDomainVerifiedAt DateTime?
+  email                  String             @unique
+  phone                  String?
+  address                String?
+  city                   String?
+  state                  String?
+  country                String             @default("Nigeria")
+  timezone               String             @default("Africa/Lagos")
+  logoUrl                String?
+  schoolCategory         SchoolCategory     @default(primary)
+  schoolOwnership        SchoolOwnership    @default(private)
+  status                 SchoolStatus       @default(pending)
+  verificationStatus     VerificationStatus @default(unverified)
+  verifiedAt             DateTime?
+  verifiedById           String?
+  suspendedAt            DateTime?
+  suspensionReason       String?
+  isActive               Boolean            @default(false)
 
   schemaName String? @unique
 
@@ -663,6 +665,22 @@ enum EnrolmentStatus {
   withdrawn
   transferred
   completed
+}
+
+model SchoolSettings {
+  id             String   @id @default(uuid())
+  logoUrl        String?
+  primaryColor   String?  @default("#1a1a2e")
+  secondaryColor String?
+  motto          String?
+  address        String?
+  website        String?
+  foundedYear    Int?
+  principalName  String?
+  stamp          String? // URL to school stamp image
+  signature      String? // URL to principal signature image
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
 
 // ===== ATTENDANCE (tenant schema) =====

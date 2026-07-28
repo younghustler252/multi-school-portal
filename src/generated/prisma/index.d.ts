@@ -129,6 +129,11 @@ export type ClassSubject = $Result.DefaultSelection<Prisma.$ClassSubjectPayload>
  */
 export type Enrolment = $Result.DefaultSelection<Prisma.$EnrolmentPayload>
 /**
+ * Model SchoolSettings
+ * 
+ */
+export type SchoolSettings = $Result.DefaultSelection<Prisma.$SchoolSettingsPayload>
+/**
  * Model Attendance
  * 
  */
@@ -643,7 +648,7 @@ export class PrismaClient<
    * Read more in our [docs](https://pris.ly/d/client).
    */
 
-  constructor(optionsArg ?: Prisma.Subset<ClientOptions, Prisma.PrismaClientOptions>);
+  constructor(optionsArg ?: Prisma.PrismaClientConstructorArgs<ClientOptions>);
   $on<V extends U>(eventType: V, callback: (event: V extends 'query' ? Prisma.QueryEvent : Prisma.LogEvent) => void): PrismaClient;
 
   /**
@@ -955,6 +960,16 @@ export class PrismaClient<
   get enrolment(): Prisma.EnrolmentDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.schoolSettings`: Exposes CRUD operations for the **SchoolSettings** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SchoolSettings
+    * const schoolSettings = await prisma.schoolSettings.findMany()
+    * ```
+    */
+  get schoolSettings(): Prisma.SchoolSettingsDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.attendance`: Exposes CRUD operations for the **Attendance** model.
     * Example usage:
     * ```ts
@@ -1093,8 +1108,8 @@ export namespace Prisma {
   export import Exact = $Public.Exact
 
   /**
-   * Prisma Client JS version: 7.8.0
-   * Query Engine version: 3c6e192761c0362d496ed980de936e2f3cebcd3a
+   * Prisma Client JS version: 7.9.0
+   * Query Engine version: e922089b7d7502aff4249d5da3420f6fa55fc6ad
    */
   export type PrismaVersion = {
     client: string
@@ -1229,6 +1244,19 @@ export namespace Prisma {
   };
 
   /**
+   * Resolved type of the argument passed to the `PrismaClient` constructor.
+   *
+   * When called without a narrower options type (the common case), this resolves
+   * to `PrismaClientOptions` directly, which produces a clear TypeScript error
+   * message (`not assignable to parameter of type 'PrismaClientOptions'`) when
+   * the argument is missing or incomplete. When the user supplies a narrower
+   * options type (e.g. via a literal), it falls back to `Subset` to keep
+   * filtering out unknown properties.
+   */
+  export type PrismaClientConstructorArgs<Options extends PrismaClientOptions> =
+    [PrismaClientOptions] extends [Options] ? PrismaClientOptions : Subset<Options, PrismaClientOptions>;
+
+  /**
    * SelectSubset
    * @desc From `T` pick properties that exist in `U`. Simple version of Intersection.
    * Additionally, it validates, if both select and include are present. If the case, it errors.
@@ -1260,7 +1288,7 @@ export namespace Prisma {
   type XOR<T, U> =
     T extends object ?
     U extends object ?
-      (Without<T, U> & U) | (Without<U, T> & T)
+      ((Without<T, U> & U) | (Without<U, T> & T)) & object
     : U : T
 
 
@@ -1500,6 +1528,7 @@ export namespace Prisma {
     Subject: 'Subject',
     ClassSubject: 'ClassSubject',
     Enrolment: 'Enrolment',
+    SchoolSettings: 'SchoolSettings',
     Attendance: 'Attendance',
     Grade: 'Grade',
     GradingConfig: 'GradingConfig',
@@ -1524,7 +1553,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "school" | "schoolDocument" | "user" | "otp" | "refreshToken" | "invite" | "plan" | "subscription" | "coupon" | "billingHistory" | "auditLog" | "platformNotification" | "platformNotificationRecipient" | "staff" | "student" | "guardian" | "studentGuardian" | "session" | "term" | "class" | "subject" | "classSubject" | "enrolment" | "attendance" | "grade" | "gradingConfig" | "reportCard" | "feeType" | "feeInvoice" | "payment" | "schoolNotification" | "schoolNotificationRecipient"
+      modelProps: "school" | "schoolDocument" | "user" | "otp" | "refreshToken" | "invite" | "plan" | "subscription" | "coupon" | "billingHistory" | "auditLog" | "platformNotification" | "platformNotificationRecipient" | "staff" | "student" | "guardian" | "studentGuardian" | "session" | "term" | "class" | "subject" | "classSubject" | "enrolment" | "schoolSettings" | "attendance" | "grade" | "gradingConfig" | "reportCard" | "feeType" | "feeInvoice" | "payment" | "schoolNotification" | "schoolNotificationRecipient"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3230,6 +3259,80 @@ export namespace Prisma {
           }
         }
       }
+      SchoolSettings: {
+        payload: Prisma.$SchoolSettingsPayload<ExtArgs>
+        fields: Prisma.SchoolSettingsFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SchoolSettingsFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolSettingsPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SchoolSettingsFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolSettingsPayload>
+          }
+          findFirst: {
+            args: Prisma.SchoolSettingsFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolSettingsPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SchoolSettingsFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolSettingsPayload>
+          }
+          findMany: {
+            args: Prisma.SchoolSettingsFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolSettingsPayload>[]
+          }
+          create: {
+            args: Prisma.SchoolSettingsCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolSettingsPayload>
+          }
+          createMany: {
+            args: Prisma.SchoolSettingsCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.SchoolSettingsCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolSettingsPayload>[]
+          }
+          delete: {
+            args: Prisma.SchoolSettingsDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolSettingsPayload>
+          }
+          update: {
+            args: Prisma.SchoolSettingsUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolSettingsPayload>
+          }
+          deleteMany: {
+            args: Prisma.SchoolSettingsDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SchoolSettingsUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.SchoolSettingsUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolSettingsPayload>[]
+          }
+          upsert: {
+            args: Prisma.SchoolSettingsUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolSettingsPayload>
+          }
+          aggregate: {
+            args: Prisma.SchoolSettingsAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSchoolSettings>
+          }
+          groupBy: {
+            args: Prisma.SchoolSettingsGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SchoolSettingsGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SchoolSettingsCountArgs<ExtArgs>
+            result: $Utils.Optional<SchoolSettingsCountAggregateOutputType> | number
+          }
+        }
+      }
       Attendance: {
         payload: Prisma.$AttendancePayload<ExtArgs>
         fields: Prisma.AttendanceFieldRefs
@@ -3964,11 +4067,26 @@ export namespace Prisma {
       isolationLevel?: Prisma.TransactionIsolationLevel
     }
     /**
-     * Instance of a Driver Adapter, e.g., like one provided by `@prisma/adapter-planetscale`
+     * A driver adapter that PrismaClient uses to connect to your database, such as the ones provided by `@prisma/adapter-pg`, `@prisma/adapter-libsql`, `@prisma/adapter-planetscale`, etc.
+     * 
+     * A driver adapter is **required** unless you connect to your database through Prisma Accelerate (in which case use `accelerateUrl` instead).
+     * 
+     * Learn more: https://pris.ly/d/driver-adapters
+     * 
+     * @example
+     * ```ts
+     * import { PrismaPg } from '@prisma/adapter-pg'
+     * import { PrismaClient } from './generated/prisma/client'
+     * 
+     * const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
+     * const prisma = new PrismaClient({ adapter })
+     * ```
      */
     adapter?: runtime.SqlDriverAdapterFactory
     /**
-     * Prisma Accelerate URL allowing the client to connect through Accelerate instead of a direct database.
+     * The Prisma Accelerate connection URL. Use this option to connect to your database through Prisma Accelerate instead of using a driver adapter to connect directly.
+     * 
+     * Learn more: https://pris.ly/d/accelerate
      */
     accelerateUrl?: string
     /**
@@ -4027,6 +4145,7 @@ export namespace Prisma {
     subject?: SubjectOmit
     classSubject?: ClassSubjectOmit
     enrolment?: EnrolmentOmit
+    schoolSettings?: SchoolSettingsOmit
     attendance?: AttendanceOmit
     grade?: GradeOmit
     gradingConfig?: GradingConfigOmit
@@ -4809,6 +4928,8 @@ export namespace Prisma {
     id: string | null
     name: string | null
     subdomain: string | null
+    customDomain: string | null
+    customDomainVerifiedAt: Date | null
     email: string | null
     phone: string | null
     address: string | null
@@ -4839,6 +4960,8 @@ export namespace Prisma {
     id: string | null
     name: string | null
     subdomain: string | null
+    customDomain: string | null
+    customDomainVerifiedAt: Date | null
     email: string | null
     phone: string | null
     address: string | null
@@ -4869,6 +4992,8 @@ export namespace Prisma {
     id: number
     name: number
     subdomain: number
+    customDomain: number
+    customDomainVerifiedAt: number
     email: number
     phone: number
     address: number
@@ -4901,6 +5026,8 @@ export namespace Prisma {
     id?: true
     name?: true
     subdomain?: true
+    customDomain?: true
+    customDomainVerifiedAt?: true
     email?: true
     phone?: true
     address?: true
@@ -4931,6 +5058,8 @@ export namespace Prisma {
     id?: true
     name?: true
     subdomain?: true
+    customDomain?: true
+    customDomainVerifiedAt?: true
     email?: true
     phone?: true
     address?: true
@@ -4961,6 +5090,8 @@ export namespace Prisma {
     id?: true
     name?: true
     subdomain?: true
+    customDomain?: true
+    customDomainVerifiedAt?: true
     email?: true
     phone?: true
     address?: true
@@ -5064,6 +5195,8 @@ export namespace Prisma {
     id: string
     name: string
     subdomain: string
+    customDomain: string | null
+    customDomainVerifiedAt: Date | null
     email: string
     phone: string | null
     address: string | null
@@ -5111,6 +5244,8 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     subdomain?: boolean
+    customDomain?: boolean
+    customDomainVerifiedAt?: boolean
     email?: boolean
     phone?: boolean
     address?: boolean
@@ -5147,6 +5282,8 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     subdomain?: boolean
+    customDomain?: boolean
+    customDomainVerifiedAt?: boolean
     email?: boolean
     phone?: boolean
     address?: boolean
@@ -5177,6 +5314,8 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     subdomain?: boolean
+    customDomain?: boolean
+    customDomainVerifiedAt?: boolean
     email?: boolean
     phone?: boolean
     address?: boolean
@@ -5207,6 +5346,8 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     subdomain?: boolean
+    customDomain?: boolean
+    customDomainVerifiedAt?: boolean
     email?: boolean
     phone?: boolean
     address?: boolean
@@ -5233,7 +5374,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type SchoolOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "subdomain" | "email" | "phone" | "address" | "city" | "state" | "country" | "timezone" | "logoUrl" | "schoolCategory" | "schoolOwnership" | "status" | "verificationStatus" | "verifiedAt" | "verifiedById" | "suspendedAt" | "suspensionReason" | "isActive" | "schemaName" | "paystackSubaccountCode" | "paystackSubaccountId" | "settlementBankCode" | "settlementAccountNumber" | "createdAt" | "updatedAt", ExtArgs["result"]["school"]>
+  export type SchoolOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "subdomain" | "customDomain" | "customDomainVerifiedAt" | "email" | "phone" | "address" | "city" | "state" | "country" | "timezone" | "logoUrl" | "schoolCategory" | "schoolOwnership" | "status" | "verificationStatus" | "verifiedAt" | "verifiedById" | "suspendedAt" | "suspensionReason" | "isActive" | "schemaName" | "paystackSubaccountCode" | "paystackSubaccountId" | "settlementBankCode" | "settlementAccountNumber" | "createdAt" | "updatedAt", ExtArgs["result"]["school"]>
   export type SchoolInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     users?: boolean | School$usersArgs<ExtArgs>
     subscriptions?: boolean | School$subscriptionsArgs<ExtArgs>
@@ -5258,6 +5399,8 @@ export namespace Prisma {
       id: string
       name: string
       subdomain: string
+      customDomain: string | null
+      customDomainVerifiedAt: Date | null
       email: string
       phone: string | null
       address: string | null
@@ -5713,6 +5856,8 @@ export namespace Prisma {
     readonly id: FieldRef<"School", 'String'>
     readonly name: FieldRef<"School", 'String'>
     readonly subdomain: FieldRef<"School", 'String'>
+    readonly customDomain: FieldRef<"School", 'String'>
+    readonly customDomainVerifiedAt: FieldRef<"School", 'DateTime'>
     readonly email: FieldRef<"School", 'String'>
     readonly phone: FieldRef<"School", 'String'>
     readonly address: FieldRef<"School", 'String'>
@@ -32230,6 +32375,1144 @@ export namespace Prisma {
 
 
   /**
+   * Model SchoolSettings
+   */
+
+  export type AggregateSchoolSettings = {
+    _count: SchoolSettingsCountAggregateOutputType | null
+    _avg: SchoolSettingsAvgAggregateOutputType | null
+    _sum: SchoolSettingsSumAggregateOutputType | null
+    _min: SchoolSettingsMinAggregateOutputType | null
+    _max: SchoolSettingsMaxAggregateOutputType | null
+  }
+
+  export type SchoolSettingsAvgAggregateOutputType = {
+    foundedYear: number | null
+  }
+
+  export type SchoolSettingsSumAggregateOutputType = {
+    foundedYear: number | null
+  }
+
+  export type SchoolSettingsMinAggregateOutputType = {
+    id: string | null
+    logoUrl: string | null
+    primaryColor: string | null
+    secondaryColor: string | null
+    motto: string | null
+    address: string | null
+    website: string | null
+    foundedYear: number | null
+    principalName: string | null
+    stamp: string | null
+    signature: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SchoolSettingsMaxAggregateOutputType = {
+    id: string | null
+    logoUrl: string | null
+    primaryColor: string | null
+    secondaryColor: string | null
+    motto: string | null
+    address: string | null
+    website: string | null
+    foundedYear: number | null
+    principalName: string | null
+    stamp: string | null
+    signature: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SchoolSettingsCountAggregateOutputType = {
+    id: number
+    logoUrl: number
+    primaryColor: number
+    secondaryColor: number
+    motto: number
+    address: number
+    website: number
+    foundedYear: number
+    principalName: number
+    stamp: number
+    signature: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type SchoolSettingsAvgAggregateInputType = {
+    foundedYear?: true
+  }
+
+  export type SchoolSettingsSumAggregateInputType = {
+    foundedYear?: true
+  }
+
+  export type SchoolSettingsMinAggregateInputType = {
+    id?: true
+    logoUrl?: true
+    primaryColor?: true
+    secondaryColor?: true
+    motto?: true
+    address?: true
+    website?: true
+    foundedYear?: true
+    principalName?: true
+    stamp?: true
+    signature?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type SchoolSettingsMaxAggregateInputType = {
+    id?: true
+    logoUrl?: true
+    primaryColor?: true
+    secondaryColor?: true
+    motto?: true
+    address?: true
+    website?: true
+    foundedYear?: true
+    principalName?: true
+    stamp?: true
+    signature?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type SchoolSettingsCountAggregateInputType = {
+    id?: true
+    logoUrl?: true
+    primaryColor?: true
+    secondaryColor?: true
+    motto?: true
+    address?: true
+    website?: true
+    foundedYear?: true
+    principalName?: true
+    stamp?: true
+    signature?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type SchoolSettingsAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SchoolSettings to aggregate.
+     */
+    where?: SchoolSettingsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SchoolSettings to fetch.
+     */
+    orderBy?: SchoolSettingsOrderByWithRelationInput | SchoolSettingsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SchoolSettingsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SchoolSettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SchoolSettings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SchoolSettings
+    **/
+    _count?: true | SchoolSettingsCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: SchoolSettingsAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: SchoolSettingsSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SchoolSettingsMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SchoolSettingsMaxAggregateInputType
+  }
+
+  export type GetSchoolSettingsAggregateType<T extends SchoolSettingsAggregateArgs> = {
+        [P in keyof T & keyof AggregateSchoolSettings]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSchoolSettings[P]>
+      : GetScalarType<T[P], AggregateSchoolSettings[P]>
+  }
+
+
+
+
+  export type SchoolSettingsGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SchoolSettingsWhereInput
+    orderBy?: SchoolSettingsOrderByWithAggregationInput | SchoolSettingsOrderByWithAggregationInput[]
+    by: SchoolSettingsScalarFieldEnum[] | SchoolSettingsScalarFieldEnum
+    having?: SchoolSettingsScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SchoolSettingsCountAggregateInputType | true
+    _avg?: SchoolSettingsAvgAggregateInputType
+    _sum?: SchoolSettingsSumAggregateInputType
+    _min?: SchoolSettingsMinAggregateInputType
+    _max?: SchoolSettingsMaxAggregateInputType
+  }
+
+  export type SchoolSettingsGroupByOutputType = {
+    id: string
+    logoUrl: string | null
+    primaryColor: string | null
+    secondaryColor: string | null
+    motto: string | null
+    address: string | null
+    website: string | null
+    foundedYear: number | null
+    principalName: string | null
+    stamp: string | null
+    signature: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: SchoolSettingsCountAggregateOutputType | null
+    _avg: SchoolSettingsAvgAggregateOutputType | null
+    _sum: SchoolSettingsSumAggregateOutputType | null
+    _min: SchoolSettingsMinAggregateOutputType | null
+    _max: SchoolSettingsMaxAggregateOutputType | null
+  }
+
+  type GetSchoolSettingsGroupByPayload<T extends SchoolSettingsGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SchoolSettingsGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SchoolSettingsGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SchoolSettingsGroupByOutputType[P]>
+            : GetScalarType<T[P], SchoolSettingsGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SchoolSettingsSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    logoUrl?: boolean
+    primaryColor?: boolean
+    secondaryColor?: boolean
+    motto?: boolean
+    address?: boolean
+    website?: boolean
+    foundedYear?: boolean
+    principalName?: boolean
+    stamp?: boolean
+    signature?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["schoolSettings"]>
+
+  export type SchoolSettingsSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    logoUrl?: boolean
+    primaryColor?: boolean
+    secondaryColor?: boolean
+    motto?: boolean
+    address?: boolean
+    website?: boolean
+    foundedYear?: boolean
+    principalName?: boolean
+    stamp?: boolean
+    signature?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["schoolSettings"]>
+
+  export type SchoolSettingsSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    logoUrl?: boolean
+    primaryColor?: boolean
+    secondaryColor?: boolean
+    motto?: boolean
+    address?: boolean
+    website?: boolean
+    foundedYear?: boolean
+    principalName?: boolean
+    stamp?: boolean
+    signature?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["schoolSettings"]>
+
+  export type SchoolSettingsSelectScalar = {
+    id?: boolean
+    logoUrl?: boolean
+    primaryColor?: boolean
+    secondaryColor?: boolean
+    motto?: boolean
+    address?: boolean
+    website?: boolean
+    foundedYear?: boolean
+    principalName?: boolean
+    stamp?: boolean
+    signature?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type SchoolSettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "logoUrl" | "primaryColor" | "secondaryColor" | "motto" | "address" | "website" | "foundedYear" | "principalName" | "stamp" | "signature" | "createdAt" | "updatedAt", ExtArgs["result"]["schoolSettings"]>
+
+  export type $SchoolSettingsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SchoolSettings"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      logoUrl: string | null
+      primaryColor: string | null
+      secondaryColor: string | null
+      motto: string | null
+      address: string | null
+      website: string | null
+      foundedYear: number | null
+      principalName: string | null
+      stamp: string | null
+      signature: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["schoolSettings"]>
+    composites: {}
+  }
+
+  type SchoolSettingsGetPayload<S extends boolean | null | undefined | SchoolSettingsDefaultArgs> = $Result.GetResult<Prisma.$SchoolSettingsPayload, S>
+
+  type SchoolSettingsCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SchoolSettingsFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SchoolSettingsCountAggregateInputType | true
+    }
+
+  export interface SchoolSettingsDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SchoolSettings'], meta: { name: 'SchoolSettings' } }
+    /**
+     * Find zero or one SchoolSettings that matches the filter.
+     * @param {SchoolSettingsFindUniqueArgs} args - Arguments to find a SchoolSettings
+     * @example
+     * // Get one SchoolSettings
+     * const schoolSettings = await prisma.schoolSettings.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SchoolSettingsFindUniqueArgs>(args: SelectSubset<T, SchoolSettingsFindUniqueArgs<ExtArgs>>): Prisma__SchoolSettingsClient<$Result.GetResult<Prisma.$SchoolSettingsPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SchoolSettings that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SchoolSettingsFindUniqueOrThrowArgs} args - Arguments to find a SchoolSettings
+     * @example
+     * // Get one SchoolSettings
+     * const schoolSettings = await prisma.schoolSettings.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SchoolSettingsFindUniqueOrThrowArgs>(args: SelectSubset<T, SchoolSettingsFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SchoolSettingsClient<$Result.GetResult<Prisma.$SchoolSettingsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SchoolSettings that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SchoolSettingsFindFirstArgs} args - Arguments to find a SchoolSettings
+     * @example
+     * // Get one SchoolSettings
+     * const schoolSettings = await prisma.schoolSettings.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SchoolSettingsFindFirstArgs>(args?: SelectSubset<T, SchoolSettingsFindFirstArgs<ExtArgs>>): Prisma__SchoolSettingsClient<$Result.GetResult<Prisma.$SchoolSettingsPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SchoolSettings that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SchoolSettingsFindFirstOrThrowArgs} args - Arguments to find a SchoolSettings
+     * @example
+     * // Get one SchoolSettings
+     * const schoolSettings = await prisma.schoolSettings.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SchoolSettingsFindFirstOrThrowArgs>(args?: SelectSubset<T, SchoolSettingsFindFirstOrThrowArgs<ExtArgs>>): Prisma__SchoolSettingsClient<$Result.GetResult<Prisma.$SchoolSettingsPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SchoolSettings that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SchoolSettingsFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SchoolSettings
+     * const schoolSettings = await prisma.schoolSettings.findMany()
+     * 
+     * // Get first 10 SchoolSettings
+     * const schoolSettings = await prisma.schoolSettings.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const schoolSettingsWithIdOnly = await prisma.schoolSettings.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SchoolSettingsFindManyArgs>(args?: SelectSubset<T, SchoolSettingsFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SchoolSettingsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SchoolSettings.
+     * @param {SchoolSettingsCreateArgs} args - Arguments to create a SchoolSettings.
+     * @example
+     * // Create one SchoolSettings
+     * const SchoolSettings = await prisma.schoolSettings.create({
+     *   data: {
+     *     // ... data to create a SchoolSettings
+     *   }
+     * })
+     * 
+     */
+    create<T extends SchoolSettingsCreateArgs>(args: SelectSubset<T, SchoolSettingsCreateArgs<ExtArgs>>): Prisma__SchoolSettingsClient<$Result.GetResult<Prisma.$SchoolSettingsPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SchoolSettings.
+     * @param {SchoolSettingsCreateManyArgs} args - Arguments to create many SchoolSettings.
+     * @example
+     * // Create many SchoolSettings
+     * const schoolSettings = await prisma.schoolSettings.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SchoolSettingsCreateManyArgs>(args?: SelectSubset<T, SchoolSettingsCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many SchoolSettings and returns the data saved in the database.
+     * @param {SchoolSettingsCreateManyAndReturnArgs} args - Arguments to create many SchoolSettings.
+     * @example
+     * // Create many SchoolSettings
+     * const schoolSettings = await prisma.schoolSettings.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many SchoolSettings and only return the `id`
+     * const schoolSettingsWithIdOnly = await prisma.schoolSettings.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends SchoolSettingsCreateManyAndReturnArgs>(args?: SelectSubset<T, SchoolSettingsCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SchoolSettingsPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a SchoolSettings.
+     * @param {SchoolSettingsDeleteArgs} args - Arguments to delete one SchoolSettings.
+     * @example
+     * // Delete one SchoolSettings
+     * const SchoolSettings = await prisma.schoolSettings.delete({
+     *   where: {
+     *     // ... filter to delete one SchoolSettings
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SchoolSettingsDeleteArgs>(args: SelectSubset<T, SchoolSettingsDeleteArgs<ExtArgs>>): Prisma__SchoolSettingsClient<$Result.GetResult<Prisma.$SchoolSettingsPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SchoolSettings.
+     * @param {SchoolSettingsUpdateArgs} args - Arguments to update one SchoolSettings.
+     * @example
+     * // Update one SchoolSettings
+     * const schoolSettings = await prisma.schoolSettings.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SchoolSettingsUpdateArgs>(args: SelectSubset<T, SchoolSettingsUpdateArgs<ExtArgs>>): Prisma__SchoolSettingsClient<$Result.GetResult<Prisma.$SchoolSettingsPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SchoolSettings.
+     * @param {SchoolSettingsDeleteManyArgs} args - Arguments to filter SchoolSettings to delete.
+     * @example
+     * // Delete a few SchoolSettings
+     * const { count } = await prisma.schoolSettings.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SchoolSettingsDeleteManyArgs>(args?: SelectSubset<T, SchoolSettingsDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SchoolSettings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SchoolSettingsUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SchoolSettings
+     * const schoolSettings = await prisma.schoolSettings.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SchoolSettingsUpdateManyArgs>(args: SelectSubset<T, SchoolSettingsUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SchoolSettings and returns the data updated in the database.
+     * @param {SchoolSettingsUpdateManyAndReturnArgs} args - Arguments to update many SchoolSettings.
+     * @example
+     * // Update many SchoolSettings
+     * const schoolSettings = await prisma.schoolSettings.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more SchoolSettings and only return the `id`
+     * const schoolSettingsWithIdOnly = await prisma.schoolSettings.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends SchoolSettingsUpdateManyAndReturnArgs>(args: SelectSubset<T, SchoolSettingsUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SchoolSettingsPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one SchoolSettings.
+     * @param {SchoolSettingsUpsertArgs} args - Arguments to update or create a SchoolSettings.
+     * @example
+     * // Update or create a SchoolSettings
+     * const schoolSettings = await prisma.schoolSettings.upsert({
+     *   create: {
+     *     // ... data to create a SchoolSettings
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SchoolSettings we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SchoolSettingsUpsertArgs>(args: SelectSubset<T, SchoolSettingsUpsertArgs<ExtArgs>>): Prisma__SchoolSettingsClient<$Result.GetResult<Prisma.$SchoolSettingsPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of SchoolSettings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SchoolSettingsCountArgs} args - Arguments to filter SchoolSettings to count.
+     * @example
+     * // Count the number of SchoolSettings
+     * const count = await prisma.schoolSettings.count({
+     *   where: {
+     *     // ... the filter for the SchoolSettings we want to count
+     *   }
+     * })
+    **/
+    count<T extends SchoolSettingsCountArgs>(
+      args?: Subset<T, SchoolSettingsCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SchoolSettingsCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SchoolSettings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SchoolSettingsAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SchoolSettingsAggregateArgs>(args: Subset<T, SchoolSettingsAggregateArgs>): Prisma.PrismaPromise<GetSchoolSettingsAggregateType<T>>
+
+    /**
+     * Group by SchoolSettings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SchoolSettingsGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SchoolSettingsGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SchoolSettingsGroupByArgs['orderBy'] }
+        : { orderBy?: SchoolSettingsGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SchoolSettingsGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSchoolSettingsGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SchoolSettings model
+   */
+  readonly fields: SchoolSettingsFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SchoolSettings.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SchoolSettingsClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SchoolSettings model
+   */
+  interface SchoolSettingsFieldRefs {
+    readonly id: FieldRef<"SchoolSettings", 'String'>
+    readonly logoUrl: FieldRef<"SchoolSettings", 'String'>
+    readonly primaryColor: FieldRef<"SchoolSettings", 'String'>
+    readonly secondaryColor: FieldRef<"SchoolSettings", 'String'>
+    readonly motto: FieldRef<"SchoolSettings", 'String'>
+    readonly address: FieldRef<"SchoolSettings", 'String'>
+    readonly website: FieldRef<"SchoolSettings", 'String'>
+    readonly foundedYear: FieldRef<"SchoolSettings", 'Int'>
+    readonly principalName: FieldRef<"SchoolSettings", 'String'>
+    readonly stamp: FieldRef<"SchoolSettings", 'String'>
+    readonly signature: FieldRef<"SchoolSettings", 'String'>
+    readonly createdAt: FieldRef<"SchoolSettings", 'DateTime'>
+    readonly updatedAt: FieldRef<"SchoolSettings", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SchoolSettings findUnique
+   */
+  export type SchoolSettingsFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolSettings
+     */
+    select?: SchoolSettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolSettings
+     */
+    omit?: SchoolSettingsOmit<ExtArgs> | null
+    /**
+     * Filter, which SchoolSettings to fetch.
+     */
+    where: SchoolSettingsWhereUniqueInput
+  }
+
+  /**
+   * SchoolSettings findUniqueOrThrow
+   */
+  export type SchoolSettingsFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolSettings
+     */
+    select?: SchoolSettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolSettings
+     */
+    omit?: SchoolSettingsOmit<ExtArgs> | null
+    /**
+     * Filter, which SchoolSettings to fetch.
+     */
+    where: SchoolSettingsWhereUniqueInput
+  }
+
+  /**
+   * SchoolSettings findFirst
+   */
+  export type SchoolSettingsFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolSettings
+     */
+    select?: SchoolSettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolSettings
+     */
+    omit?: SchoolSettingsOmit<ExtArgs> | null
+    /**
+     * Filter, which SchoolSettings to fetch.
+     */
+    where?: SchoolSettingsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SchoolSettings to fetch.
+     */
+    orderBy?: SchoolSettingsOrderByWithRelationInput | SchoolSettingsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SchoolSettings.
+     */
+    cursor?: SchoolSettingsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SchoolSettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SchoolSettings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SchoolSettings.
+     */
+    distinct?: SchoolSettingsScalarFieldEnum | SchoolSettingsScalarFieldEnum[]
+  }
+
+  /**
+   * SchoolSettings findFirstOrThrow
+   */
+  export type SchoolSettingsFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolSettings
+     */
+    select?: SchoolSettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolSettings
+     */
+    omit?: SchoolSettingsOmit<ExtArgs> | null
+    /**
+     * Filter, which SchoolSettings to fetch.
+     */
+    where?: SchoolSettingsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SchoolSettings to fetch.
+     */
+    orderBy?: SchoolSettingsOrderByWithRelationInput | SchoolSettingsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SchoolSettings.
+     */
+    cursor?: SchoolSettingsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SchoolSettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SchoolSettings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SchoolSettings.
+     */
+    distinct?: SchoolSettingsScalarFieldEnum | SchoolSettingsScalarFieldEnum[]
+  }
+
+  /**
+   * SchoolSettings findMany
+   */
+  export type SchoolSettingsFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolSettings
+     */
+    select?: SchoolSettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolSettings
+     */
+    omit?: SchoolSettingsOmit<ExtArgs> | null
+    /**
+     * Filter, which SchoolSettings to fetch.
+     */
+    where?: SchoolSettingsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SchoolSettings to fetch.
+     */
+    orderBy?: SchoolSettingsOrderByWithRelationInput | SchoolSettingsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SchoolSettings.
+     */
+    cursor?: SchoolSettingsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SchoolSettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SchoolSettings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SchoolSettings.
+     */
+    distinct?: SchoolSettingsScalarFieldEnum | SchoolSettingsScalarFieldEnum[]
+  }
+
+  /**
+   * SchoolSettings create
+   */
+  export type SchoolSettingsCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolSettings
+     */
+    select?: SchoolSettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolSettings
+     */
+    omit?: SchoolSettingsOmit<ExtArgs> | null
+    /**
+     * The data needed to create a SchoolSettings.
+     */
+    data: XOR<SchoolSettingsCreateInput, SchoolSettingsUncheckedCreateInput>
+  }
+
+  /**
+   * SchoolSettings createMany
+   */
+  export type SchoolSettingsCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SchoolSettings.
+     */
+    data: SchoolSettingsCreateManyInput | SchoolSettingsCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SchoolSettings createManyAndReturn
+   */
+  export type SchoolSettingsCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolSettings
+     */
+    select?: SchoolSettingsSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolSettings
+     */
+    omit?: SchoolSettingsOmit<ExtArgs> | null
+    /**
+     * The data used to create many SchoolSettings.
+     */
+    data: SchoolSettingsCreateManyInput | SchoolSettingsCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SchoolSettings update
+   */
+  export type SchoolSettingsUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolSettings
+     */
+    select?: SchoolSettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolSettings
+     */
+    omit?: SchoolSettingsOmit<ExtArgs> | null
+    /**
+     * The data needed to update a SchoolSettings.
+     */
+    data: XOR<SchoolSettingsUpdateInput, SchoolSettingsUncheckedUpdateInput>
+    /**
+     * Choose, which SchoolSettings to update.
+     */
+    where: SchoolSettingsWhereUniqueInput
+  }
+
+  /**
+   * SchoolSettings updateMany
+   */
+  export type SchoolSettingsUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SchoolSettings.
+     */
+    data: XOR<SchoolSettingsUpdateManyMutationInput, SchoolSettingsUncheckedUpdateManyInput>
+    /**
+     * Filter which SchoolSettings to update
+     */
+    where?: SchoolSettingsWhereInput
+    /**
+     * Limit how many SchoolSettings to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SchoolSettings updateManyAndReturn
+   */
+  export type SchoolSettingsUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolSettings
+     */
+    select?: SchoolSettingsSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolSettings
+     */
+    omit?: SchoolSettingsOmit<ExtArgs> | null
+    /**
+     * The data used to update SchoolSettings.
+     */
+    data: XOR<SchoolSettingsUpdateManyMutationInput, SchoolSettingsUncheckedUpdateManyInput>
+    /**
+     * Filter which SchoolSettings to update
+     */
+    where?: SchoolSettingsWhereInput
+    /**
+     * Limit how many SchoolSettings to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SchoolSettings upsert
+   */
+  export type SchoolSettingsUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolSettings
+     */
+    select?: SchoolSettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolSettings
+     */
+    omit?: SchoolSettingsOmit<ExtArgs> | null
+    /**
+     * The filter to search for the SchoolSettings to update in case it exists.
+     */
+    where: SchoolSettingsWhereUniqueInput
+    /**
+     * In case the SchoolSettings found by the `where` argument doesn't exist, create a new SchoolSettings with this data.
+     */
+    create: XOR<SchoolSettingsCreateInput, SchoolSettingsUncheckedCreateInput>
+    /**
+     * In case the SchoolSettings was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SchoolSettingsUpdateInput, SchoolSettingsUncheckedUpdateInput>
+  }
+
+  /**
+   * SchoolSettings delete
+   */
+  export type SchoolSettingsDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolSettings
+     */
+    select?: SchoolSettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolSettings
+     */
+    omit?: SchoolSettingsOmit<ExtArgs> | null
+    /**
+     * Filter which SchoolSettings to delete.
+     */
+    where: SchoolSettingsWhereUniqueInput
+  }
+
+  /**
+   * SchoolSettings deleteMany
+   */
+  export type SchoolSettingsDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SchoolSettings to delete
+     */
+    where?: SchoolSettingsWhereInput
+    /**
+     * Limit how many SchoolSettings to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * SchoolSettings without action
+   */
+  export type SchoolSettingsDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolSettings
+     */
+    select?: SchoolSettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolSettings
+     */
+    omit?: SchoolSettingsOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Model Attendance
    */
 
@@ -42857,6 +44140,8 @@ export namespace Prisma {
     id: 'id',
     name: 'name',
     subdomain: 'subdomain',
+    customDomain: 'customDomain',
+    customDomainVerifiedAt: 'customDomainVerifiedAt',
     email: 'email',
     phone: 'phone',
     address: 'address',
@@ -43250,6 +44535,25 @@ export namespace Prisma {
   export type EnrolmentScalarFieldEnum = (typeof EnrolmentScalarFieldEnum)[keyof typeof EnrolmentScalarFieldEnum]
 
 
+  export const SchoolSettingsScalarFieldEnum: {
+    id: 'id',
+    logoUrl: 'logoUrl',
+    primaryColor: 'primaryColor',
+    secondaryColor: 'secondaryColor',
+    motto: 'motto',
+    address: 'address',
+    website: 'website',
+    foundedYear: 'foundedYear',
+    principalName: 'principalName',
+    stamp: 'stamp',
+    signature: 'signature',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type SchoolSettingsScalarFieldEnum = (typeof SchoolSettingsScalarFieldEnum)[keyof typeof SchoolSettingsScalarFieldEnum]
+
+
   export const AttendanceScalarFieldEnum: {
     id: 'id',
     studentId: 'studentId',
@@ -43474,6 +44778,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'DateTime'
+   */
+  export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
+    
+
+
+  /**
+   * Reference to a field of type 'DateTime[]'
+   */
+  export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+  /**
    * Reference to a field of type 'SchoolCategory'
    */
   export type EnumSchoolCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SchoolCategory'>
@@ -43526,20 +44844,6 @@ export namespace Prisma {
    * Reference to a field of type 'VerificationStatus[]'
    */
   export type ListEnumVerificationStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'VerificationStatus[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'DateTime'
-   */
-  export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
-    
-
-
-  /**
-   * Reference to a field of type 'DateTime[]'
-   */
-  export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
     
 
 
@@ -43952,6 +45256,8 @@ export namespace Prisma {
     id?: StringFilter<"School"> | string
     name?: StringFilter<"School"> | string
     subdomain?: StringFilter<"School"> | string
+    customDomain?: StringNullableFilter<"School"> | string | null
+    customDomainVerifiedAt?: DateTimeNullableFilter<"School"> | Date | string | null
     email?: StringFilter<"School"> | string
     phone?: StringNullableFilter<"School"> | string | null
     address?: StringNullableFilter<"School"> | string | null
@@ -43987,6 +45293,8 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     subdomain?: SortOrder
+    customDomain?: SortOrderInput | SortOrder
+    customDomainVerifiedAt?: SortOrderInput | SortOrder
     email?: SortOrder
     phone?: SortOrderInput | SortOrder
     address?: SortOrderInput | SortOrder
@@ -44027,6 +45335,8 @@ export namespace Prisma {
     OR?: SchoolWhereInput[]
     NOT?: SchoolWhereInput | SchoolWhereInput[]
     name?: StringFilter<"School"> | string
+    customDomain?: StringNullableFilter<"School"> | string | null
+    customDomainVerifiedAt?: DateTimeNullableFilter<"School"> | Date | string | null
     phone?: StringNullableFilter<"School"> | string | null
     address?: StringNullableFilter<"School"> | string | null
     city?: StringNullableFilter<"School"> | string | null
@@ -44060,6 +45370,8 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     subdomain?: SortOrder
+    customDomain?: SortOrderInput | SortOrder
+    customDomainVerifiedAt?: SortOrderInput | SortOrder
     email?: SortOrder
     phone?: SortOrderInput | SortOrder
     address?: SortOrderInput | SortOrder
@@ -44096,6 +45408,8 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"School"> | string
     name?: StringWithAggregatesFilter<"School"> | string
     subdomain?: StringWithAggregatesFilter<"School"> | string
+    customDomain?: StringNullableWithAggregatesFilter<"School"> | string | null
+    customDomainVerifiedAt?: DateTimeNullableWithAggregatesFilter<"School"> | Date | string | null
     email?: StringWithAggregatesFilter<"School"> | string
     phone?: StringNullableWithAggregatesFilter<"School"> | string | null
     address?: StringNullableWithAggregatesFilter<"School"> | string | null
@@ -46036,6 +47350,100 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"Enrolment"> | Date | string
   }
 
+  export type SchoolSettingsWhereInput = {
+    AND?: SchoolSettingsWhereInput | SchoolSettingsWhereInput[]
+    OR?: SchoolSettingsWhereInput[]
+    NOT?: SchoolSettingsWhereInput | SchoolSettingsWhereInput[]
+    id?: StringFilter<"SchoolSettings"> | string
+    logoUrl?: StringNullableFilter<"SchoolSettings"> | string | null
+    primaryColor?: StringNullableFilter<"SchoolSettings"> | string | null
+    secondaryColor?: StringNullableFilter<"SchoolSettings"> | string | null
+    motto?: StringNullableFilter<"SchoolSettings"> | string | null
+    address?: StringNullableFilter<"SchoolSettings"> | string | null
+    website?: StringNullableFilter<"SchoolSettings"> | string | null
+    foundedYear?: IntNullableFilter<"SchoolSettings"> | number | null
+    principalName?: StringNullableFilter<"SchoolSettings"> | string | null
+    stamp?: StringNullableFilter<"SchoolSettings"> | string | null
+    signature?: StringNullableFilter<"SchoolSettings"> | string | null
+    createdAt?: DateTimeFilter<"SchoolSettings"> | Date | string
+    updatedAt?: DateTimeFilter<"SchoolSettings"> | Date | string
+  }
+
+  export type SchoolSettingsOrderByWithRelationInput = {
+    id?: SortOrder
+    logoUrl?: SortOrderInput | SortOrder
+    primaryColor?: SortOrderInput | SortOrder
+    secondaryColor?: SortOrderInput | SortOrder
+    motto?: SortOrderInput | SortOrder
+    address?: SortOrderInput | SortOrder
+    website?: SortOrderInput | SortOrder
+    foundedYear?: SortOrderInput | SortOrder
+    principalName?: SortOrderInput | SortOrder
+    stamp?: SortOrderInput | SortOrder
+    signature?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SchoolSettingsWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: SchoolSettingsWhereInput | SchoolSettingsWhereInput[]
+    OR?: SchoolSettingsWhereInput[]
+    NOT?: SchoolSettingsWhereInput | SchoolSettingsWhereInput[]
+    logoUrl?: StringNullableFilter<"SchoolSettings"> | string | null
+    primaryColor?: StringNullableFilter<"SchoolSettings"> | string | null
+    secondaryColor?: StringNullableFilter<"SchoolSettings"> | string | null
+    motto?: StringNullableFilter<"SchoolSettings"> | string | null
+    address?: StringNullableFilter<"SchoolSettings"> | string | null
+    website?: StringNullableFilter<"SchoolSettings"> | string | null
+    foundedYear?: IntNullableFilter<"SchoolSettings"> | number | null
+    principalName?: StringNullableFilter<"SchoolSettings"> | string | null
+    stamp?: StringNullableFilter<"SchoolSettings"> | string | null
+    signature?: StringNullableFilter<"SchoolSettings"> | string | null
+    createdAt?: DateTimeFilter<"SchoolSettings"> | Date | string
+    updatedAt?: DateTimeFilter<"SchoolSettings"> | Date | string
+  }, "id">
+
+  export type SchoolSettingsOrderByWithAggregationInput = {
+    id?: SortOrder
+    logoUrl?: SortOrderInput | SortOrder
+    primaryColor?: SortOrderInput | SortOrder
+    secondaryColor?: SortOrderInput | SortOrder
+    motto?: SortOrderInput | SortOrder
+    address?: SortOrderInput | SortOrder
+    website?: SortOrderInput | SortOrder
+    foundedYear?: SortOrderInput | SortOrder
+    principalName?: SortOrderInput | SortOrder
+    stamp?: SortOrderInput | SortOrder
+    signature?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: SchoolSettingsCountOrderByAggregateInput
+    _avg?: SchoolSettingsAvgOrderByAggregateInput
+    _max?: SchoolSettingsMaxOrderByAggregateInput
+    _min?: SchoolSettingsMinOrderByAggregateInput
+    _sum?: SchoolSettingsSumOrderByAggregateInput
+  }
+
+  export type SchoolSettingsScalarWhereWithAggregatesInput = {
+    AND?: SchoolSettingsScalarWhereWithAggregatesInput | SchoolSettingsScalarWhereWithAggregatesInput[]
+    OR?: SchoolSettingsScalarWhereWithAggregatesInput[]
+    NOT?: SchoolSettingsScalarWhereWithAggregatesInput | SchoolSettingsScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"SchoolSettings"> | string
+    logoUrl?: StringNullableWithAggregatesFilter<"SchoolSettings"> | string | null
+    primaryColor?: StringNullableWithAggregatesFilter<"SchoolSettings"> | string | null
+    secondaryColor?: StringNullableWithAggregatesFilter<"SchoolSettings"> | string | null
+    motto?: StringNullableWithAggregatesFilter<"SchoolSettings"> | string | null
+    address?: StringNullableWithAggregatesFilter<"SchoolSettings"> | string | null
+    website?: StringNullableWithAggregatesFilter<"SchoolSettings"> | string | null
+    foundedYear?: IntNullableWithAggregatesFilter<"SchoolSettings"> | number | null
+    principalName?: StringNullableWithAggregatesFilter<"SchoolSettings"> | string | null
+    stamp?: StringNullableWithAggregatesFilter<"SchoolSettings"> | string | null
+    signature?: StringNullableWithAggregatesFilter<"SchoolSettings"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"SchoolSettings"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"SchoolSettings"> | Date | string
+  }
+
   export type AttendanceWhereInput = {
     AND?: AttendanceWhereInput | AttendanceWhereInput[]
     OR?: AttendanceWhereInput[]
@@ -46857,6 +48265,8 @@ export namespace Prisma {
     id?: string
     name: string
     subdomain: string
+    customDomain?: string | null
+    customDomainVerifiedAt?: Date | string | null
     email: string
     phone?: string | null
     address?: string | null
@@ -46892,6 +48302,8 @@ export namespace Prisma {
     id?: string
     name: string
     subdomain: string
+    customDomain?: string | null
+    customDomainVerifiedAt?: Date | string | null
     email: string
     phone?: string | null
     address?: string | null
@@ -46927,6 +48339,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     subdomain?: StringFieldUpdateOperationsInput | string
+    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    customDomainVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     email?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -46962,6 +48376,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     subdomain?: StringFieldUpdateOperationsInput | string
+    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    customDomainVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     email?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -46997,6 +48413,8 @@ export namespace Prisma {
     id?: string
     name: string
     subdomain: string
+    customDomain?: string | null
+    customDomainVerifiedAt?: Date | string | null
     email: string
     phone?: string | null
     address?: string | null
@@ -47027,6 +48445,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     subdomain?: StringFieldUpdateOperationsInput | string
+    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    customDomainVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     email?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -47057,6 +48477,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     subdomain?: StringFieldUpdateOperationsInput | string
+    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    customDomainVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     email?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -49252,6 +50674,118 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type SchoolSettingsCreateInput = {
+    id?: string
+    logoUrl?: string | null
+    primaryColor?: string | null
+    secondaryColor?: string | null
+    motto?: string | null
+    address?: string | null
+    website?: string | null
+    foundedYear?: number | null
+    principalName?: string | null
+    stamp?: string | null
+    signature?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SchoolSettingsUncheckedCreateInput = {
+    id?: string
+    logoUrl?: string | null
+    primaryColor?: string | null
+    secondaryColor?: string | null
+    motto?: string | null
+    address?: string | null
+    website?: string | null
+    foundedYear?: number | null
+    principalName?: string | null
+    stamp?: string | null
+    signature?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SchoolSettingsUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    secondaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    motto?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    foundedYear?: NullableIntFieldUpdateOperationsInput | number | null
+    principalName?: NullableStringFieldUpdateOperationsInput | string | null
+    stamp?: NullableStringFieldUpdateOperationsInput | string | null
+    signature?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SchoolSettingsUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    secondaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    motto?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    foundedYear?: NullableIntFieldUpdateOperationsInput | number | null
+    principalName?: NullableStringFieldUpdateOperationsInput | string | null
+    stamp?: NullableStringFieldUpdateOperationsInput | string | null
+    signature?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SchoolSettingsCreateManyInput = {
+    id?: string
+    logoUrl?: string | null
+    primaryColor?: string | null
+    secondaryColor?: string | null
+    motto?: string | null
+    address?: string | null
+    website?: string | null
+    foundedYear?: number | null
+    principalName?: string | null
+    stamp?: string | null
+    signature?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SchoolSettingsUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    secondaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    motto?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    foundedYear?: NullableIntFieldUpdateOperationsInput | number | null
+    principalName?: NullableStringFieldUpdateOperationsInput | string | null
+    stamp?: NullableStringFieldUpdateOperationsInput | string | null
+    signature?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SchoolSettingsUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    primaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    secondaryColor?: NullableStringFieldUpdateOperationsInput | string | null
+    motto?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    foundedYear?: NullableIntFieldUpdateOperationsInput | number | null
+    principalName?: NullableStringFieldUpdateOperationsInput | string | null
+    stamp?: NullableStringFieldUpdateOperationsInput | string | null
+    signature?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type AttendanceCreateInput = {
     id?: string
     date: Date | string
@@ -50184,6 +51718,17 @@ export namespace Prisma {
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type EnumSchoolCategoryFilter<$PrismaModel = never> = {
     equals?: $Enums.SchoolCategory | EnumSchoolCategoryFieldRefInput<$PrismaModel>
     in?: $Enums.SchoolCategory[] | ListEnumSchoolCategoryFieldRefInput<$PrismaModel>
@@ -50210,17 +51755,6 @@ export namespace Prisma {
     in?: $Enums.VerificationStatus[] | ListEnumVerificationStatusFieldRefInput<$PrismaModel>
     notIn?: $Enums.VerificationStatus[] | ListEnumVerificationStatusFieldRefInput<$PrismaModel>
     not?: NestedEnumVerificationStatusFilter<$PrismaModel> | $Enums.VerificationStatus
-  }
-
-  export type DateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
   export type BoolFilter<$PrismaModel = never> = {
@@ -50298,6 +51832,8 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     subdomain?: SortOrder
+    customDomain?: SortOrder
+    customDomainVerifiedAt?: SortOrder
     email?: SortOrder
     phone?: SortOrder
     address?: SortOrder
@@ -50328,6 +51864,8 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     subdomain?: SortOrder
+    customDomain?: SortOrder
+    customDomainVerifiedAt?: SortOrder
     email?: SortOrder
     phone?: SortOrder
     address?: SortOrder
@@ -50358,6 +51896,8 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     subdomain?: SortOrder
+    customDomain?: SortOrder
+    customDomainVerifiedAt?: SortOrder
     email?: SortOrder
     phone?: SortOrder
     address?: SortOrder
@@ -50420,6 +51960,20 @@ export namespace Prisma {
     _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
   export type EnumSchoolCategoryWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.SchoolCategory | EnumSchoolCategoryFieldRefInput<$PrismaModel>
     in?: $Enums.SchoolCategory[] | ListEnumSchoolCategoryFieldRefInput<$PrismaModel>
@@ -50458,20 +52012,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumVerificationStatusFilter<$PrismaModel>
     _max?: NestedEnumVerificationStatusFilter<$PrismaModel>
-  }
-
-  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type BoolWithAggregatesFilter<$PrismaModel = never> = {
@@ -52130,6 +53670,62 @@ export namespace Prisma {
     _max?: NestedEnumEnrolmentStatusFilter<$PrismaModel>
   }
 
+  export type SchoolSettingsCountOrderByAggregateInput = {
+    id?: SortOrder
+    logoUrl?: SortOrder
+    primaryColor?: SortOrder
+    secondaryColor?: SortOrder
+    motto?: SortOrder
+    address?: SortOrder
+    website?: SortOrder
+    foundedYear?: SortOrder
+    principalName?: SortOrder
+    stamp?: SortOrder
+    signature?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SchoolSettingsAvgOrderByAggregateInput = {
+    foundedYear?: SortOrder
+  }
+
+  export type SchoolSettingsMaxOrderByAggregateInput = {
+    id?: SortOrder
+    logoUrl?: SortOrder
+    primaryColor?: SortOrder
+    secondaryColor?: SortOrder
+    motto?: SortOrder
+    address?: SortOrder
+    website?: SortOrder
+    foundedYear?: SortOrder
+    principalName?: SortOrder
+    stamp?: SortOrder
+    signature?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SchoolSettingsMinOrderByAggregateInput = {
+    id?: SortOrder
+    logoUrl?: SortOrder
+    primaryColor?: SortOrder
+    secondaryColor?: SortOrder
+    motto?: SortOrder
+    address?: SortOrder
+    website?: SortOrder
+    foundedYear?: SortOrder
+    principalName?: SortOrder
+    stamp?: SortOrder
+    signature?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SchoolSettingsSumOrderByAggregateInput = {
+    foundedYear?: SortOrder
+  }
+
   export type EnumAttendanceStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.AttendanceStatus | EnumAttendanceStatusFieldRefInput<$PrismaModel>
     in?: $Enums.AttendanceStatus[] | ListEnumAttendanceStatusFieldRefInput<$PrismaModel>
@@ -52891,6 +54487,10 @@ export namespace Prisma {
     set?: string | null
   }
 
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
   export type EnumSchoolCategoryFieldUpdateOperationsInput = {
     set?: $Enums.SchoolCategory
   }
@@ -52905,10 +54505,6 @@ export namespace Prisma {
 
   export type EnumVerificationStatusFieldUpdateOperationsInput = {
     set?: $Enums.VerificationStatus
-  }
-
-  export type NullableDateTimeFieldUpdateOperationsInput = {
-    set?: Date | string | null
   }
 
   export type BoolFieldUpdateOperationsInput = {
@@ -54921,6 +56517,17 @@ export namespace Prisma {
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type NestedEnumSchoolCategoryFilter<$PrismaModel = never> = {
     equals?: $Enums.SchoolCategory | EnumSchoolCategoryFieldRefInput<$PrismaModel>
     in?: $Enums.SchoolCategory[] | ListEnumSchoolCategoryFieldRefInput<$PrismaModel>
@@ -54947,17 +56554,6 @@ export namespace Prisma {
     in?: $Enums.VerificationStatus[] | ListEnumVerificationStatusFieldRefInput<$PrismaModel>
     notIn?: $Enums.VerificationStatus[] | ListEnumVerificationStatusFieldRefInput<$PrismaModel>
     not?: NestedEnumVerificationStatusFilter<$PrismaModel> | $Enums.VerificationStatus
-  }
-
-  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
   export type NestedBoolFilter<$PrismaModel = never> = {
@@ -55032,6 +56628,20 @@ export namespace Prisma {
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
   export type NestedEnumSchoolCategoryWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.SchoolCategory | EnumSchoolCategoryFieldRefInput<$PrismaModel>
     in?: $Enums.SchoolCategory[] | ListEnumSchoolCategoryFieldRefInput<$PrismaModel>
@@ -55070,20 +56680,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumVerificationStatusFilter<$PrismaModel>
     _max?: NestedEnumVerificationStatusFilter<$PrismaModel>
-  }
-
-  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
@@ -56085,6 +57681,8 @@ export namespace Prisma {
     id?: string
     name: string
     subdomain: string
+    customDomain?: string | null
+    customDomainVerifiedAt?: Date | string | null
     email: string
     phone?: string | null
     address?: string | null
@@ -56119,6 +57717,8 @@ export namespace Prisma {
     id?: string
     name: string
     subdomain: string
+    customDomain?: string | null
+    customDomainVerifiedAt?: Date | string | null
     email: string
     phone?: string | null
     address?: string | null
@@ -56169,6 +57769,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     subdomain?: StringFieldUpdateOperationsInput | string
+    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    customDomainVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     email?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -56203,6 +57805,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     subdomain?: StringFieldUpdateOperationsInput | string
+    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    customDomainVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     email?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -56237,6 +57841,8 @@ export namespace Prisma {
     id?: string
     name: string
     subdomain: string
+    customDomain?: string | null
+    customDomainVerifiedAt?: Date | string | null
     email: string
     phone?: string | null
     address?: string | null
@@ -56271,6 +57877,8 @@ export namespace Prisma {
     id?: string
     name: string
     subdomain: string
+    customDomain?: string | null
+    customDomainVerifiedAt?: Date | string | null
     email: string
     phone?: string | null
     address?: string | null
@@ -56407,6 +58015,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     subdomain?: StringFieldUpdateOperationsInput | string
+    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    customDomainVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     email?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -56441,6 +58051,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     subdomain?: StringFieldUpdateOperationsInput | string
+    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    customDomainVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     email?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -56973,6 +58585,8 @@ export namespace Prisma {
     id?: string
     name: string
     subdomain: string
+    customDomain?: string | null
+    customDomainVerifiedAt?: Date | string | null
     email: string
     phone?: string | null
     address?: string | null
@@ -57007,6 +58621,8 @@ export namespace Prisma {
     id?: string
     name: string
     subdomain: string
+    customDomain?: string | null
+    customDomainVerifiedAt?: Date | string | null
     email: string
     phone?: string | null
     address?: string | null
@@ -57163,6 +58779,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     subdomain?: StringFieldUpdateOperationsInput | string
+    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    customDomainVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     email?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -57197,6 +58815,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     subdomain?: StringFieldUpdateOperationsInput | string
+    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    customDomainVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     email?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -57534,6 +59154,8 @@ export namespace Prisma {
     id?: string
     name: string
     subdomain: string
+    customDomain?: string | null
+    customDomainVerifiedAt?: Date | string | null
     email: string
     phone?: string | null
     address?: string | null
@@ -57568,6 +59190,8 @@ export namespace Prisma {
     id?: string
     name: string
     subdomain: string
+    customDomain?: string | null
+    customDomainVerifiedAt?: Date | string | null
     email: string
     phone?: string | null
     address?: string | null
@@ -57618,6 +59242,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     subdomain?: StringFieldUpdateOperationsInput | string
+    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    customDomainVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     email?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -57652,6 +59278,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     subdomain?: StringFieldUpdateOperationsInput | string
+    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    customDomainVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     email?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -57771,6 +59399,8 @@ export namespace Prisma {
     id?: string
     name: string
     subdomain: string
+    customDomain?: string | null
+    customDomainVerifiedAt?: Date | string | null
     email: string
     phone?: string | null
     address?: string | null
@@ -57805,6 +59435,8 @@ export namespace Prisma {
     id?: string
     name: string
     subdomain: string
+    customDomain?: string | null
+    customDomainVerifiedAt?: Date | string | null
     email: string
     phone?: string | null
     address?: string | null
@@ -57894,6 +59526,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     subdomain?: StringFieldUpdateOperationsInput | string
+    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    customDomainVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     email?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -57928,6 +59562,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     subdomain?: StringFieldUpdateOperationsInput | string
+    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    customDomainVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     email?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null

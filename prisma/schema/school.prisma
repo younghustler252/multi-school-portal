@@ -3,6 +3,8 @@ model School {
   id                     String             @id @default(uuid())
   name                   String
   subdomain              String             @unique
+  customDomain            String?   // e.g. "portal.greenfieldacademy.com"
+  customDomainVerifiedAt DateTime?
   email                  String             @unique
   phone                  String?
   address                String?
