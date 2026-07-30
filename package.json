@@ -7,9 +7,15 @@
     "dev": "nodemon",
     "build": "tsc",
     "start": "node dist/server.js",
-    "merge:schema": "ts-node prisma/merge.ts",
-    "migrate:dev": "npm run merge:schema && npx prisma migrate dev",
-    "migrate:prod": "npm run merge:schema && npx prisma migrate deploy"
+    
+    "prisma:generate:public": "prisma generate --config=prisma.public.config.ts",
+    "prisma:generate:tenant": "prisma generate --config=prisma.tenant.config.ts",
+    "prisma:generate":        "npm run prisma:generate:public && npm run prisma:generate:tenant",
+
+    "prisma:migrate:public":        "prisma migrate dev --config=prisma.public.config.ts",
+    "prisma:migrate:tenant":        "prisma migrate dev --config=prisma.tenant.config.ts",
+    "prisma:migrate:deploy:public": "prisma migrate deploy --config=prisma.public.config.ts",
+    "prisma:migrate:deploy:tenant": "prisma migrate deploy --config=prisma.tenant.config.ts"
   },
   "keywords": [],
   "author": "Young Tech",

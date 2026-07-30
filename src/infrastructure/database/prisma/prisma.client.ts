@@ -1,7 +1,9 @@
-import { PrismaClient } from "../../../generated/prisma/client";
+// infrastructure/database/prisma/prisma.client.ts
+import { PrismaClient as PublicPrismaClient } from "../../../generated/public/client";
+import { PrismaClient as TenantPrismaClient } from "../../../generated/tenant/client";
 import { PrismaPg }      from "@prisma/adapter-pg";
 import { TenantContext } from "./tenant.context";
-import pg               from "pg";
+import pg                from "pg";
 
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) {
@@ -10,8 +12,11 @@ if (!databaseUrl) {
 
 /*
 |--------------------------------------------------------------------------
-| PUBLIC CLIENT (Global registries like School, User, Subscriptions)
+| PUBLIC CLIENT (School, User, Plan, Subscription, AuditLog, ...)
 |--------------------------------------------------------------------------
+| Long-lived singleton. Always resolves against the database's default
+| "public" Postgres schema — no per-request search_path juggling needed,
+| since these tables genuinely live in one place platform-wide.
 */
 const publicPool = new pg.Pool({
     connectionString: databaseUrl,
@@ -19,116 +24,56 @@ const publicPool = new pg.Pool({
 });
 
 const publicAdapter = new PrismaPg(publicPool);
-export const prisma = new PrismaClient({ adapter: publicAdapter });
+export const prisma = new PublicPrismaClient({ adapter: publicAdapter });
 
 /*
 |--------------------------------------------------------------------------
-| TENANT CLIENT CACHE WITH UNBREAKABLE SQL REWRITING INTERCEPTOR
+| TENANT CLIENT CACHE (Staff, Student, Grade, Payment, ...)
 |--------------------------------------------------------------------------
+| One PrismaClient + dedicated pg.Pool per tenant schema, cached by schema
+| name. Each pool is opened with the correct search_path baked into the
+| Postgres connection's startup parameters (`options: -c search_path=...`),
+| so every connection handed out by that pool already resolves unqualified
+| table/enum names against the right tenant schema — no SQL string
+| rewriting required, and no risk of a connection leaking into the wrong
+| tenant's search_path, since each pool only ever serves one schema.
 */
-const tenantClients = new Map<string, PrismaClient>();
+const tenantClients = new Map<string, TenantPrismaClient>();
+const tenantPools   = new Map<string, pg.Pool>();
 
-export const getTenantClient = (): PrismaClient => {
+const SCHEMA_NAME_PATTERN = /^[a-z][a-z0-9_]*$/;
+export const getTenantClient = (): TenantPrismaClient => {
     const schema = TenantContext.getSchema();
 
-    if (!schema || schema === "public") {
-        return prisma;
+    if (schema === "public") {
+        throw new Error(
+            "getTenantClient() was called outside a school tenant context. " +
+            "Use the `prisma` (public) client instead, or ensure this route " +
+            "sits behind requireTenant middleware."
+        );
     }
 
-    if (tenantClients.has(schema)) {
-        return tenantClients.get(schema)!;
+    const cached = tenantClients.get(schema);
+    if (cached) return cached;
+
+    // Same guard provisionSchema.worker.ts uses — schema names should only
+    // ever come from a slugified subdomain, but never trust it here either,
+    // since it's about to be interpolated into a connection startup string.
+    if (!SCHEMA_NAME_PATTERN.test(schema)) {
+        throw new Error(`Invalid tenant schema name: ${schema}`);
     }
 
     const tenantPool = new pg.Pool({
         connectionString: databaseUrl,
+        options:          `-c search_path="${schema}",public`,
         max:              5,
     });
 
-    // ── THE MULTI-FORMAT STRING OVERWRITE ENGINE ──────────────────────────
-    // Intercepts query executions whether passed as flat text strings or 
-    // structured compilation config objects by the adapter layer.
-    const originalQuery = tenantPool.query;
-    
-    tenantPool.query = function (this: any, ...args: any[]) {
-        if (args.length > 0) {
-            let sqlText = "";
-            let isConfigObject = false;
-
-            // 1. Detect parameter packaging format using the first argument pointer
-            if (typeof args[0] === "string") {
-                sqlText = args[0];
-            } else if (args[0] && typeof args[0] === "object" && typeof args[0].text === "string") {
-                sqlText = args[0].text;
-                isConfigObject = true;
-            }
-
-            // 2. Perform string correction if valid SQL payload exists
-            if (sqlText) {
-                // Exact model strings matching your generated Prisma client capitalization
-                const globalTables = ['"School"', '"User"', '"Subscription"', '"Plan"', '"AuditLog"'];
-                const targetsGlobalTable = globalTables.some(table => sqlText.includes(table));
-
-                if (!targetsGlobalTable) {
-                    // Strip the hardcoded public path string constraints permanently
-                    sqlText = sqlText.replace(/"public"\./g, `"${schema}".`);
-                    sqlText = sqlText.replace(/AS "public"\./gi, `AS "${schema}".`);
-                    
-                    // Route system-wide enums strictly back to the public schema mapping
-                    const globalEnums = [
-                        '"Gender"', 
-                        '"StaffRole"', 
-                        '"Role"',
-                        '"EnrolmentStatus"',
-                        '"GuardianRelation"',
-                        '"AttendanceStatus"',
-                        '"InvoiceStatus"',
-                        '"PaymentMethod"'
-                    ];
-                    
-                    for (const enumType of globalEnums) {
-                        const brokenCast = `AS "${schema}".${enumType}`;
-                        const correctCast = `AS "public".${enumType}`;
-                        sqlText = sqlText.replace(new RegExp(brokenCast, 'g'), correctCast);
-                    }
-
-                    // 3. Re-assign corrected value back into the arguments array index zero
-                    if (isConfigObject) {
-                        args[0].text = sqlText;
-                    } else {
-                        args[0] = sqlText;
-                    }
-                }
-            }
-        }
-        
-        return originalQuery.apply(this, args as any);
-    } as any;
-
     const tenantAdapter = new PrismaPg(tenantPool);
-
-    const client = new PrismaClient({ 
-        adapter: tenantAdapter,
-        log: [
-            { emit: "event", level: "query" },
-            { emit: "stdout", level: "error" }
-        ]
-    });
-
-    client.$on("query" as any, (e: any) => {
-        let trueSql = e.query;
-        const globalTables = ['"School"', '"User"', '"Subscription"', '"Plan"', '"AuditLog"'];
-        const targetsGlobalTable = globalTables.some(table => trueSql.includes(table));
-        
-        if (!targetsGlobalTable) {
-            trueSql = trueSql.replace(/"public"\./g, `"${schema}".`);
-            trueSql = trueSql.replace(/AS "public"\./gi, `AS "${schema}".`);
-        }
-        
-        console.log(`\n🚀 [ISOLATED ROUTING ENGINE EXECUTION] Tenant: ${schema}`);
-        console.log(`   SQL -> ${trueSql}`);
-    });
+    const client = new TenantPrismaClient({ adapter: tenantAdapter });
 
     tenantClients.set(schema, client);
+    tenantPools.set(schema, tenantPool);
     return client;
 };
 
@@ -139,8 +84,14 @@ export const getTenantClient = (): PrismaClient => {
 */
 export const disconnectPrisma = async (): Promise<void> => {
     await prisma.$disconnect();
+
     for (const client of tenantClients.values()) {
         await client.$disconnect();
     }
     tenantClients.clear();
+
+    for (const pool of tenantPools.values()) {
+        await pool.end();
+    }
+    tenantPools.clear();
 };

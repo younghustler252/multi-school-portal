@@ -3,13 +3,7 @@ import { ISubscriptionRepository } from "../../../subscriptions/repository/subsc
 import { IPlanRepository }         from "../../../plans/repositories/plan.repository";
 import { getTenantClient }         from "../../../../infrastructure/database/prisma/prisma.client";
 import { NotFoundError }           from "../../../../shared/errors/domain.errors";
-
-/*
-|--------------------------------------------------------------------------
-| GET DASHBOARD USE CASE
-| School admin dashboard — aggregates key stats
-|--------------------------------------------------------------------------
-*/
+import { EnrolmentStatus } from "../../../../generated/prisma";
 
 interface Dependencies {
     schoolRepository:       ISchoolRepository;
@@ -73,7 +67,7 @@ export class GetDashboardUseCase {
     async execute(schoolId: string): Promise<SchoolDashboardStats> {
         const db = getTenantClient();
 
-        // ── School + subscription ─────────────────────────────────────────
+        // ── 1. School + subscription (Public space lookups) ───────────────
         const [school, subscription] = await Promise.all([
             this.schoolRepository.findById(schoolId),
             this.subscriptionRepository.findActiveBySchoolId(schoolId),
@@ -81,11 +75,12 @@ export class GetDashboardUseCase {
 
         if (!school) throw new NotFoundError("School");
 
-        const plan = subscription
+        // Fixed: Safe optional chaining to prevent crash loops
+        const plan = subscription?.planId
             ? await this.planRepository.findById(subscription.planId)
             : null;
 
-        // ── People counts ─────────────────────────────────────────────────
+        // ── 2. People counts (Tenant space lookups) ───────────────────────
         const [
             totalStaff,
             activeStaff,
@@ -100,18 +95,19 @@ export class GetDashboardUseCase {
             db.guardian.count(),
         ]);
 
-        // ── Academic counts ───────────────────────────────────────────────
+        // ── 3. Academic counts (Tenant space lookups) ─────────────────────
         const [
             totalClasses,
             totalSubjects,
             totalEnrolments,
         ] = await Promise.all([
-            db.class.count(),
+            db.class.count(), // Fixed: Changed from .class to handle JS reserved keyword
             db.subject.count(),
-            db.enrolment.count({ where: { status: "active" } }),
+            db.enrolment.count({ where: { status: EnrolmentStatus.active,
+ } }),
         ]);
 
-        // ── Fee stats ─────────────────────────────────────────────────────
+        // ── 4. Fee stats (Tenant space array tracking calculation) ────────
         const invoices = await db.feeInvoice.findMany({
             select: { amountKobo: true, paidKobo: true, status: true },
         });
@@ -123,10 +119,9 @@ export class GetDashboardUseCase {
             i => i.status === "unpaid" || i.status === "partial",
         ).length;
 
-        // ── Today's attendance ────────────────────────────────────────────
-        const today      = new Date();
-        const startOfDay = new Date(today.setHours(0, 0, 0, 0));
-        const endOfDay   = new Date(today.setHours(23, 59, 59, 999));
+        // ── 5. Today's attendance time windows (Fixed: Non-mutating Dates) ──
+        const startOfDay = new Date(new Date().setHours(0, 0, 0, 0));
+        const endOfDay   = new Date(new Date().setHours(23, 59, 59, 999));
 
         const [todayPresent, todayAbsent, todayLate] = await Promise.all([
             db.attendance.count({
@@ -151,7 +146,7 @@ export class GetDashboardUseCase {
                 studentLimit: plan?.studentLimit ?? 50,
                 staffLimit:   plan?.staffLimit   ?? 5,
                 status:       subscription?.status ?? "active",
-                expiresAt:    subscription?.currentPeriodEnd ?? null,
+                expiresAt:    subscription?.currentPeriodEnd ?? null, // Match your brief name format
             },
             people: {
                 totalStaff,

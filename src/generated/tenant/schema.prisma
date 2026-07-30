@@ -1,0 +1,471 @@
+// NOTE: this schema exists ONLY to drive `prisma migrate dev`/`migrate diff`
+// for the tenant-migrations/ folder. The app's actual Prisma Client still
+// comes from the merged prisma/schema.prisma (via merge.ts) — do not import
+// anything from this generator's output in application code.
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/tenant"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ===== PEOPLE (tenant schema) =====
+
+model Staff {
+  id            String         @id @default(uuid())
+  userId        String         @unique
+  employeeId    String?        @unique
+  department    String?
+  designation   String?
+  qualification String?
+  gender        Gender?
+  dateOfBirth   DateTime?
+  address       String?
+  joinDate      DateTime?
+  role          StaffRole
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  classSubjects ClassSubject[]
+}
+
+enum StaffRole {
+  school_admin
+  principal
+  teacher
+  bursar
+  other
+}
+
+enum Gender {
+  male
+  female
+}
+
+model Student {
+  id              String            @id @default(uuid())
+  userId          String?           @unique
+  admissionNumber String?           @unique
+  firstName       String
+  lastName        String
+  middleName      String?
+  dateOfBirth     DateTime?
+  gender          Gender?
+  bloodGroup      String?
+  address         String?
+  photoUrl        String?
+  religion        String?
+  nationality     String?           @default("Nigerian")
+  stateOfOrigin   String?
+  isActive        Boolean           @default(true)
+  admittedAt      DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  enrolments      Enrolment[]
+  guardianLinks   StudentGuardian[]
+  attendances     Attendance[]
+  grades          Grade[]
+  feeInvoices     FeeInvoice[]
+  reportCards     ReportCard[]
+}
+
+model Guardian {
+  id           String            @id @default(uuid())
+  userId       String?           @unique
+  firstName    String
+  lastName     String
+  email        String
+  phone        String?
+  occupation   String?
+  address      String?
+  isActive     Boolean           @default(true)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  studentLinks StudentGuardian[]
+  payments     Payment[]
+}
+
+model StudentGuardian {
+  id         String           @id @default(uuid())
+  studentId  String
+  guardianId String
+  relation   GuardianRelation
+  isPrimary  Boolean          @default(false)
+  createdAt  DateTime         @default(now())
+  student    Student          @relation(fields: [studentId], references: [id])
+  guardian   Guardian         @relation(fields: [guardianId], references: [id])
+
+  @@unique([studentId, guardianId])
+}
+
+enum GuardianRelation {
+  father
+  mother
+  uncle
+  aunt
+  grandparent
+  sibling
+  guardian
+  other
+}
+
+// ===== ACADEMIC (tenant schema) =====
+
+model Session {
+  id        String   @id @default(uuid())
+  name      String
+  startDate DateTime
+  endDate   DateTime
+  isCurrent Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  terms     Term[]
+}
+
+model Term {
+  id          String       @id @default(uuid())
+  sessionId   String
+  name        TermName
+  startDate   DateTime
+  endDate     DateTime
+  isCurrent   Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  session     Session      @relation(fields: [sessionId], references: [id])
+  attendances Attendance[]
+  grades      Grade[]
+  feeInvoices FeeInvoice[]
+  enrolments  Enrolment[]
+  reportCards ReportCard[]
+}
+
+enum TermName {
+  first
+  second
+  third
+}
+
+model Class {
+  id            String         @id @default(uuid())
+  name          String
+  level         String?
+  capacity      Int?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  enrolments    Enrolment[]
+  classSubjects ClassSubject[]
+}
+
+model Subject {
+  id            String         @id @default(uuid())
+  name          String
+  code          String?        @unique
+  description   String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  classSubjects ClassSubject[]
+}
+
+model ClassSubject {
+  id        String   @id @default(uuid())
+  classId   String
+  subjectId String
+  staffId   String
+  createdAt DateTime @default(now())
+  class     Class    @relation(fields: [classId], references: [id])
+  subject   Subject  @relation(fields: [subjectId], references: [id])
+  staff     Staff    @relation(fields: [staffId], references: [id])
+  grades    Grade[]
+}
+
+model Enrolment {
+  id        String          @id @default(uuid())
+  studentId String
+  classId   String
+  termId    String
+  status    EnrolmentStatus @default(active)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  student   Student         @relation(fields: [studentId], references: [id])
+  class     Class           @relation(fields: [classId], references: [id])
+  term      Term            @relation(fields: [termId], references: [id])
+
+  @@unique([studentId, termId])
+}
+
+enum EnrolmentStatus {
+  active
+  withdrawn
+  transferred
+  completed
+}
+
+model SchoolSettings {
+  id             String   @id @default(uuid())
+  logoUrl        String?
+  primaryColor   String?  @default("#1a1a2e")
+  secondaryColor String?
+  motto          String?
+  address        String?
+  website        String?
+  foundedYear    Int?
+  principalName  String?
+  stamp          String?
+  signature      String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+// ===== ATTENDANCE (tenant schema) =====
+
+model Attendance {
+  id        String           @id @default(uuid())
+  studentId String
+  termId    String
+  date      DateTime
+  status    AttendanceStatus
+  note      String?
+  createdAt DateTime         @default(now())
+  student   Student          @relation(fields: [studentId], references: [id])
+  term      Term             @relation(fields: [termId], references: [id])
+
+  @@unique([studentId, date])
+}
+
+enum AttendanceStatus {
+  present
+  absent
+  late
+  excused
+}
+
+// ===== GRADES + REPORT CARDS (tenant schema) =====
+
+model Grade {
+  id             String       @id @default(uuid())
+  studentId      String
+  termId         String
+  classSubjectId String
+  caScore        Float?
+  examScore      Float?
+  total          Float?
+  grade          String?
+  remark         String?
+  position       Int?
+  totalStudents  Int?
+  isPublished    Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  student        Student      @relation(fields: [studentId], references: [id])
+  term           Term         @relation(fields: [termId], references: [id])
+  classSubject   ClassSubject @relation(fields: [classSubjectId], references: [id])
+
+  @@unique([studentId, termId, classSubjectId])
+}
+
+model GradingConfig {
+  id        String   @id @default(uuid())
+  minScore  Float
+  maxScore  Float
+  grade     String
+  remark    String
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ReportCard {
+  id              String           @id @default(uuid())
+  studentId       String
+  termId          String
+  status          ReportCardStatus @default(draft)
+  teacherRemark   String?
+  principalRemark String?
+  totalScore      Float?
+  averageScore    Float?
+  position        Int?
+  totalStudents   Int?
+  pdfUrl          String?
+  emailSentAt     DateTime?
+  smsSentAt       DateTime?
+  generatedAt     DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  student         Student          @relation(fields: [studentId], references: [id])
+  term            Term             @relation(fields: [termId], references: [id])
+
+  @@unique([studentId, termId])
+}
+
+enum ReportCardStatus {
+  draft
+  generated
+  published
+  sent
+}
+
+// ===== FEES + PAYMENTS (tenant schema) =====
+
+model FeeType {
+  id          String       @id @default(uuid())
+  name        String
+  description String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  feeInvoices FeeInvoice[]
+}
+
+model FeeInvoice {
+  id          String        @id @default(uuid())
+  studentId   String
+  termId      String
+  feeTypeId   String
+  amountKobo  Int
+  paidKobo    Int           @default(0)
+  balanceKobo Int           @default(0)
+  status      InvoiceStatus @default(unpaid)
+  dueDate     DateTime?
+  note        String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  student     Student       @relation(fields: [studentId], references: [id])
+  term        Term          @relation(fields: [termId], references: [id])
+  feeType     FeeType       @relation(fields: [feeTypeId], references: [id])
+  payments    Payment[]
+}
+
+enum InvoiceStatus {
+  unpaid
+  partial
+  paid
+  waived
+}
+
+model Payment {
+  id               String        @id @default(uuid())
+  feeInvoiceId     String
+  guardianId       String?
+  amountKobo       Int
+  method           PaymentMethod
+  channel          String?
+  reference        String?       @unique
+  status           PaymentStatus @default(pending)
+  webhookVerified  Boolean       @default(false)
+  providerResponse Json?
+  receiptUrl       String?
+  recordedById     String?
+  paidAt           DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  feeInvoice       FeeInvoice    @relation(fields: [feeInvoiceId], references: [id])
+  guardian         Guardian?     @relation(fields: [guardianId], references: [id])
+}
+
+enum PaymentMethod {
+  paystack
+  flutterwave
+  bank_transfer
+  cash
+}
+
+enum PaymentStatus {
+  pending
+  success
+  failed
+  refunded
+}
+
+model SchoolNotification {
+  id         String                        @id @default(uuid())
+  title      String
+  message    String
+  type       SchoolNotificationType
+  targetType TargetType
+  sentById   String
+  metadata   Json?
+  sentAt     DateTime?
+  createdAt  DateTime                      @default(now())
+  updatedAt  DateTime                      @updatedAt
+  recipients SchoolNotificationRecipient[]
+
+  @@index([type])
+  @@index([createdAt(sort: Desc)])
+}
+
+model SchoolNotificationRecipient {
+  id             String               @id @default(uuid())
+  notificationId String
+  studentId      String?
+  guardianId     String?
+  staffId        String?
+  channel        NotificationChannel
+  status         DeliveryStatus       @default(PENDING)
+  priority       NotificationPriority @default(NORMAL)
+  retryCount     Int                  @default(0)
+  failedReason   String?
+  providerMsgId  String?
+  readAt         DateTime?
+  deliveredAt    DateTime?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+
+  notification SchoolNotification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@unique([notificationId, channel, studentId, guardianId, staffId])
+  @@index([status])
+  @@index([status, priority, createdAt])
+}
+
+enum SchoolNotificationType {
+  fee_invoice
+  fee_reminder
+  fee_receipt
+  report_card_ready
+  attendance_alert
+  event
+  holiday
+  broadcast
+  custom
+}
+
+enum NotificationPriority {
+  LOW
+  NORMAL
+  HIGH
+  CRITICAL
+}
+
+enum TargetType {
+  STUDENT
+  GUARDIAN
+  STAFF
+  ALL_PARENTS
+  ALL_STUDENTS
+  ALL_STAFF
+  EVERYONE
+}
+
+// Note: NotificationChannel enum lives in the public schema notifications.prisma
+// but is reused here on SchoolNotificationRecipient.channel. Since tenant.prisma
+// is a fully separate Prisma project (own datasource, own migration history),
+// it must declare its own copy of any shared enum it uses on a tenant table —
+// Postgres enums are schema-scoped and each tenant schema needs its own type.
+enum NotificationChannel {
+  IN_APP
+  EMAIL
+  SMS
+}
+
+// Same reasoning as above: DeliveryStatus is also used publicly (PlatformNotificationRecipient)
+// but tenant tables need their own enum type declared in this schema.
+enum DeliveryStatus {
+  PENDING
+  QUEUED
+  SENT
+  DELIVERED
+  READ
+  FAILED
+  CANCELLED
+}

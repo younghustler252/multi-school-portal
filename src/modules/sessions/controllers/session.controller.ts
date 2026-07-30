@@ -22,7 +22,9 @@ interface Dependencies {
     createTermUseCase:        CreateTermUseCase;
     updateTermUseCase:        UpdateTermUseCase;
     setCurrentTermUseCase:    SetCurrentTermUseCase;
-    // Add to DependenyikutyCase:   GetCalendarEventsUseCase;
+    
+    getCalendarEventsUseCase: GetCalendarEventsUseCase;
+    createCalendarEventUseCase: CreateCalendarEventUseCase;
 }
 
 export class SessionController {
@@ -34,6 +36,9 @@ export class SessionController {
     private readonly updateTermUseCase:        UpdateTermUseCase;
     private readonly setCurrentTermUseCase:    SetCurrentTermUseCase;
 
+    private readonly getCalendarEventsUseCase: GetCalendarEventsUseCase;
+    private readonly createCalendarEventUseCase: CreateCalendarEventUseCase;
+
     constructor({
         getSessionsUseCase,
         getCurrentSessionUseCase,
@@ -42,6 +47,8 @@ export class SessionController {
         createTermUseCase,
         updateTermUseCase,
         setCurrentTermUseCase,
+        getCalendarEventsUseCase,
+        createCalendarEventUseCase,
     }: Dependencies) {
         this.getSessionsUseCase       = getSessionsUseCase;
         this.getCurrentSessionUseCase = getCurrentSessionUseCase;
@@ -50,6 +57,9 @@ export class SessionController {
         this.createTermUseCase        = createTermUseCase;
         this.updateTermUseCase        = updateTermUseCase;
         this.setCurrentTermUseCase    = setCurrentTermUseCase;
+
+        this.getCalendarEventsUseCase = getCalendarEventsUseCase;
+        this.createCalendarEventUseCase = createCalendarEventUseCase;
     }
 
     // ── Get all sessions ──────────────────────────────────────────────────
@@ -128,30 +138,32 @@ export class SessionController {
             sendSuccess(res, result, "Current term updated successfully");
         } catch (err) { next(err); }
     };
+
+
+    getCalendarEvents = async (
+        req: Request, res: Response, next: NextFunction,
+    ): Promise<void> => {
+        try {
+            const result = await this.getCalendarEventsUseCase.execute(
+                req.query as any,
+            );
+            sendSuccess(res, result, "Calendar events retrieved successfully");
+        } catch (err) { next(err); }
+    };
+    
+    createCalendarEvent = async (
+        req: Request, res: Response, next: NextFunction,
+    ): Promise<void> => {
+        try {
+            const result = await this.createCalendarEventUseCase.execute(
+                req.body,
+                req.user!.id,
+            );
+            sendCreated(res, result, "Calendar event created successfully");
+        } catch (err) { next(err); }
+    };
+
+
 }
 
 
-
-// Add methods
-getCalendarEvents = async (
-    req: Request, res: Response, next: NextFunction,
-): Promise<void> => {
-    try {
-        const result = await this.getCalendarEventsUseCase.execute(
-            req.query as any,
-        );
-        sendSuccess(res, result, "Calendar events retrieved successfully");
-    } catch (err) { next(err); }
-};
-
-createCalendarEvent = async (
-    req: Request, res: Response, next: NextFunction,
-): Promise<void> => {
-    try {
-        const result = await this.createCalendarEventUseCase.execute(
-            req.body,
-            req.user!.id,
-        );
-        sendCreated(res, result, "Calendar event created successfully");
-    } catch (err) { next(err); }
-};
