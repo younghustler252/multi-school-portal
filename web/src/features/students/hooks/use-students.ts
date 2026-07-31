@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { studentApi } from "../services/student.api";
-import { CreateStudentDto, UpdateStudentDto, ListStudentsParams } from "../types/student.types";
+import { CreateStudentDto, UpdateStudentDto, ListStudentsParams, StudentResponseData } from "../types/student.types";
 import { PaginationMeta } from "@/types/api-response";
 
 export function useStudents(params: ListStudentsParams) {
@@ -64,6 +64,22 @@ export function useDeactivateStudent() {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["students"] });
+		},
+	});
+}
+
+export function useUploadStudentPhoto(id: string) {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: async (file: File) => {
+			const res = await studentApi.uploadPhoto(id, file);
+			if (!res.success) throw res;
+			return res.data;
+		},
+		onSuccess: (data) => {
+			queryClient.setQueryData<StudentResponseData | undefined>(["students", id], (old) =>
+				old ? { ...old, photoUrl: data.url } : old
+			);
 		},
 	});
 }
