@@ -1,52 +1,29 @@
-import { getTenantClient }            from "../../../infrastructure/database/prisma/prisma.client";
-import { SchoolSettingsMapper }       from "../mappers/school-settings.mapper";
-import { SchoolSettingsEntity }       from "../domain/school-settings.entity";
-import { ISchoolSettingsRepository }  from "./school-settings.repository";
-// import prism
+import { BaseTenantRepository } from "../../../infrastructure/repository/base.repository";
+import { SchoolSettingsMapper } from "../mappers/school-settings.mapper";
+import { SchoolSettingsEntity } from "../domain/school-settings.entity";
+import { ISchoolSettingsRepository } from "./school-settings.repository";
 
 export class SchoolSettingsRepositoryImpl
+    extends BaseTenantRepository<SchoolSettingsEntity>
     implements ISchoolSettingsRepository
 {
-    private readonly mapper: SchoolSettingsMapper;
+    protected readonly modelName = "schoolSettings";
 
-    private get db() { return getTenantClient(); }
-
-    constructor({
-        schoolSettingsMapper,
-    }: {
-        schoolSettingsMapper: SchoolSettingsMapper;
-    }) {
-        this.mapper = schoolSettingsMapper;
+    constructor({ schoolSettingsMapper }: { schoolSettingsMapper: SchoolSettingsMapper }) {
+        super(schoolSettingsMapper);
     }
 
     async find(): Promise<SchoolSettingsEntity | null> {
-        const raw = await this.db.schoolSettings.findFirst();
-        return raw ? this.mapper.toDomain(raw) : null;
+        return this.findOne({});
     }
 
     async upsert(data: Record<string, any>): Promise<SchoolSettingsEntity> {
-        const existing = await this.db.schoolSettings.findFirst();
+        const existing = await this.model().findFirst();
 
         if (existing) {
-            const raw = await this.db.schoolSettings.update({
-                where: { id: existing.id },
-                data,
-            });
-            return this.mapper.toDomain(raw);
+            return this.update(existing.id, data);
         }
 
-        const raw = await this.db.schoolSettings.create({ data });
-        return this.mapper.toDomain(raw);
-    }
-
-    async update(
-        id:   string,
-        data: Record<string, any>,
-    ): Promise<SchoolSettingsEntity> {
-        const raw = await this.db.schoolSettings.update({
-            where: { id },
-            data,
-        });
-        return this.mapper.toDomain(raw);
+        return this.create(data);
     }
 }

@@ -1,4 +1,5 @@
-import { Prisma } from "../../../generated/prisma";
+import { Prisma } from "../../../generated/tenant";
+import { Prisma as publicPrisma } from "../../../generated/public";
 import { prisma }                     from "../../../infrastructure/database/prisma/prisma.client";
 import { getTenantClient }            from "../../../infrastructure/database/prisma/prisma.client";
 import {
@@ -38,7 +39,7 @@ export class NotificationRepositoryImpl implements INotificationRepository {
 
     // ── Platform notifications (public schema) ────────────────────────────
     async createPlatformNotification(
-        data: Prisma.PlatformNotificationUncheckedCreateInput,
+        data: publicPrisma.PlatformNotificationUncheckedCreateInput,
     ): Promise<PlatformNotificationEntity> {
         const raw = await prisma.platformNotification.create({ data });
         return this.platformMapper.toDomain(raw);

@@ -2,7 +2,7 @@ import { IUserRepository }       from "../repositories/user.repository";
 import { IOtpRepository }        from "../repositories/otp.repository";
 import { IRefreshTokenRepository } from "../repositories/refresh-token.repository";
 import { PasswordService }       from "../../../shared/services/password.service";
-import { OtpType }               from "../../../generated/prisma";
+import { OtpType }               from "../../../generated/public";
 import {
     AuthErrorMessage,
 }                                from "../domain/auth.enums";

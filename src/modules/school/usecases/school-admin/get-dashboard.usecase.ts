@@ -3,7 +3,7 @@ import { ISubscriptionRepository } from "../../../subscriptions/repository/subsc
 import { IPlanRepository }         from "../../../plans/repositories/plan.repository";
 import { getTenantClient }         from "../../../../infrastructure/database/prisma/prisma.client";
 import { NotFoundError }           from "../../../../shared/errors/domain.errors";
-import { EnrolmentStatus } from "../../../../generated/prisma";
+import { EnrolmentStatus } from "../../../../generated/tenant";
 
 interface Dependencies {
     schoolRepository:       ISchoolRepository;

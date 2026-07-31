@@ -1,5 +1,5 @@
-import { PrismaClient, Prisma }  from "../../../generated/prisma/client";
-import { OtpType }               from "../../../generated/prisma";
+import { Prisma, PrismaClient } from "../../../generated/public";
+import { OtpType } from "../../../generated/public";
 import { OtpEntity }             from "../domain/auth.entity";
 import { IOtpRepository}         from "./otp.repository";
 

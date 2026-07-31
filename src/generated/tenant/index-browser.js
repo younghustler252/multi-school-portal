@@ -181,6 +181,21 @@ exports.Prisma.StudentGuardianScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.CalendarEventScalarFieldEnum = {
+  id: 'id',
+  termId: 'termId',
+  sessionId: 'sessionId',
+  title: 'title',
+  description: 'description',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  type: 'type',
+  isHoliday: 'isHoliday',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SessionScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -432,6 +447,14 @@ exports.GuardianRelation = exports.$Enums.GuardianRelation = {
   other: 'other'
 };
 
+exports.EventType = exports.$Enums.EventType = {
+  holiday: 'holiday',
+  event: 'event',
+  exam: 'exam',
+  break: 'break',
+  other: 'other'
+};
+
 exports.TermName = exports.$Enums.TermName = {
   first: 'first',
   second: 'second',
@@ -530,6 +553,7 @@ exports.Prisma.ModelName = {
   Student: 'Student',
   Guardian: 'Guardian',
   StudentGuardian: 'StudentGuardian',
+  CalendarEvent: 'CalendarEvent',
   Session: 'Session',
   Term: 'Term',
   Class: 'Class',

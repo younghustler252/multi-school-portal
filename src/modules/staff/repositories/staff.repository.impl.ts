@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma }      from "../../../generated/prisma/client";
+import { PrismaClient, Prisma }      from "../../../generated/tenant";
 import { getTenantClient }   from "../../../infrastructure/database/prisma/prisma.client";
 import { StaffMapper }       from "../mappers/staff.mapper";
 import { StaffEntity }       from "../domain/staff.entity";

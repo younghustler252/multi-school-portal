@@ -1,4 +1,4 @@
-import { Prisma } from "../../../generated/prisma";
+import { Prisma } from "../../../generated/tenant";
 import { getTenantClient }       from "../../../infrastructure/database/prisma/prisma.client";
 import { PaymentMapper }         from "../mappers/payment.mapper";
 import { PaymentEntity }         from "../domain/payment.entity";

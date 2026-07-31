@@ -1,59 +1,43 @@
-import { PrismaClient, Prisma }         from "../../../generated/prisma/client";
-import { BaseRepository }       from "../../../infrastructure/repository/base.repository";
+import { Prisma } from "../../../generated/public";
+import { BasePublicRepository } from "../../../infrastructure/repository/base.repository";
 import { SchoolMapper, SchoolDocumentMapper } from "../mappers/school.mapper";
-import {
-    SchoolEntity,
-    SchoolDocumentEntity,
-}                               from "../domain/school.entity";
-import { ISchoolRepository }    from "./school.repository";
-
-/*
-|--------------------------------------------------------------------------
-| SCHOOL REPOSITORY IMPLEMENTATION
-|--------------------------------------------------------------------------
-*/
+import { SchoolEntity, SchoolDocumentEntity } from "../domain/school.entity";
+import { ISchoolRepository } from "./school.repository";
 
 export class SchoolRepositoryImpl
-    extends BaseRepository<SchoolEntity>
+    extends BasePublicRepository<SchoolEntity>
     implements ISchoolRepository
 {
-    protected readonly modelName       = "school";
-    private readonly documentMapper:   SchoolDocumentMapper;
+    protected readonly modelName = "school";
+    private readonly documentMapper: SchoolDocumentMapper;
 
     constructor({
-        prismaClient,
         schoolMapper,
         schoolDocumentMapper,
     }: {
-        prismaClient:         PrismaClient;
         schoolMapper:         SchoolMapper;
         schoolDocumentMapper: SchoolDocumentMapper;
     }) {
-        super(prismaClient, schoolMapper);
+        super(schoolMapper);
         this.documentMapper = schoolDocumentMapper;
     }
 
-    // ── Find by subdomain ─────────────────────────────────────────────────
     async findBySubdomain(subdomain: string): Promise<SchoolEntity | null> {
         return this.findOne({ subdomain });
     }
 
-    // ── Find by email ─────────────────────────────────────────────────────
     async findByEmail(email: string): Promise<SchoolEntity | null> {
         return this.findOne({ email });
     }
 
-    // ── Find by schema name ───────────────────────────────────────────────
     async findBySchemaName(schemaName: string): Promise<SchoolEntity | null> {
         return this.findOne({ schemaName });
     }
 
-    // ── Update logo ───────────────────────────────────────────────────────
     async updateLogo(id: string, logoUrl: string): Promise<SchoolEntity> {
         return this.update(id, { logoUrl });
     }
 
-    // ── Update Paystack subaccount ────────────────────────────────────────
     async updatePaystackSubaccount(
         id:             string,
         subaccountCode: string,
@@ -69,7 +53,6 @@ export class SchoolRepositoryImpl
         });
     }
 
-    // ── Create document ───────────────────────────────────────────────────
     async createDocument(
         data: Prisma.SchoolDocumentUncheckedCreateInput,
     ): Promise<SchoolDocumentEntity> {
@@ -77,7 +60,6 @@ export class SchoolRepositoryImpl
         return this.documentMapper.toDomain(raw);
     }
 
-    // ── Find document by ID ───────────────────────────────────────────────
     async findDocumentById(id: string): Promise<SchoolDocumentEntity | null> {
         const raw = await this.prisma.schoolDocument.findUnique({
             where: { id },
@@ -86,10 +68,7 @@ export class SchoolRepositoryImpl
         return this.documentMapper.toDomain(raw);
     }
 
-    // ── Find all documents for school ─────────────────────────────────────
-    async findDocumentsBySchoolId(
-        schoolId: string,
-    ): Promise<SchoolDocumentEntity[]> {
+    async findDocumentsBySchoolId(schoolId: string): Promise<SchoolDocumentEntity[]> {
         const raws = await this.prisma.schoolDocument.findMany({
             where:   { schoolId },
             orderBy: { createdAt: "desc" },
@@ -97,7 +76,6 @@ export class SchoolRepositoryImpl
         return raws.map(raw => this.documentMapper.toDomain(raw));
     }
 
-    // ── Update document ───────────────────────────────────────────────────
     async updateDocument(
         id:   string,
         data: Prisma.SchoolDocumentUpdateInput,

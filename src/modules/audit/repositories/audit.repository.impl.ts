@@ -1,5 +1,5 @@
 import { prisma }                from "../../../infrastructure/database/prisma/prisma.client";
-import { Prisma } from "../../../generated/prisma";
+import { Prisma } from "../../../generated/public";
 import { AuditMapper }           from "../mappers/audit.mapper";
 import { AuditLogEntity }        from "../domain/audit.entity";
 import { IAuditRepository }      from "./audit.repository";

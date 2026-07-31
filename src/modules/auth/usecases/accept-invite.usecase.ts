@@ -13,7 +13,7 @@ import {
 import { AuthErrorMessage }      from "../domain/auth.enums";
 import { AcceptInviteDtoType }   from "../dtos/invite.dto";
 import { AuthResponse }          from "../types/auth.types";
-import { Role }                  from "../../../generated/prisma/client";
+import { Role } from "../../../generated/public";
 import { randomUUID }            from "crypto";
 
 /*

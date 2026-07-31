@@ -1,4 +1,4 @@
-import { Plan } from "../../../generated/prisma/client";
+import { Plan } from "../../../generated/public";
 import { IMapper }      from "../../../infrastructure/repository/base.repository";
 import { PlanEntity }   from "../domain/plan.entity";
 import { PlanFeatures } from "../domain/plan-features.interface";

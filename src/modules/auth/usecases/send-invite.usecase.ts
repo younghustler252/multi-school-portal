@@ -4,7 +4,7 @@ import { MailService }         from "../../../infrastructure/mail/mail.service";
 import { TokenService }        from "../../../shared/services/token.service";
 import { ISchoolRepository }   from "../../school/repositories/school.repository";
 import { ConflictError }       from "../../../shared/errors/domain.errors";
-import { Role }                from "../../../generated/prisma/client";
+import { Role }                from "../../../generated/public";
 import { env }                 from "../../../config/env";
 import { INVITE_EXPIRY_DAYS }  from "../domain/auth.enums";
 

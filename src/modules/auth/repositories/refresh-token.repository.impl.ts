@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma }   from "../../../generated/prisma/client";
+import { Prisma, PrismaClient } from "../../../generated/public";
 import { RefreshTokenEntity }     from "../domain/auth.entity";
 import { IRefreshTokenRepository} from "./refresh-token.repository";
 

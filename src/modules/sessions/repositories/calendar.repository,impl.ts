@@ -1,52 +1,34 @@
-import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
+import { BaseTenantRepository } from "../../../infrastructure/repository/base.repository";
 import { CalendarEventEntity } from "../domain/calendar.entity";
 import { CalendarEventMapper } from "../mappers/calendar.mapper";
 import { ICalendarRepository } from "./calendar.repository";
 
-export class CalendarRepositoryImpl implements ICalendarRepository {
-    private get db() {
-        return getTenantClient();
+export class CalendarRepositoryImpl
+    extends BaseTenantRepository<CalendarEventEntity>
+    implements ICalendarRepository
+{
+    protected readonly modelName = "calendarEvent";
+
+    constructor({ calendarEventMapper }: { calendarEventMapper: CalendarEventMapper }) {
+        super(calendarEventMapper);
     }
 
-    constructor(
-        private readonly calendarEventMapper: CalendarEventMapper,
-    ) {}
-
-    async createCalendarEvent(
-        data: Record<string, any>,
-    ): Promise<CalendarEventEntity> {
-        const event = await this.db.calendarEvent.create({ data });
-
-        return this.calendarEventMapper.toDomain(event);
+    async createCalendarEvent(data: Record<string, any>): Promise<CalendarEventEntity> {
+        return this.create(data);
     }
 
-    async findCalendarEvents(
-        where: Record<string, any>,
-    ): Promise<CalendarEventEntity[]> {
-        const events = await this.db.calendarEvent.findMany({
-            where,
-            orderBy: {
-                startDate: "asc",
-            },
-        });
-
-        return events.map((event) => this.calendarEventMapper.toDomain(event));
+    async findCalendarEvents(where: Record<string, any>): Promise<CalendarEventEntity[]> {
+        return this.findMany(where, undefined, { startDate: "asc" });
     }
 
     async deleteCalendarEvent(id: string): Promise<void> {
-        await this.db.calendarEvent.delete({
-            where: { id },
-        });
+        await this.delete(id);
     }
 
-    async findUpcomingEvents(
-        termId: string,
-    ): Promise<CalendarEventEntity[]> {
+    async findUpcomingEvents(termId: string): Promise<CalendarEventEntity[]> {
         return this.findCalendarEvents({
             termId,
-            startDate: {
-                gte: new Date(),
-            },
+            startDate: { gte: new Date() },
         });
     }
 }

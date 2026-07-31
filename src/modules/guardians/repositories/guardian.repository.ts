@@ -1,4 +1,4 @@
-import {  Prisma }      from "../../../generated/prisma/client";
+import { Prisma } from "../../../generated/tenant";
 import { GuardianEntity, StudentGuardianEntity } from "../domain/guardian.entity";
 import {
     PaginatedResult,

@@ -12,7 +12,7 @@ import { ValidateInviteUseCase } from "../usecases/validate-invite.usecase";
 import { AcceptInviteUseCase }   from "../usecases/accept-invite.usecase";
 import { SendInviteUseCase }     from "../usecases/send-invite.usecase";
 import { ValidateInviteDto, AcceptInviteDto } from "../dtos/invite.dto";
-import { Role }                  from "../../../generated/prisma/client";
+import { Role } from "../../../generated/public";
 
 import {
     setAuthCookies,

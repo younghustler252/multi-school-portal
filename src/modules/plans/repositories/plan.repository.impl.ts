@@ -1,29 +1,16 @@
-import { PrismaClient }    from "../../../generated/prisma/client";
-import { BaseRepository }  from "../../../infrastructure/repository/base.repository";
-import { PlanMapper }      from "../mappers/plan.mapper";
-import { PlanEntity }      from "../domain/plan.entity";
+import { BasePublicRepository } from "../../../infrastructure/repository/base.repository";
+import { PlanMapper } from "../mappers/plan.mapper";
+import { PlanEntity } from "../domain/plan.entity";
 import { IPlanRepository } from "./plan.repository";
 
-/*
-|--------------------------------------------------------------------------
-| PLAN REPOSITORY IMPLEMENTATION
-|--------------------------------------------------------------------------
-*/
-
 export class PlanRepositoryImpl
-    extends BaseRepository<PlanEntity>
+    extends BasePublicRepository<PlanEntity>
     implements IPlanRepository
 {
     protected readonly modelName = "plan";
 
-    constructor({
-        prismaClient,
-        planMapper,
-    }: {
-        prismaClient: PrismaClient;
-        planMapper:   PlanMapper;
-    }) {
-        super(prismaClient, planMapper);
+    constructor({ planMapper }: { planMapper: PlanMapper }) {
+        super(planMapper);
     }
 
     async findByName(name: string): Promise<PlanEntity | null> {

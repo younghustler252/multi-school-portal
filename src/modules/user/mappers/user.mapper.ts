@@ -1,4 +1,4 @@
-import { User }             from "../../../generated/prisma/client";
+import { User }             from "../../../generated/public";
 import { IMapper }          from "../../../infrastructure/repository/base.repository";
 import { UserProfileEntity } from "../domain/user.entity";
 

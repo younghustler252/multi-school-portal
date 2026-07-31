@@ -112,29 +112,60 @@ enum GuardianRelation {
 }
 
 // ===== ACADEMIC (tenant schema) =====
+model CalendarEvent {
+  id          String    @id @default(uuid())
+  termId      String?
+  sessionId   String?
+  title       String
+  description String?
+  startDate   DateTime
+  endDate     DateTime?
+  type        EventType @default(event)
+  isHoliday   Boolean   @default(false)
+  createdById String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  term    Term?    @relation(fields: [termId], references: [id])
+  session Session? @relation(fields: [sessionId], references: [id])
+
+  @@index([startDate])
+  @@index([termId])
+}
+
+enum EventType {
+  holiday
+  event
+  exam
+  break
+  other
+}
 
 model Session {
-  id        String   @id @default(uuid())
-  name      String
-  startDate DateTime
-  endDate   DateTime
-  isCurrent Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  terms     Term[]
+  id             String          @id @default(uuid())
+  name           String
+  startDate      DateTime
+  endDate        DateTime
+  isCurrent      Boolean         @default(false)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  terms          Term[]
+  calendarEvents CalendarEvent[]
 }
 
 model Term {
-  id          String       @id @default(uuid())
-  sessionId   String
-  name        TermName
-  startDate   DateTime
-  endDate     DateTime
-  isCurrent   Boolean      @default(false)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  session     Session      @relation(fields: [sessionId], references: [id])
-  attendances Attendance[]
+  id             String          @id @default(uuid())
+  sessionId      String
+  name           TermName
+  startDate      DateTime
+  endDate        DateTime
+  isCurrent      Boolean         @default(false)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  session        Session         @relation(fields: [sessionId], references: [id])
+  attendances    Attendance[]
+  calendarEvents CalendarEvent[]
+
   grades      Grade[]
   feeInvoices FeeInvoice[]
   enrolments  Enrolment[]

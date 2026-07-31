@@ -5,7 +5,8 @@ import {
     VerificationStatus,
     DocumentType,
     DocumentStatus,
-}                       from "../../../generated/prisma";
+}                       from "../../../generated/public";
+
 
 /*
 |--------------------------------------------------------------------------

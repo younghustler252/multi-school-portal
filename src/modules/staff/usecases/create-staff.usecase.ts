@@ -11,7 +11,7 @@ import {
 }                              from "../../../shared/errors/domain.errors";
 import { StaffErrorMessage }   from "../domain/staff.enums";
 import { CreateStaffDtoType }  from "../dtos/staff.dto";
-import { Role }                from "../../../generated/prisma";
+import { Role }                from "../../../generated/public";
 
 /*
 |--------------------------------------------------------------------------

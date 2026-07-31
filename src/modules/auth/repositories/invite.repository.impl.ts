@@ -1,5 +1,5 @@
 
-import { PrismaClient, Prisma }      from "../../../generated/prisma/client";
+import { Prisma, PrismaClient } from "../../../generated/public";
 import { InviteEntity }      from "../domain/auth.entity";
 import { IInviteRepository } from "./invite.repository";
 

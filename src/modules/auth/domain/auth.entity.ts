@@ -1,4 +1,4 @@
-import { Role, OtpType } from "../../../generated/prisma";
+import { Role, OtpType } from "../../../generated/public";
 /*
 |--------------------------------------------------------------------------
 | AUTH DOMAIN ENTITIES

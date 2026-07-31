@@ -1,12 +1,12 @@
-import { Worker, Job }            from "bullmq";
-import { redisConnection }        from "../connection";
+import { Worker, Job } from "bullmq";
+import { Pool } from "pg";
+import { readdirSync, readFileSync } from "fs";
+import { join } from "path";
+import { redisConnection } from "../connection";
 import { ProvisionSchemaJobData } from "../queues/provision-schema.queue";
-import { prisma }                 from "../../database/prisma/prisma.client";
-import { execSync }               from "child_process";
-import { readFileSync }           from "fs";
-import { join }                   from "path";
+import { prisma } from "../../database/prisma/prisma.client";
 
-function getDefaultClasses(category?: string | null): Array<{name: string; level: string}> {
+function getDefaultClasses(category?: string | null): Array<{ name: string; level: string }> {
     if (category === "primary" || category === "primary_secondary") {
         return [
             { name: "KG 1",      level: "Kindergarten" },
@@ -29,15 +29,10 @@ function getDefaultClasses(category?: string | null): Array<{name: string; level
         { name: "SS 3",  level: "Senior Secondary" },
     ];
 
-    if (category === "primary_secondary") {
-        // Already added primary above, just add secondary
-        return secondary;
-    }
-
-    return secondary; // default to secondary
+    return secondary;
 }
 
-function getDefaultSubjects(category?: string | null): Array<{name: string; code: string}> {
+function getDefaultSubjects(category?: string | null): Array<{ name: string; code: string }> {
     const coreSubjects = [
         { name: "Mathematics",        code: "MTH" },
         { name: "English Language",   code: "ENG" },
@@ -76,12 +71,43 @@ function getDefaultSubjects(category?: string | null): Array<{name: string; code
     if (category === "primary") {
         return [...coreSubjects, ...primaryOnly];
     }
-
     if (category === "primary_secondary") {
         return [...coreSubjects, ...primaryOnly, ...secondaryOnly];
     }
-
     return [...coreSubjects, ...secondaryOnly];
+}
+
+const SCHEMA_NAME_PATTERN = /^[a-z][a-z0-9_]*$/;
+
+async function applyTenantMigrations(pool: Pool, schemaName: string): Promise<void> {
+    const client = await pool.connect();
+
+    try {
+        await client.query(`CREATE SCHEMA IF NOT EXISTS "${schemaName}"`);
+        await client.query(`SET search_path TO "${schemaName}"`);
+
+        const tenantMigrationsDir = join(process.cwd(), "prisma", "tenant-migrations");
+        const migrations = readdirSync(tenantMigrationsDir, { withFileTypes: true })
+            .filter(entry => entry.isDirectory())
+            .map(entry => entry.name)
+            .sort();
+
+        for (const migration of migrations) {
+            const sqlPath = join(tenantMigrationsDir, migration, "migration.sql");
+            const sql = readFileSync(sqlPath, "utf8");
+
+            await client.query("BEGIN");
+            await client.query(`SET search_path TO "${schemaName}"`);
+            await client.query(sql);
+            await client.query("COMMIT");
+        }
+    } catch (err) {
+        await client.query("ROLLBACK");
+        throw err;
+    } finally {
+        await client.query("SET search_path TO public");
+        client.release();
+    }
 }
 
 export const provisionSchemaWorker = new Worker<ProvisionSchemaJobData>(
@@ -91,136 +117,99 @@ export const provisionSchemaWorker = new Worker<ProvisionSchemaJobData>(
         const { schoolId, subdomain, schoolName } = job.data;
         const schemaName = `school_${subdomain}`;
 
+        if (!SCHEMA_NAME_PATTERN.test(schemaName)) {
+            throw new Error(`Invalid schema name: ${schemaName}`);
+        }
+
         console.log(`🏗️  Provisioning schema: ${schemaName} for ${schoolName}`);
 
-        // ── 1. Create schema ──────────────────────────────────────────────
-        await prisma.$executeRawUnsafe(
-            `CREATE SCHEMA IF NOT EXISTS "${schemaName}"`,
-        );
-        console.log(`✅ Schema created: ${schemaName}`);
+        const pool = new Pool({ connectionString: process.env.TENANT_DATABASE_URL ?? process.env.DATABASE_URL });
 
-        // ── 2. Apply baseline SQL to new schema ───────────────────────────
-        const baselineSql = readFileSync(
-            join(process.cwd(), "prisma/tenant/baseline.sql"),
-            "utf8",
-        );
+        try {
+            await applyTenantMigrations(pool, schemaName);
+            console.log(`✅ Tables created: ${schemaName}`);
 
-        // Split by statement and execute each one
-        const statements = baselineSql
-            .split(";")
-            .map(s => s.trim())
-            .filter(s => s.length > 0);
+            const client = await pool.connect();
+            try {
+                await client.query(`SET search_path TO "${schemaName}"`);
 
-        for (const statement of statements) {
-            await prisma.$executeRawUnsafe(
-                `SET search_path TO "${schemaName}"; ${statement}`,
-            );
-        }
-        console.log(`✅ Tables created: ${schemaName}`);
+                const gradingDefaults = [
+                    { minScore: 75, maxScore: 100, grade: "A1", remark: "Excellent" },
+                    { minScore: 70, maxScore: 74,  grade: "B2", remark: "Very Good" },
+                    { minScore: 65, maxScore: 69,  grade: "B3", remark: "Good"      },
+                    { minScore: 60, maxScore: 64,  grade: "C4", remark: "Credit"    },
+                    { minScore: 55, maxScore: 59,  grade: "C5", remark: "Credit"    },
+                    { minScore: 50, maxScore: 54,  grade: "C6", remark: "Credit"    },
+                    { minScore: 45, maxScore: 49,  grade: "D7", remark: "Pass"      },
+                    { minScore: 40, maxScore: 44,  grade: "E8", remark: "Pass"      },
+                    { minScore: 0,  maxScore: 39,  grade: "F9", remark: "Fail"      },
+                ];
 
-        // ── 3. Seed default grading config ────────────────────────────────
-        const gradingDefaults = [
-            { minScore: 75, maxScore: 100, grade: "A1", remark: "Excellent"  },
-            { minScore: 70, maxScore: 74,  grade: "B2", remark: "Very Good"  },
-            { minScore: 65, maxScore: 69,  grade: "B3", remark: "Good"       },
-            { minScore: 60, maxScore: 64,  grade: "C4", remark: "Credit"     },
-            { minScore: 55, maxScore: 59,  grade: "C5", remark: "Credit"     },
-            { minScore: 50, maxScore: 54,  grade: "C6", remark: "Credit"     },
-            { minScore: 45, maxScore: 49,  grade: "D7", remark: "Pass"       },
-            { minScore: 40, maxScore: 44,  grade: "E8", remark: "Pass"       },
-            { minScore: 0,  maxScore: 39,  grade: "F9", remark: "Fail"       },
-        ];
+                for (const g of gradingDefaults) {
+                    await client.query(
+                        `INSERT INTO "GradingConfig" (id, "minScore", "maxScore", grade, remark, "isDefault", "createdAt", "updatedAt")
+                         VALUES (gen_random_uuid(), $1, $2, $3, $4, true, now(), now())
+                         ON CONFLICT DO NOTHING`,
+                        [g.minScore, g.maxScore, g.grade, g.remark],
+                    );
+                }
+                console.log(`✅ Grading config seeded: ${schemaName}`);
 
-        for (const g of gradingDefaults) {
-            await prisma.$executeRawUnsafe(`
-                INSERT INTO "${schemaName}"."GradingConfig"
-                    (id, "minScore", "maxScore", grade, remark, "isDefault", "createdAt", "updatedAt")
-                VALUES (
-                    gen_random_uuid(),
-                    ${g.minScore}, ${g.maxScore},
-                    '${g.grade}', '${g.remark}',
-                    true, now(), now()
-                )
-                ON CONFLICT DO NOTHING
-            `);
-        }
-        console.log(`✅ Grading config seeded: ${schemaName}`);
+                const currentYear = new Date().getFullYear();
+                const sessionName = `${currentYear}/${currentYear + 1}`;
 
-        // ── 4. Seed default session + terms ───────────────────────────────
-        const currentYear = new Date().getFullYear();
-        const sessionName = `${currentYear}/${currentYear + 1}`;
-        const sessionId   = require("crypto").randomUUID();
+                const sessionResult = await client.query(
+                    `INSERT INTO "Session" (id, name, "startDate", "endDate", "isCurrent", "createdAt", "updatedAt")
+                     VALUES (gen_random_uuid(), $1, $2, $3, true, now(), now())
+                     RETURNING id`,
+                    [sessionName, `${currentYear}-09-01`, `${currentYear + 1}-07-31`],
+                );
+                const sessionId = sessionResult.rows[0].id;
 
-        await prisma.$executeRawUnsafe(`
-            INSERT INTO "${schemaName}"."Session"
-                (id, name, "startDate", "endDate", "isCurrent", "createdAt", "updatedAt")
-            VALUES (
-                '${sessionId}', '${sessionName}',
-                '${currentYear}-09-01', '${currentYear + 1}-07-31',
-                true, now(), now()
-            )
-        `);
+                const terms = [
+                    { name: "first",  start: `${currentYear}-09-01`,     end: `${currentYear}-12-20`,     current: true  },
+                    { name: "second", start: `${currentYear + 1}-01-10`, end: `${currentYear + 1}-04-10`, current: false },
+                    { name: "third",  start: `${currentYear + 1}-04-28`, end: `${currentYear + 1}-07-31`, current: false },
+                ];
 
-        const terms = [
-            { name: "first",  start: `${currentYear}-09-01`,     end: `${currentYear}-12-20`,     current: true  },
-            { name: "second", start: `${currentYear + 1}-01-10`, end: `${currentYear + 1}-04-10`, current: false },
-            { name: "third",  start: `${currentYear + 1}-04-28`, end: `${currentYear + 1}-07-31`, current: false },
-        ];
+                for (const term of terms) {
+                    await client.query(
+                        `INSERT INTO "Term" (id, "sessionId", name, "startDate", "endDate", "isCurrent", "createdAt", "updatedAt")
+                         VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, now(), now())`,
+                        [sessionId, term.name, term.start, term.end, term.current],
+                    );
+                }
+                console.log(`✅ Session + terms seeded: ${schemaName}`);
 
-        for (const term of terms) {
-            await prisma.$executeRawUnsafe(`
-                INSERT INTO "${schemaName}"."Term"
-                    (id, "sessionId", name, "startDate", "endDate", "isCurrent", "createdAt", "updatedAt")
-                VALUES (
-                    gen_random_uuid(), '${sessionId}', '${term.name}',
-                    '${term.start}', '${term.end}',
-                    ${term.current}, now(), now()
-                )
-            `);
-        }
-        console.log(`✅ Session + terms seeded: ${schemaName}`);
+                const school = await prisma.school.findUnique({
+                    where:  { id: schoolId },
+                    select: { schoolCategory: true },
+                });
 
-        // After seeding grading config and session/terms
-        // ── Seed classes based on school category ─────────────────────────────
+                for (const cls of getDefaultClasses(school?.schoolCategory)) {
+                    await client.query(
+                        `INSERT INTO "Class" (id, name, level, "createdAt", "updatedAt")
+                         VALUES (gen_random_uuid(), $1, $2, now(), now())`,
+                        [cls.name, cls.level],
+                    );
+                }
 
-        // Get school category from public schema
-        const school = await prisma.school.findUnique({
-            where:  { id: schoolId },
-            select: { schoolCategory: true },
-        });
-
-        const classesToCreate = getDefaultClasses(school?.schoolCategory);
-
-        for (const cls of classesToCreate) {
-            await prisma.$executeRawUnsafe(`
-                INSERT INTO "${schemaName}"."Class"
-                    (id, name, level, "createdAt", "updatedAt")
-                VALUES (
-                    gen_random_uuid(),
-                    '${cls.name}',
-                    '${cls.level}',
-                    now(), now()
-                )
-            `);
+                for (const subject of getDefaultSubjects(school?.schoolCategory)) {
+                    await client.query(
+                        `INSERT INTO "Subject" (id, name, code, "createdAt", "updatedAt")
+                         VALUES (gen_random_uuid(), $1, $2, now(), now())`,
+                        [subject.name, subject.code],
+                    );
+                }
+                console.log(`✅ Classes + subjects seeded: ${schemaName}`);
+            } finally {
+                await client.query("SET search_path TO public");
+                client.release();
+            }
+        } finally {
+            await pool.end();
         }
 
-        // ── Seed default subjects ──────────────────────────────────────────────
-        const subjectsToCreate = getDefaultSubjects(school?.schoolCategory);
-
-        for (const subject of subjectsToCreate) {
-            await prisma.$executeRawUnsafe(`
-                INSERT INTO "${schemaName}"."Subject"
-                    (id, name, code, "createdAt", "updatedAt")
-                VALUES (
-                    gen_random_uuid(),
-                    '${subject.name}',
-                    '${subject.code}',
-                    now(), now()
-                )
-            `);
-        }
-
-        // ── 5. Update school schemaName ───────────────────────────────────
         await prisma.school.update({
             where: { id: schoolId },
             data:  { schemaName },

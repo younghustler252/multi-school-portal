@@ -1,4 +1,4 @@
-import { Subscription }          from "../../../generated/prisma/client";
+import { Subscription } from "../../../generated/public";
 import { IMapper }               from "../../../infrastructure/repository/base.repository";
 import { SubscriptionEntity }    from "../domain/subscription.entity";
 

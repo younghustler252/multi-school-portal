@@ -1,6 +1,6 @@
 import { readFileSync, readdirSync } from "fs";
 import { join } from "path";
-import { PrismaClient } from "../../../generated/prisma";
+import { PrismaClient } from "../../../generated/public";
 
 export class TenantProvisioningService {
     constructor(

@@ -2,7 +2,7 @@ import { IUserRepository }     from "../repositories/user.repository";
 import { IOtpRepository }      from "../repositories/otp.repository";
 import { MailService }         from "../../../infrastructure/mail/mail.service";
 import { TokenService }        from "../../../shared/services/token.service";
-import { OtpType }             from "../../../generated/prisma";
+import { OtpType }             from "../../../generated/public";
 import {
     OtpExpiryMinutes,
     AuthErrorMessage,

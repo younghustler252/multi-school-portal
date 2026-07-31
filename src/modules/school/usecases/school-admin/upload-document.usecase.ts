@@ -8,8 +8,7 @@ import {
 }                                   from "../../../../shared/errors/domain.errors";
 import { SchoolErrorMessage }       from "../../domain/school.enum";
 import { UploadDocumentDtoType }    from "../../dtos/school.dto";
-import { DocumentType }             from "../../../../generated/prisma";
-
+import { DocumentType } from "../../../../generated/public";
 /*
 |--------------------------------------------------------------------------
 | UPLOAD DOCUMENT USE CASE

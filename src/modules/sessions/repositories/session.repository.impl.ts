@@ -1,128 +1,100 @@
-import { Prisma } from "../../../generated/prisma";
-import { getTenantClient }       from "../../../infrastructure/database/prisma/prisma.client";
+import { Prisma } from "../../../generated/tenant";
+import { BaseTenantRepository } from "../../../infrastructure/repository/base.repository";
 import { SessionMapper, TermMapper } from "../mappers/session.mapper";
-import {
-    SessionEntity,
-    TermEntity,
-}                                from "../domain/session.entity";
-import { ISessionRepository }    from "./session.repository";
+import { SessionEntity, TermEntity } from "../domain/session.entity";
+import { ISessionRepository } from "./session.repository";
 
-export class SessionRepositoryImpl implements ISessionRepository {
-    private readonly sessionMapper: SessionMapper;
-    private readonly termMapper:    TermMapper;
-
-    private get db() { return getTenantClient(); }
+export class SessionRepositoryImpl
+    extends BaseTenantRepository<SessionEntity>
+    implements ISessionRepository
+{
+    protected readonly modelName = "session";
+    private readonly termMapper: TermMapper;
 
     constructor({
         sessionMapper,
         termMapper,
     }: {
         sessionMapper: SessionMapper;
-        termMapper:    TermMapper;
+        termMapper: TermMapper;
     }) {
-        this.sessionMapper = sessionMapper;
-        this.termMapper    = termMapper;
+        super(sessionMapper);
+        this.termMapper = termMapper;
     }
 
-    // ── Sessions ──────────────────────────────────────────────────────────
     async findSessionById(id: string): Promise<SessionEntity | null> {
-        const raw = await this.db.session.findUnique({
-            where:   { id },
-            include: { terms: { orderBy: { startDate: "asc" } } },
-        });
-        return raw ? this.sessionMapper.toDomain(raw) : null;
+        return this.findById(id, { terms: { orderBy: { startDate: "asc" } } });
     }
 
     async findAllSessions(): Promise<SessionEntity[]> {
-        const raws = await this.db.session.findMany({
-            orderBy: { startDate: "desc" },
-            include: { terms: { orderBy: { startDate: "asc" } } },
-        });
-        return raws.map(r => this.sessionMapper.toDomain(r));
+        return this.findMany(
+            {},
+            { terms: { orderBy: { startDate: "asc" } } },
+            { startDate: "desc" },
+        );
     }
 
     async findCurrentSession(): Promise<SessionEntity | null> {
-        const raw = await this.db.session.findFirst({
-            where:   { isCurrent: true },
-            include: { terms: { orderBy: { startDate: "asc" } } },
-        });
-        return raw ? this.sessionMapper.toDomain(raw) : null;
+        return this.findOne(
+            { isCurrent: true },
+            { terms: { orderBy: { startDate: "asc" } } },
+        );
     }
 
     async createSession(data: Prisma.SessionUncheckedCreateInput): Promise<SessionEntity> {
-        const raw = await this.db.session.create({ data });
-        return this.sessionMapper.toDomain(raw);
+        return this.create(data);
     }
 
-    async updateSession(
-        id:   string,
-        data: Record<string, any>,
-    ): Promise<SessionEntity> {
-        const raw = await this.db.session.update({ where: { id }, data });
-        return this.sessionMapper.toDomain(raw);
+    async updateSession(id: string, data: Record<string, any>): Promise<SessionEntity> {
+        return this.update(id, data);
     }
 
     async setCurrentSession(id: string): Promise<SessionEntity> {
-        // Unset all current sessions first
-        await this.db.session.updateMany({
+        await this.model().updateMany({
             where: { isCurrent: true },
-            data:  { isCurrent: false },
+            data: { isCurrent: false },
         });
 
-        // Set new current
-        const raw = await this.db.session.update({
-            where:   { id },
-            data:    { isCurrent: true },
-            include: { terms: true },
-        });
-        return this.sessionMapper.toDomain(raw);
+        return this.update(id, { isCurrent: true }, { terms: true });
     }
 
-    // ── Terms ─────────────────────────────────────────────────────────────
     async findTermById(id: string): Promise<TermEntity | null> {
-        const raw = await this.db.term.findUnique({ where: { id } });
+        const raw = await this.prisma.term.findUnique({ where: { id } });
         return raw ? this.termMapper.toDomain(raw) : null;
     }
 
     async findTermsBySession(sessionId: string): Promise<TermEntity[]> {
-        const raws = await this.db.term.findMany({
-            where:   { sessionId },
+        const raws = await this.prisma.term.findMany({
+            where: { sessionId },
             orderBy: { startDate: "asc" },
         });
         return raws.map(r => this.termMapper.toDomain(r));
     }
 
     async findCurrentTerm(): Promise<TermEntity | null> {
-        const raw = await this.db.term.findFirst({
-            where: { isCurrent: true },
-        });
+        const raw = await this.prisma.term.findFirst({ where: { isCurrent: true } });
         return raw ? this.termMapper.toDomain(raw) : null;
     }
 
     async createTerm(data: Prisma.TermUncheckedCreateInput): Promise<TermEntity> {
-        const raw = await this.db.term.create({ data });
+        const raw = await this.prisma.term.create({ data });
         return this.termMapper.toDomain(raw);
     }
 
-    async updateTerm(
-        id:   string,
-        data: Record<string, any>,
-    ): Promise<TermEntity> {
-        const raw = await this.db.term.update({ where: { id }, data });
+    async updateTerm(id: string, data: Record<string, any>): Promise<TermEntity> {
+        const raw = await this.prisma.term.update({ where: { id }, data });
         return this.termMapper.toDomain(raw);
     }
 
     async setCurrentTerm(id: string): Promise<TermEntity> {
-        // Unset all current terms first
-        await this.db.term.updateMany({
+        await this.prisma.term.updateMany({
             where: { isCurrent: true },
-            data:  { isCurrent: false },
+            data: { isCurrent: false },
         });
 
-        // Set new current
-        const raw = await this.db.term.update({
+        const raw = await this.prisma.term.update({
             where: { id },
-            data:  { isCurrent: true },
+            data: { isCurrent: true },
         });
         return this.termMapper.toDomain(raw);
     }

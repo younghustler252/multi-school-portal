@@ -1,5 +1,5 @@
 import { ReportCardEntity }  from "../domain/report-card.entity";
-import { Prisma } from "../../../generated/prisma";
+import { Prisma } from "../../../generated/tenant";
 import {
     PaginatedResult,
     PaginateParams,

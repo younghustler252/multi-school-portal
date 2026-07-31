@@ -2,7 +2,7 @@ import { ISchoolRepository }  from "../../school/repositories/school.repository"
 import { IUserRepository }    from "../../auth/repositories/user.repository";
 import { TokenService }       from "../../../shared/services/token.service";
 import { NotFoundError }      from "../../../shared/errors/domain.errors";
-import { Role }               from "../../../generated/prisma/client";
+import { Role } from "../../../generated/public";
 
 /*
 |--------------------------------------------------------------------------

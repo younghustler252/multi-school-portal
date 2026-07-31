@@ -1,4 +1,4 @@
-import { School,SchoolDocument } from "../../../generated/prisma/client";
+import { School,SchoolDocument } from "../../../generated/public";
 import { IMapper }                 from "../../../infrastructure/repository/base.repository";
 import {
     SchoolEntity,

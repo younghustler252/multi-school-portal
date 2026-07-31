@@ -1,4 +1,4 @@
-import { Prisma } from "../../../generated/prisma/client";
+import { Prisma } from "../../../generated/public";
 
 import { SchoolEntity, SchoolDocumentEntity } from "../domain/school.entity";
 import {
