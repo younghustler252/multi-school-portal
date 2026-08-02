@@ -138,14 +138,14 @@ export const setAuthCookies = (
     res.cookie("accessToken", accessToken, {
         httpOnly: true,
         secure:   env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge:   15 * 60 * 1000,              // 15 minutes
+        sameSite: "lax", // "strict" would block the cookie during the redirect itself
+        domain:   env.NODE_ENV === "production" ? ".schoolportal.com" : undefined,
+        maxAge:   15 * 60 * 1000,
     });
-
     res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure:   env.NODE_ENV === "production",
-        sameSite: "strict",
+        sameSite: "lax",
         maxAge:   7 * 24 * 60 * 60 * 1000,    // 7 days
     });
 };

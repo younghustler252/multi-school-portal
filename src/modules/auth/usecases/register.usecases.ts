@@ -81,8 +81,7 @@ export class RegisterUseCase {
         this.tokenService     = tokenService;
     }
 
-    async execute(dto: RegisterDtoType): Promise<{ message: string }> {
-
+    async execute(dto: RegisterDtoType): Promise<{ message: string; subdomain: string }> {
         // ── 1. Validate password strength ─────────────────────────────────
         const passwordValidation = this.passwordService.validate(dto.password);
         if (!passwordValidation.valid) {
@@ -203,6 +202,7 @@ export class RegisterUseCase {
         // ── 12. Return success ────────────────────────────────────────────
         return {
             message: `Registration successful. Please check ${dto.email} for your verification code.`,
+            subdomain: cleanSubdomain,
         };
     }
 }

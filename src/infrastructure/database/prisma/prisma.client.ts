@@ -26,22 +26,11 @@ const publicPool = new pg.Pool({
 const publicAdapter = new PrismaPg(publicPool);
 export const prisma = new PublicPrismaClient({ adapter: publicAdapter });
 
-/*
-|--------------------------------------------------------------------------
-| TENANT CLIENT CACHE (Staff, Student, Grade, Payment, ...)
-|--------------------------------------------------------------------------
-| One PrismaClient + dedicated pg.Pool per tenant schema, cached by schema
-| name. Each pool is opened with the correct search_path baked into the
-| Postgres connection's startup parameters (`options: -c search_path=...`),
-| so every connection handed out by that pool already resolves unqualified
-| table/enum names against the right tenant schema — no SQL string
-| rewriting required, and no risk of a connection leaking into the wrong
-| tenant's search_path, since each pool only ever serves one schema.
-*/
 const tenantClients = new Map<string, TenantPrismaClient>();
 const tenantPools   = new Map<string, pg.Pool>();
 
 const SCHEMA_NAME_PATTERN = /^[a-z][a-z0-9_]*$/;
+
 export const getTenantClient = (): TenantPrismaClient => {
     const schema = TenantContext.getSchema();
 
@@ -56,9 +45,6 @@ export const getTenantClient = (): TenantPrismaClient => {
     const cached = tenantClients.get(schema);
     if (cached) return cached;
 
-    // Same guard provisionSchema.worker.ts uses — schema names should only
-    // ever come from a slugified subdomain, but never trust it here either,
-    // since it's about to be interpolated into a connection startup string.
     if (!SCHEMA_NAME_PATTERN.test(schema)) {
         throw new Error(`Invalid tenant schema name: ${schema}`);
     }
@@ -69,14 +55,13 @@ export const getTenantClient = (): TenantPrismaClient => {
         max:              5,
     });
 
-    const tenantAdapter = new PrismaPg(tenantPool);
+    const tenantAdapter = new PrismaPg(tenantPool, { schema });
     const client = new TenantPrismaClient({ adapter: tenantAdapter });
 
     tenantClients.set(schema, client);
     tenantPools.set(schema, tenantPool);
     return client;
 };
-
 /*
 |--------------------------------------------------------------------------
 | DISCONNECT

@@ -1,26 +1,13 @@
-// src/infrastructure/middleware/feature-gate.middleware.ts
-
 import { Request, Response, NextFunction } from "express";
-import { prisma }                          from "../database/prisma/prisma.client";
-import { FeatureNotAvailableError }        from "../../shared/errors/domain.errors";
-import { PlanFeatures }                    from "../../modules/plans/domain/plan-features.interface";
-
-/*
-|--------------------------------------------------------------------------
-| FEATURE GATE MIDDLEWARE
-| Checks if school's current plan includes a specific feature
-| Usage: requireFeature("smsNotifications")
-|--------------------------------------------------------------------------
-*/
+import { prisma } from "../database/prisma/prisma.client";
+import { getTenantClient } from "../database/prisma/prisma.client";
+import { FeatureNotAvailableError } from "../../shared/errors/domain.errors";
+import { PlanFeatures } from "../../modules/plans/domain/plan-features.interface";
 
 type PlanFeatureKey = keyof PlanFeatures;
 
 export const requireFeature = (feature: PlanFeatureKey) => {
-    return async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
+    return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             if (!req.user?.schoolId) {
                 next(new FeatureNotAvailableError(feature));
@@ -40,7 +27,6 @@ export const requireFeature = (feature: PlanFeatureKey) => {
                 return;
             }
 
-            // Parse features from JSON
             const features = subscription.plan.features as unknown as PlanFeatures;
             const hasFeature = features[feature];
 
@@ -56,21 +42,10 @@ export const requireFeature = (feature: PlanFeatureKey) => {
     };
 };
 
-/*
-|--------------------------------------------------------------------------
-| PLAN LIMIT CHECK
-| Checks if school has hit their student or staff limit
-|--------------------------------------------------------------------------
-*/
-
 type LimitType = "student" | "staff";
 
 export const requirePlanLimit = (type: LimitType) => {
-    return async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
+    return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             if (!req.user?.schoolId) return next();
 
@@ -88,17 +63,12 @@ export const requirePlanLimit = (type: LimitType) => {
                 ? subscription.plan.studentLimit
                 : subscription.plan.staffLimit;
 
-            // -1 means unlimited
             if (limit === -1) return next();
 
-            const tableName = type === "student" ? "Student" : "Staff";
-            const result    = await prisma.$queryRawUnsafe<[{ count: bigint }]>(
-                `SELECT COUNT(*) as count
-                 FROM "${req.tenantSchema}"."${tableName}"
-                 WHERE "isActive" = true`,
-            );
-
-            const currentCount = Number(result[0].count);
+            const tenantDb = getTenantClient();
+            const currentCount = type === "student"
+                ? await tenantDb.student.count({ where: { isActive: true } })
+                : await tenantDb.staff.count({ where: { isActive: true } });
 
             if (currentCount >= limit) {
                 res.status(403).json({

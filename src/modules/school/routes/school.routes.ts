@@ -59,6 +59,13 @@ router.put(
     (req, res, next) => ctrl().updateMySchool(req, res, next),
 );
 
+// ── Public — no auth required ─────────────────────────────────────────────
+// Frontend calls this on subdomain detection before login
+router.get(
+    "/public/:subdomain",
+    (req, res, next) => ctrl().getPublicSchoolInfo(req, res, next),
+);
+
 // Upload school logo
 router.post(
     "/me/logo",

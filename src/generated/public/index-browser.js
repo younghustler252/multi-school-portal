@@ -144,6 +144,7 @@ exports.Prisma.SchoolScalarFieldEnum = {
   suspensionReason: 'suspensionReason',
   isActive: 'isActive',
   schemaName: 'schemaName',
+  schemaProvisionedAt: 'schemaProvisionedAt',
   paystackSubaccountCode: 'paystackSubaccountCode',
   paystackSubaccountId: 'paystackSubaccountId',
   settlementBankCode: 'settlementBankCode',

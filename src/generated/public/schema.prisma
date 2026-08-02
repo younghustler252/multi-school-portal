@@ -36,7 +36,8 @@ model School {
   suspensionReason       String?
   isActive               Boolean            @default(false)
 
-  schemaName String? @unique
+  schemaName          String?   @unique
+  schemaProvisionedAt DateTime?
 
   paystackSubaccountCode  String?
   paystackSubaccountId    String?

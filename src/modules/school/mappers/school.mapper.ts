@@ -1,22 +1,12 @@
-import { School,SchoolDocument } from "../../../generated/public";
-import { IMapper }                 from "../../../infrastructure/repository/base.repository";
+import { School, SchoolDocument } from "../../../generated/public";
+import { IMapper } from "../../../infrastructure/repository/base.repository";
+import { SchoolStatusFields } from "../types/school-status.types";
 import {
     SchoolEntity,
     SchoolDocumentEntity,
-}                                  from "../domain/school.entity";
+} from "../domain/school.entity";
 
-/*
-|--------------------------------------------------------------------------
-| SCHOOL MAPPER
-| Converts raw Prisma School model → clean domain entity
-|--------------------------------------------------------------------------
-*/
-
-// ── School Response (safe to return to client) ────────────────────────────
-export interface SchoolResponseData {
-    id:                 string;
-    name:               string;
-    subdomain:          string;
+export interface SchoolResponseData extends SchoolStatusFields {
     email:              string;
     phone:              string | null;
     address:            string | null;
@@ -27,13 +17,9 @@ export interface SchoolResponseData {
     logoUrl:            string | null;
     schoolCategory:     string;
     schoolOwnership:    string;
-    status:             string;
-    verificationStatus: string;
-    isActive:           boolean;
     createdAt:          Date;
 }
 
-// ── Document Response ─────────────────────────────────────────────────────
 export interface SchoolDocumentResponseData {
     id:              string;
     schoolId:        string;
@@ -47,7 +33,6 @@ export interface SchoolDocumentResponseData {
 
 export class SchoolMapper implements IMapper<School, SchoolEntity> {
 
-    // ── DB model → Domain entity ──────────────────────────────────────────
     toDomain(raw: School): SchoolEntity {
         return {
             id:                      raw.id,
@@ -80,7 +65,6 @@ export class SchoolMapper implements IMapper<School, SchoolEntity> {
         };
     }
 
-    // ── Domain entity → API response ──────────────────────────────────────
     toResponse(entity: SchoolEntity): SchoolResponseData {
         return {
             id:                 entity.id,
@@ -104,7 +88,6 @@ export class SchoolMapper implements IMapper<School, SchoolEntity> {
     }
 }
 
-// ── School Document Mapper ────────────────────────────────────────────────
 export class SchoolDocumentMapper
     implements IMapper<SchoolDocument, SchoolDocumentEntity>
 {

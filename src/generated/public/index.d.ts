@@ -2510,6 +2510,7 @@ export namespace Prisma {
     suspensionReason: string | null
     isActive: boolean | null
     schemaName: string | null
+    schemaProvisionedAt: Date | null
     paystackSubaccountCode: string | null
     paystackSubaccountId: string | null
     settlementBankCode: string | null
@@ -2542,6 +2543,7 @@ export namespace Prisma {
     suspensionReason: string | null
     isActive: boolean | null
     schemaName: string | null
+    schemaProvisionedAt: Date | null
     paystackSubaccountCode: string | null
     paystackSubaccountId: string | null
     settlementBankCode: string | null
@@ -2574,6 +2576,7 @@ export namespace Prisma {
     suspensionReason: number
     isActive: number
     schemaName: number
+    schemaProvisionedAt: number
     paystackSubaccountCode: number
     paystackSubaccountId: number
     settlementBankCode: number
@@ -2608,6 +2611,7 @@ export namespace Prisma {
     suspensionReason?: true
     isActive?: true
     schemaName?: true
+    schemaProvisionedAt?: true
     paystackSubaccountCode?: true
     paystackSubaccountId?: true
     settlementBankCode?: true
@@ -2640,6 +2644,7 @@ export namespace Prisma {
     suspensionReason?: true
     isActive?: true
     schemaName?: true
+    schemaProvisionedAt?: true
     paystackSubaccountCode?: true
     paystackSubaccountId?: true
     settlementBankCode?: true
@@ -2672,6 +2677,7 @@ export namespace Prisma {
     suspensionReason?: true
     isActive?: true
     schemaName?: true
+    schemaProvisionedAt?: true
     paystackSubaccountCode?: true
     paystackSubaccountId?: true
     settlementBankCode?: true
@@ -2777,6 +2783,7 @@ export namespace Prisma {
     suspensionReason: string | null
     isActive: boolean
     schemaName: string | null
+    schemaProvisionedAt: Date | null
     paystackSubaccountCode: string | null
     paystackSubaccountId: string | null
     settlementBankCode: string | null
@@ -2826,6 +2833,7 @@ export namespace Prisma {
     suspensionReason?: boolean
     isActive?: boolean
     schemaName?: boolean
+    schemaProvisionedAt?: boolean
     paystackSubaccountCode?: boolean
     paystackSubaccountId?: boolean
     settlementBankCode?: boolean
@@ -2864,6 +2872,7 @@ export namespace Prisma {
     suspensionReason?: boolean
     isActive?: boolean
     schemaName?: boolean
+    schemaProvisionedAt?: boolean
     paystackSubaccountCode?: boolean
     paystackSubaccountId?: boolean
     settlementBankCode?: boolean
@@ -2896,6 +2905,7 @@ export namespace Prisma {
     suspensionReason?: boolean
     isActive?: boolean
     schemaName?: boolean
+    schemaProvisionedAt?: boolean
     paystackSubaccountCode?: boolean
     paystackSubaccountId?: boolean
     settlementBankCode?: boolean
@@ -2928,6 +2938,7 @@ export namespace Prisma {
     suspensionReason?: boolean
     isActive?: boolean
     schemaName?: boolean
+    schemaProvisionedAt?: boolean
     paystackSubaccountCode?: boolean
     paystackSubaccountId?: boolean
     settlementBankCode?: boolean
@@ -2936,7 +2947,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type SchoolOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "subdomain" | "customDomain" | "customDomainVerifiedAt" | "email" | "phone" | "address" | "city" | "state" | "country" | "timezone" | "logoUrl" | "schoolCategory" | "schoolOwnership" | "status" | "verificationStatus" | "verifiedAt" | "verifiedById" | "suspendedAt" | "suspensionReason" | "isActive" | "schemaName" | "paystackSubaccountCode" | "paystackSubaccountId" | "settlementBankCode" | "settlementAccountNumber" | "createdAt" | "updatedAt", ExtArgs["result"]["school"]>
+  export type SchoolOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "subdomain" | "customDomain" | "customDomainVerifiedAt" | "email" | "phone" | "address" | "city" | "state" | "country" | "timezone" | "logoUrl" | "schoolCategory" | "schoolOwnership" | "status" | "verificationStatus" | "verifiedAt" | "verifiedById" | "suspendedAt" | "suspensionReason" | "isActive" | "schemaName" | "schemaProvisionedAt" | "paystackSubaccountCode" | "paystackSubaccountId" | "settlementBankCode" | "settlementAccountNumber" | "createdAt" | "updatedAt", ExtArgs["result"]["school"]>
   export type SchoolInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     users?: boolean | School$usersArgs<ExtArgs>
     subscriptions?: boolean | School$subscriptionsArgs<ExtArgs>
@@ -2981,6 +2992,7 @@ export namespace Prisma {
       suspensionReason: string | null
       isActive: boolean
       schemaName: string | null
+      schemaProvisionedAt: Date | null
       paystackSubaccountCode: string | null
       paystackSubaccountId: string | null
       settlementBankCode: string | null
@@ -3438,6 +3450,7 @@ export namespace Prisma {
     readonly suspensionReason: FieldRef<"School", 'String'>
     readonly isActive: FieldRef<"School", 'Boolean'>
     readonly schemaName: FieldRef<"School", 'String'>
+    readonly schemaProvisionedAt: FieldRef<"School", 'DateTime'>
     readonly paystackSubaccountCode: FieldRef<"School", 'String'>
     readonly paystackSubaccountId: FieldRef<"School", 'String'>
     readonly settlementBankCode: FieldRef<"School", 'String'>
@@ -18336,6 +18349,7 @@ export namespace Prisma {
     suspensionReason: 'suspensionReason',
     isActive: 'isActive',
     schemaName: 'schemaName',
+    schemaProvisionedAt: 'schemaProvisionedAt',
     paystackSubaccountCode: 'paystackSubaccountCode',
     paystackSubaccountId: 'paystackSubaccountId',
     settlementBankCode: 'settlementBankCode',
@@ -18961,6 +18975,7 @@ export namespace Prisma {
     suspensionReason?: StringNullableFilter<"School"> | string | null
     isActive?: BoolFilter<"School"> | boolean
     schemaName?: StringNullableFilter<"School"> | string | null
+    schemaProvisionedAt?: DateTimeNullableFilter<"School"> | Date | string | null
     paystackSubaccountCode?: StringNullableFilter<"School"> | string | null
     paystackSubaccountId?: StringNullableFilter<"School"> | string | null
     settlementBankCode?: StringNullableFilter<"School"> | string | null
@@ -18998,6 +19013,7 @@ export namespace Prisma {
     suspensionReason?: SortOrderInput | SortOrder
     isActive?: SortOrder
     schemaName?: SortOrderInput | SortOrder
+    schemaProvisionedAt?: SortOrderInput | SortOrder
     paystackSubaccountCode?: SortOrderInput | SortOrder
     paystackSubaccountId?: SortOrderInput | SortOrder
     settlementBankCode?: SortOrderInput | SortOrder
@@ -19038,6 +19054,7 @@ export namespace Prisma {
     suspendedAt?: DateTimeNullableFilter<"School"> | Date | string | null
     suspensionReason?: StringNullableFilter<"School"> | string | null
     isActive?: BoolFilter<"School"> | boolean
+    schemaProvisionedAt?: DateTimeNullableFilter<"School"> | Date | string | null
     paystackSubaccountCode?: StringNullableFilter<"School"> | string | null
     paystackSubaccountId?: StringNullableFilter<"School"> | string | null
     settlementBankCode?: StringNullableFilter<"School"> | string | null
@@ -19075,6 +19092,7 @@ export namespace Prisma {
     suspensionReason?: SortOrderInput | SortOrder
     isActive?: SortOrder
     schemaName?: SortOrderInput | SortOrder
+    schemaProvisionedAt?: SortOrderInput | SortOrder
     paystackSubaccountCode?: SortOrderInput | SortOrder
     paystackSubaccountId?: SortOrderInput | SortOrder
     settlementBankCode?: SortOrderInput | SortOrder
@@ -19113,6 +19131,7 @@ export namespace Prisma {
     suspensionReason?: StringNullableWithAggregatesFilter<"School"> | string | null
     isActive?: BoolWithAggregatesFilter<"School"> | boolean
     schemaName?: StringNullableWithAggregatesFilter<"School"> | string | null
+    schemaProvisionedAt?: DateTimeNullableWithAggregatesFilter<"School"> | Date | string | null
     paystackSubaccountCode?: StringNullableWithAggregatesFilter<"School"> | string | null
     paystackSubaccountId?: StringNullableWithAggregatesFilter<"School"> | string | null
     settlementBankCode?: StringNullableWithAggregatesFilter<"School"> | string | null
@@ -20261,6 +20280,7 @@ export namespace Prisma {
     suspensionReason?: string | null
     isActive?: boolean
     schemaName?: string | null
+    schemaProvisionedAt?: Date | string | null
     paystackSubaccountCode?: string | null
     paystackSubaccountId?: string | null
     settlementBankCode?: string | null
@@ -20298,6 +20318,7 @@ export namespace Prisma {
     suspensionReason?: string | null
     isActive?: boolean
     schemaName?: string | null
+    schemaProvisionedAt?: Date | string | null
     paystackSubaccountCode?: string | null
     paystackSubaccountId?: string | null
     settlementBankCode?: string | null
@@ -20335,6 +20356,7 @@ export namespace Prisma {
     suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     schemaName?: NullableStringFieldUpdateOperationsInput | string | null
+    schemaProvisionedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paystackSubaccountCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubaccountId?: NullableStringFieldUpdateOperationsInput | string | null
     settlementBankCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -20372,6 +20394,7 @@ export namespace Prisma {
     suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     schemaName?: NullableStringFieldUpdateOperationsInput | string | null
+    schemaProvisionedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paystackSubaccountCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubaccountId?: NullableStringFieldUpdateOperationsInput | string | null
     settlementBankCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -20409,6 +20432,7 @@ export namespace Prisma {
     suspensionReason?: string | null
     isActive?: boolean
     schemaName?: string | null
+    schemaProvisionedAt?: Date | string | null
     paystackSubaccountCode?: string | null
     paystackSubaccountId?: string | null
     settlementBankCode?: string | null
@@ -20441,6 +20465,7 @@ export namespace Prisma {
     suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     schemaName?: NullableStringFieldUpdateOperationsInput | string | null
+    schemaProvisionedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paystackSubaccountCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubaccountId?: NullableStringFieldUpdateOperationsInput | string | null
     settlementBankCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -20473,6 +20498,7 @@ export namespace Prisma {
     suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     schemaName?: NullableStringFieldUpdateOperationsInput | string | null
+    schemaProvisionedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paystackSubaccountCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubaccountId?: NullableStringFieldUpdateOperationsInput | string | null
     settlementBankCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -21921,6 +21947,7 @@ export namespace Prisma {
     suspensionReason?: SortOrder
     isActive?: SortOrder
     schemaName?: SortOrder
+    schemaProvisionedAt?: SortOrder
     paystackSubaccountCode?: SortOrder
     paystackSubaccountId?: SortOrder
     settlementBankCode?: SortOrder
@@ -21953,6 +21980,7 @@ export namespace Prisma {
     suspensionReason?: SortOrder
     isActive?: SortOrder
     schemaName?: SortOrder
+    schemaProvisionedAt?: SortOrder
     paystackSubaccountCode?: SortOrder
     paystackSubaccountId?: SortOrder
     settlementBankCode?: SortOrder
@@ -21985,6 +22013,7 @@ export namespace Prisma {
     suspensionReason?: SortOrder
     isActive?: SortOrder
     schemaName?: SortOrder
+    schemaProvisionedAt?: SortOrder
     paystackSubaccountCode?: SortOrder
     paystackSubaccountId?: SortOrder
     settlementBankCode?: SortOrder
@@ -24915,6 +24944,7 @@ export namespace Prisma {
     suspensionReason?: string | null
     isActive?: boolean
     schemaName?: string | null
+    schemaProvisionedAt?: Date | string | null
     paystackSubaccountCode?: string | null
     paystackSubaccountId?: string | null
     settlementBankCode?: string | null
@@ -24951,6 +24981,7 @@ export namespace Prisma {
     suspensionReason?: string | null
     isActive?: boolean
     schemaName?: string | null
+    schemaProvisionedAt?: Date | string | null
     paystackSubaccountCode?: string | null
     paystackSubaccountId?: string | null
     settlementBankCode?: string | null
@@ -25003,6 +25034,7 @@ export namespace Prisma {
     suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     schemaName?: NullableStringFieldUpdateOperationsInput | string | null
+    schemaProvisionedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paystackSubaccountCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubaccountId?: NullableStringFieldUpdateOperationsInput | string | null
     settlementBankCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -25039,6 +25071,7 @@ export namespace Prisma {
     suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     schemaName?: NullableStringFieldUpdateOperationsInput | string | null
+    schemaProvisionedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paystackSubaccountCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubaccountId?: NullableStringFieldUpdateOperationsInput | string | null
     settlementBankCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -25075,6 +25108,7 @@ export namespace Prisma {
     suspensionReason?: string | null
     isActive?: boolean
     schemaName?: string | null
+    schemaProvisionedAt?: Date | string | null
     paystackSubaccountCode?: string | null
     paystackSubaccountId?: string | null
     settlementBankCode?: string | null
@@ -25111,6 +25145,7 @@ export namespace Prisma {
     suspensionReason?: string | null
     isActive?: boolean
     schemaName?: string | null
+    schemaProvisionedAt?: Date | string | null
     paystackSubaccountCode?: string | null
     paystackSubaccountId?: string | null
     settlementBankCode?: string | null
@@ -25249,6 +25284,7 @@ export namespace Prisma {
     suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     schemaName?: NullableStringFieldUpdateOperationsInput | string | null
+    schemaProvisionedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paystackSubaccountCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubaccountId?: NullableStringFieldUpdateOperationsInput | string | null
     settlementBankCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -25285,6 +25321,7 @@ export namespace Prisma {
     suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     schemaName?: NullableStringFieldUpdateOperationsInput | string | null
+    schemaProvisionedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paystackSubaccountCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubaccountId?: NullableStringFieldUpdateOperationsInput | string | null
     settlementBankCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -25819,6 +25856,7 @@ export namespace Prisma {
     suspensionReason?: string | null
     isActive?: boolean
     schemaName?: string | null
+    schemaProvisionedAt?: Date | string | null
     paystackSubaccountCode?: string | null
     paystackSubaccountId?: string | null
     settlementBankCode?: string | null
@@ -25855,6 +25893,7 @@ export namespace Prisma {
     suspensionReason?: string | null
     isActive?: boolean
     schemaName?: string | null
+    schemaProvisionedAt?: Date | string | null
     paystackSubaccountCode?: string | null
     paystackSubaccountId?: string | null
     settlementBankCode?: string | null
@@ -26013,6 +26052,7 @@ export namespace Prisma {
     suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     schemaName?: NullableStringFieldUpdateOperationsInput | string | null
+    schemaProvisionedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paystackSubaccountCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubaccountId?: NullableStringFieldUpdateOperationsInput | string | null
     settlementBankCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -26049,6 +26089,7 @@ export namespace Prisma {
     suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     schemaName?: NullableStringFieldUpdateOperationsInput | string | null
+    schemaProvisionedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paystackSubaccountCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubaccountId?: NullableStringFieldUpdateOperationsInput | string | null
     settlementBankCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -26388,6 +26429,7 @@ export namespace Prisma {
     suspensionReason?: string | null
     isActive?: boolean
     schemaName?: string | null
+    schemaProvisionedAt?: Date | string | null
     paystackSubaccountCode?: string | null
     paystackSubaccountId?: string | null
     settlementBankCode?: string | null
@@ -26424,6 +26466,7 @@ export namespace Prisma {
     suspensionReason?: string | null
     isActive?: boolean
     schemaName?: string | null
+    schemaProvisionedAt?: Date | string | null
     paystackSubaccountCode?: string | null
     paystackSubaccountId?: string | null
     settlementBankCode?: string | null
@@ -26476,6 +26519,7 @@ export namespace Prisma {
     suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     schemaName?: NullableStringFieldUpdateOperationsInput | string | null
+    schemaProvisionedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paystackSubaccountCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubaccountId?: NullableStringFieldUpdateOperationsInput | string | null
     settlementBankCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -26512,6 +26556,7 @@ export namespace Prisma {
     suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     schemaName?: NullableStringFieldUpdateOperationsInput | string | null
+    schemaProvisionedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paystackSubaccountCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubaccountId?: NullableStringFieldUpdateOperationsInput | string | null
     settlementBankCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -26633,6 +26678,7 @@ export namespace Prisma {
     suspensionReason?: string | null
     isActive?: boolean
     schemaName?: string | null
+    schemaProvisionedAt?: Date | string | null
     paystackSubaccountCode?: string | null
     paystackSubaccountId?: string | null
     settlementBankCode?: string | null
@@ -26669,6 +26715,7 @@ export namespace Prisma {
     suspensionReason?: string | null
     isActive?: boolean
     schemaName?: string | null
+    schemaProvisionedAt?: Date | string | null
     paystackSubaccountCode?: string | null
     paystackSubaccountId?: string | null
     settlementBankCode?: string | null
@@ -26760,6 +26807,7 @@ export namespace Prisma {
     suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     schemaName?: NullableStringFieldUpdateOperationsInput | string | null
+    schemaProvisionedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paystackSubaccountCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubaccountId?: NullableStringFieldUpdateOperationsInput | string | null
     settlementBankCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -26796,6 +26844,7 @@ export namespace Prisma {
     suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     schemaName?: NullableStringFieldUpdateOperationsInput | string | null
+    schemaProvisionedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paystackSubaccountCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubaccountId?: NullableStringFieldUpdateOperationsInput | string | null
     settlementBankCode?: NullableStringFieldUpdateOperationsInput | string | null

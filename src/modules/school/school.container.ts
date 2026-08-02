@@ -17,6 +17,7 @@ import { GetDocumentsUseCase }         from "./usecases/school-admin/get-documen
 import { SetupPaymentUseCase }         from "./usecases/school-admin/setup-payment.usecase";
 import { GetDashboardUseCase } from "./usecases/school-admin/get-dashboard.usecase";
 import { GetSetupChecklistUseCase } from "./usecases/school-admin/get-setup-checklist.usecase";
+import { GetPublicSchoolInfoUseCase } from "./usecases/school-admin/get-public-school-info.usecase";
 
 // ── Super Admin Use Cases ─────────────────────────────────────────────────
 import { GetAllSchoolsUseCase }        from "./usecases/super-admin/get-all-schools.usecase";
@@ -58,6 +59,8 @@ export const registerSchool = (container: AwilixContainer): void => {
         setupPaymentUseCase:           asClass(SetupPaymentUseCase).scoped(),
         getDashboardUseCase:           asClass(GetDashboardUseCase).scoped(),
         getSetupChecklistUseCase:           asClass(GetSetupChecklistUseCase).scoped(),
+
+        getPublicSchoolInfoUseCase:    asClass(GetPublicSchoolInfoUseCase).scoped(),
 
         // ── Super Admin Use Cases ─────────────────────────────────────────
         getAllSchoolsUseCase:           asClass(GetAllSchoolsUseCase).scoped(),

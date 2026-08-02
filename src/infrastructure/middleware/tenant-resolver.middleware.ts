@@ -39,8 +39,16 @@ export const resolveTenant = async (
 
         if (!targetSchema || !targetSchoolId) {
             const host      = req.headers.host ?? "";
-            const parts     = host.split(".");
-            const subdomain = parts.length > 2 ? parts[0].toLowerCase() : null;
+            const hostname = host.split(":")[0]; // remove port
+
+            let subdomain: string | null = null;
+
+            if (hostname.endsWith(".localhost")) {
+                subdomain = hostname.split(".")[0].toLowerCase();
+            } else {
+                const parts = hostname.split(".");
+                subdomain = parts.length > 2 ? parts[0].toLowerCase() : null;
+            }
 
             if (
                 !subdomain          ||

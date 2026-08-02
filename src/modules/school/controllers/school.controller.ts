@@ -20,15 +20,16 @@ import { SuspendSchoolUseCase }    from "../usecases/super-admin/suspend-school.
 import { ActivateSchoolUseCase }   from "../usecases/super-admin/activate-school.usecase";
 import { ApproveDocumentUseCase }  from "../usecases/super-admin/approve-document.usecase";
 import { RejectDocumentUseCase }   from "../usecases/super-admin/reject-document.usecase";
+ import { GetPublicSchoolInfoUseCase } from "../usecases/school-admin/get-public-school-info.usecase";
 
+ 
+ import {
+     sendSuccess,
+     sendCreated,
+     sendPaginated,
+    }                                  from "../../../shared/utils/api-response";
 
-import {
-    sendSuccess,
-    sendCreated,
-    sendPaginated,
-}                                  from "../../../shared/utils/api-response";
-
-/*
+    /*
 |--------------------------------------------------------------------------
 | SCHOOL CONTROLLER
 | Parses request → calls use case → sends response
@@ -45,6 +46,7 @@ interface Dependencies {
     setupPaymentUseCase:    SetupPaymentUseCase;
     getDashboardUseCase: GetDashboardUseCase;
     getSetupChecklistUseCase: GetSetupChecklistUseCase;
+    getPublicSchoolInfoUseCase: GetPublicSchoolInfoUseCase;
 
 
     // ── Super Admin ───────────────────────────────────────────────────────
@@ -68,6 +70,7 @@ export class SchoolController {
     private readonly setupPaymentUseCase:     SetupPaymentUseCase;
     private readonly getDashboardUseCase:     GetDashboardUseCase;
     private readonly getSetupChecklistUseCase: GetSetupChecklistUseCase;
+    private readonly getPublicSchoolInfoUseCase:   GetPublicSchoolInfoUseCase;
 
     private readonly getAllSchoolsUseCase:     GetAllSchoolsUseCase;
     private readonly getSchoolByIdUseCase:    GetSchoolByIdUseCase;
@@ -99,6 +102,7 @@ export class SchoolController {
         activateSchoolUseCase,
         approveDocumentUseCase,
         rejectDocumentUseCase,
+        getPublicSchoolInfoUseCase,
     }: Dependencies) {
         this.getSchoolUseCase        = getSchoolUseCase;
         this.updateSchoolUseCase     = updateSchoolUseCase;
@@ -108,7 +112,7 @@ export class SchoolController {
         this.setupPaymentUseCase     = setupPaymentUseCase;
         this.getDashboardUseCase     = getDashboardUseCase
         this.getSetupChecklistUseCase = getSetupChecklistUseCase;
-
+        this.getPublicSchoolInfoUseCase = getPublicSchoolInfoUseCase;
 
         this.getAllSchoolsUseCase     = getAllSchoolsUseCase;
         this.getSchoolByIdUseCase    = getSchoolByIdUseCase;
@@ -286,6 +290,23 @@ export class SchoolController {
         }
     };
 
+
+    // ========================================
+    // PUBLIC METHODS
+    // ========================================
+
+
+    getPublicSchoolInfo = async (
+        req: Request, res: Response, next: NextFunction,
+    ): Promise<void> => {
+        try {
+            const result = await this.getPublicSchoolInfoUseCase.execute(
+                req.params.subdomain as string,
+            );
+            sendSuccess(res, result, "School info retrieved successfully");
+        } catch (err) { next(err); }
+    };
+
     // ========================================
     // SUPER ADMIN METHODS
     // ========================================
@@ -439,4 +460,6 @@ export class SchoolController {
             next(err);
         }
     };
+
+   
 }
