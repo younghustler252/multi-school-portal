@@ -20,7 +20,7 @@ import { useAuthStore } from "@/stores/auth.store";
 import { useRegisterForm } from "@/features/auth/hooks/use-register-form";
 import { RegisterStepper } from "@/components/marketing/register-stepper";
 import { ApiErrorResponse } from "@/types/api-response";
-import { ROLE_DEFAULT_ROUTE } from "@/types/roles";
+import { saveSubdomain } from "@/lib/onboarding-storage";
 import { cn } from "@/lib/utils";
 
 export default function RegisterPage() {
@@ -44,7 +44,7 @@ export default function RegisterPage() {
 
 			// Remove common school words
 			.replace(
-				/\b(school|academy|college|nursery|primary|secondary|international|institute|high|grammar|college)\b/g,
+				/\b(school|academy|college|nursery|primary|secondary|international|institute|high|grammar|college|and)\b/g,
 				"",
 			)
 
@@ -76,7 +76,8 @@ export default function RegisterPage() {
 		setServerError(null);
 		setIsSubmitting(true);
 		try {
-			await registerSchoolAdmin(values);
+			const result = await registerSchoolAdmin(values);
+			saveSubdomain(result.subdomain);
 			router.push(`/verify-email?email=${encodeURIComponent(values.email)}`);
 		} catch (err) {
 			const apiErr = err as ApiErrorResponse;

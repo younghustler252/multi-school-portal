@@ -45,6 +45,7 @@ export interface LoginResponseData {
 }
 export interface RegisterResponseData {
 	message: string;
+	subdomain: string;
 }
 export interface RefreshResponseData {
 	accessToken: string;

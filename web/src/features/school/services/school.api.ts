@@ -1,13 +1,15 @@
-import { API } from "@/lib/api-client";
+import { API } from "@/lib/api/api-client";
 import { ApiResponse } from "@/types/api-response";
 import {
 	SchoolResponseData,
 	UpdateSchoolDto,
-	SchoolDocumentResponseData,
 	SetupChecklist,
 	UploadFileResponseData,
 	SchoolDashboardData,
+	PublicSchoolInfo,
 } from "../types/school.types";
+import { SchoolDocumentResponseData } from "../types/school-document.types";
+
 
 export const schoolApi = {
 
@@ -43,4 +45,9 @@ export const schoolApi = {
 	getDashboard: (): Promise<ApiResponse<SchoolDashboardData>> =>
 		API.get("/schools/me/dashboard"),
 
+
+	getPublicInfo: (subdomain: string): Promise<ApiResponse<PublicSchoolInfo>> =>
+		API.get(`/schools/public/${subdomain}`),
+
+	
 };

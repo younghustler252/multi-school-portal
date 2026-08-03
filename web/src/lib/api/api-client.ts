@@ -1,15 +1,15 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, InternalAxiosRequestConfig } from "axios";
 import { authApi } from "@/features/auth/services/auth.api";
 import { ApiErrorResponse, ApiResponse } from "@/types/api-response";
+import { getApiBaseUrl } from "./get-api-base-url";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
 
 const axiosInstance: AxiosInstance = axios.create({
-	baseURL: API_BASE_URL,
+	baseURL: getApiBaseUrl(),
 	headers: {
 		"Content-Type": "application/json",
 	},
-	withCredentials: true, // sends httpOnly accessToken + refreshToken cookies automatically
+	withCredentials: true,
 });
 
 // No request interceptor needed — cookies are sent automatically by the browser.

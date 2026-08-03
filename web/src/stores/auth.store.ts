@@ -4,6 +4,7 @@ import { authApi } from "@/features/auth/services/auth.api";
 import { userApi } from "@/features/user/services/user.api";
 import { RegisterDto } from "@/features/auth/types/auth.types";
 import { UserProfileResponseData } from "@/features/user/types/user.types";
+import { RegisterResponseData } from "@/features/auth/types/auth.types";
 
 interface AuthState {
 	user: UserProfileResponseData | null;
@@ -11,7 +12,7 @@ interface AuthState {
 	isLoading: boolean;
 
 	login: (email: string, password: string) => Promise<void>;
-	register: (data: RegisterDto) => Promise<{ message: string }>;
+	register: (data: RegisterDto) => Promise<RegisterResponseData>;
 	logout: () => void;
 	fetchCurrentUser: () => Promise<boolean>;
 }

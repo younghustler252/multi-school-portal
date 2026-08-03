@@ -1,7 +1,16 @@
-export interface SchoolResponseData {
+export type SchoolStatus = "pending" | "active" | "suspended";
+export type VerificationStatus = "unverified" | "under_review" | "verified" | "rejected";
+
+export interface SchoolStatusFields {
 	id: string;
 	name: string;
 	subdomain: string;
+	status: SchoolStatus;
+	isActive: boolean;
+	verificationStatus: VerificationStatus;
+}
+
+export interface SchoolResponseData extends SchoolStatusFields {
 	email: string;
 	phone: string | null;
 	address: string | null;
@@ -12,11 +21,20 @@ export interface SchoolResponseData {
 	logoUrl: string | null;
 	schoolCategory: string;
 	schoolOwnership: string;
-	status: string;
-	verificationStatus: string;
-	isActive: boolean;
 	createdAt: string;
 }
+
+export interface PublicSchoolInfo extends SchoolStatusFields {
+	logoUrl: string | null;
+	schoolCategory: string;
+	primaryColor: string | null;
+	secondaryColor: string | null;
+	motto: string | null;
+	website: string | null;
+	principalName: string | null;
+	address: string | null;
+}
+
 
 export interface UpdateSchoolDto {
 	name?: string;
@@ -29,17 +47,6 @@ export interface UpdateSchoolDto {
 	timezone?: string;
 	schoolCategory?: "primary" | "secondary" | "primary_secondary";
 	schoolOwnership?: "private" | "public" | "mission" | "international";
-}
-
-export interface SchoolDocumentResponseData {
-	id: string;
-	schoolId: string;
-	type: string;
-	fileUrl: string;
-	status: string;
-	rejectionReason: string | null;
-	verifiedAt: string | null;
-	createdAt: string;
 }
 
 export interface ChecklistItem {

@@ -82,4 +82,15 @@ export function useUploadStudentPhoto(id: string) {
 			);
 		},
 	});
+
+}
+
+
+export function usePatchStudentPhoto() {
+	const queryClient = useQueryClient();
+	return (id: string, photoUrl: string) => {
+		queryClient.setQueryData<StudentResponseData | undefined>(["students", id], (old) =>
+			old ? { ...old, photoUrl } : old
+		);
+	};
 }

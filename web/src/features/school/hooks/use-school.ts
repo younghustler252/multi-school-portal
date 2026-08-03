@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { schoolApi } from "../services/school.api";
 import { UpdateSchoolDto } from "../types/school.types";
 
-export function useMySchool() {
+export function useMySchool(options?: { poll?: boolean }) {
 	return useQuery({
 		queryKey: ["school", "me"],
 		queryFn: async () => {
@@ -10,6 +10,7 @@ export function useMySchool() {
 			if (!res.success) throw res;
 			return res.data;
 		},
+		refetchInterval: options?.poll ? 30_000 : false,
 	});
 }
 
@@ -46,5 +47,17 @@ export function useSchoolDashboard() {
 			if (!res.success) throw res;
 			return res.data;
 		},
+	});
+}
+
+export function usePublicSchoolInfo(subdomain: string) {
+	return useQuery({
+		queryKey: ["school", "public", subdomain],
+		queryFn: async () => {
+			const res = await schoolApi.getPublicInfo(subdomain);
+			if (!res.success) throw res;
+			return res.data;
+		},
+		enabled: !!subdomain,
 	});
 }

@@ -34,14 +34,11 @@ export default function LoginPage() {
 		setServerError(null);
 		try {
 			await login(values.email, values.password);
-			const user = useAuthStore.getState().user;
-			router.push(user ? ROLE_DEFAULT_ROUTE[user.role] : "/");
+			router.push("/onboarding/status");
 		} catch (err) {
 			const apiErr = err as ApiErrorResponse;
 
 			if (apiErr.message?.toLowerCase().includes("verify")) {
-				// Trigger a fresh OTP before sending them to enter one —
-				// their original registration code has likely expired by now.
 				authApi.resendOtp({ email: values.email }).catch(() => {});
 				router.push(`/verify-email?email=${encodeURIComponent(values.email)}`);
 				return;

@@ -1,4 +1,4 @@
-import { API } from "@/lib/api-client";
+import { API } from "@/lib/api/api-client";
 import { ApiResponse } from "@/types/api-response";
 import {
   SchoolSettingsResponseData,
