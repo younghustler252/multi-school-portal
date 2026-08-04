@@ -1,5 +1,6 @@
 import { Redis }   from "ioredis";
 import { env }      from "../../config/env";
+import { tr } from "zod/v4/locales";
 
 /*
 |--------------------------------------------------------------------------
@@ -12,6 +13,7 @@ const client = new Redis({
     host:                env.redis.host,
     port:                env.redis.port,
     maxRetriesPerRequest: null,   // required by BullMQ
+    lazyConnect: true,
 });
 
 client.on("connect", () => {

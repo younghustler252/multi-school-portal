@@ -8,14 +8,6 @@ import {
 } from "./interfaces/storage.interface";
 import { env } from "../../config/env";
 
-/*
-|--------------------------------------------------------------------------
-| SUPABASE STORAGE SERVICE
-| Generic file upload/delete service used by any module
-| Each module passes its own folder path when calling upload()
-|--------------------------------------------------------------------------
-*/
-
 export class SupabaseStorageService implements IStorageProvider {
     private readonly client: SupabaseClient;
     private readonly bucket: string;
@@ -30,7 +22,6 @@ export class SupabaseStorageService implements IStorageProvider {
         console.log("🗄️  Storage provider: Supabase");
     }
 
-    // ── Upload ────────────────────────────────────────────────────────────
     async upload(options: UploadFileOptions): Promise<UploadResult> {
         const bucket     = options.bucket ?? this.bucket;
         const ext        = path.extname(options.filename);
@@ -48,16 +39,17 @@ export class SupabaseStorageService implements IStorageProvider {
             throw new Error(`Storage upload failed: ${error.message}`);
         }
 
-        const url = this.getPublicUrl(filePath, bucket);
+        const isPublicBucket = bucket === env.supabase.publicBucket;
+        const url = isPublicBucket ? this.getPublicUrl(filePath, bucket) : "";
 
         return {
             url,
             path:     filePath,
             filename: uniqueName,
+            bucket,
         };
     }
 
-    // ── Delete ────────────────────────────────────────────────────────────
     async delete(filePath: string, bucket?: string): Promise<void> {
         const { error } = await this.client.storage
             .from(bucket ?? this.bucket)
@@ -68,12 +60,27 @@ export class SupabaseStorageService implements IStorageProvider {
         }
     }
 
-    // ── Get public URL ────────────────────────────────────────────────────
     getPublicUrl(filePath: string, bucket?: string): string {
         const { data } = this.client.storage
             .from(bucket ?? this.bucket)
             .getPublicUrl(filePath);
 
         return data.publicUrl;
+    }
+
+    async getSignedUrl(
+        filePath:          string,
+        bucket?:           string,
+        expiresInSeconds = 300,
+    ): Promise<string> {
+        const { data, error } = await this.client.storage
+            .from(bucket ?? this.bucket)
+            .createSignedUrl(filePath, expiresInSeconds);
+
+        if (error) {
+            throw new Error(`Storage signed URL failed: ${error.message}`);
+        }
+
+        return data.signedUrl;
     }
 }

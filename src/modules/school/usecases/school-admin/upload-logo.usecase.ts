@@ -4,6 +4,7 @@ import { SchoolResponseData }       from "../../mappers/school.mapper";
 import { SupabaseStorageService }   from "../../../../infrastructure/storage/supabase-storage.service";
 import { NotFoundError }            from "../../../../shared/errors/domain.errors";
 import { SchoolErrorMessage }       from "../../domain/school.enum";
+import { env } from "../../../../config/env";
 
 /*
 |--------------------------------------------------------------------------
@@ -51,13 +52,13 @@ export class UploadLogoUseCase {
 
         // ── Upload to storage ─────────────────────────────────────────────
         const result = await this.storageService.upload({
+            bucket:   env.supabase.publicBucket,
             folder:   `schools/${schoolId}/logos`,
             file:     file.buffer,
             mimetype: file.mimetype,
             filename: file.filename,
         });
 
-        // ── Update school logo URL ────────────────────────────────────────
         const updated = await this.schoolRepository.updateLogo(
             schoolId,
             result.url,

@@ -4,7 +4,7 @@ import { SchoolNotificationResponseData } from "../mappers/notification.mapper";
 import { MailService }                    from "../../../infrastructure/mail/mail.service";
 import { SmsService }                     from "../../../infrastructure/sms/sms.service";
 import { SendSchoolNotificationDtoType }  from "../dtos/notification.dto";
-import { addNotificationJob }             from "../../../infrastructure/jobs/queues/notification.queue";
+// import { addNotificationJob }             from "../../../infrastructure/jobs/queues/notification.queue";
 
 /*
 |--------------------------------------------------------------------------
@@ -60,20 +60,20 @@ export class SendSchoolNotificationUseCase {
         // ── Queue delivery for each channel ───────────────────────────────
         for (const channel of dto.channels) {
             if (channel === "EMAIL" || channel === "SMS") {
-                await addNotificationJob({
-                    channel:  channel.toLowerCase() as "email" | "sms",
-                    to:       [], // resolved by worker based on targetType
-                    type:     dto.type,
-                    payload:  {
-                        title:          dto.title,
-                        message:        dto.message,
-                        targetType:     dto.targetType,
-                        notificationId: notification.id,
-                        studentIds:     dto.studentIds,
-                        guardianIds:    dto.guardianIds,
-                        staffIds:       dto.staffIds,
-                    },
-                });
+                // await addNotificationJob({
+                //     channel:  channel.toLowerCase() as "email" | "sms",
+                //     to:       [], // resolved by worker based on targetType
+                //     type:     dto.type,
+                //     payload:  {
+                //         title:          dto.title,
+                //         message:        dto.message,
+                //         targetType:     dto.targetType,
+                //         notificationId: notification.id,
+                //         studentIds:     dto.studentIds,
+                //         guardianIds:    dto.guardianIds,
+                //         staffIds:       dto.staffIds,
+                //     },
+                // });
             }
         }
 

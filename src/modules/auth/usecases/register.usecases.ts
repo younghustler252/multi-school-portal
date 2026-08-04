@@ -7,7 +7,7 @@ import { IPlanRepository }         from "../../plans/repositories/plan.repositor
 import { MailService }             from "../../../infrastructure/mail/mail.service";
 import { PasswordService }         from "../../../shared/services/password.service";
 import { TokenService }            from "../../../shared/services/token.service";
-import { addProvisionSchemaJob }   from "../../../infrastructure/jobs/queues/provision-schema.queue";
+// import { addProvisionSchemaJob }   from "../../../infrastructure/jobs/queues/provision-schema.queue";
 import { OtpType, Role }           from "../../../generated/public";
 import {
     OtpExpiryMinutes,
@@ -193,11 +193,11 @@ export class RegisterUseCase {
         });
 
         // ── 11. Queue schema provisioning ─────────────────────────────────
-        await addProvisionSchemaJob({
-            schoolId:   school.id,
-            subdomain:  cleanSubdomain,
-            schoolName: dto.schoolName,
-        });
+        // await addProvisionSchemaJob({
+        //     schoolId:   school.id,
+        //     subdomain:  cleanSubdomain,
+        //     schoolName: dto.schoolName,
+        // });
 
         // ── 12. Return success ────────────────────────────────────────────
         return {

@@ -76,11 +76,10 @@ export class UploadDocumentUseCase {
             filename: file.filename,
         });
 
-        // ── Save document record ──────────────────────────────────────────
         const document = await this.schoolRepository.createDocument({
             schoolId,
             type:    dto.type as DocumentType,
-            fileUrl: result.url,
+            fileUrl: result.path,
         });
 
         return this.schoolDocumentMapper.toResponse(document);

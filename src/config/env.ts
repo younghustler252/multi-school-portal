@@ -41,6 +41,7 @@ const envSchema = z.object({
     SUPABASE_URL:         z.string().url(),
     SUPABASE_SERVICE_KEY: z.string(),
     SUPABASE_BUCKET:      z.string(),
+    SUPABASE_PUBLIC_BUCKET: z.string(),
 
     // ── Email ────────────────────────────────────────────────────────────
     SMTP_HOST: z.string().optional(),
@@ -108,6 +109,7 @@ export const env = {
         url:        parsed.data.SUPABASE_URL,
         serviceKey: parsed.data.SUPABASE_SERVICE_KEY,
         bucket:     parsed.data.SUPABASE_BUCKET,
+        publicBucket: parsed.data.SUPABASE_PUBLIC_BUCKET,
     },
 
     // ── Email ────────────────────────────────────────────────────────────
