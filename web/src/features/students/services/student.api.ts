@@ -6,6 +6,7 @@ import {
 	UpdateStudentDto,
 	ListStudentsParams,
 	UploadPhotoResponseData,
+	StudentWithGuardiansResponseData
 } from "../types/student.types";
 
 export interface ListStudentsResult {
@@ -26,7 +27,7 @@ export const studentApi = {
 			},
 		}),
 
-	getById: (id: string): Promise<ApiResponse<StudentResponseData>> =>
+	getById: (id: string): Promise<ApiResponse<StudentWithGuardiansResponseData>> =>
 		API.get(`/students/${id}`),
 
 	create: (data: CreateStudentDto): Promise<ApiResponse<StudentResponseData>> =>

@@ -1,7 +1,7 @@
+import { GuardianResponseData, GuardianRelation } from "@/features/guardians/types/guardian.types";
+
 export type Gender = "male" | "female";
-export type GuardianRelation =
-	| "father" | "mother" | "uncle" | "aunt"
-	| "grandparent" | "sibling" | "guardian" | "other";
+
 
 export interface StudentResponseData {
 	id: string;
@@ -58,4 +58,14 @@ export interface ListStudentsParams {
 
 export interface UploadPhotoResponseData {
 	url: string;
+}
+
+
+export interface StudentGuardianLinkResponseData extends GuardianResponseData {
+	relation: GuardianRelation;
+	isPrimary: boolean;
+}
+
+export interface StudentWithGuardiansResponseData extends StudentResponseData {
+	guardians: StudentGuardianLinkResponseData[];
 }
