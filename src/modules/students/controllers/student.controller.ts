@@ -77,6 +77,7 @@ export class StudentController {
                 req.params.id as string,
             );
             sendSuccess(res, result, "Student retrieved successfully");
+            
         } catch (err) {
             next(err);
         }

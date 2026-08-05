@@ -19,6 +19,7 @@ import {
 |--------------------------------------------------------------------------
 */
 
+
 export class StudentRepositoryImpl implements IStudentRepository {
     private readonly mapper: StudentMapper;
 

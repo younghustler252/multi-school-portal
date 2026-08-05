@@ -24,6 +24,9 @@ export interface IGuardianRepository {
     // ── Guardian specific ─────────────────────────────────────────────────
     findByEmail(email: string):                     Promise<GuardianEntity | null>;
     findByStudentId(studentId: string):             Promise<GuardianEntity[]>;
+    findGuardianLinksByStudentId(
+        studentId: string,
+    ): Promise<Array<{ guardian: GuardianEntity; relation: string; isPrimary: boolean }>>;
     findByUserId(userId: string):                   Promise<GuardianEntity | null>;
 
     // ── StudentGuardian junction ──────────────────────────────────────────

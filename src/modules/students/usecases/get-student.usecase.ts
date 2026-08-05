@@ -1,36 +1,52 @@
 import { IStudentRepository }  from "../repositories/student.repository";
+import { IGuardianRepository } from "../../guardians/repositories/guardian.repository";
 import { StudentMapper }       from "../mappers/student.mapper";
-import { StudentResponseData } from "../mappers/student.mapper";
+import { StudentWithGuardiansResponseData } from "../mappers/student.mapper";
+import { GuardianMapper }      from "../../guardians/mappers/guardian.mapper";
 import { NotFoundError }       from "../../../shared/errors/domain.errors";
 import { StudentErrorMessage } from "../domain/student.enums";
 
-/*
-|--------------------------------------------------------------------------
-| GET STUDENT USE CASE
-|--------------------------------------------------------------------------
-*/
-
 interface Dependencies {
-    studentRepository: IStudentRepository;
-    studentMapper:     StudentMapper;
+    studentRepository:  IStudentRepository;
+    studentMapper:      StudentMapper;
+    guardianRepository: IGuardianRepository;
+    guardianMapper:     GuardianMapper;
 }
 
 export class GetStudentUseCase {
-    private readonly studentRepository: IStudentRepository;
-    private readonly studentMapper:     StudentMapper;
+    private readonly studentRepository:  IStudentRepository;
+    private readonly studentMapper:      StudentMapper;
+    private readonly guardianRepository: IGuardianRepository;
+    private readonly guardianMapper:     GuardianMapper;
 
-    constructor({ studentRepository, studentMapper }: Dependencies) {
-        this.studentRepository = studentRepository;
-        this.studentMapper     = studentMapper;
+    constructor({
+        studentRepository,
+        studentMapper,
+        guardianRepository,
+        guardianMapper,
+    }: Dependencies) {
+        this.studentRepository  = studentRepository;
+        this.studentMapper      = studentMapper;
+        this.guardianRepository = guardianRepository;
+        this.guardianMapper     = guardianMapper;
     }
 
-    async execute(id: string): Promise<StudentResponseData> {
+    async execute(id: string): Promise<StudentWithGuardiansResponseData> {
         const student = await this.studentRepository.findById(id);
 
         if (!student) {
             throw new NotFoundError(StudentErrorMessage.NOT_FOUND);
         }
 
-        return this.studentMapper.toResponse(student);
+        const links = await this.guardianRepository.findGuardianLinksByStudentId(id);
+
+        return {
+            ...this.studentMapper.toResponse(student),
+            guardians: links.map(link => ({
+                ...this.guardianMapper.toResponse(link.guardian),
+                relation:  link.relation,
+                isPrimary: link.isPrimary,
+            })),
+        };
     }
 }
