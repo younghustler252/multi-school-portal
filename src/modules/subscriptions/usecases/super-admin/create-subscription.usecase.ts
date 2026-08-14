@@ -1,4 +1,4 @@
-import { ISubscriptionRepository }  from "../../repository/subscription.repository";
+import { ISubscriptionRepository }  from "../../repositories/subscription.repository";
 import { IPlanRepository }          from "../../../plans/repositories/plan.repository";
 import { SubscriptionMapper }       from "../../mappers/subscription.mapper";
 import { SubscriptionResponseData } from "../../mappers/subscription.mapper";

@@ -1,5 +1,5 @@
 import { ISchoolRepository }       from "../../repositories/school.repository";
-import { ISubscriptionRepository } from "../../../subscriptions/repository/subscription.repository";
+import { ISubscriptionRepository } from "../../../subscriptions/repositories/subscription.repository";
 import { IPlanRepository }         from "../../../plans/repositories/plan.repository";
 import { getTenantClient }         from "../../../../infrastructure/database/prisma/prisma.client";
 import { NotFoundError }           from "../../../../shared/errors/domain.errors";

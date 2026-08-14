@@ -4,6 +4,9 @@ import { GetStaffUseCase }       from "../usecases/get-staff.usecase";
 import { ListStaffUseCase }      from "../usecases/list-staff.usecase";
 import { UpdateStaffUseCase }    from "../usecases/update-staff.usecase";
 import { DeactivateStaffUseCase } from "../usecases/deactivate-staff.usecase";
+import { ReactivateStaffUseCase } from "../usecases/reactivate-staff.usecase";
+import { GetMyClassesUseCase } from "../usecases/get-my-class.usecase";
+import { GetStaffAssignmentsUseCase } from "../usecases/get-staff-assignments";
 import {
     sendSuccess,
     sendCreated,
@@ -22,6 +25,9 @@ interface Dependencies {
     listStaffUseCase:       ListStaffUseCase;
     updateStaffUseCase:     UpdateStaffUseCase;
     deactivateStaffUseCase: DeactivateStaffUseCase;
+    reactivateStaffUseCase:  ReactivateStaffUseCase;
+    getMyClassesUseCase: GetMyClassesUseCase;
+    getStaffAssignmentsUseCase: GetStaffAssignmentsUseCase;
 }
 
 export class StaffController {
@@ -30,6 +36,10 @@ export class StaffController {
     private readonly listStaffUseCase:       ListStaffUseCase;
     private readonly updateStaffUseCase:     UpdateStaffUseCase;
     private readonly deactivateStaffUseCase: DeactivateStaffUseCase;
+    private readonly reactivateStaffUseCase:  ReactivateStaffUseCase;
+    private readonly getMyClassesUseCase: GetMyClassesUseCase;
+    private readonly getStaffAssignmentsUseCase: GetStaffAssignmentsUseCase;
+    
 
     constructor({
         createStaffUseCase,
@@ -37,12 +47,19 @@ export class StaffController {
         listStaffUseCase,
         updateStaffUseCase,
         deactivateStaffUseCase,
+        reactivateStaffUseCase,
+        getMyClassesUseCase,
+        getStaffAssignmentsUseCase
+
     }: Dependencies) {
         this.createStaffUseCase     = createStaffUseCase;
         this.getStaffUseCase        = getStaffUseCase;
         this.listStaffUseCase       = listStaffUseCase;
         this.updateStaffUseCase     = updateStaffUseCase;
         this.deactivateStaffUseCase = deactivateStaffUseCase;
+        this.reactivateStaffUseCase  = reactivateStaffUseCase;
+        this.getMyClassesUseCase = getMyClassesUseCase;
+        this.getStaffAssignmentsUseCase = getStaffAssignmentsUseCase;
     }
 
     // ── List all staff ────────────────────────────────────────────────────
@@ -127,4 +144,61 @@ export class StaffController {
             next(err);
         }
     };
+
+
+    // ── Reactivate staff ────────────────────────────────────────────────
+    reactivateStaff = async (
+        req: Request,
+        res: Response,
+        next: NextFunction,
+    ): Promise<void> => {
+        try {
+            const result = await this.reactivateStaffUseCase.execute(
+                req.params.id as string,
+            );
+
+            sendSuccess(
+                res,
+                result,
+                "Staff member reactivated successfully",
+            );
+        } catch (err) {
+            next(err);
+        }
+    };
+
+        // ── Get my classes ────────────────────────────────────────────────────
+    getMyClasses = async (
+        req:  Request,
+        res:  Response,
+        next: NextFunction,
+    ): Promise<void> => {
+        try {
+            const result = await this.getMyClassesUseCase.execute(
+                req.user!.id,
+            );
+            sendSuccess(res, result, "Classes retrieved successfully");
+        } catch (err) {
+            next(err);
+        }
+    };
+
+
+        // ── Get staff assignments ─────────────────────────────────────────────
+    getStaffAssignments = async (
+        req:  Request,
+        res:  Response,
+        next: NextFunction,
+    ): Promise<void> => {
+        try {
+            const result = await this.getStaffAssignmentsUseCase.execute(
+                req.params.id as string,
+            );
+            sendSuccess(res, result, "Staff assignments retrieved successfully");
+        } catch (err) {
+            next(err);
+        }
+    };
+
+
 }

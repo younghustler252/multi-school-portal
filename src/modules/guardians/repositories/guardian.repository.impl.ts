@@ -66,4 +66,17 @@ export class GuardianRepositoryImpl
             isPrimary: link.isPrimary,
         }));
     }
+    async findStudentLinksByGuardianId(
+        guardianId: string,
+    ): Promise<Array<{ studentId: string; relation: string; isPrimary: boolean }>> {
+        const links = await this.prisma.studentGuardian.findMany({
+            where: { guardianId },
+        });
+
+        return links.map(link => ({
+            studentId: link.studentId,
+            relation:  link.relation,
+            isPrimary: link.isPrimary,
+        }));
+    }
 }

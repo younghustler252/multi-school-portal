@@ -104,8 +104,27 @@ export class ClassRepositoryImpl
         await this.prisma.classSubject.delete({ where: { id } });
     }
 
-    async findStaffSubjects(staffId: string): Promise<ClassSubjectEntity[]> {
-        const raws = await this.prisma.classSubject.findMany({ where: { staffId } });
-        return raws.map(r => this.classSubjectMapper.toDomain(r));
+    async findStaffAssignments(staffId: string): Promise<Array<{
+        classSubjectId: string;
+        classId:        string;
+        className:      string;
+        subjectId:      string;
+        subjectName:    string;
+        subjectCode:    string | null;
+    }>> {
+        const raws = await this.prisma.classSubject.findMany({
+            where:   { staffId },
+            include: { class: true, subject: true },
+            orderBy: { class: { name: "asc" } },
+        });
+
+        return raws.map(r => ({
+            classSubjectId: r.id,
+            classId:        r.classId,
+            className:      r.class.name,
+            subjectId:      r.subjectId,
+            subjectName:    r.subject.name,
+            subjectCode:    r.subject.code,
+        }));
     }
 }

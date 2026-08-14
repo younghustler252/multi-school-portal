@@ -8,6 +8,7 @@ import { ListGuardiansUseCase }      from "./usecases/list-guardians.usecase";
 import { UpdateGuardianUseCase }     from "./usecases/update-guardian.usecase";
 import { InviteGuardianUseCase }     from "./usecases/invite-guardian.usecase";
 import { LinkGuardianUseCase }       from "./usecases/link-guardian.usecase";
+import { BulkInviteGuardiansUseCase } from "./usecases/bulk-invite-guardian.usecase";
 import { GuardianController }        from "./controllers/guardian.controller";
 
 /*
@@ -26,6 +27,7 @@ export const registerGuardians = (container: AwilixContainer): void => {
         updateGuardianUseCase:   asClass(UpdateGuardianUseCase).scoped(),
         inviteGuardianUseCase:   asClass(InviteGuardianUseCase).scoped(),
         linkGuardianUseCase:     asClass(LinkGuardianUseCase).scoped(),
+        bulkInviteGuardiansUseCase: asClass(BulkInviteGuardiansUseCase).scoped(),
         guardianController:      asClass(GuardianController).scoped(),
     });
 };

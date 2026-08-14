@@ -1,11 +1,13 @@
 import { IMapper }           from "../../../infrastructure/repository/base.repository";
 import { GuardianEntity }    from "../domain/guardian.entity";
+import { StudentResponseData } from "../../students/mappers/student.mapper";
 
 /*
 |--------------------------------------------------------------------------
 | GUARDIAN MAPPER
 |--------------------------------------------------------------------------
 */
+
 
 export interface GuardianResponseData {
     id:         string;
@@ -52,4 +54,12 @@ export class GuardianMapper implements IMapper<any, GuardianEntity> {
             createdAt:  entity.createdAt,
         };
     }
+}
+export interface GuardianStudentLinkResponseData extends StudentResponseData {
+    relation:  string;
+    isPrimary: boolean;
+}
+
+export interface GuardianWithStudentsResponseData extends GuardianResponseData {
+    students: GuardianStudentLinkResponseData[];
 }

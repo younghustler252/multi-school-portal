@@ -13,6 +13,7 @@ import {
     UpdateGuardianDto,
     LinkGuardianDto,
     ListGuardiansDto,
+    BulkInviteGuardiansDto
 }                               from "../dtos/guardian.dto";
 
 /*
@@ -71,6 +72,16 @@ router.post(
     requireSchoolAdmin,
     (req, res, next) => ctrl().inviteGuardian(req, res, next),
 );
+
+router.post(
+    "/invite/bulk",
+    authenticate,
+    requireTenant,
+    requireSchoolAdmin,
+    validate(BulkInviteGuardiansDto),
+    (req, res, next) => ctrl().bulkInviteGuardians(req, res, next),
+);
+
 
 // ── Link guardian to another student ─────────────────────────────────────
 router.post(

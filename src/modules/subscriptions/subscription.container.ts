@@ -1,7 +1,7 @@
 import { asClass }                      from "awilix";
 import type { AwilixContainer }         from "awilix";
 import { SubscriptionMapper }           from "./mappers/subscription.mapper";
-import { SubscriptionRepositoryImpl }   from "./repository/subscription.repository.impl";
+import { SubscriptionRepositoryImpl }   from "./repositories/subscription.repository.impl";
 import { CreateSubscriptionUseCase }    from "./usecases/super-admin/create-subscription.usecase";
 import { GetSubscriptionUseCase }       from "./usecases/school-admin/get-subscription.usecase";
 import { UpgradePlanUseCase }           from "./usecases/school-admin/upgrade-plan.usecase";

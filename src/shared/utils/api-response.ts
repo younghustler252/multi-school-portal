@@ -78,5 +78,5 @@ export const sendError = (
         success: false,
         message,
         ...(errors && { errors }),
-    } satisfies ApiResponse);
+    } satisfies ApiResponse);   
 };

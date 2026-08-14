@@ -2,7 +2,7 @@ import { randomUUID }              from "crypto";
 import { IUserRepository }         from "../repositories/user.repository";
 import { IOtpRepository }          from "../repositories/otp.repository";
 import { ISchoolRepository }       from "../../school/repositories/school.repository";
-import { ISubscriptionRepository } from "../../subscriptions/repository/subscription.repository";
+import { ISubscriptionRepository } from "../../subscriptions/repositories/subscription.repository";
 import { IPlanRepository }         from "../../plans/repositories/plan.repository";
 import { MailService }             from "../../../infrastructure/mail/mail.service";
 import { PasswordService }         from "../../../shared/services/password.service";

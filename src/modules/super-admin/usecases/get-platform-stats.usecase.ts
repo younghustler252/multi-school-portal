@@ -1,6 +1,6 @@
 import { ISchoolRepository }       from "../../school/repositories/school.repository";
 import { IUserRepository }         from "../../auth/repositories/user.repository";
-import { ISubscriptionRepository } from "../../subscriptions/repository/subscription.repository";
+import { ISubscriptionRepository } from "../../subscriptions/repositories/subscription.repository";
 
 /*
 |--------------------------------------------------------------------------

@@ -50,5 +50,12 @@ export interface IClassRepository {
         data: Prisma.ClassSubjectUncheckedUpdateInput,
     ):                                                  Promise<ClassSubjectEntity>;
     removeSubject(id: string):                          Promise<void>;
-    findStaffSubjects(staffId: string):                 Promise<ClassSubjectEntity[]>;
+    findStaffAssignments(staffId: string): Promise<Array<{
+        classSubjectId: string;
+        classId:        string;
+        className:      string;
+        subjectId:      string;
+        subjectName:    string;
+        subjectCode:    string | null;
+    }>>;
 }

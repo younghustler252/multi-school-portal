@@ -5,6 +5,9 @@ import { ListGuardiansUseCase }   from "../usecases/list-guardians.usecase";
 import { UpdateGuardianUseCase }  from "../usecases/update-guardian.usecase";
 import { InviteGuardianUseCase }  from "../usecases/invite-guardian.usecase";
 import { LinkGuardianUseCase }    from "../usecases/link-guardian.usecase";
+import { BulkInviteGuardiansUseCase } from "../usecases/bulk-invite-guardian.usecase";
+
+import { BulkInviteGuardiansDto } from "../dtos/guardian.dto";
 import {
     sendSuccess,
     sendCreated,
@@ -24,6 +27,7 @@ interface Dependencies {
     updateGuardianUseCase: UpdateGuardianUseCase;
     inviteGuardianUseCase: InviteGuardianUseCase;
     linkGuardianUseCase:   LinkGuardianUseCase;
+    bulkInviteGuardiansUseCase: BulkInviteGuardiansUseCase;
 }
 
 export class GuardianController {
@@ -33,6 +37,7 @@ export class GuardianController {
     private readonly updateGuardianUseCase: UpdateGuardianUseCase;
     private readonly inviteGuardianUseCase: InviteGuardianUseCase;
     private readonly linkGuardianUseCase:   LinkGuardianUseCase;
+    private readonly bulkInviteGuardiansUseCase:   BulkInviteGuardiansUseCase;
 
     constructor({
         createGuardianUseCase,
@@ -41,6 +46,7 @@ export class GuardianController {
         updateGuardianUseCase,
         inviteGuardianUseCase,
         linkGuardianUseCase,
+        bulkInviteGuardiansUseCase,
     }: Dependencies) {
         this.createGuardianUseCase = createGuardianUseCase;
         this.getGuardianUseCase    = getGuardianUseCase;
@@ -48,6 +54,7 @@ export class GuardianController {
         this.updateGuardianUseCase = updateGuardianUseCase;
         this.inviteGuardianUseCase = inviteGuardianUseCase;
         this.linkGuardianUseCase   = linkGuardianUseCase;
+        this.bulkInviteGuardiansUseCase = bulkInviteGuardiansUseCase;
     }
 
     // ── List guardians ────────────────────────────────────────────────────
@@ -122,15 +129,13 @@ export class GuardianController {
         try {
             const result = await this.inviteGuardianUseCase.execute(
                 { guardianId: req.params.id as string },
-                req.body.schoolName ?? "Your School",
-                req.body.subdomain  ?? "",
+                req.schoolId as string,
             );
             sendSuccess(res, null, result.message);
         } catch (err) {
             next(err);
         }
     };
-
     // ── Link guardian to another student ──────────────────────────────────
     linkGuardian = async (
         req:  Request,
@@ -143,6 +148,20 @@ export class GuardianController {
                 req.body,
             );
             sendSuccess(res, result, "Guardian linked to student successfully");
+        } catch (err) {
+            next(err);
+        }
+    };
+
+    bulkInviteGuardians = async (
+        req:  Request,
+        res:  Response,
+        next: NextFunction,
+    ): Promise<void> => {
+        try {
+            const dto = BulkInviteGuardiansDto.parse(req.body);
+            const result = await this.bulkInviteGuardiansUseCase.execute(dto, req.schoolId as string);
+            sendSuccess(res, result, `${result.sent} invitation(s) sent`);
         } catch (err) {
             next(err);
         }

@@ -35,6 +35,15 @@ router.get(
     (req, res, next) => ctrl().listStaff(req, res, next),
 );
 
+// ── Get authenticated staff member's classes ─────────────────────────────
+router.get(
+    "/me/classes",
+    authenticate,
+    requireTenant,
+    requireStaff,
+    (req, res, next) => ctrl().getMyClasses(req, res, next),
+);
+
 // ── Get single staff member ───────────────────────────────────────────────
 router.get(
     "/:id",
@@ -72,6 +81,24 @@ router.delete(
     requireTenant,
     requireSchoolAdmin,
     (req, res, next) => ctrl().deactivateStaff(req, res, next),
+);
+
+// ── Reactivate staff member ───────────────────────────────────────────────
+router.post(
+    "/:id/reactivate",
+    authenticate,
+    requireTenant,
+    requireSchoolAdmin,
+    (req, res, next) => ctrl().reactivateStaff(req, res, next),
+);
+
+// ── Get staff assignments ─────────────────────────────────────────────────
+router.get(
+    "/:id/assignments",
+    authenticate,
+    requireTenant,
+    requireStaff,
+    (req, res, next) => ctrl().getStaffAssignments(req, res, next),
 );
 
 export default router;

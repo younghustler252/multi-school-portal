@@ -1,4 +1,4 @@
-import { SubscriptionStatus, BillingCycle } from "../../../generated/prisma/client";
+import { SubscriptionStatus, BillingCycle } from "../../../generated/public";
 
 /*
 |--------------------------------------------------------------------------

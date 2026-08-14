@@ -44,4 +44,8 @@ export interface IGuardianRepository {
         studentId:  string,
         data:       Record<string, any>,
     ):                                              Promise<StudentGuardianEntity>;
+
+    findStudentLinksByGuardianId(
+        guardianId: string,
+    ): Promise<Array<{ studentId: string; relation: string; isPrimary: boolean }>>;
 }

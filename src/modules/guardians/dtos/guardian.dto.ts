@@ -69,8 +69,13 @@ export const ListGuardiansDto = z.object({
     search:    z.string().optional(),
 });
 
+export const BulkInviteGuardiansDto = z.object({
+    guardianIds: z.array(z.string().uuid()).min(1).max(100),
+});
+
 export type CreateGuardianDtoType  = z.infer<typeof CreateGuardianDto>;
 export type UpdateGuardianDtoType  = z.infer<typeof UpdateGuardianDto>;
 export type LinkGuardianDtoType    = z.infer<typeof LinkGuardianDto>;
 export type InviteGuardianDtoType  = z.infer<typeof InviteGuardianDto>;
 export type ListGuardiansDtoType   = z.infer<typeof ListGuardiansDto>;
+export type BulkInviteGuardiansDtoType = z.infer<typeof BulkInviteGuardiansDto>;

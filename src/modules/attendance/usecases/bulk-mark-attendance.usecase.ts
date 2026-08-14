@@ -6,7 +6,7 @@ import { BulkMarkAttendanceDtoType }  from "../dtos/attendance.dto";
 /*
 |--------------------------------------------------------------------------
 | BULK MARK ATTENDANCE USE CASE
-| Mark attendance for an entire class at once
+| Mark or Update attendance for an entire class at once
 |--------------------------------------------------------------------------
 */
 
@@ -33,24 +33,35 @@ export class BulkMarkAttendanceUseCase {
         const skipped: string[]                 = [];
 
         for (const record of dto.records) {
-            // Skip if already marked
-            const existing = await this.attendanceRepository
-                .findByStudentAndDate(record.studentId, date);
+            try {
+                const existing = await this.attendanceRepository
+                    .findByStudentAndDate(record.studentId, date);
 
-            if (existing) {
+                let attendance;
+
+                if (existing) {
+                    // ── UPDATE EXISTING RECORD ─────────────────────────────────────
+                    // If the record exists, update its status and note field
+                    attendance = await this.attendanceRepository.update(existing.id, {
+                        status: record.status,
+                        note:   record.note,
+                    });
+                } else {
+                    // ── CREATE NEW RECORD ──────────────────────────────────────────
+                    attendance = await this.attendanceRepository.create({
+                        studentId: record.studentId,
+                        termId:    dto.termId,
+                        date,
+                        status:    record.status,
+                        note:      record.note,
+                    });
+                }
+
+                marked.push(this.attendanceMapper.toResponse(attendance));
+            } catch (err) {
+                // Safely track failures if a specific row operation crashes
                 skipped.push(record.studentId);
-                continue;
             }
-
-            const attendance = await this.attendanceRepository.create({
-                studentId: record.studentId,
-                termId:    dto.termId,
-                date,
-                status:    record.status,
-                note:      record.note,
-            });
-
-            marked.push(this.attendanceMapper.toResponse(attendance));
         }
 
         return { marked, skipped };
