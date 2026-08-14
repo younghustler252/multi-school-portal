@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { StudentAvatar } from "@/features/students/components/student-avatar";
 import { useStudents } from "@/features/students/hooks/use-students";
 import { useDebouncedValue } from "@/lib/use-debounced-value";
+import { StudentCard } from "@/features/students/components/student-card";
 
 export default function StudentsPage() {
 	const [search, setSearch] = useState("");
@@ -44,7 +45,23 @@ export default function StudentsPage() {
 				</div>
 			</div>
 
-			<div className="overflow-hidden rounded-xl border border-border bg-card/60">
+			{/* Mobile: cards */}
+			<div className="space-y-2 md:hidden">
+				{isLoading &&
+					Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-16 rounded-xl" />)}
+
+				{!isLoading && data?.students.length === 0 && (
+					<div className="rounded-xl border border-dashed border-border py-10 text-center text-muted-foreground">
+						No students found.
+					</div>
+				)}
+
+				{data?.students.map((student) => (
+					<StudentCard key={student.id} student={student} />
+				))}
+			</div>
+
+			<div className="hidden overflow-hidden rounded-xl border border-border bg-card/60 md:block">
 				<table className="w-full text-sm">
 					<thead className="bg-muted/40 text-xs text-muted-foreground">
 						<tr>

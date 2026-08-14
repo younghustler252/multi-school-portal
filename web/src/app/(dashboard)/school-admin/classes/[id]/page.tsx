@@ -18,6 +18,10 @@ import {
 } from "@/features/classes/hooks/use-classes";
 import { useStaffList } from "@/features/staff/hooks/use-staff";
 import { AssignSubjectDialog } from "@/features/classes/components/assign-subject-dialog";
+
+import { ClassRoster } from "@/features/enrolment/components/class-roster";
+import { useCurrentSession } from "@/features/school/hooks/use-sessions";
+
 import { ApiErrorResponse } from "@/types/api-response";
 
 export default function ClassDetailPage() {
@@ -27,6 +31,8 @@ export default function ClassDetailPage() {
 	const { data: classSubjects, isLoading: subjectsLoading } = useClassSubjects(params.id);
 	const { data: allSubjects } = useSubjects();
 	const { data: staffData } = useStaffList({ limit: 100 });
+	const { data: currentSession } = useCurrentSession();
+
 	const removeSubject = useRemoveSubject(params.id);
 	const deleteClass = useDeleteClass();
 	const [assignOpen, setAssignOpen] = useState(false);
@@ -141,7 +147,9 @@ export default function ClassDetailPage() {
 					))}
 				</div>
 			</div>
-
+			<div className="mt-6">
+				<ClassRoster classId={params.id} termId={currentSession?.currentTerm?.id ?? null} />
+			</div>
 			<AssignSubjectDialog classId={params.id} open={assignOpen} onOpenChange={setAssignOpen} />
 		</>
 	);

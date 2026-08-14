@@ -63,3 +63,15 @@ export function useDeactivateStaff() {
 		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["staff"] }),
 	});
 }
+
+export function useReactivateStaff() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: async (id: string) => {
+			const res = await staffApi.reactivate(id);
+			if (!res.success) throw res;
+			return res.data;
+		},
+		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["staff"] }),
+	});
+}

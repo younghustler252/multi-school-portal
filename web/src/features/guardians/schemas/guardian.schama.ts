@@ -33,7 +33,6 @@ export type UpdateGuardianFormValues = z.infer<typeof updateGuardianSchema>;
 export const linkGuardianSchema = z.object({
 	studentId: z.string().uuid("Select a student"),
 	relation: relationEnum,
-	isPrimary: z.boolean().default(false),
+	isPrimary: z.boolean(),
 });
-
 export type LinkGuardianFormValues = z.infer<typeof linkGuardianSchema>;

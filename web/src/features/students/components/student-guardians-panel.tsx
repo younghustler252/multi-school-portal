@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Phone, Mail } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { StudentGuardianLinkResponseData } from "../types/student.types";
-import { GUARDIAN_RELATION_LABELS } from "@/features/guardians/constant/guardian-relaton-labels";
+import { GUARDIAN_RELATION_LABELS } from "@/features/guardians/constants/guardian-relaton-labels";
 
 type StudentGuardiansPanelProps = {
 	guardians?: StudentGuardianLinkResponseData[];

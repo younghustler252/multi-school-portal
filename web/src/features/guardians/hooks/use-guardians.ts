@@ -72,3 +72,15 @@ export function useLinkGuardian(id: string) {
 		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["guardians"] }),
 	});
 }
+
+export function useBulkInviteGuardians() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: async (guardianIds: string[]) => {
+			const res = await guardianApi.bulkInvite(guardianIds);
+			if (!res.success) throw res;
+			return res.data;
+		},
+		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["guardians"] }),
+	});
+}

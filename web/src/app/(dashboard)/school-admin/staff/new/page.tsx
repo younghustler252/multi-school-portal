@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/select";
 import { useCreateStaff } from "@/features/staff/hooks/use-staff";
 import { createStaffSchema, CreateStaffFormValues } from "@/features/staff/schemas/staff.schema";
-import { STAFF_ROLE_LABELS } from "@/features/staff/constant/staff-role-labels";
+import { STAFF_ROLE_LABELS } from "@/features/staff/constants/staff-role-labels";
 import { ApiErrorResponse } from "@/types/api-response";
 
 export default function NewStaffPage() {

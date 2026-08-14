@@ -50,3 +50,25 @@ export interface ListStaffParams {
 	search?: string;
 	isActive?: boolean;
 }
+
+export interface StaffAssignmentResponseData {
+	classSubjectId: string;
+	classId: string;
+	className: string;
+	subjectId: string;
+	subjectName: string;
+	subjectCode: string | null;
+}
+
+export interface MyClassSubjectData {
+	classSubjectId: string;
+	subjectId: string;
+	subjectName: string;
+	subjectCode: string | null;
+}
+
+export interface MyClassResponseData {
+	classId: string;
+	className: string;
+	subjects: MyClassSubjectData[];
+}

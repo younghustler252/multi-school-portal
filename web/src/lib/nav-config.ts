@@ -44,6 +44,7 @@ export const NAV_CONFIG: Record<Role, NavItem[]> = {
 	],
 
 	teacher: [
+		{label: "Dashboard", to: "/teacher/dashboard", icon: LayoutDashboard },
 		{ label: "My Classes", to: "/teacher/my-classes", icon: Layers },
 		{ label: "Attendance", to: "/teacher/attendance", icon: ClipboardCheck },
 		{ label: "Grades", to: "/teacher/grades", icon: FileText },

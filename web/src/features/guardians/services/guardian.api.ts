@@ -6,6 +6,8 @@ import {
 	UpdateGuardianDto,
 	LinkGuardianDto,
 	ListGuardiansParams,
+	GuardianWithStudentsResponseData,
+	BulkInviteGuardiansResult,
 } from "../types/guardian.types";
 
 export const guardianApi = {
@@ -20,7 +22,7 @@ export const guardianApi = {
 			},
 		}),
 
-	getById: (id: string): Promise<ApiResponse<GuardianResponseData>> =>
+	getById: (id: string): Promise<ApiResponse<GuardianWithStudentsResponseData>> =>
 		API.get(`/guardians/${id}`),
 
 	create: (data: CreateGuardianDto): Promise<ApiResponse<GuardianResponseData>> =>
@@ -35,4 +37,6 @@ export const guardianApi = {
 	link: (id: string, data: LinkGuardianDto): Promise<ApiResponse<null>> =>
 		API.post(`/guardians/${id}/link`, data),
 
+	bulkInvite: (guardianIds: string[]): Promise<ApiResponse<BulkInviteGuardiansResult>> =>
+		API.post("/guardians/invite/bulk", { guardianIds }),
 };

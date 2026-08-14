@@ -1,0 +1,1 @@
+export { default } from "@/app/(dashboard)/school-admin/grades/page";

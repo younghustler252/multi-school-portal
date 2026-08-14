@@ -3,11 +3,13 @@
 import { useState } from "react";
 import { Building2, GraduationCap, CalendarDays, CreditCard, ShieldCheck } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
-import { SettingsNav, type SettingsTab } from "@/components/school-admin/settings/settings-nav";
-import { ComingSoonTab } from "@/components/school-admin/settings/coming-soon-tab";
-import { ProfileTab } from "@/components/school-admin/settings/profile-tab";
-import { BillingTab } from "@/components/school-admin/settings/billing-tab";
-import { RolesTab } from "@/components/school-admin/settings/roles-tab";
+import { SettingsNav, type SettingsTab } from "@/features/school/components/settings/settings-nav";
+import { ComingSoonTab } from "@/features/school/components/settings/coming-soon-tab";
+import { ProfileTab } from "@/features/school/components/settings/profile-tab";
+import { BillingTab } from "@/features/school/components/settings/billing-tab";
+import { RolesTab } from "@/features/school/components/settings/roles-tab";
+import { CalendarTab } from "@/features/school/components/settings/calendar-tab";
+import { GradingConfigTab } from "@/features/grades/components/grading-config-tab";
 
 const TABS: SettingsTab[] = [
 	{ id: "profile", label: "School profile", icon: Building2 },
@@ -30,10 +32,10 @@ export default function SchoolSettingsPage() {
 				<div className="space-y-6">
 					{activeTab === "profile" && <ProfileTab />}
 					{activeTab === "grading" && (
-						<ComingSoonTab title="Grading system" description="Configure CA/exam weights and grade bands for your school." />
+						<GradingConfigTab />
 					)}
 					{activeTab === "calendar" && (
-						<ComingSoonTab title="Term & calendar" description="Set up your academic sessions, terms, and holidays." />
+						<CalendarTab />
 					)}
 					{activeTab === "billing" && <BillingTab />}
 					{activeTab === "roles" && <RolesTab />}
