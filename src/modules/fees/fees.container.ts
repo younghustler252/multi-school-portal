@@ -11,6 +11,7 @@ import { GetDefaultersUseCase }        from "./usecases/get-defaulters.usecase";
 import { UpdateInvoiceUseCase }        from "./usecases/update-invoice.usecase";
 import { InvoiceClassUseCase }  from "./usecases/invoice-class.usecase";
 import { RecordPaymentUseCase } from "./usecases/record-payment.usecase";
+import { GetMyChildrenInvoicesUseCase } from "./usecases/get-my-children-invoices.usecase";
 
 
 import { FeeController }               from "./controllers/fee.controller";
@@ -29,6 +30,7 @@ export const registerFees = (container: AwilixContainer): void => {
         updateInvoiceUseCase:      asClass(UpdateInvoiceUseCase).scoped(),
         invoiceClassUseCase:  asClass(InvoiceClassUseCase).scoped(),
         recordPaymentUseCase: asClass(RecordPaymentUseCase).scoped(),
+        getMyChildrenInvoicesUseCase: asClass(GetMyChildrenInvoicesUseCase).scoped(),
         feeController:             asClass(FeeController).scoped(),
     });
 };

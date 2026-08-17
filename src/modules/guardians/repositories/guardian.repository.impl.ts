@@ -79,4 +79,23 @@ export class GuardianRepositoryImpl
             isPrimary: link.isPrimary,
         }));
     }
+   
+    async isGuardianOfStudentByUserId(userId: string, studentId: string): Promise<boolean> {
+        const guardian = await this.prisma.guardian.findUnique({ where: { userId } });
+        if (!guardian) return false;
+
+        return this.isLinked(guardian.id, studentId);
+    }
+
+    async getChildStudentIds(userId: string): Promise<string[]> {
+        const guardian = await this.prisma.guardian.findUnique({ where: { userId } });
+        if (!guardian) return [];
+
+        const links = await this.prisma.studentGuardian.findMany({
+            where:  { guardianId: guardian.id },
+            select: { studentId: true },
+        });
+
+        return links.map(l => l.studentId);
+    }
 }

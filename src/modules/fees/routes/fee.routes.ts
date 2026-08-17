@@ -72,6 +72,53 @@ router.post(
     validate(BulkCreateInvoiceDto),
     (req, res, next) => ctrl().bulkCreateInvoices(req, res, next),
 );
+// ── Invoices ──────────────────────────────────────────────────────────────
+router.get(
+    "/invoices",
+    authenticate,
+    requireTenant,
+    requireStaff,
+    validate(ListInvoicesDto, "query"),
+    (req, res, next) => ctrl().getInvoices(req, res, next),
+);
+
+// ── My children's invoices ───────────────────────────────────────────────
+router.get(
+    "/invoices/my-children",
+    authenticate,
+    requireTenant,
+    (req, res, next) => ctrl().getMyChildrenInvoices(req, res, next),
+);
+
+router.post(
+    "/invoices",
+    authenticate,
+    requireTenant,
+    requireSchoolAdmin,
+    requireFeature("feeManagement"),
+    validate(CreateInvoiceDto),
+    (req, res, next) => ctrl().createInvoice(req, res, next),
+);
+
+router.post(
+    "/invoices/bulk",
+    authenticate,
+    requireTenant,
+    requireSchoolAdmin,
+    requireFeature("feeManagement"),
+    validate(BulkCreateInvoiceDto),
+    (req, res, next) => ctrl().bulkCreateInvoices(req, res, next),
+);
+
+router.put(
+    "/invoices/:id",
+    authenticate,
+    requireTenant,
+    requireSchoolAdmin,
+    requireFeature("feeManagement"),
+    validate(UpdateInvoiceDto),
+    (req, res, next) => ctrl().updateInvoice(req, res, next),
+);
 
 router.put(
     "/invoices/:id",

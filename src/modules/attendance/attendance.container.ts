@@ -7,6 +7,7 @@ import { BulkMarkAttendanceUseCase }    from "./usecases/bulk-mark-attendance.us
 import { GetAttendanceUseCase }         from "./usecases/get-attendance.usecase";
 import { GetAttendanceSummaryUseCase }  from "./usecases/get-attendance-summary.usecase";
 import { UpdateAttendanceUseCase }      from "./usecases/update-attendance.usecase";
+import { GetMyChildrenAttendanceUseCase } from "./usecases/get-my-childreen-attendance";
 import { AttendanceController }         from "./controllers/attendance.controller";
 
 /*
@@ -24,6 +25,7 @@ export const registerAttendance = (container: AwilixContainer): void => {
         getAttendanceUseCase:        asClass(GetAttendanceUseCase).scoped(),
         getAttendanceSummaryUseCase: asClass(GetAttendanceSummaryUseCase).scoped(),
         updateAttendanceUseCase:     asClass(UpdateAttendanceUseCase).scoped(),
+        getMyChildrenAttendanceUseCase: asClass(GetMyChildrenAttendanceUseCase).scoped(),
         attendanceController:        asClass(AttendanceController).scoped(),
     });
 };

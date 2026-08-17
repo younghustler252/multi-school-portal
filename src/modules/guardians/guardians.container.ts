@@ -4,7 +4,9 @@ import { GuardianMapper }            from "./mappers/guardian.mapper";
 import { GuardianRepositoryImpl }    from "./repositories/guardian.repository.impl";
 import { CreateGuardianUseCase }     from "./usecases/create-guardian.usecase";
 import { GetGuardianUseCase }        from "./usecases/get-guardian.usecase";
+import { GetMyChildrenUseCase } from "./usecases/get-my-children.usecase";
 import { ListGuardiansUseCase }      from "./usecases/list-guardians.usecase";
+
 import { UpdateGuardianUseCase }     from "./usecases/update-guardian.usecase";
 import { InviteGuardianUseCase }     from "./usecases/invite-guardian.usecase";
 import { LinkGuardianUseCase }       from "./usecases/link-guardian.usecase";
@@ -23,6 +25,7 @@ export const registerGuardians = (container: AwilixContainer): void => {
         guardianRepository:      asClass(GuardianRepositoryImpl).scoped(),
         createGuardianUseCase:   asClass(CreateGuardianUseCase).scoped(),
         getGuardianUseCase:      asClass(GetGuardianUseCase).scoped(),
+        getMyChildrenUseCase:    asClass(GetMyChildrenUseCase).scoped(),
         listGuardiansUseCase:    asClass(ListGuardiansUseCase).scoped(),
         updateGuardianUseCase:   asClass(UpdateGuardianUseCase).scoped(),
         inviteGuardianUseCase:   asClass(InviteGuardianUseCase).scoped(),

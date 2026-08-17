@@ -5,6 +5,7 @@ import { ListGuardiansUseCase }   from "../usecases/list-guardians.usecase";
 import { UpdateGuardianUseCase }  from "../usecases/update-guardian.usecase";
 import { InviteGuardianUseCase }  from "../usecases/invite-guardian.usecase";
 import { LinkGuardianUseCase }    from "../usecases/link-guardian.usecase";
+import { GetMyChildrenUseCase } from "../usecases/get-my-children.usecase";
 import { BulkInviteGuardiansUseCase } from "../usecases/bulk-invite-guardian.usecase";
 
 import { BulkInviteGuardiansDto } from "../dtos/guardian.dto";
@@ -28,6 +29,8 @@ interface Dependencies {
     inviteGuardianUseCase: InviteGuardianUseCase;
     linkGuardianUseCase:   LinkGuardianUseCase;
     bulkInviteGuardiansUseCase: BulkInviteGuardiansUseCase;
+    getMyChildrenUseCase: GetMyChildrenUseCase;
+
 }
 
 export class GuardianController {
@@ -38,10 +41,12 @@ export class GuardianController {
     private readonly inviteGuardianUseCase: InviteGuardianUseCase;
     private readonly linkGuardianUseCase:   LinkGuardianUseCase;
     private readonly bulkInviteGuardiansUseCase:   BulkInviteGuardiansUseCase;
+    private readonly getMyChildrenUseCase: GetMyChildrenUseCase;
 
     constructor({
         createGuardianUseCase,
         getGuardianUseCase,
+        getMyChildrenUseCase,
         listGuardiansUseCase,
         updateGuardianUseCase,
         inviteGuardianUseCase,
@@ -50,6 +55,7 @@ export class GuardianController {
     }: Dependencies) {
         this.createGuardianUseCase = createGuardianUseCase;
         this.getGuardianUseCase    = getGuardianUseCase;
+        this.getMyChildrenUseCase  = getMyChildrenUseCase
         this.listGuardiansUseCase  = listGuardiansUseCase;
         this.updateGuardianUseCase = updateGuardianUseCase;
         this.inviteGuardianUseCase = inviteGuardianUseCase;
@@ -89,6 +95,22 @@ export class GuardianController {
         }
     };
 
+    getMyChildren = async (
+        req: Request,
+        res: Response,
+        next: NextFunction,
+    ): Promise<void> => {
+        try {
+            const result = await this.getMyChildrenUseCase.execute(
+                req.user?.id as string,
+            );
+
+            sendSuccess(res, result, "Children retrieved successfully");
+        } catch (err) {
+            next(err);
+        }
+    };
+
     // ── Create guardian ───────────────────────────────────────────────────
     createGuardian = async (
         req:  Request,
@@ -96,7 +118,10 @@ export class GuardianController {
         next: NextFunction,
     ): Promise<void> => {
         try {
-            const result = await this.createGuardianUseCase.execute(req.body);
+            const result = await this.createGuardianUseCase.execute(
+                req.body, 
+                req.user!.schoolId!,
+            );
             sendCreated(res, result, "Guardian created successfully");
         } catch (err) {
             next(err);

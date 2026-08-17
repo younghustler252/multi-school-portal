@@ -36,6 +36,15 @@ router.get(
     (req, res, next) => ctrl().getAttendance(req, res, next),
 );
 
+
+// ── Get my children's attendance ─────────────────────────────────────────
+router.get(
+    "/my-children",
+    authenticate,
+    requireTenant,
+    (req, res, next) => ctrl().getMyChildrenAttendance(req, res, next),
+);
+
 // ── Get attendance summary for a student ──────────────────────────────────
 router.get(
     "/summary/:studentId",

@@ -5,6 +5,7 @@ import { GetGradesUseCase }           from "../usecases/get-grades.usecase";
 import { UpdateGradeUseCase }         from "../usecases/update-grade.usecase";
 import { PublishGradesUseCase }       from "../usecases/publish-grades.usecase";
 import { GetGradingConfigUseCase }    from "../usecases/get-grading-config.usecase";
+import { GetMyChildrenGradesUseCase } from "../usecases/get-my-children-grade.usecase";
 import { UpdateGradingConfigUseCase } from "../usecases/update-grading-config.usecase";
 import {
     sendSuccess,
@@ -26,6 +27,8 @@ interface Dependencies {
     publishGradesUseCase:       PublishGradesUseCase;
     getGradingConfigUseCase:    GetGradingConfigUseCase;
     updateGradingConfigUseCase: UpdateGradingConfigUseCase;
+
+    getMyChildrenGradesUseCase: GetMyChildrenGradesUseCase;
 }
 
 export class GradeController {
@@ -37,6 +40,8 @@ export class GradeController {
     private readonly getGradingConfigUseCase:    GetGradingConfigUseCase;
     private readonly updateGradingConfigUseCase: UpdateGradingConfigUseCase;
 
+    private readonly getMyChildrenGradesUseCase: GetMyChildrenGradesUseCase;
+
     constructor({
         enterGradeUseCase,
         bulkEnterGradesUseCase,
@@ -45,6 +50,7 @@ export class GradeController {
         publishGradesUseCase,
         getGradingConfigUseCase,
         updateGradingConfigUseCase,
+        getMyChildrenGradesUseCase
     }: Dependencies) {
         this.enterGradeUseCase          = enterGradeUseCase;
         this.bulkEnterGradesUseCase     = bulkEnterGradesUseCase;
@@ -53,6 +59,7 @@ export class GradeController {
         this.publishGradesUseCase       = publishGradesUseCase;
         this.getGradingConfigUseCase    = getGradingConfigUseCase;
         this.updateGradingConfigUseCase = updateGradingConfigUseCase;
+        this.getMyChildrenGradesUseCase = getMyChildrenGradesUseCase;
     }
 
     // ── Get grades ────────────────────────────────────────────────────────
@@ -140,5 +147,32 @@ export class GradeController {
             );
             sendSuccess(res, result, "Grading config updated successfully");
         } catch (err) { next(err); }
+    };
+
+    // ── Get my children's grades ─────────────────────────────────────────────
+    getMyChildrenGrades = async (
+        req: Request,
+        res: Response,
+        next: NextFunction,
+    ): Promise<void> => {
+        try {
+            const result = await this.getMyChildrenGradesUseCase.execute(
+                    req.user?.id as string,
+                    {
+                        studentId: req.query.studentId as string | undefined,
+                        termId: req.query.termId as string | undefined,
+                        page: req.query.page
+                            ? Number(req.query.page)
+                            : undefined,
+                        limit: req.query.limit
+                            ? Number(req.query.limit)
+                            : undefined,
+                    },
+                );
+
+            sendPaginated(res, result.data, result.meta);
+        } catch (err) {
+            next(err);
+        }
     };
 }

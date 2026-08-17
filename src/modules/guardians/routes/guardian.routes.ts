@@ -34,6 +34,13 @@ router.get(
     validate(ListGuardiansDto, "query"),
     (req, res, next) => ctrl().listGuardians(req, res, next),
 );
+// ── Get my children ──────────────────────────────────────────────────────
+router.get(
+    "/me/children",
+    authenticate,
+    requireTenant,
+    (req, res, next) => ctrl().getMyChildren(req, res, next),
+);
 
 // ── Get guardian ──────────────────────────────────────────────────────────
 router.get(

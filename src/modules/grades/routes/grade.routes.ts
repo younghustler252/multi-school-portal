@@ -36,6 +36,13 @@ router.get(
     validate(ListGradesDto, "query"),
     (req, res, next) => ctrl().getGrades(req, res, next),
 );
+// ── Get my children's grades ─────────────────────────────────────────────
+router.get(
+    "/my-children",
+    authenticate,
+    requireTenant,
+    (req, res, next) => ctrl().getMyChildrenGrades(req, res, next),
+);
 
 // ── Enter single grade ────────────────────────────────────────────────────
 router.post(

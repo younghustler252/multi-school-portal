@@ -1,7 +1,10 @@
 import { IGuardianRepository }   from "../repositories/guardian.repository";
 import { IStudentRepository }    from "../../students/repositories/student.repository";
+import { IUserRepository }       from "../../auth/repositories/user.repository";
 import { GuardianMapper }        from "../mappers/guardian.mapper";
 import { GuardianResponseData }  from "../mappers/guardian.mapper";
+import { PasswordService }       from "../../../shared/services/password.service";
+import { MailService }           from "../../../infrastructure/mail/mail.service";
 import {
     ConflictError,
     NotFoundError,
@@ -9,14 +12,17 @@ import {
 import { GuardianErrorMessage }  from "../domain/guardian.enums";
 import { StudentErrorMessage }   from "../../students/domain/student.enums";
 import { CreateGuardianDtoType } from "../dtos/guardian.dto";
+import { Role }                  from "../../../generated/public";
 
 /*
 |--------------------------------------------------------------------------
 | CREATE GUARDIAN USE CASE
 | Flow:
 | 1. Check student exists
-| 2. Check guardian not already linked to student
-| 3. Create guardian record
+| 2. If guardian with this email already exists — just link (don't
+|    recreate their account, they may already have one)
+| 3. Otherwise: create User (public schema, login-ready) + Guardian
+|    (tenant schema, linked via userId) + send welcome email
 | 4. Link guardian to student
 |--------------------------------------------------------------------------
 */
@@ -24,26 +30,39 @@ import { CreateGuardianDtoType } from "../dtos/guardian.dto";
 interface Dependencies {
     guardianRepository: IGuardianRepository;
     studentRepository:  IStudentRepository;
-    guardianMapper:     GuardianMapper;
+    userRepository:     IUserRepository;
+    guardianMapper:      GuardianMapper;
+    passwordService:     PasswordService;
+    mailService:         MailService;
 }
 
 export class CreateGuardianUseCase {
     private readonly guardianRepository: IGuardianRepository;
     private readonly studentRepository:  IStudentRepository;
+    private readonly userRepository:     IUserRepository;
     private readonly guardianMapper:     GuardianMapper;
+    private readonly passwordService:    PasswordService;
+    private readonly mailService:        MailService;
 
     constructor({
         guardianRepository,
         studentRepository,
+        userRepository,
         guardianMapper,
+        passwordService,
+        mailService,
     }: Dependencies) {
         this.guardianRepository = guardianRepository;
         this.studentRepository  = studentRepository;
+        this.userRepository     = userRepository;
         this.guardianMapper     = guardianMapper;
+        this.passwordService    = passwordService;
+        this.mailService        = mailService;
     }
 
     async execute(
-        dto: CreateGuardianDtoType,
+        dto:      CreateGuardianDtoType,
+        schoolId: string,
     ): Promise<GuardianResponseData> {
 
         // ── 1. Check student exists ───────────────────────────────────────
@@ -56,7 +75,6 @@ export class CreateGuardianUseCase {
         let guardian = await this.guardianRepository.findByEmail(dto.email);
 
         if (guardian) {
-            // Guardian exists — check not already linked
             const alreadyLinked = await this.guardianRepository.isLinked(
                 guardian.id,
                 dto.studentId,
@@ -66,14 +84,54 @@ export class CreateGuardianUseCase {
                 throw new ConflictError(GuardianErrorMessage.ALREADY_LINKED);
             }
         } else {
-            // ── 3. Create new guardian record ─────────────────────────────
+            // ── 3a. Check email not already a different kind of user ──────
+            const existingUser = await this.userRepository.findByEmail(dto.email);
+            if (existingUser) {
+                throw new ConflictError(
+                    "A user with this email already exists.",
+                );
+            }
+
+            // ── 3b. Create login account ───────────────────────────────────
+            const tempPassword = this.generateTempPassword();
+            const passwordHash = await this.passwordService.hash(tempPassword);
+
+            const user = await this.userRepository.create({
+                schoolId,
+                email:           dto.email,
+                passwordHash,
+                role:            Role.guardian,
+                firstName:       dto.firstName,
+                lastName:        dto.lastName,
+                phone:           dto.phone,
+                isActive:        true,
+                isEmailVerified: true,
+            });
+
+            // ── 3c. Create guardian record, linked to the new account ─────
             guardian = await this.guardianRepository.create({
+                userId:     user.id,
                 firstName:  dto.firstName,
                 lastName:   dto.lastName,
                 email:      dto.email,
                 phone:      dto.phone,
                 occupation: dto.occupation,
                 address:    dto.address,
+            });
+
+            // ── 3d. Send welcome email with credentials ────────────────────
+            await this.mailService.sendLetter(dto.email, {
+                subject:    "Welcome to the parent portal — Your login details",
+                title:      "Your Account is Ready",
+                greeting:   `Hi ${dto.firstName},`,
+                paragraphs: [
+                    `A parent/guardian account has been created for you on SchoolPortal.`,
+                    `Your login credentials are:`,
+                    `Email: <strong>${dto.email}</strong>`,
+                    `Temporary Password: <strong>${tempPassword}</strong>`,
+                    `Please change your password after your first login.`,
+                ],
+                footer: "If you did not expect this email, please contact the school.",
             });
         }
 
@@ -86,5 +144,14 @@ export class CreateGuardianUseCase {
         });
 
         return this.guardianMapper.toResponse(guardian);
+    }
+
+    private generateTempPassword(): string {
+        const chars  = "ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#";
+        let password = "";
+        for (let i = 0; i < 10; i++) {
+            password += chars[Math.floor(Math.random() * chars.length)];
+        }
+        return password;
     }
 }

@@ -5,6 +5,7 @@ import { GradeRepositoryImpl }          from "./repositories/grade.repository.im
 import { EnterGradeUseCase }            from "./usecases/enter-grade.usecase";
 import { BulkEnterGradesUseCase }       from "./usecases/bulk-enter-grades.usecase";
 import { GetGradesUseCase }             from "./usecases/get-grades.usecase";
+import { GetMyChildrenGradesUseCase } from "./usecases/get-my-children-grade.usecase";
 import { UpdateGradeUseCase }           from "./usecases/update-grade.usecase";
 import { PublishGradesUseCase }         from "./usecases/publish-grades.usecase";
 import { GetGradingConfigUseCase }      from "./usecases/get-grading-config.usecase";
@@ -28,6 +29,7 @@ export const registerGrades = (container: AwilixContainer): void => {
         updateGradeUseCase:        asClass(UpdateGradeUseCase).scoped(),
         publishGradesUseCase:      asClass(PublishGradesUseCase).scoped(),
         getGradingConfigUseCase:   asClass(GetGradingConfigUseCase).scoped(),
+        getMyChildrenGradesUseCase: asClass(GetMyChildrenGradesUseCase).scoped(),
         updateGradingConfigUseCase: asClass(UpdateGradingConfigUseCase).scoped(),
         gradeController:           asClass(GradeController).scoped(),
     });
