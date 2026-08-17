@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { StudentPicker } from "@/features/guardians/components/student-picker";
 import { useCreateGuardian } from "@/features/guardians/hooks/use-guardians";
-import { createGuardianSchema, CreateGuardianFormValues } from "@/features/guardians/schemas/guardian.schama";
+import { createGuardianSchema, CreateGuardianFormValues } from "@/features/guardians/schemas/guardian.schema";
 import { GUARDIAN_RELATION_LABELS } from "@/features/guardians/constants/guardian-relaton-labels";
 import { ApiErrorResponse } from "@/types/api-response";
 

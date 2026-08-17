@@ -116,3 +116,13 @@ export interface RegisterDto {
 	password: string;
 	phone?: string;
 }
+
+
+export interface AcceptInviteDto {
+	token: string;
+	firstName: string;
+	lastName: string;
+	password: string;
+	confirmPassword: string;
+	phone?: string;
+}

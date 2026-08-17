@@ -16,7 +16,7 @@ import {
 	DialogFooter,
 } from "@/components/ui/dialog";
 import { useUpdateGuardian } from "../hooks/use-guardians";
-import { updateGuardianSchema, UpdateGuardianFormValues } from "../schemas/guardian.schama";
+import { updateGuardianSchema, UpdateGuardianFormValues } from "../schemas/guardian.schema";
 import { GuardianResponseData } from "../types/guardian.types";
 import { ApiErrorResponse } from "@/types/api-response";
 

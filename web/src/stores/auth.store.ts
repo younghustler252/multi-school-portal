@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { authApi } from "@/features/auth/services/auth.api";
 import { userApi } from "@/features/user/services/user.api";
-import { RegisterDto } from "@/features/auth/types/auth.types";
+import { RegisterDto, AcceptInviteDto } from "@/features/auth/types/auth.types";
 import { UserProfileResponseData } from "@/features/user/types/user.types";
 import { RegisterResponseData } from "@/features/auth/types/auth.types";
 
@@ -49,6 +49,20 @@ export const useAuthStore = create<AuthState>()(
 					throw res;
 				}
 				return res.data;
+			},
+
+			acceptInvite: async (data: AcceptInviteDto) => {
+				set({ isLoading: true });
+				const res = await authApi.acceptInvite(data);
+				if (!res.success) {
+					set({ isLoading: false });
+					throw res;
+				}
+				set({ isAuthenticated: true, isLoading: false });
+				const profileRes = await userApi.getProfile();
+				if (profileRes.success) {
+					set({ user: profileRes.data });
+				}
 			},
 
 			logout: () => {

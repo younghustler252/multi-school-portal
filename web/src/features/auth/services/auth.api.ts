@@ -11,7 +11,11 @@ import {
 	ResendOtpDto,
 	ForgotPasswordDto,
 	ResetPasswordDto,
+	AcceptInviteDto,
+	UserResponseData,
+	AuthTokens,
 } from "../types/auth.types";
+import {  } from "../types/auth.types";
 
 export const authApi = {
 
@@ -50,5 +54,8 @@ export const authApi = {
 
 	resetPassword: (data: ResetPasswordDto): Promise<ApiResponse<null>> =>
 		API.post("/auth/reset-password", data),
+
+	acceptInvite: (data: AcceptInviteDto): Promise<ApiResponse<{ user: UserResponseData; tokens: AuthTokens }>> =>
+		API.post("/auth/invite/accept", data),
 
 };

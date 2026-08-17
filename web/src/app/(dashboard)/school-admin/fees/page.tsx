@@ -21,6 +21,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAuthStore } from "@/stores/auth.store";
 import { useFeeTypes, useInvoices, useDefaulters } from "@/features/fees/hooks/use-fees";
 import { useCurrentSession } from "@/features/school/hooks/use-sessions";
 import { useStudents } from "@/features/students/hooks/use-students";
@@ -35,6 +36,10 @@ import { formatNaira } from "@/lib/format-money";
 export default function FeesPage() {
 	const { data: currentSession } = useCurrentSession();
 	const termId = currentSession?.currentTerm?.id;
+
+	const role = useAuthStore((s) => s.user?.role);
+	const canManageFeeTypes = role === "school_admin";
+
 
 	const [search, setSearch] = useState("");
 	const [statusFilter, setStatusFilter] = useState<InvoiceStatus | "all">("all");
@@ -89,9 +94,11 @@ export default function FeesPage() {
 				description="Invoices, payments and outstanding balances."
 				actions={
 					<div className="flex gap-2">
-						<Button variant="outline" onClick={() => setFeeTypeDialogOpen(true)}>
-							Fee types
-						</Button>
+						{canManageFeeTypes && (
+							<Button variant="outline" onClick={() => setFeeTypeDialogOpen(true)}>
+								Fee types
+							</Button>
+						)}
 						<Button onClick={() => setInvoiceClassOpen(true)} disabled={!termId}>
 							<Plus className="size-4" /> Invoice a class
 						</Button>
@@ -211,7 +218,7 @@ export default function FeesPage() {
 													<CreditCard className="size-4" /> Record payment
 												</DropdownMenuItem>
 											)}
-											{inv.status !== "waived" && (
+											{inv.status !== "waived" && canManageFeeTypes && (
 												<DropdownMenuItem onClick={() => setWaivingInvoice(inv)}>
 													<X className="size-4" /> Waive invoice
 												</DropdownMenuItem>
