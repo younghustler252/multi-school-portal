@@ -58,6 +58,15 @@ router.post(
     (req, res, next) => ctrl().bulkGenerateReportCards(req, res, next),
 );
 
+// ── Get bulk generation status ────────────────────────────────────────────
+router.get(
+    "/bulk-status/:jobId",
+    authenticate,
+    requireTenant,
+    requireSchoolAdmin,
+    (req, res, next) => ctrl().getBulkGenerationStatus(req, res, next),
+);
+
 // ── Update report card remarks ────────────────────────────────────────────
 router.put(
     "/:id",

@@ -12,17 +12,20 @@ export interface FeeTypeResponseData {
 }
 
 export interface FeeInvoiceResponseData {
-    id:          string;
-    studentId:   string;
-    termId:      string;
-    feeTypeId:   string;
-    amountKobo:  number;
-    paidKobo:    number;
-    balanceKobo: number;
-    status:      string;
-    dueDate:     Date | null;
-    note:        string | null;
-    createdAt:   Date;
+    id:            string;
+    studentId:     string;
+    studentName?:  string;
+    termId:        string;
+    termName?:     string;
+    feeTypeId:     string;
+    feeTypeName?:  string;
+    amountKobo:    number;
+    paidKobo:      number;
+    balanceKobo:   number;
+    status:        string;
+    dueDate:       Date | null;
+    note:          string | null;
+    createdAt:     Date;
 }
 
 export class FeeTypeMapper implements IMapper<any, FeeTypeEntity> {

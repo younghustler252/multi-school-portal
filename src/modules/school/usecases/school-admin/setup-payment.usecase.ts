@@ -24,22 +24,22 @@ import { SetupPaymentDtoType }  from "../../dtos/school.dto";
 interface Dependencies {
     schoolRepository: ISchoolRepository;
     schoolMapper:     SchoolMapper;
-    paystackProvider:  PaystackProvider;
+    paymentProvider:  PaystackProvider;
 }
 
 export class SetupPaymentUseCase {
     private readonly schoolRepository: ISchoolRepository;
     private readonly schoolMapper:     SchoolMapper;
-    private readonly paystackProvider:  PaystackProvider;
+    private readonly paymentProvider:  PaystackProvider;
 
     constructor({
         schoolRepository,
         schoolMapper,
-        paystackProvider,
+        paymentProvider,
     }: Dependencies) {
         this.schoolRepository = schoolRepository;
         this.schoolMapper     = schoolMapper;
-        this.paystackProvider  = paystackProvider;
+        this.paymentProvider  = paymentProvider;
     }
 
     async execute(
@@ -57,7 +57,7 @@ export class SetupPaymentUseCase {
         // ── Verify account number ─────────────────────────────────────────
         let accountName: string;
         try {
-            const verified = await this.paystackProvider.verifyAccountNumber(
+            const verified = await this.paymentProvider.verifyAccountNumber(
                 dto.accountNumber,
                 dto.bankCode,
             );
@@ -69,7 +69,7 @@ export class SetupPaymentUseCase {
         }
 
         // ── Create Paystack subaccount ────────────────────────────────────
-        const subaccount = await this.paystackProvider.createSubaccount({
+        const subaccount = await this.paymentProvider.createSubaccount({
             businessName:     school.name,
             bankCode:         dto.bankCode,
             accountNumber:    dto.accountNumber,

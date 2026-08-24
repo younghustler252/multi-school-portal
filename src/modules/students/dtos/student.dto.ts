@@ -61,6 +61,7 @@ export const ListStudentsDto = z.object({
     gender:   z.string().optional(),
     isActive: z.string().optional(),
     search:   z.string().optional(),
+    classId: z.string().optional(),
 });
 
 export type CreateStudentDtoType = z.infer<typeof CreateStudentDto>;

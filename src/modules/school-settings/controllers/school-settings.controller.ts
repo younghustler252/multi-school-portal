@@ -42,6 +42,7 @@ export class SchoolSettingsController {
         try {
             const result = await this.updateSchoolSettingsUseCase.execute(
                 req.body,
+                req.user!.schoolId!,
             );
             sendSuccess(res, result, "Settings updated successfully");
         } catch (err) { next(err); }

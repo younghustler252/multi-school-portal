@@ -30,6 +30,7 @@ export interface UserResponseData {
     photoUrl:       string | null;
     schoolId:       string | null;
     isEmailVerified: boolean;
+    mustChangePAssword: boolean;
 }
 
 // ── JWT payload shape ────────────────────────────────────────────────────

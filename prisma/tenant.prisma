@@ -246,6 +246,10 @@ model SchoolSettings {
   foundedYear     Int?
   principalName   String?
   stamp           String?
+  reportCardTemplate      String   @default("classic") // "classic" | "modern" | "minimal" | "custom_letterhead"
+  reportCardLetterheadUrl String?
+  letterheadContentTopMm    Int?    @default(50)
+  letterheadContentBottomMm Int?    @default(30)
   signature       String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt

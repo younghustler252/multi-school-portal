@@ -63,6 +63,7 @@ export class RefreshTokenUseCase {
                 email:    user.email,
                 role:     user.role,
                 schoolId: user.schoolId,
+                mustChangePassword: user.mustChangePassword
             },
             newTokenId,
         );

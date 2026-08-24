@@ -1,23 +1,24 @@
-import { IFeeRepository }        from "../repositories/fee.repository";
-import { FeeInvoiceMapper }      from "../mappers/fee.mapper";
-import { FeeInvoiceResponseData } from "../mappers/fee.mapper";
+import { IFeeRepository } from "../repositories/fee.repository";
+
+export interface DefaulterEntry {
+    studentId:     string;
+    studentName:   string;
+    totalOwedKobo: number;
+    invoiceCount:  number;
+}
 
 interface Dependencies {
-    feeRepository:    IFeeRepository;
-    feeInvoiceMapper: FeeInvoiceMapper;
+    feeRepository: IFeeRepository;
 }
 
 export class GetDefaultersUseCase {
-    private readonly feeRepository:    IFeeRepository;
-    private readonly feeInvoiceMapper: FeeInvoiceMapper;
+    private readonly feeRepository: IFeeRepository;
 
-    constructor({ feeRepository, feeInvoiceMapper }: Dependencies) {
-        this.feeRepository    = feeRepository;
-        this.feeInvoiceMapper = feeInvoiceMapper;
+    constructor({ feeRepository }: Dependencies) {
+        this.feeRepository = feeRepository;
     }
 
-    async execute(termId: string): Promise<FeeInvoiceResponseData[]> {
-        const invoices = await this.feeRepository.findDefaultersByTerm(termId);
-        return invoices.map(i => this.feeInvoiceMapper.toResponse(i));
+    async execute(termId: string): Promise<DefaulterEntry[]> {
+        return this.feeRepository.findDefaultersSummaryByTerm(termId);
     }
 }

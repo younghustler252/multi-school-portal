@@ -9,13 +9,23 @@ import { UnauthorizedError } from "../../shared/errors/domain.errors";
 | Checks Authorization header first (mobile), then cookie (web)
 |--------------------------------------------------------------------------
 */
-
 interface JwtPayload {
-    id:       string;
-    email:    string;
-    role:     string;
-    schoolId: string | null;
+    id:                  string;
+    email:               string;
+    role:                string;
+    schoolId:            string | null;
+    mustChangePassword:  boolean;
 }
+
+const PASSWORD_CHANGE_EXEMPT_PATHS = [
+    "/me/password",
+    "/auth/logout",
+];
+
+
+const isExemptRoute = (req: Request): boolean =>
+    PASSWORD_CHANGE_EXEMPT_PATHS.some(p => req.originalUrl.includes(p));
+
 
 const extractToken = (req: Request): string | null => {
     // 1. Check Authorization header (mobile / Postman)
@@ -39,22 +49,36 @@ export const authenticate = (
 ): void => {
     try {
         const token = extractToken(req);
+        console.log("AUTH DEBUG", {
+    host: req.headers.host,
+    origin: req.headers.origin,
+    authorization: req.headers.authorization,
+    cookieHeader: req.headers.cookie,
+    accessTokenCookie: req.cookies?.accessToken ? "PRESENT" : "MISSING",
+});
 
         if (!token) {
             throw new UnauthorizedError("No token provided");
         }
 
-        const decoded = jwt.verify(
-            token,
-            env.jwt.accessSecret,
-        ) as JwtPayload;
+        const decoded = jwt.verify(token, env.jwt.accessSecret) as JwtPayload;
 
         req.user = {
-            id:       decoded.id,
-            email:    decoded.email,
-            role:     decoded.role as any,
-            schoolId: decoded.schoolId,
+            id:                 decoded.id,
+            email:              decoded.email,
+            role:               decoded.role as any,
+            schoolId:           decoded.schoolId,
+            mustChangePassword: decoded.mustChangePassword,
         };
+
+        if (decoded.mustChangePassword && !isExemptRoute(req)) {
+            res.status(403).json({
+                success: false,
+                message: "You must change your password before continuing.",
+                code:    "MUST_CHANGE_PASSWORD",
+            });
+            return;
+        }
 
         next();
     } catch (err: any) {
@@ -62,16 +86,13 @@ export const authenticate = (
             next(new UnauthorizedError("Token expired"));
             return;
         }
-
         if (err.name === "JsonWebTokenError") {
             next(new UnauthorizedError("Invalid token"));
             return;
         }
-
         next(err);
     }
 };
-
 /*
 |--------------------------------------------------------------------------
 | OPTIONAL AUTH
@@ -101,12 +122,12 @@ export const optionalAuthenticate = (
             email:    decoded.email,
             role:     decoded.role as any,
             schoolId: decoded.schoolId,
+            mustChangePassword: decoded.mustChangePassword,
         };
 
         return next();
     } catch (err) {
-        // Silently swallow TokenExpiredError or JsonWebTokenError 
-        // We wipe out any residual user state and let them hit public routes like /login
+     
         req.user = undefined;
         return next();
     }

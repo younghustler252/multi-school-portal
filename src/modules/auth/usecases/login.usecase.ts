@@ -12,6 +12,7 @@ import {
 import {
     UnauthorizedError,
     ForbiddenError,
+    
 }                                   from "../../../shared/errors/domain.errors";
 import { LoginDtoType }             from "../dtos/login.dto";
 import { AuthResponse }             from "../types/auth.types";
@@ -133,10 +134,11 @@ export class LoginUseCase {
 
         const tokens = this.tokenService.generateTokenPair(
             {
-                id:       userWithPassword.id,
-                email:    userWithPassword.email,
-                role:     userWithPassword.role,
-                schoolId: userWithPassword.schoolId,
+                id:                 userWithPassword.id,
+                email:              userWithPassword.email,
+                role:               userWithPassword.role,
+                schoolId:           userWithPassword.schoolId,
+                mustChangePassword: userWithPassword.mustChangePassword,
             },
             tokenId,
         );

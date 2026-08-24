@@ -1,13 +1,14 @@
-import { Router }                  from "express";
-import { container }               from "../../../container";
-import { SuperAdminController }    from "../controllers/super-admin.controller";
-import { validate }                from "../../../infrastructure/middleware/validate.middleware";
-import { authenticate }            from "../../../infrastructure/middleware/auth.middleware";
-import { requireSuperAdmin }       from "../../../infrastructure/middleware/rbac.middleware";
-import { ListUsersDto }            from "../dtos/super-admin.dto";
+import { Router }               from "express";
+import { container }            from "../../../container";
+import { SuperAdminController } from "../controllers/super-admin.controller";
+import { validate }             from "../../../infrastructure/middleware/validate.middleware";
+import { authenticate }         from "../../../infrastructure/middleware/auth.middleware";
+import { requireSuperAdmin }    from "../../../infrastructure/middleware/rbac.middleware";
+import { ListUsersDto }         from "../dtos/super-admin.dto";
 
 const router = Router();
-const ctrl   = () => container.resolve<SuperAdminController>(
+
+const ctrl = () => container.resolve<SuperAdminController>(
     "superAdminController",
 );
 
@@ -15,9 +16,17 @@ const ctrl   = () => container.resolve<SuperAdminController>(
 router.use(authenticate, requireSuperAdmin);
 
 // ── Platform stats ────────────────────────────────────────────────────────
+console.log("am being hit, ouch!!");
+
 router.get(
     "/stats",
     (req, res, next) => ctrl().getPlatformStats(req, res, next),
+);
+
+// ── MRR trend ─────────────────────────────────────────────────────────────
+router.get(
+    "/stats/mrr-trend",
+    (req, res, next) => ctrl().getMrrTrend(req, res, next),
 );
 
 // ── All users ─────────────────────────────────────────────────────────────

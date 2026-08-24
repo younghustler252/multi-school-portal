@@ -60,4 +60,54 @@ export class GradeRepositoryImpl
     async deleteAllGradingConfigs(): Promise<void> {
         await this.prisma.gradingConfig.deleteMany({});
     }
+
+    async findManyWithStudentName(
+        where: Record<string, any>,
+        skip?: number,
+        take?: number,
+    ): Promise<Array<{
+        id:             string;
+        studentId:      string;
+        studentName:    string;
+        termId:         string;
+        classSubjectId: string;
+        caScore:        number | null;
+        examScore:      number | null;
+        total:          number | null;
+        grade:          string | null;
+        remark:         string | null;
+        position:       number | null;
+        totalStudents:  number | null;
+        isPublished:    boolean;
+        createdAt:      Date;
+    }>> {
+        const raws = await this.prisma.grade.findMany({
+            where,
+            skip,
+            take,
+            orderBy: { createdAt: "desc" },
+            include: { student: { select: { firstName: true, lastName: true } } },
+        });
+
+        return raws.map(r => ({
+            id:             r.id,
+            studentId:      r.studentId,
+            studentName:    `${r.student.firstName} ${r.student.lastName}`,
+            termId:         r.termId,
+            classSubjectId: r.classSubjectId,
+            caScore:        r.caScore,
+            examScore:      r.examScore,
+            total:          r.total,
+            grade:          r.grade,
+            remark:         r.remark,
+            position:       r.position,
+            totalStudents:  r.totalStudents,
+            isPublished:    r.isPublished,
+            createdAt:      r.createdAt,
+        }));
+    }
+
+    async countGrades(where: Record<string, any>): Promise<number> {
+        return this.prisma.grade.count({ where });
+    }
 }

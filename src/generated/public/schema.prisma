@@ -135,11 +135,12 @@ model User {
   isEmailVerified Boolean   @default(false)
   emailVerifiedAt DateTime?
 
-  lastLoginAt       DateTime?
-  lastLoginIp       String?
-  failedLoginCount  Int       @default(0)
-  lockedUntil       DateTime?
-  passwordChangedAt DateTime?
+  lastLoginAt        DateTime?
+  lastLoginIp        String?
+  failedLoginCount   Int       @default(0)
+  lockedUntil        DateTime?
+  passwordChangedAt  DateTime?
+  mustChangePassword Boolean   @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

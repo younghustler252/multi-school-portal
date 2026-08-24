@@ -36,6 +36,10 @@ export class StudentRepositoryImpl implements IStudentRepository {
         return raw ? this.mapper.toDomain(raw) : null;
     }
 
+    async findByUserId(userId: string): Promise<StudentEntity | null> {
+        return this.findOne({ userId });
+    }
+    
     async findOne(
         where: Record<string, any>,
     ): Promise<StudentEntity | null> {

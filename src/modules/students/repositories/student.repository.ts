@@ -13,6 +13,7 @@ import {
 
 export interface IStudentRepository {
     findById(id: string):                           Promise<StudentEntity | null>;
+    findByUserId(userId: string): Promise<StudentEntity | null>;
     findOne(where: Record<string, any>):            Promise<StudentEntity | null>;
     findMany(where?: Record<string, any>):          Promise<StudentEntity[]>;
     paginate(params: PaginateParams):               Promise<PaginatedResult<StudentEntity>>;

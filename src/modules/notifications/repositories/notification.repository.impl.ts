@@ -8,6 +8,7 @@ import {
 }                                     from "../mappers/notification.mapper";
 import {
     PlatformNotificationEntity,
+    PlatformNotificationRecipientEntity,
     SchoolNotificationEntity,
 }                                     from "../domain/notification.entity";
 import { INotificationRepository }    from "./notification.repository";
@@ -119,5 +120,26 @@ export class NotificationRepositoryImpl implements INotificationRepository {
 
     async createRecipient(data: Prisma.SchoolNotificationRecipientUncheckedCreateInput): Promise<void> {
         await this.tenantDb.schoolNotificationRecipient.create({ data });
+    }
+
+    async createPlatformRecipient(
+        data: publicPrisma.PlatformNotificationRecipientUncheckedCreateInput,
+    ): Promise<PlatformNotificationRecipientEntity> {
+        const raw = await prisma.platformNotificationRecipient.create({ data });
+        return raw as unknown as PlatformNotificationRecipientEntity;
+    }
+
+    async markPlatformRecipientSent(id: string): Promise<void> {
+        await prisma.platformNotificationRecipient.update({
+            where: { id },
+            data:  { status: "SENT", deliveredAt: new Date() },
+        });
+    }
+
+    async markPlatformRecipientFailed(id: string, reason: string): Promise<void> {
+        await prisma.platformNotificationRecipient.update({
+            where: { id },
+            data:  { status: "FAILED", failedReason: reason },
+        });
     }
 }

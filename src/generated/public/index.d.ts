@@ -5176,6 +5176,7 @@ export namespace Prisma {
     failedLoginCount: number | null
     lockedUntil: Date | null
     passwordChangedAt: Date | null
+    mustChangePassword: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -5198,6 +5199,7 @@ export namespace Prisma {
     failedLoginCount: number | null
     lockedUntil: Date | null
     passwordChangedAt: Date | null
+    mustChangePassword: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -5220,6 +5222,7 @@ export namespace Prisma {
     failedLoginCount: number
     lockedUntil: number
     passwordChangedAt: number
+    mustChangePassword: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -5252,6 +5255,7 @@ export namespace Prisma {
     failedLoginCount?: true
     lockedUntil?: true
     passwordChangedAt?: true
+    mustChangePassword?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -5274,6 +5278,7 @@ export namespace Prisma {
     failedLoginCount?: true
     lockedUntil?: true
     passwordChangedAt?: true
+    mustChangePassword?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -5296,6 +5301,7 @@ export namespace Prisma {
     failedLoginCount?: true
     lockedUntil?: true
     passwordChangedAt?: true
+    mustChangePassword?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -5405,6 +5411,7 @@ export namespace Prisma {
     failedLoginCount: number
     lockedUntil: Date | null
     passwordChangedAt: Date | null
+    mustChangePassword: boolean
     createdAt: Date
     updatedAt: Date
     _count: UserCountAggregateOutputType | null
@@ -5446,6 +5453,7 @@ export namespace Prisma {
     failedLoginCount?: boolean
     lockedUntil?: boolean
     passwordChangedAt?: boolean
+    mustChangePassword?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     school?: boolean | User$schoolArgs<ExtArgs>
@@ -5473,6 +5481,7 @@ export namespace Prisma {
     failedLoginCount?: boolean
     lockedUntil?: boolean
     passwordChangedAt?: boolean
+    mustChangePassword?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     school?: boolean | User$schoolArgs<ExtArgs>
@@ -5496,6 +5505,7 @@ export namespace Prisma {
     failedLoginCount?: boolean
     lockedUntil?: boolean
     passwordChangedAt?: boolean
+    mustChangePassword?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     school?: boolean | User$schoolArgs<ExtArgs>
@@ -5519,11 +5529,12 @@ export namespace Prisma {
     failedLoginCount?: boolean
     lockedUntil?: boolean
     passwordChangedAt?: boolean
+    mustChangePassword?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolId" | "email" | "passwordHash" | "role" | "firstName" | "lastName" | "phone" | "photoUrl" | "isActive" | "isEmailVerified" | "emailVerifiedAt" | "lastLoginAt" | "lastLoginIp" | "failedLoginCount" | "lockedUntil" | "passwordChangedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolId" | "email" | "passwordHash" | "role" | "firstName" | "lastName" | "phone" | "photoUrl" | "isActive" | "isEmailVerified" | "emailVerifiedAt" | "lastLoginAt" | "lastLoginIp" | "failedLoginCount" | "lockedUntil" | "passwordChangedAt" | "mustChangePassword" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     school?: boolean | User$schoolArgs<ExtArgs>
     refreshTokens?: boolean | User$refreshTokensArgs<ExtArgs>
@@ -5564,6 +5575,7 @@ export namespace Prisma {
       failedLoginCount: number
       lockedUntil: Date | null
       passwordChangedAt: Date | null
+      mustChangePassword: boolean
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["user"]>
@@ -6010,6 +6022,7 @@ export namespace Prisma {
     readonly failedLoginCount: FieldRef<"User", 'Int'>
     readonly lockedUntil: FieldRef<"User", 'DateTime'>
     readonly passwordChangedAt: FieldRef<"User", 'DateTime'>
+    readonly mustChangePassword: FieldRef<"User", 'Boolean'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
     readonly updatedAt: FieldRef<"User", 'DateTime'>
   }
@@ -18397,6 +18410,7 @@ export namespace Prisma {
     failedLoginCount: 'failedLoginCount',
     lockedUntil: 'lockedUntil',
     passwordChangedAt: 'passwordChangedAt',
+    mustChangePassword: 'mustChangePassword',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -19251,6 +19265,7 @@ export namespace Prisma {
     failedLoginCount?: IntFilter<"User"> | number
     lockedUntil?: DateTimeNullableFilter<"User"> | Date | string | null
     passwordChangedAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    mustChangePassword?: BoolFilter<"User"> | boolean
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     school?: XOR<SchoolNullableScalarRelationFilter, SchoolWhereInput> | null
@@ -19277,6 +19292,7 @@ export namespace Prisma {
     failedLoginCount?: SortOrder
     lockedUntil?: SortOrderInput | SortOrder
     passwordChangedAt?: SortOrderInput | SortOrder
+    mustChangePassword?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     school?: SchoolOrderByWithRelationInput
@@ -19306,6 +19322,7 @@ export namespace Prisma {
     failedLoginCount?: IntFilter<"User"> | number
     lockedUntil?: DateTimeNullableFilter<"User"> | Date | string | null
     passwordChangedAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    mustChangePassword?: BoolFilter<"User"> | boolean
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     school?: XOR<SchoolNullableScalarRelationFilter, SchoolWhereInput> | null
@@ -19332,6 +19349,7 @@ export namespace Prisma {
     failedLoginCount?: SortOrder
     lockedUntil?: SortOrderInput | SortOrder
     passwordChangedAt?: SortOrderInput | SortOrder
+    mustChangePassword?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: UserCountOrderByAggregateInput
@@ -19362,6 +19380,7 @@ export namespace Prisma {
     failedLoginCount?: IntWithAggregatesFilter<"User"> | number
     lockedUntil?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
     passwordChangedAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+    mustChangePassword?: BoolWithAggregatesFilter<"User"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
   }
@@ -20628,6 +20647,7 @@ export namespace Prisma {
     failedLoginCount?: number
     lockedUntil?: Date | string | null
     passwordChangedAt?: Date | string | null
+    mustChangePassword?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     school?: SchoolCreateNestedOneWithoutUsersInput
@@ -20654,6 +20674,7 @@ export namespace Prisma {
     failedLoginCount?: number
     lockedUntil?: Date | string | null
     passwordChangedAt?: Date | string | null
+    mustChangePassword?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
@@ -20678,6 +20699,7 @@ export namespace Prisma {
     failedLoginCount?: IntFieldUpdateOperationsInput | number
     lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     school?: SchoolUpdateOneWithoutUsersNestedInput
@@ -20704,6 +20726,7 @@ export namespace Prisma {
     failedLoginCount?: IntFieldUpdateOperationsInput | number
     lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -20729,6 +20752,7 @@ export namespace Prisma {
     failedLoginCount?: number
     lockedUntil?: Date | string | null
     passwordChangedAt?: Date | string | null
+    mustChangePassword?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -20750,6 +20774,7 @@ export namespace Prisma {
     failedLoginCount?: IntFieldUpdateOperationsInput | number
     lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -20772,6 +20797,7 @@ export namespace Prisma {
     failedLoginCount?: IntFieldUpdateOperationsInput | number
     lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -22336,6 +22362,7 @@ export namespace Prisma {
     failedLoginCount?: SortOrder
     lockedUntil?: SortOrder
     passwordChangedAt?: SortOrder
+    mustChangePassword?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -22362,6 +22389,7 @@ export namespace Prisma {
     failedLoginCount?: SortOrder
     lockedUntil?: SortOrder
     passwordChangedAt?: SortOrder
+    mustChangePassword?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -22384,6 +22412,7 @@ export namespace Prisma {
     failedLoginCount?: SortOrder
     lockedUntil?: SortOrder
     passwordChangedAt?: SortOrder
+    mustChangePassword?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -24521,6 +24550,7 @@ export namespace Prisma {
     failedLoginCount?: number
     lockedUntil?: Date | string | null
     passwordChangedAt?: Date | string | null
+    mustChangePassword?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
@@ -24545,6 +24575,7 @@ export namespace Prisma {
     failedLoginCount?: number
     lockedUntil?: Date | string | null
     passwordChangedAt?: Date | string | null
+    mustChangePassword?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
@@ -24771,6 +24802,7 @@ export namespace Prisma {
     failedLoginCount?: IntFilter<"User"> | number
     lockedUntil?: DateTimeNullableFilter<"User"> | Date | string | null
     passwordChangedAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    mustChangePassword?: BoolFilter<"User"> | boolean
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
   }
@@ -25439,6 +25471,7 @@ export namespace Prisma {
     failedLoginCount?: number
     lockedUntil?: Date | string | null
     passwordChangedAt?: Date | string | null
+    mustChangePassword?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     school?: SchoolCreateNestedOneWithoutUsersInput
@@ -25464,6 +25497,7 @@ export namespace Prisma {
     failedLoginCount?: number
     lockedUntil?: Date | string | null
     passwordChangedAt?: Date | string | null
+    mustChangePassword?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
@@ -25503,6 +25537,7 @@ export namespace Prisma {
     failedLoginCount?: IntFieldUpdateOperationsInput | number
     lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     school?: SchoolUpdateOneWithoutUsersNestedInput
@@ -25528,6 +25563,7 @@ export namespace Prisma {
     failedLoginCount?: IntFieldUpdateOperationsInput | number
     lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -25551,6 +25587,7 @@ export namespace Prisma {
     failedLoginCount?: number
     lockedUntil?: Date | string | null
     passwordChangedAt?: Date | string | null
+    mustChangePassword?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     school?: SchoolCreateNestedOneWithoutUsersInput
@@ -25576,6 +25613,7 @@ export namespace Prisma {
     failedLoginCount?: number
     lockedUntil?: Date | string | null
     passwordChangedAt?: Date | string | null
+    mustChangePassword?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     otps?: OtpUncheckedCreateNestedManyWithoutUserInput
@@ -25615,6 +25653,7 @@ export namespace Prisma {
     failedLoginCount?: IntFieldUpdateOperationsInput | number
     lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     school?: SchoolUpdateOneWithoutUsersNestedInput
@@ -25640,6 +25679,7 @@ export namespace Prisma {
     failedLoginCount?: IntFieldUpdateOperationsInput | number
     lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     otps?: OtpUncheckedUpdateManyWithoutUserNestedInput
@@ -25663,6 +25703,7 @@ export namespace Prisma {
     failedLoginCount?: number
     lockedUntil?: Date | string | null
     passwordChangedAt?: Date | string | null
+    mustChangePassword?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     school?: SchoolCreateNestedOneWithoutUsersInput
@@ -25688,6 +25729,7 @@ export namespace Prisma {
     failedLoginCount?: number
     lockedUntil?: Date | string | null
     passwordChangedAt?: Date | string | null
+    mustChangePassword?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
@@ -25727,6 +25769,7 @@ export namespace Prisma {
     failedLoginCount?: IntFieldUpdateOperationsInput | number
     lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     school?: SchoolUpdateOneWithoutUsersNestedInput
@@ -25752,6 +25795,7 @@ export namespace Prisma {
     failedLoginCount?: IntFieldUpdateOperationsInput | number
     lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -26874,6 +26918,7 @@ export namespace Prisma {
     failedLoginCount?: number
     lockedUntil?: Date | string | null
     passwordChangedAt?: Date | string | null
+    mustChangePassword?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -26960,6 +27005,7 @@ export namespace Prisma {
     failedLoginCount?: IntFieldUpdateOperationsInput | number
     lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
@@ -26984,6 +27030,7 @@ export namespace Prisma {
     failedLoginCount?: IntFieldUpdateOperationsInput | number
     lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -27008,6 +27055,7 @@ export namespace Prisma {
     failedLoginCount?: IntFieldUpdateOperationsInput | number
     lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

@@ -1,27 +1,18 @@
 import { IGradeRepository }  from "../repositories/grade.repository";
-import { GradeMapper }       from "../mappers/grade.mapper";
 import { GradeResponseData } from "../mappers/grade.mapper";
 import { PaginatedResult }   from "../../../infrastructure/repository/base.repository";
 import { ListGradesDtoType } from "../dtos/grade.dto";
-
-/*
-|--------------------------------------------------------------------------
-| GET GRADES USE CASE
-|--------------------------------------------------------------------------
-*/
+import { parsePagination, buildPaginationMeta } from "../../../shared/utils/pagination";
 
 interface Dependencies {
     gradeRepository: IGradeRepository;
-    gradeMapper:     GradeMapper;
 }
 
 export class GetGradesUseCase {
     private readonly gradeRepository: IGradeRepository;
-    private readonly gradeMapper:     GradeMapper;
 
-    constructor({ gradeRepository, gradeMapper }: Dependencies) {
+    constructor({ gradeRepository }: Dependencies) {
         this.gradeRepository = gradeRepository;
-        this.gradeMapper     = gradeMapper;
     }
 
     async execute(
@@ -36,16 +27,19 @@ export class GetGradesUseCase {
             where.isPublished = dto.isPublished === "true";
         }
 
-        const result = await this.gradeRepository.paginate({
-            page:    Number(dto.page)  || 1,
-            limit:   Number(dto.limit) || 50,
-            where,
-            orderBy: { total: "desc" },
+        const { page, limit, skip } = parsePagination({
+            page:  Number(dto.page)  || 1,
+            limit: Number(dto.limit) || 50,
         });
 
+        const [data, total] = await Promise.all([
+            this.gradeRepository.findManyWithStudentName(where, skip, limit),
+            this.gradeRepository.countGrades(where),
+        ]);
+
         return {
-            data: result.data.map(g => this.gradeMapper.toResponse(g)),
-            meta: result.meta,
+            data,
+            meta: buildPaginationMeta(total, page, limit),
         };
     }
 }

@@ -134,6 +134,7 @@ export class AcceptInviteUseCase {
                 email:    user.email,
                 role:     user.role,
                 schoolId: user.schoolId,
+                mustChangePassword: user.mustChangePassword,
             },
             tokenId,
         );

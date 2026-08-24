@@ -24,3 +24,17 @@ export interface SchoolNotificationEntity {
     createdAt:  Date;
     updatedAt:  Date;
 }
+
+export interface PlatformNotificationRecipientEntity {
+    id:             string;
+    notificationId: string;
+    schoolId:       string;
+    channel:        string;
+    status:         string;
+    retryCount:     number;
+    failedReason:   string | null;
+    readAt:         Date | null;
+    deliveredAt:    Date | null;
+    createdAt:      Date;
+    updatedAt:      Date;
+}

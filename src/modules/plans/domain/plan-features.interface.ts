@@ -15,6 +15,7 @@ export interface PlanFeatures {
     // ── Academic ──────────────────────────────────────────────────────────
     reportCardPdf:       boolean;
     customGrading:       boolean;
+    customReportCardTemplate: boolean
     attendanceTracking:  boolean;
     gradeManagement:     boolean;
 
@@ -42,6 +43,7 @@ export const FREE_FEATURES: PlanFeatures = {
     emailNotifications:  true,
     reportCardPdf:       false,
     customGrading:       false,
+    customReportCardTemplate: false,
     attendanceTracking:  true,
     gradeManagement:     true,
     paymentCollection:   false,

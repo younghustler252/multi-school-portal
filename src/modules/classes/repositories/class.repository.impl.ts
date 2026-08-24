@@ -127,4 +127,47 @@ export class ClassRepositoryImpl
             subjectCode:    r.subject.code,
         }));
     }
+
+    async findClassSubjectsEnriched(classId: string): Promise<Array<{
+        classSubjectId: string;
+        classId:        string;
+        subjectId:      string;
+        subjectName:    string;
+        subjectCode:    string | null;
+        staffId:        string;
+        teacherName:    string;
+    }>> {
+        const raws = await this.prisma.classSubject.findMany({
+            where:   { classId },
+            include: { subject: true, staff: { include: { } } },
+        });
+
+        // Staff has no direct name fields — name lives on the linked User
+        // (public schema), which the tenant client can't join to directly.
+        const staffIds = [...new Set(raws.map(r => r.staffId))];
+        const staffRecords = await this.prisma.staff.findMany({
+            where: { id: { in: staffIds } },
+        });
+
+        return raws.map(r => {
+            const staff = staffRecords.find(s => s.id === r.staffId);
+            return {
+                classSubjectId: r.id,
+                classId:        r.classId,
+                subjectId:      r.subjectId,
+                subjectName:    r.subject.name,
+                subjectCode:    r.subject.code,
+                staffId:        r.staffId,
+                teacherName:    staff?.employeeId ?? "Unknown", // see note below
+            };
+        });
+    }
+
+    async findSubjectNamesByClassSubjectIds(ids: string[]): Promise<Map<string, string>> {
+        const raws = await this.prisma.classSubject.findMany({
+            where:   { id: { in: ids } },
+            include: { subject: true },
+        });
+        return new Map(raws.map(r => [r.id, r.subject.name]));
+    }
 }

@@ -42,6 +42,14 @@ router.post(
     (req, res, next) => ctrl().createClass(req, res, next),
 );
 
+router.get(
+    "/:id",
+    authenticate,
+    requireStaff,
+    requireSchoolAdmin,
+    (req, res, next) => ctrl().getClassById(req, res, next),
+)
+
 router.put(
     "/:id",
     authenticate,

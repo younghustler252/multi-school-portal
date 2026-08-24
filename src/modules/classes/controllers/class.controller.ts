@@ -2,8 +2,9 @@ import { Request, Response, NextFunction } from "express";
 import { CreateClassUseCase }       from "../usecases/school-admin/create-class.usecase";
 import { UpdateClassUseCase }       from "../usecases/school-admin/update-class.usecase";
 import { GetClassesUseCase }        from "../usecases/school-admin/get-classes.usecase";
-import { DeleteClassUseCase }       from "../usecases/school-admin/delete-class.usecase";
+import { GetClassByIdUseCase } from "../usecases/school-admin/get-class-by-id.usecase";
 import { CreateSubjectUseCase }     from "../usecases/school-admin/create-subject.usecase";
+import { DeleteClassUseCase } from "../usecases/school-admin/delete-class.usecase";
 import { GetSubjectsUseCase }       from "../usecases/school-admin/get-subjects.usecase";
 import { AssignSubjectUseCase }     from "../usecases/school-admin/assign-subject.usecase";
 import { GetClassSubjectsUseCase }  from "../usecases/school-admin/get-class-subjects.usecase";
@@ -23,6 +24,7 @@ interface Dependencies {
     createClassUseCase:      CreateClassUseCase;
     updateClassUseCase:      UpdateClassUseCase;
     getClassesUseCase:       GetClassesUseCase;
+    getClassByIdUseCase:     GetClassByIdUseCase;
     deleteClassUseCase:      DeleteClassUseCase;
     createSubjectUseCase:    CreateSubjectUseCase;
     getSubjectsUseCase:      GetSubjectsUseCase;
@@ -35,6 +37,7 @@ export class ClassController {
     private readonly createClassUseCase:      CreateClassUseCase;
     private readonly updateClassUseCase:      UpdateClassUseCase;
     private readonly getClassesUseCase:       GetClassesUseCase;
+    private readonly getClassByIdUseCase:     GetClassByIdUseCase;
     private readonly deleteClassUseCase:      DeleteClassUseCase;
     private readonly createSubjectUseCase:    CreateSubjectUseCase;
     private readonly getSubjectsUseCase:      GetSubjectsUseCase;
@@ -46,6 +49,7 @@ export class ClassController {
         createClassUseCase,
         updateClassUseCase,
         getClassesUseCase,
+        getClassByIdUseCase,
         deleteClassUseCase,
         createSubjectUseCase,
         getSubjectsUseCase,
@@ -56,6 +60,7 @@ export class ClassController {
         this.createClassUseCase      = createClassUseCase;
         this.updateClassUseCase      = updateClassUseCase;
         this.getClassesUseCase       = getClassesUseCase;
+        this.getClassByIdUseCase     = getClassByIdUseCase;
         this.deleteClassUseCase      = deleteClassUseCase;
         this.createSubjectUseCase    = createSubjectUseCase;
         this.getSubjectsUseCase      = getSubjectsUseCase;
@@ -82,6 +87,15 @@ export class ClassController {
             sendCreated(res, result, "Class created successfully");
         } catch (err) { next(err); }
     };
+
+    getClassById = async (
+        req: Request, res: Response, next: NextFunction,
+    ): Promise<void> => {
+        const result = await this.getClassByIdUseCase.execute(
+            req.params?.id as string
+        )
+        sendSuccess(res, result, "class retrieved successful" )
+    }
 
     updateClass = async (
         req: Request, res: Response, next: NextFunction,

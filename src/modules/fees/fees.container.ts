@@ -6,6 +6,7 @@ import { CreateFeeTypeUseCase }        from "./usecases/create-fee-type.usecase"
 import { GetFeeTypesUseCase }          from "./usecases/get-fee-types.usecase";
 import { CreateInvoiceUseCase }        from "./usecases/create-invoice.usecase";
 import { BulkCreateInvoicesUseCase }   from "./usecases/bulk-create-invoices.usecase";
+import { GetInvoiceByIdUseCase } from "./usecases/get-invoice-by-id.usecase";
 import { GetInvoicesUseCase }          from "./usecases/get-invoices.usecase";
 import { GetDefaultersUseCase }        from "./usecases/get-defaulters.usecase";
 import { UpdateInvoiceUseCase }        from "./usecases/update-invoice.usecase";
@@ -26,6 +27,7 @@ export const registerFees = (container: AwilixContainer): void => {
         createInvoiceUseCase:      asClass(CreateInvoiceUseCase).scoped(),
         bulkCreateInvoicesUseCase: asClass(BulkCreateInvoicesUseCase).scoped(),
         getInvoicesUseCase:        asClass(GetInvoicesUseCase).scoped(),
+        getInvoiceByIdUseCase:     asClass(GetInvoiceByIdUseCase).scoped(),
         getDefaultersUseCase:      asClass(GetDefaultersUseCase).scoped(),
         updateInvoiceUseCase:      asClass(UpdateInvoiceUseCase).scoped(),
         invoiceClassUseCase:  asClass(InvoiceClassUseCase).scoped(),

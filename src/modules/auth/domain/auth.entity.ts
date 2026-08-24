@@ -24,6 +24,7 @@ export interface UserEntity {
     failedLoginCount: number;
     lockedUntil:      Date | null;
     passwordChangedAt: Date | null;
+    mustChangePassword: boolean;
     createdAt:        Date;
     updatedAt:        Date;
 }

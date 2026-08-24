@@ -44,6 +44,18 @@ export interface IClassRepository {
         classId:   string,
         subjectId: string,
     ):                                                  Promise<ClassSubjectEntity | null>;
+
+    
+    findSubjectNamesByClassSubjectIds(ids: string[]): Promise<Map<string, string>>;
+    findClassSubjectsEnriched(classId: string): Promise<Array<{
+        classSubjectId: string;
+        classId: string;
+        subjectId: string;
+        subjectName: string;
+        subjectCode: string | null;
+        staffId: string;
+        teacherName: string;
+    }>>;
     assignSubject(data: Record<string, any>):           Promise<ClassSubjectEntity>;
     updateClassSubject(
         id:   string,

@@ -414,18 +414,20 @@ export class SchoolController {
 
     // ── Activate school ───────────────────────────────────────────────────
     activateSchool = async (
-        req:  Request,
-        res:  Response,
+        req: Request,
+        res: Response,
         next: NextFunction,
     ): Promise<void> => {
-        try {
-            const result = await this.activateSchoolUseCase.execute(
-                req.params.id as string,
-            );
-            sendSuccess(res, result, "School activated successfully");
-        } catch (err) {
-            next(err);
-        }
+    try {
+        const result = await this.activateSchoolUseCase.execute(
+            req.params.id as string,
+            req.user?.id as string,
+        );
+
+        sendSuccess(res, result, "School activated successfully");
+    } catch (err) {
+        next(err);
+    }
     };
 
     // ── Approve document ──────────────────────────────────────────────────

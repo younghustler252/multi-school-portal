@@ -106,6 +106,7 @@ export class CreateGuardianUseCase {
                 phone:           dto.phone,
                 isActive:        true,
                 isEmailVerified: true,
+                mustChangePassword: true,
             });
 
             // ── 3c. Create guardian record, linked to the new account ─────

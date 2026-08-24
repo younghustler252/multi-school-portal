@@ -1,21 +1,18 @@
-import { IFeeRepository }        from "../repositories/fee.repository";
-import { FeeInvoiceMapper }      from "../mappers/fee.mapper";
+import { IFeeRepository }      from "../repositories/fee.repository";
 import { FeeInvoiceResponseData } from "../mappers/fee.mapper";
-import { PaginatedResult }        from "../../../infrastructure/repository/base.repository";
-import { ListInvoicesDtoType }    from "../dtos/fee.dto";
+import { PaginatedResult }     from "../../../infrastructure/repository/base.repository";
+import { ListInvoicesDtoType } from "../dtos/fee.dto";
+import { parsePagination, buildPaginationMeta } from "../../../shared/utils/pagination";
 
 interface Dependencies {
-    feeRepository:    IFeeRepository;
-    feeInvoiceMapper: FeeInvoiceMapper;
+    feeRepository: IFeeRepository;
 }
 
 export class GetInvoicesUseCase {
-    private readonly feeRepository:    IFeeRepository;
-    private readonly feeInvoiceMapper: FeeInvoiceMapper;
+    private readonly feeRepository: IFeeRepository;
 
-    constructor({ feeRepository, feeInvoiceMapper }: Dependencies) {
-        this.feeRepository    = feeRepository;
-        this.feeInvoiceMapper = feeInvoiceMapper;
+    constructor({ feeRepository }: Dependencies) {
+        this.feeRepository = feeRepository;
     }
 
     async execute(
@@ -28,16 +25,19 @@ export class GetInvoicesUseCase {
         if (dto.feeTypeId) where.feeTypeId = dto.feeTypeId;
         if (dto.status)    where.status    = dto.status;
 
-        const result = await this.feeRepository.paginateInvoices({
-            page:    Number(dto.page)  || 1,
-            limit:   Number(dto.limit) || 20,
-            where,
-            orderBy: { createdAt: "desc" },
+        const { page, limit, skip } = parsePagination({
+            page:  Number(dto.page)  || 1,
+            limit: Number(dto.limit) || 20,
         });
 
+        const [data, total] = await Promise.all([
+            this.feeRepository.findManyInvoicesEnriched(where, skip, limit),
+            this.feeRepository.countInvoices(where),
+        ]);
+
         return {
-            data: result.data.map(i => this.feeInvoiceMapper.toResponse(i)),
-            meta: result.meta,
+            data,
+            meta: buildPaginationMeta(total, page, limit),
         };
     }
 }

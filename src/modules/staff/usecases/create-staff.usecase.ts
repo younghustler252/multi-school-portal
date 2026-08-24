@@ -103,6 +103,7 @@ export class CreateStaffUseCase {
             phone:           dto.phone,
             isActive:        true,
             isEmailVerified: true, // staff don't need email verification
+            mustChangePassword: true,
         });
 
         // ── 6. Create Staff record in tenant schema ───────────────────────

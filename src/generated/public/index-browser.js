@@ -186,6 +186,7 @@ exports.Prisma.UserScalarFieldEnum = {
   failedLoginCount: 'failedLoginCount',
   lockedUntil: 'lockedUntil',
   passwordChangedAt: 'passwordChangedAt',
+  mustChangePassword: 'mustChangePassword',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };

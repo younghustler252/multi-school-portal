@@ -1,0 +1,56 @@
+import puppeteer, { Browser } from "puppeteer";
+
+class BrowserService {
+    private browser: Browser | null = null;
+    private launching: Promise<Browser> | null = null;
+
+    async getBrowser(): Promise<Browser> {
+        if (this.browser) return this.browser;
+
+        if (!this.launching) {
+            this.launching = puppeteer.launch({
+                headless: true,
+                args: [
+                    "--no-sandbox",
+                    "--disable-setuid-sandbox",
+                    "--disable-dev-shm-usage", // avoids /dev/shm exhaustion on small containers
+                ],
+            });
+        }
+
+        this.browser = await this.launching;
+        this.launching = null;
+
+        this.browser.on("disconnected", () => {
+            this.browser = null; // force relaunch on next call if Chromium crashes
+        });
+
+        return this.browser;
+    }
+
+    async renderHtmlToPdf(html: string): Promise<Buffer> {
+        const browser = await this.getBrowser();
+        const page = await browser.newPage();
+
+        try {
+            await page.setContent(html, { waitUntil: "load" });
+            const pdf = await page.pdf({
+                format:      "A4",
+                printBackground: true,
+                margin: { top: "10mm", bottom: "10mm", left: "10mm", right: "10mm" },
+            });
+            return Buffer.from(pdf);
+        } finally {
+            await page.close(); // page closes, browser process stays alive — this is the key cost saving
+        }
+    }
+
+    async shutdown(): Promise<void> {
+        if (this.browser) {
+            await this.browser.close();
+            this.browser = null;
+        }
+    }
+}
+
+export const browserService = new BrowserService();

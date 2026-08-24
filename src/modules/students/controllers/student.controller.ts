@@ -5,6 +5,7 @@ import { ListStudentsUseCase }       from "../usecases/list-students.usecase";
 import { UpdateStudentUseCase }      from "../usecases/update-student.usecase";
 import { DeactivateStudentUseCase }  from "../usecases/deactivate-student.usecase";
 import { UploadStudentPhotoUseCase } from "../usecases/upload-photo.usecase";
+import { GetStudentsBatchUseCase } from "../usecases/get-students-batch.usecase";
 import {
     sendSuccess,
     sendCreated,
@@ -24,6 +25,8 @@ interface Dependencies {
     updateStudentUseCase:      UpdateStudentUseCase;
     deactivateStudentUseCase:  DeactivateStudentUseCase;
     uploadStudentPhotoUseCase: UploadStudentPhotoUseCase;
+    getStudentsBatchUseCase:   GetStudentsBatchUseCase;
+
 }
 
 export class StudentController {
@@ -33,6 +36,7 @@ export class StudentController {
     private readonly updateStudentUseCase:      UpdateStudentUseCase;
     private readonly deactivateStudentUseCase:  DeactivateStudentUseCase;
     private readonly uploadStudentPhotoUseCase: UploadStudentPhotoUseCase;
+    private readonly getStudentsBatchUseCase:   GetStudentsBatchUseCase;
 
     constructor({
         createStudentUseCase,
@@ -41,13 +45,15 @@ export class StudentController {
         updateStudentUseCase,
         deactivateStudentUseCase,
         uploadStudentPhotoUseCase,
+        getStudentsBatchUseCase
     }: Dependencies) {
         this.createStudentUseCase      = createStudentUseCase;
         this.getStudentUseCase         = getStudentUseCase;
         this.listStudentsUseCase       = listStudentsUseCase;
         this.updateStudentUseCase      = updateStudentUseCase;
         this.deactivateStudentUseCase  = deactivateStudentUseCase;
-        this.uploadStudentPhotoUseCase = uploadStudentPhotoUseCase;
+        this.uploadStudentPhotoUseCase = uploadStudentPhotoUseCase ;
+        this.getStudentsBatchUseCase   = getStudentsBatchUseCase;
     }
 
     // ── List students ─────────────────────────────────────────────────────
@@ -157,6 +163,20 @@ export class StudentController {
                 },
             );
             sendSuccess(res, result, "Photo uploaded successfully");
+        } catch (err) {
+            next(err);
+        }
+    };
+
+    // ── Get students batch ────────────────────────────────────────────────────
+    getStudentsBatch = async (
+        req: Request,
+        res: Response,
+        next: NextFunction,
+    ): Promise<void> => {
+        try {
+            const result = await this.getStudentsBatchUseCase.execute(req.body.ids);
+            sendSuccess(res, result, "Students retrieved successfully");
         } catch (err) {
             next(err);
         }

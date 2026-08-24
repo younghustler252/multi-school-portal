@@ -74,11 +74,11 @@ export class ChangePasswordUseCase {
         const passwordHash = await this.passwordService.hash(dto.newPassword);
 
         // ── Update password ───────────────────────────────────────────────
-        await this.userRepository.update(userId, {
+       await this.userRepository.update(userId, {
             passwordHash,
-            passwordChangedAt: new Date(),
+            passwordChangedAt:  new Date(),
+            mustChangePassword: false,
         });
-
         // ── Invalidate all sessions ───────────────────────────────────────
         await this.refreshTokenRepository.deleteByUserId(userId);
 

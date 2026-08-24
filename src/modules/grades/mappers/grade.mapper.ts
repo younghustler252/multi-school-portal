@@ -9,10 +9,10 @@ import {
 | GRADE MAPPER
 |--------------------------------------------------------------------------
 */
-
 export interface GradeResponseData {
     id:             string;
     studentId:      string;
+    studentName?:   string;
     termId:         string;
     classSubjectId: string;
     caScore:        number | null;

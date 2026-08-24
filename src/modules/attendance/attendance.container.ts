@@ -5,6 +5,7 @@ import { AttendanceRepositoryImpl }     from "./repositories/attendance.reposito
 import { MarkAttendanceUseCase }        from "./usecases/mark-attendance.usecase";
 import { BulkMarkAttendanceUseCase }    from "./usecases/bulk-mark-attendance.usecase";
 import { GetAttendanceUseCase }         from "./usecases/get-attendance.usecase";
+import { GetMyAttendanceUseCase } from "./usecases/get-my attendance.usecase";
 import { GetAttendanceSummaryUseCase }  from "./usecases/get-attendance-summary.usecase";
 import { UpdateAttendanceUseCase }      from "./usecases/update-attendance.usecase";
 import { GetMyChildrenAttendanceUseCase } from "./usecases/get-my-childreen-attendance";

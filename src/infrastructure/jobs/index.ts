@@ -5,7 +5,9 @@
 |--------------------------------------------------------------------------
 */
 
+import "./workers/provision-schema.worker";
+import "./workers/report-card-generation.worker";
+
 export const initWorkers = (): void => {
-    require("./workers/provision-schema.worker");
-    console.log("✅ Background workers started");
+	console.log("✅ Background workers started");
 };

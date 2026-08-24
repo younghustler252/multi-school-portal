@@ -15,6 +15,7 @@ export interface SchoolResponseData extends SchoolStatusFields {
     country:            string;
     timezone:           string;
     logoUrl:            string | null;
+    paystackSubaccountCode: string | null;
     schoolCategory:     string;
     schoolOwnership:    string;
     createdAt:          Date;
@@ -80,6 +81,7 @@ export class SchoolMapper implements IMapper<School, SchoolEntity> {
             logoUrl:            entity.logoUrl,
             schoolCategory:     entity.schoolCategory,
             schoolOwnership:    entity.schoolOwnership,
+            paystackSubaccountCode: entity.schoolOwnership,
             status:             entity.status,
             verificationStatus: entity.verificationStatus,
             isActive:           entity.isActive,

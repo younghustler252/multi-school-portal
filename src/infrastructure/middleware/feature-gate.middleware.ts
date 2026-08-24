@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { prisma } from "../database/prisma/prisma.client";
 import { getTenantClient } from "../database/prisma/prisma.client";
-import { FeatureNotAvailableError } from "../../shared/errors/domain.errors";
+import { FeatureNotAvailableError, PlanLimitError } from "../../shared/errors/domain.errors";
 import { PlanFeatures } from "../../modules/plans/domain/plan-features.interface";
 
 type PlanFeatureKey = keyof PlanFeatures;
@@ -70,12 +70,10 @@ export const requirePlanLimit = (type: LimitType) => {
                 ? await tenantDb.student.count({ where: { isActive: true } })
                 : await tenantDb.staff.count({ where: { isActive: true } });
 
-            if (currentCount >= limit) {
-                res.status(403).json({
-                    success: false,
-                    message: `You have reached your plan limit of ${limit} ${type}s. Please upgrade your plan.`,
-                });
-                return;
+           if (currentCount >= limit) {
+                throw new PlanLimitError(
+                    `You have reached your plan limit of ${limit} ${type}s. Please upgrade your plan.`,
+                );
             }
 
             next();

@@ -9,6 +9,7 @@ import { ClassRepositoryImpl }        from "./repositories/class.repository.impl
 import { CreateClassUseCase }         from "./usecases/school-admin/create-class.usecase";
 import { UpdateClassUseCase }         from "./usecases/school-admin/update-class.usecase";
 import { GetClassesUseCase }          from "./usecases/school-admin/get-classes.usecase";
+import { GetClassByIdUseCase } from "./usecases/school-admin/get-class-by-id.usecase";
 import { DeleteClassUseCase }         from "./usecases/school-admin/delete-class.usecase";
 import { CreateSubjectUseCase }       from "./usecases/school-admin/create-subject.usecase";
 import { GetSubjectsUseCase }         from "./usecases/school-admin/get-subjects.usecase";
@@ -32,6 +33,7 @@ export const registerClasses = (container: AwilixContainer): void => {
         createClassUseCase:      asClass(CreateClassUseCase).scoped(),
         updateClassUseCase:      asClass(UpdateClassUseCase).scoped(),
         getClassesUseCase:       asClass(GetClassesUseCase).scoped(),
+        getClassByIdUseCase:     asClass(GetClassByIdUseCase).scoped(),
         deleteClassUseCase:      asClass(DeleteClassUseCase).scoped(),
         createSubjectUseCase:    asClass(CreateSubjectUseCase).scoped(),
         getSubjectsUseCase:      asClass(GetSubjectsUseCase).scoped(),

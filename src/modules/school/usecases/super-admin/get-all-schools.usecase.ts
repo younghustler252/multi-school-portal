@@ -1,32 +1,40 @@
-// usecases/super-admin/get-all-schools.usecase.ts
-
-import { ISchoolRepository }    from "../../repositories/school.repository";
-import { SchoolMapper }         from "../../mappers/school.mapper";
-import { SchoolResponseData }   from "../../mappers/school.mapper";
-import {
-    PaginatedResult,
-    PaginateParams,
-}                               from "../../../../infrastructure/repository/base.repository";
-
-/*
-|--------------------------------------------------------------------------
-| GET ALL SCHOOLS USE CASE
-| Super admin views all schools with pagination and filters
-|--------------------------------------------------------------------------
-*/
+import { ISchoolRepository }       from "../../repositories/school.repository";
+import { ISubscriptionRepository } from "../../../subscriptions/repositories/subscription.repository";
+import { IPlanRepository }         from "../../../plans/repositories/plan.repository";
+import { SchoolMapper, SchoolResponseData } from "../../mappers/school.mapper";
+import { TenantContext }           from "../../../../infrastructure/database/prisma/tenant.context";
+import { getTenantClient }         from "../../../../infrastructure/database/prisma/prisma.client";
+import { PaginatedResult }         from "../../../../infrastructure/repository/base.repository";
 
 interface Dependencies {
-    schoolRepository: ISchoolRepository;
-    schoolMapper:     SchoolMapper;
+    schoolRepository:       ISchoolRepository;
+    schoolMapper:           SchoolMapper;
+    subscriptionRepository: ISubscriptionRepository;
+    planRepository:         IPlanRepository;
+}
+
+export interface AdminSchoolResponseData extends SchoolResponseData {
+    planName:     string | null;
+    studentCount: number;
+    mrrKobo:      number;
 }
 
 export class GetAllSchoolsUseCase {
-    private readonly schoolRepository: ISchoolRepository;
-    private readonly schoolMapper:     SchoolMapper;
+    private readonly schoolRepository:       ISchoolRepository;
+    private readonly schoolMapper:           SchoolMapper;
+    private readonly subscriptionRepository: ISubscriptionRepository;
+    private readonly planRepository:         IPlanRepository;
 
-    constructor({ schoolRepository, schoolMapper }: Dependencies) {
-        this.schoolRepository = schoolRepository;
-        this.schoolMapper     = schoolMapper;
+    constructor({
+        schoolRepository,
+        schoolMapper,
+        subscriptionRepository,
+        planRepository,
+    }: Dependencies) {
+        this.schoolRepository       = schoolRepository;
+        this.schoolMapper           = schoolMapper;
+        this.subscriptionRepository = subscriptionRepository;
+        this.planRepository         = planRepository;
     }
 
     async execute(params: {
@@ -35,18 +43,12 @@ export class GetAllSchoolsUseCase {
         status?:             string;
         verificationStatus?: string;
         search?:             string;
-    }): Promise<PaginatedResult<SchoolResponseData>> {
+    }): Promise<PaginatedResult<AdminSchoolResponseData>> {
 
-        // ── Build filter ──────────────────────────────────────────────────
         const where: Record<string, any> = {};
 
-        if (params.status) {
-            where.status = params.status;
-        }
-
-        if (params.verificationStatus) {
-            where.verificationStatus = params.verificationStatus;
-        }
+        if (params.status)             where.status             = params.status;
+        if (params.verificationStatus) where.verificationStatus = params.verificationStatus;
 
         if (params.search) {
             where.OR = [
@@ -56,7 +58,6 @@ export class GetAllSchoolsUseCase {
             ];
         }
 
-        // ── Paginate ──────────────────────────────────────────────────────
         const result = await this.schoolRepository.paginate({
             page:  params.page,
             limit: params.limit,
@@ -64,10 +65,43 @@ export class GetAllSchoolsUseCase {
             orderBy: { createdAt: "desc" },
         });
 
-        // ── Map to response ───────────────────────────────────────────────
-        return {
-            data: result.data.map(s => this.schoolMapper.toResponse(s)),
-            meta: result.meta,
-        };
+        // Bounded by page size (not total schools), so per-item enrichment
+        // here is acceptable — unlike the platform-stats total, which loops
+        // *every* school.
+        const enriched = await Promise.all(
+            result.data.map(async school => {
+                const base = this.schoolMapper.toResponse(school);
+
+                let planName: string | null = null;
+                let mrrKobo = 0;
+
+                const subscription = await this.subscriptionRepository.findActiveBySchoolId(school.id);
+                if (subscription) {
+                    const plan = await this.planRepository.findById(subscription.planId);
+                    if (plan) {
+                        planName = plan.name;
+                        mrrKobo  = subscription.billingCycle === "yearly"
+                            ? Math.round(plan.yearlyPriceKobo / 12)
+                            : plan.monthlyPriceKobo;
+                    }
+                }
+
+                let studentCount = 0;
+                if (school.schemaName) {
+                    try {
+                        studentCount = await TenantContext.run(
+                            { tenantSchema: school.schemaName, schoolId: school.id },
+                            () => getTenantClient().student.count({ where: { isActive: true } }),
+                        );
+                    } catch {
+                        studentCount = 0;
+                    }
+                }
+
+                return { ...base, planName, studentCount, mrrKobo };
+            }),
+        );
+
+        return { data: enriched, meta: result.meta };
     }
 }

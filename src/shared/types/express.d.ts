@@ -8,6 +8,7 @@ declare module "express-serve-static-core" {
             email: string;
             role: string;
             schoolId: string | null;
+            mustChangePassword: boolean;
         };
         tenantSchema?: string;
         schoolId?: string;

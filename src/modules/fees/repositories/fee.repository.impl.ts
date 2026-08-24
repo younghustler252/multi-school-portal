@@ -83,6 +83,88 @@ export class FeeRepositoryImpl
         );
     }
 
+    async findDefaultersSummaryByTerm(termId: string): Promise<Array<{
+        studentId:     string;
+        studentName:   string;
+        totalOwedKobo: number;
+        invoiceCount:  number;
+    }>> {
+        const grouped = await this.prisma.feeInvoice.groupBy({
+            by:     ["studentId"],
+            where:  { termId, status: { in: ["unpaid", "partial"] } },
+            _sum:   { balanceKobo: true },
+            _count: { _all: true },
+            orderBy: { _sum: { balanceKobo: "desc" } },
+        });
+
+        if (grouped.length === 0) return [];
+
+        const studentIds = grouped.map(g => g.studentId);
+        const students = await this.prisma.student.findMany({
+            where:  { id: { in: studentIds } },
+            select: { id: true, firstName: true, lastName: true },
+        });
+
+        const studentMap = new Map(students.map(s => [s.id, `${s.firstName} ${s.lastName}`]));
+
+        return grouped.map(g => ({
+            studentId:     g.studentId,
+            studentName:   studentMap.get(g.studentId) ?? "Unknown",
+            totalOwedKobo: g._sum.balanceKobo ?? 0,
+            invoiceCount:  g._count._all,
+        }));
+    }
+
+    async findManyInvoicesEnriched(
+        where:    Record<string, any>,
+        skip?:    number,
+        take?:    number,
+        orderBy?: Record<string, any>,
+    ): Promise<Array<{
+        id:           string;
+        studentId:    string;
+        studentName:  string;
+        termId:       string;
+        termName:     string;
+        feeTypeId:    string;
+        feeTypeName:  string;
+        amountKobo:   number;
+        paidKobo:     number;
+        balanceKobo:  number;
+        status:       string;
+        dueDate:      Date | null;
+        note:         string | null;
+        createdAt:    Date;
+    }>> {
+        const raws = await this.prisma.feeInvoice.findMany({
+            where,
+            skip,
+            take,
+            orderBy: orderBy ?? { createdAt: "desc" },
+            include: {
+                student: { select: { firstName: true, lastName: true } },
+                term:    { select: { name: true } },
+                feeType: { select: { name: true } },
+            },
+        });
+
+        return raws.map(r => ({
+            id:           r.id,
+            studentId:    r.studentId,
+            studentName:  `${r.student.firstName} ${r.student.lastName}`,
+            termId:       r.termId,
+            termName:     r.term.name,
+            feeTypeId:    r.feeTypeId,
+            feeTypeName:  r.feeType.name,
+            amountKobo:   r.amountKobo,
+            paidKobo:     r.paidKobo,
+            balanceKobo:  r.balanceKobo,
+            status:       r.status,
+            dueDate:      r.dueDate,
+            note:         r.note,
+            createdAt:    r.createdAt,
+        }));
+    }
     async countInvoices(where: Record<string, any>): Promise<number> {
         return this.count(where);
     }

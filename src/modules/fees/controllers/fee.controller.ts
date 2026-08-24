@@ -4,6 +4,7 @@ import { GetFeeTypesUseCase }          from "../usecases/get-fee-types.usecase";
 import { CreateInvoiceUseCase }        from "../usecases/create-invoice.usecase";
 import { BulkCreateInvoicesUseCase }   from "../usecases/bulk-create-invoices.usecase";
 import { GetInvoicesUseCase }          from "../usecases/get-invoices.usecase";
+import { GetInvoiceByIdUseCase } from "../usecases/get-invoice-by-id.usecase";
 import { GetDefaultersUseCase }        from "../usecases/get-defaulters.usecase";
 import { UpdateInvoiceUseCase }        from "../usecases/update-invoice.usecase";
 import { InvoiceClassUseCase }  from "../usecases/invoice-class.usecase";
@@ -21,6 +22,7 @@ interface Dependencies {
     createInvoiceUseCase:      CreateInvoiceUseCase;
     bulkCreateInvoicesUseCase: BulkCreateInvoicesUseCase;
     getInvoicesUseCase:        GetInvoicesUseCase;
+    getInvoiceByIdUseCase:       GetInvoiceByIdUseCase;
     getDefaultersUseCase:      GetDefaultersUseCase;
     updateInvoiceUseCase:      UpdateInvoiceUseCase;
     invoiceClassUseCase:       InvoiceClassUseCase;
@@ -35,11 +37,13 @@ export class FeeController {
     private readonly createInvoiceUseCase:      CreateInvoiceUseCase;
     private readonly bulkCreateInvoicesUseCase: BulkCreateInvoicesUseCase;
     private readonly getInvoicesUseCase:        GetInvoicesUseCase;
+    private readonly getInvoiceByIdUseCase: GetInvoiceByIdUseCase;
     private readonly getDefaultersUseCase:      GetDefaultersUseCase;
     private readonly updateInvoiceUseCase:      UpdateInvoiceUseCase;
     private readonly invoiceClassUseCase:       InvoiceClassUseCase;
     private readonly recordPaymentUseCase:      RecordPaymentUseCase;
     private readonly getMyChildrenInvoicesUseCase: GetMyChildrenInvoicesUseCase;
+    
 
     constructor({
         createFeeTypeUseCase,
@@ -47,6 +51,7 @@ export class FeeController {
         createInvoiceUseCase,
         bulkCreateInvoicesUseCase,
         getInvoicesUseCase,
+        getInvoiceByIdUseCase,
         getDefaultersUseCase,
         updateInvoiceUseCase,
         invoiceClassUseCase,
@@ -58,6 +63,7 @@ export class FeeController {
         this.createInvoiceUseCase      = createInvoiceUseCase;
         this.bulkCreateInvoicesUseCase = bulkCreateInvoicesUseCase;
         this.getInvoicesUseCase        = getInvoicesUseCase;
+        this.getInvoiceByIdUseCase       = getInvoiceByIdUseCase;
         this.getDefaultersUseCase      = getDefaultersUseCase;
         this.updateInvoiceUseCase      = updateInvoiceUseCase;
         this.invoiceClassUseCase       = invoiceClassUseCase;
@@ -94,6 +100,19 @@ export class FeeController {
             );
             sendPaginated(res, result.data, result.meta);
         } catch (err) { next(err); }
+    };
+
+    getInvoiceById = async (
+        req: Request, res: Response, next: NextFunction,
+    ): Promise<void> => {
+        try {
+            const result = await this.getInvoiceByIdUseCase.execute(
+                req.params.id as string
+            );
+            sendSuccess(res, result, "Invoice retrieved successfully");
+        } catch (err) {
+            next(err);
+        }
     };
 
     createInvoice = async (

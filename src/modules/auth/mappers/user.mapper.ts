@@ -33,6 +33,7 @@ export class UserMapper implements IMapper<User, UserEntity> {
             failedLoginCount:  raw.failedLoginCount,
             lockedUntil:       raw.lockedUntil,
             passwordChangedAt: raw.passwordChangedAt,
+            mustChangePassword: raw.mustChangePassword,
             createdAt:         raw.createdAt,
             updatedAt:         raw.updatedAt,
         };
@@ -52,6 +53,7 @@ export class UserMapper implements IMapper<User, UserEntity> {
             photoUrl:        entity.photoUrl,
             schoolId:        entity.schoolId,
             isEmailVerified: entity.isEmailVerified,
+            mustChangePAssword: entity.mustChangePassword
         };
     }
 }

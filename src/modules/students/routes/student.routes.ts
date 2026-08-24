@@ -39,6 +39,13 @@ router.get(
     validate(ListStudentsDto, "query"),
     (req, res, next) => ctrl().listStudents(req, res, next),
 );
+router.post(
+	"/batch",
+	authenticate,
+	requireTenant,
+	requireStaff,
+	(req, res, next) => ctrl().getStudentsBatch(req, res, next),
+);
 
 // ── Get single student ────────────────────────────────────────────────────
 router.get(

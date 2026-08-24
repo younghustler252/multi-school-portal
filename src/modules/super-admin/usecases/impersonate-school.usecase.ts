@@ -56,6 +56,7 @@ export class ImpersonateSchoolUseCase {
             email:    admin.email,
             role:     admin.role,
             schoolId: admin.schoolId,
+            mustChangePassword: admin.mustChangePassword
         });
 
         return { accessToken, school, admin };

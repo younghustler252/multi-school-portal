@@ -8,12 +8,12 @@ import { Role } from "../../generated/public";
 | Handles: access tokens, refresh tokens, invite tokens, OTP generation
 |--------------------------------------------------------------------------
 */
-
 export interface AccessTokenPayload {
-    id:       string;
-    email:    string;
-    role:     Role;
-    schoolId: string | null;
+    id:                 string;
+    email:               string;
+    role:                Role;
+    schoolId:            string | null;
+    mustChangePassword:  boolean;
 }
 
 export interface RefreshTokenPayload {

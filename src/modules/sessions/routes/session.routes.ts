@@ -32,7 +32,7 @@
         "/current",
         authenticate,
         requireTenant,
-        requireStaff,
+        // requireStaff,
         (req, res, next) => ctrl().getCurrentSession(req, res, next),
     );
 

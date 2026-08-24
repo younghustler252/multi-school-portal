@@ -8,6 +8,7 @@ import { SupabaseStorageService } from "../infrastructure/storage/supabase-stora
 import { PaystackProvider } from "../infrastructure/payments/paystack.provider";
 import { TokenService } from "../shared/services/token.service";
 import { PasswordService } from "../shared/services/password.service";
+import { PdfGeneratorService } from "../infrastructure/pdf/pdf-generator.service";
 
 /*
 |--------------------------------------------------------------------------
@@ -32,10 +33,12 @@ export const registerShared = (container: AwilixContainer): void => {
         storageService: asClass(SupabaseStorageService).singleton(),
 
         // ── Payments (uncomment when built) ──────────────────────────────
-        paystackProvider: asClass(PaystackProvider).singleton(),
+        paymentProvider: asClass(PaystackProvider).singleton(),
 
         // ── Shared Services (uncomment when built) ───────────────────────
         tokenService:    asClass(TokenService).singleton(),
         passwordService: asClass(PasswordService).singleton(),
+
+        pdfGeneratorService: asClass(PdfGeneratorService).singleton()
     });
 };

@@ -6,6 +6,9 @@ import { InitializePaymentUseCase }   from "./usecases/initialize-payment.usecas
 import { VerifyPaymentUseCase }       from "./usecases/verify-payment.usecase";
 import { HandleWebhookUseCase }       from "./usecases/handle-webhook.usecase";
 import { GetPaymentsUseCase }         from "./usecases/get-payments.usecase";
+import { GetMyPaymentsUseCase } from "./usecases/get-my-payments.usecase";
+import { ListBanksUseCase } from "./usecases/list-banks.usecaase";
+import { VerifyBankAccountUseCase } from "./usecases/verify-bank-account.usecase";
 import { PaymentController }          from "./controllers/payment.controller";
 
 export const registerPayments = (container: AwilixContainer): void => {
@@ -16,6 +19,10 @@ export const registerPayments = (container: AwilixContainer): void => {
         verifyPaymentUseCase:      asClass(VerifyPaymentUseCase).scoped(),
         handleWebhookUseCase:      asClass(HandleWebhookUseCase).scoped(),
         getPaymentsUseCase:        asClass(GetPaymentsUseCase).scoped(),
+        getMyPaymentsUseCase:      asClass(GetMyPaymentsUseCase).scoped(),
+        listBanksUseCase:          asClass(ListBanksUseCase).scoped(),
+        verifyBankAccountUseCase:  asClass(VerifyBankAccountUseCase).scoped(),
+
         paymentController:         asClass(PaymentController).scoped(),
     });
 };

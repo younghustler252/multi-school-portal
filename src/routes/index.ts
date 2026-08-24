@@ -41,8 +41,8 @@ router.use("/sessions", sessionRouter)
 router.use("/report-cards", reportCardRouter)
 router.use("/fees", feesRouter);
 router.use("/payments", paymentRouter)
-router.use("/super-admin,", superAdminRouter)
-router.use("/audit", auditRouter)
+router.use("/super-admin", superAdminRouter)
+router.use("/audit", auditRouter)   
 router.use("/notifications", notificationRouter);
 router.use("/school-settings", schoolSettingRouter)
 export default router;
