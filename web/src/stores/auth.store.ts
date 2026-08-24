@@ -10,6 +10,7 @@ interface AuthState {
 	user: UserProfileResponseData | null;
 	isAuthenticated: boolean;
 	isLoading: boolean;
+	mustChangePassword: boolean;
 
 	login: (email: string, password: string) => Promise<void>;
 	register: (data: RegisterDto) => Promise<RegisterResponseData>;
@@ -23,6 +24,7 @@ export const useAuthStore = create<AuthState>()(
 			user: null,
 			isAuthenticated: false,
 			isLoading: false,
+			mustChangePassword: false,
 
 			login: async (email: string, password: string) => {
 				set({ isLoading: true });
@@ -31,13 +33,13 @@ export const useAuthStore = create<AuthState>()(
 					set({ isLoading: false });
 					throw res;
 				}
-				// Login returns a slimmer user shape (UserResponseData) — fetch
-				// the richer profile right after so the store always holds
-				// the same UserProfileResponseData shape everywhere.
 				set({ isAuthenticated: true, isLoading: false });
 				const profileRes = await userApi.getProfile();
 				if (profileRes.success) {
-					set({ user: profileRes.data });
+					set({
+						user: profileRes.data,
+						mustChangePassword: profileRes.data.mustChangePassword,
+					});
 				}
 			},
 
@@ -74,7 +76,11 @@ export const useAuthStore = create<AuthState>()(
 				try {
 					const res = await userApi.getProfile();
 					if (res.success) {
-						set({ user: res.data, isAuthenticated: true });
+						set({
+							user: res.data,
+							isAuthenticated: true,
+							mustChangePassword: res.data.mustChangePassword,
+						});
 						return true;
 					}
 				} catch {
@@ -83,12 +89,15 @@ export const useAuthStore = create<AuthState>()(
 				set({ user: null, isAuthenticated: false });
 				return false;
 			},
+
+			clearMustChangePassword: () => set({ mustChangePassword: false }),
 		}),
 		{
 			name: "school-portal-auth",
 			partialize: (state) => ({
 				user: state.user,
 				isAuthenticated: state.isAuthenticated,
+				mustChangePassword: state.mustChangePassword,
 			}),
 		}
 	)

@@ -2,6 +2,11 @@ import { GuardianResponseData, GuardianRelation } from "@/features/guardians/typ
 
 export type Gender = "male" | "female";
 
+export interface StudentListResponseData extends StudentResponseData {
+	classId: string | null;
+	className: string | null;
+	attendancePercentage: number | null;
+}
 
 export interface StudentResponseData {
 	id: string;

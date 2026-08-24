@@ -75,6 +75,7 @@ export const NAV_CONFIG: Record<Role, NavItem[]> = {
 	],
 
 	super_admin: [
+		{ label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
 		{ label: "Schools", to: "/schools", icon: Building2 },
 		{ label: "Plans", to: "/plans", icon: Layers },
 		{ label: "Subscriptions", to: "/subscriptions", icon: CreditCard },

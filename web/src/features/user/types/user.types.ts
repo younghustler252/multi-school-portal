@@ -1,6 +1,5 @@
 import { Role } from "@/types/roles";
 
-// Mirrors backend: UserMapper.toResponse() on the user module — richer than auth's UserResponseData
 export interface UserProfileResponseData {
 	id: string;
 	email: string;
@@ -11,6 +10,7 @@ export interface UserProfileResponseData {
 	photoUrl: string | null;
 	schoolId: string | null;
 	isEmailVerified: boolean;
+	mustChangePassword: boolean; 
 	lastLoginAt: string | null;
 	createdAt: string;
 }

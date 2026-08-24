@@ -73,11 +73,7 @@ export default function PrincipalGradesPage() {
 					>
 						<SelectTrigger>
 							<SelectValue placeholder="Select a subject">
-								{(value: string | null) => {
-									const cs = classSubjects?.find((c) => c.id === value);
-									const subject = cs ? allSubjects?.find((s) => s.id === cs.subjectId) : undefined;
-									return subject?.name ?? "Select a subject";
-								}}
+								{(value: string | null) => classSubjects?.find((c) => c.id === value)?.subjectName ?? "Select a subject"}
 							</SelectValue>
 						</SelectTrigger>
 						<SelectContent>

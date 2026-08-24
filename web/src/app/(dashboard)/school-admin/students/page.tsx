@@ -68,6 +68,8 @@ export default function StudentsPage() {
 							<th className="px-4 py-3 text-left">Student</th>
 							<th className="px-4 py-3 text-left">Admission No.</th>
 							<th className="px-4 py-3 text-left">Gender</th>
+							<th className="px-4 py-3 text-left">Class</th>
+							<th className="px-4 py-3 text-left">Attendance</th>
 							<th className="px-4 py-3 text-left">Status</th>
 						</tr>
 					</thead>
@@ -106,12 +108,37 @@ export default function StudentsPage() {
 										</span>
 									</Link>
 								</td>
+
 								<td className="px-4 py-3 text-muted-foreground">
 									{student.admissionNumber ?? "—"}
 								</td>
+
 								<td className="px-4 py-3 capitalize text-muted-foreground">
 									{student.gender ?? "—"}
 								</td>
+
+								<td className="px-4 py-3">
+									{student.className ?? "—"}
+								</td>
+
+								<td className="px-4 py-3">
+									{student.attendancePercentage !== null ? (
+										<div className="flex items-center gap-2">
+											<div className="h-1.5 w-16 overflow-hidden rounded-full bg-muted">
+												<div
+													className="h-full bg-primary"
+													style={{ width: `${student.attendancePercentage}%` }}
+												/>
+											</div>
+											<span className="text-xs text-muted-foreground">
+												{student.attendancePercentage}%
+											</span>
+										</div>
+									) : (
+										"—"
+									)}
+								</td>
+
 								<td className="px-4 py-3">
 									<Badge variant={student.isActive ? "default" : "secondary"}>
 										{student.isActive ? "Active" : "Inactive"}

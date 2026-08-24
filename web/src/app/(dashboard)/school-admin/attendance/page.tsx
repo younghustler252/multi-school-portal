@@ -8,17 +8,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
+	Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { StatusPicker } from "@/features/attendance/components/status-picker";
 import { useScopedClasses } from "@/features/attendance/hooks/use-scoped-classes";
 import { useCurrentSession } from "@/features/school/hooks/use-sessions";
 import { useEnrolments } from "@/features/enrolment/hooks/use-enrolments";
-import { useStudents } from "@/features/students/hooks/use-students";
+import { useStudentsBatch } from "@/features/students/hooks/use-students";
 import { useAttendance, useBulkMarkAttendance } from "@/features/attendance/hooks/use-attendance";
 import { AttendanceStatus, BulkAttendanceRecord } from "@/features/attendance/types/attendance.types";
 import { ApiErrorResponse } from "@/types/api-response";
@@ -28,26 +24,30 @@ function todayISO() {
 }
 
 export default function AttendancePage() {
-	const [classId, setClassId] = useState<string>("");
+	const [classId, setClassId] = useState("");
 	const [date, setDate] = useState(todayISO());
 	const [draft, setDraft] = useState<Record<string, AttendanceStatus>>({});
 
-	const { classes, isLoading: classesLoading } = useScopedClasses();
-	useEffect(() => {
-		if (!classId && classes.length > 0) {
-			setClassId(classes[0].id);
-		}
-	}, [classes, classId]);
-
+	const { classes } = useScopedClasses();
 	const { data: currentSession } = useCurrentSession();
 	const termId = currentSession?.currentTerm?.id;
+
+	useEffect(() => {
+		if (!classId && classes.length > 0) setClassId(classes[0].id);
+	}, [classes, classId]);
 
 	const { data: enrolmentData, isLoading: enrolmentsLoading } = useEnrolments({
 		classId: classId || undefined,
 		termId,
 		status: "active",
 	});
-	const { data: studentData } = useStudents({ limit: 500 });
+
+	const studentIds = useMemo(
+		() => enrolmentData?.enrolments.map((e) => e.studentId) ?? [],
+		[enrolmentData]
+	);
+	const { data: students } = useStudentsBatch(studentIds);
+
 	const { data: existingRecords, isLoading: recordsLoading } = useAttendance({
 		classId: classId || undefined,
 		termId,
@@ -55,12 +55,7 @@ export default function AttendancePage() {
 	});
 	const bulkMark = useBulkMarkAttendance();
 
-	const roster = useMemo(() => {
-		if (!enrolmentData) return [];
-		return enrolmentData.enrolments
-			.map((e) => studentData?.students.find((s) => s.id === e.studentId))
-			.filter((s): s is NonNullable<typeof s> => !!s);
-	}, [enrolmentData, studentData]);
+	const roster = students ?? [];
 
 	function statusFor(studentId: string): AttendanceStatus {
 		if (draft[studentId]) return draft[studentId];
@@ -102,15 +97,14 @@ export default function AttendancePage() {
 			<div className="mb-6 flex flex-wrap items-end gap-3">
 				<div className="w-56 space-y-1.5">
 					<label className="text-xs text-muted-foreground">Class</label>
-					<Select
-						value={classId} onValueChange={(v) => setClassId(v ?? "")}>
+					<Select value={classId} onValueChange={(v) => setClassId(v ?? "")}>
 						<SelectTrigger>
 							<SelectValue placeholder="Select a class">
-								{(value: string | null) => classes?.find((c) => c.id === value)?.name ?? "Select a class"}
+								{(value: string | null) => classes.find((c) => c.id === value)?.name ?? "Select a class"}
 							</SelectValue>
 						</SelectTrigger>
 						<SelectContent>
-							{classes?.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+							{classes.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
 						</SelectContent>
 					</Select>
 				</div>
@@ -127,15 +121,8 @@ export default function AttendancePage() {
 				)}
 			</div>
 
-			{!termId && (
-				<p className="text-sm text-muted-foreground">
-					No current term set — set one in Settings → Term &amp; calendar first.
-				</p>
-			)}
-
-			{termId && !classId && (
-				<p className="text-sm text-muted-foreground">Select a class to begin.</p>
-			)}
+			{!termId && <p className="text-sm text-muted-foreground">No current term set — set one in Settings → Term &amp; calendar first.</p>}
+			{termId && !classId && <p className="text-sm text-muted-foreground">Select a class to begin.</p>}
 
 			{termId && classId && (enrolmentsLoading || recordsLoading) && (
 				<div className="space-y-2">

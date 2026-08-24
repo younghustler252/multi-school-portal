@@ -38,4 +38,7 @@ export const attendanceApi = {
 	update: (id: string, data: UpdateAttendanceDto): Promise<ApiResponse<AttendanceResponseData>> =>
 		API.put(`/attendance/${id}`, data),
 
+	getMyAttendance: (params: { termId?: string; startDate?: string; endDate?: string }): Promise<ApiResponse<AttendanceResponseData[]>> =>
+		API.get("/attendance/me", { params }),
+
 };

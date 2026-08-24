@@ -35,3 +35,15 @@ export function useVerifyPayment(reference: string | null) {
 		enabled: !!reference,
 	});
 }
+
+
+export function useMyPayments(params: ListPaymentsParams) {
+	return useQuery({
+		queryKey: ["payments", "my-payments", params],
+		queryFn: async () => {
+			const res = await paymentApi.getMyPayments(params);
+			if (!res.success) throw res;
+			return { payments: res.data, meta: res.meta };
+		},
+	});
+}

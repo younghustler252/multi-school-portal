@@ -8,8 +8,7 @@ const ADMIN_SUBDOMAIN = process.env.NEXT_PUBLIC_ADMIN_SUBDOMAIN || "admin";
  *
  * greenfield.localhost:3000 (frontend) → http://greenfield.localhost:4000/api (backend)
  * localhost:3000 (no subdomain)        → http://localhost:4000/api (public schema)
- */
-export function getApiBaseUrl(): string {
+ */export function getApiBaseUrl(): string {
 	if (typeof window === "undefined") {
 		return `http://${API_HOST}/api/v1`;
 	}
@@ -18,7 +17,9 @@ export function getApiBaseUrl(): string {
 	const parts = currentHost.split(".");
 
 	const isLocalhostSubdomain = currentHost.endsWith(".localhost");
-	const hasSubdomain = isLocalhostSubdomain ? parts.length > 1 : parts.length > 2;
+	const hasSubdomain = isLocalhostSubdomain
+		? parts.length > 1
+		: parts.length > 2;
 
 	if (!hasSubdomain) {
 		return `http://${API_HOST}/api/v1`;
@@ -26,14 +27,20 @@ export function getApiBaseUrl(): string {
 
 	const subdomain = parts[0].toLowerCase();
 
-	if (subdomain === "www" || subdomain === ADMIN_SUBDOMAIN) {
+	// Only www should fall back to the base API host.
+	if (subdomain === "www") {
 		return `http://${API_HOST}/api/v1`;
 	}
 
-	const apiHostWithoutSubdomain =
-		API_HOST.split(".")
-			.slice(isLocalhostSubdomain ? 0 : 1)
-			.join(".") || API_HOST;
+	if (isLocalhostSubdomain) {
+		const port = API_HOST.split(":")[1] ?? "5000";
+		return `http://${subdomain}.localhost:${port}/api/v1`;
+	}
 
-	return `http://${subdomain}.${apiHostWithoutSubdomain}/api/v1`;
+	// Production:
+	// schoolos.com → school subdomain API
+	const apiHostWithoutSubdomain =
+		API_HOST.split(".").slice(1).join(".") || API_HOST;
+
+	return `https://${subdomain}.${apiHostWithoutSubdomain}/api/v1`;
 }

@@ -13,12 +13,14 @@ export interface SubjectResponseData {
 	description: string | null;
 	createdAt: string;
 }
-
 export interface ClassSubjectResponseData {
 	id: string;
 	classId: string;
 	subjectId: string;
 	staffId: string;
+	subjectName: string;   // NEW
+	subjectCode: string | null; // NEW
+	teacherName: string;   // NEW
 	createdAt: string;
 }
 

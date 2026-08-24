@@ -53,7 +53,10 @@ export interface ChecklistItem {
 	completed: boolean;
 	label: string;
 }
-
+export interface SetupPaymentDto {
+	bankCode: string;
+	accountNumber: string;
+}
 export interface SetupChecklist {
 	schoolProfile: ChecklistItem;
 	logoUploaded: ChecklistItem;

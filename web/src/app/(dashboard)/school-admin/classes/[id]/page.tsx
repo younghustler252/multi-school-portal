@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import {
 	useClasses,
+	useClass,
 	useClassSubjects,
 	useRemoveSubject,
 	useDeleteClass,
@@ -28,6 +29,7 @@ export default function ClassDetailPage() {
 	const params = useParams<{ id: string }>();
 	const router = useRouter();
 	const { data: classes, isLoading: classesLoading } = useClasses();
+	const { data: classItem, isLoading: classLoading } = useClass(params.id)
 	const { data: classSubjects, isLoading: subjectsLoading } = useClassSubjects(params.id);
 	const { data: allSubjects } = useSubjects();
 	const { data: staffData } = useStaffList({ limit: 100 });
@@ -37,17 +39,6 @@ export default function ClassDetailPage() {
 	const deleteClass = useDeleteClass();
 	const [assignOpen, setAssignOpen] = useState(false);
 	const [confirmingDelete, setConfirmingDelete] = useState(false);
-
-	const classItem = classes?.find((c) => c.id === params.id);
-
-	function subjectName(subjectId: string) {
-		return allSubjects?.find((s) => s.id === subjectId)?.name ?? "Unknown subject";
-	}
-
-	function teacherName(staffId: string) {
-		const staff = staffData?.staff.find((s) => s.id === staffId);
-		return staff ? `${staff.firstName} ${staff.lastName}` : "Unknown teacher";
-	}
 
 	async function handleRemoveSubject(classSubjectId: string) {
 		try {
@@ -132,8 +123,8 @@ export default function ClassDetailPage() {
 					{classSubjects?.map((cs) => (
 						<div key={cs.id} className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
 							<div>
-								<div className="text-sm font-medium">{subjectName(cs.subjectId)}</div>
-								<div className="text-xs text-muted-foreground">Taught by {teacherName(cs.staffId)}</div>
+								<div className="text-sm font-medium">{cs.subjectName}</div>
+								<div className="text-xs text-muted-foreground">Taught by {cs.teacherName}</div>
 							</div>
 							<Button
 								variant="ghost"

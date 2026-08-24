@@ -2,6 +2,7 @@ import { API } from "@/lib/api/api-client";
 import { ApiResponse, PaginationMeta } from "@/types/api-response";
 import {
 	StudentResponseData,
+	StudentListResponseData,
 	CreateStudentDto,
 	UpdateStudentDto,
 	ListStudentsParams,
@@ -16,22 +17,20 @@ export interface ListStudentsResult {
 
 export const studentApi = {
 
-	list: (params: ListStudentsParams): Promise<ApiResponse<StudentResponseData[]>> =>
-		API.get("/students", {
-			params: {
-				page: params.page,
-				limit: params.limit,
-				gender: params.gender,
-				isActive: params.isActive,
-				search: params.search,
-			},
-		}),
+	list: (params: ListStudentsParams): Promise<ApiResponse<StudentListResponseData[]>> =>
+	API.get("/students", { params }),
 
 	getById: (id: string): Promise<ApiResponse<StudentWithGuardiansResponseData>> =>
 		API.get(`/students/${id}`),
 
+	getMe: (): Promise<ApiResponse<StudentWithGuardiansResponseData>> =>
+		API.get("/students/me"),
+
 	create: (data: CreateStudentDto): Promise<ApiResponse<StudentResponseData>> =>
 		API.post("/students", data),
+
+	batch: (ids: string[]): Promise<ApiResponse<StudentResponseData[]>> =>
+		API.post("/students/batch", { ids }),
 
 	update: (id: string, data: UpdateStudentDto): Promise<ApiResponse<StudentResponseData>> =>
 		API.put(`/students/${id}`, data),

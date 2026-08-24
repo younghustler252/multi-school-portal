@@ -8,7 +8,8 @@ export interface ApiSuccessResponse<T> {
 export interface ApiErrorResponse {
 	success: false;
 	message: string;
-	errors?: Record<string, string>; // field name → single error message, not string[]
+	code?: string; // stable machine-readable error code — prefer this over message text
+	errors?: Record<string, string>;
 }
 
 export type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;

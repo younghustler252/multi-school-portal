@@ -6,6 +6,7 @@ export interface PlanFeatures {
 	customGrading: boolean;
 	attendanceTracking: boolean;
 	gradeManagement: boolean;
+	customReportCardTemplate: boolean;
 
 	paymentCollection: boolean;
 	feeManagement: boolean;

@@ -13,3 +13,10 @@ export function extractSubdomain(hostname: string): string | null {
 
 	return subdomain;
 }
+
+// src/lib/get-subdomain.ts — expose a way to detect the admin subdomain specifically
+export function isAdminSubdomain(hostname: string): boolean {
+	const hostWithoutPort = hostname.split(":")[0];
+	const parts = hostWithoutPort.split(".");
+	return parts[0]?.toLowerCase() === "admin";
+}

@@ -8,6 +8,8 @@ import { useMyChildren } from "@/features/guardians/hooks/use-guardian-portal";
 import { useCurrentSession } from "@/features/school/hooks/use-sessions";
 import { ChildGradesTable } from "@/features/guardians/components/child-grades-table";
 import { ChildAttendanceCalendar } from "@/features/guardians/components/child-attendance-calendar";
+import { ChildReportCardsList } from "@/features/report-cards/components/child-report-cards-list";
+
 
 export default function ChildDetailPage() {
 	const params = useParams<{ id: string }>();
@@ -26,11 +28,13 @@ export default function ChildDetailPage() {
 				<ArrowLeft className="size-3.5" /> Back to children
 			</Link>
 
-			<h1 className="mb-6 text-2xl font-semibold tracking-tight">{child.firstName} {child.lastName}</h1>
+			<h1 className="mb-1 text-2xl font-semibold tracking-tight">{child.firstName} {child.lastName}</h1>
+			{child.className && <p className="mb-6 text-sm text-muted-foreground">{child.className}</p>}
 
 			<div className="space-y-6">
-				<ChildGradesTable studentId={child.studentId} termId={termId} />
+				<ChildGradesTable studentId={child.studentId} classId={child.classId ?? undefined} termId={termId} />
 				<ChildAttendanceCalendar studentId={child.studentId} termId={termId} />
+				<ChildReportCardsList studentId={child.studentId} termId={termId} />
 			</div>
 		</>
 	);

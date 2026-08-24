@@ -94,3 +94,16 @@ export function usePatchStudentPhoto() {
 		);
 	};
 }
+
+export function useStudentsBatch(ids: string[]) {
+	return useQuery({
+		queryKey: ["students", "batch", ids],
+		queryFn: async () => {
+			if (ids.length === 0) return [];
+			const res = await studentApi.batch(ids);
+			if (!res.success) throw res;
+			return res.data;
+		},
+		enabled: ids.length > 0,
+	});
+}

@@ -11,14 +11,19 @@ function DashboardGuard({ children }: { children: ReactNode }) {
 	const router = useRouter();
 	const user = useAuthStore((s) => s.user);
 	const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+	const mustChangePassword = useAuthStore((s) => s.mustChangePassword);
 
 	useEffect(() => {
 		if (!isAuthenticated) {
 			router.replace("/login");
+			return;
 		}
-	}, [isAuthenticated, router]);
+		if (mustChangePassword) {
+			router.replace("/change-password");
+		}
+	}, [isAuthenticated, mustChangePassword, router]);
 
-	if (!isAuthenticated || !user) {
+	if (!isAuthenticated || !user || mustChangePassword) {
 		return (
 			<div className="flex min-h-screen items-center justify-center bg-background p-8">
 				<Skeleton className="h-10 w-48" />
@@ -26,11 +31,7 @@ function DashboardGuard({ children }: { children: ReactNode }) {
 		);
 	}
 
-	return (
-		<DashboardShell role={user.role}>
-			{children}
-		</DashboardShell>
-	);
+	return <DashboardShell role={user.role}>{children}</DashboardShell>;
 }
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {

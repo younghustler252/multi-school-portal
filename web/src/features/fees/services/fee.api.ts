@@ -51,4 +51,10 @@ export const feeApi = {
 	getDefaulters: (): Promise<ApiResponse<DefaulterEntry[]>> =>
 		API.get("/fees/defaulters"),
 
+	getInvoiceById: (id: string): Promise<ApiResponse<FeeInvoiceResponseData>> =>
+		API.get(`/fees/invoices/${id}`),
+
+	getMyInvoices: (params: { termId?: string }): Promise<ApiResponse<FeeInvoiceResponseData[]>> =>
+		API.get("/fees/me/invoices", { params }),
+
 };

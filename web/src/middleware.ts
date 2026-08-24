@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { extractSubdomain } from "@/lib/get-subdomain";
+import { extractSubdomain, isAdminSubdomain } from "@/lib/get-subdomain";
 
 const AUTH_ROUTES = ["/login", "/register", "/verify-email", "/forgot-password", "/reset-password"];
 
@@ -13,7 +13,12 @@ export function middleware(request: NextRequest) {
 	const hostname = request.headers.get("host") ?? "";
 	const subdomain = extractSubdomain(hostname);
 	const hasSession = request.cookies.has("accessToken");
-
+	
+	if (isAdminSubdomain(hostname) && pathname === "/login") {
+		const url = request.nextUrl.clone();
+		url.pathname = "/admin-login";
+		return NextResponse.rewrite(url);
+	}
 	// On a school's subdomain, /login rewrites internally to the
 	// subdomain-branded login page — URL stays "/login" for the user.
 	if (subdomain && pathname === "/login") {
@@ -21,6 +26,7 @@ export function middleware(request: NextRequest) {
 		url.pathname = "/portal-login";
 		return NextResponse.rewrite(url);
 	}
+
 
 	const isAuthRoute = AUTH_ROUTES.some((route) => pathname.startsWith(route));
 	const isProtectedRoute = PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix));

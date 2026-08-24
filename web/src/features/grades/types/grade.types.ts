@@ -1,6 +1,7 @@
 export interface GradeResponseData {
 	id: string;
 	studentId: string;
+	studentName?: string; // NEW — present on staff/admin views, omitted on /grades/me
 	termId: string;
 	classSubjectId: string;
 	caScore: number | null;

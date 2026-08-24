@@ -37,3 +37,20 @@ export interface ListPaymentsParams {
 	startDate?: string;
 	endDate?: string;
 }
+
+
+export interface BankResponseData {
+	name: string;
+	code: string;
+}
+
+export interface VerifyBankAccountParams {
+	accountNumber: string;
+	bankCode: string;
+}
+
+export interface VerifyBankAccountResponse {
+	accountNumber: string;
+	bankCode: string;
+	accountName: string;
+}

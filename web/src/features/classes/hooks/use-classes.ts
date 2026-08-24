@@ -105,3 +105,15 @@ export function useCreateSubject() {
 		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["subjects"] }),
 	});
 }
+
+export function useClass(id: string) {
+	return useQuery({
+		queryKey: ["classes", id],
+		queryFn: async () => {
+			const res = await classApi.getById(id);
+			if (!res.success) throw res;
+			return res.data;
+		},
+		enabled: !!id,
+	});
+}

@@ -20,10 +20,10 @@ export const ROLES: Record<Role, Role> = {
 };
 
 export const ROLE_DEFAULT_ROUTE: Record<Role, string> = {
-	super_admin: "/schools",
+	super_admin: "/dashboard",
 	school_admin: "/school-admin/dashboard",
 	principal: "/principal/overview",
-	teacher: "/teacher/my-classes",
+	teacher: "/teacher/dashboard",
 	bursar: "/bursar/fees",
 	student: "/student/grades",
 	guardian: "/guardian/children",

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMyChildrenGrades } from "../hooks/use-guardian-portal";
-import { useClassSubjects, useSubjects } from "@/features/classes/hooks/use-classes";
+import { useClassSubjects } from "@/features/classes/hooks/use-classes";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 
@@ -14,13 +14,11 @@ interface ChildGradesTableProps {
 export function ChildGradesTable({ studentId, classId, termId }: ChildGradesTableProps) {
 	const { data: grades, isLoading } = useMyChildrenGrades({ studentId, termId });
 	const { data: classSubjects } = useClassSubjects(classId ?? "");
-	const { data: allSubjects } = useSubjects();
 
 	function subjectName(classSubjectId: string) {
-		if (!classId) return `Subject (${classSubjectId.slice(0, 8)})`;
-		const cs = classSubjects?.find((c) => c.id === classSubjectId);
-		return allSubjects?.find((s) => s.id === cs?.subjectId)?.name ?? "Unknown subject";
+		return classSubjects?.find((c) => c.id === classSubjectId)?.subjectName ?? "Subject";
 	}
+
 	if (isLoading) return <Skeleton className="h-64 rounded-xl" />;
 
 	const published = grades?.filter((g) => g.isPublished) ?? [];

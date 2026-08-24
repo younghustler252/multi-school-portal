@@ -5,6 +5,9 @@ import {
 	InitializePaymentDto,
 	InitializePaymentResponseData,
 	ListPaymentsParams,
+	BankResponseData,
+	VerifyBankAccountResponse,
+	VerifyBankAccountParams,
 } from "../types/payment.types";
 
 export const paymentApi = {
@@ -29,4 +32,12 @@ export const paymentApi = {
 	verify: (reference: string): Promise<ApiResponse<PaymentResponseData>> =>
 		API.get(`/payments/verify/${reference}`),
 
+	getMyPayments: (params: ListPaymentsParams): Promise<ApiResponse<PaymentResponseData[]>> =>
+		API.get("/payments/my-payments", { params }),
+
+	listBanks: (): Promise<ApiResponse<BankResponseData[]>> =>
+			API.get("/payments/banks"),
+	
+	verifyBankAccount: (params: VerifyBankAccountParams): Promise<ApiResponse<VerifyBankAccountResponse>> =>
+		API.post("/payments/verify-bank-account", params),
 };

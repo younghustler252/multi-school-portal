@@ -40,6 +40,9 @@ export const gradeApi = {
 	getConfig: (): Promise<ApiResponse<GradingConfigRow[]>> =>
 		API.get("/grades/config"),
 
+	getMyGrades: (params: { termId?: string }): Promise<ApiResponse<GradeResponseData[]>> =>
+	API.get("/grades/me", { params }),
+
 	updateConfig: (data: UpdateGradingConfigDto): Promise<ApiResponse<GradingConfigRow[]>> =>
 		API.put("/grades/config", data),
 

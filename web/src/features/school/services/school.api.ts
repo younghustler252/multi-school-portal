@@ -5,6 +5,7 @@ import {
 	UpdateSchoolDto,
 	SetupChecklist,
 	UploadFileResponseData,
+	SetupPaymentDto,
 	SchoolDashboardData,
 	PublicSchoolInfo,
 } from "../types/school.types";
@@ -39,8 +40,13 @@ export const schoolApi = {
 		});
 	},
 
+	setupPayment: (data: SetupPaymentDto): Promise<ApiResponse<SchoolResponseData>> =>
+		API.post("/schools/me/payment-setup", data),
+
 	getSetupChecklist: (): Promise<ApiResponse<SetupChecklist>> =>
 		API.get("/schools/me/setup-checklist"),
+
+	
 
 	getDashboard: (): Promise<ApiResponse<SchoolDashboardData>> =>
 		API.get("/schools/me/dashboard"),

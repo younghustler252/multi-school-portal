@@ -39,4 +39,7 @@ export const classApi = {
 	createSubject: (data: CreateSubjectDto): Promise<ApiResponse<SubjectResponseData>> =>
 		API.post("/classes/subjects", data),
 
+	getById: (id: string): Promise<ApiResponse<ClassResponseData>> =>
+		API.get(`/classes/${id}`),
+
 };

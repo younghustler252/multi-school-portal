@@ -45,12 +45,18 @@ export default function PortalLoginPage() {
 		setServerError(null);
 		try {
 			await login(values.email, values.password);
+
+			if (useAuthStore.getState().mustChangePassword) {
+				router.push("/change-password");
+				return;
+			}
+
 			const user = useAuthStore.getState().user;
 			router.push(user ? ROLE_DEFAULT_ROUTE[user.role] : "/");
 		} catch (err) {
 			const apiErr = err as ApiErrorResponse;
 
-			if (apiErr.message?.toLowerCase().includes("verify")) {
+			if (apiErr.code === "EMAIL_NOT_VERIFIED") {
 				authApi.resendOtp({ email: values.email }).catch(() => {});
 				router.push(`/verify-email?email=${encodeURIComponent(values.email)}`);
 				return;

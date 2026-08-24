@@ -1,5 +1,4 @@
 import { GuardianRelation } from "./guardian.types";
-
 export interface MyChildResponseData {
 	studentId: string;
 	relation: GuardianRelation;
@@ -8,6 +7,8 @@ export interface MyChildResponseData {
 	lastName: string;
 	photoUrl: string | null;
 	isActive: boolean;
+	classId: string | null;
+	className: string | null;
 }
 
 export interface MyChildrenParams {
