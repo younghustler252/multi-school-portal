@@ -21,14 +21,13 @@ export function ClassCard({ classItem }: { classItem: ClassResponseData }) {
 					{classItem.capacity && (
 						<div className="mt-0.5 text-xs text-muted-foreground">Capacity: {classItem.capacity} students</div>
 					)}
+					<div className="text-xs text-muted-foreground">Class teacher: {classItem.classTeacherName ?? "Not assigned"}</div>
 				</div>
 				<Badge variant="secondary">{inferCategory(classItem.level)}</Badge>
 			</div>
 
 			<div className="mt-5 flex items-end justify-between">
-				<div className="text-xs text-muted-foreground">
-					Student count coming soon — pending enrolment data.
-				</div>
+				<div className="text-2xl font-semibold">{classItem.studentCount}</div>
 				<Button
 					size="sm"
 					variant="outline"

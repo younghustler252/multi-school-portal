@@ -12,9 +12,10 @@ import {
 
 export const classApi = {
 
-	list: (): Promise<ApiResponse<ClassResponseData[]>> =>
-		API.get("/classes"),
-
+	list: (termId: string): Promise<ApiResponse<ClassResponseData[]>> =>
+		API.get("/classes", {
+			params: { termId },
+	}),
 	create: (data: CreateClassDto): Promise<ApiResponse<ClassResponseData>> =>
 		API.post("/classes", data),
 
@@ -23,6 +24,9 @@ export const classApi = {
 
 	delete: (id: string): Promise<ApiResponse<null>> =>
 		API.delete(`/classes/${id}`),
+
+	setClassTeacher: (classId: string, staffId: string | null): Promise<ApiResponse<ClassResponseData>> =>
+		API.put(`/classes/${classId}/class-teacher`, { staffId }),
 
 	getClassSubjects: (classId: string): Promise<ApiResponse<ClassSubjectResponseData[]>> =>
 		API.get(`/classes/${classId}/subjects`),

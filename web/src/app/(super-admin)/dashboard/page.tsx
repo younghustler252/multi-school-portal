@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { ArrowUpRight, Plus, LogIn } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { StatCard } from "@/components/ui/stat-card";
@@ -15,6 +16,7 @@ import { SCHOOL_STATUS_VARIANT } from "@/features/super-admin/constants/school-s
 import { formatNaira } from "@/lib/format-money";
 
 export default function SuperAdminDashboardPage() {
+	const [ createOpen, setCreateOpen ] = useState(false)
 	const { data: stats, isLoading: statsLoading } = usePlatformStats();
 	const { data: mrrTrend, isLoading: trendLoading } = usePlatformMrrTrend();
 	const { data: schoolsData, isLoading: schoolsLoading } = useAdminSchools({ limit: 6 });
@@ -24,7 +26,7 @@ export default function SuperAdminDashboardPage() {
 			<PageHeader
 				title="Platform Overview"
 				description="All schools on SchoolOS."
-				actions={<Button nativeButton={false} render={<Link href="/schools"><Plus className="size-4" /> View all schools</Link>} />}
+				actions={<Button onClick={() => setCreateOpen(true)}><Plus className="size-4" /> Create school</Button>}
 			/>
 
 			{statsLoading ? (

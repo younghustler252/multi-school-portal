@@ -3,9 +3,11 @@ export interface ClassResponseData {
 	name: string;
 	level: string | null;
 	capacity: number | null;
+	classTeacherId: string | null;
+	studentCount: number;
+	classTeacherName: string | null ;
 	createdAt: string;
 }
-
 export interface SubjectResponseData {
 	id: string;
 	name: string;

@@ -21,6 +21,7 @@ export interface SchoolResponseData extends SchoolStatusFields {
 	logoUrl: string | null;
 	schoolCategory: string;
 	schoolOwnership: string;
+	paystackSubaccountCode: string | null;
 	createdAt: string;
 }
 

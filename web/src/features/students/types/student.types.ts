@@ -74,3 +74,26 @@ export interface StudentGuardianLinkResponseData extends GuardianResponseData {
 export interface StudentWithGuardiansResponseData extends StudentResponseData {
 	guardians: StudentGuardianLinkResponseData[];
 }
+
+export interface ImportStudentRow {
+	firstName: string;
+	lastName: string;
+	middleName?: string;
+	admissionNumber?: string;
+	dateOfBirth?: string;
+	gender?: Gender;
+	className?: string;
+	guardianEmail?: string;
+	guardianFirstName?: string;
+	guardianLastName?: string;
+	guardianPhone?: string;
+	guardianRelation?: GuardianRelation;
+}
+
+export interface ImportStudentsResult {
+	total: number;
+	imported: number;
+	skipped: number;
+	failed: number;
+	errors: Array<{ row: number; message: string }>;
+}

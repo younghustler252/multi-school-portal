@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
 import { LogOut } from "lucide-react";
 import { Logo } from "@/components/layout/logo";
 import { Separator } from "@/components/ui/separator";
@@ -10,58 +11,68 @@ import { cn } from "@/lib/utils";
 import { NAV_CONFIG } from "@/lib/nav-config";
 import { Role } from "@/types/roles";
 import { COMPANY } from "@/config/company";
+import { usePublicSchoolInfo } from "@/features/school/hooks/use-school";
+import { useCurrentSession } from "@/features/school/hooks/use-sessions";
+import { TERM_LABELS } from "@/features/school/components/term-badge";
 
 interface SidebarProps {
 	role: Role;
 	isOpen: boolean;
 	onClose: () => void;
-	schoolName?: string;
-	activeTerm?: string;
 }
 
-function SidebarContent({ role, schoolName, activeTerm, onNavigate }: {
-	role: Role;
-	schoolName?: string;
-	activeTerm?: string;
-	onNavigate?: () => void;
-}) {
+function useCurrentSubdomain(): string | null {
+	const [subdomain, setSubdomain] = useState<string | null>(null);
+	useEffect(() => {
+		const hostname = window.location.hostname.split(":")[0];
+		const parts = hostname.split(".");
+		const isLocalSub = hostname.endsWith(".localhost");
+		const hasSubdomain = isLocalSub ? parts.length > 1 : parts.length > 2;
+		if (hasSubdomain && parts[0] !== "www" && parts[0] !== "admin") {
+			setSubdomain(parts[0]);
+		}
+	}, []);
+	return subdomain;
+}
+
+function SidebarContent({ role, onNavigate }: { role: Role; onNavigate?: () => void }) {
 	const pathname = usePathname();
 	const navItems = NAV_CONFIG[role];
 	const isSchoolScoped = role !== "super_admin";
-	const brandHref = role === "super_admin" ? "/schools" : "/school-admin/dashboard";
+	const subdomain = useCurrentSubdomain();
+
+	const { data: school } = usePublicSchoolInfo(subdomain ?? "");
+	const { data: currentSession } = useCurrentSession();
+
+	const brandHref = role === "super_admin" ? "/dashboard" : "/school-admin/dashboard";
+	const currentTermLabel = currentSession?.currentTerm
+		? `${TERM_LABELS[currentSession.currentTerm.name]} — ${currentSession.session.name}`
+		: undefined;
 
 	return (
 		<div className="flex h-full flex-col bg-sidebar/95 backdrop-blur-md text-sidebar-foreground">
-			<Link
-				href={brandHref}
-				className="flex h-16 items-center gap-2 border-b border-sidebar-border px-5"
-			>
-				<Logo size={32} />
+			<Link href={brandHref} className="flex h-16 items-center gap-2 border-b border-sidebar-border px-5">
+				<Logo size={32} logoUrl={isSchoolScoped ? school?.logoUrl : undefined} name={isSchoolScoped ? school?.name : COMPANY.name} />
 				<div className="leading-tight">
 					<div className="font-semibold text-sidebar-foreground">{COMPANY.name}</div>
 					<div className="max-w-[160px] truncate text-[11px] text-muted-foreground">
-						{isSchoolScoped ? (schoolName ?? "School Portal") : "Super Admin"}
+						{isSchoolScoped ? (school?.name ?? "School Portal") : "Super Admin"}
 					</div>
 				</div>
 			</Link>
 
-			{isSchoolScoped && schoolName && (
+			{isSchoolScoped && school && (
 				<div className="mx-3 mt-3 rounded-md bg-sidebar-accent/60 px-3 py-2">
 					<div className="text-xs text-muted-foreground">School</div>
-					<div className="text-sm font-medium text-sidebar-foreground">{schoolName}</div>
-					{activeTerm && (
-						<div className="text-[11px] text-muted-foreground">{activeTerm}</div>
-					)}
+					<div className="text-sm font-medium text-sidebar-foreground">{school.name}</div>
+					{currentTermLabel && <div className="text-[11px] text-muted-foreground">{currentTermLabel}</div>}
 				</div>
 			)}
 
 			<nav className="flex-1 space-y-0.5 overflow-y-auto p-3">
 				{navItems.map((item) => {
-					const active =
-						pathname === item.to ||
-						(!item.to.endsWith("/dashboard") && pathname.startsWith(item.to));
+					const active = pathname === item.to || (!item.to.endsWith("/dashboard") && pathname.startsWith(item.to));
 					const Icon = item.icon;
-
 					return (
 						<Link
 							key={item.to}
@@ -69,9 +80,7 @@ function SidebarContent({ role, schoolName, activeTerm, onNavigate }: {
 							onClick={onNavigate}
 							className={cn(
 								"flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
-								active
-									? "bg-sidebar-primary text-sidebar-primary-foreground"
-									: "text-sidebar-foreground hover:bg-sidebar-accent/60"
+								active ? "bg-sidebar-primary text-sidebar-primary-foreground" : "text-sidebar-foreground hover:bg-sidebar-accent/60"
 							)}
 						>
 							<Icon className="size-4" />
@@ -84,10 +93,7 @@ function SidebarContent({ role, schoolName, activeTerm, onNavigate }: {
 			<Separator className="bg-sidebar-border" />
 
 			<div className="p-3">
-				<Link
-					href="/"
-					className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-sidebar-accent/60"
-				>
+				<Link href="/" className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-sidebar-accent/60">
 					<LogOut className="size-4" />
 					Back to landing
 				</Link>
@@ -96,21 +102,15 @@ function SidebarContent({ role, schoolName, activeTerm, onNavigate }: {
 	);
 }
 
-export function Sidebar({ role, isOpen, onClose, schoolName, activeTerm }: SidebarProps) {
+export function Sidebar({ role, isOpen, onClose }: SidebarProps) {
 	return (
 		<>
 			<aside className="hidden w-64 shrink-0 border-r border-sidebar-border lg:block">
-				<SidebarContent role={role} schoolName={schoolName} activeTerm={activeTerm} />
+				<SidebarContent role={role} />
 			</aside>
-
 			<Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
 				<SheetContent side="left" className="w-64 border-sidebar-border bg-sidebar/95 p-0 backdrop-blur-md lg:hidden">
-					<SidebarContent
-						role={role}
-						schoolName={schoolName}
-						activeTerm={activeTerm}
-						onNavigate={onClose}
-					/>
+					<SidebarContent role={role} onNavigate={onClose} />
 				</SheetContent>
 			</Sheet>
 		</>

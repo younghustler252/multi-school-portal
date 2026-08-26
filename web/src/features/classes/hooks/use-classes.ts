@@ -2,15 +2,20 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { classApi } from "../services/class.api";
 import { CreateClassDto, UpdateClassDto, CreateSubjectDto, AssignSubjectDto } from "../types/class.types";
 
-export function useClasses() {
-	return useQuery({
-		queryKey: ["classes"],
-		queryFn: async () => {
-			const res = await classApi.list();
-			if (!res.success) throw res;
-			return res.data;
-		},
-	});
+export function useClasses(termId: string | undefined) {
+    return useQuery({
+        queryKey: ["classes", termId],
+        queryFn: async () => {
+            if (!termId) throw new Error("Term ID is required");
+
+            const res = await classApi.list(termId);
+
+            if (!res.success) throw res;
+
+            return res.data;
+        },
+        enabled: !!termId,
+    });
 }
 
 export function useCreateClass() {

@@ -193,7 +193,7 @@ export default function NewStudentPage() {
 							<Select
 								value={values.bloodGroup ?? ""}
 								onValueChange={(v) =>
-									setValue("bloodGroup", v)
+									setValue("bloodGroup", v ?? "")
 								}
 							>
 								<SelectTrigger>
@@ -236,7 +236,7 @@ export default function NewStudentPage() {
 							<Select
 								value={values.religion ?? ""}
 								onValueChange={(v) =>
-									setValue("religion", v)
+									setValue("religion", v ?? "")
 								}
 							>
 								<SelectTrigger>
@@ -260,7 +260,7 @@ export default function NewStudentPage() {
 							<Select
 								value={values.nationality ?? ""}
 								onValueChange={(v) =>
-									setValue("nationality", v)
+									setValue("nationality", v ?? "")
 								}
 							>
 								<SelectTrigger>

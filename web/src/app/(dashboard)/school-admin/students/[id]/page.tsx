@@ -10,7 +10,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { StudentHeaderCard } from "@/features/students/components/student-header-card";
 import { StudentGuardiansPanel } from "@/features/students/components/student-guardians-panel";
 import { InfoRow } from "@/components/ui/info-row";
+import { useCurrentSession } from "@/features/school/hooks/use-sessions";
 import { EditStudentDialog } from "@/features/students/components/edit-student-dialog";
+import { StudentClassCard } from "@/features/enrolment/components/student-class-card";
+import { AttendanceSummaryCard } from "@/features/attendance/components/attendance-summary-card";
+import { StudentGradesCard } from "@/features/grades/components/student-grades-card";
+import { StudentFeesCard } from "@/features/fees/components/student-fees-card";
+
+
 import { ComingSoon } from "@/components/feedback/coming-soon";
 import { useStudent, useDeactivateStudent, usePatchStudentPhoto } from "@/features/students/hooks/use-students";
 import { ApiErrorResponse } from "@/types/api-response";
@@ -19,6 +26,8 @@ export default function StudentDetailPage() {
 	const params = useParams<{ id: string }>();
 	const router = useRouter();
 	const { data: student, isLoading } = useStudent(params.id);
+	const { data: currentSession } = useCurrentSession();
+	const termId = currentSession?.currentTerm?.id;
 	const deactivateStudent = useDeactivateStudent();
 	const patchPhoto = usePatchStudentPhoto();
 	const [editOpen, setEditOpen] = useState(false);
@@ -99,13 +108,16 @@ export default function StudentDetailPage() {
 					</div>
 
 					<div className="grid gap-4 sm:grid-cols-3">
-						<ComingSoon icon={GraduationCap} title="Class & enrolment" />
-						<ComingSoon icon={ClipboardCheck} title="Attendance" />
-						<ComingSoon icon={Wallet} title="Fees" />
+						<StudentClassCard studentId={student.id} termId={termId} />
+						<AttendanceSummaryCard studentId={student.id} termId={termId} />
+						<StudentGradesCard studentId={student.id} termId={termId} />
+					</div>
+					<div className="mt-4">
+						<StudentFeesCard studentId={student.id} termId={termId} />
 					</div>
 				</div>
 
-				<StudentGuardiansPanel guardians={student.guardians} />
+				<StudentGuardiansPanel studentId={student.id} guardians={student.guardians} />
 			</div>
 
 			<EditStudentDialog student={student} open={editOpen} onOpenChange={setEditOpen} />

@@ -35,6 +35,9 @@ export const authApi = {
 	logout: (): Promise<ApiResponse<null>> =>
 		API.post("/auth/logout"),
 
+	exchangeImpersonationToken: (token: string): Promise<ApiResponse<null>> =>
+		API.post("/auth/exchange-impersonation-token", { token }),
+
 	// ==================================
 	// EMAIL VERIFICATION
 	// ==================================

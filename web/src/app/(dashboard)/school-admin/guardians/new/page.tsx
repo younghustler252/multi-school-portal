@@ -21,7 +21,7 @@ import {
 import { StudentPicker } from "@/features/guardians/components/student-picker";
 import { useCreateGuardian } from "@/features/guardians/hooks/use-guardians";
 import { createGuardianSchema, CreateGuardianFormValues } from "@/features/guardians/schemas/guardian.schema";
-import { GUARDIAN_RELATION_LABELS } from "@/features/guardians/constants/guardian-relaton-labels";
+import { GUARDIAN_RELATION_LABELS } from "@/features/guardians/constants/guardian-relation-labels";
 import { ApiErrorResponse } from "@/types/api-response";
 
 export default function NewGuardianPage() {

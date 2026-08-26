@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { GuardianStudentLinkResponseData } from "../types/guardian.types";
-import { GUARDIAN_RELATION_LABELS } from "../constants/guardian-relaton-labels";
+import { GUARDIAN_RELATION_LABELS } from "../constants/guardian-relation-labels";
 
 export function GuardianStudentsPanel({ students = [] }: { students?: GuardianStudentLinkResponseData[] }) {
 	if (students.length === 0) {

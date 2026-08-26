@@ -8,8 +8,12 @@ import {
 	SuspendSchoolDto,
 	RejectDocumentDto,
 } from "../types/school-management.types";
+import { PlatformUserResponseData } from "../types/super-admin.types";
+import { CreateSchoolFormValues } from "../schemas/create-school.schema";
 
 export const schoolManagementApi = {
+	create: (data: CreateSchoolFormValues): Promise<ApiResponse<AdminSchoolResponseData>> =>
+		API.post("/schools", data),
 
 	list: (params: ListSchoolsParams): Promise<ApiResponse<AdminSchoolResponseData[]>> =>
 		API.get("/schools", { params }),
@@ -29,10 +33,15 @@ export const schoolManagementApi = {
 	activate: (id: string): Promise<ApiResponse<AdminSchoolResponseData>> =>
 		API.put(`/schools/${id}/activate`),
 
+	getSchoolDocuments: (schoolId: string): Promise<ApiResponse<SchoolDocumentResponseData[]>> =>
+		API.get(`/schools/${schoolId}/documents`),
+
 	approveDocument: (documentId: string): Promise<ApiResponse<SchoolDocumentResponseData>> =>
 		API.put(`/schools/documents/${documentId}/approve`),
 
 	rejectDocument: (documentId: string, reason: string): Promise<ApiResponse<SchoolDocumentResponseData>> =>
 		API.put(`/schools/documents/${documentId}/reject`, { documentId, reason }),
 
+	impersonateSchool: (schoolId: string): Promise<ApiResponse<{ accessToken: string; school: AdminSchoolResponseData; admin: PlatformUserResponseData }>> =>
+		API.post(`/super-admin/schools/${schoolId}/impersonate`),
 };

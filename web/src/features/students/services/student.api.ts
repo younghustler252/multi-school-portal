@@ -7,7 +7,8 @@ import {
 	UpdateStudentDto,
 	ListStudentsParams,
 	UploadPhotoResponseData,
-	StudentWithGuardiansResponseData
+	StudentWithGuardiansResponseData,
+	ImportStudentsResult
 } from "../types/student.types";
 
 export interface ListStudentsResult {
@@ -42,6 +43,14 @@ export const studentApi = {
 		const formData = new FormData();
 		formData.append("photo", file);
 		return API.post(`/students/${id}/photo`, formData, {
+			headers: { "Content-Type": "multipart/form-data" },
+		});
+	},
+
+	import: (file: File): Promise<ApiResponse<ImportStudentsResult>> => {
+		const formData = new FormData();
+		formData.append("file", file);
+		return API.post("/students/import", formData, {
 			headers: { "Content-Type": "multipart/form-data" },
 		});
 	},

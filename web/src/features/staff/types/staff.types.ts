@@ -72,3 +72,20 @@ export interface MyClassResponseData {
 	className: string;
 	subjects: MyClassSubjectData[];
 }
+
+export interface MyHomeroomClassResponseData {
+	classId: string;
+	className: string;
+	studentCount: number;
+}
+
+export interface MySubjectClassResponseData {
+	classId: string;
+	className: string;
+	subjects: MyClassSubjectData[];
+}
+
+export interface MyClassesResponse {
+	classesAsClassTeacher: MyHomeroomClassResponseData[];
+	classesAsSubjectTeacher: MySubjectClassResponseData[];
+}

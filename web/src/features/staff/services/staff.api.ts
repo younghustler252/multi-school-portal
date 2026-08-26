@@ -1,6 +1,6 @@
 import { API } from "@/lib/api/api-client";
 import { ApiResponse } from "@/types/api-response";
-import { StaffResponseData, CreateStaffDto, UpdateStaffDto, ListStaffParams, StaffAssignmentResponseData, MyClassResponseData } from "../types/staff.types";
+import { StaffResponseData, CreateStaffDto, UpdateStaffDto, ListStaffParams, StaffAssignmentResponseData, MyClassesResponse } from "../types/staff.types";
 
 export const staffApi = {
 
@@ -34,6 +34,6 @@ export const staffApi = {
 	getAssignments: (id: string): Promise<ApiResponse<StaffAssignmentResponseData[]>> =>
 		API.get(`/staff/${id}/assignments`),
 
-	getMyClasses: (): Promise<ApiResponse<MyClassResponseData[]>> =>
-		API.get("/staff/me/classes"),
+	getMyClasses: (): Promise<ApiResponse<MyClassesResponse>> =>
+		API.get("/staff/my-classes"),
 };

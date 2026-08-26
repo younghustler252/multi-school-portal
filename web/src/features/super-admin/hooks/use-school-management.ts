@@ -24,6 +24,17 @@ export function useAdminSchool(id: string) {
 		enabled: !!id,
 	});
 }
+export function useAdminSchoolDocuments(schoolId: string) {
+	return useQuery({
+		queryKey: ["super-admin", "schools", schoolId, "documents"],
+		queryFn: async () => {
+			const res = await schoolManagementApi.getSchoolDocuments(schoolId);
+			if (!res.success) throw res;
+			return res.data;
+		},
+		enabled: !!schoolId,
+	});
+}
 
 function useSchoolAction(action: (id: string, ...args: any[]) => Promise<any>) {
 	const queryClient = useQueryClient();

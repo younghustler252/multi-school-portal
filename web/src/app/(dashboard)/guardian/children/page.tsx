@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useMyChildren, useMyChildrenAttendance, useMyChildrenInvoices } from "@/features/guardians/hooks/use-guardian-portal";
 import { useCurrentSession } from "@/features/school/hooks/use-sessions";
 import { useAuthStore } from "@/stores/auth.store";
-import { GUARDIAN_RELATION_LABELS } from "@/features/guardians/constants/guardian-relaton-labels";
+import { GUARDIAN_RELATION_LABELS } from "@/features/guardians/constants/guardian-relation-labels";
 import { formatNaira } from "@/lib/format-money";
 
 export default function MyChildrenPage() {
