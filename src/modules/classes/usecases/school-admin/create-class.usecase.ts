@@ -1,6 +1,6 @@
 import { IClassRepository }   from "../../repositories/class.repository";
 import { ClassMapper }        from "../../mappers/class.mapper";
-import { ClassResponseData }  from "../../mappers/class.mapper";
+import { ClassResponseData } from "../../types/class.types";
 import { ConflictError }      from "../../../../shared/errors/domain.errors";
 import { ClassErrorMessage }  from "../../domain/class.enums";
 import { CreateClassDtoType } from "../../dtos/class.dto";

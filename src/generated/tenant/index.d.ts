@@ -2957,10 +2957,12 @@ export namespace Prisma {
 
   export type StaffCountOutputType = {
     classSubjects: number
+    classesAsClassTeacher: number
   }
 
   export type StaffCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     classSubjects?: boolean | StaffCountOutputTypeCountClassSubjectsArgs
+    classesAsClassTeacher?: boolean | StaffCountOutputTypeCountClassesAsClassTeacherArgs
   }
 
   // Custom InputTypes
@@ -2979,6 +2981,13 @@ export namespace Prisma {
    */
   export type StaffCountOutputTypeCountClassSubjectsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ClassSubjectWhereInput
+  }
+
+  /**
+   * StaffCountOutputType without action
+   */
+  export type StaffCountOutputTypeCountClassesAsClassTeacherArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ClassWhereInput
   }
 
 
@@ -3650,6 +3659,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     classSubjects?: boolean | Staff$classSubjectsArgs<ExtArgs>
+    classesAsClassTeacher?: boolean | Staff$classesAsClassTeacherArgs<ExtArgs>
     _count?: boolean | StaffCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["staff"]>
 
@@ -3707,6 +3717,7 @@ export namespace Prisma {
   export type StaffOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "employeeId" | "department" | "designation" | "qualification" | "gender" | "dateOfBirth" | "address" | "joinDate" | "role" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["staff"]>
   export type StaffInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     classSubjects?: boolean | Staff$classSubjectsArgs<ExtArgs>
+    classesAsClassTeacher?: boolean | Staff$classesAsClassTeacherArgs<ExtArgs>
     _count?: boolean | StaffCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type StaffIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -3716,6 +3727,7 @@ export namespace Prisma {
     name: "Staff"
     objects: {
       classSubjects: Prisma.$ClassSubjectPayload<ExtArgs>[]
+      classesAsClassTeacher: Prisma.$ClassPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -4127,6 +4139,7 @@ export namespace Prisma {
   export interface Prisma__StaffClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     classSubjects<T extends Staff$classSubjectsArgs<ExtArgs> = {}>(args?: Subset<T, Staff$classSubjectsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClassSubjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    classesAsClassTeacher<T extends Staff$classesAsClassTeacherArgs<ExtArgs> = {}>(args?: Subset<T, Staff$classesAsClassTeacherArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4584,6 +4597,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ClassSubjectScalarFieldEnum | ClassSubjectScalarFieldEnum[]
+  }
+
+  /**
+   * Staff.classesAsClassTeacher
+   */
+  export type Staff$classesAsClassTeacherArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Class
+     */
+    select?: ClassSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Class
+     */
+    omit?: ClassOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClassInclude<ExtArgs> | null
+    where?: ClassWhereInput
+    orderBy?: ClassOrderByWithRelationInput | ClassOrderByWithRelationInput[]
+    cursor?: ClassWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ClassScalarFieldEnum | ClassScalarFieldEnum[]
   }
 
   /**
@@ -11880,6 +11917,7 @@ export namespace Prisma {
     name: string | null
     level: string | null
     capacity: number | null
+    classTeacherId: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -11889,6 +11927,7 @@ export namespace Prisma {
     name: string | null
     level: string | null
     capacity: number | null
+    classTeacherId: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -11898,6 +11937,7 @@ export namespace Prisma {
     name: number
     level: number
     capacity: number
+    classTeacherId: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -11917,6 +11957,7 @@ export namespace Prisma {
     name?: true
     level?: true
     capacity?: true
+    classTeacherId?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -11926,6 +11967,7 @@ export namespace Prisma {
     name?: true
     level?: true
     capacity?: true
+    classTeacherId?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -11935,6 +11977,7 @@ export namespace Prisma {
     name?: true
     level?: true
     capacity?: true
+    classTeacherId?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -12031,6 +12074,7 @@ export namespace Prisma {
     name: string
     level: string | null
     capacity: number | null
+    classTeacherId: string | null
     createdAt: Date
     updatedAt: Date
     _count: ClassCountAggregateOutputType | null
@@ -12059,8 +12103,10 @@ export namespace Prisma {
     name?: boolean
     level?: boolean
     capacity?: boolean
+    classTeacherId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    classTeacher?: boolean | Class$classTeacherArgs<ExtArgs>
     enrolments?: boolean | Class$enrolmentsArgs<ExtArgs>
     classSubjects?: boolean | Class$classSubjectsArgs<ExtArgs>
     _count?: boolean | ClassCountOutputTypeDefaultArgs<ExtArgs>
@@ -12071,8 +12117,10 @@ export namespace Prisma {
     name?: boolean
     level?: boolean
     capacity?: boolean
+    classTeacherId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    classTeacher?: boolean | Class$classTeacherArgs<ExtArgs>
   }, ExtArgs["result"]["class"]>
 
   export type ClassSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -12080,8 +12128,10 @@ export namespace Prisma {
     name?: boolean
     level?: boolean
     capacity?: boolean
+    classTeacherId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    classTeacher?: boolean | Class$classTeacherArgs<ExtArgs>
   }, ExtArgs["result"]["class"]>
 
   export type ClassSelectScalar = {
@@ -12089,22 +12139,29 @@ export namespace Prisma {
     name?: boolean
     level?: boolean
     capacity?: boolean
+    classTeacherId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type ClassOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "level" | "capacity" | "createdAt" | "updatedAt", ExtArgs["result"]["class"]>
+  export type ClassOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "level" | "capacity" | "classTeacherId" | "createdAt" | "updatedAt", ExtArgs["result"]["class"]>
   export type ClassInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    classTeacher?: boolean | Class$classTeacherArgs<ExtArgs>
     enrolments?: boolean | Class$enrolmentsArgs<ExtArgs>
     classSubjects?: boolean | Class$classSubjectsArgs<ExtArgs>
     _count?: boolean | ClassCountOutputTypeDefaultArgs<ExtArgs>
   }
-  export type ClassIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
-  export type ClassIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type ClassIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    classTeacher?: boolean | Class$classTeacherArgs<ExtArgs>
+  }
+  export type ClassIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    classTeacher?: boolean | Class$classTeacherArgs<ExtArgs>
+  }
 
   export type $ClassPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Class"
     objects: {
+      classTeacher: Prisma.$StaffPayload<ExtArgs> | null
       enrolments: Prisma.$EnrolmentPayload<ExtArgs>[]
       classSubjects: Prisma.$ClassSubjectPayload<ExtArgs>[]
     }
@@ -12113,6 +12170,7 @@ export namespace Prisma {
       name: string
       level: string | null
       capacity: number | null
+      classTeacherId: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["class"]>
@@ -12509,6 +12567,7 @@ export namespace Prisma {
    */
   export interface Prisma__ClassClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    classTeacher<T extends Class$classTeacherArgs<ExtArgs> = {}>(args?: Subset<T, Class$classTeacherArgs<ExtArgs>>): Prisma__StaffClient<$Result.GetResult<Prisma.$StaffPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     enrolments<T extends Class$enrolmentsArgs<ExtArgs> = {}>(args?: Subset<T, Class$enrolmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EnrolmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     classSubjects<T extends Class$classSubjectsArgs<ExtArgs> = {}>(args?: Subset<T, Class$classSubjectsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClassSubjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
@@ -12544,6 +12603,7 @@ export namespace Prisma {
     readonly name: FieldRef<"Class", 'String'>
     readonly level: FieldRef<"Class", 'String'>
     readonly capacity: FieldRef<"Class", 'Int'>
+    readonly classTeacherId: FieldRef<"Class", 'String'>
     readonly createdAt: FieldRef<"Class", 'DateTime'>
     readonly updatedAt: FieldRef<"Class", 'DateTime'>
   }
@@ -12800,6 +12860,10 @@ export namespace Prisma {
      */
     data: ClassCreateManyInput | ClassCreateManyInput[]
     skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClassIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -12870,6 +12934,10 @@ export namespace Prisma {
      * Limit how many Classes to update.
      */
     limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClassIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -12936,6 +13004,25 @@ export namespace Prisma {
      * Limit how many Classes to delete.
      */
     limit?: number
+  }
+
+  /**
+   * Class.classTeacher
+   */
+  export type Class$classTeacherArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Staff
+     */
+    select?: StaffSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Staff
+     */
+    omit?: StaffOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StaffInclude<ExtArgs> | null
+    where?: StaffWhereInput
   }
 
   /**
@@ -16321,10 +16408,14 @@ export namespace Prisma {
 
   export type SchoolSettingsAvgAggregateOutputType = {
     foundedYear: number | null
+    letterheadContentTopMm: number | null
+    letterheadContentBottomMm: number | null
   }
 
   export type SchoolSettingsSumAggregateOutputType = {
     foundedYear: number | null
+    letterheadContentTopMm: number | null
+    letterheadContentBottomMm: number | null
   }
 
   export type SchoolSettingsMinAggregateOutputType = {
@@ -16338,6 +16429,10 @@ export namespace Prisma {
     foundedYear: number | null
     principalName: string | null
     stamp: string | null
+    reportCardTemplate: string | null
+    reportCardLetterheadUrl: string | null
+    letterheadContentTopMm: number | null
+    letterheadContentBottomMm: number | null
     signature: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -16354,6 +16449,10 @@ export namespace Prisma {
     foundedYear: number | null
     principalName: string | null
     stamp: string | null
+    reportCardTemplate: string | null
+    reportCardLetterheadUrl: string | null
+    letterheadContentTopMm: number | null
+    letterheadContentBottomMm: number | null
     signature: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -16370,6 +16469,10 @@ export namespace Prisma {
     foundedYear: number
     principalName: number
     stamp: number
+    reportCardTemplate: number
+    reportCardLetterheadUrl: number
+    letterheadContentTopMm: number
+    letterheadContentBottomMm: number
     signature: number
     createdAt: number
     updatedAt: number
@@ -16379,10 +16482,14 @@ export namespace Prisma {
 
   export type SchoolSettingsAvgAggregateInputType = {
     foundedYear?: true
+    letterheadContentTopMm?: true
+    letterheadContentBottomMm?: true
   }
 
   export type SchoolSettingsSumAggregateInputType = {
     foundedYear?: true
+    letterheadContentTopMm?: true
+    letterheadContentBottomMm?: true
   }
 
   export type SchoolSettingsMinAggregateInputType = {
@@ -16396,6 +16503,10 @@ export namespace Prisma {
     foundedYear?: true
     principalName?: true
     stamp?: true
+    reportCardTemplate?: true
+    reportCardLetterheadUrl?: true
+    letterheadContentTopMm?: true
+    letterheadContentBottomMm?: true
     signature?: true
     createdAt?: true
     updatedAt?: true
@@ -16412,6 +16523,10 @@ export namespace Prisma {
     foundedYear?: true
     principalName?: true
     stamp?: true
+    reportCardTemplate?: true
+    reportCardLetterheadUrl?: true
+    letterheadContentTopMm?: true
+    letterheadContentBottomMm?: true
     signature?: true
     createdAt?: true
     updatedAt?: true
@@ -16428,6 +16543,10 @@ export namespace Prisma {
     foundedYear?: true
     principalName?: true
     stamp?: true
+    reportCardTemplate?: true
+    reportCardLetterheadUrl?: true
+    letterheadContentTopMm?: true
+    letterheadContentBottomMm?: true
     signature?: true
     createdAt?: true
     updatedAt?: true
@@ -16531,6 +16650,10 @@ export namespace Prisma {
     foundedYear: number | null
     principalName: string | null
     stamp: string | null
+    reportCardTemplate: string
+    reportCardLetterheadUrl: string | null
+    letterheadContentTopMm: number | null
+    letterheadContentBottomMm: number | null
     signature: string | null
     createdAt: Date
     updatedAt: Date
@@ -16566,6 +16689,10 @@ export namespace Prisma {
     foundedYear?: boolean
     principalName?: boolean
     stamp?: boolean
+    reportCardTemplate?: boolean
+    reportCardLetterheadUrl?: boolean
+    letterheadContentTopMm?: boolean
+    letterheadContentBottomMm?: boolean
     signature?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -16582,6 +16709,10 @@ export namespace Prisma {
     foundedYear?: boolean
     principalName?: boolean
     stamp?: boolean
+    reportCardTemplate?: boolean
+    reportCardLetterheadUrl?: boolean
+    letterheadContentTopMm?: boolean
+    letterheadContentBottomMm?: boolean
     signature?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -16598,6 +16729,10 @@ export namespace Prisma {
     foundedYear?: boolean
     principalName?: boolean
     stamp?: boolean
+    reportCardTemplate?: boolean
+    reportCardLetterheadUrl?: boolean
+    letterheadContentTopMm?: boolean
+    letterheadContentBottomMm?: boolean
     signature?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -16614,12 +16749,16 @@ export namespace Prisma {
     foundedYear?: boolean
     principalName?: boolean
     stamp?: boolean
+    reportCardTemplate?: boolean
+    reportCardLetterheadUrl?: boolean
+    letterheadContentTopMm?: boolean
+    letterheadContentBottomMm?: boolean
     signature?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type SchoolSettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "logoUrl" | "primaryColor" | "secondaryColor" | "motto" | "address" | "website" | "foundedYear" | "principalName" | "stamp" | "signature" | "createdAt" | "updatedAt", ExtArgs["result"]["schoolSettings"]>
+  export type SchoolSettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "logoUrl" | "primaryColor" | "secondaryColor" | "motto" | "address" | "website" | "foundedYear" | "principalName" | "stamp" | "reportCardTemplate" | "reportCardLetterheadUrl" | "letterheadContentTopMm" | "letterheadContentBottomMm" | "signature" | "createdAt" | "updatedAt", ExtArgs["result"]["schoolSettings"]>
 
   export type $SchoolSettingsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "SchoolSettings"
@@ -16635,6 +16774,10 @@ export namespace Prisma {
       foundedYear: number | null
       principalName: string | null
       stamp: string | null
+      reportCardTemplate: string
+      reportCardLetterheadUrl: string | null
+      letterheadContentTopMm: number | null
+      letterheadContentBottomMm: number | null
       signature: string | null
       createdAt: Date
       updatedAt: Date
@@ -17071,6 +17214,10 @@ export namespace Prisma {
     readonly foundedYear: FieldRef<"SchoolSettings", 'Int'>
     readonly principalName: FieldRef<"SchoolSettings", 'String'>
     readonly stamp: FieldRef<"SchoolSettings", 'String'>
+    readonly reportCardTemplate: FieldRef<"SchoolSettings", 'String'>
+    readonly reportCardLetterheadUrl: FieldRef<"SchoolSettings", 'String'>
+    readonly letterheadContentTopMm: FieldRef<"SchoolSettings", 'Int'>
+    readonly letterheadContentBottomMm: FieldRef<"SchoolSettings", 'Int'>
     readonly signature: FieldRef<"SchoolSettings", 'String'>
     readonly createdAt: FieldRef<"SchoolSettings", 'DateTime'>
     readonly updatedAt: FieldRef<"SchoolSettings", 'DateTime'>
@@ -28192,6 +28339,7 @@ export namespace Prisma {
     name: 'name',
     level: 'level',
     capacity: 'capacity',
+    classTeacherId: 'classTeacherId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -28246,6 +28394,10 @@ export namespace Prisma {
     foundedYear: 'foundedYear',
     principalName: 'principalName',
     stamp: 'stamp',
+    reportCardTemplate: 'reportCardTemplate',
+    reportCardLetterheadUrl: 'reportCardLetterheadUrl',
+    letterheadContentTopMm: 'letterheadContentTopMm',
+    letterheadContentBottomMm: 'letterheadContentBottomMm',
     signature: 'signature',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -28779,6 +28931,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Staff"> | Date | string
     updatedAt?: DateTimeFilter<"Staff"> | Date | string
     classSubjects?: ClassSubjectListRelationFilter
+    classesAsClassTeacher?: ClassListRelationFilter
   }
 
   export type StaffOrderByWithRelationInput = {
@@ -28797,6 +28950,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     classSubjects?: ClassSubjectOrderByRelationAggregateInput
+    classesAsClassTeacher?: ClassOrderByRelationAggregateInput
   }
 
   export type StaffWhereUniqueInput = Prisma.AtLeast<{
@@ -28818,6 +28972,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Staff"> | Date | string
     updatedAt?: DateTimeFilter<"Staff"> | Date | string
     classSubjects?: ClassSubjectListRelationFilter
+    classesAsClassTeacher?: ClassListRelationFilter
   }, "id" | "userId" | "employeeId">
 
   export type StaffOrderByWithAggregationInput = {
@@ -29404,8 +29559,10 @@ export namespace Prisma {
     name?: StringFilter<"Class"> | string
     level?: StringNullableFilter<"Class"> | string | null
     capacity?: IntNullableFilter<"Class"> | number | null
+    classTeacherId?: StringNullableFilter<"Class"> | string | null
     createdAt?: DateTimeFilter<"Class"> | Date | string
     updatedAt?: DateTimeFilter<"Class"> | Date | string
+    classTeacher?: XOR<StaffNullableScalarRelationFilter, StaffWhereInput> | null
     enrolments?: EnrolmentListRelationFilter
     classSubjects?: ClassSubjectListRelationFilter
   }
@@ -29415,8 +29572,10 @@ export namespace Prisma {
     name?: SortOrder
     level?: SortOrderInput | SortOrder
     capacity?: SortOrderInput | SortOrder
+    classTeacherId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    classTeacher?: StaffOrderByWithRelationInput
     enrolments?: EnrolmentOrderByRelationAggregateInput
     classSubjects?: ClassSubjectOrderByRelationAggregateInput
   }
@@ -29429,8 +29588,10 @@ export namespace Prisma {
     name?: StringFilter<"Class"> | string
     level?: StringNullableFilter<"Class"> | string | null
     capacity?: IntNullableFilter<"Class"> | number | null
+    classTeacherId?: StringNullableFilter<"Class"> | string | null
     createdAt?: DateTimeFilter<"Class"> | Date | string
     updatedAt?: DateTimeFilter<"Class"> | Date | string
+    classTeacher?: XOR<StaffNullableScalarRelationFilter, StaffWhereInput> | null
     enrolments?: EnrolmentListRelationFilter
     classSubjects?: ClassSubjectListRelationFilter
   }, "id">
@@ -29440,6 +29601,7 @@ export namespace Prisma {
     name?: SortOrder
     level?: SortOrderInput | SortOrder
     capacity?: SortOrderInput | SortOrder
+    classTeacherId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: ClassCountOrderByAggregateInput
@@ -29457,6 +29619,7 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"Class"> | string
     level?: StringNullableWithAggregatesFilter<"Class"> | string | null
     capacity?: IntNullableWithAggregatesFilter<"Class"> | number | null
+    classTeacherId?: StringNullableWithAggregatesFilter<"Class"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Class"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Class"> | Date | string
   }
@@ -29671,6 +29834,10 @@ export namespace Prisma {
     foundedYear?: IntNullableFilter<"SchoolSettings"> | number | null
     principalName?: StringNullableFilter<"SchoolSettings"> | string | null
     stamp?: StringNullableFilter<"SchoolSettings"> | string | null
+    reportCardTemplate?: StringFilter<"SchoolSettings"> | string
+    reportCardLetterheadUrl?: StringNullableFilter<"SchoolSettings"> | string | null
+    letterheadContentTopMm?: IntNullableFilter<"SchoolSettings"> | number | null
+    letterheadContentBottomMm?: IntNullableFilter<"SchoolSettings"> | number | null
     signature?: StringNullableFilter<"SchoolSettings"> | string | null
     createdAt?: DateTimeFilter<"SchoolSettings"> | Date | string
     updatedAt?: DateTimeFilter<"SchoolSettings"> | Date | string
@@ -29687,6 +29854,10 @@ export namespace Prisma {
     foundedYear?: SortOrderInput | SortOrder
     principalName?: SortOrderInput | SortOrder
     stamp?: SortOrderInput | SortOrder
+    reportCardTemplate?: SortOrder
+    reportCardLetterheadUrl?: SortOrderInput | SortOrder
+    letterheadContentTopMm?: SortOrderInput | SortOrder
+    letterheadContentBottomMm?: SortOrderInput | SortOrder
     signature?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -29706,6 +29877,10 @@ export namespace Prisma {
     foundedYear?: IntNullableFilter<"SchoolSettings"> | number | null
     principalName?: StringNullableFilter<"SchoolSettings"> | string | null
     stamp?: StringNullableFilter<"SchoolSettings"> | string | null
+    reportCardTemplate?: StringFilter<"SchoolSettings"> | string
+    reportCardLetterheadUrl?: StringNullableFilter<"SchoolSettings"> | string | null
+    letterheadContentTopMm?: IntNullableFilter<"SchoolSettings"> | number | null
+    letterheadContentBottomMm?: IntNullableFilter<"SchoolSettings"> | number | null
     signature?: StringNullableFilter<"SchoolSettings"> | string | null
     createdAt?: DateTimeFilter<"SchoolSettings"> | Date | string
     updatedAt?: DateTimeFilter<"SchoolSettings"> | Date | string
@@ -29722,6 +29897,10 @@ export namespace Prisma {
     foundedYear?: SortOrderInput | SortOrder
     principalName?: SortOrderInput | SortOrder
     stamp?: SortOrderInput | SortOrder
+    reportCardTemplate?: SortOrder
+    reportCardLetterheadUrl?: SortOrderInput | SortOrder
+    letterheadContentTopMm?: SortOrderInput | SortOrder
+    letterheadContentBottomMm?: SortOrderInput | SortOrder
     signature?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -29746,6 +29925,10 @@ export namespace Prisma {
     foundedYear?: IntNullableWithAggregatesFilter<"SchoolSettings"> | number | null
     principalName?: StringNullableWithAggregatesFilter<"SchoolSettings"> | string | null
     stamp?: StringNullableWithAggregatesFilter<"SchoolSettings"> | string | null
+    reportCardTemplate?: StringWithAggregatesFilter<"SchoolSettings"> | string
+    reportCardLetterheadUrl?: StringNullableWithAggregatesFilter<"SchoolSettings"> | string | null
+    letterheadContentTopMm?: IntNullableWithAggregatesFilter<"SchoolSettings"> | number | null
+    letterheadContentBottomMm?: IntNullableWithAggregatesFilter<"SchoolSettings"> | number | null
     signature?: StringNullableWithAggregatesFilter<"SchoolSettings"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"SchoolSettings"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"SchoolSettings"> | Date | string
@@ -30584,6 +30767,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     classSubjects?: ClassSubjectCreateNestedManyWithoutStaffInput
+    classesAsClassTeacher?: ClassCreateNestedManyWithoutClassTeacherInput
   }
 
   export type StaffUncheckedCreateInput = {
@@ -30602,6 +30786,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     classSubjects?: ClassSubjectUncheckedCreateNestedManyWithoutStaffInput
+    classesAsClassTeacher?: ClassUncheckedCreateNestedManyWithoutClassTeacherInput
   }
 
   export type StaffUpdateInput = {
@@ -30620,6 +30805,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     classSubjects?: ClassSubjectUpdateManyWithoutStaffNestedInput
+    classesAsClassTeacher?: ClassUpdateManyWithoutClassTeacherNestedInput
   }
 
   export type StaffUncheckedUpdateInput = {
@@ -30638,6 +30824,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     classSubjects?: ClassSubjectUncheckedUpdateManyWithoutStaffNestedInput
+    classesAsClassTeacher?: ClassUncheckedUpdateManyWithoutClassTeacherNestedInput
   }
 
   export type StaffCreateManyInput = {
@@ -31317,6 +31504,7 @@ export namespace Prisma {
     capacity?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    classTeacher?: StaffCreateNestedOneWithoutClassesAsClassTeacherInput
     enrolments?: EnrolmentCreateNestedManyWithoutClassInput
     classSubjects?: ClassSubjectCreateNestedManyWithoutClassInput
   }
@@ -31326,6 +31514,7 @@ export namespace Prisma {
     name: string
     level?: string | null
     capacity?: number | null
+    classTeacherId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     enrolments?: EnrolmentUncheckedCreateNestedManyWithoutClassInput
@@ -31339,6 +31528,7 @@ export namespace Prisma {
     capacity?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    classTeacher?: StaffUpdateOneWithoutClassesAsClassTeacherNestedInput
     enrolments?: EnrolmentUpdateManyWithoutClassNestedInput
     classSubjects?: ClassSubjectUpdateManyWithoutClassNestedInput
   }
@@ -31348,6 +31538,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     level?: NullableStringFieldUpdateOperationsInput | string | null
     capacity?: NullableIntFieldUpdateOperationsInput | number | null
+    classTeacherId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     enrolments?: EnrolmentUncheckedUpdateManyWithoutClassNestedInput
@@ -31359,6 +31550,7 @@ export namespace Prisma {
     name: string
     level?: string | null
     capacity?: number | null
+    classTeacherId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -31377,6 +31569,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     level?: NullableStringFieldUpdateOperationsInput | string | null
     capacity?: NullableIntFieldUpdateOperationsInput | number | null
+    classTeacherId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -31583,6 +31776,10 @@ export namespace Prisma {
     foundedYear?: number | null
     principalName?: string | null
     stamp?: string | null
+    reportCardTemplate?: string
+    reportCardLetterheadUrl?: string | null
+    letterheadContentTopMm?: number | null
+    letterheadContentBottomMm?: number | null
     signature?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -31599,6 +31796,10 @@ export namespace Prisma {
     foundedYear?: number | null
     principalName?: string | null
     stamp?: string | null
+    reportCardTemplate?: string
+    reportCardLetterheadUrl?: string | null
+    letterheadContentTopMm?: number | null
+    letterheadContentBottomMm?: number | null
     signature?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -31615,6 +31816,10 @@ export namespace Prisma {
     foundedYear?: NullableIntFieldUpdateOperationsInput | number | null
     principalName?: NullableStringFieldUpdateOperationsInput | string | null
     stamp?: NullableStringFieldUpdateOperationsInput | string | null
+    reportCardTemplate?: StringFieldUpdateOperationsInput | string
+    reportCardLetterheadUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    letterheadContentTopMm?: NullableIntFieldUpdateOperationsInput | number | null
+    letterheadContentBottomMm?: NullableIntFieldUpdateOperationsInput | number | null
     signature?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -31631,6 +31836,10 @@ export namespace Prisma {
     foundedYear?: NullableIntFieldUpdateOperationsInput | number | null
     principalName?: NullableStringFieldUpdateOperationsInput | string | null
     stamp?: NullableStringFieldUpdateOperationsInput | string | null
+    reportCardTemplate?: StringFieldUpdateOperationsInput | string
+    reportCardLetterheadUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    letterheadContentTopMm?: NullableIntFieldUpdateOperationsInput | number | null
+    letterheadContentBottomMm?: NullableIntFieldUpdateOperationsInput | number | null
     signature?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -31647,6 +31856,10 @@ export namespace Prisma {
     foundedYear?: number | null
     principalName?: string | null
     stamp?: string | null
+    reportCardTemplate?: string
+    reportCardLetterheadUrl?: string | null
+    letterheadContentTopMm?: number | null
+    letterheadContentBottomMm?: number | null
     signature?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -31663,6 +31876,10 @@ export namespace Prisma {
     foundedYear?: NullableIntFieldUpdateOperationsInput | number | null
     principalName?: NullableStringFieldUpdateOperationsInput | string | null
     stamp?: NullableStringFieldUpdateOperationsInput | string | null
+    reportCardTemplate?: StringFieldUpdateOperationsInput | string
+    reportCardLetterheadUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    letterheadContentTopMm?: NullableIntFieldUpdateOperationsInput | number | null
+    letterheadContentBottomMm?: NullableIntFieldUpdateOperationsInput | number | null
     signature?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -31679,6 +31896,10 @@ export namespace Prisma {
     foundedYear?: NullableIntFieldUpdateOperationsInput | number | null
     principalName?: NullableStringFieldUpdateOperationsInput | string | null
     stamp?: NullableStringFieldUpdateOperationsInput | string | null
+    reportCardTemplate?: StringFieldUpdateOperationsInput | string
+    reportCardLetterheadUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    letterheadContentTopMm?: NullableIntFieldUpdateOperationsInput | number | null
+    letterheadContentBottomMm?: NullableIntFieldUpdateOperationsInput | number | null
     signature?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -32663,12 +32884,22 @@ export namespace Prisma {
     none?: ClassSubjectWhereInput
   }
 
+  export type ClassListRelationFilter = {
+    every?: ClassWhereInput
+    some?: ClassWhereInput
+    none?: ClassWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
   }
 
   export type ClassSubjectOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ClassOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -33237,11 +33468,17 @@ export namespace Prisma {
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
+  export type StaffNullableScalarRelationFilter = {
+    is?: StaffWhereInput | null
+    isNot?: StaffWhereInput | null
+  }
+
   export type ClassCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
     level?: SortOrder
     capacity?: SortOrder
+    classTeacherId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -33255,6 +33492,7 @@ export namespace Prisma {
     name?: SortOrder
     level?: SortOrder
     capacity?: SortOrder
+    classTeacherId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -33264,6 +33502,7 @@ export namespace Prisma {
     name?: SortOrder
     level?: SortOrder
     capacity?: SortOrder
+    classTeacherId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -33422,6 +33661,10 @@ export namespace Prisma {
     foundedYear?: SortOrder
     principalName?: SortOrder
     stamp?: SortOrder
+    reportCardTemplate?: SortOrder
+    reportCardLetterheadUrl?: SortOrder
+    letterheadContentTopMm?: SortOrder
+    letterheadContentBottomMm?: SortOrder
     signature?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -33429,6 +33672,8 @@ export namespace Prisma {
 
   export type SchoolSettingsAvgOrderByAggregateInput = {
     foundedYear?: SortOrder
+    letterheadContentTopMm?: SortOrder
+    letterheadContentBottomMm?: SortOrder
   }
 
   export type SchoolSettingsMaxOrderByAggregateInput = {
@@ -33442,6 +33687,10 @@ export namespace Prisma {
     foundedYear?: SortOrder
     principalName?: SortOrder
     stamp?: SortOrder
+    reportCardTemplate?: SortOrder
+    reportCardLetterheadUrl?: SortOrder
+    letterheadContentTopMm?: SortOrder
+    letterheadContentBottomMm?: SortOrder
     signature?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -33458,6 +33707,10 @@ export namespace Prisma {
     foundedYear?: SortOrder
     principalName?: SortOrder
     stamp?: SortOrder
+    reportCardTemplate?: SortOrder
+    reportCardLetterheadUrl?: SortOrder
+    letterheadContentTopMm?: SortOrder
+    letterheadContentBottomMm?: SortOrder
     signature?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -33465,6 +33718,8 @@ export namespace Prisma {
 
   export type SchoolSettingsSumOrderByAggregateInput = {
     foundedYear?: SortOrder
+    letterheadContentTopMm?: SortOrder
+    letterheadContentBottomMm?: SortOrder
   }
 
   export type EnumAttendanceStatusFilter<$PrismaModel = never> = {
@@ -34284,11 +34539,25 @@ export namespace Prisma {
     connect?: ClassSubjectWhereUniqueInput | ClassSubjectWhereUniqueInput[]
   }
 
+  export type ClassCreateNestedManyWithoutClassTeacherInput = {
+    create?: XOR<ClassCreateWithoutClassTeacherInput, ClassUncheckedCreateWithoutClassTeacherInput> | ClassCreateWithoutClassTeacherInput[] | ClassUncheckedCreateWithoutClassTeacherInput[]
+    connectOrCreate?: ClassCreateOrConnectWithoutClassTeacherInput | ClassCreateOrConnectWithoutClassTeacherInput[]
+    createMany?: ClassCreateManyClassTeacherInputEnvelope
+    connect?: ClassWhereUniqueInput | ClassWhereUniqueInput[]
+  }
+
   export type ClassSubjectUncheckedCreateNestedManyWithoutStaffInput = {
     create?: XOR<ClassSubjectCreateWithoutStaffInput, ClassSubjectUncheckedCreateWithoutStaffInput> | ClassSubjectCreateWithoutStaffInput[] | ClassSubjectUncheckedCreateWithoutStaffInput[]
     connectOrCreate?: ClassSubjectCreateOrConnectWithoutStaffInput | ClassSubjectCreateOrConnectWithoutStaffInput[]
     createMany?: ClassSubjectCreateManyStaffInputEnvelope
     connect?: ClassSubjectWhereUniqueInput | ClassSubjectWhereUniqueInput[]
+  }
+
+  export type ClassUncheckedCreateNestedManyWithoutClassTeacherInput = {
+    create?: XOR<ClassCreateWithoutClassTeacherInput, ClassUncheckedCreateWithoutClassTeacherInput> | ClassCreateWithoutClassTeacherInput[] | ClassUncheckedCreateWithoutClassTeacherInput[]
+    connectOrCreate?: ClassCreateOrConnectWithoutClassTeacherInput | ClassCreateOrConnectWithoutClassTeacherInput[]
+    createMany?: ClassCreateManyClassTeacherInputEnvelope
+    connect?: ClassWhereUniqueInput | ClassWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -34333,6 +34602,20 @@ export namespace Prisma {
     deleteMany?: ClassSubjectScalarWhereInput | ClassSubjectScalarWhereInput[]
   }
 
+  export type ClassUpdateManyWithoutClassTeacherNestedInput = {
+    create?: XOR<ClassCreateWithoutClassTeacherInput, ClassUncheckedCreateWithoutClassTeacherInput> | ClassCreateWithoutClassTeacherInput[] | ClassUncheckedCreateWithoutClassTeacherInput[]
+    connectOrCreate?: ClassCreateOrConnectWithoutClassTeacherInput | ClassCreateOrConnectWithoutClassTeacherInput[]
+    upsert?: ClassUpsertWithWhereUniqueWithoutClassTeacherInput | ClassUpsertWithWhereUniqueWithoutClassTeacherInput[]
+    createMany?: ClassCreateManyClassTeacherInputEnvelope
+    set?: ClassWhereUniqueInput | ClassWhereUniqueInput[]
+    disconnect?: ClassWhereUniqueInput | ClassWhereUniqueInput[]
+    delete?: ClassWhereUniqueInput | ClassWhereUniqueInput[]
+    connect?: ClassWhereUniqueInput | ClassWhereUniqueInput[]
+    update?: ClassUpdateWithWhereUniqueWithoutClassTeacherInput | ClassUpdateWithWhereUniqueWithoutClassTeacherInput[]
+    updateMany?: ClassUpdateManyWithWhereWithoutClassTeacherInput | ClassUpdateManyWithWhereWithoutClassTeacherInput[]
+    deleteMany?: ClassScalarWhereInput | ClassScalarWhereInput[]
+  }
+
   export type ClassSubjectUncheckedUpdateManyWithoutStaffNestedInput = {
     create?: XOR<ClassSubjectCreateWithoutStaffInput, ClassSubjectUncheckedCreateWithoutStaffInput> | ClassSubjectCreateWithoutStaffInput[] | ClassSubjectUncheckedCreateWithoutStaffInput[]
     connectOrCreate?: ClassSubjectCreateOrConnectWithoutStaffInput | ClassSubjectCreateOrConnectWithoutStaffInput[]
@@ -34345,6 +34628,20 @@ export namespace Prisma {
     update?: ClassSubjectUpdateWithWhereUniqueWithoutStaffInput | ClassSubjectUpdateWithWhereUniqueWithoutStaffInput[]
     updateMany?: ClassSubjectUpdateManyWithWhereWithoutStaffInput | ClassSubjectUpdateManyWithWhereWithoutStaffInput[]
     deleteMany?: ClassSubjectScalarWhereInput | ClassSubjectScalarWhereInput[]
+  }
+
+  export type ClassUncheckedUpdateManyWithoutClassTeacherNestedInput = {
+    create?: XOR<ClassCreateWithoutClassTeacherInput, ClassUncheckedCreateWithoutClassTeacherInput> | ClassCreateWithoutClassTeacherInput[] | ClassUncheckedCreateWithoutClassTeacherInput[]
+    connectOrCreate?: ClassCreateOrConnectWithoutClassTeacherInput | ClassCreateOrConnectWithoutClassTeacherInput[]
+    upsert?: ClassUpsertWithWhereUniqueWithoutClassTeacherInput | ClassUpsertWithWhereUniqueWithoutClassTeacherInput[]
+    createMany?: ClassCreateManyClassTeacherInputEnvelope
+    set?: ClassWhereUniqueInput | ClassWhereUniqueInput[]
+    disconnect?: ClassWhereUniqueInput | ClassWhereUniqueInput[]
+    delete?: ClassWhereUniqueInput | ClassWhereUniqueInput[]
+    connect?: ClassWhereUniqueInput | ClassWhereUniqueInput[]
+    update?: ClassUpdateWithWhereUniqueWithoutClassTeacherInput | ClassUpdateWithWhereUniqueWithoutClassTeacherInput[]
+    updateMany?: ClassUpdateManyWithWhereWithoutClassTeacherInput | ClassUpdateManyWithWhereWithoutClassTeacherInput[]
+    deleteMany?: ClassScalarWhereInput | ClassScalarWhereInput[]
   }
 
   export type EnrolmentCreateNestedManyWithoutStudentInput = {
@@ -35105,6 +35402,12 @@ export namespace Prisma {
     deleteMany?: ReportCardScalarWhereInput | ReportCardScalarWhereInput[]
   }
 
+  export type StaffCreateNestedOneWithoutClassesAsClassTeacherInput = {
+    create?: XOR<StaffCreateWithoutClassesAsClassTeacherInput, StaffUncheckedCreateWithoutClassesAsClassTeacherInput>
+    connectOrCreate?: StaffCreateOrConnectWithoutClassesAsClassTeacherInput
+    connect?: StaffWhereUniqueInput
+  }
+
   export type EnrolmentCreateNestedManyWithoutClassInput = {
     create?: XOR<EnrolmentCreateWithoutClassInput, EnrolmentUncheckedCreateWithoutClassInput> | EnrolmentCreateWithoutClassInput[] | EnrolmentUncheckedCreateWithoutClassInput[]
     connectOrCreate?: EnrolmentCreateOrConnectWithoutClassInput | EnrolmentCreateOrConnectWithoutClassInput[]
@@ -35139,6 +35442,16 @@ export namespace Prisma {
     decrement?: number
     multiply?: number
     divide?: number
+  }
+
+  export type StaffUpdateOneWithoutClassesAsClassTeacherNestedInput = {
+    create?: XOR<StaffCreateWithoutClassesAsClassTeacherInput, StaffUncheckedCreateWithoutClassesAsClassTeacherInput>
+    connectOrCreate?: StaffCreateOrConnectWithoutClassesAsClassTeacherInput
+    upsert?: StaffUpsertWithoutClassesAsClassTeacherInput
+    disconnect?: StaffWhereInput | boolean
+    delete?: StaffWhereInput | boolean
+    connect?: StaffWhereUniqueInput
+    update?: XOR<XOR<StaffUpdateToOneWithWhereWithoutClassesAsClassTeacherInput, StaffUpdateWithoutClassesAsClassTeacherInput>, StaffUncheckedUpdateWithoutClassesAsClassTeacherInput>
   }
 
   export type EnrolmentUpdateManyWithoutClassNestedInput = {
@@ -36297,6 +36610,38 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type ClassCreateWithoutClassTeacherInput = {
+    id?: string
+    name: string
+    level?: string | null
+    capacity?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    enrolments?: EnrolmentCreateNestedManyWithoutClassInput
+    classSubjects?: ClassSubjectCreateNestedManyWithoutClassInput
+  }
+
+  export type ClassUncheckedCreateWithoutClassTeacherInput = {
+    id?: string
+    name: string
+    level?: string | null
+    capacity?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    enrolments?: EnrolmentUncheckedCreateNestedManyWithoutClassInput
+    classSubjects?: ClassSubjectUncheckedCreateNestedManyWithoutClassInput
+  }
+
+  export type ClassCreateOrConnectWithoutClassTeacherInput = {
+    where: ClassWhereUniqueInput
+    create: XOR<ClassCreateWithoutClassTeacherInput, ClassUncheckedCreateWithoutClassTeacherInput>
+  }
+
+  export type ClassCreateManyClassTeacherInputEnvelope = {
+    data: ClassCreateManyClassTeacherInput | ClassCreateManyClassTeacherInput[]
+    skipDuplicates?: boolean
+  }
+
   export type ClassSubjectUpsertWithWhereUniqueWithoutStaffInput = {
     where: ClassSubjectWhereUniqueInput
     update: XOR<ClassSubjectUpdateWithoutStaffInput, ClassSubjectUncheckedUpdateWithoutStaffInput>
@@ -36322,6 +36667,35 @@ export namespace Prisma {
     subjectId?: StringFilter<"ClassSubject"> | string
     staffId?: StringFilter<"ClassSubject"> | string
     createdAt?: DateTimeFilter<"ClassSubject"> | Date | string
+  }
+
+  export type ClassUpsertWithWhereUniqueWithoutClassTeacherInput = {
+    where: ClassWhereUniqueInput
+    update: XOR<ClassUpdateWithoutClassTeacherInput, ClassUncheckedUpdateWithoutClassTeacherInput>
+    create: XOR<ClassCreateWithoutClassTeacherInput, ClassUncheckedCreateWithoutClassTeacherInput>
+  }
+
+  export type ClassUpdateWithWhereUniqueWithoutClassTeacherInput = {
+    where: ClassWhereUniqueInput
+    data: XOR<ClassUpdateWithoutClassTeacherInput, ClassUncheckedUpdateWithoutClassTeacherInput>
+  }
+
+  export type ClassUpdateManyWithWhereWithoutClassTeacherInput = {
+    where: ClassScalarWhereInput
+    data: XOR<ClassUpdateManyMutationInput, ClassUncheckedUpdateManyWithoutClassTeacherInput>
+  }
+
+  export type ClassScalarWhereInput = {
+    AND?: ClassScalarWhereInput | ClassScalarWhereInput[]
+    OR?: ClassScalarWhereInput[]
+    NOT?: ClassScalarWhereInput | ClassScalarWhereInput[]
+    id?: StringFilter<"Class"> | string
+    name?: StringFilter<"Class"> | string
+    level?: StringNullableFilter<"Class"> | string | null
+    capacity?: IntNullableFilter<"Class"> | number | null
+    classTeacherId?: StringNullableFilter<"Class"> | string | null
+    createdAt?: DateTimeFilter<"Class"> | Date | string
+    updatedAt?: DateTimeFilter<"Class"> | Date | string
   }
 
   export type EnrolmentCreateWithoutStudentInput = {
@@ -37709,6 +38083,47 @@ export namespace Prisma {
     data: XOR<ReportCardUpdateManyMutationInput, ReportCardUncheckedUpdateManyWithoutTermInput>
   }
 
+  export type StaffCreateWithoutClassesAsClassTeacherInput = {
+    id?: string
+    userId: string
+    employeeId?: string | null
+    department?: string | null
+    designation?: string | null
+    qualification?: string | null
+    gender?: $Enums.Gender | null
+    dateOfBirth?: Date | string | null
+    address?: string | null
+    joinDate?: Date | string | null
+    role: $Enums.StaffRole
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    classSubjects?: ClassSubjectCreateNestedManyWithoutStaffInput
+  }
+
+  export type StaffUncheckedCreateWithoutClassesAsClassTeacherInput = {
+    id?: string
+    userId: string
+    employeeId?: string | null
+    department?: string | null
+    designation?: string | null
+    qualification?: string | null
+    gender?: $Enums.Gender | null
+    dateOfBirth?: Date | string | null
+    address?: string | null
+    joinDate?: Date | string | null
+    role: $Enums.StaffRole
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    classSubjects?: ClassSubjectUncheckedCreateNestedManyWithoutStaffInput
+  }
+
+  export type StaffCreateOrConnectWithoutClassesAsClassTeacherInput = {
+    where: StaffWhereUniqueInput
+    create: XOR<StaffCreateWithoutClassesAsClassTeacherInput, StaffUncheckedCreateWithoutClassesAsClassTeacherInput>
+  }
+
   export type EnrolmentCreateWithoutClassInput = {
     id?: string
     status?: $Enums.EnrolmentStatus
@@ -37761,6 +38176,53 @@ export namespace Prisma {
   export type ClassSubjectCreateManyClassInputEnvelope = {
     data: ClassSubjectCreateManyClassInput | ClassSubjectCreateManyClassInput[]
     skipDuplicates?: boolean
+  }
+
+  export type StaffUpsertWithoutClassesAsClassTeacherInput = {
+    update: XOR<StaffUpdateWithoutClassesAsClassTeacherInput, StaffUncheckedUpdateWithoutClassesAsClassTeacherInput>
+    create: XOR<StaffCreateWithoutClassesAsClassTeacherInput, StaffUncheckedCreateWithoutClassesAsClassTeacherInput>
+    where?: StaffWhereInput
+  }
+
+  export type StaffUpdateToOneWithWhereWithoutClassesAsClassTeacherInput = {
+    where?: StaffWhereInput
+    data: XOR<StaffUpdateWithoutClassesAsClassTeacherInput, StaffUncheckedUpdateWithoutClassesAsClassTeacherInput>
+  }
+
+  export type StaffUpdateWithoutClassesAsClassTeacherInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    employeeId?: NullableStringFieldUpdateOperationsInput | string | null
+    department?: NullableStringFieldUpdateOperationsInput | string | null
+    designation?: NullableStringFieldUpdateOperationsInput | string | null
+    qualification?: NullableStringFieldUpdateOperationsInput | string | null
+    gender?: NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    classSubjects?: ClassSubjectUpdateManyWithoutStaffNestedInput
+  }
+
+  export type StaffUncheckedUpdateWithoutClassesAsClassTeacherInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    employeeId?: NullableStringFieldUpdateOperationsInput | string | null
+    department?: NullableStringFieldUpdateOperationsInput | string | null
+    designation?: NullableStringFieldUpdateOperationsInput | string | null
+    qualification?: NullableStringFieldUpdateOperationsInput | string | null
+    gender?: NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    classSubjects?: ClassSubjectUncheckedUpdateManyWithoutStaffNestedInput
   }
 
   export type EnrolmentUpsertWithWhereUniqueWithoutClassInput = {
@@ -37844,6 +38306,7 @@ export namespace Prisma {
     capacity?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    classTeacher?: StaffCreateNestedOneWithoutClassesAsClassTeacherInput
     enrolments?: EnrolmentCreateNestedManyWithoutClassInput
   }
 
@@ -37852,6 +38315,7 @@ export namespace Prisma {
     name: string
     level?: string | null
     capacity?: number | null
+    classTeacherId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     enrolments?: EnrolmentUncheckedCreateNestedManyWithoutClassInput
@@ -37900,6 +38364,7 @@ export namespace Prisma {
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    classesAsClassTeacher?: ClassCreateNestedManyWithoutClassTeacherInput
   }
 
   export type StaffUncheckedCreateWithoutClassSubjectsInput = {
@@ -37917,6 +38382,7 @@ export namespace Prisma {
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    classesAsClassTeacher?: ClassUncheckedCreateNestedManyWithoutClassTeacherInput
   }
 
   export type StaffCreateOrConnectWithoutClassSubjectsInput = {
@@ -37984,6 +38450,7 @@ export namespace Prisma {
     capacity?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    classTeacher?: StaffUpdateOneWithoutClassesAsClassTeacherNestedInput
     enrolments?: EnrolmentUpdateManyWithoutClassNestedInput
   }
 
@@ -37992,6 +38459,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     level?: NullableStringFieldUpdateOperationsInput | string | null
     capacity?: NullableIntFieldUpdateOperationsInput | number | null
+    classTeacherId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     enrolments?: EnrolmentUncheckedUpdateManyWithoutClassNestedInput
@@ -38052,6 +38520,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    classesAsClassTeacher?: ClassUpdateManyWithoutClassTeacherNestedInput
   }
 
   export type StaffUncheckedUpdateWithoutClassSubjectsInput = {
@@ -38069,6 +38538,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    classesAsClassTeacher?: ClassUncheckedUpdateManyWithoutClassTeacherNestedInput
   }
 
   export type GradeUpsertWithWhereUniqueWithoutClassSubjectInput = {
@@ -38151,6 +38621,7 @@ export namespace Prisma {
     capacity?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    classTeacher?: StaffCreateNestedOneWithoutClassesAsClassTeacherInput
     classSubjects?: ClassSubjectCreateNestedManyWithoutClassInput
   }
 
@@ -38159,6 +38630,7 @@ export namespace Prisma {
     name: string
     level?: string | null
     capacity?: number | null
+    classTeacherId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     classSubjects?: ClassSubjectUncheckedCreateNestedManyWithoutClassInput
@@ -38287,6 +38759,7 @@ export namespace Prisma {
     capacity?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    classTeacher?: StaffUpdateOneWithoutClassesAsClassTeacherNestedInput
     classSubjects?: ClassSubjectUpdateManyWithoutClassNestedInput
   }
 
@@ -38295,6 +38768,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     level?: NullableStringFieldUpdateOperationsInput | string | null
     capacity?: NullableIntFieldUpdateOperationsInput | number | null
+    classTeacherId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     classSubjects?: ClassSubjectUncheckedUpdateManyWithoutClassNestedInput
@@ -39663,6 +40137,15 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
+  export type ClassCreateManyClassTeacherInput = {
+    id?: string
+    name: string
+    level?: string | null
+    capacity?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type ClassSubjectUpdateWithoutStaffInput = {
     id?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -39684,6 +40167,37 @@ export namespace Prisma {
     classId?: StringFieldUpdateOperationsInput | string
     subjectId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ClassUpdateWithoutClassTeacherInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    level?: NullableStringFieldUpdateOperationsInput | string | null
+    capacity?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    enrolments?: EnrolmentUpdateManyWithoutClassNestedInput
+    classSubjects?: ClassSubjectUpdateManyWithoutClassNestedInput
+  }
+
+  export type ClassUncheckedUpdateWithoutClassTeacherInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    level?: NullableStringFieldUpdateOperationsInput | string | null
+    capacity?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    enrolments?: EnrolmentUncheckedUpdateManyWithoutClassNestedInput
+    classSubjects?: ClassSubjectUncheckedUpdateManyWithoutClassNestedInput
+  }
+
+  export type ClassUncheckedUpdateManyWithoutClassTeacherInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    level?: NullableStringFieldUpdateOperationsInput | string | null
+    capacity?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type EnrolmentCreateManyStudentInput = {

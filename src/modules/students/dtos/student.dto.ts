@@ -61,7 +61,23 @@ export const ListStudentsDto = z.object({
     gender:   z.string().optional(),
     isActive: z.string().optional(),
     search:   z.string().optional(),
-    classId: z.string().optional(),
+    classId: z.string().uuid().optional()
+});
+
+// students/dtos/student.dto.ts — add
+export const ImportStudentRowSchema = z.object({
+    firstName:        z.string().min(1),
+    lastName:         z.string().min(1),
+    middleName:       z.string().optional(),
+    admissionNumber:  z.string().optional(),
+    dateOfBirth:      z.string().optional(), // "YYYY-MM-DD"
+    gender:           z.enum(["male", "female"]).optional(),
+    className:        z.string().optional(), // matched against existing Class.name, enrolled if found
+    guardianEmail:    z.string().email().optional(),
+    guardianFirstName: z.string().optional(),
+    guardianLastName:  z.string().optional(),
+    guardianPhone:     z.string().optional(),
+    guardianRelation:  z.enum(["father", "mother", "uncle", "aunt", "grandparent", "sibling", "guardian", "other"]).optional(),
 });
 
 export type CreateStudentDtoType = z.infer<typeof CreateStudentDto>;

@@ -30,6 +30,7 @@ model Staff {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   classSubjects ClassSubject[]
+  classesAsClassTeacher Class[]
 }
 
 enum StaffRole {
@@ -179,18 +180,19 @@ enum TermName {
   second
   third
 }
-
 model Class {
-  id            String   @id @default(uuid())
-  name          String
-  level         String?
-  capacity      Int?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  enrolments    Enrolment[]
-  classSubjects ClassSubject[]
-}
+  id             String   @id @default(uuid())
+  name           String
+  level          String?
+  capacity       Int?
+  classTeacherId String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
+  classTeacher   Staff?          @relation(fields: [classTeacherId], references: [id])
+  enrolments     Enrolment[]
+  classSubjects  ClassSubject[]
+}
 model Subject {
   id            String   @id @default(uuid())
   name          String

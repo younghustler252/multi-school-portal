@@ -87,6 +87,12 @@ router.post(
     (req, res, next) => ctrl().resendOtp(req, res, next),
 );
 
+router.post(
+    "/exchange-impersonation-token",
+    authLimiter,
+    (req, res, next) => ctrl().exchangeImpersonationToken(req, res, next),
+)
+
 // ── Protected routes ──────────────────────────────────────────────────────
 router.post(
     "/logout",

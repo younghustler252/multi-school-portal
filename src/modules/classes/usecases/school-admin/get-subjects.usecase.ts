@@ -1,6 +1,6 @@
 import { IClassRepository }   from "../../repositories/class.repository";
 import { SubjectMapper }      from "../../mappers/class.mapper";
-import { SubjectResponseData } from "../../mappers/class.mapper";
+import { SubjectResponseData } from "../../types/class.types";
 
 interface Dependencies {
     classRepository: IClassRepository;

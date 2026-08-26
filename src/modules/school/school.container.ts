@@ -26,6 +26,7 @@ import { CreateSchoolUseCase }         from "./usecases/super-admin/create-schoo
 import { VerifySchoolUseCase }         from "./usecases/super-admin/verify-school.usecase";
 import { RejectSchoolUseCase }         from "./usecases/super-admin/reject-school.usecase";
 import { SuspendSchoolUseCase }        from "./usecases/super-admin/suspend-school.usecase";
+import { GetSchoolDocumentsUseCase } from "./usecases/super-admin/get-school-document.usecase";
 import { ActivateSchoolUseCase }       from "./usecases/super-admin/activate-school.usecase";
 import { ApproveDocumentUseCase }      from "./usecases/super-admin/approve-document.usecase";
 import { RejectDocumentUseCase }       from "./usecases/super-admin/reject-document.usecase";
@@ -69,6 +70,7 @@ export const registerSchool = (container: AwilixContainer): void => {
         verifySchoolUseCase:           asClass(VerifySchoolUseCase).scoped(),
         rejectSchoolUseCase:           asClass(RejectSchoolUseCase).scoped(),
         suspendSchoolUseCase:          asClass(SuspendSchoolUseCase).scoped(),
+        getSchoolDocumentsUseCase:     asClass(GetSchoolDocumentsUseCase).scoped(),
         activateSchoolUseCase:         asClass(ActivateSchoolUseCase).scoped(),
         approveDocumentUseCase:        asClass(ApproveDocumentUseCase).scoped(),
         rejectDocumentUseCase:         asClass(RejectDocumentUseCase).scoped(),

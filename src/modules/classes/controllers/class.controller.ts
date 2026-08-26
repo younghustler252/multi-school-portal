@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { CreateClassUseCase }       from "../usecases/school-admin/create-class.usecase";
 import { UpdateClassUseCase }       from "../usecases/school-admin/update-class.usecase";
 import { GetClassesUseCase }        from "../usecases/school-admin/get-classes.usecase";
+import { SetClassTeacherUseCase } from "../usecases/school-admin/set-classteacher.usecase";
 import { GetClassByIdUseCase } from "../usecases/school-admin/get-class-by-id.usecase";
 import { CreateSubjectUseCase }     from "../usecases/school-admin/create-subject.usecase";
 import { DeleteClassUseCase } from "../usecases/school-admin/delete-class.usecase";
@@ -31,6 +32,7 @@ interface Dependencies {
     assignSubjectUseCase:    AssignSubjectUseCase;
     getClassSubjectsUseCase: GetClassSubjectsUseCase;
     removeSubjectUseCase:    RemoveSubjectUseCase;
+    setClassTeacherUseCase:  SetClassTeacherUseCase;
 }
 
 export class ClassController {
@@ -38,6 +40,7 @@ export class ClassController {
     private readonly updateClassUseCase:      UpdateClassUseCase;
     private readonly getClassesUseCase:       GetClassesUseCase;
     private readonly getClassByIdUseCase:     GetClassByIdUseCase;
+    private readonly setClassTeacherUseCase:   SetClassTeacherUseCase;
     private readonly deleteClassUseCase:      DeleteClassUseCase;
     private readonly createSubjectUseCase:    CreateSubjectUseCase;
     private readonly getSubjectsUseCase:      GetSubjectsUseCase;
@@ -50,6 +53,7 @@ export class ClassController {
         updateClassUseCase,
         getClassesUseCase,
         getClassByIdUseCase,
+        setClassTeacherUseCase,
         deleteClassUseCase,
         createSubjectUseCase,
         getSubjectsUseCase,
@@ -61,6 +65,7 @@ export class ClassController {
         this.updateClassUseCase      = updateClassUseCase;
         this.getClassesUseCase       = getClassesUseCase;
         this.getClassByIdUseCase     = getClassByIdUseCase;
+        this.setClassTeacherUseCase  = setClassTeacherUseCase;
         this.deleteClassUseCase      = deleteClassUseCase;
         this.createSubjectUseCase    = createSubjectUseCase;
         this.getSubjectsUseCase      = getSubjectsUseCase;
@@ -71,12 +76,21 @@ export class ClassController {
 
     // ── Classes ───────────────────────────────────────────────────────────
     getClasses = async (
-        req: Request, res: Response, next: NextFunction,
+        req: Request,
+        res: Response,
+        next: NextFunction,
     ): Promise<void> => {
         try {
-            const result = await this.getClassesUseCase.execute();
+            const { termId } = req.query;
+
+            const result = await this.getClassesUseCase.execute(
+                termId as string,
+            );
+
             sendSuccess(res, result, "Classes retrieved successfully");
-        } catch (err) { next(err); }
+        } catch (err) {
+            next(err);
+        }
     };
 
     createClass = async (
@@ -96,6 +110,27 @@ export class ClassController {
         )
         sendSuccess(res, result, "class retrieved successful" )
     }
+
+    setClassTeacher = async (
+        req: Request,
+        res: Response,
+        next: NextFunction,
+    ): Promise<void> => {
+        try {
+            const result = await this.setClassTeacherUseCase.execute(
+                req.params.id as string,
+                req.body.staffId ?? null,
+            );
+
+            sendSuccess(
+                res,
+                result,
+                "Class teacher updated successfully",
+            );
+        } catch (err) {
+            next(err);
+        }
+    };
 
     updateClass = async (
         req: Request, res: Response, next: NextFunction,

@@ -179,6 +179,12 @@ router.put(
     requireSuperAdmin,
     (req, res, next) => ctrl().activateSchool(req, res, next),
 );
+router.get(
+    "/:schoolId/documents",
+    authenticate,
+    requireSuperAdmin,
+    (req, res, next) => ctrl().getSchoolDocuments(req, res, next),
+)
 
 // Approve document
 router.put(

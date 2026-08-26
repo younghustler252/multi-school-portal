@@ -1,7 +1,7 @@
 import { IClassRepository }      from "../../repositories/class.repository";
 import { IStaffRepository }      from "../../../staff/repositories/staff.repository";
 import { ClassSubjectMapper }    from "../../mappers/class.mapper";
-import { ClassSubjectResponseData } from "../../mappers/class.mapper";
+import { ClassSubjectResponseData } from "../../types/class.types";
 import {
     NotFoundError,
     ConflictError,

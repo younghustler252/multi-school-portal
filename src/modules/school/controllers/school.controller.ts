@@ -9,6 +9,7 @@ import { GetDocumentsUseCase }     from "../usecases/school-admin/get-documents.
 import { SetupPaymentUseCase }     from "../usecases/school-admin/setup-payment.usecase";
 import { GetDashboardUseCase } from "../usecases/school-admin/get-dashboard.usecase";
 import { GetSetupChecklistUseCase } from "../usecases/school-admin/get-setup-checklist.usecase";
+import { GetPublicSchoolInfoUseCase } from "../usecases/school-admin/get-public-school-info.usecase";
 
 // ── Super Admin Use Cases ─────────────────────────────────────────────────
 import { GetAllSchoolsUseCase }    from "../usecases/super-admin/get-all-schools.usecase";
@@ -17,10 +18,10 @@ import { CreateSchoolUseCase }     from "../usecases/super-admin/create-school.u
 import { VerifySchoolUseCase }     from "../usecases/super-admin/verify-school.usecase";
 import { RejectSchoolUseCase }     from "../usecases/super-admin/reject-school.usecase";
 import { SuspendSchoolUseCase }    from "../usecases/super-admin/suspend-school.usecase";
+import { GetSchoolDocumentsUseCase } from "../usecases/super-admin/get-school-document.usecase";
 import { ActivateSchoolUseCase }   from "../usecases/super-admin/activate-school.usecase";
 import { ApproveDocumentUseCase }  from "../usecases/super-admin/approve-document.usecase";
 import { RejectDocumentUseCase }   from "../usecases/super-admin/reject-document.usecase";
- import { GetPublicSchoolInfoUseCase } from "../usecases/school-admin/get-public-school-info.usecase";
 
  
  import {
@@ -56,6 +57,7 @@ interface Dependencies {
     verifySchoolUseCase:   VerifySchoolUseCase;
     rejectSchoolUseCase:   RejectSchoolUseCase;
     suspendSchoolUseCase:  SuspendSchoolUseCase;
+    getSchoolDocumentsUseCase: GetSchoolDocumentsUseCase;
     activateSchoolUseCase: ActivateSchoolUseCase;
     approveDocumentUseCase: ApproveDocumentUseCase;
     rejectDocumentUseCase:  RejectDocumentUseCase;
@@ -78,6 +80,7 @@ export class SchoolController {
     private readonly verifySchoolUseCase:     VerifySchoolUseCase;
     private readonly rejectSchoolUseCase:     RejectSchoolUseCase;
     private readonly suspendSchoolUseCase:    SuspendSchoolUseCase;
+    private readonly getSchoolDocumentsUseCase:    GetSchoolDocumentsUseCase
     private readonly activateSchoolUseCase:   ActivateSchoolUseCase;
     private readonly approveDocumentUseCase:  ApproveDocumentUseCase;
     private readonly rejectDocumentUseCase:   RejectDocumentUseCase;
@@ -100,6 +103,7 @@ export class SchoolController {
         rejectSchoolUseCase,
         suspendSchoolUseCase,
         activateSchoolUseCase,
+        getSchoolDocumentsUseCase,
         approveDocumentUseCase,
         rejectDocumentUseCase,
         getPublicSchoolInfoUseCase,
@@ -120,6 +124,7 @@ export class SchoolController {
         this.verifySchoolUseCase     = verifySchoolUseCase;
         this.rejectSchoolUseCase     = rejectSchoolUseCase;
         this.suspendSchoolUseCase    = suspendSchoolUseCase;
+        this.getSchoolDocumentsUseCase = getSchoolDocumentsUseCase;
         this.activateSchoolUseCase   = activateSchoolUseCase;
         this.approveDocumentUseCase  = approveDocumentUseCase;
         this.rejectDocumentUseCase   = rejectDocumentUseCase;
@@ -428,6 +433,23 @@ export class SchoolController {
     } catch (err) {
         next(err);
     }
+    };
+
+    // ── Get school documents ────────────────────────────────────────────────
+    getSchoolDocuments = async (
+        req: Request,
+        res: Response,
+        next: NextFunction,
+    ): Promise<void> => {
+        try {
+            const result = await this.getSchoolDocumentsUseCase.execute(
+                req.user!.schoolId!,
+            );
+
+            sendSuccess(res, result, "School documents retrieved successfully");
+        } catch (err) {
+            next(err);
+        }
     };
 
     // ── Approve document ──────────────────────────────────────────────────

@@ -4,13 +4,13 @@ import { VerifyEmailUseCase }              from "../usecases/verify-email.usecas
 import { LoginUseCase }                    from "../usecases/login.usecase";
 import { RefreshTokenUseCase }             from "../usecases/refresh-token.usecase";
 import { LogoutUseCase }                   from "../usecases/logout.usecase";
-import { ForgotPasswordUseCase }           from "../usecases/forgot-password.usecase";
-import { ResetPasswordUseCase }            from "../usecases/reset-password.usecase";
-import { ResendOtpUseCase }                from "../usecases/resend-otp.usecase";
-// Add imports
-import { ValidateInviteUseCase } from "../usecases/validate-invite.usecase";
-import { AcceptInviteUseCase }   from "../usecases/accept-invite.usecase";
-import { SendInviteUseCase }     from "../usecases/send-invite.usecase";
+import { ForgotPasswordUseCase }            from "../usecases/forgot-password.usecase";
+import { ResetPasswordUseCase }             from "../usecases/reset-password.usecase";
+import { ResendOtpUseCase }                 from "../usecases/resend-otp.usecase";
+import { ValidateInviteUseCase }            from "../usecases/validate-invite.usecase";
+import { AcceptInviteUseCase }              from "../usecases/accept-invite.usecase";
+import { SendInviteUseCase }                from "../usecases/send-invite.usecase";
+import { ExchangeImpersonationTokenUseCase }  from "../usecases/exchange-impersonation-token.usecase";
 import { ValidateInviteDto, AcceptInviteDto } from "../dtos/invite.dto";
 import { Role } from "../../../generated/public";
 
@@ -44,7 +44,7 @@ interface Dependencies {
     validateInviteUseCase: ValidateInviteUseCase;
     acceptInviteUseCase:   AcceptInviteUseCase;
     sendInviteUseCase:     SendInviteUseCase;
-
+    exchangeImpersonationTokenUseCase: ExchangeImpersonationTokenUseCase;
 
 }
 
@@ -57,6 +57,7 @@ export class AuthController {
     private readonly forgotPasswordUseCase: ForgotPasswordUseCase;
     private readonly resetPasswordUseCase:  ResetPasswordUseCase;
     private readonly resendOtpUseCase:      ResendOtpUseCase;
+     private readonly exchangeImpersonationTokenUseCase:     ExchangeImpersonationTokenUseCase;
 
     private readonly validateInviteUseCase:      ValidateInviteUseCase;
     private readonly acceptInviteUseCase:      AcceptInviteUseCase;
@@ -72,6 +73,7 @@ export class AuthController {
         forgotPasswordUseCase,
         resetPasswordUseCase,
         resendOtpUseCase,
+        exchangeImpersonationTokenUseCase,
 
         validateInviteUseCase,
         sendInviteUseCase,
@@ -85,6 +87,7 @@ export class AuthController {
         this.forgotPasswordUseCase = forgotPasswordUseCase;
         this.resetPasswordUseCase  = resetPasswordUseCase;
         this.resendOtpUseCase      = resendOtpUseCase;
+        this.exchangeImpersonationTokenUseCase = exchangeImpersonationTokenUseCase;
 
         this.validateInviteUseCase = validateInviteUseCase;
         this.acceptInviteUseCase = acceptInviteUseCase;
@@ -230,6 +233,27 @@ export class AuthController {
         }
     };
 
+
+    exchangeImpersonationToken = async (
+        req:  Request,
+        res:  Response,
+        next: NextFunction,
+    ): Promise<void> => {
+        try {
+            const { ticket } = req.body;
+            const result = await this.exchangeImpersonationTokenUseCase.execute(
+                ticket,
+                req.schoolId as string,
+            );
+
+            setAuthCookies(res, result.tokens.accessToken, result.tokens.refreshToken);
+
+            sendSuccess(res, result, "Session established");
+        } catch (err) {
+            next(err);
+        }
+    };
+
         
     validateInvite = async (
         req: Request, res: Response, next: NextFunction,
@@ -270,4 +294,5 @@ export class AuthController {
             sendSuccess(res, null, result.message);
         } catch (err) { next(err); }
     };
+
 }

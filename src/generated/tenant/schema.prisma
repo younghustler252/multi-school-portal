@@ -14,21 +14,22 @@ datasource db {
 // ===== PEOPLE (tenant schema) =====
 
 model Staff {
-  id            String         @id @default(uuid())
-  userId        String         @unique
-  employeeId    String?        @unique
-  department    String?
-  designation   String?
-  qualification String?
-  gender        Gender?
-  dateOfBirth   DateTime?
-  address       String?
-  joinDate      DateTime?
-  role          StaffRole
-  isActive      Boolean        @default(true)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  classSubjects ClassSubject[]
+  id                    String         @id @default(uuid())
+  userId                String         @unique
+  employeeId            String?        @unique
+  department            String?
+  designation           String?
+  qualification         String?
+  gender                Gender?
+  dateOfBirth           DateTime?
+  address               String?
+  joinDate              DateTime?
+  role                  StaffRole
+  isActive              Boolean        @default(true)
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+  classSubjects         ClassSubject[]
+  classesAsClassTeacher Class[]
 }
 
 enum StaffRole {
@@ -179,12 +180,15 @@ enum TermName {
 }
 
 model Class {
-  id            String         @id @default(uuid())
-  name          String
-  level         String?
-  capacity      Int?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  id             String   @id @default(uuid())
+  name           String
+  level          String?
+  capacity       Int?
+  classTeacherId String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  classTeacher  Staff?         @relation(fields: [classTeacherId], references: [id])
   enrolments    Enrolment[]
   classSubjects ClassSubject[]
 }
@@ -234,19 +238,23 @@ enum EnrolmentStatus {
 }
 
 model SchoolSettings {
-  id             String   @id @default(uuid())
-  logoUrl        String?
-  primaryColor   String?  @default("#1a1a2e")
-  secondaryColor String?
-  motto          String?
-  address        String?
-  website        String?
-  foundedYear    Int?
-  principalName  String?
-  stamp          String?
-  signature      String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id                        String   @id @default(uuid())
+  logoUrl                   String?
+  primaryColor              String?  @default("#1a1a2e")
+  secondaryColor            String?
+  motto                     String?
+  address                   String?
+  website                   String?
+  foundedYear               Int?
+  principalName             String?
+  stamp                     String?
+  reportCardTemplate        String   @default("classic") // "classic" | "modern" | "minimal" | "custom_letterhead"
+  reportCardLetterheadUrl   String?
+  letterheadContentTopMm    Int?     @default(50)
+  letterheadContentBottomMm Int?     @default(30)
+  signature                 String?
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
 }
 
 // ===== ATTENDANCE (tenant schema) =====

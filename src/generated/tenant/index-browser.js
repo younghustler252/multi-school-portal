@@ -222,6 +222,7 @@ exports.Prisma.ClassScalarFieldEnum = {
   name: 'name',
   level: 'level',
   capacity: 'capacity',
+  classTeacherId: 'classTeacherId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -264,6 +265,10 @@ exports.Prisma.SchoolSettingsScalarFieldEnum = {
   foundedYear: 'foundedYear',
   principalName: 'principalName',
   stamp: 'stamp',
+  reportCardTemplate: 'reportCardTemplate',
+  reportCardLetterheadUrl: 'reportCardLetterheadUrl',
+  letterheadContentTopMm: 'letterheadContentTopMm',
+  letterheadContentBottomMm: 'letterheadContentBottomMm',
   signature: 'signature',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

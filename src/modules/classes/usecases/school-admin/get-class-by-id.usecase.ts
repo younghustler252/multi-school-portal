@@ -1,5 +1,6 @@
 import { IClassRepository }  from "../../repositories/class.repository";
-import { ClassResponseData, ClassMapper } from "../../mappers/class.mapper";
+import { ClassMapper } from "../../mappers/class.mapper";
+import { ClassResponseData } from "../../types/class.types";
 import { NotFoundError }     from "../../../../shared/errors/domain.errors";
 import { ClassErrorMessage } from "../../domain/class.enums";
 

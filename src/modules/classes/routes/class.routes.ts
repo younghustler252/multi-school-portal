@@ -51,6 +51,13 @@ router.get(
 )
 
 router.put(
+    "/:id/class-teacher",
+    authenticate,
+    requireSchoolAdmin,
+    (req, res, next) => ctrl().setClassTeacher(req, res, next),
+)
+
+router.put(
     "/:id",
     authenticate,
     requireTenant,

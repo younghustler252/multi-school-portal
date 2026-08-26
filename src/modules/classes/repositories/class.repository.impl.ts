@@ -170,4 +170,43 @@ export class ClassRepositoryImpl
         });
         return new Map(raws.map(r => [r.id, r.subject.name]));
     }
+
+   async findAllClassesEnriched(termId: string | null) {
+    const classes = await this.prisma.class.findMany({
+        select: {
+            id: true,
+            name: true,
+            level: true,
+            capacity: true,
+            classTeacherId: true,
+            createdAt: true,
+            updatedAt: true,
+
+            classTeacher: {
+                select: {
+                    id: true,
+                    userId: true,
+                },
+            },
+
+            _count: {
+                select: {
+                    enrolments: true,
+                },
+            },
+        },
+    });
+
+    return classes.map((classItem) => ({
+        id: classItem.id,
+        name: classItem.name,
+        level: classItem.level,
+        capacity: classItem.capacity,
+        classTeacherId: classItem.classTeacherId,
+        classTeacherName: null, // keep your existing teacher-name logic
+        studentCount: classItem._count.enrolments,
+        createdAt: classItem.createdAt,
+        updatedAt: classItem.updatedAt,
+    }));
+}
 }

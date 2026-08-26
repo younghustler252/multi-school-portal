@@ -18,6 +18,7 @@ import { LogoutUseCase }               from "./usecases/logout.usecase";
 import { ForgotPasswordUseCase }       from "./usecases/forgot-password.usecase";
 import { ResetPasswordUseCase }        from "./usecases/reset-password.usecase";
 import { ResendOtpUseCase }            from "./usecases/resend-otp.usecase";
+import { ExchangeImpersonationTokenUseCase } from "./usecases/exchange-impersonation-token.usecase";
 import { InviteRepositoryImpl }  from "./repositories/invite.repository.impl";
 import { ValidateInviteUseCase } from "./usecases/validate-invite.usecase";
 import { AcceptInviteUseCase }   from "./usecases/accept-invite.usecase";
@@ -55,6 +56,7 @@ export const registerAuth = (container: AwilixContainer): void => {
         forgotPasswordUseCase:       asClass(ForgotPasswordUseCase).scoped(),
         resetPasswordUseCase:        asClass(ResetPasswordUseCase).scoped(),
         resendOtpUseCase:            asClass(ResendOtpUseCase).scoped(),
+        exchangeImpersonationTokenUseCase: asClass(ExchangeImpersonationTokenUseCase).scoped(),
         
 
         inviteRepository:       asClass(InviteRepositoryImpl).scoped(),
