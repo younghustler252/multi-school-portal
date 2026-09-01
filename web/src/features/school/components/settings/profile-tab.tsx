@@ -16,18 +16,24 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { ImageUploadField } from "@/components/ui/image-upload-fields";
 import { SettingsSection } from "./settings-section";
 import { useMySchool, useUpdateMySchool } from "@/features/school/hooks/use-school";
+import { useSchoolSettings } from "../../hooks/use-school.settings";
 import { schoolApi } from "@/features/school/services/school.api";
+import { schoolSettingsApi } from "../../services/school-settings.api";
 import { schoolProfileSchema, SchoolProfileFormValues } from "@/features/school/schemas/school-profile.schema";
 import { ApiErrorResponse } from "@/types/api-response";
 
 export function ProfileTab() {
 	const { data: school, isLoading } = useMySchool();
+	const { data: schoolSettings, isLoading: settingsLoading } = useSchoolSettings()
 	const updateSchool = useUpdateMySchool();
 	const logoInputRef = useRef<HTMLInputElement>(null);
 	const [isUploadingLogo, setIsUploadingLogo] = useState(false);
 	const [logoUrl, setLogoUrl] = useState<string | null>(null);
+	const [stampUrl, setStampUrl] = useState<string | null>(null);
+	const [signatureUrl, setSignatureUrl] = useState<string | null>(null);
 
 	const {
 		register,
@@ -57,6 +63,13 @@ export function ProfileTab() {
 			setLogoUrl(school.logoUrl);
 		}
 	}, [school, reset]);
+
+	useEffect(() => {
+		if (schoolSettings) {
+			setStampUrl(schoolSettings.stamp ?? null);
+			setSignatureUrl(schoolSettings.signature ?? null);
+		}
+	}, [schoolSettings]);
 
 	async function onSubmit(values: SchoolProfileFormValues) {
 		try {
@@ -88,7 +101,7 @@ export function ProfileTab() {
 		}
 	}
 
-	if (isLoading) return <Skeleton className="h-96 rounded-xl" />;
+	if (isLoading || settingsLoading) return <Skeleton className="h-96 rounded-xl" />;
 
 	const values = watch();
 
@@ -112,6 +125,28 @@ export function ProfileTab() {
 						</Button>
 						<p className="mt-1 text-xs text-muted-foreground">PNG or JPG, up to 5MB.</p>
 					</div>
+				</div>
+			</SettingsSection>
+
+			<SettingsSection
+				title="School documents"
+				description="Upload the official school stamp and principal signature used on school documents"
+			>
+				<div className="grid gap-4 md:grid-cols-2">
+					<ImageUploadField
+						label="School stamp"
+						currentUrl={stampUrl}
+						uploadFn={schoolSettingsApi.uploadStamp}
+						onUploaded={(url) => setStampUrl(url)}
+						shape="square"
+					/>
+					<ImageUploadField
+						label="Principal signature"
+						currentUrl={signatureUrl}
+						uploadFn={schoolSettingsApi.uploadSignature}
+						onUploaded={(url) => setSignatureUrl(url)}
+						shape="wide"
+					/>
 				</div>
 			</SettingsSection>
 
@@ -159,6 +194,18 @@ export function ProfileTab() {
 					</div>
 
 					<div className="space-y-1.5">
+						<Label htmlFor="country">Country</Label>
+						<Input id="country" {...register("country")} />
+						{errors.country && <p className="text-xs text-destructive">{errors.country.message}</p>}
+					</div>
+
+					<div className="space-y-1.5">
+						<Label htmlFor="timezone">Timezone</Label>
+						<Input id="timezone" {...register("timezone")} />
+						{errors.timezone && <p className="text-xs text-destructive">{errors.timezone.message}</p>}
+					</div>
+
+					<div className="space-y-1.5">
 						<Label>School category</Label>
 						<Select
 							value={values.schoolCategory}
@@ -171,6 +218,7 @@ export function ProfileTab() {
 								<SelectItem value="primary_secondary">Primary & Secondary</SelectItem>
 							</SelectContent>
 						</Select>
+						{errors.schoolCategory && <p className="text-xs text-destructive">{errors.schoolCategory.message}</p>}
 					</div>
 
 					<div className="space-y-1.5">
@@ -187,6 +235,7 @@ export function ProfileTab() {
 								<SelectItem value="international">International</SelectItem>
 							</SelectContent>
 						</Select>
+						{errors.schoolOwnership && <p className="text-xs text-destructive">{errors.schoolOwnership.message}</p>}
 					</div>
 				</form>
 			</SettingsSection>

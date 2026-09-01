@@ -1,41 +1,40 @@
 "use client";
 
-import { useState } from "react";
-import { LogIn, Loader2 } from "lucide-react";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { superAdminApi } from "@/features/super-admin/services/super-admin.api";
-import { COMPANY } from "@/config/company";
-import { ApiErrorResponse } from "@/types/api-response";
+import { useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Loader2 } from "lucide-react";
+import { authApi } from "@/features/auth/services/auth.api";
+import { useAuthStore } from "@/stores/auth.store";
+import { ROLE_DEFAULT_ROUTE } from "@/types/roles";
 
-export function ImpersonateButton({ schoolId, subdomain }: { schoolId: string; subdomain: string }) {
-	const [loading, setLoading] = useState(false);
+export default function ImpersonateEntryPage() {
+	const router = useRouter();
+	const searchParams = useSearchParams();
+	const token = searchParams.get("token");
 
-	async function handleImpersonate() {
-		setLoading(true);
-		try {
-			const res = await superAdminApi.impersonateSchool(schoolId);
-			if (!res.success) {
-				toast.error(res.message);
+	useEffect(() => {
+		async function exchange() {
+			if (!token) {
+				router.push("/login");
 				return;
 			}
-			const { accessToken } = res.data;
-			const host = new URL(COMPANY.website).hostname;
-			const isLocal = window.location.hostname.endsWith(".localhost");
-			const target = isLocal
-				? `http://${subdomain}.localhost:3000/impersonate-entry?token=${accessToken}`
-				: `https://${subdomain}.${host}/impersonate-entry?token=${accessToken}`;
-			window.location.href = target;
-		} catch (err) {
-			const apiErr = err as ApiErrorResponse;
-			toast.error(apiErr.message || "Couldn't start impersonation");
-			setLoading(false);
+			try {
+				// Exchanges the one-time impersonation token for a real
+				// httpOnly session cookie scoped to THIS subdomain.
+				await authApi.exchangeImpersonationToken(token);
+				await useAuthStore.getState().fetchCurrentUser();
+				const user = useAuthStore.getState().user;
+				router.push(user ? ROLE_DEFAULT_ROUTE[user.role] : "/");
+			} catch {
+				router.push("/login");
+			}
 		}
-	}
+		exchange();
+	}, [token, router]);
 
 	return (
-		<Button size="sm" variant="ghost" className="gap-1" onClick={handleImpersonate} disabled={loading}>
-			{loading ? <Loader2 className="size-3.5 animate-spin" /> : <LogIn className="size-3" />} Impersonate
-		</Button>
+		<div className="flex min-h-screen items-center justify-center bg-hero-radial">
+			<Loader2 className="size-8 animate-spin text-muted-foreground" />
+		</div>
 	);
 }

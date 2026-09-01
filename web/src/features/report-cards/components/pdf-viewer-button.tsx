@@ -14,8 +14,8 @@ export function PdfViewerButton({ reportCardId, label = "View PDF" }: { reportCa
 		setLoading(true);
 		try {
 			const res = await reportCardApi.getById(reportCardId);
-			if (res.success && res.data.pdfUrl) {
-				window.open(res.data.pdfUrl, "_blank", "noopener,noreferrer");
+			if (res.success && res.data.reportCard.pdfUrl) {
+				window.open(res.data.reportCard.pdfUrl, "_blank", "noopener,noreferrer");
 			} else {
 				toast.error("PDF not ready yet");
 			}

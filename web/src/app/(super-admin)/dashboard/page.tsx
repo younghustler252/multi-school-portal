@@ -14,6 +14,8 @@ import { MrrTrendChart } from "@/features/super-admin/components/mrr-trend-chart
 import { PlanDistributionChart } from "@/features/super-admin/components/plan-distribution-chart";
 import { SCHOOL_STATUS_VARIANT } from "@/features/super-admin/constants/school-status-labels";
 import { formatNaira } from "@/lib/format-money";
+import { CreateSchoolDialog } from "@/features/super-admin/components/create-school-dialog";
+import { ImpersonateButton } from "@/features/super-admin/components/impersonate-button";
 
 export default function SuperAdminDashboardPage() {
 	const [ createOpen, setCreateOpen ] = useState(false)
@@ -106,9 +108,10 @@ export default function SuperAdminDashboardPage() {
 										<Badge variant={SCHOOL_STATUS_VARIANT[school.status] ?? "outline"} className="capitalize">{school.status}</Badge>
 									</td>
 									<td className="px-4 py-3">
-										<Button size="sm" variant="ghost" className="gap-1">
-											<LogIn className="size-3" /> Impersonate
-										</Button>
+										<ImpersonateButton
+											schoolId={school.id}
+											subdomain={school.subdomain}
+										/>
 									</td>
 								</tr>
 							))}
@@ -116,6 +119,9 @@ export default function SuperAdminDashboardPage() {
 					</table>
 				)}
 			</div>
+
+			
+			<CreateSchoolDialog open={createOpen} onOpenChange={setCreateOpen} />
 		</>
 	);
 }

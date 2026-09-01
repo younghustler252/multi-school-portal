@@ -1,13 +1,15 @@
-export interface ClassResponseData {
-	id: string;
-	name: string;
-	level: string | null;
-	capacity: number | null;
-	classTeacherId: string | null;
-	studentCount: number;
-	classTeacherName: string | null ;
+// src/features/classes/types/class.types.ts
+export interface ClassSubjectResponseData {
+	classSubjectId: string; // was `id` — fix to match real API field name
+	classId: string;
+	subjectId: string;
+	staffId: string;
+	subjectName: string;
+	subjectCode: string | null;
+	teacherName: string;
 	createdAt: string;
 }
+
 export interface SubjectResponseData {
 	id: string;
 	name: string;

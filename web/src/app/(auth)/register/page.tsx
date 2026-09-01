@@ -77,6 +77,7 @@ export default function RegisterPage() {
 		setIsSubmitting(true);
 		try {
 			const result = await registerSchoolAdmin(values);
+			console.log("auth result",result)
 			saveSubdomain(result.subdomain);
 			router.push(`/verify-email?email=${encodeURIComponent(values.email)}`);
 		} catch (err) {

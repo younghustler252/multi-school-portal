@@ -12,10 +12,8 @@ import {
 
 export const classApi = {
 
-	list: (termId: string): Promise<ApiResponse<ClassResponseData[]>> =>
-		API.get("/classes", {
-			params: { termId },
-	}),
+	list: (termId?: string): Promise<ApiResponse<ClassResponseData[]>> =>
+		API.get("/classes", { params: { termId } }),
 	create: (data: CreateClassDto): Promise<ApiResponse<ClassResponseData>> =>
 		API.post("/classes", data),
 

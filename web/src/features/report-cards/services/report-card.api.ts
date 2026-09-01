@@ -8,6 +8,7 @@ import {
 	ListReportCardsParams,
 	PublishReportCardsDto,
 	BulkGenerateJobStatus,
+	ReportCardDetailResponseData,
 } from "../types/report-card.types";
 
 export const reportCardApi = {
@@ -15,7 +16,7 @@ export const reportCardApi = {
 	list: (params: ListReportCardsParams): Promise<ApiResponse<ReportCardResponseData[]>> =>
 		API.get("/report-cards", { params }),
 
-	getById: (id: string): Promise<ApiResponse<ReportCardResponseData>> =>
+	getById: (id: string): Promise<ApiResponse<ReportCardDetailResponseData>> =>
 		API.get(`/report-cards/${id}`),
 
 	generate: (data: GenerateReportCardDto): Promise<ApiResponse<ReportCardResponseData>> =>

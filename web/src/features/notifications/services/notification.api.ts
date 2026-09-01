@@ -4,6 +4,8 @@ import {
 	SchoolNotificationResponseData,
 	SendSchoolNotificationDto,
 	ListNotificationsParams,
+	MyNotificationResponseData,
+	ListMyNotificationsParams,
 } from "../types/notification.types";
 
 export const notificationApi = {
@@ -20,5 +22,14 @@ export const notificationApi = {
 
 	send: (data: SendSchoolNotificationDto): Promise<ApiResponse<SchoolNotificationResponseData>> =>
 		API.post("/notifications/school", data),
+
+	getMyNotifications: (params: ListMyNotificationsParams): Promise<ApiResponse<MyNotificationResponseData[]>> =>
+		API.get("/notifications/me", { params }),
+
+	markAsRead: (id: string): Promise<ApiResponse<null>> =>
+		API.patch(`/notifications/${id}/read`),
+
+	markAllAsRead: (): Promise<ApiResponse<null>> =>
+		API.patch("/notifications/me/read-all"),
 
 };

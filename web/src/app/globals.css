@@ -1,237 +1,237 @@
-@import "tailwindcss";
+	@import "tailwindcss";
 
-@theme inline {
-	--color-background: var(--background);
-	--color-foreground: var(--foreground);
+	@theme inline {
+		--color-background: var(--background);
+		--color-foreground: var(--foreground);
 
-	--color-card: var(--card);
-	--color-card-foreground: var(--card-foreground);
+		--color-card: var(--card);
+		--color-card-foreground: var(--card-foreground);
 
-	--color-popover: var(--popover);
-	--color-popover-foreground: var(--popover-foreground);
+		--color-popover: var(--popover);
+		--color-popover-foreground: var(--popover-foreground);
 
-	--color-primary: var(--primary);
-	--color-primary-foreground: var(--primary-foreground);
+		--color-primary: var(--primary);
+		--color-primary-foreground: var(--primary-foreground);
 
-	--color-secondary: var(--secondary);
-	--color-secondary-foreground: var(--secondary-foreground);
+		--color-secondary: var(--secondary);
+		--color-secondary-foreground: var(--secondary-foreground);
 
-	--color-muted: var(--muted);
-	--color-muted-foreground: var(--muted-foreground);
+		--color-muted: var(--muted);
+		--color-muted-foreground: var(--muted-foreground);
 
-	--color-accent: var(--accent);
-	--color-accent-foreground: var(--accent-foreground);
+		--color-accent: var(--accent);
+		--color-accent-foreground: var(--accent-foreground);
 
-	--color-destructive: var(--destructive);
-	--color-destructive-foreground: var(--destructive-foreground);
+		--color-destructive: var(--destructive);
+		--color-destructive-foreground: var(--destructive-foreground);
 
-	--color-success: var(--success);
-	--color-success-foreground: var(--success-foreground);
+		--color-success: var(--success);
+		--color-success-foreground: var(--success-foreground);
 
-	--color-warning: var(--warning);
-	--color-warning-foreground: var(--warning-foreground);
+		--color-warning: var(--warning);
+		--color-warning-foreground: var(--warning-foreground);
 
-	--color-info: var(--info);
-	--color-info-foreground: var(--info-foreground);
+		--color-info: var(--info);
+		--color-info-foreground: var(--info-foreground);
 
-	--color-border: var(--border);
-	--color-input: var(--input);
-	--color-ring: var(--ring);
+		--color-border: var(--border);
+		--color-input: var(--input);
+		--color-ring: var(--ring);
 
-	--color-chart-1: var(--chart-1);
-	--color-chart-2: var(--chart-2);
-	--color-chart-3: var(--chart-3);
-	--color-chart-4: var(--chart-4);
-	--color-chart-5: var(--chart-5);
+		--color-chart-1: var(--chart-1);
+		--color-chart-2: var(--chart-2);
+		--color-chart-3: var(--chart-3);
+		--color-chart-4: var(--chart-4);
+		--color-chart-5: var(--chart-5);
 
-	--color-sidebar: var(--sidebar);
-	--color-sidebar-foreground: var(--sidebar-foreground);
-	--color-sidebar-border: var(--sidebar-border);
-	--color-sidebar-accent: var(--sidebar-accent);
-	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-	--color-sidebar-primary: var(--sidebar-primary);
-	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-	--color-sidebar-ring: var(--sidebar-ring);
+		--color-sidebar: var(--sidebar);
+		--color-sidebar-foreground: var(--sidebar-foreground);
+		--color-sidebar-border: var(--sidebar-border);
+		--color-sidebar-accent: var(--sidebar-accent);
+		--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+		--color-sidebar-primary: var(--sidebar-primary);
+		--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+		--color-sidebar-ring: var(--sidebar-ring);
 
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
-	--radius-lg: var(--radius);
-	--radius-xl: calc(var(--radius) + 4px);
+		--radius-sm: calc(var(--radius) - 4px);
+		--radius-md: calc(var(--radius) - 2px);
+		--radius-lg: var(--radius);
+		--radius-xl: calc(var(--radius) + 4px);
 
-	--font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-}
-
-/*
-|--------------------------------------------------------------------------
-| BRAND TOKENS — SchoolOS
-|--------------------------------------------------------------------------
-| Change --primary (light + dark) to rebrand the ENTIRE app.
-| --background, --card, --sidebar are all derived from --primary via
-| color-mix(), so surface tints automatically follow whatever brand
-| color is set here — no other edits needed anywhere else.
-|--------------------------------------------------------------------------
-*/
-
-:root {
-	--radius: 0.625rem;
-
-	/* Brand — SchoolOS green. Change this to rebrand everything below. */
-	--primary: oklch(0.55 0.16 145);
-	--primary-foreground: oklch(0.99 0.005 150);
-
-	/* Surfaces — derived from --primary. Subtle tint (2-3%) keeps contrast safe. */
-	--background: color-mix(in oklch, var(--primary) 3%, oklch(0.99 0 0));
-	--foreground: oklch(0.18 0.02 160);
-
-	--card: color-mix(in oklch, var(--primary) 2%, oklch(1 0 0));
-	--card-foreground: oklch(0.18 0.02 160);
-
-	--popover: color-mix(in oklch, var(--primary) 2%, oklch(1 0 0));
-	--popover-foreground: oklch(0.18 0.02 160);
-
-	--secondary: oklch(0.96 0.01 160);
-	--secondary-foreground: oklch(0.25 0.03 160);
-
-	--muted: oklch(0.96 0.01 160);
-	--muted-foreground: oklch(0.5 0.02 160);
-
-	--accent: color-mix(in oklch, var(--primary) 12%, oklch(0.96 0 0));
-	--accent-foreground: oklch(0.25 0.05 158);
-
-	--destructive: oklch(0.58 0.22 27);
-	--destructive-foreground: oklch(0.99 0 0);
-
-	--success: oklch(0.6 0.15 155);
-	--success-foreground: oklch(0.99 0 0);
-
-	--warning: oklch(0.78 0.16 75);
-	--warning-foreground: oklch(0.25 0.05 75);
-
-	--info: oklch(0.6 0.15 240);
-	--info-foreground: oklch(0.99 0 0);
-
-	--border: oklch(0.92 0.01 160);
-	--input: oklch(0.92 0.01 160);
-	--ring: var(--primary);
-
-	--chart-1: var(--primary);
-	--chart-2: oklch(0.6 0.15 200);
-	--chart-3: oklch(0.7 0.16 75);
-	--chart-4: oklch(0.6 0.2 25);
-	--chart-5: oklch(0.55 0.2 300);
-
-	/* Sidebar — also derived from --primary */
-	--sidebar: color-mix(in oklch, var(--primary) 2.5%, oklch(0.985 0 0));
-	--sidebar-foreground: oklch(0.25 0.02 160);
-	--sidebar-border: oklch(0.92 0.01 160);
-	--sidebar-accent: color-mix(in oklch, var(--primary) 8%, oklch(0.94 0 0));
-	--sidebar-accent-foreground: oklch(0.2 0.03 160);
-	--sidebar-primary: var(--primary);
-	--sidebar-primary-foreground: oklch(0.99 0 0);
-	--sidebar-ring: var(--primary);
-}
-
-.dark {
-	/* Brand — slightly lighter/brighter for dark-mode contrast */
-	--primary: oklch(0.70 0.16 158);
-	--primary-foreground: oklch(0.16 0.02 160);
-
-	/* Surfaces — derived from --primary, stronger mix (8-10%) since dark
-	   backgrounds show tint more visibly than light ones */
-	--background: color-mix(in oklch, var(--primary) 8%, oklch(0.16 0 0));
-	--foreground: oklch(0.97 0.005 150);
-
-	--card: color-mix(in oklch, var(--primary) 10%, oklch(0.21 0 0));
-	--card-foreground: oklch(0.97 0.005 150);
-
-	--popover: color-mix(in oklch, var(--primary) 10%, oklch(0.21 0 0));
-	--popover-foreground: oklch(0.97 0.005 150);
-
-	--secondary: oklch(0.26 0.02 160);
-	--secondary-foreground: oklch(0.97 0.005 150);
-
-	--muted: oklch(0.26 0.02 160);
-	--muted-foreground: oklch(0.70 0.02 160);
-
-	--accent: color-mix(in oklch, var(--primary) 20%, oklch(0.3 0 0));
-	--accent-foreground: oklch(0.97 0.005 150);
-
-	--destructive: oklch(0.65 0.2 25);
-	--destructive-foreground: oklch(0.99 0 0);
-
-	--success: oklch(0.70 0.16 155);
-	--success-foreground: oklch(0.16 0.02 160);
-
-	--warning: oklch(0.78 0.16 75);
-	--warning-foreground: oklch(0.20 0.05 75);
-
-	--info: oklch(0.70 0.15 240);
-	--info-foreground: oklch(0.16 0.02 160);
-
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: var(--primary);
-
-	--chart-1: var(--primary);
-	--chart-2: oklch(0.70 0.15 200);
-	--chart-3: oklch(0.75 0.16 75);
-	--chart-4: oklch(0.65 0.2 25);
-	--chart-5: oklch(0.65 0.2 300);
-
-	/* Sidebar — also derived from --primary */
-	--sidebar: color-mix(in oklch, var(--primary) 9%, oklch(0.19 0 0));
-	--sidebar-foreground: oklch(0.97 0.005 150);
-	--sidebar-border: oklch(1 0 0 / 10%);
-	--sidebar-accent: color-mix(in oklch, var(--primary) 18%, oklch(0.26 0 0));
-	--sidebar-accent-foreground: oklch(0.97 0.005 150);
-	--sidebar-primary: var(--primary);
-	--sidebar-primary-foreground: oklch(0.16 0.02 160);
-	--sidebar-ring: var(--primary);
-}
-
-@layer base {
-	* {
-		border-color: var(--border);
+		--font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 	}
 
-	html {
-		font-family: var(--font-sans);
+	/*
+	|--------------------------------------------------------------------------
+	| BRAND TOKENS — SchoolOS
+	|--------------------------------------------------------------------------
+	| Change --primary (light + dark) to rebrand the ENTIRE app.
+	| --background, --card, --sidebar are all derived from --primary via
+	| color-mix(), so surface tints automatically follow whatever brand
+	| color is set here — no other edits needed anywhere else.
+	|--------------------------------------------------------------------------
+	*/
+
+	:root {
+		--radius: 0.625rem;
+
+		/* Brand — SchoolOS green. Change this to rebrand everything below. */
+		--primary: oklch(0.55 0.16 145);
+		--primary-foreground: oklch(0.99 0.005 150);
+
+		/* Surfaces — derived from --primary. Subtle tint (2-3%) keeps contrast safe. */
+		--background: color-mix(in oklch, var(--primary) 3%, oklch(0.99 0 0));
+		--foreground: oklch(0.18 0.02 160);
+
+		--card: color-mix(in oklch, var(--primary) 2%, oklch(1 0 0));
+		--card-foreground: oklch(0.18 0.02 160);
+
+		--popover: color-mix(in oklch, var(--primary) 2%, oklch(1 0 0));
+		--popover-foreground: oklch(0.18 0.02 160);
+
+		--secondary: oklch(0.96 0.01 160);
+		--secondary-foreground: oklch(0.25 0.03 160);
+
+		--muted: oklch(0.96 0.01 160);
+		--muted-foreground: oklch(0.5 0.02 160);
+
+		--accent: color-mix(in oklch, var(--primary) 12%, oklch(0.96 0 0));
+		--accent-foreground: oklch(0.25 0.05 158);
+
+		--destructive: oklch(0.58 0.22 27);
+		--destructive-foreground: oklch(0.99 0 0);
+
+		--success: oklch(0.6 0.15 155);
+		--success-foreground: oklch(0.99 0 0);
+
+		--warning: oklch(0.78 0.16 75);
+		--warning-foreground: oklch(0.25 0.05 75);
+
+		--info: oklch(0.6 0.15 240);
+		--info-foreground: oklch(0.99 0 0);
+
+		--border: oklch(0.92 0.01 160);
+		--input: oklch(0.92 0.01 160);
+		--ring: var(--primary);
+
+		--chart-1: var(--primary);
+		--chart-2: oklch(0.6 0.15 200);
+		--chart-3: oklch(0.7 0.16 75);
+		--chart-4: oklch(0.6 0.2 25);
+		--chart-5: oklch(0.55 0.2 300);
+
+		/* Sidebar — also derived from --primary */
+		--sidebar: color-mix(in oklch, var(--primary) 2.5%, oklch(0.985 0 0));
+		--sidebar-foreground: oklch(0.25 0.02 160);
+		--sidebar-border: oklch(0.92 0.01 160);
+		--sidebar-accent: color-mix(in oklch, var(--primary) 8%, oklch(0.94 0 0));
+		--sidebar-accent-foreground: oklch(0.2 0.03 160);
+		--sidebar-primary: var(--primary);
+		--sidebar-primary-foreground: oklch(0.99 0 0);
+		--sidebar-ring: var(--primary);
 	}
 
-	body {
-		background-color: var(--background);
-		color: var(--foreground);
-		font-feature-settings: "cv11", "ss01";
-	}
-}
+	.dark {
+		/* Brand — slightly lighter/brighter for dark-mode contrast */
+		--primary: oklch(0.70 0.16 158);
+		--primary-foreground: oklch(0.16 0.02 160);
 
-@layer utilities {
-	.bg-grid {
-		background-image:
-			linear-gradient(
-				to right,
-				color-mix(in oklab, var(--foreground) 6%, transparent) 1px,
-				transparent 1px
-			),
-			linear-gradient(
-				to bottom,
-				color-mix(in oklab, var(--foreground) 6%, transparent) 1px,
-				transparent 1px
-			);
-		background-size: 48px 48px;
+		/* Surfaces — derived from --primary, stronger mix (8-10%) since dark
+		backgrounds show tint more visibly than light ones */
+		--background: color-mix(in oklch, var(--primary) 8%, oklch(0.16 0 0));
+		--foreground: oklch(0.97 0.005 150);
+
+		--card: color-mix(in oklch, var(--primary) 10%, oklch(0.21 0 0));
+		--card-foreground: oklch(0.97 0.005 150);
+
+		--popover: color-mix(in oklch, var(--primary) 10%, oklch(0.21 0 0));
+		--popover-foreground: oklch(0.97 0.005 150);
+
+		--secondary: oklch(0.26 0.02 160);
+		--secondary-foreground: oklch(0.97 0.005 150);
+
+		--muted: oklch(0.26 0.02 160);
+		--muted-foreground: oklch(0.70 0.02 160);
+
+		--accent: color-mix(in oklch, var(--primary) 20%, oklch(0.3 0 0));
+		--accent-foreground: oklch(0.97 0.005 150);
+
+		--destructive: oklch(0.65 0.2 25);
+		--destructive-foreground: oklch(0.99 0 0);
+
+		--success: oklch(0.70 0.16 155);
+		--success-foreground: oklch(0.16 0.02 160);
+
+		--warning: oklch(0.78 0.16 75);
+		--warning-foreground: oklch(0.20 0.05 75);
+
+		--info: oklch(0.70 0.15 240);
+		--info-foreground: oklch(0.16 0.02 160);
+
+		--border: oklch(1 0 0 / 10%);
+		--input: oklch(1 0 0 / 15%);
+		--ring: var(--primary);
+
+		--chart-1: var(--primary);
+		--chart-2: oklch(0.70 0.15 200);
+		--chart-3: oklch(0.75 0.16 75);
+		--chart-4: oklch(0.65 0.2 25);
+		--chart-5: oklch(0.65 0.2 300);
+
+		/* Sidebar — also derived from --primary */
+		--sidebar: color-mix(in oklch, var(--primary) 9%, oklch(0.19 0 0));
+		--sidebar-foreground: oklch(0.97 0.005 150);
+		--sidebar-border: oklch(1 0 0 / 10%);
+		--sidebar-accent: color-mix(in oklch, var(--primary) 18%, oklch(0.26 0 0));
+		--sidebar-accent-foreground: oklch(0.97 0.005 150);
+		--sidebar-primary: var(--primary);
+		--sidebar-primary-foreground: oklch(0.16 0.02 160);
+		--sidebar-ring: var(--primary);
 	}
 
-	.bg-hero-radial {
-		background:
-			radial-gradient(
-				ellipse 80% 50% at 50% -10%,
-				color-mix(in oklab, var(--primary) 18%, transparent),
-				transparent 60%
-			),
-			var(--background);
+	@layer base {
+		* {
+			border-color: var(--border);
+		}
+
+		html {
+			font-family: var(--font-sans);
+		}
+
+		body {
+			background-color: var(--background);
+			color: var(--foreground);
+			font-feature-settings: "cv11", "ss01";
+		}
 	}
 
-	.text-balance {
-		text-wrap: balance;
+	@layer utilities {
+		.bg-grid {
+			background-image:
+				linear-gradient(
+					to right,
+					color-mix(in oklab, var(--foreground) 6%, transparent) 1px,
+					transparent 1px
+				),
+				linear-gradient(
+					to bottom,
+					color-mix(in oklab, var(--foreground) 6%, transparent) 1px,
+					transparent 1px
+				);
+			background-size: 48px 48px;
+		}
+
+		.bg-hero-radial {
+			background:
+				radial-gradient(
+					ellipse 80% 50% at 50% -10%,
+					color-mix(in oklab, var(--primary) 18%, transparent),
+					transparent 60%
+				),
+				var(--background);
+		}
+
+		.text-balance {
+			text-wrap: balance;
+		}
 	}
-}

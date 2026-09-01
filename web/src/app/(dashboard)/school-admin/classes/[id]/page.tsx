@@ -3,54 +3,35 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Plus, Trash2, Loader2 } from "lucide-react";
+import { ArrowLeft, Trash2, Loader2, Pencil } from "lucide-react";
 import { toast } from "sonner";
-import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import {
-	useClasses,
-	useClass,
-	useClassSubjects,
-	useRemoveSubject,
-	useDeleteClass,
-	useSubjects,
-} from "@/features/classes/hooks/use-classes";
-import { useStaffList } from "@/features/staff/hooks/use-staff";
-import { AssignSubjectDialog } from "@/features/classes/components/assign-subject-dialog";
-
+import { StatCard } from "@/components/ui/stat-card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ConfirmDialog } from "@/components/feedback/confirm-dialog";
+import { SubjectTags } from "@/features/classes/components/subject-tags";
+import { SetClassTeacherDialog } from "@/features/classes/components/set-class-teacher-dialog";
 import { ClassRoster } from "@/features/enrolment/components/class-roster";
+import { useClass, useDeleteClass } from "@/features/classes/hooks/use-classes";
 import { useCurrentSession } from "@/features/school/hooks/use-sessions";
-
+import { useStaffMember } from "@/features/staff/hooks/use-staff";
 import { ApiErrorResponse } from "@/types/api-response";
 
 export default function ClassDetailPage() {
 	const params = useParams<{ id: string }>();
 	const router = useRouter();
-	const { data: classes, isLoading: classesLoading } = useClasses();
-	const { data: classItem, isLoading: classLoading } = useClass(params.id)
-	const { data: classSubjects, isLoading: subjectsLoading } = useClassSubjects(params.id);
-	const { data: allSubjects } = useSubjects();
-	const { data: staffData } = useStaffList({ limit: 100 });
+	const { data: classItem, isLoading } = useClass(params.id);
 	const { data: currentSession } = useCurrentSession();
-
-	const removeSubject = useRemoveSubject(params.id);
+	const termId = currentSession?.currentTerm?.id ?? null;
 	const deleteClass = useDeleteClass();
-	const [assignOpen, setAssignOpen] = useState(false);
-	const [confirmingDelete, setConfirmingDelete] = useState(false);
 
-	async function handleRemoveSubject(classSubjectId: string) {
-		try {
-			await removeSubject.mutateAsync(classSubjectId);
-			toast.success("Subject removed");
-		} catch (err) {
-			const apiErr = err as ApiErrorResponse;
-			toast.error(apiErr.message || "Couldn't remove subject");
-		}
-	}
+	const { data: classTeacher } = useStaffMember(classItem?.classTeacherId ?? "");
 
-	async function handleDeleteClass() {
+	const [confirmDelete, setConfirmDelete] = useState(false);
+	const [teacherDialogOpen, setTeacherDialogOpen] = useState(false);
+
+	async function handleDelete() {
 		try {
 			await deleteClass.mutateAsync(params.id);
 			toast.success("Class deleted");
@@ -61,15 +42,7 @@ export default function ClassDetailPage() {
 		}
 	}
 
-	if (classesLoading) {
-		return (
-			<>
-				<Skeleton className="h-6 w-32" />
-				<Skeleton className="mt-4 h-64 rounded-xl" />
-			</>
-		);
-	}
-
+	if (isLoading) return <Skeleton className="h-64 rounded-xl" />;
 	if (!classItem) return <p className="text-muted-foreground">Class not found.</p>;
 
 	return (
@@ -78,70 +51,45 @@ export default function ClassDetailPage() {
 				<ArrowLeft className="size-3.5" /> Back to classes
 			</Link>
 
-			<PageHeader
-				title={classItem.name}
-				description={classItem.level ? `Level: ${classItem.level}` : undefined}
-				actions={
-					<Button
-						variant="outline"
-						className="text-destructive hover:text-destructive"
-						onClick={() => setConfirmingDelete(true)}
-					>
-						<Trash2 className="size-4" /> Delete class
-					</Button>
-				}
+			<div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+				<div>
+					<h1 className="text-2xl font-semibold tracking-tight">{classItem.name}</h1>
+					<p className="mt-1 text-sm text-muted-foreground">
+						Class teacher: {classTeacher ? `${classTeacher.firstName} ${classTeacher.lastName}` : "Not assigned"}
+						<button onClick={() => setTeacherDialogOpen(true)} className="ml-2 text-primary hover:underline">
+							<Pencil className="inline size-3" /> Edit
+						</button>
+					</p>
+				</div>
+				<Button variant="outline" className="text-destructive hover:text-destructive" onClick={() => setConfirmDelete(true)}>
+					<Trash2 className="size-4" /> Delete class
+				</Button>
+			</div>
+
+			<div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+				<StatCard label="Students" value={String(classItem.studentCount ?? 0)} accent="primary" />
+				<StatCard label="Level" value={classItem.level ?? "—"} accent="info" />
+				<StatCard label="Capacity" value={classItem.capacity ? String(classItem.capacity) : "—"} accent="warning" />
+				<StatCard label="Class teacher" value={classTeacher ? "Assigned" : "Unassigned"} accent="success" />
+			</div>
+
+			<div className="space-y-6">
+				<SubjectTags classId={params.id} />
+				<ClassRoster classId={params.id} termId={termId} />
+			</div>
+
+			<SetClassTeacherDialog classId={params.id} open={teacherDialogOpen} onOpenChange={setTeacherDialogOpen} />
+
+			<ConfirmDialog
+				open={confirmDelete}
+				onOpenChange={setConfirmDelete}
+				title={`Delete ${classItem.name}?`}
+				description="This can't be undone."
+				confirmLabel="Delete"
+				destructive
+				isLoading={deleteClass.isPending}
+				onConfirm={handleDelete}
 			/>
-
-			{confirmingDelete && (
-				<div className="mb-6 flex items-center justify-between rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm">
-					<span>Delete {classItem.name}? This can&apos;t be undone.</span>
-					<div className="flex gap-2">
-						<Button variant="ghost" size="sm" onClick={() => setConfirmingDelete(false)}>Cancel</Button>
-						<Button variant="destructive" size="sm" onClick={handleDeleteClass} disabled={deleteClass.isPending}>
-							{deleteClass.isPending && <Loader2 className="size-4 animate-spin" />}
-							Confirm
-						</Button>
-					</div>
-				</div>
-			)}
-
-			<div className="rounded-xl border border-border bg-card/80 p-5 backdrop-blur-sm md:p-6">
-				<div className="flex items-center justify-between">
-					<h3 className="font-medium">Subjects</h3>
-					<Button size="sm" onClick={() => setAssignOpen(true)}>
-						<Plus className="size-3.5" /> Assign subject
-					</Button>
-				</div>
-
-				<div className="mt-4 space-y-2">
-					{subjectsLoading && <Skeleton className="h-10 w-full" />}
-
-					{!subjectsLoading && classSubjects?.length === 0 && (
-						<p className="py-6 text-center text-sm text-muted-foreground">No subjects assigned yet.</p>
-					)}
-
-					{classSubjects?.map((cs) => (
-						<div key={cs.id} className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
-							<div>
-								<div className="text-sm font-medium">{cs.subjectName}</div>
-								<div className="text-xs text-muted-foreground">Taught by {cs.teacherName}</div>
-							</div>
-							<Button
-								variant="ghost"
-								size="icon"
-								onClick={() => handleRemoveSubject(cs.id)}
-								disabled={removeSubject.isPending}
-							>
-								<Trash2 className="size-4 text-muted-foreground" />
-							</Button>
-						</div>
-					))}
-				</div>
-			</div>
-			<div className="mt-6">
-				<ClassRoster classId={params.id} termId={currentSession?.currentTerm?.id ?? null} />
-			</div>
-			<AssignSubjectDialog classId={params.id} open={assignOpen} onOpenChange={setAssignOpen} />
 		</>
 	);
 }

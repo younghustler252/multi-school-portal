@@ -46,6 +46,7 @@ export const useAuthStore = create<AuthState>()(
 			register: async (data: RegisterDto) => {
 				set({ isLoading: true });
 				const res = await authApi.register(data);
+				console.log("authApi.register raw response:", res); 
 				set({ isLoading: false });
 				if (!res.success) {
 					throw res;

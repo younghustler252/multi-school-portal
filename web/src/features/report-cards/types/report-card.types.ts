@@ -1,5 +1,7 @@
 export type ReportCardStatus = "draft" | "generated" | "published" | "sent";
 export type ReportCardTemplate = "classic" | "modern" | "minimal" | "custom_letterhead";
+import { StudentResponseData } from "@/features/students/types/student.types";
+import { GradeResponseData } from "@/features/grades/types/grade.types";
 
 export interface ReportCardResponseData {
 	id: string;
@@ -63,4 +65,10 @@ export interface BulkGenerateJobStatus {
 	state: "waiting" | "active" | "completed" | "failed";
 	progress: number;
 	result: BulkGenerateJobResult | null;
+}
+
+export interface ReportCardDetailResponseData {
+	reportCard: ReportCardResponseData;
+	student: StudentResponseData;
+	grades: GradeResponseData[];
 }

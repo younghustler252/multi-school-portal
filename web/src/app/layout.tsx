@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Providers } from "./providers";
 import { COMPANY } from "@/config/company";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const inter = Inter({
@@ -74,6 +75,11 @@ export default function RootLayout({
 	return (
 		<html lang="en" className={`${inter.variable} h-full antialiased`} suppressHydrationWarning>
 			<body className="flex min-h-full flex-col">
+				<Toaster
+					position="top-right"
+					richColors
+					closeButton
+				/>
 				<Providers>{children}</Providers>
 			</body>
 		</html>

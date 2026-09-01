@@ -49,9 +49,16 @@ export interface CreateStudentDto {
 	guardianRelation?: GuardianRelation;
 }
 
-export type UpdateStudentDto = Partial<Omit<CreateStudentDto,
-	"guardianFirstName" | "guardianLastName" | "guardianEmail" | "guardianPhone" | "guardianRelation"
->>;
+export type UpdateStudentDto = Partial<
+	Omit<
+		CreateStudentDto,
+		| "guardianFirstName"
+		| "guardianLastName"
+		| "guardianEmail"
+		| "guardianPhone"
+		| "guardianRelation"
+	>
+>;
 
 export interface ListStudentsParams {
 	page?: number;
@@ -65,7 +72,6 @@ export interface UploadPhotoResponseData {
 	url: string;
 }
 
-
 export interface StudentGuardianLinkResponseData extends GuardianResponseData {
 	relation: GuardianRelation;
 	isPrimary: boolean;
@@ -74,6 +80,8 @@ export interface StudentGuardianLinkResponseData extends GuardianResponseData {
 export interface StudentWithGuardiansResponseData extends StudentResponseData {
 	guardians: StudentGuardianLinkResponseData[];
 }
+
+// ── Import ────────────────────────────────────────────────────────────────
 
 export interface ImportStudentRow {
 	firstName: string;
@@ -90,10 +98,29 @@ export interface ImportStudentRow {
 	guardianRelation?: GuardianRelation;
 }
 
+export interface ImportRowResult {
+	row: number;
+	status: "created" | "failed";
+	reason?: string;
+	studentId?: string;
+}
+
 export interface ImportStudentsResult {
 	total: number;
-	imported: number;
-	skipped: number;
+	created: number;
 	failed: number;
-	errors: Array<{ row: number; message: string }>;
+	results: ImportRowResult[];
+}
+
+// ── Quick/bulk create ────────────────────────────────────────────────────
+
+export interface QuickStudentRow {
+	firstName: string;
+	lastName: string;
+	gender: Gender | "";
+	className: string;
+}
+
+export interface BulkCreateStudentsRequest {
+	students: ImportStudentRow[];
 }

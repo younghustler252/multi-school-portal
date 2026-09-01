@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ConfirmDialog } from "@/components/feedback/confirm-dialog";
+import { DocumentReviewPanel } from "@/features/super-admin/components/document-review-panel";
 import { useAdminSchool, useVerifySchool, useRejectSchool, useSuspendSchool, useActivateSchool } from "@/features/super-admin/hooks/use-school-management";
 import { SCHOOL_STATUS_VARIANT, VERIFICATION_STATUS_LABELS } from "@/features/super-admin/constants/school-status-labels";
 import { ApiErrorResponse } from "@/types/api-response";
@@ -124,6 +125,7 @@ export default function AdminSchoolDetailPage() {
 				isLoading={rejectSchool.isPending || suspendSchool.isPending}
 				onConfirm={handleConfirmedAction}
 			/>
+			<DocumentReviewPanel schoolId={params.id} />
 		</>
 	);
 }

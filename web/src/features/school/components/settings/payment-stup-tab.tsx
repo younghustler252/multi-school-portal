@@ -96,7 +96,10 @@ export function PaymentSetupTab() {
 		}
 	}
 
-	const alreadySetUp = !!school?.paystackSubaccountCode;
+	const alreadySetUp = school?.paymentSetupComplete;
+	const bankName =
+	banks?.find((bank) => bank.code === school?.settlementBankCode)?.name;
+
 
 	return (
 		<SettingsSection
@@ -105,7 +108,7 @@ export function PaymentSetupTab() {
 		>
 			{alreadySetUp ? (
 				<div className="rounded-lg border border-success/30 bg-success/10 p-4 text-sm text-success">
-					Payment collection is active for this school.
+					Connected: {bankName ?? "Bank"} — {school?.settlementAccountNumberMasked}
 				</div>
 			) : (
 				<form onSubmit={handleSubmit(onSubmit)} className="max-w-sm space-y-4">

@@ -10,6 +10,7 @@ export interface SchoolStatusFields {
 	verificationStatus: VerificationStatus;
 }
 
+
 export interface SchoolResponseData extends SchoolStatusFields {
 	email: string;
 	phone: string | null;
@@ -21,7 +22,10 @@ export interface SchoolResponseData extends SchoolStatusFields {
 	logoUrl: string | null;
 	schoolCategory: string;
 	schoolOwnership: string;
+	paymentSetupComplete: boolean;
 	paystackSubaccountCode: string | null;
+	settlementBankCode: string | null;
+	settlementAccountNumberMasked: string | null;
 	createdAt: string;
 }
 

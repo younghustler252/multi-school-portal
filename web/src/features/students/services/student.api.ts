@@ -8,7 +8,9 @@ import {
 	ListStudentsParams,
 	UploadPhotoResponseData,
 	StudentWithGuardiansResponseData,
-	ImportStudentsResult
+	ImportStudentsResult,
+	ImportStudentRow,
+	BulkCreateStudentsRequest,
 } from "../types/student.types";
 
 export interface ListStudentsResult {
@@ -17,42 +19,78 @@ export interface ListStudentsResult {
 }
 
 export const studentApi = {
+	list: (
+		params: ListStudentsParams
+	): Promise<ApiResponse<StudentListResponseData[]>> =>
+		API.get("/students", { params }),
 
-	list: (params: ListStudentsParams): Promise<ApiResponse<StudentListResponseData[]>> =>
-	API.get("/students", { params }),
-
-	getById: (id: string): Promise<ApiResponse<StudentWithGuardiansResponseData>> =>
+	getById: (
+		id: string
+	): Promise<ApiResponse<StudentWithGuardiansResponseData>> =>
 		API.get(`/students/${id}`),
 
 	getMe: (): Promise<ApiResponse<StudentWithGuardiansResponseData>> =>
 		API.get("/students/me"),
 
-	create: (data: CreateStudentDto): Promise<ApiResponse<StudentResponseData>> =>
+	create: (
+		data: CreateStudentDto
+	): Promise<ApiResponse<StudentResponseData>> =>
 		API.post("/students", data),
 
-	batch: (ids: string[]): Promise<ApiResponse<StudentResponseData[]>> =>
+	batch: (
+		ids: string[]
+	): Promise<ApiResponse<StudentResponseData[]>> =>
 		API.post("/students/batch", { ids }),
 
-	update: (id: string, data: UpdateStudentDto): Promise<ApiResponse<StudentResponseData>> =>
+	update: (
+		id: string,
+		data: UpdateStudentDto
+	): Promise<ApiResponse<StudentResponseData>> =>
 		API.put(`/students/${id}`, data),
 
-	deactivate: (id: string): Promise<ApiResponse<null>> =>
+	deactivate: (
+		id: string
+	): Promise<ApiResponse<null>> =>
 		API.delete(`/students/${id}`),
 
-	uploadPhoto: (id: string, file: File): Promise<ApiResponse<UploadPhotoResponseData>> => {
+	uploadPhoto: (
+		id: string,
+		file: File
+	): Promise<ApiResponse<UploadPhotoResponseData>> => {
 		const formData = new FormData();
+
 		formData.append("photo", file);
+
 		return API.post(`/students/${id}/photo`, formData, {
-			headers: { "Content-Type": "multipart/form-data" },
+			headers: {
+				"Content-Type": "multipart/form-data",
+			},
 		});
 	},
 
-	import: (file: File): Promise<ApiResponse<ImportStudentsResult>> => {
+	// ── CSV import ────────────────────────────────────────────────────────
+	importCsv: (
+		file: File
+	): Promise<ApiResponse<ImportStudentsResult>> => {
 		const formData = new FormData();
+
 		formData.append("file", file);
+
 		return API.post("/students/import", formData, {
-			headers: { "Content-Type": "multipart/form-data" },
+			headers: {
+				"Content-Type": "multipart/form-data",
+			},
 		});
 	},
 
+	// ── JSON bulk create ─────────────────────────────────────────────────
+	importRows: (
+		students: ImportStudentRow[]
+	): Promise<ApiResponse<ImportStudentsResult>> => {
+		const data: BulkCreateStudentsRequest = {
+			students,
+		};
+
+		return API.post("/students/bulk-create", data);
+	},
 };

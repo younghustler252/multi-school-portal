@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ConfirmDialog } from "@/components/feedback/confirm-dialog";
 import { useAdminSchoolDocuments, useApproveDocument, useRejectDocument } from "../hooks/use-school-documents";
-import { DOCUMENT_TYPE_LABELS } from "@/features/school/constants/document-labels"; // adjust path to match your reorg
+import { DOCUMENT_TYPE_LABELS } from "@/features/school/types/school-document.types";
 import { DocumentType } from "@/features/school/types/school-document.types";
 import { ApiErrorResponse } from "@/types/api-response";
 
