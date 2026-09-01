@@ -33,4 +33,6 @@ export const addNotificationJob = async (
         removeOnComplete: true,
         removeOnFail:     false,
     });
+
+    console.log("job added", data)
 };

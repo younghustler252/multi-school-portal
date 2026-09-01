@@ -5,8 +5,8 @@ import { SchoolSettingsController }    from "../controllers/school-settings.cont
 import { validate }                    from "../../../infrastructure/middleware/validate.middleware";
 import { authenticate }                from "../../../infrastructure/middleware/auth.middleware";
 import { requireSchoolAdmin }          from "../../../infrastructure/middleware/rbac.middleware";
-import { requireTenant }               from "../../../infrastructure/middleware/tenant-resolver.middleware";
 import { UpdateSchoolSettingsDto }     from "../dtos/school-settings.dto";
+import { requireTenant } from "../../../infrastructure/middleware/tenant-resolver.middleware";
 
 const router = Router();
 const upload = multer({
@@ -18,18 +18,19 @@ const ctrl = () => container.resolve<SchoolSettingsController>(
     "schoolSettingsController",
 );
 
-// All routes require school admin + tenant
-router.use(authenticate, requireTenant, requireSchoolAdmin);
-
 // ── Get settings ──────────────────────────────────────────────────────────
 router.get(
     "/",
+     authenticate,
+    requireTenant,
     (req, res, next) => ctrl().getSettings(req, res, next),
 );
 
 // ── Update settings ───────────────────────────────────────────────────────
 router.put(
     "/",
+    authenticate,
+    requireTenant,
     validate(UpdateSchoolSettingsDto),
     (req, res, next) => ctrl().updateSettings(req, res, next),
 );
@@ -37,6 +38,8 @@ router.put(
 // ── Upload school stamp ───────────────────────────────────────────────────
 router.post(
     "/stamp",
+    authenticate,
+    requireTenant,
     upload.single("stamp"),
     (req, res, next) => ctrl().uploadStamp(req, res, next),
 );
@@ -44,6 +47,8 @@ router.post(
 // ── Upload principal signature ────────────────────────────────────────────
 router.post(
     "/signature",
+    authenticate,
+    requireTenant,
     upload.single("signature"),
     (req, res, next) => ctrl().uploadSignature(req, res, next),
 );

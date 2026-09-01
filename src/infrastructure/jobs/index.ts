@@ -1,13 +1,9 @@
-/*
-|--------------------------------------------------------------------------
-| JOBS BOOTSTRAP
-| Imports all workers so they start listening on startup
-|--------------------------------------------------------------------------
-*/
 
-import "./workers/provision-schema.worker";
-import "./workers/report-card-generation.worker";
 
 export const initWorkers = (): void => {
-	console.log("✅ Background workers started");
+    require("./workers/provision-schema.worker");
+    require("./workers/notification.worker");
+    require("./workers/report-card-generation.worker");
+
+    console.log("✅ Background workers started");
 };

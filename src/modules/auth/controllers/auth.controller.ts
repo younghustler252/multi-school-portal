@@ -95,13 +95,19 @@ export class AuthController {
     }
 
     register = async (
-        req:  Request,
-        res:  Response,
+        req: Request,
+        res: Response,
         next: NextFunction,
     ): Promise<void> => {
         try {
             const result = await this.registerUseCase.execute(req.body);
-            sendCreated(res, null, result.message);
+            // console.log("REGISTER CONTROLLER RESULT:", result);
+
+            sendCreated(
+                res,
+                { subdomain: result.subdomain },
+                result.message,
+            );
         } catch (err) {
             next(err);
         }

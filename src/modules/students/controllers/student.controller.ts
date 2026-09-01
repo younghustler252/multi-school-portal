@@ -6,6 +6,7 @@ import { UpdateStudentUseCase }      from "../usecases/update-student.usecase";
 import { DeactivateStudentUseCase }  from "../usecases/deactivate-student.usecase";
 import { UploadStudentPhotoUseCase } from "../usecases/upload-photo.usecase";
 import { GetStudentsBatchUseCase } from "../usecases/get-students-batch.usecase";
+import { ImportStudentsUseCase } from "../usecases/import-students.usecase";
 import {
     sendSuccess,
     sendCreated,
@@ -26,7 +27,7 @@ interface Dependencies {
     deactivateStudentUseCase:  DeactivateStudentUseCase;
     uploadStudentPhotoUseCase: UploadStudentPhotoUseCase;
     getStudentsBatchUseCase:   GetStudentsBatchUseCase;
-
+    importStudentsUseCase:     ImportStudentsUseCase;
 }
 
 export class StudentController {
@@ -37,6 +38,7 @@ export class StudentController {
     private readonly deactivateStudentUseCase:  DeactivateStudentUseCase;
     private readonly uploadStudentPhotoUseCase: UploadStudentPhotoUseCase;
     private readonly getStudentsBatchUseCase:   GetStudentsBatchUseCase;
+    private readonly importStudentsUseCase:     ImportStudentsUseCase;
 
     constructor({
         createStudentUseCase,
@@ -45,7 +47,8 @@ export class StudentController {
         updateStudentUseCase,
         deactivateStudentUseCase,
         uploadStudentPhotoUseCase,
-        getStudentsBatchUseCase
+        getStudentsBatchUseCase,
+        importStudentsUseCase
     }: Dependencies) {
         this.createStudentUseCase      = createStudentUseCase;
         this.getStudentUseCase         = getStudentUseCase;
@@ -54,6 +57,7 @@ export class StudentController {
         this.deactivateStudentUseCase  = deactivateStudentUseCase;
         this.uploadStudentPhotoUseCase = uploadStudentPhotoUseCase ;
         this.getStudentsBatchUseCase   = getStudentsBatchUseCase;
+        this.importStudentsUseCase     = importStudentsUseCase;
     }
 
     // ── List students ─────────────────────────────────────────────────────
@@ -177,6 +181,56 @@ export class StudentController {
         try {
             const result = await this.getStudentsBatchUseCase.execute(req.body.ids);
             sendSuccess(res, result, "Students retrieved successfully");
+        } catch (err) {
+            next(err);
+        }
+    };
+
+    importStudentsCsv = async (
+        req:  Request,
+        res:  Response,
+        next: NextFunction,
+    ): Promise<void> => {
+        try {
+            if (!req.file) {
+                res.status(400).json({ success: false, message: "CSV file is required." });
+                return;
+            }
+
+            const result = await this.importStudentsUseCase.executeFromCsv(
+                req.file.buffer,
+                req.schoolId as string,
+            );
+
+            sendSuccess(res, result, `${result.created} of ${result.total} students imported`);
+        } catch (err) {
+            next(err);
+        }
+    };
+
+    bulkCreateStudents = async (
+        req:  Request,
+        res:  Response,
+        next: NextFunction,
+    ): Promise<void> => {
+        try {
+            const students = req.body.students;
+
+            if (!Array.isArray(students) || students.length === 0) {
+                res.status(400).json({ success: false, message: "students array is required." });
+                return;
+            }
+            if (students.length > 200) {
+                res.status(400).json({ success: false, message: "Maximum 200 students per bulk request." });
+                return;
+            }
+
+            const result = await this.importStudentsUseCase.executeFromRows(
+                students,
+                req.schoolId as string,
+            );
+
+            sendSuccess(res, result, `${result.created} of ${result.total} students created`);
         } catch (err) {
             next(err);
         }

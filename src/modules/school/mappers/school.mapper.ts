@@ -5,20 +5,22 @@ import {
     SchoolEntity,
     SchoolDocumentEntity,
 } from "../domain/school.entity";
-
 export interface SchoolResponseData extends SchoolStatusFields {
-    email:              string;
-    phone:              string | null;
-    address:            string | null;
-    city:               string | null;
-    state:              string | null;
-    country:            string;
-    timezone:           string;
-    logoUrl:            string | null;
-    paystackSubaccountCode: string | null;
-    schoolCategory:     string;
-    schoolOwnership:    string;
-    createdAt:          Date;
+    email:                       string;
+    phone:                       string | null;
+    address:                     string | null;
+    city:                        string | null;
+    state:                       string | null;
+    country:                     string;
+    timezone:                    string;
+    logoUrl:                     string | null;
+    schoolCategory:              string;
+    schoolOwnership:             string;
+    paymentSetupComplete:        boolean;
+    paystackSubaccountCode:      string | null;
+    settlementBankCode:          string | null;
+    settlementAccountNumberMasked: string | null; // e.g. "•••• •••• 4821"
+    createdAt:                   Date;
 }
 
 export interface SchoolDocumentResponseData {
@@ -71,6 +73,9 @@ export class SchoolMapper implements IMapper<School, SchoolEntity> {
             id:                 entity.id,
             name:               entity.name,
             subdomain:          entity.subdomain,
+            status:             entity.status,
+            isActive:           entity.isActive,
+            verificationStatus: entity.verificationStatus,
             email:              entity.email,
             phone:              entity.phone,
             address:            entity.address,
@@ -81,12 +86,18 @@ export class SchoolMapper implements IMapper<School, SchoolEntity> {
             logoUrl:            entity.logoUrl,
             schoolCategory:     entity.schoolCategory,
             schoolOwnership:    entity.schoolOwnership,
-            paystackSubaccountCode: entity.schoolOwnership,
-            status:             entity.status,
-            verificationStatus: entity.verificationStatus,
-            isActive:           entity.isActive,
+            paymentSetupComplete:          !!entity.paystackSubaccountCode,
+            paystackSubaccountCode:        entity.paystackSubaccountCode,
+            settlementBankCode:            entity.settlementBankCode,
+            settlementAccountNumberMasked: this.maskAccountNumber(entity.settlementAccountNumber),
             createdAt:          entity.createdAt,
         };
+    }
+
+    private maskAccountNumber(accountNumber: string | null): string | null {
+        if (!accountNumber) return null;
+        const last4 = accountNumber.slice(-4);
+        return `•••• •••• ${last4}`;
     }
 }
 

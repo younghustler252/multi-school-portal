@@ -5,24 +5,34 @@ class BrowserService {
     private launching: Promise<Browser> | null = null;
 
     async getBrowser(): Promise<Browser> {
-        if (this.browser) return this.browser;
+        if (this.browser) {
+            return this.browser;
+        }
 
         if (!this.launching) {
             this.launching = puppeteer.launch({
                 headless: true,
+
                 args: [
                     "--no-sandbox",
                     "--disable-setuid-sandbox",
-                    "--disable-dev-shm-usage", // avoids /dev/shm exhaustion on small containers
+                    "--disable-dev-shm-usage",
+                    "--disable-gpu",
+                    "--no-first-run",
+                    "--no-zygote",
+                    "--single-process",
                 ],
             });
         }
 
-        this.browser = await this.launching;
-        this.launching = null;
+        try {
+            this.browser = await this.launching;
+        } finally {
+            this.launching = null;
+        }
 
         this.browser.on("disconnected", () => {
-            this.browser = null; // force relaunch on next call if Chromium crashes
+            this.browser = null;
         });
 
         return this.browser;
@@ -33,15 +43,24 @@ class BrowserService {
         const page = await browser.newPage();
 
         try {
-            await page.setContent(html, { waitUntil: "load" });
-            const pdf = await page.pdf({
-                format:      "A4",
-                printBackground: true,
-                margin: { top: "10mm", bottom: "10mm", left: "10mm", right: "10mm" },
+            await page.setContent(html, {
+                waitUntil: "load",
             });
+
+            const pdf = await page.pdf({
+                format: "A4",
+                printBackground: true,
+                margin: {
+                    top: "10mm",
+                    bottom: "10mm",
+                    left: "10mm",
+                    right: "10mm",
+                },
+            });
+
             return Buffer.from(pdf);
         } finally {
-            await page.close(); // page closes, browser process stays alive — this is the key cost saving
+            await page.close();
         }
     }
 
@@ -50,6 +69,8 @@ class BrowserService {
             await this.browser.close();
             this.browser = null;
         }
+
+        this.launching = null;
     }
 }
 

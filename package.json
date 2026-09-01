@@ -13,7 +13,8 @@
     "prisma:migrate:public": "prisma migrate dev --config=prisma.public.config.ts",
     "prisma:migrate:tenant": "prisma migrate dev --config=prisma.tenant.config.ts",
     "prisma:migrate:deploy:public": "prisma migrate deploy --config=prisma.public.config.ts",
-    "prisma:migrate:deploy:tenant": "prisma migrate deploy --config=prisma.tenant.config.ts"
+    "prisma:migrate:deploy:tenant": "prisma migrate deploy --config=prisma.tenant.config.ts",
+    "migrate:apply-to-existing-schools": "ts-node scripts/apply-migration-to-existing-schools.ts"
   },
   "keywords": [],
   "author": "Young Tech",

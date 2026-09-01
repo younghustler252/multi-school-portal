@@ -18,20 +18,19 @@ import {
 export interface IClassRepository {
     // ── Classes ───────────────────────────────────────────────────────────
     findClassById(id: string):                          Promise<ClassEntity | null>;
+    findClassByIdEnriched( id: string, termId: string | null, ): Promise<{ id: string; name: string; level: string | null; capacity: number | null; classTeacherId: string | null; studentCount: number; createdAt: Date; } | null>;
     findClassByName(name: string):                      Promise<ClassEntity | null>;
     findAllClasses():                                   Promise<ClassEntity[]>;
     findAllClassesEnriched(
         termId: string | null,
     ): Promise<Array<{
-        id: string;
-        name: string;
-        level: string | null;
-        capacity: number | null;
+        id:             string;
+        name:           string;
+        level:          string | null;
+        capacity:       number | null;
         classTeacherId: string | null;
-        classTeacherName: string | null;
-        studentCount: number;
-        createdAt: Date;
-        updatedAt: Date;
+        studentCount:   number;
+        createdAt:      Date;
     }>>;
     createClass(data: Prisma.ClassUncheckedCreateInput):             Promise<ClassEntity>;
     updateClass(

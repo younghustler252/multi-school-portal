@@ -142,4 +142,68 @@ export class NotificationRepositoryImpl implements INotificationRepository {
             data:  { status: "FAILED", failedReason: reason },
         });
     }
+
+    async findMySchoolNotifications(
+        recipientFilter: { studentId?: string; guardianId?: string; staffId?: string },
+        params: PaginateParams,
+    ): Promise<PaginatedResult<any>> {
+        const { page, limit, skip } = parsePagination({ page: params.page, limit: params.limit });
+
+        const where = { ...recipientFilter, ...(params.where ?? {}) };
+
+        const [raws, total] = await Promise.all([
+            this.tenantDb.schoolNotificationRecipient.findMany({
+                where, skip, take: limit,
+                orderBy: { createdAt: "desc" },
+                include: { notification: true },
+            }),
+            this.tenantDb.schoolNotificationRecipient.count({ where }),
+        ]);
+
+        return { data: raws, meta: buildPaginationMeta(total, page, limit) };
+    }
+
+    async findMyPlatformNotifications(
+        schoolId: string,
+        params:   PaginateParams,
+    ): Promise<PaginatedResult<any>> {
+        const { page, limit, skip } = parsePagination({ page: params.page, limit: params.limit });
+
+        const where = { schoolId };
+
+        const [raws, total] = await Promise.all([
+            prisma.platformNotificationRecipient.findMany({
+                where, skip, take: limit,
+                orderBy: { createdAt: "desc" },
+                include: { notification: true },
+            }),
+            prisma.platformNotificationRecipient.count({ where }),
+        ]);
+
+        return { data: raws, meta: buildPaginationMeta(total, page, limit) };
+    }
+
+    async markSchoolRecipientRead(recipientId: string): Promise<void> {
+        await this.tenantDb.schoolNotificationRecipient.update({
+            where: { id: recipientId },
+            data:  { readAt: new Date(), status: "READ" },
+        });
+    }
+
+    async markAllSchoolRecipientsRead(
+        recipientFilter: { studentId?: string; guardianId?: string; staffId?: string },
+    ): Promise<number> {
+        const result = await this.tenantDb.schoolNotificationRecipient.updateMany({
+            where: { ...recipientFilter, readAt: null },
+            data:  { readAt: new Date(), status: "READ" },
+        });
+        return result.count;
+    }
+
+    async markPlatformRecipientRead(recipientId: string): Promise<void> {
+        await prisma.platformNotificationRecipient.update({
+            where: { id: recipientId },
+            data:  { readAt: new Date(), status: "READ" },
+        });
+    }
 }

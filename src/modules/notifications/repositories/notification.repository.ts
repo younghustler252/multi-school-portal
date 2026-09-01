@@ -43,10 +43,36 @@ export interface INotificationRepository {
 		data: Prisma.SchoolNotificationRecipientUncheckedCreateInput,
 	): Promise<void>;
 
+	findMySchoolNotifications(
+		recipientFilter: {
+			studentId?: string;
+			guardianId?: string;
+			staffId?: string;
+		},
+		params: PaginateParams,
+	): Promise<PaginatedResult<any>>;
+
+	markSchoolRecipientRead(
+		recipientId: string,
+	): Promise<void>;
+
+	markAllSchoolRecipientsRead(
+		recipientFilter: {
+			studentId?: string;
+			guardianId?: string;
+			staffId?: string;
+		},
+	): Promise<number>;
+
 	// ── Platform notification recipients ──────────────────────────────────
 	createPlatformRecipient(
-		data: publicPrisma.PlatformNotificationRecipientUncheckedCreateInput
+		data: publicPrisma.PlatformNotificationRecipientUncheckedCreateInput,
 	): Promise<PlatformNotificationRecipientEntity>;
+
+	findMyPlatformNotifications(
+		schoolId: string,
+		params: PaginateParams,
+	): Promise<PaginatedResult<any>>;
 
 	markPlatformRecipientSent(
 		id: string,
@@ -55,5 +81,9 @@ export interface INotificationRepository {
 	markPlatformRecipientFailed(
 		id: string,
 		reason: string,
+	): Promise<void>;
+
+	markPlatformRecipientRead(
+		recipientId: string,
 	): Promise<void>;
 }

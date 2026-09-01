@@ -49,13 +49,6 @@ export const authenticate = (
 ): void => {
     try {
         const token = extractToken(req);
-        console.log("AUTH DEBUG", {
-    host: req.headers.host,
-    origin: req.headers.origin,
-    authorization: req.headers.authorization,
-    cookieHeader: req.headers.cookie,
-    accessTokenCookie: req.cookies?.accessToken ? "PRESENT" : "MISSING",
-});
 
         if (!token) {
             throw new UnauthorizedError("No token provided");

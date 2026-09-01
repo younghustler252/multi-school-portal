@@ -171,42 +171,69 @@ export class ClassRepositoryImpl
         return new Map(raws.map(r => [r.id, r.subject.name]));
     }
 
-   async findAllClassesEnriched(termId: string | null) {
-    const classes = await this.prisma.class.findMany({
-        select: {
-            id: true,
-            name: true,
-            level: true,
-            capacity: true,
-            classTeacherId: true,
-            createdAt: true,
-            updatedAt: true,
+    async findAllClassesEnriched(termId: string | null): Promise<Array<{
+        id:             string;
+        name:           string;
+        level:          string | null;
+        capacity:       number | null;
+        classTeacherId: string | null;
+        studentCount:   number;
+        createdAt:      Date;
+    }>> {
+        const classes = await this.prisma.class.findMany({
+            orderBy: { name: "asc" },
+        });
 
-            classTeacher: {
-                select: {
-                    id: true,
-                    userId: true,
-                },
-            },
+        if (classes.length === 0) return [];
 
-            _count: {
-                select: {
-                    enrolments: true,
-                },
-            },
-        },
-    });
+        const counts = termId
+            ? await this.prisma.enrolment.groupBy({
+                by:     ["classId"],
+                where:  { classId: { in: classes.map(c => c.id) }, termId, status: "active" },
+                _count: { _all: true },
+            })
+            : [];
+        const countMap = new Map(counts.map(c => [c.classId, c._count._all]));
 
-    return classes.map((classItem) => ({
-        id: classItem.id,
-        name: classItem.name,
-        level: classItem.level,
-        capacity: classItem.capacity,
-        classTeacherId: classItem.classTeacherId,
-        classTeacherName: null, // keep your existing teacher-name logic
-        studentCount: classItem._count.enrolments,
-        createdAt: classItem.createdAt,
-        updatedAt: classItem.updatedAt,
-    }));
+        return classes.map(c => ({
+            id:             c.id,
+            name:           c.name,
+            level:          c.level,
+            capacity:       c.capacity,
+            classTeacherId: c.classTeacherId,
+            studentCount:   countMap.get(c.id) ?? 0,
+            createdAt:      c.createdAt,
+        }));
+        
+    }
+    async findClassByIdEnriched(id: string, termId: string | null): Promise<{
+    id:             string;
+    name:           string;
+    level:          string | null;
+    capacity:       number | null;
+    classTeacherId: string | null;
+    studentCount:   number;
+    createdAt:      Date;
+} | null> {
+    const cls = await this.prisma.class.findUnique({ where: { id } });
+    if (!cls) return null;
+
+    let studentCount = 0;
+    if (termId) {
+        studentCount = await this.prisma.enrolment.count({
+            where: { classId: id, termId, status: "active" },
+        });
+    }
+
+    return {
+        id:             cls.id,
+        name:           cls.name,
+        level:          cls.level,
+        capacity:       cls.capacity,
+        classTeacherId: cls.classTeacherId,
+        studentCount,
+        createdAt:      cls.createdAt,
+    };
 }
 }
+

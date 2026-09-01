@@ -15,6 +15,7 @@ import {
     UpdateStudentDto,
     ListStudentsDto,
 }                              from "../dtos/student.dto";
+import { nextTick } from "node:process";
 
 /*
 |--------------------------------------------------------------------------
@@ -45,6 +46,24 @@ router.post(
 	requireTenant,
 	requireStaff,
 	(req, res, next) => ctrl().getStudentsBatch(req, res, next),
+);
+// ── Import students from CSV ─────────────────────────────────────────────
+router.post(
+    "/import",
+    authenticate,
+    requireTenant,
+    requireStaff,
+    upload.single("file"),
+    (req, res, next) => ctrl().importStudentsCsv(req, res, next),
+);
+
+// ── Bulk create students from JSON ───────────────────────────────────────
+router.post(
+    "/bulk-create",
+    authenticate,
+    requireTenant,
+    requireStaff,
+    (req, res, next) => ctrl().bulkCreateStudents(req, res, next),
 );
 
 // ── Get single student ────────────────────────────────────────────────────

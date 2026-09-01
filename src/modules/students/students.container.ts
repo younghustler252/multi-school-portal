@@ -9,6 +9,7 @@ import { ListStudentsUseCase }        from "./usecases/list-students.usecase";
 import { UpdateStudentUseCase }       from "./usecases/update-student.usecase";
 import { DeactivateStudentUseCase }   from "./usecases/deactivate-student.usecase";
 import { UploadStudentPhotoUseCase }  from "./usecases/upload-photo.usecase";
+import { ImportStudentsUseCase } from "./usecases/import-students.usecase";
 import { StudentController }          from "./controllers/student.controller";
 
 /*
@@ -28,6 +29,7 @@ export const registerStudents = (container: AwilixContainer): void => {
         deactivateStudentUseCase:  asClass(DeactivateStudentUseCase).scoped(),
         uploadStudentPhotoUseCase: asClass(UploadStudentPhotoUseCase).scoped(),
         getStudentsBatchUseCase:   asClass(GetStudentsBatchUseCase).scoped(),
+        importStudentsUseCase:     asClass(ImportStudentsUseCase).scoped(),
 
         studentController:         asClass(StudentController).scoped(),
     });

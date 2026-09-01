@@ -12,11 +12,17 @@ import { requireSuperAdmin } from "./infrastructure/middleware/rbac.middleware";
 import { optionalAuthenticate, authenticate }                      from "./infrastructure/middleware/auth.middleware";
 import { createBullBoardRouter } from "./infrastructure/jobs/bull-board";
 import routes                                        from "./routes";
-
+import { join } from "node:path";
 const app = express();
 
 // ── Security ──────────────────────────────────────────────────────────────
-app.use(helmet());
+app.use(
+	helmet({
+		crossOriginResourcePolicy: {
+			policy: "cross-origin",
+		},
+	}),
+);
 app.use(cors({
     origin: (origin, callback) => {
         if (!origin) return callback(null, true);
@@ -33,6 +39,11 @@ app.use(cors({
 
 app.use(globalLimiter);
 
+// ── Static assets (no auth/tenant context needed at all) ───────────────────
+app.use("/api/v1/report-cards/template-previews", express.static(
+    join(process.cwd(), "public", "template-previews"),
+));
+
 // ── Body Parsing ──────────────────────────────────────────────────────────
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
@@ -44,17 +55,12 @@ if (env.NODE_ENV !== "test") {
 }
 
 // ── Optional Auth ─────────────────────────────────────────────────────────
-// Pre-populates req.user if token present — doesn't block public routes
 app.use(optionalAuthenticate);
 
 // ── Tenant Resolution ─────────────────────────────────────────────────────
-// Resolves school from subdomain or dev headers
 app.use(resolveTenant);
 
-
-
 // ── Tenant Ownership Validation ───────────────────────────────────────────
-// If both req.user and req.schoolId exist — validate they match
 app.use(validateTenantOwnership);
 
 // ── Health Check ──────────────────────────────────────────────────────────
