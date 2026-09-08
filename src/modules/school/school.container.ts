@@ -27,10 +27,11 @@ import { VerifySchoolUseCase }         from "./usecases/super-admin/verify-schoo
 import { RejectSchoolUseCase }         from "./usecases/super-admin/reject-school.usecase";
 import { SuspendSchoolUseCase }        from "./usecases/super-admin/suspend-school.usecase";
 import { GetSchoolDocumentsUseCase } from "./usecases/super-admin/get-school-document.usecase";
-import { ActivateSchoolUseCase }       from "./usecases/super-admin/activate-school.usecase";
 import { ApproveDocumentUseCase }      from "./usecases/super-admin/approve-document.usecase";
 import { RejectDocumentUseCase }       from "./usecases/super-admin/reject-document.usecase";
-
+import { ApproveSchoolUseCase } from "./usecases/super-admin/approve-school.usecase";
+import { ActivateSchoolUseCase } from "./usecases/super-admin/activate-school.usecase";
+import { SchoolApprovalCheckerService } from "./services/school-approval-checker.service";
 // ── Controller ────────────────────────────────────────────────────────────
 import { SchoolController }            from "./controllers/school.controller";
 
@@ -71,9 +72,13 @@ export const registerSchool = (container: AwilixContainer): void => {
         rejectSchoolUseCase:           asClass(RejectSchoolUseCase).scoped(),
         suspendSchoolUseCase:          asClass(SuspendSchoolUseCase).scoped(),
         getSchoolDocumentsUseCase:     asClass(GetSchoolDocumentsUseCase).scoped(),
-        activateSchoolUseCase:         asClass(ActivateSchoolUseCase).scoped(),
         approveDocumentUseCase:        asClass(ApproveDocumentUseCase).scoped(),
         rejectDocumentUseCase:         asClass(RejectDocumentUseCase).scoped(),
+        approveSchoolUseCase: asClass(ApproveSchoolUseCase).scoped(),
+        activateSchoolUseCase: asClass(ActivateSchoolUseCase).scoped(),
+        
+        // ── Services ──────────────────────────────────────────────────────
+        schoolApprovalCheckerService: asClass(SchoolApprovalCheckerService).scoped(),
 
         // ── Controller ────────────────────────────────────────────────────
         schoolController:              asClass(SchoolController).scoped(),

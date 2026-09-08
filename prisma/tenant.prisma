@@ -353,28 +353,39 @@ model FeeType {
   description String?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
-  feeInvoices FeeInvoice[]
-}
+  // feeInvoices FeeInvoice[]
+  invoiceItems FeeInvoiceItem[]
 
+}
 model FeeInvoice {
-  id          String        @id @default(uuid())
-  studentId   String
-  termId      String
-  feeTypeId   String
-  amountKobo  Int
-  paidKobo    Int           @default(0)
-  balanceKobo Int           @default(0)
-  status      InvoiceStatus @default(unpaid)
-  dueDate     DateTime?
-  note        String?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  student     Student       @relation(fields: [studentId], references: [id])
-  term        Term          @relation(fields: [termId], references: [id])
-  feeType     FeeType       @relation(fields: [feeTypeId], references: [id])
-  payments    Payment[]
+  id           String        @id @default(uuid())
+  studentId    String
+  termId       String
+  discountKobo Int           @default(0)
+  status       InvoiceStatus @default(unpaid)
+  dueDate      DateTime?
+  note         String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  student  Student          @relation(fields: [studentId], references: [id])
+  term     Term             @relation(fields: [termId], references: [id])
+  items    FeeInvoiceItem[]
+  payments Payment[]
+
+  @@unique([studentId, termId])
 }
 
+model FeeInvoiceItem {
+  id           String   @id @default(uuid())
+  feeInvoiceId String
+  feeTypeId    String
+  amountKobo   Int
+  createdAt    DateTime @default(now())
+
+  feeInvoice FeeInvoice @relation(fields: [feeInvoiceId], references: [id])
+  feeType    FeeType    @relation(fields: [feeTypeId], references: [id])
+}
 enum InvoiceStatus {
   unpaid
   partial

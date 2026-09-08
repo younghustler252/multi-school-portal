@@ -168,28 +168,28 @@ export const provisionSchemaWorker = new Worker<ProvisionSchemaJobData>(
 
 			console.log(`✅ Default fee types seeded: ${schemaName}`);
 
-			const school = await prisma.school.findUnique({
-				where: { id: schoolId },
-				select: { schoolCategory: true },
-			});
+			// const school = await prisma.school.findUnique({
+			// 	where: { id: schoolId },
+			// 	select: { schoolCategory: true },
+			// });
 
-			for (const cls of getDefaultClasses(school?.schoolCategory)) {
-				await client.query(
-					`INSERT INTO "Class" (id, name, level, "createdAt", "updatedAt")
-					 VALUES (gen_random_uuid(), $1, $2, now(), now())`,
-					[cls.name, cls.level],
-				);
-			}
+			// for (const cls of getDefaultClasses(school?.schoolCategory)) {
+			// 	await client.query(
+			// 		`INSERT INTO "Class" (id, name, level, "createdAt", "updatedAt")
+			// 		 VALUES (gen_random_uuid(), $1, $2, now(), now())`,
+			// 		[cls.name, cls.level],
+			// 	);
+			// }
 
-			for (const subject of getDefaultSubjects(school?.schoolCategory)) {
-				await client.query(
-					`INSERT INTO "Subject" (id, name, code, "createdAt", "updatedAt")
-					 VALUES (gen_random_uuid(), $1, $2, now(), now())`,
-					[subject.name, subject.code],
-				);
-			}
+			// for (const subject of getDefaultSubjects(school?.schoolCategory)) {
+			// 	await client.query(
+			// 		`INSERT INTO "Subject" (id, name, code, "createdAt", "updatedAt")
+			// 		 VALUES (gen_random_uuid(), $1, $2, now(), now())`,
+			// 		[subject.name, subject.code],
+			// 	);
+			// }
 
-			console.log(`✅ Classes + subjects seeded: ${schemaName}`);
+			// console.log(`✅ Classes + subjects seeded: ${schemaName}`);
 
 			await client.query("COMMIT");
 		} catch (err) {

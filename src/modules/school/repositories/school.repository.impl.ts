@@ -73,6 +73,8 @@ export class SchoolRepositoryImpl
             where:   { schoolId },
             orderBy: { createdAt: "desc" },
         });
+
+        // console.log("📄 Found docs:", raws);
         return raws.map(raw => this.documentMapper.toDomain(raw));
     }
 

@@ -157,6 +157,10 @@ exports.Prisma.SchoolDocumentScalarFieldEnum = {
   id: 'id',
   schoolId: 'schoolId',
   type: 'type',
+  idDocumentType: 'idDocumentType',
+  idNumber: 'idNumber',
+  proprietorFullName: 'proprietorFullName',
+  proprietorDateOfBirth: 'proprietorDateOfBirth',
   fileUrl: 'fileUrl',
   status: 'status',
   rejectionReason: 'rejectionReason',
@@ -395,6 +399,14 @@ exports.DocumentType = exports.$Enums.DocumentType = {
   proprietor_id: 'proprietor_id',
   waec_approval: 'waec_approval',
   ministry_approval: 'ministry_approval',
+  other: 'other'
+};
+
+exports.IdDocumentType = exports.$Enums.IdDocumentType = {
+  nin: 'nin',
+  voters_card: 'voters_card',
+  drivers_license: 'drivers_license',
+  international_passport: 'international_passport',
   other: 'other'
 };
 

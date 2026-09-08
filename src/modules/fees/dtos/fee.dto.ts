@@ -1,87 +1,134 @@
 import { z } from "zod";
 
+// ── Common ────────────────────────────────────────────────────────────────
+
+const InvoiceStatus = z.enum([
+    "unpaid",
+    "partial",
+    "paid",
+    "waived",
+]);
+
+const DueDate = z.string().datetime({ offset: true }).optional();
+
+// ── Class fee template ───────────────────────────────────────────────────
+// Defines how much a particular class pays for a particular fee type.
+
+export const CreateClassFeeDto = z.object({
+    classId: z.string().uuid(),
+    feeTypeId: z.string().uuid(),
+    termId: z.string().uuid(),
+    amountKobo: z.number().int().positive(),
+});
+
+// ── Invoice entire class ─────────────────────────────────────────────────
+// Creates invoices for all enrolled students in a class.
+
+export const InvoiceClassDto = z.object({
+    classId: z.string().uuid(),
+    termId: z.string().uuid(),
+    items: z.array(
+        z.object({
+            feeTypeId: z.string().uuid(),
+            amountKobo: z.number().int().positive(),
+        })
+    ).min(1),
+    dueDate: DueDate,
+});
+
 // ── Fee type ──────────────────────────────────────────────────────────────
 
-// ── Create class fee template ─────────────────────────────────────────────
-// School admin defines how much each class pays per fee type
-export const CreateClassFeeDto = z.object({
-    classId:    z.string().uuid(),
-    feeTypeId:  z.string().uuid(),
-    amountKobo: z.number().int().positive(),
-    termId:     z.string().uuid(),
-});
-
-// ── Auto-invoice entire class ─────────────────────────────────────────────
-// Creates invoices for all enrolled students in a class at class-specific amount
-export const InvoiceClassDto = z.object({
-    classId:    z.string().uuid(),
-    termId:     z.string().uuid(),
-    feeTypeId:  z.string().uuid(),
-    amountKobo: z.number().int().positive(),
-    dueDate:    z.string().optional(),
-});
-
 export const CreateFeeTypeDto = z.object({
-    name:        z.string().min(1).max(100),
-    description: z.string().optional(),
+    name: z.string().trim().min(1).max(100),
+    description: z.string().trim().optional(),
 });
 
 export const UpdateFeeTypeDto = z.object({
-    name:        z.string().min(1).max(100).optional(),
-    description: z.string().optional(),
+    name: z.string().trim().min(1).max(100).optional(),
+    description: z.string().trim().optional(),
 });
 
-// ── Fee invoice ───────────────────────────────────────────────────────────
+// ── Fee invoice ──────────────────────────────────────────────────────────
+
 export const CreateInvoiceDto = z.object({
-    studentId:  z.string().uuid(),
-    termId:     z.string().uuid(),
-    feeTypeId:  z.string().uuid(),
-    amountKobo: z.number().int().positive(),
-    dueDate:    z.string().optional(),
-    note:       z.string().optional(),
+    studentId: z.string().uuid(),
+    termId: z.string().uuid(),
+
+    items: z.array(
+        z.object({
+            feeTypeId: z.string().uuid(),
+            amountKobo: z.number().int().positive(),
+        })
+    ).min(1),
+
+    dueDate: z.string().datetime({ offset: true }).optional(),
+    note: z.string().trim().optional(),
 });
 
-// ── Bulk create invoices ──────────────────────────────────────────────────
+
+// ── Bulk create invoices ─────────────────────────────────────────────────
 export const BulkCreateInvoiceDto = z.object({
     termId:     z.string().uuid(),
-    feeTypeId:  z.string().uuid(),
-    amountKobo: z.number().int().positive(),
-    dueDate:    z.string().optional(),
     studentIds: z.array(z.string().uuid()).min(1),
+    items: z.array(z.object({
+        feeTypeId:  z.string().uuid(),
+        amountKobo: z.number().int().positive(),
+    })).min(1),
+    dueDate: DueDate,
 });
 
-// ── Update invoice ────────────────────────────────────────────────────────
 export const UpdateInvoiceDto = z.object({
-    amountKobo: z.number().int().positive().optional(),
-    dueDate:    z.string().optional(),
-    note:       z.string().optional(),
-    status:     z.enum(["unpaid", "partial", "paid", "waived"]).optional(),
+    discountKobo: z.number().int().min(0).optional(),
+    dueDate:      DueDate,
+    note:         z.string().trim().optional(),
 });
 
 // ── List invoices ─────────────────────────────────────────────────────────
+
 export const ListInvoicesDto = z.object({
-    page:      z.string().optional(),
-    limit:     z.string().optional(),
-    studentId: z.string().optional(),
-    termId:    z.string().optional(),
-    feeTypeId: z.string().optional(),
-    status:    z.string().optional(),
+    page: z.coerce.number().int().positive().default(1),
+    limit: z.coerce.number().int().positive().max(100).default(20),
+
+    studentId: z.string().uuid().optional(),
+    termId: z.string().uuid().optional(),
+    feeTypeId: z.string().uuid().optional(),
+
+    status: InvoiceStatus.optional(),
 });
 
-// Add to fee.dto.ts
+// ── Record payment ────────────────────────────────────────────────────────
+
 export const RecordPaymentDto = z.object({
-    invoiceId:  z.string().uuid(),
+    invoiceId: z.string().uuid(),
     amountKobo: z.number().int().positive(),
-    note:       z.string().optional(),
+    note: z.string().trim().optional(),
 });
 
+// ── Types ─────────────────────────────────────────────────────────────────
 
-export type CreateClassFeeDtoType = z.infer<typeof CreateClassFeeDto>;
-export type InvoiceClassDtoType   = z.infer<typeof InvoiceClassDto>;
-export type CreateFeeTypeDtoType    = z.infer<typeof CreateFeeTypeDto>;
-export type UpdateFeeTypeDtoType    = z.infer<typeof UpdateFeeTypeDto>;
-export type CreateInvoiceDtoType    = z.infer<typeof CreateInvoiceDto>;
-export type BulkCreateInvoiceDtoType = z.infer<typeof BulkCreateInvoiceDto>;
-export type UpdateInvoiceDtoType    = z.infer<typeof UpdateInvoiceDto>;
-export type ListInvoicesDtoType     = z.infer<typeof ListInvoicesDto>;
-export type RecordPaymentDtoType = z.infer<typeof RecordPaymentDto>;
+export type CreateClassFeeDtoType =
+    z.infer<typeof CreateClassFeeDto>;
+
+export type InvoiceClassDtoType =
+    z.infer<typeof InvoiceClassDto>;
+
+export type CreateFeeTypeDtoType =
+    z.infer<typeof CreateFeeTypeDto>;
+
+export type UpdateFeeTypeDtoType =
+    z.infer<typeof UpdateFeeTypeDto>;
+
+export type CreateInvoiceDtoType =
+    z.infer<typeof CreateInvoiceDto>;
+
+export type BulkCreateInvoiceDtoType =
+    z.infer<typeof BulkCreateInvoiceDto>;
+
+export type UpdateInvoiceDtoType =
+    z.infer<typeof UpdateInvoiceDto>;
+
+export type ListInvoicesDtoType =
+    z.infer<typeof ListInvoicesDto>;
+
+export type RecordPaymentDtoType =
+    z.infer<typeof RecordPaymentDto>;

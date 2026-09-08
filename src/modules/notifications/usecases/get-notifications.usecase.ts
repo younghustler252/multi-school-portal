@@ -66,7 +66,7 @@ export class GetNotificationsUseCase {
             data: result.data.map(n =>
                 this.schoolNotificationMapper.toResponse(n),
             ),
-            meta: result.meta,
+            meta: result.meta,  
         };
     }
 }

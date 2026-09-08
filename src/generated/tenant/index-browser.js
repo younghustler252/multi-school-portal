@@ -343,15 +343,20 @@ exports.Prisma.FeeInvoiceScalarFieldEnum = {
   id: 'id',
   studentId: 'studentId',
   termId: 'termId',
-  feeTypeId: 'feeTypeId',
-  amountKobo: 'amountKobo',
-  paidKobo: 'paidKobo',
-  balanceKobo: 'balanceKobo',
+  discountKobo: 'discountKobo',
   status: 'status',
   dueDate: 'dueDate',
   note: 'note',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.FeeInvoiceItemScalarFieldEnum = {
+  id: 'id',
+  feeInvoiceId: 'feeInvoiceId',
+  feeTypeId: 'feeTypeId',
+  amountKobo: 'amountKobo',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.PaymentScalarFieldEnum = {
@@ -572,6 +577,7 @@ exports.Prisma.ModelName = {
   ReportCard: 'ReportCard',
   FeeType: 'FeeType',
   FeeInvoice: 'FeeInvoice',
+  FeeInvoiceItem: 'FeeInvoiceItem',
   Payment: 'Payment',
   SchoolNotification: 'SchoolNotification',
   SchoolNotificationRecipient: 'SchoolNotificationRecipient'

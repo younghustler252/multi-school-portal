@@ -1,36 +1,38 @@
-import { ISchoolRepository }  from "../../repositories/school.repository";
+import { ISchoolRepository }        from "../../repositories/school.repository";
+import { SchoolApprovalCheckerService } from "../../services/school-approval-checker.service";
 import { SchoolDocumentMapper, SchoolDocumentResponseData } from "../../mappers/school.mapper";
-import { NotFoundError }      from "../../../../shared/errors/domain.errors";
-import { ApproveDocumentDtoType } from "../../dtos/school.dto";
+import { NotFoundError }            from "../../../../shared/errors/domain.errors";
+import { ApproveDocumentDtoType }   from "../../dtos/school.dto";
 
 interface Dependencies {
-    schoolRepository:     ISchoolRepository;
-    schoolDocumentMapper: SchoolDocumentMapper;
+    schoolRepository:            ISchoolRepository;
+    schoolDocumentMapper:        SchoolDocumentMapper;
+    schoolApprovalCheckerService: SchoolApprovalCheckerService;
 }
 
 export class ApproveDocumentUseCase {
-    private readonly schoolRepository:     ISchoolRepository;
-    private readonly schoolDocumentMapper: SchoolDocumentMapper;
+    private readonly schoolRepository:             ISchoolRepository;
+    private readonly schoolDocumentMapper:         SchoolDocumentMapper;
+    private readonly schoolApprovalCheckerService: SchoolApprovalCheckerService;
 
-    constructor({ schoolRepository, schoolDocumentMapper }: Dependencies) {
-        this.schoolRepository     = schoolRepository;
-        this.schoolDocumentMapper = schoolDocumentMapper;
+    constructor({ schoolRepository, schoolDocumentMapper, schoolApprovalCheckerService }: Dependencies) {
+        this.schoolRepository             = schoolRepository;
+        this.schoolDocumentMapper         = schoolDocumentMapper;
+        this.schoolApprovalCheckerService = schoolApprovalCheckerService;
     }
 
-    async execute(dto: ApproveDocumentDtoType): Promise<SchoolDocumentResponseData> {
-        // 1. Verify the document exists via the repository
+    async execute(dto: ApproveDocumentDtoType, approvedByAdminId: string): Promise<SchoolDocumentResponseData> {
         const document = await this.schoolRepository.findDocumentById(dto.documentId);
-        if (!document) {
-            throw new NotFoundError("School verification document not found.");
-        }
+        if (!document) throw new NotFoundError("School verification document not found.");
 
-        // 2. Perform the database update operation
         const updatedDocument = await this.schoolRepository.updateDocument(dto.documentId, {
-            status: "approved",
-            verifiedAt: new Date(),
+            status:       "approved",
+            verifiedAt:   new Date(),
+            verifiedById: approvedByAdminId,
         });
 
-        // 3. Transform clean domain entity → safe API response structure
+        await this.schoolApprovalCheckerService.checkAndApproveIfReady(document.schoolId, approvedByAdminId);
+
         return this.schoolDocumentMapper.toResponse(updatedDocument);
     }
 }

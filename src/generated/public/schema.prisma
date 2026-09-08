@@ -81,20 +81,32 @@ enum VerificationStatus {
   rejected
 }
 
+enum IdDocumentType {
+  nin
+  voters_card
+  drivers_license
+  international_passport
+  other
+}
+
 model SchoolDocument {
-  id              String         @id @default(uuid())
-  schoolId        String
-  type            DocumentType
-  fileUrl         String
-  status          DocumentStatus @default(pending)
-  rejectionReason String?
-  verifiedAt      DateTime?
-  verifiedById    String?
-  apiVerified     Boolean        @default(false)
-  apiResponse     Json?
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
-  school          School         @relation(fields: [schoolId], references: [id])
+  id                    String          @id @default(uuid())
+  schoolId              String
+  type                  DocumentType
+  idDocumentType        IdDocumentType?
+  idNumber              String?
+  proprietorFullName    String?
+  proprietorDateOfBirth DateTime?
+  fileUrl               String
+  status                DocumentStatus  @default(pending)
+  rejectionReason       String?
+  verifiedAt            DateTime?
+  verifiedById          String?
+  apiVerified           Boolean         @default(false)
+  apiResponse           Json?
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+  school                School          @relation(fields: [schoolId], references: [id])
 }
 
 enum DocumentType {

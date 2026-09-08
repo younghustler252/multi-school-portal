@@ -1,4 +1,6 @@
 import { Prisma } from "../../../generated/tenant";
+// import invoicestatus
+import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
 import {
     BaseTenantRepository,
     PaginateParams,
@@ -6,23 +8,16 @@ import {
 } from "../../../infrastructure/repository/base.repository";
 import { FeeTypeMapper, FeeInvoiceMapper } from "../mappers/fee.mapper";
 import { FeeTypeEntity, FeeInvoiceEntity } from "../domain/fee.entity";
+import { EnrichedInvoice, FeeInvoiceItemInput } from "../types/fee.types";
 import { IFeeRepository } from "./fee.repository";
 
-export class FeeRepositoryImpl
-    extends BaseTenantRepository<FeeInvoiceEntity>
-    implements IFeeRepository
-{
-    protected readonly modelName = "feeInvoice";
+
+export class FeeRepositoryImpl implements IFeeRepository {
     private readonly feeTypeMapper: FeeTypeMapper;
 
-    constructor({
-        feeTypeMapper,
-        feeInvoiceMapper,
-    }: {
-        feeTypeMapper: FeeTypeMapper;
-        feeInvoiceMapper: FeeInvoiceMapper;
-    }) {
-        super(feeInvoiceMapper);
+    private get prisma() { return getTenantClient(); }
+
+    constructor({ feeTypeMapper }: { feeTypeMapper: FeeTypeMapper }) {
         this.feeTypeMapper = feeTypeMapper;
     }
 
@@ -46,6 +41,7 @@ export class FeeRepositoryImpl
         return this.feeTypeMapper.toDomain(raw);
     }
 
+
     async updateFeeType(id: string, data: Record<string, any>): Promise<FeeTypeEntity> {
         const raw = await this.prisma.feeType.update({ where: { id }, data });
         return this.feeTypeMapper.toDomain(raw);
@@ -55,117 +51,171 @@ export class FeeRepositoryImpl
         await this.prisma.feeType.delete({ where: { id } });
     }
 
-    async findInvoiceById(id: string): Promise<FeeInvoiceEntity | null> {
-        return this.findById(id);
-    }
-
-    async findInvoice(where: Record<string, any>): Promise<FeeInvoiceEntity | null> {
-        return this.findOne(where);
-    }
-
-    async paginateInvoices(params: PaginateParams): Promise<PaginatedResult<FeeInvoiceEntity>> {
-        return this.paginate(params);
-    }
-
-    async createInvoice(data: Prisma.FeeInvoiceUncheckedCreateInput): Promise<FeeInvoiceEntity> {
-        return this.create(data);
-    }
-
-    async updateInvoice(id: string, data: Record<string, any>): Promise<FeeInvoiceEntity> {
-        return this.update(id, data);
-    }
-
-    async findDefaultersByTerm(termId: string): Promise<FeeInvoiceEntity[]> {
-        return this.findMany(
-            { termId, status: { in: ["unpaid", "partial"] } },
-            undefined,
-            { amountKobo: "desc" },
-        );
-    }
-
-    async findDefaultersSummaryByTerm(termId: string): Promise<Array<{
-        studentId:     string;
-        studentName:   string;
-        totalOwedKobo: number;
-        invoiceCount:  number;
-    }>> {
-        const grouped = await this.prisma.feeInvoice.groupBy({
-            by:     ["studentId"],
-            where:  { termId, status: { in: ["unpaid", "partial"] } },
-            _sum:   { balanceKobo: true },
-            _count: { _all: true },
-            orderBy: { _sum: { balanceKobo: "desc" } },
-        });
-
-        if (grouped.length === 0) return [];
-
-        const studentIds = grouped.map(g => g.studentId);
-        const students = await this.prisma.student.findMany({
-            where:  { id: { in: studentIds } },
-            select: { id: true, firstName: true, lastName: true },
-        });
-
-        const studentMap = new Map(students.map(s => [s.id, `${s.firstName} ${s.lastName}`]));
-
-        return grouped.map(g => ({
-            studentId:     g.studentId,
-            studentName:   studentMap.get(g.studentId) ?? "Unknown",
-            totalOwedKobo: g._sum.balanceKobo ?? 0,
-            invoiceCount:  g._count._all,
-        }));
-    }
-
-    async findManyInvoicesEnriched(
-        where:    Record<string, any>,
-        skip?:    number,
-        take?:    number,
-        orderBy?: Record<string, any>,
-    ): Promise<Array<{
-        id:           string;
-        studentId:    string;
-        studentName:  string;
-        termId:       string;
-        termName:     string;
-        feeTypeId:    string;
-        feeTypeName:  string;
-        amountKobo:   number;
-        paidKobo:     number;
-        balanceKobo:  number;
-        status:       string;
-        dueDate:      Date | null;
-        note:         string | null;
-        createdAt:    Date;
-    }>> {
-        const raws = await this.prisma.feeInvoice.findMany({
-            where,
-            skip,
-            take,
-            orderBy: orderBy ?? { createdAt: "desc" },
-            include: {
-                student: { select: { firstName: true, lastName: true } },
-                term:    { select: { name: true } },
-                feeType: { select: { name: true } },
+    async createInvoice(
+        studentId: string,
+        termId:    string,
+        items:     FeeInvoiceItemInput[],
+        dueDate?:  Date,
+        note?:     string,
+    ): Promise<EnrichedInvoice> {
+        const invoice = await this.prisma.feeInvoice.create({
+            data: {
+                studentId,
+                termId,
+                dueDate,
+                note,
+                items: {
+                    create: items.map(i => ({ feeTypeId: i.feeTypeId, amountKobo: i.amountKobo })),
+                },
             },
         });
 
-        return raws.map(r => ({
-            id:           r.id,
-            studentId:    r.studentId,
-            studentName:  `${r.student.firstName} ${r.student.lastName}`,
-            termId:       r.termId,
-            termName:     r.term.name,
-            feeTypeId:    r.feeTypeId,
-            feeTypeName:  r.feeType.name,
-            amountKobo:   r.amountKobo,
-            paidKobo:     r.paidKobo,
-            balanceKobo:  r.balanceKobo,
-            status:       r.status,
-            dueDate:      r.dueDate,
-            note:         r.note,
-            createdAt:    r.createdAt,
-        }));
+        return this.findInvoiceByIdEnriched(invoice.id) as Promise<EnrichedInvoice>;
     }
-    async countInvoices(where: Record<string, any>): Promise<number> {
-        return this.count(where);
+
+    async addInvoiceItem(invoiceId: string, item: FeeInvoiceItemInput): Promise<EnrichedInvoice> {
+        await this.prisma.feeInvoiceItem.create({
+            data: { feeInvoiceId: invoiceId, feeTypeId: item.feeTypeId, amountKobo: item.amountKobo },
+        });
+
+        await this.recalculateInvoiceStatus(invoiceId);
+        return this.findInvoiceByIdEnriched(invoiceId) as Promise<EnrichedInvoice>;
+    }
+
+    async findInvoiceByIdEnriched(id: string): Promise<EnrichedInvoice | null> {
+        const raw = await this.prisma.feeInvoice.findUnique({
+            where: { id },
+            include: {
+                student: { select: { firstName: true, lastName: true } },
+                term:    { select: { name: true } },
+                items:   { include: { feeType: { select: { name: true } } } },
+                payments: { where: { status: "success" }, select: { amountKobo: true } },
+            },
+        });
+
+        if (!raw) return null;
+        return this.mapEnriched(raw);
+    }
+
+    async findInvoiceByStudentAndTerm(studentId: string, termId: string): Promise<EnrichedInvoice | null> {
+        const raw = await this.prisma.feeInvoice.findUnique({
+            where: { studentId_termId: { studentId, termId } },
+            include: {
+                student: { select: { firstName: true, lastName: true } },
+                term:    { select: { name: true } },
+                items:   { include: { feeType: { select: { name: true } } } },
+                payments: { where: { status: "success" }, select: { amountKobo: true } },
+            },
+        });
+
+        return raw ? this.mapEnriched(raw) : null;
+    }
+
+    async paginateInvoicesEnriched(
+        where: Record<string, any>,
+        skip = 0,
+        take = 20,
+    ): Promise<{ data: EnrichedInvoice[]; total: number }> {
+        const [raws, total] = await Promise.all([
+            this.prisma.feeInvoice.findMany({
+                where, skip, take,
+                orderBy: { createdAt: "desc" },
+                include: {
+                    student: { select: { firstName: true, lastName: true } },
+                    term:    { select: { name: true } },
+                    items:   { include: { feeType: { select: { name: true } } } },
+                    payments: { where: { status: "success" }, select: { amountKobo: true } },
+                },
+            }),
+            this.prisma.feeInvoice.count({ where }),
+        ]);
+
+        return { data: raws.map(r => this.mapEnriched(r)), total };
+    }
+
+    async findDefaultersSummaryByTerm(termId: string): Promise<Array<{
+        studentId: string; studentName: string; totalOwedKobo: number; invoiceCount: number;
+    }>> {
+        const invoices = await this.prisma.feeInvoice.findMany({
+            where: { termId, status: { in: ["unpaid", "partial"] } },
+            include: {
+                student: { select: { firstName: true, lastName: true } },
+                items:   true,
+                payments: { where: { status: "success" }, select: { amountKobo: true } },
+            },
+        });
+
+        const byStudent = new Map<string, { studentName: string; totalOwedKobo: number; invoiceCount: number }>();
+
+        for (const inv of invoices) {
+            const subtotal = inv.items.reduce((s, i) => s + i.amountKobo, 0) - inv.discountKobo;
+            const paid     = inv.payments.reduce((s, p) => s + p.amountKobo, 0);
+            const balance  = Math.max(subtotal - paid, 0);
+
+            if (balance <= 0) continue;
+
+            const existing = byStudent.get(inv.studentId);
+            const studentName = `${inv.student.firstName} ${inv.student.lastName}`;
+
+            if (existing) {
+                existing.totalOwedKobo += balance;
+                existing.invoiceCount  += 1;
+            } else {
+                byStudent.set(inv.studentId, { studentName, totalOwedKobo: balance, invoiceCount: 1 });
+            }
+        }
+
+        return Array.from(byStudent.entries())
+            .map(([studentId, v]) => ({ studentId, ...v }))
+            .sort((a, b) => b.totalOwedKobo - a.totalOwedKobo);
+    }
+
+    async recalculateInvoiceStatus(invoiceId: string): Promise<void> {
+        const raw = await this.prisma.feeInvoice.findUnique({
+            where: { id: invoiceId },
+            include: {
+                items:    true,
+                payments: { where: { status: "success" }, select: { amountKobo: true } },
+            },
+        });
+        if (!raw) return;
+
+        const subtotal = raw.items.reduce((s, i) => s + i.amountKobo, 0) - raw.discountKobo;
+        const paid     = raw.payments.reduce((s, p) => s + p.amountKobo, 0);
+
+        let status: Prisma.InvoiceStatus;
+        if (paid <= 0)              status = "unpaid";
+        else if (paid < subtotal)   status = "partial";
+        else                        status = "paid";
+
+        await this.prisma.feeInvoice.update({ where: { id: invoiceId }, data: { status } });
+    }
+
+    private mapEnriched(raw: any): EnrichedInvoice {
+        const subtotalKobo = raw.items.reduce((s: number, i: any) => s + i.amountKobo, 0) - raw.discountKobo;
+        const paidKobo      = raw.payments.reduce((s: number, p: any) => s + p.amountKobo, 0);
+        const balanceKobo   = Math.max(subtotalKobo - paidKobo, 0);
+
+        return {
+            id:           raw.id,
+            studentId:    raw.studentId,
+            studentName:  `${raw.student.firstName} ${raw.student.lastName}`,
+            termId:       raw.termId,
+            termName:     raw.term.name,
+            discountKobo: raw.discountKobo,
+            subtotalKobo,
+            paidKobo,
+            balanceKobo,
+            status:       raw.status,
+            dueDate:      raw.dueDate,
+            note:         raw.note,
+            items: raw.items.map((i: any) => ({
+                id:          i.id,
+                feeTypeId:   i.feeTypeId,
+                feeTypeName: i.feeType.name,
+                amountKobo:  i.amountKobo,
+            })),
+            createdAt: raw.createdAt,
+        };
     }
 }

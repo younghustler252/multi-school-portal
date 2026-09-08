@@ -1,26 +1,16 @@
-import { IFeeRepository }         from "../repositories/fee.repository";
-import { FeeInvoiceMapper }       from "../mappers/fee.mapper";
-import { FeeInvoiceResponseData } from "../mappers/fee.mapper";
-import { NotFoundError }          from "../../../shared/errors/domain.errors";
-import { FeeErrorMessage }        from "../domain/fee.enums";
+// GetInvoiceByIdUseCase
+import { IFeeRepository } from "../repositories/fee.repository";
+import { NotFoundError } from "../../../shared/errors/domain.errors";
 
-interface Dependencies {
-    feeRepository:    IFeeRepository;
-    feeInvoiceMapper: FeeInvoiceMapper;
-}
+interface Dependencies { feeRepository: IFeeRepository; }
 
 export class GetInvoiceByIdUseCase {
-    private readonly feeRepository:    IFeeRepository;
-    private readonly feeInvoiceMapper: FeeInvoiceMapper;
+    private readonly feeRepository: IFeeRepository;
+    constructor({ feeRepository }: Dependencies) { this.feeRepository = feeRepository; }
 
-    constructor({ feeRepository, feeInvoiceMapper }: Dependencies) {
-        this.feeRepository    = feeRepository;
-        this.feeInvoiceMapper = feeInvoiceMapper;
-    }
-
-    async execute(id: string): Promise<FeeInvoiceResponseData> {
-        const invoice = await this.feeRepository.findInvoiceById(id);
-        if (!invoice) throw new NotFoundError(FeeErrorMessage.INVOICE_NOT_FOUND ?? "Invoice not found");
-        return this.feeInvoiceMapper.toResponse(invoice);
+    async execute(id: string) {
+        const invoice = await this.feeRepository.findInvoiceByIdEnriched(id);
+        if (!invoice) throw new NotFoundError("Invoice not found");
+        return invoice;
     }
 }

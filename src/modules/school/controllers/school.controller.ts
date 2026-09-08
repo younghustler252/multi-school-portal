@@ -19,7 +19,7 @@ import { VerifySchoolUseCase }     from "../usecases/super-admin/verify-school.u
 import { RejectSchoolUseCase }     from "../usecases/super-admin/reject-school.usecase";
 import { SuspendSchoolUseCase }    from "../usecases/super-admin/suspend-school.usecase";
 import { GetSchoolDocumentsUseCase } from "../usecases/super-admin/get-school-document.usecase";
-import { ActivateSchoolUseCase }   from "../usecases/super-admin/activate-school.usecase";
+import { ApproveSchoolUseCase }  from "../usecases/super-admin/approve-school.usecase";
 import { ApproveDocumentUseCase }  from "../usecases/super-admin/approve-document.usecase";
 import { RejectDocumentUseCase }   from "../usecases/super-admin/reject-document.usecase";
 
@@ -58,7 +58,7 @@ interface Dependencies {
     rejectSchoolUseCase:   RejectSchoolUseCase;
     suspendSchoolUseCase:  SuspendSchoolUseCase;
     getSchoolDocumentsUseCase: GetSchoolDocumentsUseCase;
-    activateSchoolUseCase: ActivateSchoolUseCase;
+    approveSchoolUseCase: ApproveSchoolUseCase;
     approveDocumentUseCase: ApproveDocumentUseCase;
     rejectDocumentUseCase:  RejectDocumentUseCase;
 }
@@ -81,7 +81,7 @@ export class SchoolController {
     private readonly rejectSchoolUseCase:     RejectSchoolUseCase;
     private readonly suspendSchoolUseCase:    SuspendSchoolUseCase;
     private readonly getSchoolDocumentsUseCase:    GetSchoolDocumentsUseCase
-    private readonly activateSchoolUseCase:   ActivateSchoolUseCase;
+    private readonly approveSchoolUseCase:   ApproveSchoolUseCase;
     private readonly approveDocumentUseCase:  ApproveDocumentUseCase;
     private readonly rejectDocumentUseCase:   RejectDocumentUseCase;
 
@@ -102,7 +102,7 @@ export class SchoolController {
         verifySchoolUseCase,
         rejectSchoolUseCase,
         suspendSchoolUseCase,
-        activateSchoolUseCase,
+        approveSchoolUseCase,
         getSchoolDocumentsUseCase,
         approveDocumentUseCase,
         rejectDocumentUseCase,
@@ -125,7 +125,7 @@ export class SchoolController {
         this.rejectSchoolUseCase     = rejectSchoolUseCase;
         this.suspendSchoolUseCase    = suspendSchoolUseCase;
         this.getSchoolDocumentsUseCase = getSchoolDocumentsUseCase;
-        this.activateSchoolUseCase   = activateSchoolUseCase;
+        this.approveSchoolUseCase   = approveSchoolUseCase;
         this.approveDocumentUseCase  = approveDocumentUseCase;
         this.rejectDocumentUseCase   = rejectDocumentUseCase;
     }
@@ -373,9 +373,10 @@ export class SchoolController {
         next: NextFunction,
     ): Promise<void> => {
         try {
-            const result = await this.verifySchoolUseCase.execute({
-                schoolId: req.params.id as string,
-            });
+            const result = await this.approveSchoolUseCase.execute(
+                req.params.id as string,
+                req.user?.id as string,
+            );
             sendSuccess(res, result, "School verified successfully");
         } catch (err) {
             next(err);
@@ -417,14 +418,14 @@ export class SchoolController {
     };
 
 
-    // ── Activate school ───────────────────────────────────────────────────
-    activateSchool = async (
+    // ── Approve school ───────────────────────────────────────────────────
+    approveSchool = async (
         req: Request,
         res: Response,
         next: NextFunction,
     ): Promise<void> => {
     try {
-        const result = await this.activateSchoolUseCase.execute(
+        const result = await this.approveSchoolUseCase.execute(
             req.params.id as string,
             req.user?.id as string,
         );
@@ -442,11 +443,17 @@ export class SchoolController {
         next: NextFunction,
     ): Promise<void> => {
         try {
+            const { schoolId } = req.params;
+
             const result = await this.getSchoolDocumentsUseCase.execute(
-                req.user!.schoolId!,
+                schoolId as string,
             );
 
-            sendSuccess(res, result, "School documents retrieved successfully");
+            sendSuccess(
+                res,
+                result,
+                "School documents retrieved successfully",
+            );
         } catch (err) {
             next(err);
         }
@@ -454,14 +461,18 @@ export class SchoolController {
 
     // ── Approve document ──────────────────────────────────────────────────
     approveDocument = async (
-        req:  Request,
-        res:  Response,
+        req: Request,
+        res: Response,
         next: NextFunction,
     ): Promise<void> => {
         try {
-            const result = await this.approveDocumentUseCase.execute({
-                documentId: req.params.documentId as string,
-            });
+            const result = await this.approveDocumentUseCase.execute(
+                {
+                    documentId: req.params.documentId as string,
+                },
+                req.user?.id as string,
+            );
+
             sendSuccess(res, result, "Document approved successfully");
         } catch (err) {
             next(err);

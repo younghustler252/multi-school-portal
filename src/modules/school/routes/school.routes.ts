@@ -172,12 +172,12 @@ router.put(
     (req, res, next) => ctrl().suspendSchool(req, res, next),
 );
 
-// Activate school
+// approve school
 router.put(
-    "/:id/activate",
+    "/:id/approve",
     authenticate,
     requireSuperAdmin,
-    (req, res, next) => ctrl().activateSchool(req, res, next),
+    (req, res, next) => ctrl().approveSchool(req, res, next),
 );
 router.get(
     "/:schoolId/documents",

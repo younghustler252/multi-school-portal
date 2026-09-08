@@ -104,6 +104,11 @@ export type FeeType = $Result.DefaultSelection<Prisma.$FeeTypePayload>
  */
 export type FeeInvoice = $Result.DefaultSelection<Prisma.$FeeInvoicePayload>
 /**
+ * Model FeeInvoiceItem
+ * 
+ */
+export type FeeInvoiceItem = $Result.DefaultSelection<Prisma.$FeeInvoiceItemPayload>
+/**
  * Model Payment
  * 
  */
@@ -663,6 +668,16 @@ export class PrismaClient<
   get feeInvoice(): Prisma.FeeInvoiceDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.feeInvoiceItem`: Exposes CRUD operations for the **FeeInvoiceItem** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more FeeInvoiceItems
+    * const feeInvoiceItems = await prisma.feeInvoiceItem.findMany()
+    * ```
+    */
+  get feeInvoiceItem(): Prisma.FeeInvoiceItemDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.payment`: Exposes CRUD operations for the **Payment** model.
     * Example usage:
     * ```ts
@@ -1156,6 +1171,7 @@ export namespace Prisma {
     ReportCard: 'ReportCard',
     FeeType: 'FeeType',
     FeeInvoice: 'FeeInvoice',
+    FeeInvoiceItem: 'FeeInvoiceItem',
     Payment: 'Payment',
     SchoolNotification: 'SchoolNotification',
     SchoolNotificationRecipient: 'SchoolNotificationRecipient'
@@ -1174,7 +1190,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "staff" | "student" | "guardian" | "studentGuardian" | "calendarEvent" | "session" | "term" | "class" | "subject" | "classSubject" | "enrolment" | "schoolSettings" | "attendance" | "grade" | "gradingConfig" | "reportCard" | "feeType" | "feeInvoice" | "payment" | "schoolNotification" | "schoolNotificationRecipient"
+      modelProps: "staff" | "student" | "guardian" | "studentGuardian" | "calendarEvent" | "session" | "term" | "class" | "subject" | "classSubject" | "enrolment" | "schoolSettings" | "attendance" | "grade" | "gradingConfig" | "reportCard" | "feeType" | "feeInvoice" | "feeInvoiceItem" | "payment" | "schoolNotification" | "schoolNotificationRecipient"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2510,6 +2526,80 @@ export namespace Prisma {
           }
         }
       }
+      FeeInvoiceItem: {
+        payload: Prisma.$FeeInvoiceItemPayload<ExtArgs>
+        fields: Prisma.FeeInvoiceItemFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.FeeInvoiceItemFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeeInvoiceItemPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.FeeInvoiceItemFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeeInvoiceItemPayload>
+          }
+          findFirst: {
+            args: Prisma.FeeInvoiceItemFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeeInvoiceItemPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.FeeInvoiceItemFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeeInvoiceItemPayload>
+          }
+          findMany: {
+            args: Prisma.FeeInvoiceItemFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeeInvoiceItemPayload>[]
+          }
+          create: {
+            args: Prisma.FeeInvoiceItemCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeeInvoiceItemPayload>
+          }
+          createMany: {
+            args: Prisma.FeeInvoiceItemCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.FeeInvoiceItemCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeeInvoiceItemPayload>[]
+          }
+          delete: {
+            args: Prisma.FeeInvoiceItemDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeeInvoiceItemPayload>
+          }
+          update: {
+            args: Prisma.FeeInvoiceItemUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeeInvoiceItemPayload>
+          }
+          deleteMany: {
+            args: Prisma.FeeInvoiceItemDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.FeeInvoiceItemUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.FeeInvoiceItemUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeeInvoiceItemPayload>[]
+          }
+          upsert: {
+            args: Prisma.FeeInvoiceItemUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeeInvoiceItemPayload>
+          }
+          aggregate: {
+            args: Prisma.FeeInvoiceItemAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateFeeInvoiceItem>
+          }
+          groupBy: {
+            args: Prisma.FeeInvoiceItemGroupByArgs<ExtArgs>
+            result: $Utils.Optional<FeeInvoiceItemGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.FeeInvoiceItemCountArgs<ExtArgs>
+            result: $Utils.Optional<FeeInvoiceItemCountAggregateOutputType> | number
+          }
+        }
+      }
       Payment: {
         payload: Prisma.$PaymentPayload<ExtArgs>
         fields: Prisma.PaymentFieldRefs
@@ -2873,6 +2963,7 @@ export namespace Prisma {
     reportCard?: ReportCardOmit
     feeType?: FeeTypeOmit
     feeInvoice?: FeeInvoiceOmit
+    feeInvoiceItem?: FeeInvoiceItemOmit
     payment?: PaymentOmit
     schoolNotification?: SchoolNotificationOmit
     schoolNotificationRecipient?: SchoolNotificationRecipientOmit
@@ -3330,11 +3421,11 @@ export namespace Prisma {
    */
 
   export type FeeTypeCountOutputType = {
-    feeInvoices: number
+    invoiceItems: number
   }
 
   export type FeeTypeCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    feeInvoices?: boolean | FeeTypeCountOutputTypeCountFeeInvoicesArgs
+    invoiceItems?: boolean | FeeTypeCountOutputTypeCountInvoiceItemsArgs
   }
 
   // Custom InputTypes
@@ -3351,8 +3442,8 @@ export namespace Prisma {
   /**
    * FeeTypeCountOutputType without action
    */
-  export type FeeTypeCountOutputTypeCountFeeInvoicesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: FeeInvoiceWhereInput
+  export type FeeTypeCountOutputTypeCountInvoiceItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FeeInvoiceItemWhereInput
   }
 
 
@@ -3361,10 +3452,12 @@ export namespace Prisma {
    */
 
   export type FeeInvoiceCountOutputType = {
+    items: number
     payments: number
   }
 
   export type FeeInvoiceCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    items?: boolean | FeeInvoiceCountOutputTypeCountItemsArgs
     payments?: boolean | FeeInvoiceCountOutputTypeCountPaymentsArgs
   }
 
@@ -3377,6 +3470,13 @@ export namespace Prisma {
      * Select specific fields to fetch from the FeeInvoiceCountOutputType
      */
     select?: FeeInvoiceCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * FeeInvoiceCountOutputType without action
+   */
+  export type FeeInvoiceCountOutputTypeCountItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FeeInvoiceItemWhereInput
   }
 
   /**
@@ -22436,7 +22536,7 @@ export namespace Prisma {
     description?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    feeInvoices?: boolean | FeeType$feeInvoicesArgs<ExtArgs>
+    invoiceItems?: boolean | FeeType$invoiceItemsArgs<ExtArgs>
     _count?: boolean | FeeTypeCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["feeType"]>
 
@@ -22466,7 +22566,7 @@ export namespace Prisma {
 
   export type FeeTypeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "createdAt" | "updatedAt", ExtArgs["result"]["feeType"]>
   export type FeeTypeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    feeInvoices?: boolean | FeeType$feeInvoicesArgs<ExtArgs>
+    invoiceItems?: boolean | FeeType$invoiceItemsArgs<ExtArgs>
     _count?: boolean | FeeTypeCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type FeeTypeIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -22475,7 +22575,7 @@ export namespace Prisma {
   export type $FeeTypePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "FeeType"
     objects: {
-      feeInvoices: Prisma.$FeeInvoicePayload<ExtArgs>[]
+      invoiceItems: Prisma.$FeeInvoiceItemPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -22877,7 +22977,7 @@ export namespace Prisma {
    */
   export interface Prisma__FeeTypeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    feeInvoices<T extends FeeType$feeInvoicesArgs<ExtArgs> = {}>(args?: Subset<T, FeeType$feeInvoicesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeeInvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    invoiceItems<T extends FeeType$invoiceItemsArgs<ExtArgs> = {}>(args?: Subset<T, FeeType$invoiceItemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeeInvoiceItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -23305,27 +23405,27 @@ export namespace Prisma {
   }
 
   /**
-   * FeeType.feeInvoices
+   * FeeType.invoiceItems
    */
-  export type FeeType$feeInvoicesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FeeType$invoiceItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FeeInvoice
+     * Select specific fields to fetch from the FeeInvoiceItem
      */
-    select?: FeeInvoiceSelect<ExtArgs> | null
+    select?: FeeInvoiceItemSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the FeeInvoice
+     * Omit specific fields from the FeeInvoiceItem
      */
-    omit?: FeeInvoiceOmit<ExtArgs> | null
+    omit?: FeeInvoiceItemOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: FeeInvoiceInclude<ExtArgs> | null
-    where?: FeeInvoiceWhereInput
-    orderBy?: FeeInvoiceOrderByWithRelationInput | FeeInvoiceOrderByWithRelationInput[]
-    cursor?: FeeInvoiceWhereUniqueInput
+    include?: FeeInvoiceItemInclude<ExtArgs> | null
+    where?: FeeInvoiceItemWhereInput
+    orderBy?: FeeInvoiceItemOrderByWithRelationInput | FeeInvoiceItemOrderByWithRelationInput[]
+    cursor?: FeeInvoiceItemWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: FeeInvoiceScalarFieldEnum | FeeInvoiceScalarFieldEnum[]
+    distinct?: FeeInvoiceItemScalarFieldEnum | FeeInvoiceItemScalarFieldEnum[]
   }
 
   /**
@@ -23360,25 +23460,18 @@ export namespace Prisma {
   }
 
   export type FeeInvoiceAvgAggregateOutputType = {
-    amountKobo: number | null
-    paidKobo: number | null
-    balanceKobo: number | null
+    discountKobo: number | null
   }
 
   export type FeeInvoiceSumAggregateOutputType = {
-    amountKobo: number | null
-    paidKobo: number | null
-    balanceKobo: number | null
+    discountKobo: number | null
   }
 
   export type FeeInvoiceMinAggregateOutputType = {
     id: string | null
     studentId: string | null
     termId: string | null
-    feeTypeId: string | null
-    amountKobo: number | null
-    paidKobo: number | null
-    balanceKobo: number | null
+    discountKobo: number | null
     status: $Enums.InvoiceStatus | null
     dueDate: Date | null
     note: string | null
@@ -23390,10 +23483,7 @@ export namespace Prisma {
     id: string | null
     studentId: string | null
     termId: string | null
-    feeTypeId: string | null
-    amountKobo: number | null
-    paidKobo: number | null
-    balanceKobo: number | null
+    discountKobo: number | null
     status: $Enums.InvoiceStatus | null
     dueDate: Date | null
     note: string | null
@@ -23405,10 +23495,7 @@ export namespace Prisma {
     id: number
     studentId: number
     termId: number
-    feeTypeId: number
-    amountKobo: number
-    paidKobo: number
-    balanceKobo: number
+    discountKobo: number
     status: number
     dueDate: number
     note: number
@@ -23419,25 +23506,18 @@ export namespace Prisma {
 
 
   export type FeeInvoiceAvgAggregateInputType = {
-    amountKobo?: true
-    paidKobo?: true
-    balanceKobo?: true
+    discountKobo?: true
   }
 
   export type FeeInvoiceSumAggregateInputType = {
-    amountKobo?: true
-    paidKobo?: true
-    balanceKobo?: true
+    discountKobo?: true
   }
 
   export type FeeInvoiceMinAggregateInputType = {
     id?: true
     studentId?: true
     termId?: true
-    feeTypeId?: true
-    amountKobo?: true
-    paidKobo?: true
-    balanceKobo?: true
+    discountKobo?: true
     status?: true
     dueDate?: true
     note?: true
@@ -23449,10 +23529,7 @@ export namespace Prisma {
     id?: true
     studentId?: true
     termId?: true
-    feeTypeId?: true
-    amountKobo?: true
-    paidKobo?: true
-    balanceKobo?: true
+    discountKobo?: true
     status?: true
     dueDate?: true
     note?: true
@@ -23464,10 +23541,7 @@ export namespace Prisma {
     id?: true
     studentId?: true
     termId?: true
-    feeTypeId?: true
-    amountKobo?: true
-    paidKobo?: true
-    balanceKobo?: true
+    discountKobo?: true
     status?: true
     dueDate?: true
     note?: true
@@ -23566,10 +23640,7 @@ export namespace Prisma {
     id: string
     studentId: string
     termId: string
-    feeTypeId: string
-    amountKobo: number
-    paidKobo: number
-    balanceKobo: number
+    discountKobo: number
     status: $Enums.InvoiceStatus
     dueDate: Date | null
     note: string | null
@@ -23600,10 +23671,7 @@ export namespace Prisma {
     id?: boolean
     studentId?: boolean
     termId?: boolean
-    feeTypeId?: boolean
-    amountKobo?: boolean
-    paidKobo?: boolean
-    balanceKobo?: boolean
+    discountKobo?: boolean
     status?: boolean
     dueDate?: boolean
     note?: boolean
@@ -23611,7 +23679,7 @@ export namespace Prisma {
     updatedAt?: boolean
     student?: boolean | StudentDefaultArgs<ExtArgs>
     term?: boolean | TermDefaultArgs<ExtArgs>
-    feeType?: boolean | FeeTypeDefaultArgs<ExtArgs>
+    items?: boolean | FeeInvoice$itemsArgs<ExtArgs>
     payments?: boolean | FeeInvoice$paymentsArgs<ExtArgs>
     _count?: boolean | FeeInvoiceCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["feeInvoice"]>
@@ -23620,10 +23688,7 @@ export namespace Prisma {
     id?: boolean
     studentId?: boolean
     termId?: boolean
-    feeTypeId?: boolean
-    amountKobo?: boolean
-    paidKobo?: boolean
-    balanceKobo?: boolean
+    discountKobo?: boolean
     status?: boolean
     dueDate?: boolean
     note?: boolean
@@ -23631,17 +23696,13 @@ export namespace Prisma {
     updatedAt?: boolean
     student?: boolean | StudentDefaultArgs<ExtArgs>
     term?: boolean | TermDefaultArgs<ExtArgs>
-    feeType?: boolean | FeeTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["feeInvoice"]>
 
   export type FeeInvoiceSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     studentId?: boolean
     termId?: boolean
-    feeTypeId?: boolean
-    amountKobo?: boolean
-    paidKobo?: boolean
-    balanceKobo?: boolean
+    discountKobo?: boolean
     status?: boolean
     dueDate?: boolean
     note?: boolean
@@ -23649,17 +23710,13 @@ export namespace Prisma {
     updatedAt?: boolean
     student?: boolean | StudentDefaultArgs<ExtArgs>
     term?: boolean | TermDefaultArgs<ExtArgs>
-    feeType?: boolean | FeeTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["feeInvoice"]>
 
   export type FeeInvoiceSelectScalar = {
     id?: boolean
     studentId?: boolean
     termId?: boolean
-    feeTypeId?: boolean
-    amountKobo?: boolean
-    paidKobo?: boolean
-    balanceKobo?: boolean
+    discountKobo?: boolean
     status?: boolean
     dueDate?: boolean
     note?: boolean
@@ -23667,23 +23724,21 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type FeeInvoiceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "studentId" | "termId" | "feeTypeId" | "amountKobo" | "paidKobo" | "balanceKobo" | "status" | "dueDate" | "note" | "createdAt" | "updatedAt", ExtArgs["result"]["feeInvoice"]>
+  export type FeeInvoiceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "studentId" | "termId" | "discountKobo" | "status" | "dueDate" | "note" | "createdAt" | "updatedAt", ExtArgs["result"]["feeInvoice"]>
   export type FeeInvoiceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     student?: boolean | StudentDefaultArgs<ExtArgs>
     term?: boolean | TermDefaultArgs<ExtArgs>
-    feeType?: boolean | FeeTypeDefaultArgs<ExtArgs>
+    items?: boolean | FeeInvoice$itemsArgs<ExtArgs>
     payments?: boolean | FeeInvoice$paymentsArgs<ExtArgs>
     _count?: boolean | FeeInvoiceCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type FeeInvoiceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     student?: boolean | StudentDefaultArgs<ExtArgs>
     term?: boolean | TermDefaultArgs<ExtArgs>
-    feeType?: boolean | FeeTypeDefaultArgs<ExtArgs>
   }
   export type FeeInvoiceIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     student?: boolean | StudentDefaultArgs<ExtArgs>
     term?: boolean | TermDefaultArgs<ExtArgs>
-    feeType?: boolean | FeeTypeDefaultArgs<ExtArgs>
   }
 
   export type $FeeInvoicePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -23691,17 +23746,14 @@ export namespace Prisma {
     objects: {
       student: Prisma.$StudentPayload<ExtArgs>
       term: Prisma.$TermPayload<ExtArgs>
-      feeType: Prisma.$FeeTypePayload<ExtArgs>
+      items: Prisma.$FeeInvoiceItemPayload<ExtArgs>[]
       payments: Prisma.$PaymentPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       studentId: string
       termId: string
-      feeTypeId: string
-      amountKobo: number
-      paidKobo: number
-      balanceKobo: number
+      discountKobo: number
       status: $Enums.InvoiceStatus
       dueDate: Date | null
       note: string | null
@@ -24103,7 +24155,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     student<T extends StudentDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StudentDefaultArgs<ExtArgs>>): Prisma__StudentClient<$Result.GetResult<Prisma.$StudentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     term<T extends TermDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TermDefaultArgs<ExtArgs>>): Prisma__TermClient<$Result.GetResult<Prisma.$TermPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    feeType<T extends FeeTypeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, FeeTypeDefaultArgs<ExtArgs>>): Prisma__FeeTypeClient<$Result.GetResult<Prisma.$FeeTypePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    items<T extends FeeInvoice$itemsArgs<ExtArgs> = {}>(args?: Subset<T, FeeInvoice$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeeInvoiceItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     payments<T extends FeeInvoice$paymentsArgs<ExtArgs> = {}>(args?: Subset<T, FeeInvoice$paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -24137,10 +24189,7 @@ export namespace Prisma {
     readonly id: FieldRef<"FeeInvoice", 'String'>
     readonly studentId: FieldRef<"FeeInvoice", 'String'>
     readonly termId: FieldRef<"FeeInvoice", 'String'>
-    readonly feeTypeId: FieldRef<"FeeInvoice", 'String'>
-    readonly amountKobo: FieldRef<"FeeInvoice", 'Int'>
-    readonly paidKobo: FieldRef<"FeeInvoice", 'Int'>
-    readonly balanceKobo: FieldRef<"FeeInvoice", 'Int'>
+    readonly discountKobo: FieldRef<"FeeInvoice", 'Int'>
     readonly status: FieldRef<"FeeInvoice", 'InvoiceStatus'>
     readonly dueDate: FieldRef<"FeeInvoice", 'DateTime'>
     readonly note: FieldRef<"FeeInvoice", 'String'>
@@ -24547,6 +24596,30 @@ export namespace Prisma {
   }
 
   /**
+   * FeeInvoice.items
+   */
+  export type FeeInvoice$itemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FeeInvoiceItem
+     */
+    select?: FeeInvoiceItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FeeInvoiceItem
+     */
+    omit?: FeeInvoiceItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeeInvoiceItemInclude<ExtArgs> | null
+    where?: FeeInvoiceItemWhereInput
+    orderBy?: FeeInvoiceItemOrderByWithRelationInput | FeeInvoiceItemOrderByWithRelationInput[]
+    cursor?: FeeInvoiceItemWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: FeeInvoiceItemScalarFieldEnum | FeeInvoiceItemScalarFieldEnum[]
+  }
+
+  /**
    * FeeInvoice.payments
    */
   export type FeeInvoice$paymentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -24586,6 +24659,1111 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: FeeInvoiceInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model FeeInvoiceItem
+   */
+
+  export type AggregateFeeInvoiceItem = {
+    _count: FeeInvoiceItemCountAggregateOutputType | null
+    _avg: FeeInvoiceItemAvgAggregateOutputType | null
+    _sum: FeeInvoiceItemSumAggregateOutputType | null
+    _min: FeeInvoiceItemMinAggregateOutputType | null
+    _max: FeeInvoiceItemMaxAggregateOutputType | null
+  }
+
+  export type FeeInvoiceItemAvgAggregateOutputType = {
+    amountKobo: number | null
+  }
+
+  export type FeeInvoiceItemSumAggregateOutputType = {
+    amountKobo: number | null
+  }
+
+  export type FeeInvoiceItemMinAggregateOutputType = {
+    id: string | null
+    feeInvoiceId: string | null
+    feeTypeId: string | null
+    amountKobo: number | null
+    createdAt: Date | null
+  }
+
+  export type FeeInvoiceItemMaxAggregateOutputType = {
+    id: string | null
+    feeInvoiceId: string | null
+    feeTypeId: string | null
+    amountKobo: number | null
+    createdAt: Date | null
+  }
+
+  export type FeeInvoiceItemCountAggregateOutputType = {
+    id: number
+    feeInvoiceId: number
+    feeTypeId: number
+    amountKobo: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type FeeInvoiceItemAvgAggregateInputType = {
+    amountKobo?: true
+  }
+
+  export type FeeInvoiceItemSumAggregateInputType = {
+    amountKobo?: true
+  }
+
+  export type FeeInvoiceItemMinAggregateInputType = {
+    id?: true
+    feeInvoiceId?: true
+    feeTypeId?: true
+    amountKobo?: true
+    createdAt?: true
+  }
+
+  export type FeeInvoiceItemMaxAggregateInputType = {
+    id?: true
+    feeInvoiceId?: true
+    feeTypeId?: true
+    amountKobo?: true
+    createdAt?: true
+  }
+
+  export type FeeInvoiceItemCountAggregateInputType = {
+    id?: true
+    feeInvoiceId?: true
+    feeTypeId?: true
+    amountKobo?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type FeeInvoiceItemAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which FeeInvoiceItem to aggregate.
+     */
+    where?: FeeInvoiceItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FeeInvoiceItems to fetch.
+     */
+    orderBy?: FeeInvoiceItemOrderByWithRelationInput | FeeInvoiceItemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: FeeInvoiceItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FeeInvoiceItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FeeInvoiceItems.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned FeeInvoiceItems
+    **/
+    _count?: true | FeeInvoiceItemCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: FeeInvoiceItemAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: FeeInvoiceItemSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: FeeInvoiceItemMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: FeeInvoiceItemMaxAggregateInputType
+  }
+
+  export type GetFeeInvoiceItemAggregateType<T extends FeeInvoiceItemAggregateArgs> = {
+        [P in keyof T & keyof AggregateFeeInvoiceItem]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateFeeInvoiceItem[P]>
+      : GetScalarType<T[P], AggregateFeeInvoiceItem[P]>
+  }
+
+
+
+
+  export type FeeInvoiceItemGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FeeInvoiceItemWhereInput
+    orderBy?: FeeInvoiceItemOrderByWithAggregationInput | FeeInvoiceItemOrderByWithAggregationInput[]
+    by: FeeInvoiceItemScalarFieldEnum[] | FeeInvoiceItemScalarFieldEnum
+    having?: FeeInvoiceItemScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: FeeInvoiceItemCountAggregateInputType | true
+    _avg?: FeeInvoiceItemAvgAggregateInputType
+    _sum?: FeeInvoiceItemSumAggregateInputType
+    _min?: FeeInvoiceItemMinAggregateInputType
+    _max?: FeeInvoiceItemMaxAggregateInputType
+  }
+
+  export type FeeInvoiceItemGroupByOutputType = {
+    id: string
+    feeInvoiceId: string
+    feeTypeId: string
+    amountKobo: number
+    createdAt: Date
+    _count: FeeInvoiceItemCountAggregateOutputType | null
+    _avg: FeeInvoiceItemAvgAggregateOutputType | null
+    _sum: FeeInvoiceItemSumAggregateOutputType | null
+    _min: FeeInvoiceItemMinAggregateOutputType | null
+    _max: FeeInvoiceItemMaxAggregateOutputType | null
+  }
+
+  type GetFeeInvoiceItemGroupByPayload<T extends FeeInvoiceItemGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<FeeInvoiceItemGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof FeeInvoiceItemGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], FeeInvoiceItemGroupByOutputType[P]>
+            : GetScalarType<T[P], FeeInvoiceItemGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type FeeInvoiceItemSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    feeInvoiceId?: boolean
+    feeTypeId?: boolean
+    amountKobo?: boolean
+    createdAt?: boolean
+    feeInvoice?: boolean | FeeInvoiceDefaultArgs<ExtArgs>
+    feeType?: boolean | FeeTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["feeInvoiceItem"]>
+
+  export type FeeInvoiceItemSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    feeInvoiceId?: boolean
+    feeTypeId?: boolean
+    amountKobo?: boolean
+    createdAt?: boolean
+    feeInvoice?: boolean | FeeInvoiceDefaultArgs<ExtArgs>
+    feeType?: boolean | FeeTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["feeInvoiceItem"]>
+
+  export type FeeInvoiceItemSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    feeInvoiceId?: boolean
+    feeTypeId?: boolean
+    amountKobo?: boolean
+    createdAt?: boolean
+    feeInvoice?: boolean | FeeInvoiceDefaultArgs<ExtArgs>
+    feeType?: boolean | FeeTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["feeInvoiceItem"]>
+
+  export type FeeInvoiceItemSelectScalar = {
+    id?: boolean
+    feeInvoiceId?: boolean
+    feeTypeId?: boolean
+    amountKobo?: boolean
+    createdAt?: boolean
+  }
+
+  export type FeeInvoiceItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "feeInvoiceId" | "feeTypeId" | "amountKobo" | "createdAt", ExtArgs["result"]["feeInvoiceItem"]>
+  export type FeeInvoiceItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    feeInvoice?: boolean | FeeInvoiceDefaultArgs<ExtArgs>
+    feeType?: boolean | FeeTypeDefaultArgs<ExtArgs>
+  }
+  export type FeeInvoiceItemIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    feeInvoice?: boolean | FeeInvoiceDefaultArgs<ExtArgs>
+    feeType?: boolean | FeeTypeDefaultArgs<ExtArgs>
+  }
+  export type FeeInvoiceItemIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    feeInvoice?: boolean | FeeInvoiceDefaultArgs<ExtArgs>
+    feeType?: boolean | FeeTypeDefaultArgs<ExtArgs>
+  }
+
+  export type $FeeInvoiceItemPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "FeeInvoiceItem"
+    objects: {
+      feeInvoice: Prisma.$FeeInvoicePayload<ExtArgs>
+      feeType: Prisma.$FeeTypePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      feeInvoiceId: string
+      feeTypeId: string
+      amountKobo: number
+      createdAt: Date
+    }, ExtArgs["result"]["feeInvoiceItem"]>
+    composites: {}
+  }
+
+  type FeeInvoiceItemGetPayload<S extends boolean | null | undefined | FeeInvoiceItemDefaultArgs> = $Result.GetResult<Prisma.$FeeInvoiceItemPayload, S>
+
+  type FeeInvoiceItemCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<FeeInvoiceItemFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: FeeInvoiceItemCountAggregateInputType | true
+    }
+
+  export interface FeeInvoiceItemDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['FeeInvoiceItem'], meta: { name: 'FeeInvoiceItem' } }
+    /**
+     * Find zero or one FeeInvoiceItem that matches the filter.
+     * @param {FeeInvoiceItemFindUniqueArgs} args - Arguments to find a FeeInvoiceItem
+     * @example
+     * // Get one FeeInvoiceItem
+     * const feeInvoiceItem = await prisma.feeInvoiceItem.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends FeeInvoiceItemFindUniqueArgs>(args: SelectSubset<T, FeeInvoiceItemFindUniqueArgs<ExtArgs>>): Prisma__FeeInvoiceItemClient<$Result.GetResult<Prisma.$FeeInvoiceItemPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one FeeInvoiceItem that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {FeeInvoiceItemFindUniqueOrThrowArgs} args - Arguments to find a FeeInvoiceItem
+     * @example
+     * // Get one FeeInvoiceItem
+     * const feeInvoiceItem = await prisma.feeInvoiceItem.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends FeeInvoiceItemFindUniqueOrThrowArgs>(args: SelectSubset<T, FeeInvoiceItemFindUniqueOrThrowArgs<ExtArgs>>): Prisma__FeeInvoiceItemClient<$Result.GetResult<Prisma.$FeeInvoiceItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first FeeInvoiceItem that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FeeInvoiceItemFindFirstArgs} args - Arguments to find a FeeInvoiceItem
+     * @example
+     * // Get one FeeInvoiceItem
+     * const feeInvoiceItem = await prisma.feeInvoiceItem.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends FeeInvoiceItemFindFirstArgs>(args?: SelectSubset<T, FeeInvoiceItemFindFirstArgs<ExtArgs>>): Prisma__FeeInvoiceItemClient<$Result.GetResult<Prisma.$FeeInvoiceItemPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first FeeInvoiceItem that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FeeInvoiceItemFindFirstOrThrowArgs} args - Arguments to find a FeeInvoiceItem
+     * @example
+     * // Get one FeeInvoiceItem
+     * const feeInvoiceItem = await prisma.feeInvoiceItem.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends FeeInvoiceItemFindFirstOrThrowArgs>(args?: SelectSubset<T, FeeInvoiceItemFindFirstOrThrowArgs<ExtArgs>>): Prisma__FeeInvoiceItemClient<$Result.GetResult<Prisma.$FeeInvoiceItemPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more FeeInvoiceItems that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FeeInvoiceItemFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all FeeInvoiceItems
+     * const feeInvoiceItems = await prisma.feeInvoiceItem.findMany()
+     * 
+     * // Get first 10 FeeInvoiceItems
+     * const feeInvoiceItems = await prisma.feeInvoiceItem.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const feeInvoiceItemWithIdOnly = await prisma.feeInvoiceItem.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends FeeInvoiceItemFindManyArgs>(args?: SelectSubset<T, FeeInvoiceItemFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeeInvoiceItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a FeeInvoiceItem.
+     * @param {FeeInvoiceItemCreateArgs} args - Arguments to create a FeeInvoiceItem.
+     * @example
+     * // Create one FeeInvoiceItem
+     * const FeeInvoiceItem = await prisma.feeInvoiceItem.create({
+     *   data: {
+     *     // ... data to create a FeeInvoiceItem
+     *   }
+     * })
+     * 
+     */
+    create<T extends FeeInvoiceItemCreateArgs>(args: SelectSubset<T, FeeInvoiceItemCreateArgs<ExtArgs>>): Prisma__FeeInvoiceItemClient<$Result.GetResult<Prisma.$FeeInvoiceItemPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many FeeInvoiceItems.
+     * @param {FeeInvoiceItemCreateManyArgs} args - Arguments to create many FeeInvoiceItems.
+     * @example
+     * // Create many FeeInvoiceItems
+     * const feeInvoiceItem = await prisma.feeInvoiceItem.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends FeeInvoiceItemCreateManyArgs>(args?: SelectSubset<T, FeeInvoiceItemCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many FeeInvoiceItems and returns the data saved in the database.
+     * @param {FeeInvoiceItemCreateManyAndReturnArgs} args - Arguments to create many FeeInvoiceItems.
+     * @example
+     * // Create many FeeInvoiceItems
+     * const feeInvoiceItem = await prisma.feeInvoiceItem.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many FeeInvoiceItems and only return the `id`
+     * const feeInvoiceItemWithIdOnly = await prisma.feeInvoiceItem.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends FeeInvoiceItemCreateManyAndReturnArgs>(args?: SelectSubset<T, FeeInvoiceItemCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeeInvoiceItemPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a FeeInvoiceItem.
+     * @param {FeeInvoiceItemDeleteArgs} args - Arguments to delete one FeeInvoiceItem.
+     * @example
+     * // Delete one FeeInvoiceItem
+     * const FeeInvoiceItem = await prisma.feeInvoiceItem.delete({
+     *   where: {
+     *     // ... filter to delete one FeeInvoiceItem
+     *   }
+     * })
+     * 
+     */
+    delete<T extends FeeInvoiceItemDeleteArgs>(args: SelectSubset<T, FeeInvoiceItemDeleteArgs<ExtArgs>>): Prisma__FeeInvoiceItemClient<$Result.GetResult<Prisma.$FeeInvoiceItemPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one FeeInvoiceItem.
+     * @param {FeeInvoiceItemUpdateArgs} args - Arguments to update one FeeInvoiceItem.
+     * @example
+     * // Update one FeeInvoiceItem
+     * const feeInvoiceItem = await prisma.feeInvoiceItem.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends FeeInvoiceItemUpdateArgs>(args: SelectSubset<T, FeeInvoiceItemUpdateArgs<ExtArgs>>): Prisma__FeeInvoiceItemClient<$Result.GetResult<Prisma.$FeeInvoiceItemPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more FeeInvoiceItems.
+     * @param {FeeInvoiceItemDeleteManyArgs} args - Arguments to filter FeeInvoiceItems to delete.
+     * @example
+     * // Delete a few FeeInvoiceItems
+     * const { count } = await prisma.feeInvoiceItem.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends FeeInvoiceItemDeleteManyArgs>(args?: SelectSubset<T, FeeInvoiceItemDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more FeeInvoiceItems.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FeeInvoiceItemUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many FeeInvoiceItems
+     * const feeInvoiceItem = await prisma.feeInvoiceItem.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends FeeInvoiceItemUpdateManyArgs>(args: SelectSubset<T, FeeInvoiceItemUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more FeeInvoiceItems and returns the data updated in the database.
+     * @param {FeeInvoiceItemUpdateManyAndReturnArgs} args - Arguments to update many FeeInvoiceItems.
+     * @example
+     * // Update many FeeInvoiceItems
+     * const feeInvoiceItem = await prisma.feeInvoiceItem.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more FeeInvoiceItems and only return the `id`
+     * const feeInvoiceItemWithIdOnly = await prisma.feeInvoiceItem.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends FeeInvoiceItemUpdateManyAndReturnArgs>(args: SelectSubset<T, FeeInvoiceItemUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeeInvoiceItemPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one FeeInvoiceItem.
+     * @param {FeeInvoiceItemUpsertArgs} args - Arguments to update or create a FeeInvoiceItem.
+     * @example
+     * // Update or create a FeeInvoiceItem
+     * const feeInvoiceItem = await prisma.feeInvoiceItem.upsert({
+     *   create: {
+     *     // ... data to create a FeeInvoiceItem
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the FeeInvoiceItem we want to update
+     *   }
+     * })
+     */
+    upsert<T extends FeeInvoiceItemUpsertArgs>(args: SelectSubset<T, FeeInvoiceItemUpsertArgs<ExtArgs>>): Prisma__FeeInvoiceItemClient<$Result.GetResult<Prisma.$FeeInvoiceItemPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of FeeInvoiceItems.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FeeInvoiceItemCountArgs} args - Arguments to filter FeeInvoiceItems to count.
+     * @example
+     * // Count the number of FeeInvoiceItems
+     * const count = await prisma.feeInvoiceItem.count({
+     *   where: {
+     *     // ... the filter for the FeeInvoiceItems we want to count
+     *   }
+     * })
+    **/
+    count<T extends FeeInvoiceItemCountArgs>(
+      args?: Subset<T, FeeInvoiceItemCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], FeeInvoiceItemCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a FeeInvoiceItem.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FeeInvoiceItemAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends FeeInvoiceItemAggregateArgs>(args: Subset<T, FeeInvoiceItemAggregateArgs>): Prisma.PrismaPromise<GetFeeInvoiceItemAggregateType<T>>
+
+    /**
+     * Group by FeeInvoiceItem.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FeeInvoiceItemGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends FeeInvoiceItemGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: FeeInvoiceItemGroupByArgs['orderBy'] }
+        : { orderBy?: FeeInvoiceItemGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, FeeInvoiceItemGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFeeInvoiceItemGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the FeeInvoiceItem model
+   */
+  readonly fields: FeeInvoiceItemFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for FeeInvoiceItem.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__FeeInvoiceItemClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    feeInvoice<T extends FeeInvoiceDefaultArgs<ExtArgs> = {}>(args?: Subset<T, FeeInvoiceDefaultArgs<ExtArgs>>): Prisma__FeeInvoiceClient<$Result.GetResult<Prisma.$FeeInvoicePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    feeType<T extends FeeTypeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, FeeTypeDefaultArgs<ExtArgs>>): Prisma__FeeTypeClient<$Result.GetResult<Prisma.$FeeTypePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the FeeInvoiceItem model
+   */
+  interface FeeInvoiceItemFieldRefs {
+    readonly id: FieldRef<"FeeInvoiceItem", 'String'>
+    readonly feeInvoiceId: FieldRef<"FeeInvoiceItem", 'String'>
+    readonly feeTypeId: FieldRef<"FeeInvoiceItem", 'String'>
+    readonly amountKobo: FieldRef<"FeeInvoiceItem", 'Int'>
+    readonly createdAt: FieldRef<"FeeInvoiceItem", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * FeeInvoiceItem findUnique
+   */
+  export type FeeInvoiceItemFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FeeInvoiceItem
+     */
+    select?: FeeInvoiceItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FeeInvoiceItem
+     */
+    omit?: FeeInvoiceItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeeInvoiceItemInclude<ExtArgs> | null
+    /**
+     * Filter, which FeeInvoiceItem to fetch.
+     */
+    where: FeeInvoiceItemWhereUniqueInput
+  }
+
+  /**
+   * FeeInvoiceItem findUniqueOrThrow
+   */
+  export type FeeInvoiceItemFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FeeInvoiceItem
+     */
+    select?: FeeInvoiceItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FeeInvoiceItem
+     */
+    omit?: FeeInvoiceItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeeInvoiceItemInclude<ExtArgs> | null
+    /**
+     * Filter, which FeeInvoiceItem to fetch.
+     */
+    where: FeeInvoiceItemWhereUniqueInput
+  }
+
+  /**
+   * FeeInvoiceItem findFirst
+   */
+  export type FeeInvoiceItemFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FeeInvoiceItem
+     */
+    select?: FeeInvoiceItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FeeInvoiceItem
+     */
+    omit?: FeeInvoiceItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeeInvoiceItemInclude<ExtArgs> | null
+    /**
+     * Filter, which FeeInvoiceItem to fetch.
+     */
+    where?: FeeInvoiceItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FeeInvoiceItems to fetch.
+     */
+    orderBy?: FeeInvoiceItemOrderByWithRelationInput | FeeInvoiceItemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for FeeInvoiceItems.
+     */
+    cursor?: FeeInvoiceItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FeeInvoiceItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FeeInvoiceItems.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FeeInvoiceItems.
+     */
+    distinct?: FeeInvoiceItemScalarFieldEnum | FeeInvoiceItemScalarFieldEnum[]
+  }
+
+  /**
+   * FeeInvoiceItem findFirstOrThrow
+   */
+  export type FeeInvoiceItemFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FeeInvoiceItem
+     */
+    select?: FeeInvoiceItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FeeInvoiceItem
+     */
+    omit?: FeeInvoiceItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeeInvoiceItemInclude<ExtArgs> | null
+    /**
+     * Filter, which FeeInvoiceItem to fetch.
+     */
+    where?: FeeInvoiceItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FeeInvoiceItems to fetch.
+     */
+    orderBy?: FeeInvoiceItemOrderByWithRelationInput | FeeInvoiceItemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for FeeInvoiceItems.
+     */
+    cursor?: FeeInvoiceItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FeeInvoiceItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FeeInvoiceItems.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FeeInvoiceItems.
+     */
+    distinct?: FeeInvoiceItemScalarFieldEnum | FeeInvoiceItemScalarFieldEnum[]
+  }
+
+  /**
+   * FeeInvoiceItem findMany
+   */
+  export type FeeInvoiceItemFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FeeInvoiceItem
+     */
+    select?: FeeInvoiceItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FeeInvoiceItem
+     */
+    omit?: FeeInvoiceItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeeInvoiceItemInclude<ExtArgs> | null
+    /**
+     * Filter, which FeeInvoiceItems to fetch.
+     */
+    where?: FeeInvoiceItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FeeInvoiceItems to fetch.
+     */
+    orderBy?: FeeInvoiceItemOrderByWithRelationInput | FeeInvoiceItemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing FeeInvoiceItems.
+     */
+    cursor?: FeeInvoiceItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FeeInvoiceItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FeeInvoiceItems.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FeeInvoiceItems.
+     */
+    distinct?: FeeInvoiceItemScalarFieldEnum | FeeInvoiceItemScalarFieldEnum[]
+  }
+
+  /**
+   * FeeInvoiceItem create
+   */
+  export type FeeInvoiceItemCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FeeInvoiceItem
+     */
+    select?: FeeInvoiceItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FeeInvoiceItem
+     */
+    omit?: FeeInvoiceItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeeInvoiceItemInclude<ExtArgs> | null
+    /**
+     * The data needed to create a FeeInvoiceItem.
+     */
+    data: XOR<FeeInvoiceItemCreateInput, FeeInvoiceItemUncheckedCreateInput>
+  }
+
+  /**
+   * FeeInvoiceItem createMany
+   */
+  export type FeeInvoiceItemCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many FeeInvoiceItems.
+     */
+    data: FeeInvoiceItemCreateManyInput | FeeInvoiceItemCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * FeeInvoiceItem createManyAndReturn
+   */
+  export type FeeInvoiceItemCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FeeInvoiceItem
+     */
+    select?: FeeInvoiceItemSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the FeeInvoiceItem
+     */
+    omit?: FeeInvoiceItemOmit<ExtArgs> | null
+    /**
+     * The data used to create many FeeInvoiceItems.
+     */
+    data: FeeInvoiceItemCreateManyInput | FeeInvoiceItemCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeeInvoiceItemIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * FeeInvoiceItem update
+   */
+  export type FeeInvoiceItemUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FeeInvoiceItem
+     */
+    select?: FeeInvoiceItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FeeInvoiceItem
+     */
+    omit?: FeeInvoiceItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeeInvoiceItemInclude<ExtArgs> | null
+    /**
+     * The data needed to update a FeeInvoiceItem.
+     */
+    data: XOR<FeeInvoiceItemUpdateInput, FeeInvoiceItemUncheckedUpdateInput>
+    /**
+     * Choose, which FeeInvoiceItem to update.
+     */
+    where: FeeInvoiceItemWhereUniqueInput
+  }
+
+  /**
+   * FeeInvoiceItem updateMany
+   */
+  export type FeeInvoiceItemUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update FeeInvoiceItems.
+     */
+    data: XOR<FeeInvoiceItemUpdateManyMutationInput, FeeInvoiceItemUncheckedUpdateManyInput>
+    /**
+     * Filter which FeeInvoiceItems to update
+     */
+    where?: FeeInvoiceItemWhereInput
+    /**
+     * Limit how many FeeInvoiceItems to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * FeeInvoiceItem updateManyAndReturn
+   */
+  export type FeeInvoiceItemUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FeeInvoiceItem
+     */
+    select?: FeeInvoiceItemSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the FeeInvoiceItem
+     */
+    omit?: FeeInvoiceItemOmit<ExtArgs> | null
+    /**
+     * The data used to update FeeInvoiceItems.
+     */
+    data: XOR<FeeInvoiceItemUpdateManyMutationInput, FeeInvoiceItemUncheckedUpdateManyInput>
+    /**
+     * Filter which FeeInvoiceItems to update
+     */
+    where?: FeeInvoiceItemWhereInput
+    /**
+     * Limit how many FeeInvoiceItems to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeeInvoiceItemIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * FeeInvoiceItem upsert
+   */
+  export type FeeInvoiceItemUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FeeInvoiceItem
+     */
+    select?: FeeInvoiceItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FeeInvoiceItem
+     */
+    omit?: FeeInvoiceItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeeInvoiceItemInclude<ExtArgs> | null
+    /**
+     * The filter to search for the FeeInvoiceItem to update in case it exists.
+     */
+    where: FeeInvoiceItemWhereUniqueInput
+    /**
+     * In case the FeeInvoiceItem found by the `where` argument doesn't exist, create a new FeeInvoiceItem with this data.
+     */
+    create: XOR<FeeInvoiceItemCreateInput, FeeInvoiceItemUncheckedCreateInput>
+    /**
+     * In case the FeeInvoiceItem was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<FeeInvoiceItemUpdateInput, FeeInvoiceItemUncheckedUpdateInput>
+  }
+
+  /**
+   * FeeInvoiceItem delete
+   */
+  export type FeeInvoiceItemDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FeeInvoiceItem
+     */
+    select?: FeeInvoiceItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FeeInvoiceItem
+     */
+    omit?: FeeInvoiceItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeeInvoiceItemInclude<ExtArgs> | null
+    /**
+     * Filter which FeeInvoiceItem to delete.
+     */
+    where: FeeInvoiceItemWhereUniqueInput
+  }
+
+  /**
+   * FeeInvoiceItem deleteMany
+   */
+  export type FeeInvoiceItemDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which FeeInvoiceItems to delete
+     */
+    where?: FeeInvoiceItemWhereInput
+    /**
+     * Limit how many FeeInvoiceItems to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * FeeInvoiceItem without action
+   */
+  export type FeeInvoiceItemDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FeeInvoiceItem
+     */
+    select?: FeeInvoiceItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FeeInvoiceItem
+     */
+    omit?: FeeInvoiceItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeeInvoiceItemInclude<ExtArgs> | null
   }
 
 
@@ -28490,10 +29668,7 @@ export namespace Prisma {
     id: 'id',
     studentId: 'studentId',
     termId: 'termId',
-    feeTypeId: 'feeTypeId',
-    amountKobo: 'amountKobo',
-    paidKobo: 'paidKobo',
-    balanceKobo: 'balanceKobo',
+    discountKobo: 'discountKobo',
     status: 'status',
     dueDate: 'dueDate',
     note: 'note',
@@ -28502,6 +29677,17 @@ export namespace Prisma {
   };
 
   export type FeeInvoiceScalarFieldEnum = (typeof FeeInvoiceScalarFieldEnum)[keyof typeof FeeInvoiceScalarFieldEnum]
+
+
+  export const FeeInvoiceItemScalarFieldEnum: {
+    id: 'id',
+    feeInvoiceId: 'feeInvoiceId',
+    feeTypeId: 'feeTypeId',
+    amountKobo: 'amountKobo',
+    createdAt: 'createdAt'
+  };
+
+  export type FeeInvoiceItemScalarFieldEnum = (typeof FeeInvoiceItemScalarFieldEnum)[keyof typeof FeeInvoiceItemScalarFieldEnum]
 
 
   export const PaymentScalarFieldEnum: {
@@ -30306,7 +31492,7 @@ export namespace Prisma {
     description?: StringNullableFilter<"FeeType"> | string | null
     createdAt?: DateTimeFilter<"FeeType"> | Date | string
     updatedAt?: DateTimeFilter<"FeeType"> | Date | string
-    feeInvoices?: FeeInvoiceListRelationFilter
+    invoiceItems?: FeeInvoiceItemListRelationFilter
   }
 
   export type FeeTypeOrderByWithRelationInput = {
@@ -30315,7 +31501,7 @@ export namespace Prisma {
     description?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    feeInvoices?: FeeInvoiceOrderByRelationAggregateInput
+    invoiceItems?: FeeInvoiceItemOrderByRelationAggregateInput
   }
 
   export type FeeTypeWhereUniqueInput = Prisma.AtLeast<{
@@ -30327,7 +31513,7 @@ export namespace Prisma {
     description?: StringNullableFilter<"FeeType"> | string | null
     createdAt?: DateTimeFilter<"FeeType"> | Date | string
     updatedAt?: DateTimeFilter<"FeeType"> | Date | string
-    feeInvoices?: FeeInvoiceListRelationFilter
+    invoiceItems?: FeeInvoiceItemListRelationFilter
   }, "id">
 
   export type FeeTypeOrderByWithAggregationInput = {
@@ -30359,10 +31545,7 @@ export namespace Prisma {
     id?: StringFilter<"FeeInvoice"> | string
     studentId?: StringFilter<"FeeInvoice"> | string
     termId?: StringFilter<"FeeInvoice"> | string
-    feeTypeId?: StringFilter<"FeeInvoice"> | string
-    amountKobo?: IntFilter<"FeeInvoice"> | number
-    paidKobo?: IntFilter<"FeeInvoice"> | number
-    balanceKobo?: IntFilter<"FeeInvoice"> | number
+    discountKobo?: IntFilter<"FeeInvoice"> | number
     status?: EnumInvoiceStatusFilter<"FeeInvoice"> | $Enums.InvoiceStatus
     dueDate?: DateTimeNullableFilter<"FeeInvoice"> | Date | string | null
     note?: StringNullableFilter<"FeeInvoice"> | string | null
@@ -30370,7 +31553,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"FeeInvoice"> | Date | string
     student?: XOR<StudentScalarRelationFilter, StudentWhereInput>
     term?: XOR<TermScalarRelationFilter, TermWhereInput>
-    feeType?: XOR<FeeTypeScalarRelationFilter, FeeTypeWhereInput>
+    items?: FeeInvoiceItemListRelationFilter
     payments?: PaymentListRelationFilter
   }
 
@@ -30378,10 +31561,7 @@ export namespace Prisma {
     id?: SortOrder
     studentId?: SortOrder
     termId?: SortOrder
-    feeTypeId?: SortOrder
-    amountKobo?: SortOrder
-    paidKobo?: SortOrder
-    balanceKobo?: SortOrder
+    discountKobo?: SortOrder
     status?: SortOrder
     dueDate?: SortOrderInput | SortOrder
     note?: SortOrderInput | SortOrder
@@ -30389,21 +31569,19 @@ export namespace Prisma {
     updatedAt?: SortOrder
     student?: StudentOrderByWithRelationInput
     term?: TermOrderByWithRelationInput
-    feeType?: FeeTypeOrderByWithRelationInput
+    items?: FeeInvoiceItemOrderByRelationAggregateInput
     payments?: PaymentOrderByRelationAggregateInput
   }
 
   export type FeeInvoiceWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    studentId_termId?: FeeInvoiceStudentIdTermIdCompoundUniqueInput
     AND?: FeeInvoiceWhereInput | FeeInvoiceWhereInput[]
     OR?: FeeInvoiceWhereInput[]
     NOT?: FeeInvoiceWhereInput | FeeInvoiceWhereInput[]
     studentId?: StringFilter<"FeeInvoice"> | string
     termId?: StringFilter<"FeeInvoice"> | string
-    feeTypeId?: StringFilter<"FeeInvoice"> | string
-    amountKobo?: IntFilter<"FeeInvoice"> | number
-    paidKobo?: IntFilter<"FeeInvoice"> | number
-    balanceKobo?: IntFilter<"FeeInvoice"> | number
+    discountKobo?: IntFilter<"FeeInvoice"> | number
     status?: EnumInvoiceStatusFilter<"FeeInvoice"> | $Enums.InvoiceStatus
     dueDate?: DateTimeNullableFilter<"FeeInvoice"> | Date | string | null
     note?: StringNullableFilter<"FeeInvoice"> | string | null
@@ -30411,18 +31589,15 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"FeeInvoice"> | Date | string
     student?: XOR<StudentScalarRelationFilter, StudentWhereInput>
     term?: XOR<TermScalarRelationFilter, TermWhereInput>
-    feeType?: XOR<FeeTypeScalarRelationFilter, FeeTypeWhereInput>
+    items?: FeeInvoiceItemListRelationFilter
     payments?: PaymentListRelationFilter
-  }, "id">
+  }, "id" | "studentId_termId">
 
   export type FeeInvoiceOrderByWithAggregationInput = {
     id?: SortOrder
     studentId?: SortOrder
     termId?: SortOrder
-    feeTypeId?: SortOrder
-    amountKobo?: SortOrder
-    paidKobo?: SortOrder
-    balanceKobo?: SortOrder
+    discountKobo?: SortOrder
     status?: SortOrder
     dueDate?: SortOrderInput | SortOrder
     note?: SortOrderInput | SortOrder
@@ -30442,15 +31617,72 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"FeeInvoice"> | string
     studentId?: StringWithAggregatesFilter<"FeeInvoice"> | string
     termId?: StringWithAggregatesFilter<"FeeInvoice"> | string
-    feeTypeId?: StringWithAggregatesFilter<"FeeInvoice"> | string
-    amountKobo?: IntWithAggregatesFilter<"FeeInvoice"> | number
-    paidKobo?: IntWithAggregatesFilter<"FeeInvoice"> | number
-    balanceKobo?: IntWithAggregatesFilter<"FeeInvoice"> | number
+    discountKobo?: IntWithAggregatesFilter<"FeeInvoice"> | number
     status?: EnumInvoiceStatusWithAggregatesFilter<"FeeInvoice"> | $Enums.InvoiceStatus
     dueDate?: DateTimeNullableWithAggregatesFilter<"FeeInvoice"> | Date | string | null
     note?: StringNullableWithAggregatesFilter<"FeeInvoice"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"FeeInvoice"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"FeeInvoice"> | Date | string
+  }
+
+  export type FeeInvoiceItemWhereInput = {
+    AND?: FeeInvoiceItemWhereInput | FeeInvoiceItemWhereInput[]
+    OR?: FeeInvoiceItemWhereInput[]
+    NOT?: FeeInvoiceItemWhereInput | FeeInvoiceItemWhereInput[]
+    id?: StringFilter<"FeeInvoiceItem"> | string
+    feeInvoiceId?: StringFilter<"FeeInvoiceItem"> | string
+    feeTypeId?: StringFilter<"FeeInvoiceItem"> | string
+    amountKobo?: IntFilter<"FeeInvoiceItem"> | number
+    createdAt?: DateTimeFilter<"FeeInvoiceItem"> | Date | string
+    feeInvoice?: XOR<FeeInvoiceScalarRelationFilter, FeeInvoiceWhereInput>
+    feeType?: XOR<FeeTypeScalarRelationFilter, FeeTypeWhereInput>
+  }
+
+  export type FeeInvoiceItemOrderByWithRelationInput = {
+    id?: SortOrder
+    feeInvoiceId?: SortOrder
+    feeTypeId?: SortOrder
+    amountKobo?: SortOrder
+    createdAt?: SortOrder
+    feeInvoice?: FeeInvoiceOrderByWithRelationInput
+    feeType?: FeeTypeOrderByWithRelationInput
+  }
+
+  export type FeeInvoiceItemWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: FeeInvoiceItemWhereInput | FeeInvoiceItemWhereInput[]
+    OR?: FeeInvoiceItemWhereInput[]
+    NOT?: FeeInvoiceItemWhereInput | FeeInvoiceItemWhereInput[]
+    feeInvoiceId?: StringFilter<"FeeInvoiceItem"> | string
+    feeTypeId?: StringFilter<"FeeInvoiceItem"> | string
+    amountKobo?: IntFilter<"FeeInvoiceItem"> | number
+    createdAt?: DateTimeFilter<"FeeInvoiceItem"> | Date | string
+    feeInvoice?: XOR<FeeInvoiceScalarRelationFilter, FeeInvoiceWhereInput>
+    feeType?: XOR<FeeTypeScalarRelationFilter, FeeTypeWhereInput>
+  }, "id">
+
+  export type FeeInvoiceItemOrderByWithAggregationInput = {
+    id?: SortOrder
+    feeInvoiceId?: SortOrder
+    feeTypeId?: SortOrder
+    amountKobo?: SortOrder
+    createdAt?: SortOrder
+    _count?: FeeInvoiceItemCountOrderByAggregateInput
+    _avg?: FeeInvoiceItemAvgOrderByAggregateInput
+    _max?: FeeInvoiceItemMaxOrderByAggregateInput
+    _min?: FeeInvoiceItemMinOrderByAggregateInput
+    _sum?: FeeInvoiceItemSumOrderByAggregateInput
+  }
+
+  export type FeeInvoiceItemScalarWhereWithAggregatesInput = {
+    AND?: FeeInvoiceItemScalarWhereWithAggregatesInput | FeeInvoiceItemScalarWhereWithAggregatesInput[]
+    OR?: FeeInvoiceItemScalarWhereWithAggregatesInput[]
+    NOT?: FeeInvoiceItemScalarWhereWithAggregatesInput | FeeInvoiceItemScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"FeeInvoiceItem"> | string
+    feeInvoiceId?: StringWithAggregatesFilter<"FeeInvoiceItem"> | string
+    feeTypeId?: StringWithAggregatesFilter<"FeeInvoiceItem"> | string
+    amountKobo?: IntWithAggregatesFilter<"FeeInvoiceItem"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"FeeInvoiceItem"> | Date | string
   }
 
   export type PaymentWhereInput = {
@@ -32303,7 +33535,7 @@ export namespace Prisma {
     description?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    feeInvoices?: FeeInvoiceCreateNestedManyWithoutFeeTypeInput
+    invoiceItems?: FeeInvoiceItemCreateNestedManyWithoutFeeTypeInput
   }
 
   export type FeeTypeUncheckedCreateInput = {
@@ -32312,7 +33544,7 @@ export namespace Prisma {
     description?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    feeInvoices?: FeeInvoiceUncheckedCreateNestedManyWithoutFeeTypeInput
+    invoiceItems?: FeeInvoiceItemUncheckedCreateNestedManyWithoutFeeTypeInput
   }
 
   export type FeeTypeUpdateInput = {
@@ -32321,7 +33553,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    feeInvoices?: FeeInvoiceUpdateManyWithoutFeeTypeNestedInput
+    invoiceItems?: FeeInvoiceItemUpdateManyWithoutFeeTypeNestedInput
   }
 
   export type FeeTypeUncheckedUpdateInput = {
@@ -32330,7 +33562,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    feeInvoices?: FeeInvoiceUncheckedUpdateManyWithoutFeeTypeNestedInput
+    invoiceItems?: FeeInvoiceItemUncheckedUpdateManyWithoutFeeTypeNestedInput
   }
 
   export type FeeTypeCreateManyInput = {
@@ -32359,9 +33591,7 @@ export namespace Prisma {
 
   export type FeeInvoiceCreateInput = {
     id?: string
-    amountKobo: number
-    paidKobo?: number
-    balanceKobo?: number
+    discountKobo?: number
     status?: $Enums.InvoiceStatus
     dueDate?: Date | string | null
     note?: string | null
@@ -32369,7 +33599,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     student: StudentCreateNestedOneWithoutFeeInvoicesInput
     term: TermCreateNestedOneWithoutFeeInvoicesInput
-    feeType: FeeTypeCreateNestedOneWithoutFeeInvoicesInput
+    items?: FeeInvoiceItemCreateNestedManyWithoutFeeInvoiceInput
     payments?: PaymentCreateNestedManyWithoutFeeInvoiceInput
   }
 
@@ -32377,23 +33607,19 @@ export namespace Prisma {
     id?: string
     studentId: string
     termId: string
-    feeTypeId: string
-    amountKobo: number
-    paidKobo?: number
-    balanceKobo?: number
+    discountKobo?: number
     status?: $Enums.InvoiceStatus
     dueDate?: Date | string | null
     note?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    items?: FeeInvoiceItemUncheckedCreateNestedManyWithoutFeeInvoiceInput
     payments?: PaymentUncheckedCreateNestedManyWithoutFeeInvoiceInput
   }
 
   export type FeeInvoiceUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    amountKobo?: IntFieldUpdateOperationsInput | number
-    paidKobo?: IntFieldUpdateOperationsInput | number
-    balanceKobo?: IntFieldUpdateOperationsInput | number
+    discountKobo?: IntFieldUpdateOperationsInput | number
     status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
@@ -32401,7 +33627,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     student?: StudentUpdateOneRequiredWithoutFeeInvoicesNestedInput
     term?: TermUpdateOneRequiredWithoutFeeInvoicesNestedInput
-    feeType?: FeeTypeUpdateOneRequiredWithoutFeeInvoicesNestedInput
+    items?: FeeInvoiceItemUpdateManyWithoutFeeInvoiceNestedInput
     payments?: PaymentUpdateManyWithoutFeeInvoiceNestedInput
   }
 
@@ -32409,15 +33635,13 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     studentId?: StringFieldUpdateOperationsInput | string
     termId?: StringFieldUpdateOperationsInput | string
-    feeTypeId?: StringFieldUpdateOperationsInput | string
-    amountKobo?: IntFieldUpdateOperationsInput | number
-    paidKobo?: IntFieldUpdateOperationsInput | number
-    balanceKobo?: IntFieldUpdateOperationsInput | number
+    discountKobo?: IntFieldUpdateOperationsInput | number
     status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    items?: FeeInvoiceItemUncheckedUpdateManyWithoutFeeInvoiceNestedInput
     payments?: PaymentUncheckedUpdateManyWithoutFeeInvoiceNestedInput
   }
 
@@ -32425,10 +33649,7 @@ export namespace Prisma {
     id?: string
     studentId: string
     termId: string
-    feeTypeId: string
-    amountKobo: number
-    paidKobo?: number
-    balanceKobo?: number
+    discountKobo?: number
     status?: $Enums.InvoiceStatus
     dueDate?: Date | string | null
     note?: string | null
@@ -32438,9 +33659,7 @@ export namespace Prisma {
 
   export type FeeInvoiceUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    amountKobo?: IntFieldUpdateOperationsInput | number
-    paidKobo?: IntFieldUpdateOperationsInput | number
-    balanceKobo?: IntFieldUpdateOperationsInput | number
+    discountKobo?: IntFieldUpdateOperationsInput | number
     status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
@@ -32452,15 +33671,66 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     studentId?: StringFieldUpdateOperationsInput | string
     termId?: StringFieldUpdateOperationsInput | string
-    feeTypeId?: StringFieldUpdateOperationsInput | string
-    amountKobo?: IntFieldUpdateOperationsInput | number
-    paidKobo?: IntFieldUpdateOperationsInput | number
-    balanceKobo?: IntFieldUpdateOperationsInput | number
+    discountKobo?: IntFieldUpdateOperationsInput | number
     status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FeeInvoiceItemCreateInput = {
+    id?: string
+    amountKobo: number
+    createdAt?: Date | string
+    feeInvoice: FeeInvoiceCreateNestedOneWithoutItemsInput
+    feeType: FeeTypeCreateNestedOneWithoutInvoiceItemsInput
+  }
+
+  export type FeeInvoiceItemUncheckedCreateInput = {
+    id?: string
+    feeInvoiceId: string
+    feeTypeId: string
+    amountKobo: number
+    createdAt?: Date | string
+  }
+
+  export type FeeInvoiceItemUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amountKobo?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    feeInvoice?: FeeInvoiceUpdateOneRequiredWithoutItemsNestedInput
+    feeType?: FeeTypeUpdateOneRequiredWithoutInvoiceItemsNestedInput
+  }
+
+  export type FeeInvoiceItemUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    feeInvoiceId?: StringFieldUpdateOperationsInput | string
+    feeTypeId?: StringFieldUpdateOperationsInput | string
+    amountKobo?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FeeInvoiceItemCreateManyInput = {
+    id?: string
+    feeInvoiceId: string
+    feeTypeId: string
+    amountKobo: number
+    createdAt?: Date | string
+  }
+
+  export type FeeInvoiceItemUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amountKobo?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FeeInvoiceItemUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    feeInvoiceId?: StringFieldUpdateOperationsInput | string
+    feeTypeId?: StringFieldUpdateOperationsInput | string
+    amountKobo?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PaymentCreateInput = {
@@ -34042,6 +35312,16 @@ export namespace Prisma {
     _max?: NestedEnumReportCardStatusFilter<$PrismaModel>
   }
 
+  export type FeeInvoiceItemListRelationFilter = {
+    every?: FeeInvoiceItemWhereInput
+    some?: FeeInvoiceItemWhereInput
+    none?: FeeInvoiceItemWhereInput
+  }
+
+  export type FeeInvoiceItemOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type FeeTypeCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
@@ -34084,19 +35364,16 @@ export namespace Prisma {
     not?: NestedEnumInvoiceStatusFilter<$PrismaModel> | $Enums.InvoiceStatus
   }
 
-  export type FeeTypeScalarRelationFilter = {
-    is?: FeeTypeWhereInput
-    isNot?: FeeTypeWhereInput
+  export type FeeInvoiceStudentIdTermIdCompoundUniqueInput = {
+    studentId: string
+    termId: string
   }
 
   export type FeeInvoiceCountOrderByAggregateInput = {
     id?: SortOrder
     studentId?: SortOrder
     termId?: SortOrder
-    feeTypeId?: SortOrder
-    amountKobo?: SortOrder
-    paidKobo?: SortOrder
-    balanceKobo?: SortOrder
+    discountKobo?: SortOrder
     status?: SortOrder
     dueDate?: SortOrder
     note?: SortOrder
@@ -34105,19 +35382,14 @@ export namespace Prisma {
   }
 
   export type FeeInvoiceAvgOrderByAggregateInput = {
-    amountKobo?: SortOrder
-    paidKobo?: SortOrder
-    balanceKobo?: SortOrder
+    discountKobo?: SortOrder
   }
 
   export type FeeInvoiceMaxOrderByAggregateInput = {
     id?: SortOrder
     studentId?: SortOrder
     termId?: SortOrder
-    feeTypeId?: SortOrder
-    amountKobo?: SortOrder
-    paidKobo?: SortOrder
-    balanceKobo?: SortOrder
+    discountKobo?: SortOrder
     status?: SortOrder
     dueDate?: SortOrder
     note?: SortOrder
@@ -34129,10 +35401,7 @@ export namespace Prisma {
     id?: SortOrder
     studentId?: SortOrder
     termId?: SortOrder
-    feeTypeId?: SortOrder
-    amountKobo?: SortOrder
-    paidKobo?: SortOrder
-    balanceKobo?: SortOrder
+    discountKobo?: SortOrder
     status?: SortOrder
     dueDate?: SortOrder
     note?: SortOrder
@@ -34141,9 +35410,7 @@ export namespace Prisma {
   }
 
   export type FeeInvoiceSumOrderByAggregateInput = {
-    amountKobo?: SortOrder
-    paidKobo?: SortOrder
-    balanceKobo?: SortOrder
+    discountKobo?: SortOrder
   }
 
   export type IntWithAggregatesFilter<$PrismaModel = never> = {
@@ -34170,6 +35437,48 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumInvoiceStatusFilter<$PrismaModel>
     _max?: NestedEnumInvoiceStatusFilter<$PrismaModel>
+  }
+
+  export type FeeInvoiceScalarRelationFilter = {
+    is?: FeeInvoiceWhereInput
+    isNot?: FeeInvoiceWhereInput
+  }
+
+  export type FeeTypeScalarRelationFilter = {
+    is?: FeeTypeWhereInput
+    isNot?: FeeTypeWhereInput
+  }
+
+  export type FeeInvoiceItemCountOrderByAggregateInput = {
+    id?: SortOrder
+    feeInvoiceId?: SortOrder
+    feeTypeId?: SortOrder
+    amountKobo?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type FeeInvoiceItemAvgOrderByAggregateInput = {
+    amountKobo?: SortOrder
+  }
+
+  export type FeeInvoiceItemMaxOrderByAggregateInput = {
+    id?: SortOrder
+    feeInvoiceId?: SortOrder
+    feeTypeId?: SortOrder
+    amountKobo?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type FeeInvoiceItemMinOrderByAggregateInput = {
+    id?: SortOrder
+    feeInvoiceId?: SortOrder
+    feeTypeId?: SortOrder
+    amountKobo?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type FeeInvoiceItemSumOrderByAggregateInput = {
+    amountKobo?: SortOrder
   }
 
   export type EnumPaymentMethodFilter<$PrismaModel = never> = {
@@ -34207,11 +35516,6 @@ export namespace Prisma {
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
-
-  export type FeeInvoiceScalarRelationFilter = {
-    is?: FeeInvoiceWhereInput
-    isNot?: FeeInvoiceWhereInput
   }
 
   export type GuardianNullableScalarRelationFilter = {
@@ -35804,46 +37108,46 @@ export namespace Prisma {
     update?: XOR<XOR<TermUpdateToOneWithWhereWithoutReportCardsInput, TermUpdateWithoutReportCardsInput>, TermUncheckedUpdateWithoutReportCardsInput>
   }
 
-  export type FeeInvoiceCreateNestedManyWithoutFeeTypeInput = {
-    create?: XOR<FeeInvoiceCreateWithoutFeeTypeInput, FeeInvoiceUncheckedCreateWithoutFeeTypeInput> | FeeInvoiceCreateWithoutFeeTypeInput[] | FeeInvoiceUncheckedCreateWithoutFeeTypeInput[]
-    connectOrCreate?: FeeInvoiceCreateOrConnectWithoutFeeTypeInput | FeeInvoiceCreateOrConnectWithoutFeeTypeInput[]
-    createMany?: FeeInvoiceCreateManyFeeTypeInputEnvelope
-    connect?: FeeInvoiceWhereUniqueInput | FeeInvoiceWhereUniqueInput[]
+  export type FeeInvoiceItemCreateNestedManyWithoutFeeTypeInput = {
+    create?: XOR<FeeInvoiceItemCreateWithoutFeeTypeInput, FeeInvoiceItemUncheckedCreateWithoutFeeTypeInput> | FeeInvoiceItemCreateWithoutFeeTypeInput[] | FeeInvoiceItemUncheckedCreateWithoutFeeTypeInput[]
+    connectOrCreate?: FeeInvoiceItemCreateOrConnectWithoutFeeTypeInput | FeeInvoiceItemCreateOrConnectWithoutFeeTypeInput[]
+    createMany?: FeeInvoiceItemCreateManyFeeTypeInputEnvelope
+    connect?: FeeInvoiceItemWhereUniqueInput | FeeInvoiceItemWhereUniqueInput[]
   }
 
-  export type FeeInvoiceUncheckedCreateNestedManyWithoutFeeTypeInput = {
-    create?: XOR<FeeInvoiceCreateWithoutFeeTypeInput, FeeInvoiceUncheckedCreateWithoutFeeTypeInput> | FeeInvoiceCreateWithoutFeeTypeInput[] | FeeInvoiceUncheckedCreateWithoutFeeTypeInput[]
-    connectOrCreate?: FeeInvoiceCreateOrConnectWithoutFeeTypeInput | FeeInvoiceCreateOrConnectWithoutFeeTypeInput[]
-    createMany?: FeeInvoiceCreateManyFeeTypeInputEnvelope
-    connect?: FeeInvoiceWhereUniqueInput | FeeInvoiceWhereUniqueInput[]
+  export type FeeInvoiceItemUncheckedCreateNestedManyWithoutFeeTypeInput = {
+    create?: XOR<FeeInvoiceItemCreateWithoutFeeTypeInput, FeeInvoiceItemUncheckedCreateWithoutFeeTypeInput> | FeeInvoiceItemCreateWithoutFeeTypeInput[] | FeeInvoiceItemUncheckedCreateWithoutFeeTypeInput[]
+    connectOrCreate?: FeeInvoiceItemCreateOrConnectWithoutFeeTypeInput | FeeInvoiceItemCreateOrConnectWithoutFeeTypeInput[]
+    createMany?: FeeInvoiceItemCreateManyFeeTypeInputEnvelope
+    connect?: FeeInvoiceItemWhereUniqueInput | FeeInvoiceItemWhereUniqueInput[]
   }
 
-  export type FeeInvoiceUpdateManyWithoutFeeTypeNestedInput = {
-    create?: XOR<FeeInvoiceCreateWithoutFeeTypeInput, FeeInvoiceUncheckedCreateWithoutFeeTypeInput> | FeeInvoiceCreateWithoutFeeTypeInput[] | FeeInvoiceUncheckedCreateWithoutFeeTypeInput[]
-    connectOrCreate?: FeeInvoiceCreateOrConnectWithoutFeeTypeInput | FeeInvoiceCreateOrConnectWithoutFeeTypeInput[]
-    upsert?: FeeInvoiceUpsertWithWhereUniqueWithoutFeeTypeInput | FeeInvoiceUpsertWithWhereUniqueWithoutFeeTypeInput[]
-    createMany?: FeeInvoiceCreateManyFeeTypeInputEnvelope
-    set?: FeeInvoiceWhereUniqueInput | FeeInvoiceWhereUniqueInput[]
-    disconnect?: FeeInvoiceWhereUniqueInput | FeeInvoiceWhereUniqueInput[]
-    delete?: FeeInvoiceWhereUniqueInput | FeeInvoiceWhereUniqueInput[]
-    connect?: FeeInvoiceWhereUniqueInput | FeeInvoiceWhereUniqueInput[]
-    update?: FeeInvoiceUpdateWithWhereUniqueWithoutFeeTypeInput | FeeInvoiceUpdateWithWhereUniqueWithoutFeeTypeInput[]
-    updateMany?: FeeInvoiceUpdateManyWithWhereWithoutFeeTypeInput | FeeInvoiceUpdateManyWithWhereWithoutFeeTypeInput[]
-    deleteMany?: FeeInvoiceScalarWhereInput | FeeInvoiceScalarWhereInput[]
+  export type FeeInvoiceItemUpdateManyWithoutFeeTypeNestedInput = {
+    create?: XOR<FeeInvoiceItemCreateWithoutFeeTypeInput, FeeInvoiceItemUncheckedCreateWithoutFeeTypeInput> | FeeInvoiceItemCreateWithoutFeeTypeInput[] | FeeInvoiceItemUncheckedCreateWithoutFeeTypeInput[]
+    connectOrCreate?: FeeInvoiceItemCreateOrConnectWithoutFeeTypeInput | FeeInvoiceItemCreateOrConnectWithoutFeeTypeInput[]
+    upsert?: FeeInvoiceItemUpsertWithWhereUniqueWithoutFeeTypeInput | FeeInvoiceItemUpsertWithWhereUniqueWithoutFeeTypeInput[]
+    createMany?: FeeInvoiceItemCreateManyFeeTypeInputEnvelope
+    set?: FeeInvoiceItemWhereUniqueInput | FeeInvoiceItemWhereUniqueInput[]
+    disconnect?: FeeInvoiceItemWhereUniqueInput | FeeInvoiceItemWhereUniqueInput[]
+    delete?: FeeInvoiceItemWhereUniqueInput | FeeInvoiceItemWhereUniqueInput[]
+    connect?: FeeInvoiceItemWhereUniqueInput | FeeInvoiceItemWhereUniqueInput[]
+    update?: FeeInvoiceItemUpdateWithWhereUniqueWithoutFeeTypeInput | FeeInvoiceItemUpdateWithWhereUniqueWithoutFeeTypeInput[]
+    updateMany?: FeeInvoiceItemUpdateManyWithWhereWithoutFeeTypeInput | FeeInvoiceItemUpdateManyWithWhereWithoutFeeTypeInput[]
+    deleteMany?: FeeInvoiceItemScalarWhereInput | FeeInvoiceItemScalarWhereInput[]
   }
 
-  export type FeeInvoiceUncheckedUpdateManyWithoutFeeTypeNestedInput = {
-    create?: XOR<FeeInvoiceCreateWithoutFeeTypeInput, FeeInvoiceUncheckedCreateWithoutFeeTypeInput> | FeeInvoiceCreateWithoutFeeTypeInput[] | FeeInvoiceUncheckedCreateWithoutFeeTypeInput[]
-    connectOrCreate?: FeeInvoiceCreateOrConnectWithoutFeeTypeInput | FeeInvoiceCreateOrConnectWithoutFeeTypeInput[]
-    upsert?: FeeInvoiceUpsertWithWhereUniqueWithoutFeeTypeInput | FeeInvoiceUpsertWithWhereUniqueWithoutFeeTypeInput[]
-    createMany?: FeeInvoiceCreateManyFeeTypeInputEnvelope
-    set?: FeeInvoiceWhereUniqueInput | FeeInvoiceWhereUniqueInput[]
-    disconnect?: FeeInvoiceWhereUniqueInput | FeeInvoiceWhereUniqueInput[]
-    delete?: FeeInvoiceWhereUniqueInput | FeeInvoiceWhereUniqueInput[]
-    connect?: FeeInvoiceWhereUniqueInput | FeeInvoiceWhereUniqueInput[]
-    update?: FeeInvoiceUpdateWithWhereUniqueWithoutFeeTypeInput | FeeInvoiceUpdateWithWhereUniqueWithoutFeeTypeInput[]
-    updateMany?: FeeInvoiceUpdateManyWithWhereWithoutFeeTypeInput | FeeInvoiceUpdateManyWithWhereWithoutFeeTypeInput[]
-    deleteMany?: FeeInvoiceScalarWhereInput | FeeInvoiceScalarWhereInput[]
+  export type FeeInvoiceItemUncheckedUpdateManyWithoutFeeTypeNestedInput = {
+    create?: XOR<FeeInvoiceItemCreateWithoutFeeTypeInput, FeeInvoiceItemUncheckedCreateWithoutFeeTypeInput> | FeeInvoiceItemCreateWithoutFeeTypeInput[] | FeeInvoiceItemUncheckedCreateWithoutFeeTypeInput[]
+    connectOrCreate?: FeeInvoiceItemCreateOrConnectWithoutFeeTypeInput | FeeInvoiceItemCreateOrConnectWithoutFeeTypeInput[]
+    upsert?: FeeInvoiceItemUpsertWithWhereUniqueWithoutFeeTypeInput | FeeInvoiceItemUpsertWithWhereUniqueWithoutFeeTypeInput[]
+    createMany?: FeeInvoiceItemCreateManyFeeTypeInputEnvelope
+    set?: FeeInvoiceItemWhereUniqueInput | FeeInvoiceItemWhereUniqueInput[]
+    disconnect?: FeeInvoiceItemWhereUniqueInput | FeeInvoiceItemWhereUniqueInput[]
+    delete?: FeeInvoiceItemWhereUniqueInput | FeeInvoiceItemWhereUniqueInput[]
+    connect?: FeeInvoiceItemWhereUniqueInput | FeeInvoiceItemWhereUniqueInput[]
+    update?: FeeInvoiceItemUpdateWithWhereUniqueWithoutFeeTypeInput | FeeInvoiceItemUpdateWithWhereUniqueWithoutFeeTypeInput[]
+    updateMany?: FeeInvoiceItemUpdateManyWithWhereWithoutFeeTypeInput | FeeInvoiceItemUpdateManyWithWhereWithoutFeeTypeInput[]
+    deleteMany?: FeeInvoiceItemScalarWhereInput | FeeInvoiceItemScalarWhereInput[]
   }
 
   export type StudentCreateNestedOneWithoutFeeInvoicesInput = {
@@ -35858,10 +37162,11 @@ export namespace Prisma {
     connect?: TermWhereUniqueInput
   }
 
-  export type FeeTypeCreateNestedOneWithoutFeeInvoicesInput = {
-    create?: XOR<FeeTypeCreateWithoutFeeInvoicesInput, FeeTypeUncheckedCreateWithoutFeeInvoicesInput>
-    connectOrCreate?: FeeTypeCreateOrConnectWithoutFeeInvoicesInput
-    connect?: FeeTypeWhereUniqueInput
+  export type FeeInvoiceItemCreateNestedManyWithoutFeeInvoiceInput = {
+    create?: XOR<FeeInvoiceItemCreateWithoutFeeInvoiceInput, FeeInvoiceItemUncheckedCreateWithoutFeeInvoiceInput> | FeeInvoiceItemCreateWithoutFeeInvoiceInput[] | FeeInvoiceItemUncheckedCreateWithoutFeeInvoiceInput[]
+    connectOrCreate?: FeeInvoiceItemCreateOrConnectWithoutFeeInvoiceInput | FeeInvoiceItemCreateOrConnectWithoutFeeInvoiceInput[]
+    createMany?: FeeInvoiceItemCreateManyFeeInvoiceInputEnvelope
+    connect?: FeeInvoiceItemWhereUniqueInput | FeeInvoiceItemWhereUniqueInput[]
   }
 
   export type PaymentCreateNestedManyWithoutFeeInvoiceInput = {
@@ -35869,6 +37174,13 @@ export namespace Prisma {
     connectOrCreate?: PaymentCreateOrConnectWithoutFeeInvoiceInput | PaymentCreateOrConnectWithoutFeeInvoiceInput[]
     createMany?: PaymentCreateManyFeeInvoiceInputEnvelope
     connect?: PaymentWhereUniqueInput | PaymentWhereUniqueInput[]
+  }
+
+  export type FeeInvoiceItemUncheckedCreateNestedManyWithoutFeeInvoiceInput = {
+    create?: XOR<FeeInvoiceItemCreateWithoutFeeInvoiceInput, FeeInvoiceItemUncheckedCreateWithoutFeeInvoiceInput> | FeeInvoiceItemCreateWithoutFeeInvoiceInput[] | FeeInvoiceItemUncheckedCreateWithoutFeeInvoiceInput[]
+    connectOrCreate?: FeeInvoiceItemCreateOrConnectWithoutFeeInvoiceInput | FeeInvoiceItemCreateOrConnectWithoutFeeInvoiceInput[]
+    createMany?: FeeInvoiceItemCreateManyFeeInvoiceInputEnvelope
+    connect?: FeeInvoiceItemWhereUniqueInput | FeeInvoiceItemWhereUniqueInput[]
   }
 
   export type PaymentUncheckedCreateNestedManyWithoutFeeInvoiceInput = {
@@ -35906,12 +37218,18 @@ export namespace Prisma {
     update?: XOR<XOR<TermUpdateToOneWithWhereWithoutFeeInvoicesInput, TermUpdateWithoutFeeInvoicesInput>, TermUncheckedUpdateWithoutFeeInvoicesInput>
   }
 
-  export type FeeTypeUpdateOneRequiredWithoutFeeInvoicesNestedInput = {
-    create?: XOR<FeeTypeCreateWithoutFeeInvoicesInput, FeeTypeUncheckedCreateWithoutFeeInvoicesInput>
-    connectOrCreate?: FeeTypeCreateOrConnectWithoutFeeInvoicesInput
-    upsert?: FeeTypeUpsertWithoutFeeInvoicesInput
-    connect?: FeeTypeWhereUniqueInput
-    update?: XOR<XOR<FeeTypeUpdateToOneWithWhereWithoutFeeInvoicesInput, FeeTypeUpdateWithoutFeeInvoicesInput>, FeeTypeUncheckedUpdateWithoutFeeInvoicesInput>
+  export type FeeInvoiceItemUpdateManyWithoutFeeInvoiceNestedInput = {
+    create?: XOR<FeeInvoiceItemCreateWithoutFeeInvoiceInput, FeeInvoiceItemUncheckedCreateWithoutFeeInvoiceInput> | FeeInvoiceItemCreateWithoutFeeInvoiceInput[] | FeeInvoiceItemUncheckedCreateWithoutFeeInvoiceInput[]
+    connectOrCreate?: FeeInvoiceItemCreateOrConnectWithoutFeeInvoiceInput | FeeInvoiceItemCreateOrConnectWithoutFeeInvoiceInput[]
+    upsert?: FeeInvoiceItemUpsertWithWhereUniqueWithoutFeeInvoiceInput | FeeInvoiceItemUpsertWithWhereUniqueWithoutFeeInvoiceInput[]
+    createMany?: FeeInvoiceItemCreateManyFeeInvoiceInputEnvelope
+    set?: FeeInvoiceItemWhereUniqueInput | FeeInvoiceItemWhereUniqueInput[]
+    disconnect?: FeeInvoiceItemWhereUniqueInput | FeeInvoiceItemWhereUniqueInput[]
+    delete?: FeeInvoiceItemWhereUniqueInput | FeeInvoiceItemWhereUniqueInput[]
+    connect?: FeeInvoiceItemWhereUniqueInput | FeeInvoiceItemWhereUniqueInput[]
+    update?: FeeInvoiceItemUpdateWithWhereUniqueWithoutFeeInvoiceInput | FeeInvoiceItemUpdateWithWhereUniqueWithoutFeeInvoiceInput[]
+    updateMany?: FeeInvoiceItemUpdateManyWithWhereWithoutFeeInvoiceInput | FeeInvoiceItemUpdateManyWithWhereWithoutFeeInvoiceInput[]
+    deleteMany?: FeeInvoiceItemScalarWhereInput | FeeInvoiceItemScalarWhereInput[]
   }
 
   export type PaymentUpdateManyWithoutFeeInvoiceNestedInput = {
@@ -35928,6 +37246,20 @@ export namespace Prisma {
     deleteMany?: PaymentScalarWhereInput | PaymentScalarWhereInput[]
   }
 
+  export type FeeInvoiceItemUncheckedUpdateManyWithoutFeeInvoiceNestedInput = {
+    create?: XOR<FeeInvoiceItemCreateWithoutFeeInvoiceInput, FeeInvoiceItemUncheckedCreateWithoutFeeInvoiceInput> | FeeInvoiceItemCreateWithoutFeeInvoiceInput[] | FeeInvoiceItemUncheckedCreateWithoutFeeInvoiceInput[]
+    connectOrCreate?: FeeInvoiceItemCreateOrConnectWithoutFeeInvoiceInput | FeeInvoiceItemCreateOrConnectWithoutFeeInvoiceInput[]
+    upsert?: FeeInvoiceItemUpsertWithWhereUniqueWithoutFeeInvoiceInput | FeeInvoiceItemUpsertWithWhereUniqueWithoutFeeInvoiceInput[]
+    createMany?: FeeInvoiceItemCreateManyFeeInvoiceInputEnvelope
+    set?: FeeInvoiceItemWhereUniqueInput | FeeInvoiceItemWhereUniqueInput[]
+    disconnect?: FeeInvoiceItemWhereUniqueInput | FeeInvoiceItemWhereUniqueInput[]
+    delete?: FeeInvoiceItemWhereUniqueInput | FeeInvoiceItemWhereUniqueInput[]
+    connect?: FeeInvoiceItemWhereUniqueInput | FeeInvoiceItemWhereUniqueInput[]
+    update?: FeeInvoiceItemUpdateWithWhereUniqueWithoutFeeInvoiceInput | FeeInvoiceItemUpdateWithWhereUniqueWithoutFeeInvoiceInput[]
+    updateMany?: FeeInvoiceItemUpdateManyWithWhereWithoutFeeInvoiceInput | FeeInvoiceItemUpdateManyWithWhereWithoutFeeInvoiceInput[]
+    deleteMany?: FeeInvoiceItemScalarWhereInput | FeeInvoiceItemScalarWhereInput[]
+  }
+
   export type PaymentUncheckedUpdateManyWithoutFeeInvoiceNestedInput = {
     create?: XOR<PaymentCreateWithoutFeeInvoiceInput, PaymentUncheckedCreateWithoutFeeInvoiceInput> | PaymentCreateWithoutFeeInvoiceInput[] | PaymentUncheckedCreateWithoutFeeInvoiceInput[]
     connectOrCreate?: PaymentCreateOrConnectWithoutFeeInvoiceInput | PaymentCreateOrConnectWithoutFeeInvoiceInput[]
@@ -35940,6 +37272,34 @@ export namespace Prisma {
     update?: PaymentUpdateWithWhereUniqueWithoutFeeInvoiceInput | PaymentUpdateWithWhereUniqueWithoutFeeInvoiceInput[]
     updateMany?: PaymentUpdateManyWithWhereWithoutFeeInvoiceInput | PaymentUpdateManyWithWhereWithoutFeeInvoiceInput[]
     deleteMany?: PaymentScalarWhereInput | PaymentScalarWhereInput[]
+  }
+
+  export type FeeInvoiceCreateNestedOneWithoutItemsInput = {
+    create?: XOR<FeeInvoiceCreateWithoutItemsInput, FeeInvoiceUncheckedCreateWithoutItemsInput>
+    connectOrCreate?: FeeInvoiceCreateOrConnectWithoutItemsInput
+    connect?: FeeInvoiceWhereUniqueInput
+  }
+
+  export type FeeTypeCreateNestedOneWithoutInvoiceItemsInput = {
+    create?: XOR<FeeTypeCreateWithoutInvoiceItemsInput, FeeTypeUncheckedCreateWithoutInvoiceItemsInput>
+    connectOrCreate?: FeeTypeCreateOrConnectWithoutInvoiceItemsInput
+    connect?: FeeTypeWhereUniqueInput
+  }
+
+  export type FeeInvoiceUpdateOneRequiredWithoutItemsNestedInput = {
+    create?: XOR<FeeInvoiceCreateWithoutItemsInput, FeeInvoiceUncheckedCreateWithoutItemsInput>
+    connectOrCreate?: FeeInvoiceCreateOrConnectWithoutItemsInput
+    upsert?: FeeInvoiceUpsertWithoutItemsInput
+    connect?: FeeInvoiceWhereUniqueInput
+    update?: XOR<XOR<FeeInvoiceUpdateToOneWithWhereWithoutItemsInput, FeeInvoiceUpdateWithoutItemsInput>, FeeInvoiceUncheckedUpdateWithoutItemsInput>
+  }
+
+  export type FeeTypeUpdateOneRequiredWithoutInvoiceItemsNestedInput = {
+    create?: XOR<FeeTypeCreateWithoutInvoiceItemsInput, FeeTypeUncheckedCreateWithoutInvoiceItemsInput>
+    connectOrCreate?: FeeTypeCreateOrConnectWithoutInvoiceItemsInput
+    upsert?: FeeTypeUpsertWithoutInvoiceItemsInput
+    connect?: FeeTypeWhereUniqueInput
+    update?: XOR<XOR<FeeTypeUpdateToOneWithWhereWithoutInvoiceItemsInput, FeeTypeUpdateWithoutInvoiceItemsInput>, FeeTypeUncheckedUpdateWithoutInvoiceItemsInput>
   }
 
   export type FeeInvoiceCreateNestedOneWithoutPaymentsInput = {
@@ -36824,31 +38184,27 @@ export namespace Prisma {
 
   export type FeeInvoiceCreateWithoutStudentInput = {
     id?: string
-    amountKobo: number
-    paidKobo?: number
-    balanceKobo?: number
+    discountKobo?: number
     status?: $Enums.InvoiceStatus
     dueDate?: Date | string | null
     note?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     term: TermCreateNestedOneWithoutFeeInvoicesInput
-    feeType: FeeTypeCreateNestedOneWithoutFeeInvoicesInput
+    items?: FeeInvoiceItemCreateNestedManyWithoutFeeInvoiceInput
     payments?: PaymentCreateNestedManyWithoutFeeInvoiceInput
   }
 
   export type FeeInvoiceUncheckedCreateWithoutStudentInput = {
     id?: string
     termId: string
-    feeTypeId: string
-    amountKobo: number
-    paidKobo?: number
-    balanceKobo?: number
+    discountKobo?: number
     status?: $Enums.InvoiceStatus
     dueDate?: Date | string | null
     note?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    items?: FeeInvoiceItemUncheckedCreateNestedManyWithoutFeeInvoiceInput
     payments?: PaymentUncheckedCreateNestedManyWithoutFeeInvoiceInput
   }
 
@@ -37053,10 +38409,7 @@ export namespace Prisma {
     id?: StringFilter<"FeeInvoice"> | string
     studentId?: StringFilter<"FeeInvoice"> | string
     termId?: StringFilter<"FeeInvoice"> | string
-    feeTypeId?: StringFilter<"FeeInvoice"> | string
-    amountKobo?: IntFilter<"FeeInvoice"> | number
-    paidKobo?: IntFilter<"FeeInvoice"> | number
-    balanceKobo?: IntFilter<"FeeInvoice"> | number
+    discountKobo?: IntFilter<"FeeInvoice"> | number
     status?: EnumInvoiceStatusFilter<"FeeInvoice"> | $Enums.InvoiceStatus
     dueDate?: DateTimeNullableFilter<"FeeInvoice"> | Date | string | null
     note?: StringNullableFilter<"FeeInvoice"> | string | null
@@ -37842,31 +39195,27 @@ export namespace Prisma {
 
   export type FeeInvoiceCreateWithoutTermInput = {
     id?: string
-    amountKobo: number
-    paidKobo?: number
-    balanceKobo?: number
+    discountKobo?: number
     status?: $Enums.InvoiceStatus
     dueDate?: Date | string | null
     note?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     student: StudentCreateNestedOneWithoutFeeInvoicesInput
-    feeType: FeeTypeCreateNestedOneWithoutFeeInvoicesInput
+    items?: FeeInvoiceItemCreateNestedManyWithoutFeeInvoiceInput
     payments?: PaymentCreateNestedManyWithoutFeeInvoiceInput
   }
 
   export type FeeInvoiceUncheckedCreateWithoutTermInput = {
     id?: string
     studentId: string
-    feeTypeId: string
-    amountKobo: number
-    paidKobo?: number
-    balanceKobo?: number
+    discountKobo?: number
     status?: $Enums.InvoiceStatus
     dueDate?: Date | string | null
     note?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    items?: FeeInvoiceItemUncheckedCreateNestedManyWithoutFeeInvoiceInput
     payments?: PaymentUncheckedCreateNestedManyWithoutFeeInvoiceInput
   }
 
@@ -39465,60 +40814,55 @@ export namespace Prisma {
     enrolments?: EnrolmentUncheckedUpdateManyWithoutTermNestedInput
   }
 
-  export type FeeInvoiceCreateWithoutFeeTypeInput = {
+  export type FeeInvoiceItemCreateWithoutFeeTypeInput = {
     id?: string
     amountKobo: number
-    paidKobo?: number
-    balanceKobo?: number
-    status?: $Enums.InvoiceStatus
-    dueDate?: Date | string | null
-    note?: string | null
     createdAt?: Date | string
-    updatedAt?: Date | string
-    student: StudentCreateNestedOneWithoutFeeInvoicesInput
-    term: TermCreateNestedOneWithoutFeeInvoicesInput
-    payments?: PaymentCreateNestedManyWithoutFeeInvoiceInput
+    feeInvoice: FeeInvoiceCreateNestedOneWithoutItemsInput
   }
 
-  export type FeeInvoiceUncheckedCreateWithoutFeeTypeInput = {
+  export type FeeInvoiceItemUncheckedCreateWithoutFeeTypeInput = {
     id?: string
-    studentId: string
-    termId: string
+    feeInvoiceId: string
     amountKobo: number
-    paidKobo?: number
-    balanceKobo?: number
-    status?: $Enums.InvoiceStatus
-    dueDate?: Date | string | null
-    note?: string | null
     createdAt?: Date | string
-    updatedAt?: Date | string
-    payments?: PaymentUncheckedCreateNestedManyWithoutFeeInvoiceInput
   }
 
-  export type FeeInvoiceCreateOrConnectWithoutFeeTypeInput = {
-    where: FeeInvoiceWhereUniqueInput
-    create: XOR<FeeInvoiceCreateWithoutFeeTypeInput, FeeInvoiceUncheckedCreateWithoutFeeTypeInput>
+  export type FeeInvoiceItemCreateOrConnectWithoutFeeTypeInput = {
+    where: FeeInvoiceItemWhereUniqueInput
+    create: XOR<FeeInvoiceItemCreateWithoutFeeTypeInput, FeeInvoiceItemUncheckedCreateWithoutFeeTypeInput>
   }
 
-  export type FeeInvoiceCreateManyFeeTypeInputEnvelope = {
-    data: FeeInvoiceCreateManyFeeTypeInput | FeeInvoiceCreateManyFeeTypeInput[]
+  export type FeeInvoiceItemCreateManyFeeTypeInputEnvelope = {
+    data: FeeInvoiceItemCreateManyFeeTypeInput | FeeInvoiceItemCreateManyFeeTypeInput[]
     skipDuplicates?: boolean
   }
 
-  export type FeeInvoiceUpsertWithWhereUniqueWithoutFeeTypeInput = {
-    where: FeeInvoiceWhereUniqueInput
-    update: XOR<FeeInvoiceUpdateWithoutFeeTypeInput, FeeInvoiceUncheckedUpdateWithoutFeeTypeInput>
-    create: XOR<FeeInvoiceCreateWithoutFeeTypeInput, FeeInvoiceUncheckedCreateWithoutFeeTypeInput>
+  export type FeeInvoiceItemUpsertWithWhereUniqueWithoutFeeTypeInput = {
+    where: FeeInvoiceItemWhereUniqueInput
+    update: XOR<FeeInvoiceItemUpdateWithoutFeeTypeInput, FeeInvoiceItemUncheckedUpdateWithoutFeeTypeInput>
+    create: XOR<FeeInvoiceItemCreateWithoutFeeTypeInput, FeeInvoiceItemUncheckedCreateWithoutFeeTypeInput>
   }
 
-  export type FeeInvoiceUpdateWithWhereUniqueWithoutFeeTypeInput = {
-    where: FeeInvoiceWhereUniqueInput
-    data: XOR<FeeInvoiceUpdateWithoutFeeTypeInput, FeeInvoiceUncheckedUpdateWithoutFeeTypeInput>
+  export type FeeInvoiceItemUpdateWithWhereUniqueWithoutFeeTypeInput = {
+    where: FeeInvoiceItemWhereUniqueInput
+    data: XOR<FeeInvoiceItemUpdateWithoutFeeTypeInput, FeeInvoiceItemUncheckedUpdateWithoutFeeTypeInput>
   }
 
-  export type FeeInvoiceUpdateManyWithWhereWithoutFeeTypeInput = {
-    where: FeeInvoiceScalarWhereInput
-    data: XOR<FeeInvoiceUpdateManyMutationInput, FeeInvoiceUncheckedUpdateManyWithoutFeeTypeInput>
+  export type FeeInvoiceItemUpdateManyWithWhereWithoutFeeTypeInput = {
+    where: FeeInvoiceItemScalarWhereInput
+    data: XOR<FeeInvoiceItemUpdateManyMutationInput, FeeInvoiceItemUncheckedUpdateManyWithoutFeeTypeInput>
+  }
+
+  export type FeeInvoiceItemScalarWhereInput = {
+    AND?: FeeInvoiceItemScalarWhereInput | FeeInvoiceItemScalarWhereInput[]
+    OR?: FeeInvoiceItemScalarWhereInput[]
+    NOT?: FeeInvoiceItemScalarWhereInput | FeeInvoiceItemScalarWhereInput[]
+    id?: StringFilter<"FeeInvoiceItem"> | string
+    feeInvoiceId?: StringFilter<"FeeInvoiceItem"> | string
+    feeTypeId?: StringFilter<"FeeInvoiceItem"> | string
+    amountKobo?: IntFilter<"FeeInvoiceItem"> | number
+    createdAt?: DateTimeFilter<"FeeInvoiceItem"> | Date | string
   }
 
   export type StudentCreateWithoutFeeInvoicesInput = {
@@ -39615,25 +40959,28 @@ export namespace Prisma {
     create: XOR<TermCreateWithoutFeeInvoicesInput, TermUncheckedCreateWithoutFeeInvoicesInput>
   }
 
-  export type FeeTypeCreateWithoutFeeInvoicesInput = {
+  export type FeeInvoiceItemCreateWithoutFeeInvoiceInput = {
     id?: string
-    name: string
-    description?: string | null
+    amountKobo: number
     createdAt?: Date | string
-    updatedAt?: Date | string
+    feeType: FeeTypeCreateNestedOneWithoutInvoiceItemsInput
   }
 
-  export type FeeTypeUncheckedCreateWithoutFeeInvoicesInput = {
+  export type FeeInvoiceItemUncheckedCreateWithoutFeeInvoiceInput = {
     id?: string
-    name: string
-    description?: string | null
+    feeTypeId: string
+    amountKobo: number
     createdAt?: Date | string
-    updatedAt?: Date | string
   }
 
-  export type FeeTypeCreateOrConnectWithoutFeeInvoicesInput = {
-    where: FeeTypeWhereUniqueInput
-    create: XOR<FeeTypeCreateWithoutFeeInvoicesInput, FeeTypeUncheckedCreateWithoutFeeInvoicesInput>
+  export type FeeInvoiceItemCreateOrConnectWithoutFeeInvoiceInput = {
+    where: FeeInvoiceItemWhereUniqueInput
+    create: XOR<FeeInvoiceItemCreateWithoutFeeInvoiceInput, FeeInvoiceItemUncheckedCreateWithoutFeeInvoiceInput>
+  }
+
+  export type FeeInvoiceItemCreateManyFeeInvoiceInputEnvelope = {
+    data: FeeInvoiceItemCreateManyFeeInvoiceInput | FeeInvoiceItemCreateManyFeeInvoiceInput[]
+    skipDuplicates?: boolean
   }
 
   export type PaymentCreateWithoutFeeInvoiceInput = {
@@ -39786,31 +41133,20 @@ export namespace Prisma {
     reportCards?: ReportCardUncheckedUpdateManyWithoutTermNestedInput
   }
 
-  export type FeeTypeUpsertWithoutFeeInvoicesInput = {
-    update: XOR<FeeTypeUpdateWithoutFeeInvoicesInput, FeeTypeUncheckedUpdateWithoutFeeInvoicesInput>
-    create: XOR<FeeTypeCreateWithoutFeeInvoicesInput, FeeTypeUncheckedCreateWithoutFeeInvoicesInput>
-    where?: FeeTypeWhereInput
+  export type FeeInvoiceItemUpsertWithWhereUniqueWithoutFeeInvoiceInput = {
+    where: FeeInvoiceItemWhereUniqueInput
+    update: XOR<FeeInvoiceItemUpdateWithoutFeeInvoiceInput, FeeInvoiceItemUncheckedUpdateWithoutFeeInvoiceInput>
+    create: XOR<FeeInvoiceItemCreateWithoutFeeInvoiceInput, FeeInvoiceItemUncheckedCreateWithoutFeeInvoiceInput>
   }
 
-  export type FeeTypeUpdateToOneWithWhereWithoutFeeInvoicesInput = {
-    where?: FeeTypeWhereInput
-    data: XOR<FeeTypeUpdateWithoutFeeInvoicesInput, FeeTypeUncheckedUpdateWithoutFeeInvoicesInput>
+  export type FeeInvoiceItemUpdateWithWhereUniqueWithoutFeeInvoiceInput = {
+    where: FeeInvoiceItemWhereUniqueInput
+    data: XOR<FeeInvoiceItemUpdateWithoutFeeInvoiceInput, FeeInvoiceItemUncheckedUpdateWithoutFeeInvoiceInput>
   }
 
-  export type FeeTypeUpdateWithoutFeeInvoicesInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type FeeTypeUncheckedUpdateWithoutFeeInvoicesInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type FeeInvoiceItemUpdateManyWithWhereWithoutFeeInvoiceInput = {
+    where: FeeInvoiceItemScalarWhereInput
+    data: XOR<FeeInvoiceItemUpdateManyMutationInput, FeeInvoiceItemUncheckedUpdateManyWithoutFeeInvoiceInput>
   }
 
   export type PaymentUpsertWithWhereUniqueWithoutFeeInvoiceInput = {
@@ -39829,11 +41165,9 @@ export namespace Prisma {
     data: XOR<PaymentUpdateManyMutationInput, PaymentUncheckedUpdateManyWithoutFeeInvoiceInput>
   }
 
-  export type FeeInvoiceCreateWithoutPaymentsInput = {
+  export type FeeInvoiceCreateWithoutItemsInput = {
     id?: string
-    amountKobo: number
-    paidKobo?: number
-    balanceKobo?: number
+    discountKobo?: number
     status?: $Enums.InvoiceStatus
     dueDate?: Date | string | null
     note?: string | null
@@ -39841,22 +41175,136 @@ export namespace Prisma {
     updatedAt?: Date | string
     student: StudentCreateNestedOneWithoutFeeInvoicesInput
     term: TermCreateNestedOneWithoutFeeInvoicesInput
-    feeType: FeeTypeCreateNestedOneWithoutFeeInvoicesInput
+    payments?: PaymentCreateNestedManyWithoutFeeInvoiceInput
+  }
+
+  export type FeeInvoiceUncheckedCreateWithoutItemsInput = {
+    id?: string
+    studentId: string
+    termId: string
+    discountKobo?: number
+    status?: $Enums.InvoiceStatus
+    dueDate?: Date | string | null
+    note?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    payments?: PaymentUncheckedCreateNestedManyWithoutFeeInvoiceInput
+  }
+
+  export type FeeInvoiceCreateOrConnectWithoutItemsInput = {
+    where: FeeInvoiceWhereUniqueInput
+    create: XOR<FeeInvoiceCreateWithoutItemsInput, FeeInvoiceUncheckedCreateWithoutItemsInput>
+  }
+
+  export type FeeTypeCreateWithoutInvoiceItemsInput = {
+    id?: string
+    name: string
+    description?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type FeeTypeUncheckedCreateWithoutInvoiceItemsInput = {
+    id?: string
+    name: string
+    description?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type FeeTypeCreateOrConnectWithoutInvoiceItemsInput = {
+    where: FeeTypeWhereUniqueInput
+    create: XOR<FeeTypeCreateWithoutInvoiceItemsInput, FeeTypeUncheckedCreateWithoutInvoiceItemsInput>
+  }
+
+  export type FeeInvoiceUpsertWithoutItemsInput = {
+    update: XOR<FeeInvoiceUpdateWithoutItemsInput, FeeInvoiceUncheckedUpdateWithoutItemsInput>
+    create: XOR<FeeInvoiceCreateWithoutItemsInput, FeeInvoiceUncheckedCreateWithoutItemsInput>
+    where?: FeeInvoiceWhereInput
+  }
+
+  export type FeeInvoiceUpdateToOneWithWhereWithoutItemsInput = {
+    where?: FeeInvoiceWhereInput
+    data: XOR<FeeInvoiceUpdateWithoutItemsInput, FeeInvoiceUncheckedUpdateWithoutItemsInput>
+  }
+
+  export type FeeInvoiceUpdateWithoutItemsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    discountKobo?: IntFieldUpdateOperationsInput | number
+    status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    student?: StudentUpdateOneRequiredWithoutFeeInvoicesNestedInput
+    term?: TermUpdateOneRequiredWithoutFeeInvoicesNestedInput
+    payments?: PaymentUpdateManyWithoutFeeInvoiceNestedInput
+  }
+
+  export type FeeInvoiceUncheckedUpdateWithoutItemsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    studentId?: StringFieldUpdateOperationsInput | string
+    termId?: StringFieldUpdateOperationsInput | string
+    discountKobo?: IntFieldUpdateOperationsInput | number
+    status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
+    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    payments?: PaymentUncheckedUpdateManyWithoutFeeInvoiceNestedInput
+  }
+
+  export type FeeTypeUpsertWithoutInvoiceItemsInput = {
+    update: XOR<FeeTypeUpdateWithoutInvoiceItemsInput, FeeTypeUncheckedUpdateWithoutInvoiceItemsInput>
+    create: XOR<FeeTypeCreateWithoutInvoiceItemsInput, FeeTypeUncheckedCreateWithoutInvoiceItemsInput>
+    where?: FeeTypeWhereInput
+  }
+
+  export type FeeTypeUpdateToOneWithWhereWithoutInvoiceItemsInput = {
+    where?: FeeTypeWhereInput
+    data: XOR<FeeTypeUpdateWithoutInvoiceItemsInput, FeeTypeUncheckedUpdateWithoutInvoiceItemsInput>
+  }
+
+  export type FeeTypeUpdateWithoutInvoiceItemsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FeeTypeUncheckedUpdateWithoutInvoiceItemsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FeeInvoiceCreateWithoutPaymentsInput = {
+    id?: string
+    discountKobo?: number
+    status?: $Enums.InvoiceStatus
+    dueDate?: Date | string | null
+    note?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    student: StudentCreateNestedOneWithoutFeeInvoicesInput
+    term: TermCreateNestedOneWithoutFeeInvoicesInput
+    items?: FeeInvoiceItemCreateNestedManyWithoutFeeInvoiceInput
   }
 
   export type FeeInvoiceUncheckedCreateWithoutPaymentsInput = {
     id?: string
     studentId: string
     termId: string
-    feeTypeId: string
-    amountKobo: number
-    paidKobo?: number
-    balanceKobo?: number
+    discountKobo?: number
     status?: $Enums.InvoiceStatus
     dueDate?: Date | string | null
     note?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    items?: FeeInvoiceItemUncheckedCreateNestedManyWithoutFeeInvoiceInput
   }
 
   export type FeeInvoiceCreateOrConnectWithoutPaymentsInput = {
@@ -39912,9 +41360,7 @@ export namespace Prisma {
 
   export type FeeInvoiceUpdateWithoutPaymentsInput = {
     id?: StringFieldUpdateOperationsInput | string
-    amountKobo?: IntFieldUpdateOperationsInput | number
-    paidKobo?: IntFieldUpdateOperationsInput | number
-    balanceKobo?: IntFieldUpdateOperationsInput | number
+    discountKobo?: IntFieldUpdateOperationsInput | number
     status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39922,22 +41368,20 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     student?: StudentUpdateOneRequiredWithoutFeeInvoicesNestedInput
     term?: TermUpdateOneRequiredWithoutFeeInvoicesNestedInput
-    feeType?: FeeTypeUpdateOneRequiredWithoutFeeInvoicesNestedInput
+    items?: FeeInvoiceItemUpdateManyWithoutFeeInvoiceNestedInput
   }
 
   export type FeeInvoiceUncheckedUpdateWithoutPaymentsInput = {
     id?: StringFieldUpdateOperationsInput | string
     studentId?: StringFieldUpdateOperationsInput | string
     termId?: StringFieldUpdateOperationsInput | string
-    feeTypeId?: StringFieldUpdateOperationsInput | string
-    amountKobo?: IntFieldUpdateOperationsInput | number
-    paidKobo?: IntFieldUpdateOperationsInput | number
-    balanceKobo?: IntFieldUpdateOperationsInput | number
+    discountKobo?: IntFieldUpdateOperationsInput | number
     status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    items?: FeeInvoiceItemUncheckedUpdateManyWithoutFeeInvoiceNestedInput
   }
 
   export type GuardianUpsertWithoutPaymentsInput = {
@@ -40245,10 +41689,7 @@ export namespace Prisma {
   export type FeeInvoiceCreateManyStudentInput = {
     id?: string
     termId: string
-    feeTypeId: string
-    amountKobo: number
-    paidKobo?: number
-    balanceKobo?: number
+    discountKobo?: number
     status?: $Enums.InvoiceStatus
     dueDate?: Date | string | null
     note?: string | null
@@ -40402,41 +41843,34 @@ export namespace Prisma {
 
   export type FeeInvoiceUpdateWithoutStudentInput = {
     id?: StringFieldUpdateOperationsInput | string
-    amountKobo?: IntFieldUpdateOperationsInput | number
-    paidKobo?: IntFieldUpdateOperationsInput | number
-    balanceKobo?: IntFieldUpdateOperationsInput | number
+    discountKobo?: IntFieldUpdateOperationsInput | number
     status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     term?: TermUpdateOneRequiredWithoutFeeInvoicesNestedInput
-    feeType?: FeeTypeUpdateOneRequiredWithoutFeeInvoicesNestedInput
+    items?: FeeInvoiceItemUpdateManyWithoutFeeInvoiceNestedInput
     payments?: PaymentUpdateManyWithoutFeeInvoiceNestedInput
   }
 
   export type FeeInvoiceUncheckedUpdateWithoutStudentInput = {
     id?: StringFieldUpdateOperationsInput | string
     termId?: StringFieldUpdateOperationsInput | string
-    feeTypeId?: StringFieldUpdateOperationsInput | string
-    amountKobo?: IntFieldUpdateOperationsInput | number
-    paidKobo?: IntFieldUpdateOperationsInput | number
-    balanceKobo?: IntFieldUpdateOperationsInput | number
+    discountKobo?: IntFieldUpdateOperationsInput | number
     status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    items?: FeeInvoiceItemUncheckedUpdateManyWithoutFeeInvoiceNestedInput
     payments?: PaymentUncheckedUpdateManyWithoutFeeInvoiceNestedInput
   }
 
   export type FeeInvoiceUncheckedUpdateManyWithoutStudentInput = {
     id?: StringFieldUpdateOperationsInput | string
     termId?: StringFieldUpdateOperationsInput | string
-    feeTypeId?: StringFieldUpdateOperationsInput | string
-    amountKobo?: IntFieldUpdateOperationsInput | number
-    paidKobo?: IntFieldUpdateOperationsInput | number
-    balanceKobo?: IntFieldUpdateOperationsInput | number
+    discountKobo?: IntFieldUpdateOperationsInput | number
     status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40748,10 +42182,7 @@ export namespace Prisma {
   export type FeeInvoiceCreateManyTermInput = {
     id?: string
     studentId: string
-    feeTypeId: string
-    amountKobo: number
-    paidKobo?: number
-    balanceKobo?: number
+    discountKobo?: number
     status?: $Enums.InvoiceStatus
     dueDate?: Date | string | null
     note?: string | null
@@ -40905,41 +42336,34 @@ export namespace Prisma {
 
   export type FeeInvoiceUpdateWithoutTermInput = {
     id?: StringFieldUpdateOperationsInput | string
-    amountKobo?: IntFieldUpdateOperationsInput | number
-    paidKobo?: IntFieldUpdateOperationsInput | number
-    balanceKobo?: IntFieldUpdateOperationsInput | number
+    discountKobo?: IntFieldUpdateOperationsInput | number
     status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     student?: StudentUpdateOneRequiredWithoutFeeInvoicesNestedInput
-    feeType?: FeeTypeUpdateOneRequiredWithoutFeeInvoicesNestedInput
+    items?: FeeInvoiceItemUpdateManyWithoutFeeInvoiceNestedInput
     payments?: PaymentUpdateManyWithoutFeeInvoiceNestedInput
   }
 
   export type FeeInvoiceUncheckedUpdateWithoutTermInput = {
     id?: StringFieldUpdateOperationsInput | string
     studentId?: StringFieldUpdateOperationsInput | string
-    feeTypeId?: StringFieldUpdateOperationsInput | string
-    amountKobo?: IntFieldUpdateOperationsInput | number
-    paidKobo?: IntFieldUpdateOperationsInput | number
-    balanceKobo?: IntFieldUpdateOperationsInput | number
+    discountKobo?: IntFieldUpdateOperationsInput | number
     status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    items?: FeeInvoiceItemUncheckedUpdateManyWithoutFeeInvoiceNestedInput
     payments?: PaymentUncheckedUpdateManyWithoutFeeInvoiceNestedInput
   }
 
   export type FeeInvoiceUncheckedUpdateManyWithoutTermInput = {
     id?: StringFieldUpdateOperationsInput | string
     studentId?: StringFieldUpdateOperationsInput | string
-    feeTypeId?: StringFieldUpdateOperationsInput | string
-    amountKobo?: IntFieldUpdateOperationsInput | number
-    paidKobo?: IntFieldUpdateOperationsInput | number
-    balanceKobo?: IntFieldUpdateOperationsInput | number
+    discountKobo?: IntFieldUpdateOperationsInput | number
     status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41188,62 +42612,39 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type FeeInvoiceCreateManyFeeTypeInput = {
+  export type FeeInvoiceItemCreateManyFeeTypeInput = {
     id?: string
-    studentId: string
-    termId: string
+    feeInvoiceId: string
     amountKobo: number
-    paidKobo?: number
-    balanceKobo?: number
-    status?: $Enums.InvoiceStatus
-    dueDate?: Date | string | null
-    note?: string | null
     createdAt?: Date | string
-    updatedAt?: Date | string
   }
 
-  export type FeeInvoiceUpdateWithoutFeeTypeInput = {
+  export type FeeInvoiceItemUpdateWithoutFeeTypeInput = {
     id?: StringFieldUpdateOperationsInput | string
     amountKobo?: IntFieldUpdateOperationsInput | number
-    paidKobo?: IntFieldUpdateOperationsInput | number
-    balanceKobo?: IntFieldUpdateOperationsInput | number
-    status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
-    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    student?: StudentUpdateOneRequiredWithoutFeeInvoicesNestedInput
-    term?: TermUpdateOneRequiredWithoutFeeInvoicesNestedInput
-    payments?: PaymentUpdateManyWithoutFeeInvoiceNestedInput
+    feeInvoice?: FeeInvoiceUpdateOneRequiredWithoutItemsNestedInput
   }
 
-  export type FeeInvoiceUncheckedUpdateWithoutFeeTypeInput = {
+  export type FeeInvoiceItemUncheckedUpdateWithoutFeeTypeInput = {
     id?: StringFieldUpdateOperationsInput | string
-    studentId?: StringFieldUpdateOperationsInput | string
-    termId?: StringFieldUpdateOperationsInput | string
+    feeInvoiceId?: StringFieldUpdateOperationsInput | string
     amountKobo?: IntFieldUpdateOperationsInput | number
-    paidKobo?: IntFieldUpdateOperationsInput | number
-    balanceKobo?: IntFieldUpdateOperationsInput | number
-    status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
-    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    payments?: PaymentUncheckedUpdateManyWithoutFeeInvoiceNestedInput
   }
 
-  export type FeeInvoiceUncheckedUpdateManyWithoutFeeTypeInput = {
+  export type FeeInvoiceItemUncheckedUpdateManyWithoutFeeTypeInput = {
     id?: StringFieldUpdateOperationsInput | string
-    studentId?: StringFieldUpdateOperationsInput | string
-    termId?: StringFieldUpdateOperationsInput | string
+    feeInvoiceId?: StringFieldUpdateOperationsInput | string
     amountKobo?: IntFieldUpdateOperationsInput | number
-    paidKobo?: IntFieldUpdateOperationsInput | number
-    balanceKobo?: IntFieldUpdateOperationsInput | number
-    status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
-    dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FeeInvoiceItemCreateManyFeeInvoiceInput = {
+    id?: string
+    feeTypeId: string
+    amountKobo: number
+    createdAt?: Date | string
   }
 
   export type PaymentCreateManyFeeInvoiceInput = {
@@ -41261,6 +42662,27 @@ export namespace Prisma {
     paidAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+  }
+
+  export type FeeInvoiceItemUpdateWithoutFeeInvoiceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amountKobo?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    feeType?: FeeTypeUpdateOneRequiredWithoutInvoiceItemsNestedInput
+  }
+
+  export type FeeInvoiceItemUncheckedUpdateWithoutFeeInvoiceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    feeTypeId?: StringFieldUpdateOperationsInput | string
+    amountKobo?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FeeInvoiceItemUncheckedUpdateManyWithoutFeeInvoiceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    feeTypeId?: StringFieldUpdateOperationsInput | string
+    amountKobo?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PaymentUpdateWithoutFeeInvoiceInput = {

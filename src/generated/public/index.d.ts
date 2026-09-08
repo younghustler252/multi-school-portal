@@ -122,6 +122,17 @@ export const VerificationStatus: {
 export type VerificationStatus = (typeof VerificationStatus)[keyof typeof VerificationStatus]
 
 
+export const IdDocumentType: {
+  nin: 'nin',
+  voters_card: 'voters_card',
+  drivers_license: 'drivers_license',
+  international_passport: 'international_passport',
+  other: 'other'
+};
+
+export type IdDocumentType = (typeof IdDocumentType)[keyof typeof IdDocumentType]
+
+
 export const DocumentType: {
   cac_certificate: 'cac_certificate',
   proprietor_id: 'proprietor_id',
@@ -277,6 +288,10 @@ export const SchoolStatus: typeof $Enums.SchoolStatus
 export type VerificationStatus = $Enums.VerificationStatus
 
 export const VerificationStatus: typeof $Enums.VerificationStatus
+
+export type IdDocumentType = $Enums.IdDocumentType
+
+export const IdDocumentType: typeof $Enums.IdDocumentType
 
 export type DocumentType = $Enums.DocumentType
 
@@ -4002,6 +4017,10 @@ export namespace Prisma {
     id: string | null
     schoolId: string | null
     type: $Enums.DocumentType | null
+    idDocumentType: $Enums.IdDocumentType | null
+    idNumber: string | null
+    proprietorFullName: string | null
+    proprietorDateOfBirth: Date | null
     fileUrl: string | null
     status: $Enums.DocumentStatus | null
     rejectionReason: string | null
@@ -4016,6 +4035,10 @@ export namespace Prisma {
     id: string | null
     schoolId: string | null
     type: $Enums.DocumentType | null
+    idDocumentType: $Enums.IdDocumentType | null
+    idNumber: string | null
+    proprietorFullName: string | null
+    proprietorDateOfBirth: Date | null
     fileUrl: string | null
     status: $Enums.DocumentStatus | null
     rejectionReason: string | null
@@ -4030,6 +4053,10 @@ export namespace Prisma {
     id: number
     schoolId: number
     type: number
+    idDocumentType: number
+    idNumber: number
+    proprietorFullName: number
+    proprietorDateOfBirth: number
     fileUrl: number
     status: number
     rejectionReason: number
@@ -4047,6 +4074,10 @@ export namespace Prisma {
     id?: true
     schoolId?: true
     type?: true
+    idDocumentType?: true
+    idNumber?: true
+    proprietorFullName?: true
+    proprietorDateOfBirth?: true
     fileUrl?: true
     status?: true
     rejectionReason?: true
@@ -4061,6 +4092,10 @@ export namespace Prisma {
     id?: true
     schoolId?: true
     type?: true
+    idDocumentType?: true
+    idNumber?: true
+    proprietorFullName?: true
+    proprietorDateOfBirth?: true
     fileUrl?: true
     status?: true
     rejectionReason?: true
@@ -4075,6 +4110,10 @@ export namespace Prisma {
     id?: true
     schoolId?: true
     type?: true
+    idDocumentType?: true
+    idNumber?: true
+    proprietorFullName?: true
+    proprietorDateOfBirth?: true
     fileUrl?: true
     status?: true
     rejectionReason?: true
@@ -4163,6 +4202,10 @@ export namespace Prisma {
     id: string
     schoolId: string
     type: $Enums.DocumentType
+    idDocumentType: $Enums.IdDocumentType | null
+    idNumber: string | null
+    proprietorFullName: string | null
+    proprietorDateOfBirth: Date | null
     fileUrl: string
     status: $Enums.DocumentStatus
     rejectionReason: string | null
@@ -4195,6 +4238,10 @@ export namespace Prisma {
     id?: boolean
     schoolId?: boolean
     type?: boolean
+    idDocumentType?: boolean
+    idNumber?: boolean
+    proprietorFullName?: boolean
+    proprietorDateOfBirth?: boolean
     fileUrl?: boolean
     status?: boolean
     rejectionReason?: boolean
@@ -4211,6 +4258,10 @@ export namespace Prisma {
     id?: boolean
     schoolId?: boolean
     type?: boolean
+    idDocumentType?: boolean
+    idNumber?: boolean
+    proprietorFullName?: boolean
+    proprietorDateOfBirth?: boolean
     fileUrl?: boolean
     status?: boolean
     rejectionReason?: boolean
@@ -4227,6 +4278,10 @@ export namespace Prisma {
     id?: boolean
     schoolId?: boolean
     type?: boolean
+    idDocumentType?: boolean
+    idNumber?: boolean
+    proprietorFullName?: boolean
+    proprietorDateOfBirth?: boolean
     fileUrl?: boolean
     status?: boolean
     rejectionReason?: boolean
@@ -4243,6 +4298,10 @@ export namespace Prisma {
     id?: boolean
     schoolId?: boolean
     type?: boolean
+    idDocumentType?: boolean
+    idNumber?: boolean
+    proprietorFullName?: boolean
+    proprietorDateOfBirth?: boolean
     fileUrl?: boolean
     status?: boolean
     rejectionReason?: boolean
@@ -4254,7 +4313,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type SchoolDocumentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolId" | "type" | "fileUrl" | "status" | "rejectionReason" | "verifiedAt" | "verifiedById" | "apiVerified" | "apiResponse" | "createdAt" | "updatedAt", ExtArgs["result"]["schoolDocument"]>
+  export type SchoolDocumentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolId" | "type" | "idDocumentType" | "idNumber" | "proprietorFullName" | "proprietorDateOfBirth" | "fileUrl" | "status" | "rejectionReason" | "verifiedAt" | "verifiedById" | "apiVerified" | "apiResponse" | "createdAt" | "updatedAt", ExtArgs["result"]["schoolDocument"]>
   export type SchoolDocumentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     school?: boolean | SchoolDefaultArgs<ExtArgs>
   }
@@ -4274,6 +4333,10 @@ export namespace Prisma {
       id: string
       schoolId: string
       type: $Enums.DocumentType
+      idDocumentType: $Enums.IdDocumentType | null
+      idNumber: string | null
+      proprietorFullName: string | null
+      proprietorDateOfBirth: Date | null
       fileUrl: string
       status: $Enums.DocumentStatus
       rejectionReason: string | null
@@ -4710,6 +4773,10 @@ export namespace Prisma {
     readonly id: FieldRef<"SchoolDocument", 'String'>
     readonly schoolId: FieldRef<"SchoolDocument", 'String'>
     readonly type: FieldRef<"SchoolDocument", 'DocumentType'>
+    readonly idDocumentType: FieldRef<"SchoolDocument", 'IdDocumentType'>
+    readonly idNumber: FieldRef<"SchoolDocument", 'String'>
+    readonly proprietorFullName: FieldRef<"SchoolDocument", 'String'>
+    readonly proprietorDateOfBirth: FieldRef<"SchoolDocument", 'DateTime'>
     readonly fileUrl: FieldRef<"SchoolDocument", 'String'>
     readonly status: FieldRef<"SchoolDocument", 'DocumentStatus'>
     readonly rejectionReason: FieldRef<"SchoolDocument", 'String'>
@@ -18378,6 +18445,10 @@ export namespace Prisma {
     id: 'id',
     schoolId: 'schoolId',
     type: 'type',
+    idDocumentType: 'idDocumentType',
+    idNumber: 'idNumber',
+    proprietorFullName: 'proprietorFullName',
+    proprietorDateOfBirth: 'proprietorDateOfBirth',
     fileUrl: 'fileUrl',
     status: 'status',
     rejectionReason: 'rejectionReason',
@@ -18746,6 +18817,20 @@ export namespace Prisma {
    * Reference to a field of type 'DocumentType[]'
    */
   export type ListEnumDocumentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DocumentType[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'IdDocumentType'
+   */
+  export type EnumIdDocumentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'IdDocumentType'>
+    
+
+
+  /**
+   * Reference to a field of type 'IdDocumentType[]'
+   */
+  export type ListEnumIdDocumentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'IdDocumentType[]'>
     
 
 
@@ -19161,6 +19246,10 @@ export namespace Prisma {
     id?: StringFilter<"SchoolDocument"> | string
     schoolId?: StringFilter<"SchoolDocument"> | string
     type?: EnumDocumentTypeFilter<"SchoolDocument"> | $Enums.DocumentType
+    idDocumentType?: EnumIdDocumentTypeNullableFilter<"SchoolDocument"> | $Enums.IdDocumentType | null
+    idNumber?: StringNullableFilter<"SchoolDocument"> | string | null
+    proprietorFullName?: StringNullableFilter<"SchoolDocument"> | string | null
+    proprietorDateOfBirth?: DateTimeNullableFilter<"SchoolDocument"> | Date | string | null
     fileUrl?: StringFilter<"SchoolDocument"> | string
     status?: EnumDocumentStatusFilter<"SchoolDocument"> | $Enums.DocumentStatus
     rejectionReason?: StringNullableFilter<"SchoolDocument"> | string | null
@@ -19177,6 +19266,10 @@ export namespace Prisma {
     id?: SortOrder
     schoolId?: SortOrder
     type?: SortOrder
+    idDocumentType?: SortOrderInput | SortOrder
+    idNumber?: SortOrderInput | SortOrder
+    proprietorFullName?: SortOrderInput | SortOrder
+    proprietorDateOfBirth?: SortOrderInput | SortOrder
     fileUrl?: SortOrder
     status?: SortOrder
     rejectionReason?: SortOrderInput | SortOrder
@@ -19196,6 +19289,10 @@ export namespace Prisma {
     NOT?: SchoolDocumentWhereInput | SchoolDocumentWhereInput[]
     schoolId?: StringFilter<"SchoolDocument"> | string
     type?: EnumDocumentTypeFilter<"SchoolDocument"> | $Enums.DocumentType
+    idDocumentType?: EnumIdDocumentTypeNullableFilter<"SchoolDocument"> | $Enums.IdDocumentType | null
+    idNumber?: StringNullableFilter<"SchoolDocument"> | string | null
+    proprietorFullName?: StringNullableFilter<"SchoolDocument"> | string | null
+    proprietorDateOfBirth?: DateTimeNullableFilter<"SchoolDocument"> | Date | string | null
     fileUrl?: StringFilter<"SchoolDocument"> | string
     status?: EnumDocumentStatusFilter<"SchoolDocument"> | $Enums.DocumentStatus
     rejectionReason?: StringNullableFilter<"SchoolDocument"> | string | null
@@ -19212,6 +19309,10 @@ export namespace Prisma {
     id?: SortOrder
     schoolId?: SortOrder
     type?: SortOrder
+    idDocumentType?: SortOrderInput | SortOrder
+    idNumber?: SortOrderInput | SortOrder
+    proprietorFullName?: SortOrderInput | SortOrder
+    proprietorDateOfBirth?: SortOrderInput | SortOrder
     fileUrl?: SortOrder
     status?: SortOrder
     rejectionReason?: SortOrderInput | SortOrder
@@ -19233,6 +19334,10 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"SchoolDocument"> | string
     schoolId?: StringWithAggregatesFilter<"SchoolDocument"> | string
     type?: EnumDocumentTypeWithAggregatesFilter<"SchoolDocument"> | $Enums.DocumentType
+    idDocumentType?: EnumIdDocumentTypeNullableWithAggregatesFilter<"SchoolDocument"> | $Enums.IdDocumentType | null
+    idNumber?: StringNullableWithAggregatesFilter<"SchoolDocument"> | string | null
+    proprietorFullName?: StringNullableWithAggregatesFilter<"SchoolDocument"> | string | null
+    proprietorDateOfBirth?: DateTimeNullableWithAggregatesFilter<"SchoolDocument"> | Date | string | null
     fileUrl?: StringWithAggregatesFilter<"SchoolDocument"> | string
     status?: EnumDocumentStatusWithAggregatesFilter<"SchoolDocument"> | $Enums.DocumentStatus
     rejectionReason?: StringNullableWithAggregatesFilter<"SchoolDocument"> | string | null
@@ -20529,6 +20634,10 @@ export namespace Prisma {
   export type SchoolDocumentCreateInput = {
     id?: string
     type: $Enums.DocumentType
+    idDocumentType?: $Enums.IdDocumentType | null
+    idNumber?: string | null
+    proprietorFullName?: string | null
+    proprietorDateOfBirth?: Date | string | null
     fileUrl: string
     status?: $Enums.DocumentStatus
     rejectionReason?: string | null
@@ -20545,6 +20654,10 @@ export namespace Prisma {
     id?: string
     schoolId: string
     type: $Enums.DocumentType
+    idDocumentType?: $Enums.IdDocumentType | null
+    idNumber?: string | null
+    proprietorFullName?: string | null
+    proprietorDateOfBirth?: Date | string | null
     fileUrl: string
     status?: $Enums.DocumentStatus
     rejectionReason?: string | null
@@ -20559,6 +20672,10 @@ export namespace Prisma {
   export type SchoolDocumentUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     type?: EnumDocumentTypeFieldUpdateOperationsInput | $Enums.DocumentType
+    idDocumentType?: NullableEnumIdDocumentTypeFieldUpdateOperationsInput | $Enums.IdDocumentType | null
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    proprietorFullName?: NullableStringFieldUpdateOperationsInput | string | null
+    proprietorDateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     fileUrl?: StringFieldUpdateOperationsInput | string
     status?: EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
@@ -20575,6 +20692,10 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     schoolId?: StringFieldUpdateOperationsInput | string
     type?: EnumDocumentTypeFieldUpdateOperationsInput | $Enums.DocumentType
+    idDocumentType?: NullableEnumIdDocumentTypeFieldUpdateOperationsInput | $Enums.IdDocumentType | null
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    proprietorFullName?: NullableStringFieldUpdateOperationsInput | string | null
+    proprietorDateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     fileUrl?: StringFieldUpdateOperationsInput | string
     status?: EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
@@ -20590,6 +20711,10 @@ export namespace Prisma {
     id?: string
     schoolId: string
     type: $Enums.DocumentType
+    idDocumentType?: $Enums.IdDocumentType | null
+    idNumber?: string | null
+    proprietorFullName?: string | null
+    proprietorDateOfBirth?: Date | string | null
     fileUrl: string
     status?: $Enums.DocumentStatus
     rejectionReason?: string | null
@@ -20604,6 +20729,10 @@ export namespace Prisma {
   export type SchoolDocumentUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     type?: EnumDocumentTypeFieldUpdateOperationsInput | $Enums.DocumentType
+    idDocumentType?: NullableEnumIdDocumentTypeFieldUpdateOperationsInput | $Enums.IdDocumentType | null
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    proprietorFullName?: NullableStringFieldUpdateOperationsInput | string | null
+    proprietorDateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     fileUrl?: StringFieldUpdateOperationsInput | string
     status?: EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
@@ -20619,6 +20748,10 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     schoolId?: StringFieldUpdateOperationsInput | string
     type?: EnumDocumentTypeFieldUpdateOperationsInput | $Enums.DocumentType
+    idDocumentType?: NullableEnumIdDocumentTypeFieldUpdateOperationsInput | $Enums.IdDocumentType | null
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    proprietorFullName?: NullableStringFieldUpdateOperationsInput | string | null
+    proprietorDateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     fileUrl?: StringFieldUpdateOperationsInput | string
     status?: EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
@@ -22167,6 +22300,13 @@ export namespace Prisma {
     not?: NestedEnumDocumentTypeFilter<$PrismaModel> | $Enums.DocumentType
   }
 
+  export type EnumIdDocumentTypeNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.IdDocumentType | EnumIdDocumentTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.IdDocumentType[] | ListEnumIdDocumentTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.IdDocumentType[] | ListEnumIdDocumentTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumIdDocumentTypeNullableFilter<$PrismaModel> | $Enums.IdDocumentType | null
+  }
+
   export type EnumDocumentStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.DocumentStatus | EnumDocumentStatusFieldRefInput<$PrismaModel>
     in?: $Enums.DocumentStatus[] | ListEnumDocumentStatusFieldRefInput<$PrismaModel>
@@ -22206,6 +22346,10 @@ export namespace Prisma {
     id?: SortOrder
     schoolId?: SortOrder
     type?: SortOrder
+    idDocumentType?: SortOrder
+    idNumber?: SortOrder
+    proprietorFullName?: SortOrder
+    proprietorDateOfBirth?: SortOrder
     fileUrl?: SortOrder
     status?: SortOrder
     rejectionReason?: SortOrder
@@ -22221,6 +22365,10 @@ export namespace Prisma {
     id?: SortOrder
     schoolId?: SortOrder
     type?: SortOrder
+    idDocumentType?: SortOrder
+    idNumber?: SortOrder
+    proprietorFullName?: SortOrder
+    proprietorDateOfBirth?: SortOrder
     fileUrl?: SortOrder
     status?: SortOrder
     rejectionReason?: SortOrder
@@ -22235,6 +22383,10 @@ export namespace Prisma {
     id?: SortOrder
     schoolId?: SortOrder
     type?: SortOrder
+    idDocumentType?: SortOrder
+    idNumber?: SortOrder
+    proprietorFullName?: SortOrder
+    proprietorDateOfBirth?: SortOrder
     fileUrl?: SortOrder
     status?: SortOrder
     rejectionReason?: SortOrder
@@ -22253,6 +22405,16 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumDocumentTypeFilter<$PrismaModel>
     _max?: NestedEnumDocumentTypeFilter<$PrismaModel>
+  }
+
+  export type EnumIdDocumentTypeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.IdDocumentType | EnumIdDocumentTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.IdDocumentType[] | ListEnumIdDocumentTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.IdDocumentType[] | ListEnumIdDocumentTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumIdDocumentTypeNullableWithAggregatesFilter<$PrismaModel> | $Enums.IdDocumentType | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumIdDocumentTypeNullableFilter<$PrismaModel>
+    _max?: NestedEnumIdDocumentTypeNullableFilter<$PrismaModel>
   }
 
   export type EnumDocumentStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -23471,6 +23633,10 @@ export namespace Prisma {
     set?: $Enums.DocumentType
   }
 
+  export type NullableEnumIdDocumentTypeFieldUpdateOperationsInput = {
+    set?: $Enums.IdDocumentType | null
+  }
+
   export type EnumDocumentStatusFieldUpdateOperationsInput = {
     set?: $Enums.DocumentStatus
   }
@@ -24219,6 +24385,13 @@ export namespace Prisma {
     not?: NestedEnumDocumentTypeFilter<$PrismaModel> | $Enums.DocumentType
   }
 
+  export type NestedEnumIdDocumentTypeNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.IdDocumentType | EnumIdDocumentTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.IdDocumentType[] | ListEnumIdDocumentTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.IdDocumentType[] | ListEnumIdDocumentTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumIdDocumentTypeNullableFilter<$PrismaModel> | $Enums.IdDocumentType | null
+  }
+
   export type NestedEnumDocumentStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.DocumentStatus | EnumDocumentStatusFieldRefInput<$PrismaModel>
     in?: $Enums.DocumentStatus[] | ListEnumDocumentStatusFieldRefInput<$PrismaModel>
@@ -24234,6 +24407,16 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumDocumentTypeFilter<$PrismaModel>
     _max?: NestedEnumDocumentTypeFilter<$PrismaModel>
+  }
+
+  export type NestedEnumIdDocumentTypeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.IdDocumentType | EnumIdDocumentTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.IdDocumentType[] | ListEnumIdDocumentTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.IdDocumentType[] | ListEnumIdDocumentTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumIdDocumentTypeNullableWithAggregatesFilter<$PrismaModel> | $Enums.IdDocumentType | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumIdDocumentTypeNullableFilter<$PrismaModel>
+    _max?: NestedEnumIdDocumentTypeNullableFilter<$PrismaModel>
   }
 
   export type NestedEnumDocumentStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -24654,6 +24837,10 @@ export namespace Prisma {
   export type SchoolDocumentCreateWithoutSchoolInput = {
     id?: string
     type: $Enums.DocumentType
+    idDocumentType?: $Enums.IdDocumentType | null
+    idNumber?: string | null
+    proprietorFullName?: string | null
+    proprietorDateOfBirth?: Date | string | null
     fileUrl: string
     status?: $Enums.DocumentStatus
     rejectionReason?: string | null
@@ -24668,6 +24855,10 @@ export namespace Prisma {
   export type SchoolDocumentUncheckedCreateWithoutSchoolInput = {
     id?: string
     type: $Enums.DocumentType
+    idDocumentType?: $Enums.IdDocumentType | null
+    idNumber?: string | null
+    proprietorFullName?: string | null
+    proprietorDateOfBirth?: Date | string | null
     fileUrl: string
     status?: $Enums.DocumentStatus
     rejectionReason?: string | null
@@ -24873,6 +25064,10 @@ export namespace Prisma {
     id?: StringFilter<"SchoolDocument"> | string
     schoolId?: StringFilter<"SchoolDocument"> | string
     type?: EnumDocumentTypeFilter<"SchoolDocument"> | $Enums.DocumentType
+    idDocumentType?: EnumIdDocumentTypeNullableFilter<"SchoolDocument"> | $Enums.IdDocumentType | null
+    idNumber?: StringNullableFilter<"SchoolDocument"> | string | null
+    proprietorFullName?: StringNullableFilter<"SchoolDocument"> | string | null
+    proprietorDateOfBirth?: DateTimeNullableFilter<"SchoolDocument"> | Date | string | null
     fileUrl?: StringFilter<"SchoolDocument"> | string
     status?: EnumDocumentStatusFilter<"SchoolDocument"> | $Enums.DocumentStatus
     rejectionReason?: StringNullableFilter<"SchoolDocument"> | string | null
@@ -26949,6 +27144,10 @@ export namespace Prisma {
   export type SchoolDocumentCreateManySchoolInput = {
     id?: string
     type: $Enums.DocumentType
+    idDocumentType?: $Enums.IdDocumentType | null
+    idNumber?: string | null
+    proprietorFullName?: string | null
+    proprietorDateOfBirth?: Date | string | null
     fileUrl: string
     status?: $Enums.DocumentStatus
     rejectionReason?: string | null
@@ -27134,6 +27333,10 @@ export namespace Prisma {
   export type SchoolDocumentUpdateWithoutSchoolInput = {
     id?: StringFieldUpdateOperationsInput | string
     type?: EnumDocumentTypeFieldUpdateOperationsInput | $Enums.DocumentType
+    idDocumentType?: NullableEnumIdDocumentTypeFieldUpdateOperationsInput | $Enums.IdDocumentType | null
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    proprietorFullName?: NullableStringFieldUpdateOperationsInput | string | null
+    proprietorDateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     fileUrl?: StringFieldUpdateOperationsInput | string
     status?: EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
@@ -27148,6 +27351,10 @@ export namespace Prisma {
   export type SchoolDocumentUncheckedUpdateWithoutSchoolInput = {
     id?: StringFieldUpdateOperationsInput | string
     type?: EnumDocumentTypeFieldUpdateOperationsInput | $Enums.DocumentType
+    idDocumentType?: NullableEnumIdDocumentTypeFieldUpdateOperationsInput | $Enums.IdDocumentType | null
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    proprietorFullName?: NullableStringFieldUpdateOperationsInput | string | null
+    proprietorDateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     fileUrl?: StringFieldUpdateOperationsInput | string
     status?: EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
@@ -27162,6 +27369,10 @@ export namespace Prisma {
   export type SchoolDocumentUncheckedUpdateManyWithoutSchoolInput = {
     id?: StringFieldUpdateOperationsInput | string
     type?: EnumDocumentTypeFieldUpdateOperationsInput | $Enums.DocumentType
+    idDocumentType?: NullableEnumIdDocumentTypeFieldUpdateOperationsInput | $Enums.IdDocumentType | null
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    proprietorFullName?: NullableStringFieldUpdateOperationsInput | string | null
+    proprietorDateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     fileUrl?: StringFieldUpdateOperationsInput | string
     status?: EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null

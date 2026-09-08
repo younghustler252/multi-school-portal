@@ -55,17 +55,20 @@ export const UpdateSchoolDto = z.object({
                         "international",
                      ]).optional(),
 });
-
-// ── Upload document ───────────────────────────────────────────────────────
 export const UploadDocumentDto = z.object({
-    type: z.enum([
-        "cac_certificate",
-        "proprietor_id",
-        "waec_approval",
-        "ministry_approval",
-        "other",
-    ]),
+    type: z.enum(["cac_certificate", "proprietor_id", "waec_approval", "ministry_approval", "other"]),
+    idDocumentType: z.enum(["nin", "voters_card", "drivers_license", "international_passport", "other"]).optional(),
+    idNumber: z.string().optional(),
+    proprietorFullName: z.string().optional(),
+    proprietorDateOfBirth: z.string().optional(), // optional, strengthens match if provided
+}).superRefine((data, ctx) => {
+    if (data.type === "proprietor_id") {
+        if (!data.idDocumentType) ctx.addIssue({ code: "custom", path: ["idDocumentType"], message: "Required for proprietor ID" });
+        if (!data.idNumber)       ctx.addIssue({ code: "custom", path: ["idNumber"], message: "Required for proprietor ID" });
+        if (!data.proprietorFullName) ctx.addIssue({ code: "custom", path: ["proprietorFullName"], message: "Required for proprietor ID" });
+    }
 });
+
 
 // ── Verify school (super admin) ───────────────────────────────────────────
 export const VerifySchoolDto = z.object({

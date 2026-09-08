@@ -72,14 +72,14 @@ router.get(
     (req, res, next) =>
         ctrl().verifyPayment(req, res, next),
 );
-console.log("REGISTERING PAYMENT /banks ROUTE");
+// console.log("REGISTERING PAYMENT /banks ROUTE");
 
 
 // ── List Nigerian banks ───────────────────────────────────────────────────
 router.get(
     "/banks",
     authenticate,
-    requireTenant,
+    // requireTenant,
     (req, res, next) => {
 
         ctrl().listBanks(req, res, next);
@@ -91,7 +91,7 @@ router.get(
 router.post(
     "/verify-bank-account",
     authenticate,
-    requireTenant,
+    // requireTenant,
     (req, res, next) =>
         ctrl().verifyBankAccount(req, res, next),
 );

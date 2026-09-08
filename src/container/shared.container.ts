@@ -6,6 +6,7 @@ import { MailService }       from "../infrastructure/mail/mail.service";
 import { SmsService }        from "../infrastructure/sms/sms.service";
 import { SupabaseStorageService } from "../infrastructure/storage/supabase-storage.service";
 import { PaystackProvider } from "../infrastructure/payments/paystack.provider";
+import { ManualReviewProvider } from "../infrastructure/verification/provider/manual-review-provider";
 import { TokenService } from "../shared/services/token.service";
 import { PasswordService } from "../shared/services/password.service";
 import { PdfGeneratorService } from "../infrastructure/pdf/pdf-generator.service";
@@ -34,6 +35,8 @@ export const registerShared = (container: AwilixContainer): void => {
 
         // ── Payments (uncomment when built) ──────────────────────────────
         paymentProvider: asClass(PaystackProvider).singleton(),
+
+        verificationProvider: asClass(ManualReviewProvider).singleton(),
 
         // ── Shared Services (uncomment when built) ───────────────────────
         tokenService:    asClass(TokenService).singleton(),

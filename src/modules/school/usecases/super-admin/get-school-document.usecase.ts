@@ -24,7 +24,8 @@ export class GetSchoolDocumentsUseCase {
         const school = await this.schoolRepository.findById(schoolId);
         if (!school) throw new NotFoundError("School");
 
-        const documents = await this.schoolRepository.findDocumentsBySchoolId(schoolId);
+
+        const documents =  await this.schoolRepository.findDocumentsBySchoolId(schoolId);
 
         return Promise.all(
             documents.map(async doc => {
