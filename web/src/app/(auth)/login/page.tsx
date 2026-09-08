@@ -34,7 +34,7 @@ export default function LoginPage() {
 		setServerError(null);
 		try {
 			await login(values.email, values.password);
-			router.push("/onboarding/status");
+			router.push("/onboarding/setup");
 		} catch (err) {
 			const apiErr = err as ApiErrorResponse;
 

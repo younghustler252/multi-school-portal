@@ -38,14 +38,25 @@ export function ConfirmDialog({
 			<AlertDialogContent>
 				<AlertDialogHeader>
 					<AlertDialogTitle>{title}</AlertDialogTitle>
-					<AlertDialogDescription>{description}</AlertDialogDescription>
+
+					<AlertDialogDescription>
+						{description}
+					</AlertDialogDescription>
 				</AlertDialogHeader>
+
 				<AlertDialogFooter>
-					<AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
+					<AlertDialogCancel disabled={isLoading}>
+						Cancel
+					</AlertDialogCancel>
+
 					<AlertDialogAction
 						onClick={onConfirm}
 						disabled={isLoading}
-						className={destructive ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : undefined}
+						className={
+							destructive
+								? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
+								: undefined
+						}
 					>
 						{confirmLabel}
 					</AlertDialogAction>

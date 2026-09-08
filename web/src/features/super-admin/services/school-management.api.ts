@@ -31,7 +31,7 @@ export const schoolManagementApi = {
 		API.put(`/schools/${id}/suspend`, { schoolId: id, reason }),
 
 	activate: (id: string): Promise<ApiResponse<AdminSchoolResponseData>> =>
-		API.put(`/schools/${id}/activate`),
+		API.put(`/schools/${id}/approve`),
 
 	getSchoolDocuments: (schoolId: string): Promise<ApiResponse<SchoolDocumentResponseData[]>> =>
 		API.get(`/schools/${schoolId}/documents`),

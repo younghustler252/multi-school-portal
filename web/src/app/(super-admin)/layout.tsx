@@ -4,7 +4,7 @@ import { useEffect, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/auth.store";
 import { AuthProvider } from "@/components/layout/auth-provider";
-import { DashboardShell } from "@/components/layout/dashboard-shell";
+import { AdminShell } from "@/components/layout/admin-shell";
 import { Skeleton } from "@/components/ui/skeleton";
 
 function SuperAdminGuard({ children }: { children: ReactNode }) {
@@ -14,17 +14,9 @@ function SuperAdminGuard({ children }: { children: ReactNode }) {
 	const mustChangePassword = useAuthStore((s) => s.mustChangePassword);
 
 	useEffect(() => {
-		if (!isAuthenticated) {
-			router.replace("/login");
-			return;
-		}
-		if (mustChangePassword) {
-			router.replace("/change-password");
-			return;
-		}
-		if (user && user.role !== "super_admin") {
-			router.replace("/");
-		}
+		if (!isAuthenticated) { router.replace("/login"); return; }
+		if (mustChangePassword) { router.replace("/change-password"); return; }
+		if (user && user.role !== "super_admin") { router.replace("/"); }
 	}, [isAuthenticated, mustChangePassword, user, router]);
 
 	if (!isAuthenticated || !user || mustChangePassword || user.role !== "super_admin") {
@@ -35,7 +27,7 @@ function SuperAdminGuard({ children }: { children: ReactNode }) {
 		);
 	}
 
-	return <DashboardShell role="super_admin">{children}</DashboardShell>;
+	return <AdminShell>{children}</AdminShell>;
 }
 
 export default function SuperAdminLayout({ children }: { children: ReactNode }) {
