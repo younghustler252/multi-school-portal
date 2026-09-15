@@ -1,18 +1,19 @@
 import { IGuardianRepository }   from "../repositories/guardian.repository";
 import { IStudentRepository }    from "../../students/repositories/student.repository";
 import { IUserRepository }       from "../../auth/repositories/user.repository";
-import { GuardianMapper }        from "../mappers/guardian.mapper";
+import { GuardianMapper }         from "../mappers/guardian.mapper";
 import { GuardianResponseData }  from "../mappers/guardian.mapper";
-import { PasswordService }       from "../../../shared/services/password.service";
-import { MailService }           from "../../../infrastructure/mail/mail.service";
+import { PasswordService }        from "../../../shared/services/password.service";
+import { MailService }            from "../../../infrastructure/mail/mail.service";
+import { AuditService }            from "../../audit/services/audit.service";
 import {
     ConflictError,
     NotFoundError,
-}                                from "../../../shared/errors/domain.errors";
-import { GuardianErrorMessage }  from "../domain/guardian.enums";
-import { StudentErrorMessage }   from "../../students/domain/student.enums";
-import { CreateGuardianDtoType } from "../dtos/guardian.dto";
-import { Role }                  from "../../../generated/public";
+}                                 from "../../../shared/errors/domain.errors";
+import { GuardianErrorMessage }   from "../domain/guardian.enums";
+import { StudentErrorMessage }    from "../../students/domain/student.enums";
+import { CreateGuardianDtoType }  from "../dtos/guardian.dto";
+import { Role }                   from "../../../generated/public";
 
 /*
 |--------------------------------------------------------------------------
@@ -22,7 +23,8 @@ import { Role }                  from "../../../generated/public";
 | 2. If guardian with this email already exists — just link (don't
 |    recreate their account, they may already have one)
 | 3. Otherwise: create User (public schema, login-ready) + Guardian
-|    (tenant schema, linked via userId) + send welcome email
+|    (tenant schema, linked via userId) + audit account creation +
+|    send welcome email
 | 4. Link guardian to student
 |--------------------------------------------------------------------------
 */
@@ -31,9 +33,10 @@ interface Dependencies {
     guardianRepository: IGuardianRepository;
     studentRepository:  IStudentRepository;
     userRepository:     IUserRepository;
-    guardianMapper:      GuardianMapper;
-    passwordService:     PasswordService;
-    mailService:         MailService;
+    guardianMapper:     GuardianMapper;
+    passwordService:    PasswordService;
+    mailService:        MailService;
+    auditService:       AuditService;
 }
 
 export class CreateGuardianUseCase {
@@ -43,6 +46,7 @@ export class CreateGuardianUseCase {
     private readonly guardianMapper:     GuardianMapper;
     private readonly passwordService:    PasswordService;
     private readonly mailService:        MailService;
+    private readonly auditService:       AuditService;
 
     constructor({
         guardianRepository,
@@ -51,6 +55,7 @@ export class CreateGuardianUseCase {
         guardianMapper,
         passwordService,
         mailService,
+        auditService,
     }: Dependencies) {
         this.guardianRepository = guardianRepository;
         this.studentRepository  = studentRepository;
@@ -58,11 +63,13 @@ export class CreateGuardianUseCase {
         this.guardianMapper     = guardianMapper;
         this.passwordService    = passwordService;
         this.mailService        = mailService;
+        this.auditService       = auditService;
     }
 
     async execute(
         dto:      CreateGuardianDtoType,
         schoolId: string,
+        userId:   string,
     ): Promise<GuardianResponseData> {
 
         // ── 1. Check student exists ───────────────────────────────────────
@@ -100,7 +107,7 @@ export class CreateGuardianUseCase {
                 schoolId,
                 email:           dto.email,
                 passwordHash,
-                role:            Role.guardian,
+                role:             Role.guardian,
                 firstName:       dto.firstName,
                 lastName:        dto.lastName,
                 phone:           dto.phone,
@@ -120,7 +127,29 @@ export class CreateGuardianUseCase {
                 address:    dto.address,
             });
 
-            // ── 3d. Send welcome email with credentials ────────────────────
+            // ── 3d. Audit guardian account creation ───────────────────────
+            await this.auditService.log({
+                userId,
+                schoolId,
+                action:   "guardian.created",
+                entity:   "Guardian",
+                entityId: guardian.id,
+                newValue: {
+                    guardianId: guardian.id,
+                    userId:     user.id,
+                    studentId:  dto.studentId,
+                    email:      user.email,
+                    firstName:  user.firstName,
+                    lastName:   user.lastName,
+                    phone:      user.phone,
+                    occupation: guardian.occupation,
+                    address:    guardian.address,
+                    relation:   dto.relation,
+                    isPrimary:  dto.isPrimary,
+                },
+            });
+
+            // ── 3e. Send welcome email with credentials ────────────────────
             await this.mailService.sendLetter(dto.email, {
                 subject:    "Welcome to the parent portal — Your login details",
                 title:      "Your Account is Ready",

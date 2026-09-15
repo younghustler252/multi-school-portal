@@ -23,6 +23,11 @@ router.get(
     (req, res, next) => ctrl().getPlatformStats(req, res, next),
 );
 
+router.get(
+    "/subscriptions/stats",
+    (req, res, next) => ctrl().getPlatformStats(req, res, next),
+);
+
 // ── MRR trend ─────────────────────────────────────────────────────────────
 router.get(
     "/stats/mrr-trend",
@@ -42,10 +47,22 @@ router.delete(
     (req, res, next) => ctrl().deactivateUser(req, res, next),
 );
 
+// ── School billing history ────────────────────────────────────────────────
+router.get(
+    "/schools/:schoolId/billing-history",
+    (req, res, next) => ctrl().getSchoolBillingHistory(req, res, next),
+);
+
 // ── Impersonate school admin ──────────────────────────────────────────────
 router.post(
     "/schools/:schoolId/impersonate",
     (req, res, next) => ctrl().impersonateSchool(req, res, next),
 );
+
+router.get(
+    "/schools/:schoolId/activity",
+    (req, res, next) => ctrl().getSchoolActivity(req, res, next),
+);
+
 
 export default router;

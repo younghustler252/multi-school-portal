@@ -104,6 +104,7 @@ export class StaffController {
             const result = await this.createStaffUseCase.execute(
                 req.body,
                 req.user!.schoolId!,
+                req.user?.id as string,
             );
             sendCreated(res, result, "Staff member created successfully");
         } catch (err) {
@@ -155,6 +156,7 @@ export class StaffController {
         try {
             const result = await this.reactivateStaffUseCase.execute(
                 req.params.id as string,
+                req.user?.id as string,
             );
 
             sendSuccess(

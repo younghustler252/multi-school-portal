@@ -1,7 +1,8 @@
 import { Prisma } from "../../../generated/tenant";
 import { BaseTenantRepository } from "../../../infrastructure/repository/base.repository";
-import { ClassMapper, SubjectMapper, ClassSubjectMapper } from "../mappers/class.mapper";
-import { ClassEntity, SubjectEntity, ClassSubjectEntity } from "../domain/class.entity";
+import { ClassMapper, SubjectMapper, ClassSubjectMapper, ClassProgressionMapper } from "../mappers/class.mapper";
+import { ClassEntity, SubjectEntity, ClassSubjectEntity, ClassProgressionEntity } from "../domain/class.entity";
+import { ClassProgressionResponseData } from "../types/class.types";
 import { IClassRepository } from "./class.repository";
 
 export class ClassRepositoryImpl
@@ -11,19 +12,24 @@ export class ClassRepositoryImpl
     protected readonly modelName = "class";
     private readonly subjectMapper: SubjectMapper;
     private readonly classSubjectMapper: ClassSubjectMapper;
+    private readonly classProgressionMapper: ClassProgressionMapper;
+
 
     constructor({
         classMapper,
         subjectMapper,
         classSubjectMapper,
+        classProgressionMapper
     }: {
         classMapper: ClassMapper;
         subjectMapper: SubjectMapper;
         classSubjectMapper: ClassSubjectMapper;
+        classProgressionMapper: ClassProgressionMapper
     }) {
         super(classMapper);
         this.subjectMapper = subjectMapper;
         this.classSubjectMapper = classSubjectMapper;
+        this.classProgressionMapper = classProgressionMapper;
     }
 
     async findClassById(id: string): Promise<ClassEntity | null> {
@@ -207,33 +213,83 @@ export class ClassRepositoryImpl
         
     }
     async findClassByIdEnriched(id: string, termId: string | null): Promise<{
-    id:             string;
-    name:           string;
-    level:          string | null;
-    capacity:       number | null;
-    classTeacherId: string | null;
-    studentCount:   number;
-    createdAt:      Date;
-} | null> {
-    const cls = await this.prisma.class.findUnique({ where: { id } });
-    if (!cls) return null;
+        id:             string;
+        name:           string;
+        level:          string | null;
+        capacity:       number | null;
+        classTeacherId: string | null;
+        studentCount:   number;
+        createdAt:      Date;
+    } | null> {
+        const cls = await this.prisma.class.findUnique({ where: { id } });
+        if (!cls) return null;
 
-    let studentCount = 0;
-    if (termId) {
-        studentCount = await this.prisma.enrolment.count({
-            where: { classId: id, termId, status: "active" },
-        });
+        let studentCount = 0;
+        if (termId) {
+            studentCount = await this.prisma.enrolment.count({
+                where: { classId: id, termId, status: "active" },
+            });
+        }
+
+        return {
+            id:             cls.id,
+            name:           cls.name,
+            level:          cls.level,
+            capacity:       cls.capacity,
+            classTeacherId: cls.classTeacherId,
+            studentCount,
+            createdAt:      cls.createdAt,
+        };
     }
 
-    return {
-        id:             cls.id,
-        name:           cls.name,
-        level:          cls.level,
-        capacity:       cls.capacity,
-        classTeacherId: cls.classTeacherId,
-        studentCount,
-        createdAt:      cls.createdAt,
-    };
-}
+    async findClassProgression(
+        fromClassId: string
+    ): Promise<ClassProgressionEntity | null> {
+        const raw = await this.prisma.classProgression.findUnique({
+            where: { fromClassId },
+        });
+
+        return raw ? this.classProgressionMapper.toDomain(raw) : null;
+    }
+
+    async setClassProgression(
+        data: Prisma.ClassProgressionUncheckedCreateInput
+    ): Promise<ClassProgressionEntity> {
+        const raw = await this.prisma.classProgression.upsert({
+            where: { fromClassId: data.fromClassId },
+            create: data,
+            update: {
+                toClassId: data.toClassId,
+            },
+        });
+
+        return this.classProgressionMapper.toDomain(raw);
+    }
+
+    async findClassProgressionEnriched(
+        fromClassId: string,
+    ): Promise<ClassProgressionResponseData | null> {
+        const raw = await this.prisma.classProgression.findUnique({
+            where: { fromClassId },
+            include: {
+                fromClass: true,
+                toClass: true,
+            },
+        });
+
+        if (!raw) return null;
+
+        return {
+            id: raw.id,
+            fromClassId: raw.fromClassId,
+            fromClassName: raw.fromClass.name,
+            toClassId: raw.toClassId,
+            toClassName: raw.toClass?.name ?? null,
+            createdAt: raw.createdAt,
+            updatedAt: raw.updatedAt,
+        };
+    }
+
+
 }
 

@@ -10,6 +10,7 @@ import { ManualReviewProvider } from "../infrastructure/verification/provider/ma
 import { TokenService } from "../shared/services/token.service";
 import { PasswordService } from "../shared/services/password.service";
 import { PdfGeneratorService } from "../infrastructure/pdf/pdf-generator.service";
+import { EncryptionService } from "../shared/services/encryption.service"
 
 /*
 |--------------------------------------------------------------------------
@@ -41,6 +42,7 @@ export const registerShared = (container: AwilixContainer): void => {
         // ── Shared Services (uncomment when built) ───────────────────────
         tokenService:    asClass(TokenService).singleton(),
         passwordService: asClass(PasswordService).singleton(),
+        encryptionService: asClass(EncryptionService).singleton(),
 
         pdfGeneratorService: asClass(PdfGeneratorService).singleton()
     });

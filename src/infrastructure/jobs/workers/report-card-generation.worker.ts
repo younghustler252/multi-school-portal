@@ -1,4 +1,5 @@
 import { Worker, Job } from "bullmq";
+import * as Sentry                 from "@sentry/node";
 import { redisConnection } from "../connection";
 import { ReportCardGenerationJobData } from "../queues/report-card-generation.queue";
 import { TenantContext } from "../../database/prisma/tenant.context";
@@ -76,7 +77,16 @@ export const reportCardGenerationWorker = new Worker<ReportCardGenerationJobData
 reportCardGenerationWorker.on("completed", (job, result) => {
     console.log(`✅ Report card bulk job ${job.id} completed:`, result);
 });
-
 reportCardGenerationWorker.on("failed", (job, err) => {
-    console.error(`❌ Report card bulk job ${job?.id} failed:`, err.message);
+    console.error(
+        `❌ Report card bulk job ${job?.id} failed:`,
+        err.message,
+    );
+
+    Sentry.captureException(err, {
+        extra: {
+            jobId: job?.id,
+            jobName: job?.name,
+        },
+    });
 });

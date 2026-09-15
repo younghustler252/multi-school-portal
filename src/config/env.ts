@@ -37,6 +37,9 @@ const envSchema = z.object({
     JWT_ACCESS_EXPIRES_IN:  z.string().default("15m"),
     JWT_REFRESH_EXPIRES_IN: z.string().default("7d"),
 
+    //encryption key
+    ENCRYPTION_KEY: z.string().min(32).max(64),
+
     // ── Supabase ─────────────────────────────────────────────────────────
     SUPABASE_URL:         z.string().url(),
     SUPABASE_SERVICE_KEY: z.string(),
@@ -66,6 +69,9 @@ const envSchema = z.object({
     BREVO_API_KEY:      z.string().min(1).optional(),
     BREVO_SENDER_EMAIL: z.string().email().optional(),
     BREVO_SENDER_NAME:  z.string().min(1).default("Hotspot Support").optional(),
+
+    //sentry
+    SENTRY_DSN: z.string().optional(),
 });
 
 /*
@@ -103,6 +109,8 @@ export const env = {
         accessExpiresIn:  parsed.data.JWT_ACCESS_EXPIRES_IN,
         refreshExpiresIn: parsed.data.JWT_REFRESH_EXPIRES_IN,
     },
+
+    encryptionKey: parsed.data.ENCRYPTION_KEY,
 
     // ── Supabase ─────────────────────────────────────────────────────────
     supabase: {
@@ -145,4 +153,7 @@ export const env = {
         senderEmail: parsed.data.BREVO_SENDER_EMAIL || "",
         senderName:  parsed.data.BREVO_SENDER_NAME || "Hotspot Support",
     },
+
+    sentryDsn: parsed.data.SENTRY_DSN,
+
 } as const;

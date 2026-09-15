@@ -19,17 +19,18 @@ export interface InitializeTransactionResult {
     accessCode:       string;
     reference:        string;
 }
-
 export interface VerifyTransactionResult {
-    status:        "success" | "failed" | "abandoned";
-    reference:     string;
-    amountKobo:    number;
-    paidAt:        Date | null;
-    channel:       string;
-    cardLast4?:    string;
-    cardBrand?:    string;
-    customerEmail: string;
-    metadata?:     Record<string, any>;
+    status:            "success" | "failed" | "abandoned";
+    reference:         string;
+    amountKobo:        number;
+    paidAt:            Date | null;
+    channel:           string;
+    cardLast4?:        string;
+    cardBrand?:        string;
+    authorizationCode?: string;
+    reusable?:          boolean;
+    customerEmail:     string;
+    metadata?:         Record<string, any>;
 }
 
 export interface CreateSubaccountParams {

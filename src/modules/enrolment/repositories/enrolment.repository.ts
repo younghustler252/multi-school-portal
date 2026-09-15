@@ -1,4 +1,4 @@
-import { Prisma } from "../../../generated/prisma/client";
+import { Prisma } from "../../../generated/tenant";
 import { EnrolmentEntity }   from "../domain/enrolment.entity";
 import {
     PaginatedResult,
@@ -10,6 +10,11 @@ import {
 | ENROLMENT REPOSITORY INTERFACE
 |--------------------------------------------------------------------------
 */
+export interface StudentSummary {
+    id:        string;
+    firstName: string;
+    lastName:  string;
+}
 
 export interface IEnrolmentRepository {
     findById(id: string):                            Promise<EnrolmentEntity | null>;
@@ -30,4 +35,8 @@ export interface IEnrolmentRepository {
     findByStudent(studentId: string):                Promise<EnrolmentEntity[]>;
     countByClass(classId: string, termId: string):   Promise<number>;
     bulkCreate(data: Record<string, any>[]):         Promise<EnrolmentEntity[]>;
+    getStudentSummary(studentId: string): Promise<StudentSummary>;
+
+
+    
 }

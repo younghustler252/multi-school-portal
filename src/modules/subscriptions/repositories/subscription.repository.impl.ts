@@ -2,6 +2,7 @@ import { BasePublicRepository } from "../../../infrastructure/repository/base.re
 import { SubscriptionMapper } from "../mappers/subscription.mapper";
 import { SubscriptionEntity } from "../domain/subscription.entity";
 import { ISubscriptionRepository } from "./subscription.repository";
+import { buildPaginationMeta } from "../../../shared/utils/pagination";
 
 export class SubscriptionRepositoryImpl
     extends BasePublicRepository<SubscriptionEntity>
@@ -94,5 +95,19 @@ export class SubscriptionRepositoryImpl
         }
 
         return results;
+    }
+
+    async paginateBillingHistoryBySchool(schoolId: string, page: number, limit: number) {
+        const skip = (page - 1) * limit;
+        const [data, total] = await Promise.all([
+            this.prisma.billingHistory.findMany({
+                where:  { subscription: { schoolId } },
+                skip, take: limit,
+                orderBy: { createdAt: "desc" },
+            }),
+            this.prisma.billingHistory.count({ where: { subscription: { schoolId } } }),
+        ]);
+        // console.log(data)
+        return { data, meta: buildPaginationMeta(total, page, limit) };
     }
 }

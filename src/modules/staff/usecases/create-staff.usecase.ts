@@ -5,9 +5,9 @@ import { StaffResponseData }   from "../mappers/staff.mapper";
 import { PasswordService }     from "../../../shared/services/password.service";
 import { MailService }         from "../../../infrastructure/mail/mail.service";
 import { TokenService }        from "../../../shared/services/token.service";
+import { AuditService } from "../../audit/services/audit.service";
 import {
     ConflictError,
-    BadRequestError,
 }                              from "../../../shared/errors/domain.errors";
 import { StaffErrorMessage }   from "../domain/staff.enums";
 import { CreateStaffDtoType }  from "../dtos/staff.dto";
@@ -24,17 +24,19 @@ import { Role }                from "../../../generated/public";
 | 4. Hash password
 | 5. Create User record in public schema
 | 6. Create Staff record in tenant schema
-| 7. Send invite email with temporary password
+| 7. Audit staff creation
+| 8. Send invite email with temporary password
 |--------------------------------------------------------------------------
 */
 
 interface Dependencies {
     staffRepository:   IStaffRepository;
-    userRepository:    IUserRepository;
-    staffMapper:       StaffMapper;
-    passwordService:   PasswordService;
-    mailService:       MailService;
-    tokenService:      TokenService;
+    userRepository:     IUserRepository;
+    staffMapper:        StaffMapper;
+    passwordService:    PasswordService;
+    mailService:        MailService;
+    tokenService:       TokenService;
+    auditService:       AuditService;
 }
 
 export class CreateStaffUseCase {
@@ -44,6 +46,7 @@ export class CreateStaffUseCase {
     private readonly passwordService:  PasswordService;
     private readonly mailService:      MailService;
     private readonly tokenService:     TokenService;
+    private readonly auditService:     AuditService;
 
     constructor({
         staffRepository,
@@ -52,6 +55,7 @@ export class CreateStaffUseCase {
         passwordService,
         mailService,
         tokenService,
+        auditService,
     }: Dependencies) {
         this.staffRepository  = staffRepository;
         this.userRepository   = userRepository;
@@ -59,11 +63,13 @@ export class CreateStaffUseCase {
         this.passwordService  = passwordService;
         this.mailService      = mailService;
         this.tokenService     = tokenService;
+        this.auditService     = auditService;
     }
 
     async execute(
         dto:      CreateStaffDtoType,
         schoolId: string,
+        userId:   string
     ): Promise<StaffResponseData> {
 
         // ── 1. Check employee ID not taken ────────────────────────────────
@@ -97,10 +103,10 @@ export class CreateStaffUseCase {
             schoolId,
             email:           dto.email,
             passwordHash,
-            role:            dto.role as Role,
+            role:             dto.role as Role,
             firstName:       dto.firstName,
             lastName:        dto.lastName,
-            phone:           dto.phone,
+            phone:            dto.phone,
             isActive:        true,
             isEmailVerified: true, // staff don't need email verification
             mustChangePassword: true,
@@ -120,7 +126,31 @@ export class CreateStaffUseCase {
             joinDate:      dto.joinDate ? new Date(dto.joinDate) : null,
         });
 
-        // ── 7. Send welcome email with credentials ────────────────────────
+        // ── 7. Audit staff creation ──────────────────────────────────────
+        await this.auditService.log({
+            userId,
+            schoolId,
+            action:   "staff.created",
+            entity:   "Staff",
+            entityId: staff.id,
+            newValue: {
+                staffId:      staff.id,
+                userId:       user.id,
+                employeeId:   staff.employeeId,
+                email:        user.email,
+                firstName:    user.firstName,
+                lastName:     user.lastName,
+                phone:        user.phone,
+                role:         staff.role,
+                department:   staff.department,
+                designation:  staff.designation,
+                qualification: staff.qualification,
+                gender:       staff.gender,
+                joinDate:     staff.joinDate,
+            },
+        });
+
+        // ── 8. Send welcome email with credentials ────────────────────────
         await this.mailService.sendLetter(dto.email, {
             subject:    "Welcome to the team — Your login details",
             title:      "Your Account is Ready",

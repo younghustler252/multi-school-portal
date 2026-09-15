@@ -11,6 +11,7 @@ export const CreateStudentDto = z.object({
     firstName:       z.string().min(1).max(50),
     lastName:        z.string().min(1).max(50),
     middleName:      z.string().optional(),
+    email:           z.string().email().optional(),
     admissionNumber: z.string().optional(),
     dateOfBirth:     z.string().optional(),
     gender:          z.enum(["male", "female"]).optional(),
@@ -27,16 +28,17 @@ export const CreateStudentDto = z.object({
     guardianEmail:     z.string().email().optional(),
     guardianPhone:     z.string().optional(),
     guardianRelation:  z.enum([
-                           "father",
-                           "mother",
-                           "uncle",
-                           "aunt",
-                           "grandparent",
-                           "sibling",
-                           "guardian",
-                           "other",
-                       ]).optional(),
+        "father",
+        "mother",
+        "uncle",
+        "aunt",
+        "grandparent",
+        "sibling",
+        "guardian",
+        "other",
+    ]).optional(),
 });
+
 
 // ── Update student ────────────────────────────────────────────────────────
 export const UpdateStudentDto = z.object({

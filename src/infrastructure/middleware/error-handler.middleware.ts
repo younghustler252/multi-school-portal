@@ -1,6 +1,10 @@
+import { env } from "../../config/env";
+import { Sentry } from "../monitoring/sentry";
 import { Request, Response, NextFunction } from "express";
-import { AppError, ValidationError } from "../../shared/errors/domain.errors";
-import { env }                             from "../../config/env";
+import {
+    AppError,
+    ValidationError,
+} from "../../shared/errors/domain.errors";
 
 /*
 |--------------------------------------------------------------------------
@@ -9,16 +13,29 @@ import { env }                             from "../../config/env";
 |--------------------------------------------------------------------------
 */
 export const errorHandler = (
-    err:  any,
-    req:  Request,
-    res:  Response,
+    err: any,
+    req: Request,
+    res: Response,
     next: NextFunction,
 ): Response => {
 
     console.error("❌ Error:", err);
 
+    // ── Sentry: capture unexpected/server errors ──────────────────────────
+    const isUnexpected =
+        !(err instanceof AppError) ||
+        err.statusCode >= 500;
+
+    if (isUnexpected) {
+        Sentry.captureException(err, {
+            extra: {
+                path: req.originalUrl,
+                method: req.method,
+            },
+        });
+    }
+
     // ── Zod Validation Error ─────────────────────────────────────────────
-   // ── Zod Validation Error ─────────────────────────────────────────────────
     if (err.name === "ZodError") {
         const fields = err.errors.reduce((acc: any, e: any) => {
             acc[e.path.join(".")] = e.message;
@@ -28,7 +45,7 @@ export const errorHandler = (
         return res.status(400).json({
             success: false,
             message: "Validation failed",
-            errors:  fields,
+            errors: fields,
         });
     }
 
@@ -91,6 +108,8 @@ export const errorHandler = (
     return res.status(500).json({
         success: false,
         message: "Internal server error",
-        ...(env.NODE_ENV === "development" && { stack: err.stack }),
+        ...(env.NODE_ENV === "development" && {
+            stack: err.stack,
+        }),
     });
 };

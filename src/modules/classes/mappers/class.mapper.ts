@@ -3,12 +3,14 @@ import {
     ClassEntity,
     SubjectEntity,
     ClassSubjectEntity,
+    ClassProgressionEntity,
 } from "../domain/class.entity";
 
 import {
     ClassResponseData,
     SubjectResponseData,
     ClassSubjectResponseData,
+    ClassProgressionResponseData,
 } from "../types/class.types";
 
 /*
@@ -97,6 +99,25 @@ export class ClassSubjectMapper implements IMapper<any, ClassSubjectEntity> {
             subjectId: entity.subjectId,
             staffId: entity.staffId,
             createdAt: entity.createdAt,
+        };
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| CLASS PROGRESSION MAPPER
+|--------------------------------------------------------------------------
+*/
+export class ClassProgressionMapper
+    implements IMapper<any, ClassProgressionEntity>
+{
+    toDomain(raw: any): ClassProgressionEntity {
+        return {
+            id: raw.id,
+            fromClassId: raw.fromClassId,
+            toClassId: raw.toClassId ?? null,
+            createdAt: raw.createdAt,
+            updatedAt: raw.updatedAt,
         };
     }
 }

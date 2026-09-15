@@ -10,6 +10,7 @@ import { GetSubjectsUseCase }       from "../usecases/school-admin/get-subjects.
 import { AssignSubjectUseCase }     from "../usecases/school-admin/assign-subject.usecase";
 import { GetClassSubjectsUseCase }  from "../usecases/school-admin/get-class-subjects.usecase";
 import { RemoveSubjectUseCase }     from "../usecases/school-admin/remove-subject.usecase";
+import { SetClassProgressionUseCase } from "../usecases/school-admin/set-class-progression.usecase";
 import {
     sendSuccess,
     sendCreated,
@@ -33,6 +34,7 @@ interface Dependencies {
     getClassSubjectsUseCase: GetClassSubjectsUseCase;
     removeSubjectUseCase:    RemoveSubjectUseCase;
     setClassTeacherUseCase:  SetClassTeacherUseCase;
+    setClassProgressionUseCase: SetClassProgressionUseCase;
 }
 
 export class ClassController {
@@ -47,6 +49,7 @@ export class ClassController {
     private readonly assignSubjectUseCase:    AssignSubjectUseCase;
     private readonly getClassSubjectsUseCase: GetClassSubjectsUseCase;
     private readonly removeSubjectUseCase:    RemoveSubjectUseCase;
+    private readonly setClassProgressionUseCase: SetClassProgressionUseCase;
 
     constructor({
         createClassUseCase,
@@ -60,6 +63,7 @@ export class ClassController {
         assignSubjectUseCase,
         getClassSubjectsUseCase,
         removeSubjectUseCase,
+        setClassProgressionUseCase,
     }: Dependencies) {
         this.createClassUseCase      = createClassUseCase;
         this.updateClassUseCase      = updateClassUseCase;
@@ -72,6 +76,7 @@ export class ClassController {
         this.assignSubjectUseCase    = assignSubjectUseCase;
         this.getClassSubjectsUseCase = getClassSubjectsUseCase;
         this.removeSubjectUseCase    = removeSubjectUseCase;
+        this.setClassProgressionUseCase = setClassProgressionUseCase;
     }
 
     // ── Classes ───────────────────────────────────────────────────────────
@@ -208,4 +213,26 @@ export class ClassController {
             sendSuccess(res, null, "Subject removed successfully");
         } catch (err) { next(err); }
     };
+
+    setClassProgression = async (
+        req: Request,
+        res: Response,
+        next: NextFunction,
+    ): Promise<void> => {
+        try {
+            const result = await this.setClassProgressionUseCase.execute(
+                req.params.id as string,
+                req.body.toClassId ?? null,
+            );
+
+            sendSuccess(
+                res,
+                result,
+                "Class progression updated successfully",
+            );
+        } catch (err) {
+            next(err);
+        }
+    };
+
 }

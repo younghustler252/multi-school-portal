@@ -1,9 +1,9 @@
-import { SubscriptionEntity } from "../domain/subscription.entity";
+import { SubscriptionEntity, BillingHistoryEntity } from "../domain/subscription.entity";
 import {
     PaginatedResult,
     PaginateParams,
 } from "../../../infrastructure/repository/base.repository";
-
+import { PaginationMeta } from "../../../shared/utils/api-response";
 /*
 |--------------------------------------------------------------------------
 | SUBSCRIPTION REPOSITORY INTERFACE
@@ -77,4 +77,13 @@ export interface ISubscriptionRepository {
             mrrKobo: number;
         }>
     >;
+
+     paginateBillingHistoryBySchool(
+        schoolId: string,
+        page: number,
+        limit: number
+    ): Promise<{
+        data: BillingHistoryEntity[];
+        meta: PaginationMeta;
+    }>;
 }

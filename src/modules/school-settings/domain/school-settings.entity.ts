@@ -32,6 +32,7 @@ export interface SchoolSettingsEntity {
     letterheadContentTopMm: number | null;
 
     letterheadContentBottomMm: number | null;
+    allowStudentLogin: boolean;
 
     createdAt: Date;
 

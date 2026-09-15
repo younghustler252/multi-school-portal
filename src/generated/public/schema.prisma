@@ -253,31 +253,34 @@ model Plan {
 }
 
 model Subscription {
-  id                       String             @id @default(uuid())
-  schoolId                 String
-  planId                   String
-  status                   SubscriptionStatus @default(active)
-  billingCycle             BillingCycle       @default(monthly)
-  currentPeriodStart       DateTime
-  currentPeriodEnd         DateTime
-  trialEndsAt              DateTime?
-  cancelAtPeriodEnd        Boolean            @default(false)
-  cancelledAt              DateTime?
-  couponId                 String?
-  discountedPriceKobo      Int?
-  setupFeePaid             Boolean            @default(false)
-  setupFeePaidAt           DateTime?
-  paystackCustomerCode     String?
-  paystackSubscriptionCode String?
-  nextBillingDate          DateTime?
-  lastBillingAttemptAt     DateTime?
-  failedBillingCount       Int                @default(0)
-  createdAt                DateTime           @default(now())
-  updatedAt                DateTime           @updatedAt
-  school                   School             @relation(fields: [schoolId], references: [id])
-  plan                     Plan               @relation(fields: [planId], references: [id])
-  coupon                   Coupon?            @relation(fields: [couponId], references: [id])
-  billingHistory           BillingHistory[]
+  id                        String             @id @default(uuid())
+  schoolId                  String
+  planId                    String
+  status                    SubscriptionStatus @default(active)
+  billingCycle              BillingCycle       @default(monthly)
+  currentPeriodStart        DateTime
+  currentPeriodEnd          DateTime
+  trialEndsAt               DateTime?
+  cancelAtPeriodEnd         Boolean            @default(false)
+  cancelledAt               DateTime?
+  couponId                  String?
+  discountedPriceKobo       Int?
+  autoRenew                 Boolean            @default(false)
+  paystackAuthorizationCode String?
+  scheduledDowngradePlanId  String?
+  setupFeePaid              Boolean            @default(false)
+  setupFeePaidAt            DateTime?
+  paystackCustomerCode      String?
+  paystackSubscriptionCode  String?
+  nextBillingDate           DateTime?
+  lastBillingAttemptAt      DateTime?
+  failedBillingCount        Int                @default(0)
+  createdAt                 DateTime           @default(now())
+  updatedAt                 DateTime           @updatedAt
+  school                    School             @relation(fields: [schoolId], references: [id])
+  plan                      Plan               @relation(fields: [planId], references: [id])
+  coupon                    Coupon?            @relation(fields: [couponId], references: [id])
+  billingHistory            BillingHistory[]
 }
 
 model Coupon {
@@ -450,4 +453,24 @@ enum DeliveryStatus {
   READ
   FAILED
   CANCELLED
+}
+
+model PlatformSettings {
+  id                          String   @id @default(uuid())
+  platformName                String   @default("SchoolPortal")
+  supportEmail                String   @default("support@schoolportal.com")
+  supportPhone                String?
+  logoUrl                     String?
+  termsUrl                    String?
+  privacyPolicyUrl            String?
+  subscriptionGracePeriodDays Int      @default(7)
+  reminderDaysBeforeExpiry    Int      @default(7)
+  termEndingReminderDays      Int      @default(7)
+  defaultTrialDays            Int      @default(0)
+  allowNewRegistrations       Boolean  @default(true)
+  maintenanceMode             Boolean  @default(false)
+  maintenanceMessage          String?
+  announcementBanner          String?
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
 }

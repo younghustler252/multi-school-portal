@@ -13,3 +13,18 @@ export interface AuditLogEntity {
     metadata:  any | null;
     createdAt: Date;
 }
+
+export interface EnrichedAuditLogEntry {
+    id:         string;
+    actorType:  string;
+    actorId:    string | null;
+    actorName:  string;       // resolved display name, or a system label
+    action:     string;
+    entity:     string;
+    entityId:   string | null;
+    oldValue:   any;
+    newValue:   any;
+    ipAddress:  string | null;
+    metadata:   any;
+    createdAt:  Date;
+}

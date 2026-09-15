@@ -1,78 +1,130 @@
 // scripts/apply-migration-to-existing-schools.ts
+import { env } from "../src/config/env"
 import { Pool } from "pg";
-import { readdirSync, readFileSync } from "fs";
+import { readFileSync } from "fs";
 import { join } from "path";
 import { prisma } from "../src/infrastructure/database/prisma/prisma.client";
 
-const TENANT_MIGRATIONS_DIR = join(process.cwd(), "prisma", "tenant-migrations");
+const MIGRATION_FOLDER = "20260908063238_consolidated_invoices"; // ⚠️ your actual folder name
 
-async function getAppliedMigrations(client: any): Promise<Set<string>> {
-    try {
-        const result = await client.query(
-            `SELECT name FROM "_tenant_migrations_applied"`,
-        );
-        return new Set(result.rows.map((r: any) => r.name));
-    } catch {
-        // Table doesn't exist yet on this schema — first run
-        await client.query(`
-            CREATE TABLE "_tenant_migrations_applied" (
-                name       TEXT PRIMARY KEY,
-                applied_at TIMESTAMP NOT NULL DEFAULT now()
-            )
-        `);
-        return new Set();
-    }
-}
+// 👇 Add this near the top
+const isDryRun = process.argv.includes("--dry-run");
 
 async function main() {
-    const migrationFolders = readdirSync(TENANT_MIGRATIONS_DIR, { withFileTypes: true })
-        .filter(e => e.isDirectory())
-        .map(e => e.name)
-        .sort();
-
     const schools = await prisma.school.findMany({
-        where:  { schemaProvisionedAt: { not: null } },
+        where: { schemaProvisionedAt: { not: null } },
         select: { id: true, name: true, schemaName: true },
     });
 
-    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+    const sql = readFileSync(
+        join(
+            process.cwd(),
+            "prisma",
+            "tenant-migrations",
+            MIGRATION_FOLDER,
+            "migration.sql",
+        ),
+        "utf8",
+    );
+
+    const pool = new Pool({
+        connectionString: env.DATABASE_URL,
+    });
 
     for (const school of schools) {
         if (!school.schemaName) continue;
 
         const client = await pool.connect();
+
         try {
+            await client.query("BEGIN");
+
             await client.query(`SET search_path TO "${school.schemaName}"`);
-            const applied = await getAppliedMigrations(client);
 
-            const pending = migrationFolders.filter(f => !applied.has(f));
+            // Check whether this migration has already been applied
+            const migrationResult = await client.query(
+                `
+                SELECT migration_name
+                FROM "_prisma_migrations"
+                WHERE migration_name = $1
+                LIMIT 1
+                `,
+                [MIGRATION_FOLDER],
+            );
 
+            const pending =
+                migrationResult.rows.length === 0
+                    ? [MIGRATION_FOLDER]
+                    : [];
+
+            // Already applied
             if (pending.length === 0) {
                 console.log(`⏭️  ${school.name} — already up to date`);
+                await client.query("ROLLBACK");
                 continue;
             }
 
-            for (const folder of pending) {
-                const sql = readFileSync(
-                    join(TENANT_MIGRATIONS_DIR, folder, "migration.sql"),
-                    "utf8",
+            // Dry run — don't actually apply anything
+            if (isDryRun) {
+                console.log(
+                    `🔍 ${school.name} — would apply: ${pending.join(", ")}`,
                 );
-
-                await client.query("BEGIN");
-                await client.query(`SET search_path TO "${school.schemaName}"`);
-                await client.query(sql);
-                await client.query(
-                    `INSERT INTO "_tenant_migrations_applied" (name) VALUES ($1)`,
-                    [folder],
-                );
-                await client.query("COMMIT");
-                console.log(`✅ ${school.name} — applied ${folder}`);
+                await client.query("ROLLBACK");
+                continue;
             }
+
+            // Apply migration
+            await client.query(sql);
+
+            // Record migration in Prisma's migration table
+            await client.query(
+                `
+                INSERT INTO "_prisma_migrations" (
+                    id,
+                    checksum,
+                    finished_at,
+                    migration_name,
+                    logs,
+                    rolled_back_at,
+                    started_at,
+                    applied_steps_count
+                )
+                VALUES (
+                    gen_random_uuid(),
+                    $1,
+                    NOW(),
+                    $2,
+                    NULL,
+                    NULL,
+                    NOW(),
+                    1
+                )
+                `,
+                [
+                    // Prisma expects the checksum of migration.sql here.
+                    // See note below if your existing setup already records it.
+                    "",
+                    MIGRATION_FOLDER,
+                ],
+            );
+
+            await client.query("COMMIT");
+
+            console.log(`✅ ${school.name} (${school.schemaName})`);
         } catch (err) {
             await client.query("ROLLBACK");
-            console.error(`❌ ${school.name} — failed:`, (err as Error).message);
+
+            console.error(
+                `❌ ${school.name} (${school.schemaName}):`,
+                (err as Error).message,
+            );
         } finally {
-            await client.query("SET search_path TO public");
+            try {
+                await client.query("SET search_path TO public");
+            } catch {
+                // Ignore cleanup errors
+            }
+
             client.release();
         }
     }

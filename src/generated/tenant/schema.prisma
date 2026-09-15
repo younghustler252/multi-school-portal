@@ -188,9 +188,11 @@ model Class {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  classTeacher  Staff?         @relation(fields: [classTeacherId], references: [id])
-  enrolments    Enrolment[]
-  classSubjects ClassSubject[]
+  classTeacher     Staff?             @relation(fields: [classTeacherId], references: [id])
+  enrolments       Enrolment[]
+  classSubjects    ClassSubject[]
+  progressionsFrom ClassProgression[] @relation("ProgressionFrom")
+  progressionsTo   ClassProgression[] @relation("ProgressionTo")
 }
 
 model Subject {
@@ -237,6 +239,16 @@ enum EnrolmentStatus {
   completed
 }
 
+model ClassProgression {
+  id          String   @id @default(uuid())
+  fromClassId String   @unique
+  toClassId   String? // null = terminal (graduates from here)
+  fromClass   Class    @relation("ProgressionFrom", fields: [fromClassId], references: [id])
+  toClass     Class?   @relation("ProgressionTo", fields: [toClassId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 model SchoolSettings {
   id                        String   @id @default(uuid())
   logoUrl                   String?
@@ -252,6 +264,7 @@ model SchoolSettings {
   reportCardLetterheadUrl   String?
   letterheadContentTopMm    Int?     @default(50)
   letterheadContentBottomMm Int?     @default(30)
+  allowStudentLogin         Boolean  @default(false)
   signature                 String?
   createdAt                 DateTime @default(now())
   updatedAt                 DateTime @updatedAt
@@ -345,15 +358,13 @@ enum ReportCardStatus {
   sent
 }
 
-// ===== FEES + PAYMENTS (tenant schema) =====
-
 model FeeType {
-  id           String           @id @default(uuid())
-  name         String
-  description  String?
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
-  // feeInvoices FeeInvoice[]
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
   invoiceItems FeeInvoiceItem[]
 }
 

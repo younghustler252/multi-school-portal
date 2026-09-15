@@ -6,6 +6,8 @@ import { EnrolStudentUseCase }        from "./usecases/enrol-student.usecase";
 import { BulkEnrolUseCase }           from "./usecases/bulk-enrol.usecase";
 import { GetEnrolmentsUseCase }       from "./usecases/get-enrolments.usecase";
 import { UpdateEnrolmentUseCase }     from "./usecases/update-enrolment.usecase";
+import { PromoteStudentsUseCase } from "./usecases/promote-student.usecase";
+import { PreviewPromotionUseCase } from "./usecases/preview-promotion.usecase";
 import { EnrolmentController }        from "./controllers/enrolment.controller";
 
 /*
@@ -22,6 +24,8 @@ export const registerEnrolment = (container: AwilixContainer): void => {
         bulkEnrolUseCase:        asClass(BulkEnrolUseCase).scoped(),
         getEnrolmentsUseCase:    asClass(GetEnrolmentsUseCase).scoped(),
         updateEnrolmentUseCase:  asClass(UpdateEnrolmentUseCase).scoped(),
+        promoteStudentsUseCase:  asClass(PromoteStudentsUseCase).scoped(),
+        previewPromotionUseCase: asClass(PreviewPromotionUseCase).scoped(),
         enrolmentController:     asClass(EnrolmentController).scoped(),
     });
 };

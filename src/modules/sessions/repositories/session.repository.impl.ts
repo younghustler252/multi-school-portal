@@ -98,4 +98,29 @@ export class SessionRepositoryImpl
         });
         return this.termMapper.toDomain(raw);
     }
+    async findPreviousTermInSession(
+        sessionId: string,
+        currentTermId: string,
+    ): Promise<TermEntity | null> {
+        const currentTerm = await this.prisma.term.findUnique({
+            where: { id: currentTermId },
+            select: { startDate: true },
+        });
+
+        if (!currentTerm) return null;
+
+        const raw = await this.prisma.term.findFirst({
+            where: {
+                sessionId,
+                id: { not: currentTermId },
+                startDate: { lt: currentTerm.startDate },
+            },
+            orderBy: {
+                startDate: "desc",
+            },
+        });
+
+        return raw ? this.termMapper.toDomain(raw) : null;
+    }
+
 }

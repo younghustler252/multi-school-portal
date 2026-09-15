@@ -1,52 +1,41 @@
-import { PaystackProvider }    from "../../../infrastructure/payments/paystack.provider";
+import { IPaymentProvider }     from "../../../infrastructure/payments/interfaces/payment.provider.interface";
 import { VerifyPaymentUseCase } from "./verify-payment.usecase";
-import { BadRequestError }     from "../../../shared/errors/domain.errors";
-import { PaymentErrorMessage } from "../domain/payment.enums";
-
-/*
-|--------------------------------------------------------------------------
-| HANDLE WEBHOOK USE CASE
-| Processes Paystack webhook events
-| Must verify signature before processing
-|--------------------------------------------------------------------------
-*/
+import { VerifySubscriptionUpgradeUseCase }       from "../../subscriptions/usecases/school-admin/verify-subscription-upgrade"
+import { BadRequestError }      from "../../../shared/errors/domain.errors";
+import { PaymentErrorMessage }  from "../domain/payment.enums";
 
 interface Dependencies {
-    paymentProvider:    PaystackProvider;
+    paymentProvider:      IPaymentProvider;
     verifyPaymentUseCase: VerifyPaymentUseCase;
+    verifySubscriptionUpgradeUseCase: VerifySubscriptionUpgradeUseCase;
 }
 
 export class HandleWebhookUseCase {
-    private readonly paymentProvider:     PaystackProvider;
+    private readonly paymentProvider:      IPaymentProvider;
     private readonly verifyPaymentUseCase: VerifyPaymentUseCase;
+    private readonly verifySubscriptionUpgradeUseCase: VerifySubscriptionUpgradeUseCase;
 
-    constructor({ paymentProvider, verifyPaymentUseCase }: Dependencies) {
+    constructor({ paymentProvider, verifyPaymentUseCase, verifySubscriptionUpgradeUseCase }: Dependencies) {
         this.paymentProvider      = paymentProvider;
         this.verifyPaymentUseCase = verifyPaymentUseCase;
+        this.verifySubscriptionUpgradeUseCase = verifySubscriptionUpgradeUseCase;
     }
 
-    async execute(
-        payload:   string,
-        signature: string,
-    ): Promise<{ processed: boolean }> {
-
-        // ── Verify webhook signature ──────────────────────────────────────
-        const isValid = this.paymentProvider.verifyWebhookSignature(
-            payload,
-            signature,
-        );
-
-        if (!isValid) {
-            throw new BadRequestError(PaymentErrorMessage.WEBHOOK_INVALID);
-        }
+    async execute(payload: string, signature: string) {
+        const isValid = this.paymentProvider.verifyWebhookSignature(payload, signature);
+        if (!isValid) throw new BadRequestError(PaymentErrorMessage.WEBHOOK_INVALID);
 
         const event = JSON.parse(payload);
 
-        // ── Only handle successful charge events ──────────────────────────
         if (event.event === "charge.success") {
-            await this.verifyPaymentUseCase.execute({
-                reference: event.data.reference,
-            });
+            const metaType = event.data.metadata?.type;
+
+            if (metaType === "subscription_upgrade") {
+                await this.verifySubscriptionUpgradeUseCase.execute(event.data.reference);
+            } else {
+                await this.verifyPaymentUseCase.execute({ reference: event.data.reference });
+            }
+
             return { processed: true };
         }
 

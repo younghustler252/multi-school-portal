@@ -1,14 +1,11 @@
-import { IGuardianRepository }    from "../../guardians/repositories/guardian.repository";
-import { IFeeRepository }         from "../repositories/fee.repository";
-import { FeeInvoiceMapper }       from "../mappers/fee.mapper";
-import { FeeInvoiceResponseData } from "../mappers/fee.mapper";
-import { PaginatedResult }        from "../../../infrastructure/repository/base.repository";
-import { ForbiddenError }         from "../../../shared/errors/domain.errors";
+import { IGuardianRepository } from "../../guardians/repositories/guardian.repository";
+import { IFeeRepository }      from "../repositories/fee.repository";
+import { ForbiddenError }      from "../../../shared/errors/domain.errors";
+import { parsePagination, buildPaginationMeta } from "../../../shared/utils/pagination";
 
 interface Dependencies {
     guardianRepository: IGuardianRepository;
     feeRepository:      IFeeRepository;
-    feeInvoiceMapper:   FeeInvoiceMapper;
 }
 
 interface MyChildInvoicesParams {
@@ -22,18 +19,13 @@ interface MyChildInvoicesParams {
 export class GetMyChildrenInvoicesUseCase {
     private readonly guardianRepository: IGuardianRepository;
     private readonly feeRepository:      IFeeRepository;
-    private readonly feeInvoiceMapper:   FeeInvoiceMapper;
 
-    constructor({ guardianRepository, feeRepository, feeInvoiceMapper }: Dependencies) {
+    constructor({ guardianRepository, feeRepository }: Dependencies) {
         this.guardianRepository = guardianRepository;
         this.feeRepository      = feeRepository;
-        this.feeInvoiceMapper   = feeInvoiceMapper;
     }
 
-    async execute(
-        userId: string,
-        params: MyChildInvoicesParams,
-    ): Promise<PaginatedResult<FeeInvoiceResponseData>> {
+    async execute(userId: string, params: MyChildInvoicesParams) {
         const childIds = await this.guardianRepository.getChildStudentIds(userId);
 
         if (params.studentId && !childIds.includes(params.studentId)) {
@@ -46,16 +38,11 @@ export class GetMyChildrenInvoicesUseCase {
         if (params.termId) where.termId = params.termId;
         if (params.status) where.status = params.status;
 
-        const result = await this.feeRepository.paginateInvoices({
-            page:    params.page  ?? 1,
-            limit:   params.limit ?? 20,
-            where,
-            orderBy: { createdAt: "desc" },
-        });
+        const { page, limit, skip } = parsePagination({ page: params.page ?? 1, limit: params.limit ?? 20 });
+        const { data, total } = await this.feeRepository.paginateInvoicesEnriched(where, skip, limit);
+        // console.log(data)
+        // console.log("childIds", childIds);
 
-        return {
-            data: result.data.map(i => this.feeInvoiceMapper.toResponse(i)),
-            meta: result.meta,
-        };
+        return { data, meta: buildPaginationMeta(total, page, limit) };
     }
 }

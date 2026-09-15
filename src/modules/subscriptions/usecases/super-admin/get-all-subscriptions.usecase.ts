@@ -1,55 +1,36 @@
-import { ISubscriptionRepository }  from "../../repositories/subscription.repository";
-import { SubscriptionMapper }       from "../../mappers/subscription.mapper";
-import { SubscriptionResponseData } from "../../mappers/subscription.mapper";
-import { PaginatedResult }          from "../../../../infrastructure/repository/base.repository";
-
-/*
-|--------------------------------------------------------------------------
-| GET ALL SUBSCRIPTIONS USE CASE
-| Super admin views all subscriptions with filters
-|--------------------------------------------------------------------------
-*/
+// GetAllSubscriptionsUseCase — enriched
+import { ISubscriptionRepository } from "../../repositories/subscription.repository";
+import { IPlanRepository }         from "../../../plans/repositories/plan.repository";
+import { ISchoolRepository }       from "../../../school/repositories/school.repository";
 
 interface Dependencies {
     subscriptionRepository: ISubscriptionRepository;
-    subscriptionMapper:     SubscriptionMapper;
+    planRepository:         IPlanRepository;
+    schoolRepository:       ISchoolRepository;
 }
 
 export class GetAllSubscriptionsUseCase {
-    private readonly subscriptionRepository: ISubscriptionRepository;
-    private readonly subscriptionMapper:     SubscriptionMapper;
+    constructor(private readonly deps: Dependencies) {}
 
-    constructor({
-        subscriptionRepository,
-        subscriptionMapper,
-    }: Dependencies) {
-        this.subscriptionRepository = subscriptionRepository;
-        this.subscriptionMapper     = subscriptionMapper;
-    }
-
-    async execute(params: {
-        page?:   number;
-        limit?:  number;
-        status?: string;
-        planId?: string;
-    }): Promise<PaginatedResult<SubscriptionResponseData>> {
-
-        const where: Record<string, any> = {};
-
-        if (params.status) where.status = params.status;
-        if (params.planId) where.planId = params.planId;
-
-        const result = await this.subscriptionRepository.paginate({
-            page:    params.page,
-            limit:   params.limit,
-            where,
+    async execute(params: { page?: number; limit?: number; status?: string }) {
+        const result = await this.deps.subscriptionRepository.paginate({
+            page: params.page ?? 1, limit: params.limit ?? 20,
+            where: params.status ? { status: params.status } : {},
             orderBy: { createdAt: "desc" },
         });
 
         return {
-            data: result.data.map(s =>
-                this.subscriptionMapper.toResponse(s),
-            ),
+            data: await Promise.all(result.data.map(async sub => {
+                const [plan, school] = await Promise.all([
+                    this.deps.planRepository.findById(sub.planId),
+                    this.deps.schoolRepository.findById(sub.schoolId),
+                ]);
+                return {
+                    ...sub,
+                    planName:   plan?.name ?? "Unknown",
+                    schoolName: school?.name ?? "Unknown",
+                };
+            })),
             meta: result.meta,
         };
     }

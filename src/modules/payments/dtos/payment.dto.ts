@@ -1,9 +1,10 @@
 import { z } from "zod";
 
-// ── Initialize online payment ─────────────────────────────────────────────
+/// InitializePaymentDto
 export const InitializePaymentDto = z.object({
     invoiceId:   z.string().uuid(),
-    callbackUrl: z.string().url().optional(),
+    amountKobo:  z.number().int().positive().optional(), // omit = pay full balance
+    callbackUrl: z.string().url(),
 });
 
 // ── Verify payment ────────────────────────────────────────────────────────

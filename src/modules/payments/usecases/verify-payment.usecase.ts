@@ -1,122 +1,95 @@
 import { IPaymentRepository }    from "../repositories/payment.repository";
 import { IFeeRepository }        from "../../fees/repositories/fee.repository";
+import { IGuardianRepository }   from "../../guardians/repositories/guardian.repository";
+import { ISchoolRepository }     from "../../school/repositories/school.repository";
 import { PaymentMapper }         from "../mappers/payment.mapper";
 import { PaymentResponseData }   from "../mappers/payment.mapper";
-import { PaystackProvider }      from "../../../infrastructure/payments/paystack.provider";
+import { IPaymentProvider }      from "../../../infrastructure/payments/interfaces/payment.provider.interface";
 import { MailService }           from "../../../infrastructure/mail/mail.service";
 import {
     NotFoundError,
-    BadRequestError,
 }                                from "../../../shared/errors/domain.errors";
 import { PaymentErrorMessage }   from "../domain/payment.enums";
 import { VerifyPaymentDtoType }  from "../dtos/payment.dto";
 
-/*
-|--------------------------------------------------------------------------
-| VERIFY PAYMENT USE CASE
-| Called after Paystack redirect callback
-| Also used by webhook handler
-| Flow:
-| 1. Find payment by reference
-| 2. Verify with Paystack API
-| 3. Update payment status
-| 4. Update invoice paidKobo + balanceKobo + status
-| 5. Send payment receipt email
-|--------------------------------------------------------------------------
-*/
-
 interface Dependencies {
-    paymentRepository: IPaymentRepository;
-    feeRepository:     IFeeRepository;
-    paymentMapper:     PaymentMapper;
-    paymentProvider:   PaystackProvider;
-    mailService:       MailService;
+    paymentRepository:  IPaymentRepository;
+    feeRepository:      IFeeRepository;
+    guardianRepository: IGuardianRepository;
+    schoolRepository:   ISchoolRepository;
+    paymentMapper:      PaymentMapper;
+    paymentProvider:    IPaymentProvider;
+    mailService:        MailService;
 }
 
 export class VerifyPaymentUseCase {
-    private readonly paymentRepository: IPaymentRepository;
-    private readonly feeRepository:     IFeeRepository;
-    private readonly paymentMapper:     PaymentMapper;
-    private readonly paymentProvider:   PaystackProvider;
-    private readonly mailService:       MailService;
+    private readonly paymentRepository:  IPaymentRepository;
+    private readonly feeRepository:      IFeeRepository;
+    private readonly guardianRepository: IGuardianRepository;
+    private readonly schoolRepository:   ISchoolRepository;
+    private readonly paymentMapper:      PaymentMapper;
+    private readonly paymentProvider:    IPaymentProvider;
+    private readonly mailService:        MailService;
 
-    constructor({
-        paymentRepository,
-        feeRepository,
-        paymentMapper,
-        paymentProvider,
-        mailService,
-    }: Dependencies) {
-        this.paymentRepository = paymentRepository;
-        this.feeRepository     = feeRepository;
-        this.paymentMapper     = paymentMapper;
-        this.paymentProvider   = paymentProvider;
-        this.mailService       = mailService;
+    constructor(deps: Dependencies) {
+        this.paymentRepository  = deps.paymentRepository;
+        this.feeRepository      = deps.feeRepository;
+        this.guardianRepository = deps.guardianRepository;
+        this.schoolRepository   = deps.schoolRepository;
+        this.paymentMapper      = deps.paymentMapper;
+        this.paymentProvider    = deps.paymentProvider;
+        this.mailService        = deps.mailService;
     }
 
-    async execute(
-        dto: VerifyPaymentDtoType,
-    ): Promise<PaymentResponseData> {
+    async execute(dto: VerifyPaymentDtoType): Promise<PaymentResponseData> {
 
-        // ── 1. Find payment by reference ──────────────────────────────────
-        const payment = await this.paymentRepository
-            .findByReference(dto.reference);
+        const payment = await this.paymentRepository.findByReference(dto.reference);
+        if (!payment) throw new NotFoundError(PaymentErrorMessage.NOT_FOUND);
 
-        if (!payment) {
-            throw new NotFoundError(PaymentErrorMessage.NOT_FOUND);
-        }
-
-        // ── Skip if already verified ──────────────────────────────────────
         if (payment.webhookVerified && payment.status === "success") {
             return this.paymentMapper.toResponse(payment);
         }
 
-        // ── 2. Verify with Paystack ───────────────────────────────────────
-        const verification = await this.paymentProvider.verifyTransaction(
-            dto.reference,
-        );
-
+        const verification = await this.paymentProvider.verifyTransaction(dto.reference);
         const isSuccess = verification.status === "success";
 
-        // ── 3. Update payment record ──────────────────────────────────────
-        const updatedPayment = await this.paymentRepository.update(
-            payment.id,
-            {
-                status:          isSuccess ? "success" : "failed",
-                webhookVerified: true,
-                channel:         verification.channel,
-                paidAt:          isSuccess ? new Date() : null,
-                providerResponse: verification,
-            },
-        );
+        // Resolve the guardian from the metadata stashed at initialization
+        // time (InitializePaymentUseCase sends { invoiceId, userId, schoolId }
+        // to Paystack, which echoes it back on verify).
+        let guardianId: string | null = null;
+        if (isSuccess && verification.metadata?.userId) {
+            const guardian = await this.guardianRepository.findByUserId(verification.metadata.userId);
+            guardianId = guardian?.id ?? null;
+        }
 
-        // ── 4. Update invoice if successful ───────────────────────────────
+        const updatedPayment = await this.paymentRepository.update(payment.id, {
+            status:           isSuccess ? "success" : "failed",
+            webhookVerified:  true,
+            channel:          verification.channel,
+            paidAt:           isSuccess ? new Date() : null,
+            providerResponse: verification,
+            guardianId:       guardianId ?? undefined,
+        });
+
         if (isSuccess) {
-            const invoice = await this.feeRepository.findInvoiceById(
-                payment.feeInvoiceId,
-            );
+            await this.feeRepository.recalculateInvoiceStatus(payment.feeInvoiceId);
 
-            if (invoice) {
-                const newPaidKobo    = invoice.paidKobo + payment.amountKobo;
-                const newBalanceKobo = invoice.amountKobo - newPaidKobo;
-                const newStatus      = newBalanceKobo <= 0 ? "paid" : "partial";
+            const school = verification.metadata?.schoolId
+                ? await this.schoolRepository.findById(verification.metadata.schoolId)
+                : null;
 
-                await this.feeRepository.updateInvoice(invoice.id, {
-                    paidKobo:    newPaidKobo,
-                    balanceKobo: Math.max(0, newBalanceKobo),
-                    status:      newStatus,
-                });
+            const guardian = guardianId
+                ? await this.guardianRepository.findById(guardianId)
+                : null;
 
-                // ── 5. Send receipt email ─────────────────────────────────
-                await this.mailService.sendPaymentReceipt({
-                    to:         verification.customerEmail,
-                    firstName:  "Parent",
-                    schoolName: "School",
-                    amount:     `₦${(payment.amountKobo / 100).toLocaleString()}`,
-                    reference:  dto.reference,
-                    date:       new Date().toLocaleDateString("en-NG"),
-                });
-            }
+            await this.mailService.sendPaymentReceipt({
+                to:         verification.customerEmail,
+                firstName:  guardian?.firstName ?? "there",
+                schoolName: school?.name ?? "your school",
+                amount:     `₦${(payment.amountKobo / 100).toLocaleString()}`,
+                reference:  dto.reference,
+                date:       new Date().toLocaleDateString("en-NG"),
+            });
         }
 
         return this.paymentMapper.toResponse(updatedPayment);

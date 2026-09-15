@@ -12,13 +12,12 @@ interface Dependencies {
     subscriptionRepository: ISubscriptionRepository;
     planRepository:         IPlanRepository;
 }
-
 export interface AdminSchoolResponseData extends SchoolResponseData {
+    planId:       string | null;
     planName:     string | null;
     studentCount: number;
     mrrKobo:      number;
-}
-
+}   
 export class GetAllSchoolsUseCase {
     private readonly schoolRepository:       ISchoolRepository;
     private readonly schoolMapper:           SchoolMapper;
@@ -72,6 +71,7 @@ export class GetAllSchoolsUseCase {
             result.data.map(async school => {
                 const base = this.schoolMapper.toResponse(school);
 
+                let planId: string | null = null;
                 let planName: string | null = null;
                 let mrrKobo = 0;
 
@@ -79,6 +79,7 @@ export class GetAllSchoolsUseCase {
                 if (subscription) {
                     const plan = await this.planRepository.findById(subscription.planId);
                     if (plan) {
+                        planId   = plan.id;
                         planName = plan.name;
                         mrrKobo  = subscription.billingCycle === "yearly"
                             ? Math.round(plan.yearlyPriceKobo / 12)
@@ -98,7 +99,7 @@ export class GetAllSchoolsUseCase {
                     }
                 }
 
-                return { ...base, planName, studentCount, mrrKobo };
+                return { ...base, planId, planName, studentCount, mrrKobo };
             }),
         );
 

@@ -7,6 +7,10 @@
     "dev": "nodemon",
     "build": "tsc",
     "start": "node dist/server.js",
+    "dev:worker": "nodemon --exec ts-node src/worker.ts",
+    "start:worker": "node dist/worker.js",
+    "db:backup": "ts-node scripts/backup-database.ts",
+    "db:restore": "ts-node scripts/restore-database.ts",
     "prisma:generate:public": "prisma generate --config=prisma.public.config.ts",
     "prisma:generate:tenant": "prisma generate --config=prisma.tenant.config.ts",
     "prisma:generate": "npm run prisma:generate:public && npm run prisma:generate:tenant",
@@ -14,7 +18,8 @@
     "prisma:migrate:tenant": "prisma migrate dev --config=prisma.tenant.config.ts",
     "prisma:migrate:deploy:public": "prisma migrate deploy --config=prisma.public.config.ts",
     "prisma:migrate:deploy:tenant": "prisma migrate deploy --config=prisma.tenant.config.ts",
-    "migrate:apply-to-existing-schools": "ts-node scripts/apply-migration-to-existing-schools.ts"
+    "migrate:apply-to-existing-schools": "ts-node scripts/apply-migration-to-existing-schools.ts",
+    "migrate:apply-to-existing-schools:dry-run": "ts-node scripts/apply-migration-to-existing-schools.ts --dry-run"
   },
   "keywords": [],
   "author": "Young Tech",
@@ -27,6 +32,7 @@
     "@getbrevo/brevo": "^5.0.4",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
+    "@sentry/node": "^10.74.0",
     "@supabase/supabase-js": "^2.108.2",
     "awilix": "^13.0.5",
     "axios": "^1.18.1",

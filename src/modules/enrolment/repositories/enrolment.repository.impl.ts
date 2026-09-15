@@ -3,6 +3,8 @@ import { BaseTenantRepository } from "../../../infrastructure/repository/base.re
 import { EnrolmentMapper } from "../mappers/enrolment.mapper";
 import { EnrolmentEntity } from "../domain/enrolment.entity";
 import { IEnrolmentRepository } from "./enrolment.repository";
+import { StudentSummary } from "./enrolment.repository";
+
 
 export class EnrolmentRepositoryImpl
     extends BaseTenantRepository<EnrolmentEntity>
@@ -34,4 +36,20 @@ export class EnrolmentRepositoryImpl
     async countByClass(classId: string, termId: string): Promise<number> {
         return this.count({ classId, termId });
     }
+
+    async getStudentSummary(studentId: string): Promise<StudentSummary> {
+        const student = await this.prisma.student.findUnique({
+            where:  { id: studentId },
+            select: { id: true, firstName: true, lastName: true },
+        });
+
+        return {
+            id:        student?.id        ?? studentId,
+            firstName: student?.firstName ?? "Unknown",
+            lastName:  student?.lastName  ?? "",
+        };
+    }
+
+
+    
 }

@@ -486,15 +486,19 @@ export class SchoolController {
         next: NextFunction,
     ): Promise<void> => {
         try {
-            const result = await this.rejectDocumentUseCase.execute({
-                documentId: req.params.documentId as string,
-                reason:     req.body.reason,
-            });
+            const result = await this.rejectDocumentUseCase.execute(
+                {
+                    documentId: req.params.documentId as string,
+                    reason:     req.body.reason,
+                },
+                req.user?.id as string,
+            );
             sendSuccess(res, result, "Document rejected successfully");
         } catch (err) {
             next(err);
         }
     };
+
 
    
 }

@@ -2,9 +2,10 @@ import express, { Request, Response, NextFunction } from "express";
 import cors                                          from "cors";
 import helmet                                        from "helmet";
 import morgan                                        from "morgan";
-import rateLimit                                     from "express-rate-limit";
 import cookieParser                                  from "cookie-parser";
 import { env }                                       from "./config/env";
+import { prisma }                                         from "./infrastructure/database/prisma/prisma.client";
+import { redisConnection }                               from "./infrastructure/jobs/connection";
 import { errorHandler }                              from "./infrastructure/middleware/error-handler.middleware";
 import { globalLimiter } from "./infrastructure/middleware/rate-limit.middleware";
 import { resolveTenant, validateTenantOwnership }    from "./infrastructure/middleware/tenant-resolver.middleware";
@@ -63,11 +64,24 @@ app.use(resolveTenant);
 // ── Tenant Ownership Validation ───────────────────────────────────────────
 app.use(validateTenantOwnership);
 
-// ── Health Check ──────────────────────────────────────────────────────────
-app.get("/api/v1/health", (req: Request, res: Response) => {
-    res.status(200).json({
-        success:     true,
-        message:     "Server is healthy 🚀",
+app.get("/api/v1/health", async (req: Request, res: Response) => {
+    const checks: Record<string, boolean> = {};
+
+    try {
+        await prisma.$queryRaw`SELECT 1`;
+        checks.database = true;
+    } catch { checks.database = false; }
+
+    try {
+        await redisConnection.ping();
+        checks.redis = true;
+    } catch { checks.redis = false; }
+
+    const healthy = Object.values(checks).every(Boolean);
+
+    res.status(healthy ? 200 : 503).json({
+        success:     healthy,
+        checks,
         environment: env.NODE_ENV,
         timestamp:   new Date().toISOString(),
     });

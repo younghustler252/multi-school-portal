@@ -23,17 +23,23 @@ export const CreateClassFeeDto = z.object({
 
 // ── Invoice entire class ─────────────────────────────────────────────────
 // Creates invoices for all enrolled students in a class.
-
 export const InvoiceClassDto = z.object({
-    classId: z.string().uuid(),
-    termId: z.string().uuid(),
-    items: z.array(
-        z.object({
-            feeTypeId: z.string().uuid(),
-            amountKobo: z.number().int().positive(),
-        })
-    ).min(1),
-    dueDate: DueDate,
+	classIds: z
+		.array(z.string().uuid())
+		.min(1, "Select at least one class"),
+
+	termId: z.string().uuid(),
+
+	items: z
+		.array(
+			z.object({
+				feeTypeId: z.string().uuid(),
+				amountKobo: z.number().int().positive(),
+			}),
+		)
+		.min(1),
+
+	dueDate: DueDate,
 });
 
 // ── Fee type ──────────────────────────────────────────────────────────────
@@ -86,22 +92,19 @@ export const UpdateInvoiceDto = z.object({
 // ── List invoices ─────────────────────────────────────────────────────────
 
 export const ListInvoicesDto = z.object({
-    page: z.coerce.number().int().positive().default(1),
-    limit: z.coerce.number().int().positive().max(100).default(20),
-
+    page:      z.coerce.number().int().positive().default(1),
+    limit:     z.coerce.number().int().positive().max(100).default(20),
     studentId: z.string().uuid().optional(),
-    termId: z.string().uuid().optional(),
-    feeTypeId: z.string().uuid().optional(),
-
-    status: InvoiceStatus.optional(),
+    termId:    z.string().uuid().optional(),
+    classId:   z.string().uuid().optional(),
+    status:    InvoiceStatus.optional(),
 });
-
 // ── Record payment ────────────────────────────────────────────────────────
-
 export const RecordPaymentDto = z.object({
-    invoiceId: z.string().uuid(),
-    amountKobo: z.number().int().positive(),
-    note: z.string().trim().optional(),
+	invoiceId: z.string().uuid(),
+	amountKobo: z.number().int().positive(),
+	method: z.enum(["cash", "bank_transfer"]),
+	note: z.string().trim().optional(),
 });
 
 // ── Types ─────────────────────────────────────────────────────────────────

@@ -100,7 +100,10 @@ export class StudentController {
         next: NextFunction,
     ): Promise<void> => {
         try {
-            const result = await this.createStudentUseCase.execute(req.body);
+            const result = await this.createStudentUseCase.execute(
+                req.body,
+                req.user?.schoolId as string
+            );
             sendCreated(res, result, "Student created successfully");
         } catch (err) {
             next(err);
@@ -200,6 +203,7 @@ export class StudentController {
             const result = await this.importStudentsUseCase.executeFromCsv(
                 req.file.buffer,
                 req.schoolId as string,
+                req.user?.id as string,
             );
 
             sendSuccess(res, result, `${result.created} of ${result.total} students imported`);
@@ -228,6 +232,7 @@ export class StudentController {
             const result = await this.importStudentsUseCase.executeFromRows(
                 students,
                 req.schoolId as string,
+                req.user?.id as string,
             );
 
             sendSuccess(res, result, `${result.created} of ${result.total} students created`);

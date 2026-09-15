@@ -58,6 +58,14 @@ router.put(
 )
 
 router.put(
+    "/:id/progression",
+    authenticate,
+    requireTenant,
+    requireSchoolAdmin,
+    (req, res, next) => ctrl().setClassProgression(req, res, next),
+);
+
+router.put(
     "/:id",
     authenticate,
     requireTenant,

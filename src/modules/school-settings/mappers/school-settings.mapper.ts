@@ -20,7 +20,7 @@ export interface SchoolSettingsResponseData {
     reportCardLetterheadUrl:    string | null;
     letterheadContentTopMm:     number | null;
     letterheadContentBottomMm:  number | null;
-
+    allowStudentLogin: boolean,
     updatedAt:                  Date;
 }
 
@@ -47,6 +47,8 @@ export class SchoolSettingsMapper
             reportCardLetterheadUrl:    raw.reportCardLetterheadUrl    ?? null,
             letterheadContentTopMm:     raw.letterheadContentTopMm     ?? null,
             letterheadContentBottomMm:  raw.letterheadContentBottomMm  ?? null,
+            
+            allowStudentLogin:          raw.allowStudentLogin,
 
             createdAt:                  raw.createdAt,
             updatedAt:                  raw.updatedAt,
@@ -75,6 +77,9 @@ export class SchoolSettingsMapper
             reportCardLetterheadUrl:    entity.reportCardLetterheadUrl,
             letterheadContentTopMm:     entity.letterheadContentTopMm,
             letterheadContentBottomMm:  entity.letterheadContentBottomMm,
+
+            allowStudentLogin:          entity.allowStudentLogin,
+
 
             updatedAt:                  entity.updatedAt,
         };

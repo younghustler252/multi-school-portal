@@ -1,50 +1,71 @@
-import { IAuditRepository }      from "../repositories/audit.repository";
-import { AuditMapper }           from "../mappers/audit.mapper";
-import { AuditLogResponseData }  from "../mappers/audit.mapper";
-import { PaginatedResult }       from "../../../infrastructure/repository/base.repository";
-import { ListAuditLogsDtoType }  from "../dtos/audit.dto";
+import { IAuditRepository } from "../repositories/audit.repository";
+import { IUserRepository }  from "../../auth/repositories/user.repository";
+import { SYSTEM_ACTOR_LABELS } from "../../../shared/constants/system-actors";
 
 interface Dependencies {
     auditRepository: IAuditRepository;
-    auditMapper:     AuditMapper;
+    userRepository:  IUserRepository;
 }
 
 export class GetAuditLogsUseCase {
     private readonly auditRepository: IAuditRepository;
-    private readonly auditMapper:     AuditMapper;
+    private readonly userRepository:  IUserRepository;
 
-    constructor({ auditRepository, auditMapper }: Dependencies) {
+    constructor({ auditRepository, userRepository }: Dependencies) {
         this.auditRepository = auditRepository;
-        this.auditMapper     = auditMapper;
+        this.userRepository  = userRepository;
     }
 
-    async execute(
-        dto: ListAuditLogsDtoType,
-    ): Promise<PaginatedResult<AuditLogResponseData>> {
+    async execute(params: { schoolId?: string; page?: number; limit?: number }) {
         const where: Record<string, any> = {};
-
-        if (dto.userId)   where.userId   = dto.userId;
-        if (dto.schoolId) where.schoolId = dto.schoolId;
-        if (dto.action)   where.action   = { contains: dto.action };
-        if (dto.entity)   where.entity   = dto.entity;
-
-        if (dto.startDate && dto.endDate) {
-            where.createdAt = {
-                gte: new Date(dto.startDate),
-                lte: new Date(dto.endDate),
-            };
-        }
+        if (params.schoolId) where.schoolId = params.schoolId;
 
         const result = await this.auditRepository.paginate({
-            page:    Number(dto.page)  || 1,
-            limit:   Number(dto.limit) || 50,
+            page:  params.page  ?? 1,
+            limit: params.limit ?? 20,
             where,
             orderBy: { createdAt: "desc" },
         });
 
-        return {
-            data: result.data.map(a => this.auditMapper.toResponse(a)),
-            meta: result.meta,
-        };
+        const realUserIds = [...new Set(
+            result.data.map(l => l.userId).filter((id): id is string => !!id && !SYSTEM_ACTOR_LABELS[id]),
+        )];
+
+        const users = realUserIds.length > 0
+            ? await this.userRepository.findMany({ id: { in: realUserIds } })
+            : [];
+        const userById = new Map(users.map(u => [u.id, u]));
+
+        const enriched = result.data.map(log => {
+            let actorName: string;
+
+            if (log.userId && SYSTEM_ACTOR_LABELS[log.userId]) {
+                actorName = SYSTEM_ACTOR_LABELS[log.userId];
+            } else if (log.userId && userById.has(log.userId)) {
+                const u = userById.get(log.userId)!;
+                actorName = `${u.firstName ?? ""} ${u.lastName ?? ""}`.trim() || u.email;
+            } else if (log.actorType === "system") {
+                actorName = "System";
+            } else {
+                actorName = "Unknown";
+            }
+
+            return {
+                id:         log.id,
+                actorType:  log.actorType,
+                actorId:    log.userId,
+                actorName,
+                action:     log.action,
+                entity:     log.entity,
+                entityId:   log.entityId,
+                oldValue:   log.oldValue,
+                newValue:   log.newValue,
+                ipAddress:  log.ipAddress,
+                metadata:   log.metadata,
+                createdAt:  log.createdAt,
+            };
+        });
+
+        return { data: enriched, meta: result.meta };
     }
 }

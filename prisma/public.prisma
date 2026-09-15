@@ -262,6 +262,9 @@ model Subscription {
   cancelledAt              DateTime?
   couponId                 String?
   discountedPriceKobo      Int?
+  autoRenew                 Boolean @default(false)
+  paystackAuthorizationCode String?
+  scheduledDowngradePlanId String?
   setupFeePaid             Boolean            @default(false)
   setupFeePaidAt           DateTime?
   paystackCustomerCode     String?
@@ -447,4 +450,23 @@ enum DeliveryStatus {
   READ
   FAILED
   CANCELLED
+}
+model PlatformSettings {
+  id                          String   @id @default(uuid())
+  platformName                String   @default("SchoolPortal")
+  supportEmail                String   @default("support@schoolportal.com")
+  supportPhone                String?
+  logoUrl                     String?
+  termsUrl                    String?
+  privacyPolicyUrl            String?
+  subscriptionGracePeriodDays Int      @default(7)
+  reminderDaysBeforeExpiry    Int      @default(7)
+  termEndingReminderDays Int @default(7)
+  defaultTrialDays            Int      @default(0)
+  allowNewRegistrations       Boolean  @default(true)
+  maintenanceMode             Boolean  @default(false)
+  maintenanceMessage          String?
+  announcementBanner          String?
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
 }

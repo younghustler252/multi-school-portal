@@ -6,13 +6,13 @@
 */
 
 export interface ClassEntity {
-    id:        string;
-    name:      string;
-    level:     string | null;
-    capacity:  number | null;
-    classTeacherId: string | null
-    createdAt: Date;
-    updatedAt: Date;
+    id:             string;
+    name:           string;
+    level:          string | null;
+    capacity:       number | null;
+    classTeacherId: string | null;
+    createdAt:      Date;
+    updatedAt:      Date;
 }
 
 export interface SubjectEntity {
@@ -30,4 +30,12 @@ export interface ClassSubjectEntity {
     subjectId: string;
     staffId:   string;
     createdAt: Date;
+}
+
+export interface ClassProgressionEntity {
+    id:          string;
+    fromClassId: string;
+    toClassId:   string | null;
+    createdAt:   Date;
+    updatedAt:   Date;
 }

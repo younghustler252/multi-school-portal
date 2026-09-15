@@ -2,14 +2,18 @@ import { Request, Response, NextFunction } from "express";
 import { CreateFeeTypeUseCase }        from "../usecases/create-fee-type.usecase";
 import { GetFeeTypesUseCase }          from "../usecases/get-fee-types.usecase";
 import { CreateInvoiceUseCase }        from "../usecases/create-invoice.usecase";
+import { UpdateInvoiceUseCase } from "../usecases/update-invoice.usecase";
 import { BulkCreateInvoicesUseCase }   from "../usecases/bulk-create-invoices.usecase";
 import { GetInvoicesUseCase }          from "../usecases/get-invoices.usecase";
 import { GetInvoiceByIdUseCase } from "../usecases/get-invoice-by-id.usecase";
 import { GetDefaultersUseCase }        from "../usecases/get-defaulters.usecase";
-import { UpdateInvoiceUseCase }        from "../usecases/update-invoice.usecase";
+import { UpdateInvoiceItemUseCase }        from "../usecases/update-invoice-item.usecase";
+import { RemoveInvoiceItemUseCase } from "../usecases/remove-invoice-item.usecase";
 import { InvoiceClassUseCase }  from "../usecases/invoice-class.usecase";
 import { RecordPaymentUseCase } from "../usecases/record-payment.usecase";
 import { GetMyChildrenInvoicesUseCase } from "../usecases/get-my-children-invoices.usecase";
+import { WaiveInvoiceUseCase } from "../usecases/waive-invoice.usecase";
+import { GetInvoicePaymentsUseCase } from "../usecases/get-invoice-payments.usecase"
 import {
     sendSuccess,
     sendCreated,
@@ -20,14 +24,17 @@ interface Dependencies {
     createFeeTypeUseCase:      CreateFeeTypeUseCase;
     getFeeTypesUseCase:        GetFeeTypesUseCase;
     createInvoiceUseCase:      CreateInvoiceUseCase;
+    updateInvoiceUseCase:      UpdateInvoiceUseCase;
     bulkCreateInvoicesUseCase: BulkCreateInvoicesUseCase;
     getInvoicesUseCase:        GetInvoicesUseCase;
     getInvoiceByIdUseCase:       GetInvoiceByIdUseCase;
     getDefaultersUseCase:      GetDefaultersUseCase;
-    updateInvoiceUseCase:      UpdateInvoiceUseCase;
+    updateInvoiceItemUseCase:      UpdateInvoiceItemUseCase;
+    removeInvoiceItemUseCase: RemoveInvoiceItemUseCase;
     invoiceClassUseCase:       InvoiceClassUseCase;
     recordPaymentUseCase:      RecordPaymentUseCase;
-
+    getInvoicePaymentsUseCase: GetInvoicePaymentsUseCase;
+    waiveInvoiceUseCase:       WaiveInvoiceUseCase;
     getMyChildrenInvoicesUseCase:  GetMyChildrenInvoicesUseCase;
 }
 
@@ -36,39 +43,51 @@ export class FeeController {
     private readonly getFeeTypesUseCase:        GetFeeTypesUseCase;
     private readonly createInvoiceUseCase:      CreateInvoiceUseCase;
     private readonly bulkCreateInvoicesUseCase: BulkCreateInvoicesUseCase;
+    private readonly updateInvoiceUseCase:      UpdateInvoiceUseCase;
     private readonly getInvoicesUseCase:        GetInvoicesUseCase;
     private readonly getInvoiceByIdUseCase: GetInvoiceByIdUseCase;
     private readonly getDefaultersUseCase:      GetDefaultersUseCase;
-    private readonly updateInvoiceUseCase:      UpdateInvoiceUseCase;
+    private readonly updateInvoiceItemUseCase:      UpdateInvoiceItemUseCase;
+    private readonly removeInvoiceItemUseCase:      RemoveInvoiceItemUseCase;
     private readonly invoiceClassUseCase:       InvoiceClassUseCase;
     private readonly recordPaymentUseCase:      RecordPaymentUseCase;
     private readonly getMyChildrenInvoicesUseCase: GetMyChildrenInvoicesUseCase;
-    
+    private readonly getInvoicePaymentsUseCase: GetInvoicePaymentsUseCase;
+    private readonly waiveInvoiceUseCase: WaiveInvoiceUseCase;
 
     constructor({
         createFeeTypeUseCase,
         getFeeTypesUseCase,
         createInvoiceUseCase,
         bulkCreateInvoicesUseCase,
+        updateInvoiceUseCase,
         getInvoicesUseCase,
         getInvoiceByIdUseCase,
         getDefaultersUseCase,
-        updateInvoiceUseCase,
+        updateInvoiceItemUseCase,
+        removeInvoiceItemUseCase,
         invoiceClassUseCase,
         recordPaymentUseCase,
-        getMyChildrenInvoicesUseCase
+        getMyChildrenInvoicesUseCase,
+        getInvoicePaymentsUseCase,
+        waiveInvoiceUseCase,
+
     }: Dependencies) {
         this.createFeeTypeUseCase      = createFeeTypeUseCase;
         this.getFeeTypesUseCase        = getFeeTypesUseCase;
         this.createInvoiceUseCase      = createInvoiceUseCase;
         this.bulkCreateInvoicesUseCase = bulkCreateInvoicesUseCase;
+        this.updateInvoiceUseCase      = updateInvoiceUseCase;
         this.getInvoicesUseCase        = getInvoicesUseCase;
         this.getInvoiceByIdUseCase       = getInvoiceByIdUseCase;
         this.getDefaultersUseCase      = getDefaultersUseCase;
-        this.updateInvoiceUseCase      = updateInvoiceUseCase;
+        this.updateInvoiceItemUseCase      = updateInvoiceItemUseCase;
+        this.removeInvoiceItemUseCase     = removeInvoiceItemUseCase;
         this.invoiceClassUseCase       = invoiceClassUseCase;
         this.recordPaymentUseCase      = recordPaymentUseCase;
         this.getMyChildrenInvoicesUseCase = getMyChildrenInvoicesUseCase;
+        this.getInvoicePaymentsUseCase = getInvoicePaymentsUseCase;
+        this.waiveInvoiceUseCase = waiveInvoiceUseCase;
     }
 
     // ── Fee Types ─────────────────────────────────────────────────────────
@@ -147,8 +166,39 @@ export class FeeController {
                 req.params.id as string,
                 req.body,
             );
+
             sendSuccess(res, result, "Invoice updated successfully");
-        } catch (err) { next(err); }
+        } catch (err) {
+            next(err);
+        }
+    };
+
+
+    updateInvoiceItem = async (
+        req: Request, res: Response, next: NextFunction,
+    ): Promise<void> => {
+        try {
+            const result = await this.updateInvoiceItemUseCase.execute(
+                req.params.itemId as string,
+                req.body.amountKobo,
+            );
+            sendSuccess(res, result, "Invoice item updated successfully");
+        } catch (err) {
+            next(err);
+        }
+    };
+
+    removeInvoiceItem = async (
+        req: Request, res: Response, next: NextFunction,
+    ): Promise<void> => {
+        try {
+            const result = await this.removeInvoiceItemUseCase.execute(
+                req.params.itemId as string,
+            );
+            sendSuccess(res, result, "Invoice item removed successfully");
+        } catch (err) {
+            next(err);
+        }
     };
 
     getDefaulters = async (
@@ -176,19 +226,28 @@ export class FeeController {
         } catch (err) { next(err); }
     };
 
-    recordPayment = async (
-        req: Request, res: Response, next: NextFunction,
+   recordPayment = async (
+        req: Request,
+        res: Response,
+        next: NextFunction,
     ): Promise<void> => {
         try {
+            const { amountKobo, method, note } = req.body;
+
             const result = await this.recordPaymentUseCase.execute({
-                invoiceId:    req.body.invoiceId,
-                amountKobo:   req.body.amountKobo,
-                recordedById: req.user!.id,
-                note:         req.body.note,
+                invoiceId: req.params.invoiceId as string,
+                amountKobo,
+                method,
+                recordedById: req.user?.id as string,
+                note,
             });
+
             sendSuccess(res, result, "Payment recorded successfully");
-        } catch (err) { next(err); }
+        } catch (err) {
+            next(err);
+        }
     };
+
 
     // ── Get my children's invoices ───────────────────────────────────────────
     getMyChildrenInvoices = async (
@@ -213,6 +272,44 @@ export class FeeController {
             );
 
             sendPaginated(res, result.data, result.meta);
+        } catch (err) {
+            next(err);
+        }
+    };
+
+    getInvoicePayments = async (
+        req: Request, res: Response, next: NextFunction,
+    ): Promise<void> => {
+        try {
+            const result = await this.getInvoicePaymentsUseCase.execute(
+                req.params.id as string,
+            );
+
+            sendSuccess(
+                res,
+                result,
+                "Invoice payments retrieved successfully",
+            );
+        } catch (err) {
+            next(err);
+        }
+    };
+
+    waiveInvoice = async (
+        req: Request, res: Response, next: NextFunction,
+    ): Promise<void> => {
+        try {
+            const result = await this.waiveInvoiceUseCase.execute(
+                req.params.id as string,
+                req.body.reason,
+                req.user?.id as string,
+            );
+
+            sendSuccess(
+                res,
+                result,
+                "Invoice waived successfully",
+            );
         } catch (err) {
             next(err);
         }

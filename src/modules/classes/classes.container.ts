@@ -17,6 +17,7 @@ import { GetSubjectsUseCase }         from "./usecases/school-admin/get-subjects
 import { AssignSubjectUseCase }       from "./usecases/school-admin/assign-subject.usecase";
 import { GetClassSubjectsUseCase }    from "./usecases/school-admin/get-class-subjects.usecase";
 import { RemoveSubjectUseCase }       from "./usecases/school-admin/remove-subject.usecase";
+import { SetClassProgressionUseCase } from "./usecases/school-admin/set-class-progression.usecase";
 import { ClassController }            from "./controllers/class.controller";
 
 /*
@@ -42,6 +43,7 @@ export const registerClasses = (container: AwilixContainer): void => {
         assignSubjectUseCase:    asClass(AssignSubjectUseCase).scoped(),
         getClassSubjectsUseCase: asClass(GetClassSubjectsUseCase).scoped(),
         removeSubjectUseCase:    asClass(RemoveSubjectUseCase).scoped(),
+        setClassProgressionUseCase: asClass(SetClassProgressionUseCase).scoped(),
         classController:         asClass(ClassController).scoped(),
     });
 };

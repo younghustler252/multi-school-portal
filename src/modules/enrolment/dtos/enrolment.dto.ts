@@ -35,7 +35,39 @@ export const ListEnrolmentsDto = z.object({
     status:    z.string().optional(),
 });
 
-export type EnrolStudentDtoType    = z.infer<typeof EnrolStudentDto>;
-export type BulkEnrolDtoType       = z.infer<typeof BulkEnrolDto>;
-export type UpdateEnrolmentDtoType = z.infer<typeof UpdateEnrolmentDto>;
-export type ListEnrolmentsDtoType  = z.infer<typeof ListEnrolmentsDto>;
+// ── Promotion preview ─────────────────────────────────────────────────────
+export const PromotionPreviewDto = z.object({
+    termId: z.string().uuid(),
+});
+export const PromoteStudentsDto = z.object({
+    currentTermId: z.string().uuid(),
+    newTermId:     z.string().uuid(),
+    rows: z.array(z.object({
+        studentId:   z.string().uuid(),
+        fromClassId: z.string().uuid(),
+        toClassId:   z.string().uuid().nullable(),
+    })).min(1),
+    overrides: z.array(z.object({
+        studentId: z.string().uuid(),
+        action:    z.enum(["promote", "repeat", "graduate", "exclude"]),
+        classId:   z.string().uuid().optional(),
+    })).optional().default([]),
+});
+
+export type EnrolStudentDtoType =
+    z.infer<typeof EnrolStudentDto>;
+
+export type BulkEnrolDtoType =
+    z.infer<typeof BulkEnrolDto>;
+
+export type UpdateEnrolmentDtoType =
+    z.infer<typeof UpdateEnrolmentDto>;
+
+export type ListEnrolmentsDtoType =
+    z.infer<typeof ListEnrolmentsDto>;
+
+export type PromotionPreviewDtoType =
+    z.infer<typeof PromotionPreviewDto>;
+
+export type PromoteStudentsDtoType =
+    z.infer<typeof PromoteStudentsDto>;

@@ -1,9 +1,8 @@
-// import randomuuid
-
 import { IUserRepository }          from "../repositories/user.repository";
 import { IRefreshTokenRepository }  from "../repositories/refresh-token.repository";
 import { TokenService }             from "../../../shared/services/token.service";
 import { PasswordService }          from "../../../shared/services/password.service";
+import { AuditService } from "../../audit/services/audit.service";
 import {
     AuthErrorMessage,
     MAX_FAILED_LOGIN_ATTEMPTS,
@@ -12,7 +11,6 @@ import {
 import {
     UnauthorizedError,
     ForbiddenError,
-    
 }                                   from "../../../shared/errors/domain.errors";
 import { LoginDtoType }             from "../dtos/login.dto";
 import { AuthResponse }             from "../types/auth.types";
@@ -32,7 +30,8 @@ import { UserMapper }               from "../mappers/user.mapper";
 | 8. Generate token pair
 | 9. Store refresh token in DB
 | 10. Update last login timestamp + IP
-| 11. Return tokens + user
+| 11. Audit successful login
+| 12. Return tokens + user
 |--------------------------------------------------------------------------
 */
 
@@ -42,6 +41,7 @@ interface Dependencies {
     tokenService:           TokenService;
     passwordService:        PasswordService;
     userMapper:             UserMapper;
+    auditService:            AuditService;
 }
 
 export class LoginUseCase {
@@ -50,6 +50,7 @@ export class LoginUseCase {
     private readonly tokenService:           TokenService;
     private readonly passwordService:        PasswordService;
     private readonly userMapper:             UserMapper;
+    private readonly auditService:            AuditService;
 
     constructor({
         userRepository,
@@ -57,12 +58,14 @@ export class LoginUseCase {
         tokenService,
         passwordService,
         userMapper,
+        auditService,
     }: Dependencies) {
         this.userRepository         = userRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.tokenService           = tokenService;
         this.passwordService        = passwordService;
         this.userMapper             = userMapper;
+        this.auditService            = auditService;
     }
 
     async execute(
@@ -75,7 +78,7 @@ export class LoginUseCase {
             .findByEmailWithPassword(dto.email);
 
         if (!userWithPassword) {
-           // Generic message — don't reveal if email exists
+            // Generic message — don't reveal if email exists
             throw new UnauthorizedError(AuthErrorMessage.INVALID_CREDENTIALS);
         }
 
@@ -154,7 +157,14 @@ export class LoginUseCase {
         // ── 9. Update last login ──────────────────────────────────────────
         await this.userRepository.updateLastLogin(userWithPassword.id, ip);
 
-        // ── 10. Return response ───────────────────────────────────────────
+        // ── 10. Audit successful login ────────────────────────────────────
+        await this.auditService.logLogin({
+            userId:    userWithPassword.id,
+            schoolId:  userWithPassword.schoolId,
+            ipAddress: ip,
+        });
+
+        // ── 11. Return response ───────────────────────────────────────────
         return {
             user:   this.userMapper.toResponse(userWithPassword),
             tokens,

@@ -1,4 +1,5 @@
 import { Worker, Job }          from "bullmq";
+import * as Sentry                 from "@sentry/node";
 import { redisConnection }      from "../connection";
 import { NotificationJobData }  from "../queues/notification.queue";
 import { MailService }          from "../../mail/mail.service";
@@ -46,5 +47,15 @@ notificationWorker.on("completed", (job) => {
 });
 
 notificationWorker.on("failed", (job, err) => {
-    console.error(`❌ Notification job ${job?.id} failed:`, err.message);
+    console.error(
+        `❌ Notification job ${job?.id} failed:`,
+        err.message,
+    );
+
+    Sentry.captureException(err, {
+        extra: {
+            jobId: job?.id,
+            jobName: job?.name,
+        },
+    });
 });

@@ -35,3 +35,13 @@ export interface ClassSubjectResponseData {
     staffId: string;
     createdAt: Date;
 }
+
+export interface ClassProgressionResponseData {
+    id: string;
+    fromClassId: string;
+    fromClassName: string;
+    toClassId: string | null;
+    toClassName: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+}

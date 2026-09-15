@@ -69,6 +69,11 @@ export type ClassSubject = $Result.DefaultSelection<Prisma.$ClassSubjectPayload>
  */
 export type Enrolment = $Result.DefaultSelection<Prisma.$EnrolmentPayload>
 /**
+ * Model ClassProgression
+ * 
+ */
+export type ClassProgression = $Result.DefaultSelection<Prisma.$ClassProgressionPayload>
+/**
  * Model SchoolSettings
  * 
  */
@@ -596,6 +601,16 @@ export class PrismaClient<
     * ```
     */
   get enrolment(): Prisma.EnrolmentDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.classProgression`: Exposes CRUD operations for the **ClassProgression** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ClassProgressions
+    * const classProgressions = await prisma.classProgression.findMany()
+    * ```
+    */
+  get classProgression(): Prisma.ClassProgressionDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.schoolSettings`: Exposes CRUD operations for the **SchoolSettings** model.
@@ -1164,6 +1179,7 @@ export namespace Prisma {
     Subject: 'Subject',
     ClassSubject: 'ClassSubject',
     Enrolment: 'Enrolment',
+    ClassProgression: 'ClassProgression',
     SchoolSettings: 'SchoolSettings',
     Attendance: 'Attendance',
     Grade: 'Grade',
@@ -1190,7 +1206,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "staff" | "student" | "guardian" | "studentGuardian" | "calendarEvent" | "session" | "term" | "class" | "subject" | "classSubject" | "enrolment" | "schoolSettings" | "attendance" | "grade" | "gradingConfig" | "reportCard" | "feeType" | "feeInvoice" | "feeInvoiceItem" | "payment" | "schoolNotification" | "schoolNotificationRecipient"
+      modelProps: "staff" | "student" | "guardian" | "studentGuardian" | "calendarEvent" | "session" | "term" | "class" | "subject" | "classSubject" | "enrolment" | "classProgression" | "schoolSettings" | "attendance" | "grade" | "gradingConfig" | "reportCard" | "feeType" | "feeInvoice" | "feeInvoiceItem" | "payment" | "schoolNotification" | "schoolNotificationRecipient"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2005,6 +2021,80 @@ export namespace Prisma {
           count: {
             args: Prisma.EnrolmentCountArgs<ExtArgs>
             result: $Utils.Optional<EnrolmentCountAggregateOutputType> | number
+          }
+        }
+      }
+      ClassProgression: {
+        payload: Prisma.$ClassProgressionPayload<ExtArgs>
+        fields: Prisma.ClassProgressionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ClassProgressionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClassProgressionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ClassProgressionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClassProgressionPayload>
+          }
+          findFirst: {
+            args: Prisma.ClassProgressionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClassProgressionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ClassProgressionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClassProgressionPayload>
+          }
+          findMany: {
+            args: Prisma.ClassProgressionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClassProgressionPayload>[]
+          }
+          create: {
+            args: Prisma.ClassProgressionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClassProgressionPayload>
+          }
+          createMany: {
+            args: Prisma.ClassProgressionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ClassProgressionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClassProgressionPayload>[]
+          }
+          delete: {
+            args: Prisma.ClassProgressionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClassProgressionPayload>
+          }
+          update: {
+            args: Prisma.ClassProgressionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClassProgressionPayload>
+          }
+          deleteMany: {
+            args: Prisma.ClassProgressionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ClassProgressionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ClassProgressionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClassProgressionPayload>[]
+          }
+          upsert: {
+            args: Prisma.ClassProgressionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClassProgressionPayload>
+          }
+          aggregate: {
+            args: Prisma.ClassProgressionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateClassProgression>
+          }
+          groupBy: {
+            args: Prisma.ClassProgressionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ClassProgressionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ClassProgressionCountArgs<ExtArgs>
+            result: $Utils.Optional<ClassProgressionCountAggregateOutputType> | number
           }
         }
       }
@@ -2956,6 +3046,7 @@ export namespace Prisma {
     subject?: SubjectOmit
     classSubject?: ClassSubjectOmit
     enrolment?: EnrolmentOmit
+    classProgression?: ClassProgressionOmit
     schoolSettings?: SchoolSettingsOmit
     attendance?: AttendanceOmit
     grade?: GradeOmit
@@ -3321,11 +3412,15 @@ export namespace Prisma {
   export type ClassCountOutputType = {
     enrolments: number
     classSubjects: number
+    progressionsFrom: number
+    progressionsTo: number
   }
 
   export type ClassCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     enrolments?: boolean | ClassCountOutputTypeCountEnrolmentsArgs
     classSubjects?: boolean | ClassCountOutputTypeCountClassSubjectsArgs
+    progressionsFrom?: boolean | ClassCountOutputTypeCountProgressionsFromArgs
+    progressionsTo?: boolean | ClassCountOutputTypeCountProgressionsToArgs
   }
 
   // Custom InputTypes
@@ -3351,6 +3446,20 @@ export namespace Prisma {
    */
   export type ClassCountOutputTypeCountClassSubjectsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ClassSubjectWhereInput
+  }
+
+  /**
+   * ClassCountOutputType without action
+   */
+  export type ClassCountOutputTypeCountProgressionsFromArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ClassProgressionWhereInput
+  }
+
+  /**
+   * ClassCountOutputType without action
+   */
+  export type ClassCountOutputTypeCountProgressionsToArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ClassProgressionWhereInput
   }
 
 
@@ -12209,6 +12318,8 @@ export namespace Prisma {
     classTeacher?: boolean | Class$classTeacherArgs<ExtArgs>
     enrolments?: boolean | Class$enrolmentsArgs<ExtArgs>
     classSubjects?: boolean | Class$classSubjectsArgs<ExtArgs>
+    progressionsFrom?: boolean | Class$progressionsFromArgs<ExtArgs>
+    progressionsTo?: boolean | Class$progressionsToArgs<ExtArgs>
     _count?: boolean | ClassCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["class"]>
 
@@ -12249,6 +12360,8 @@ export namespace Prisma {
     classTeacher?: boolean | Class$classTeacherArgs<ExtArgs>
     enrolments?: boolean | Class$enrolmentsArgs<ExtArgs>
     classSubjects?: boolean | Class$classSubjectsArgs<ExtArgs>
+    progressionsFrom?: boolean | Class$progressionsFromArgs<ExtArgs>
+    progressionsTo?: boolean | Class$progressionsToArgs<ExtArgs>
     _count?: boolean | ClassCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type ClassIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -12264,6 +12377,8 @@ export namespace Prisma {
       classTeacher: Prisma.$StaffPayload<ExtArgs> | null
       enrolments: Prisma.$EnrolmentPayload<ExtArgs>[]
       classSubjects: Prisma.$ClassSubjectPayload<ExtArgs>[]
+      progressionsFrom: Prisma.$ClassProgressionPayload<ExtArgs>[]
+      progressionsTo: Prisma.$ClassProgressionPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -12670,6 +12785,8 @@ export namespace Prisma {
     classTeacher<T extends Class$classTeacherArgs<ExtArgs> = {}>(args?: Subset<T, Class$classTeacherArgs<ExtArgs>>): Prisma__StaffClient<$Result.GetResult<Prisma.$StaffPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     enrolments<T extends Class$enrolmentsArgs<ExtArgs> = {}>(args?: Subset<T, Class$enrolmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EnrolmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     classSubjects<T extends Class$classSubjectsArgs<ExtArgs> = {}>(args?: Subset<T, Class$classSubjectsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClassSubjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    progressionsFrom<T extends Class$progressionsFromArgs<ExtArgs> = {}>(args?: Subset<T, Class$progressionsFromArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClassProgressionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    progressionsTo<T extends Class$progressionsToArgs<ExtArgs> = {}>(args?: Subset<T, Class$progressionsToArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClassProgressionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -13171,6 +13288,54 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ClassSubjectScalarFieldEnum | ClassSubjectScalarFieldEnum[]
+  }
+
+  /**
+   * Class.progressionsFrom
+   */
+  export type Class$progressionsFromArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClassProgression
+     */
+    select?: ClassProgressionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClassProgression
+     */
+    omit?: ClassProgressionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClassProgressionInclude<ExtArgs> | null
+    where?: ClassProgressionWhereInput
+    orderBy?: ClassProgressionOrderByWithRelationInput | ClassProgressionOrderByWithRelationInput[]
+    cursor?: ClassProgressionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ClassProgressionScalarFieldEnum | ClassProgressionScalarFieldEnum[]
+  }
+
+  /**
+   * Class.progressionsTo
+   */
+  export type Class$progressionsToArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClassProgression
+     */
+    select?: ClassProgressionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClassProgression
+     */
+    omit?: ClassProgressionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClassProgressionInclude<ExtArgs> | null
+    where?: ClassProgressionWhereInput
+    orderBy?: ClassProgressionOrderByWithRelationInput | ClassProgressionOrderByWithRelationInput[]
+    cursor?: ClassProgressionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ClassProgressionScalarFieldEnum | ClassProgressionScalarFieldEnum[]
   }
 
   /**
@@ -16495,6 +16660,1096 @@ export namespace Prisma {
 
 
   /**
+   * Model ClassProgression
+   */
+
+  export type AggregateClassProgression = {
+    _count: ClassProgressionCountAggregateOutputType | null
+    _min: ClassProgressionMinAggregateOutputType | null
+    _max: ClassProgressionMaxAggregateOutputType | null
+  }
+
+  export type ClassProgressionMinAggregateOutputType = {
+    id: string | null
+    fromClassId: string | null
+    toClassId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ClassProgressionMaxAggregateOutputType = {
+    id: string | null
+    fromClassId: string | null
+    toClassId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ClassProgressionCountAggregateOutputType = {
+    id: number
+    fromClassId: number
+    toClassId: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ClassProgressionMinAggregateInputType = {
+    id?: true
+    fromClassId?: true
+    toClassId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ClassProgressionMaxAggregateInputType = {
+    id?: true
+    fromClassId?: true
+    toClassId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ClassProgressionCountAggregateInputType = {
+    id?: true
+    fromClassId?: true
+    toClassId?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ClassProgressionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ClassProgression to aggregate.
+     */
+    where?: ClassProgressionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ClassProgressions to fetch.
+     */
+    orderBy?: ClassProgressionOrderByWithRelationInput | ClassProgressionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ClassProgressionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ClassProgressions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ClassProgressions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ClassProgressions
+    **/
+    _count?: true | ClassProgressionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ClassProgressionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ClassProgressionMaxAggregateInputType
+  }
+
+  export type GetClassProgressionAggregateType<T extends ClassProgressionAggregateArgs> = {
+        [P in keyof T & keyof AggregateClassProgression]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateClassProgression[P]>
+      : GetScalarType<T[P], AggregateClassProgression[P]>
+  }
+
+
+
+
+  export type ClassProgressionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ClassProgressionWhereInput
+    orderBy?: ClassProgressionOrderByWithAggregationInput | ClassProgressionOrderByWithAggregationInput[]
+    by: ClassProgressionScalarFieldEnum[] | ClassProgressionScalarFieldEnum
+    having?: ClassProgressionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ClassProgressionCountAggregateInputType | true
+    _min?: ClassProgressionMinAggregateInputType
+    _max?: ClassProgressionMaxAggregateInputType
+  }
+
+  export type ClassProgressionGroupByOutputType = {
+    id: string
+    fromClassId: string
+    toClassId: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: ClassProgressionCountAggregateOutputType | null
+    _min: ClassProgressionMinAggregateOutputType | null
+    _max: ClassProgressionMaxAggregateOutputType | null
+  }
+
+  type GetClassProgressionGroupByPayload<T extends ClassProgressionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ClassProgressionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ClassProgressionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ClassProgressionGroupByOutputType[P]>
+            : GetScalarType<T[P], ClassProgressionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ClassProgressionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    fromClassId?: boolean
+    toClassId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    fromClass?: boolean | ClassDefaultArgs<ExtArgs>
+    toClass?: boolean | ClassProgression$toClassArgs<ExtArgs>
+  }, ExtArgs["result"]["classProgression"]>
+
+  export type ClassProgressionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    fromClassId?: boolean
+    toClassId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    fromClass?: boolean | ClassDefaultArgs<ExtArgs>
+    toClass?: boolean | ClassProgression$toClassArgs<ExtArgs>
+  }, ExtArgs["result"]["classProgression"]>
+
+  export type ClassProgressionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    fromClassId?: boolean
+    toClassId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    fromClass?: boolean | ClassDefaultArgs<ExtArgs>
+    toClass?: boolean | ClassProgression$toClassArgs<ExtArgs>
+  }, ExtArgs["result"]["classProgression"]>
+
+  export type ClassProgressionSelectScalar = {
+    id?: boolean
+    fromClassId?: boolean
+    toClassId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ClassProgressionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "fromClassId" | "toClassId" | "createdAt" | "updatedAt", ExtArgs["result"]["classProgression"]>
+  export type ClassProgressionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    fromClass?: boolean | ClassDefaultArgs<ExtArgs>
+    toClass?: boolean | ClassProgression$toClassArgs<ExtArgs>
+  }
+  export type ClassProgressionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    fromClass?: boolean | ClassDefaultArgs<ExtArgs>
+    toClass?: boolean | ClassProgression$toClassArgs<ExtArgs>
+  }
+  export type ClassProgressionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    fromClass?: boolean | ClassDefaultArgs<ExtArgs>
+    toClass?: boolean | ClassProgression$toClassArgs<ExtArgs>
+  }
+
+  export type $ClassProgressionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ClassProgression"
+    objects: {
+      fromClass: Prisma.$ClassPayload<ExtArgs>
+      toClass: Prisma.$ClassPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      fromClassId: string
+      toClassId: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["classProgression"]>
+    composites: {}
+  }
+
+  type ClassProgressionGetPayload<S extends boolean | null | undefined | ClassProgressionDefaultArgs> = $Result.GetResult<Prisma.$ClassProgressionPayload, S>
+
+  type ClassProgressionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ClassProgressionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ClassProgressionCountAggregateInputType | true
+    }
+
+  export interface ClassProgressionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ClassProgression'], meta: { name: 'ClassProgression' } }
+    /**
+     * Find zero or one ClassProgression that matches the filter.
+     * @param {ClassProgressionFindUniqueArgs} args - Arguments to find a ClassProgression
+     * @example
+     * // Get one ClassProgression
+     * const classProgression = await prisma.classProgression.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ClassProgressionFindUniqueArgs>(args: SelectSubset<T, ClassProgressionFindUniqueArgs<ExtArgs>>): Prisma__ClassProgressionClient<$Result.GetResult<Prisma.$ClassProgressionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ClassProgression that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ClassProgressionFindUniqueOrThrowArgs} args - Arguments to find a ClassProgression
+     * @example
+     * // Get one ClassProgression
+     * const classProgression = await prisma.classProgression.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ClassProgressionFindUniqueOrThrowArgs>(args: SelectSubset<T, ClassProgressionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ClassProgressionClient<$Result.GetResult<Prisma.$ClassProgressionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ClassProgression that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClassProgressionFindFirstArgs} args - Arguments to find a ClassProgression
+     * @example
+     * // Get one ClassProgression
+     * const classProgression = await prisma.classProgression.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ClassProgressionFindFirstArgs>(args?: SelectSubset<T, ClassProgressionFindFirstArgs<ExtArgs>>): Prisma__ClassProgressionClient<$Result.GetResult<Prisma.$ClassProgressionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ClassProgression that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClassProgressionFindFirstOrThrowArgs} args - Arguments to find a ClassProgression
+     * @example
+     * // Get one ClassProgression
+     * const classProgression = await prisma.classProgression.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ClassProgressionFindFirstOrThrowArgs>(args?: SelectSubset<T, ClassProgressionFindFirstOrThrowArgs<ExtArgs>>): Prisma__ClassProgressionClient<$Result.GetResult<Prisma.$ClassProgressionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ClassProgressions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClassProgressionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ClassProgressions
+     * const classProgressions = await prisma.classProgression.findMany()
+     * 
+     * // Get first 10 ClassProgressions
+     * const classProgressions = await prisma.classProgression.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const classProgressionWithIdOnly = await prisma.classProgression.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ClassProgressionFindManyArgs>(args?: SelectSubset<T, ClassProgressionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClassProgressionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ClassProgression.
+     * @param {ClassProgressionCreateArgs} args - Arguments to create a ClassProgression.
+     * @example
+     * // Create one ClassProgression
+     * const ClassProgression = await prisma.classProgression.create({
+     *   data: {
+     *     // ... data to create a ClassProgression
+     *   }
+     * })
+     * 
+     */
+    create<T extends ClassProgressionCreateArgs>(args: SelectSubset<T, ClassProgressionCreateArgs<ExtArgs>>): Prisma__ClassProgressionClient<$Result.GetResult<Prisma.$ClassProgressionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ClassProgressions.
+     * @param {ClassProgressionCreateManyArgs} args - Arguments to create many ClassProgressions.
+     * @example
+     * // Create many ClassProgressions
+     * const classProgression = await prisma.classProgression.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ClassProgressionCreateManyArgs>(args?: SelectSubset<T, ClassProgressionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ClassProgressions and returns the data saved in the database.
+     * @param {ClassProgressionCreateManyAndReturnArgs} args - Arguments to create many ClassProgressions.
+     * @example
+     * // Create many ClassProgressions
+     * const classProgression = await prisma.classProgression.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ClassProgressions and only return the `id`
+     * const classProgressionWithIdOnly = await prisma.classProgression.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ClassProgressionCreateManyAndReturnArgs>(args?: SelectSubset<T, ClassProgressionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClassProgressionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ClassProgression.
+     * @param {ClassProgressionDeleteArgs} args - Arguments to delete one ClassProgression.
+     * @example
+     * // Delete one ClassProgression
+     * const ClassProgression = await prisma.classProgression.delete({
+     *   where: {
+     *     // ... filter to delete one ClassProgression
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ClassProgressionDeleteArgs>(args: SelectSubset<T, ClassProgressionDeleteArgs<ExtArgs>>): Prisma__ClassProgressionClient<$Result.GetResult<Prisma.$ClassProgressionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ClassProgression.
+     * @param {ClassProgressionUpdateArgs} args - Arguments to update one ClassProgression.
+     * @example
+     * // Update one ClassProgression
+     * const classProgression = await prisma.classProgression.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ClassProgressionUpdateArgs>(args: SelectSubset<T, ClassProgressionUpdateArgs<ExtArgs>>): Prisma__ClassProgressionClient<$Result.GetResult<Prisma.$ClassProgressionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ClassProgressions.
+     * @param {ClassProgressionDeleteManyArgs} args - Arguments to filter ClassProgressions to delete.
+     * @example
+     * // Delete a few ClassProgressions
+     * const { count } = await prisma.classProgression.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ClassProgressionDeleteManyArgs>(args?: SelectSubset<T, ClassProgressionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ClassProgressions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClassProgressionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ClassProgressions
+     * const classProgression = await prisma.classProgression.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ClassProgressionUpdateManyArgs>(args: SelectSubset<T, ClassProgressionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ClassProgressions and returns the data updated in the database.
+     * @param {ClassProgressionUpdateManyAndReturnArgs} args - Arguments to update many ClassProgressions.
+     * @example
+     * // Update many ClassProgressions
+     * const classProgression = await prisma.classProgression.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ClassProgressions and only return the `id`
+     * const classProgressionWithIdOnly = await prisma.classProgression.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ClassProgressionUpdateManyAndReturnArgs>(args: SelectSubset<T, ClassProgressionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClassProgressionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ClassProgression.
+     * @param {ClassProgressionUpsertArgs} args - Arguments to update or create a ClassProgression.
+     * @example
+     * // Update or create a ClassProgression
+     * const classProgression = await prisma.classProgression.upsert({
+     *   create: {
+     *     // ... data to create a ClassProgression
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ClassProgression we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ClassProgressionUpsertArgs>(args: SelectSubset<T, ClassProgressionUpsertArgs<ExtArgs>>): Prisma__ClassProgressionClient<$Result.GetResult<Prisma.$ClassProgressionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ClassProgressions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClassProgressionCountArgs} args - Arguments to filter ClassProgressions to count.
+     * @example
+     * // Count the number of ClassProgressions
+     * const count = await prisma.classProgression.count({
+     *   where: {
+     *     // ... the filter for the ClassProgressions we want to count
+     *   }
+     * })
+    **/
+    count<T extends ClassProgressionCountArgs>(
+      args?: Subset<T, ClassProgressionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ClassProgressionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ClassProgression.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClassProgressionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ClassProgressionAggregateArgs>(args: Subset<T, ClassProgressionAggregateArgs>): Prisma.PrismaPromise<GetClassProgressionAggregateType<T>>
+
+    /**
+     * Group by ClassProgression.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClassProgressionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ClassProgressionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ClassProgressionGroupByArgs['orderBy'] }
+        : { orderBy?: ClassProgressionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ClassProgressionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetClassProgressionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ClassProgression model
+   */
+  readonly fields: ClassProgressionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ClassProgression.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ClassProgressionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    fromClass<T extends ClassDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ClassDefaultArgs<ExtArgs>>): Prisma__ClassClient<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    toClass<T extends ClassProgression$toClassArgs<ExtArgs> = {}>(args?: Subset<T, ClassProgression$toClassArgs<ExtArgs>>): Prisma__ClassClient<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ClassProgression model
+   */
+  interface ClassProgressionFieldRefs {
+    readonly id: FieldRef<"ClassProgression", 'String'>
+    readonly fromClassId: FieldRef<"ClassProgression", 'String'>
+    readonly toClassId: FieldRef<"ClassProgression", 'String'>
+    readonly createdAt: FieldRef<"ClassProgression", 'DateTime'>
+    readonly updatedAt: FieldRef<"ClassProgression", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ClassProgression findUnique
+   */
+  export type ClassProgressionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClassProgression
+     */
+    select?: ClassProgressionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClassProgression
+     */
+    omit?: ClassProgressionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClassProgressionInclude<ExtArgs> | null
+    /**
+     * Filter, which ClassProgression to fetch.
+     */
+    where: ClassProgressionWhereUniqueInput
+  }
+
+  /**
+   * ClassProgression findUniqueOrThrow
+   */
+  export type ClassProgressionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClassProgression
+     */
+    select?: ClassProgressionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClassProgression
+     */
+    omit?: ClassProgressionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClassProgressionInclude<ExtArgs> | null
+    /**
+     * Filter, which ClassProgression to fetch.
+     */
+    where: ClassProgressionWhereUniqueInput
+  }
+
+  /**
+   * ClassProgression findFirst
+   */
+  export type ClassProgressionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClassProgression
+     */
+    select?: ClassProgressionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClassProgression
+     */
+    omit?: ClassProgressionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClassProgressionInclude<ExtArgs> | null
+    /**
+     * Filter, which ClassProgression to fetch.
+     */
+    where?: ClassProgressionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ClassProgressions to fetch.
+     */
+    orderBy?: ClassProgressionOrderByWithRelationInput | ClassProgressionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ClassProgressions.
+     */
+    cursor?: ClassProgressionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ClassProgressions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ClassProgressions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ClassProgressions.
+     */
+    distinct?: ClassProgressionScalarFieldEnum | ClassProgressionScalarFieldEnum[]
+  }
+
+  /**
+   * ClassProgression findFirstOrThrow
+   */
+  export type ClassProgressionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClassProgression
+     */
+    select?: ClassProgressionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClassProgression
+     */
+    omit?: ClassProgressionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClassProgressionInclude<ExtArgs> | null
+    /**
+     * Filter, which ClassProgression to fetch.
+     */
+    where?: ClassProgressionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ClassProgressions to fetch.
+     */
+    orderBy?: ClassProgressionOrderByWithRelationInput | ClassProgressionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ClassProgressions.
+     */
+    cursor?: ClassProgressionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ClassProgressions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ClassProgressions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ClassProgressions.
+     */
+    distinct?: ClassProgressionScalarFieldEnum | ClassProgressionScalarFieldEnum[]
+  }
+
+  /**
+   * ClassProgression findMany
+   */
+  export type ClassProgressionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClassProgression
+     */
+    select?: ClassProgressionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClassProgression
+     */
+    omit?: ClassProgressionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClassProgressionInclude<ExtArgs> | null
+    /**
+     * Filter, which ClassProgressions to fetch.
+     */
+    where?: ClassProgressionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ClassProgressions to fetch.
+     */
+    orderBy?: ClassProgressionOrderByWithRelationInput | ClassProgressionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ClassProgressions.
+     */
+    cursor?: ClassProgressionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ClassProgressions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ClassProgressions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ClassProgressions.
+     */
+    distinct?: ClassProgressionScalarFieldEnum | ClassProgressionScalarFieldEnum[]
+  }
+
+  /**
+   * ClassProgression create
+   */
+  export type ClassProgressionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClassProgression
+     */
+    select?: ClassProgressionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClassProgression
+     */
+    omit?: ClassProgressionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClassProgressionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ClassProgression.
+     */
+    data: XOR<ClassProgressionCreateInput, ClassProgressionUncheckedCreateInput>
+  }
+
+  /**
+   * ClassProgression createMany
+   */
+  export type ClassProgressionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ClassProgressions.
+     */
+    data: ClassProgressionCreateManyInput | ClassProgressionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ClassProgression createManyAndReturn
+   */
+  export type ClassProgressionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClassProgression
+     */
+    select?: ClassProgressionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClassProgression
+     */
+    omit?: ClassProgressionOmit<ExtArgs> | null
+    /**
+     * The data used to create many ClassProgressions.
+     */
+    data: ClassProgressionCreateManyInput | ClassProgressionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClassProgressionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ClassProgression update
+   */
+  export type ClassProgressionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClassProgression
+     */
+    select?: ClassProgressionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClassProgression
+     */
+    omit?: ClassProgressionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClassProgressionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ClassProgression.
+     */
+    data: XOR<ClassProgressionUpdateInput, ClassProgressionUncheckedUpdateInput>
+    /**
+     * Choose, which ClassProgression to update.
+     */
+    where: ClassProgressionWhereUniqueInput
+  }
+
+  /**
+   * ClassProgression updateMany
+   */
+  export type ClassProgressionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ClassProgressions.
+     */
+    data: XOR<ClassProgressionUpdateManyMutationInput, ClassProgressionUncheckedUpdateManyInput>
+    /**
+     * Filter which ClassProgressions to update
+     */
+    where?: ClassProgressionWhereInput
+    /**
+     * Limit how many ClassProgressions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ClassProgression updateManyAndReturn
+   */
+  export type ClassProgressionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClassProgression
+     */
+    select?: ClassProgressionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClassProgression
+     */
+    omit?: ClassProgressionOmit<ExtArgs> | null
+    /**
+     * The data used to update ClassProgressions.
+     */
+    data: XOR<ClassProgressionUpdateManyMutationInput, ClassProgressionUncheckedUpdateManyInput>
+    /**
+     * Filter which ClassProgressions to update
+     */
+    where?: ClassProgressionWhereInput
+    /**
+     * Limit how many ClassProgressions to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClassProgressionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ClassProgression upsert
+   */
+  export type ClassProgressionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClassProgression
+     */
+    select?: ClassProgressionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClassProgression
+     */
+    omit?: ClassProgressionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClassProgressionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ClassProgression to update in case it exists.
+     */
+    where: ClassProgressionWhereUniqueInput
+    /**
+     * In case the ClassProgression found by the `where` argument doesn't exist, create a new ClassProgression with this data.
+     */
+    create: XOR<ClassProgressionCreateInput, ClassProgressionUncheckedCreateInput>
+    /**
+     * In case the ClassProgression was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ClassProgressionUpdateInput, ClassProgressionUncheckedUpdateInput>
+  }
+
+  /**
+   * ClassProgression delete
+   */
+  export type ClassProgressionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClassProgression
+     */
+    select?: ClassProgressionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClassProgression
+     */
+    omit?: ClassProgressionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClassProgressionInclude<ExtArgs> | null
+    /**
+     * Filter which ClassProgression to delete.
+     */
+    where: ClassProgressionWhereUniqueInput
+  }
+
+  /**
+   * ClassProgression deleteMany
+   */
+  export type ClassProgressionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ClassProgressions to delete
+     */
+    where?: ClassProgressionWhereInput
+    /**
+     * Limit how many ClassProgressions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ClassProgression.toClass
+   */
+  export type ClassProgression$toClassArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Class
+     */
+    select?: ClassSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Class
+     */
+    omit?: ClassOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClassInclude<ExtArgs> | null
+    where?: ClassWhereInput
+  }
+
+  /**
+   * ClassProgression without action
+   */
+  export type ClassProgressionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClassProgression
+     */
+    select?: ClassProgressionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClassProgression
+     */
+    omit?: ClassProgressionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClassProgressionInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model SchoolSettings
    */
 
@@ -16533,6 +17788,7 @@ export namespace Prisma {
     reportCardLetterheadUrl: string | null
     letterheadContentTopMm: number | null
     letterheadContentBottomMm: number | null
+    allowStudentLogin: boolean | null
     signature: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -16553,6 +17809,7 @@ export namespace Prisma {
     reportCardLetterheadUrl: string | null
     letterheadContentTopMm: number | null
     letterheadContentBottomMm: number | null
+    allowStudentLogin: boolean | null
     signature: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -16573,6 +17830,7 @@ export namespace Prisma {
     reportCardLetterheadUrl: number
     letterheadContentTopMm: number
     letterheadContentBottomMm: number
+    allowStudentLogin: number
     signature: number
     createdAt: number
     updatedAt: number
@@ -16607,6 +17865,7 @@ export namespace Prisma {
     reportCardLetterheadUrl?: true
     letterheadContentTopMm?: true
     letterheadContentBottomMm?: true
+    allowStudentLogin?: true
     signature?: true
     createdAt?: true
     updatedAt?: true
@@ -16627,6 +17886,7 @@ export namespace Prisma {
     reportCardLetterheadUrl?: true
     letterheadContentTopMm?: true
     letterheadContentBottomMm?: true
+    allowStudentLogin?: true
     signature?: true
     createdAt?: true
     updatedAt?: true
@@ -16647,6 +17907,7 @@ export namespace Prisma {
     reportCardLetterheadUrl?: true
     letterheadContentTopMm?: true
     letterheadContentBottomMm?: true
+    allowStudentLogin?: true
     signature?: true
     createdAt?: true
     updatedAt?: true
@@ -16754,6 +18015,7 @@ export namespace Prisma {
     reportCardLetterheadUrl: string | null
     letterheadContentTopMm: number | null
     letterheadContentBottomMm: number | null
+    allowStudentLogin: boolean
     signature: string | null
     createdAt: Date
     updatedAt: Date
@@ -16793,6 +18055,7 @@ export namespace Prisma {
     reportCardLetterheadUrl?: boolean
     letterheadContentTopMm?: boolean
     letterheadContentBottomMm?: boolean
+    allowStudentLogin?: boolean
     signature?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -16813,6 +18076,7 @@ export namespace Prisma {
     reportCardLetterheadUrl?: boolean
     letterheadContentTopMm?: boolean
     letterheadContentBottomMm?: boolean
+    allowStudentLogin?: boolean
     signature?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -16833,6 +18097,7 @@ export namespace Prisma {
     reportCardLetterheadUrl?: boolean
     letterheadContentTopMm?: boolean
     letterheadContentBottomMm?: boolean
+    allowStudentLogin?: boolean
     signature?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -16853,12 +18118,13 @@ export namespace Prisma {
     reportCardLetterheadUrl?: boolean
     letterheadContentTopMm?: boolean
     letterheadContentBottomMm?: boolean
+    allowStudentLogin?: boolean
     signature?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type SchoolSettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "logoUrl" | "primaryColor" | "secondaryColor" | "motto" | "address" | "website" | "foundedYear" | "principalName" | "stamp" | "reportCardTemplate" | "reportCardLetterheadUrl" | "letterheadContentTopMm" | "letterheadContentBottomMm" | "signature" | "createdAt" | "updatedAt", ExtArgs["result"]["schoolSettings"]>
+  export type SchoolSettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "logoUrl" | "primaryColor" | "secondaryColor" | "motto" | "address" | "website" | "foundedYear" | "principalName" | "stamp" | "reportCardTemplate" | "reportCardLetterheadUrl" | "letterheadContentTopMm" | "letterheadContentBottomMm" | "allowStudentLogin" | "signature" | "createdAt" | "updatedAt", ExtArgs["result"]["schoolSettings"]>
 
   export type $SchoolSettingsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "SchoolSettings"
@@ -16878,6 +18144,7 @@ export namespace Prisma {
       reportCardLetterheadUrl: string | null
       letterheadContentTopMm: number | null
       letterheadContentBottomMm: number | null
+      allowStudentLogin: boolean
       signature: string | null
       createdAt: Date
       updatedAt: Date
@@ -17318,6 +18585,7 @@ export namespace Prisma {
     readonly reportCardLetterheadUrl: FieldRef<"SchoolSettings", 'String'>
     readonly letterheadContentTopMm: FieldRef<"SchoolSettings", 'Int'>
     readonly letterheadContentBottomMm: FieldRef<"SchoolSettings", 'Int'>
+    readonly allowStudentLogin: FieldRef<"SchoolSettings", 'Boolean'>
     readonly signature: FieldRef<"SchoolSettings", 'String'>
     readonly createdAt: FieldRef<"SchoolSettings", 'DateTime'>
     readonly updatedAt: FieldRef<"SchoolSettings", 'DateTime'>
@@ -29561,6 +30829,17 @@ export namespace Prisma {
   export type EnrolmentScalarFieldEnum = (typeof EnrolmentScalarFieldEnum)[keyof typeof EnrolmentScalarFieldEnum]
 
 
+  export const ClassProgressionScalarFieldEnum: {
+    id: 'id',
+    fromClassId: 'fromClassId',
+    toClassId: 'toClassId',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ClassProgressionScalarFieldEnum = (typeof ClassProgressionScalarFieldEnum)[keyof typeof ClassProgressionScalarFieldEnum]
+
+
   export const SchoolSettingsScalarFieldEnum: {
     id: 'id',
     logoUrl: 'logoUrl',
@@ -29576,6 +30855,7 @@ export namespace Prisma {
     reportCardLetterheadUrl: 'reportCardLetterheadUrl',
     letterheadContentTopMm: 'letterheadContentTopMm',
     letterheadContentBottomMm: 'letterheadContentBottomMm',
+    allowStudentLogin: 'allowStudentLogin',
     signature: 'signature',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -30751,6 +32031,8 @@ export namespace Prisma {
     classTeacher?: XOR<StaffNullableScalarRelationFilter, StaffWhereInput> | null
     enrolments?: EnrolmentListRelationFilter
     classSubjects?: ClassSubjectListRelationFilter
+    progressionsFrom?: ClassProgressionListRelationFilter
+    progressionsTo?: ClassProgressionListRelationFilter
   }
 
   export type ClassOrderByWithRelationInput = {
@@ -30764,6 +32046,8 @@ export namespace Prisma {
     classTeacher?: StaffOrderByWithRelationInput
     enrolments?: EnrolmentOrderByRelationAggregateInput
     classSubjects?: ClassSubjectOrderByRelationAggregateInput
+    progressionsFrom?: ClassProgressionOrderByRelationAggregateInput
+    progressionsTo?: ClassProgressionOrderByRelationAggregateInput
   }
 
   export type ClassWhereUniqueInput = Prisma.AtLeast<{
@@ -30780,6 +32064,8 @@ export namespace Prisma {
     classTeacher?: XOR<StaffNullableScalarRelationFilter, StaffWhereInput> | null
     enrolments?: EnrolmentListRelationFilter
     classSubjects?: ClassSubjectListRelationFilter
+    progressionsFrom?: ClassProgressionListRelationFilter
+    progressionsTo?: ClassProgressionListRelationFilter
   }, "id">
 
   export type ClassOrderByWithAggregationInput = {
@@ -31006,6 +32292,64 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"Enrolment"> | Date | string
   }
 
+  export type ClassProgressionWhereInput = {
+    AND?: ClassProgressionWhereInput | ClassProgressionWhereInput[]
+    OR?: ClassProgressionWhereInput[]
+    NOT?: ClassProgressionWhereInput | ClassProgressionWhereInput[]
+    id?: StringFilter<"ClassProgression"> | string
+    fromClassId?: StringFilter<"ClassProgression"> | string
+    toClassId?: StringNullableFilter<"ClassProgression"> | string | null
+    createdAt?: DateTimeFilter<"ClassProgression"> | Date | string
+    updatedAt?: DateTimeFilter<"ClassProgression"> | Date | string
+    fromClass?: XOR<ClassScalarRelationFilter, ClassWhereInput>
+    toClass?: XOR<ClassNullableScalarRelationFilter, ClassWhereInput> | null
+  }
+
+  export type ClassProgressionOrderByWithRelationInput = {
+    id?: SortOrder
+    fromClassId?: SortOrder
+    toClassId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    fromClass?: ClassOrderByWithRelationInput
+    toClass?: ClassOrderByWithRelationInput
+  }
+
+  export type ClassProgressionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    fromClassId?: string
+    AND?: ClassProgressionWhereInput | ClassProgressionWhereInput[]
+    OR?: ClassProgressionWhereInput[]
+    NOT?: ClassProgressionWhereInput | ClassProgressionWhereInput[]
+    toClassId?: StringNullableFilter<"ClassProgression"> | string | null
+    createdAt?: DateTimeFilter<"ClassProgression"> | Date | string
+    updatedAt?: DateTimeFilter<"ClassProgression"> | Date | string
+    fromClass?: XOR<ClassScalarRelationFilter, ClassWhereInput>
+    toClass?: XOR<ClassNullableScalarRelationFilter, ClassWhereInput> | null
+  }, "id" | "fromClassId">
+
+  export type ClassProgressionOrderByWithAggregationInput = {
+    id?: SortOrder
+    fromClassId?: SortOrder
+    toClassId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ClassProgressionCountOrderByAggregateInput
+    _max?: ClassProgressionMaxOrderByAggregateInput
+    _min?: ClassProgressionMinOrderByAggregateInput
+  }
+
+  export type ClassProgressionScalarWhereWithAggregatesInput = {
+    AND?: ClassProgressionScalarWhereWithAggregatesInput | ClassProgressionScalarWhereWithAggregatesInput[]
+    OR?: ClassProgressionScalarWhereWithAggregatesInput[]
+    NOT?: ClassProgressionScalarWhereWithAggregatesInput | ClassProgressionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ClassProgression"> | string
+    fromClassId?: StringWithAggregatesFilter<"ClassProgression"> | string
+    toClassId?: StringNullableWithAggregatesFilter<"ClassProgression"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"ClassProgression"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ClassProgression"> | Date | string
+  }
+
   export type SchoolSettingsWhereInput = {
     AND?: SchoolSettingsWhereInput | SchoolSettingsWhereInput[]
     OR?: SchoolSettingsWhereInput[]
@@ -31024,6 +32368,7 @@ export namespace Prisma {
     reportCardLetterheadUrl?: StringNullableFilter<"SchoolSettings"> | string | null
     letterheadContentTopMm?: IntNullableFilter<"SchoolSettings"> | number | null
     letterheadContentBottomMm?: IntNullableFilter<"SchoolSettings"> | number | null
+    allowStudentLogin?: BoolFilter<"SchoolSettings"> | boolean
     signature?: StringNullableFilter<"SchoolSettings"> | string | null
     createdAt?: DateTimeFilter<"SchoolSettings"> | Date | string
     updatedAt?: DateTimeFilter<"SchoolSettings"> | Date | string
@@ -31044,6 +32389,7 @@ export namespace Prisma {
     reportCardLetterheadUrl?: SortOrderInput | SortOrder
     letterheadContentTopMm?: SortOrderInput | SortOrder
     letterheadContentBottomMm?: SortOrderInput | SortOrder
+    allowStudentLogin?: SortOrder
     signature?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -31067,6 +32413,7 @@ export namespace Prisma {
     reportCardLetterheadUrl?: StringNullableFilter<"SchoolSettings"> | string | null
     letterheadContentTopMm?: IntNullableFilter<"SchoolSettings"> | number | null
     letterheadContentBottomMm?: IntNullableFilter<"SchoolSettings"> | number | null
+    allowStudentLogin?: BoolFilter<"SchoolSettings"> | boolean
     signature?: StringNullableFilter<"SchoolSettings"> | string | null
     createdAt?: DateTimeFilter<"SchoolSettings"> | Date | string
     updatedAt?: DateTimeFilter<"SchoolSettings"> | Date | string
@@ -31087,6 +32434,7 @@ export namespace Prisma {
     reportCardLetterheadUrl?: SortOrderInput | SortOrder
     letterheadContentTopMm?: SortOrderInput | SortOrder
     letterheadContentBottomMm?: SortOrderInput | SortOrder
+    allowStudentLogin?: SortOrder
     signature?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -31115,6 +32463,7 @@ export namespace Prisma {
     reportCardLetterheadUrl?: StringNullableWithAggregatesFilter<"SchoolSettings"> | string | null
     letterheadContentTopMm?: IntNullableWithAggregatesFilter<"SchoolSettings"> | number | null
     letterheadContentBottomMm?: IntNullableWithAggregatesFilter<"SchoolSettings"> | number | null
+    allowStudentLogin?: BoolWithAggregatesFilter<"SchoolSettings"> | boolean
     signature?: StringNullableWithAggregatesFilter<"SchoolSettings"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"SchoolSettings"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"SchoolSettings"> | Date | string
@@ -32739,6 +34088,8 @@ export namespace Prisma {
     classTeacher?: StaffCreateNestedOneWithoutClassesAsClassTeacherInput
     enrolments?: EnrolmentCreateNestedManyWithoutClassInput
     classSubjects?: ClassSubjectCreateNestedManyWithoutClassInput
+    progressionsFrom?: ClassProgressionCreateNestedManyWithoutFromClassInput
+    progressionsTo?: ClassProgressionCreateNestedManyWithoutToClassInput
   }
 
   export type ClassUncheckedCreateInput = {
@@ -32751,6 +34102,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     enrolments?: EnrolmentUncheckedCreateNestedManyWithoutClassInput
     classSubjects?: ClassSubjectUncheckedCreateNestedManyWithoutClassInput
+    progressionsFrom?: ClassProgressionUncheckedCreateNestedManyWithoutFromClassInput
+    progressionsTo?: ClassProgressionUncheckedCreateNestedManyWithoutToClassInput
   }
 
   export type ClassUpdateInput = {
@@ -32763,6 +34116,8 @@ export namespace Prisma {
     classTeacher?: StaffUpdateOneWithoutClassesAsClassTeacherNestedInput
     enrolments?: EnrolmentUpdateManyWithoutClassNestedInput
     classSubjects?: ClassSubjectUpdateManyWithoutClassNestedInput
+    progressionsFrom?: ClassProgressionUpdateManyWithoutFromClassNestedInput
+    progressionsTo?: ClassProgressionUpdateManyWithoutToClassNestedInput
   }
 
   export type ClassUncheckedUpdateInput = {
@@ -32775,6 +34130,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     enrolments?: EnrolmentUncheckedUpdateManyWithoutClassNestedInput
     classSubjects?: ClassSubjectUncheckedUpdateManyWithoutClassNestedInput
+    progressionsFrom?: ClassProgressionUncheckedUpdateManyWithoutFromClassNestedInput
+    progressionsTo?: ClassProgressionUncheckedUpdateManyWithoutToClassNestedInput
   }
 
   export type ClassCreateManyInput = {
@@ -32997,6 +34354,60 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ClassProgressionCreateInput = {
+    id?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    fromClass: ClassCreateNestedOneWithoutProgressionsFromInput
+    toClass?: ClassCreateNestedOneWithoutProgressionsToInput
+  }
+
+  export type ClassProgressionUncheckedCreateInput = {
+    id?: string
+    fromClassId: string
+    toClassId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ClassProgressionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    fromClass?: ClassUpdateOneRequiredWithoutProgressionsFromNestedInput
+    toClass?: ClassUpdateOneWithoutProgressionsToNestedInput
+  }
+
+  export type ClassProgressionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fromClassId?: StringFieldUpdateOperationsInput | string
+    toClassId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ClassProgressionCreateManyInput = {
+    id?: string
+    fromClassId: string
+    toClassId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ClassProgressionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ClassProgressionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fromClassId?: StringFieldUpdateOperationsInput | string
+    toClassId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type SchoolSettingsCreateInput = {
     id?: string
     logoUrl?: string | null
@@ -33012,6 +34423,7 @@ export namespace Prisma {
     reportCardLetterheadUrl?: string | null
     letterheadContentTopMm?: number | null
     letterheadContentBottomMm?: number | null
+    allowStudentLogin?: boolean
     signature?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -33032,6 +34444,7 @@ export namespace Prisma {
     reportCardLetterheadUrl?: string | null
     letterheadContentTopMm?: number | null
     letterheadContentBottomMm?: number | null
+    allowStudentLogin?: boolean
     signature?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -33052,6 +34465,7 @@ export namespace Prisma {
     reportCardLetterheadUrl?: NullableStringFieldUpdateOperationsInput | string | null
     letterheadContentTopMm?: NullableIntFieldUpdateOperationsInput | number | null
     letterheadContentBottomMm?: NullableIntFieldUpdateOperationsInput | number | null
+    allowStudentLogin?: BoolFieldUpdateOperationsInput | boolean
     signature?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -33072,6 +34486,7 @@ export namespace Prisma {
     reportCardLetterheadUrl?: NullableStringFieldUpdateOperationsInput | string | null
     letterheadContentTopMm?: NullableIntFieldUpdateOperationsInput | number | null
     letterheadContentBottomMm?: NullableIntFieldUpdateOperationsInput | number | null
+    allowStudentLogin?: BoolFieldUpdateOperationsInput | boolean
     signature?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -33092,6 +34507,7 @@ export namespace Prisma {
     reportCardLetterheadUrl?: string | null
     letterheadContentTopMm?: number | null
     letterheadContentBottomMm?: number | null
+    allowStudentLogin?: boolean
     signature?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -33112,6 +34528,7 @@ export namespace Prisma {
     reportCardLetterheadUrl?: NullableStringFieldUpdateOperationsInput | string | null
     letterheadContentTopMm?: NullableIntFieldUpdateOperationsInput | number | null
     letterheadContentBottomMm?: NullableIntFieldUpdateOperationsInput | number | null
+    allowStudentLogin?: BoolFieldUpdateOperationsInput | boolean
     signature?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -33132,6 +34549,7 @@ export namespace Prisma {
     reportCardLetterheadUrl?: NullableStringFieldUpdateOperationsInput | string | null
     letterheadContentTopMm?: NullableIntFieldUpdateOperationsInput | number | null
     letterheadContentBottomMm?: NullableIntFieldUpdateOperationsInput | number | null
+    allowStudentLogin?: BoolFieldUpdateOperationsInput | boolean
     signature?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34743,6 +36161,16 @@ export namespace Prisma {
     isNot?: StaffWhereInput | null
   }
 
+  export type ClassProgressionListRelationFilter = {
+    every?: ClassProgressionWhereInput
+    some?: ClassProgressionWhereInput
+    none?: ClassProgressionWhereInput
+  }
+
+  export type ClassProgressionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type ClassCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
@@ -34920,6 +36348,35 @@ export namespace Prisma {
     _max?: NestedEnumEnrolmentStatusFilter<$PrismaModel>
   }
 
+  export type ClassNullableScalarRelationFilter = {
+    is?: ClassWhereInput | null
+    isNot?: ClassWhereInput | null
+  }
+
+  export type ClassProgressionCountOrderByAggregateInput = {
+    id?: SortOrder
+    fromClassId?: SortOrder
+    toClassId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ClassProgressionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    fromClassId?: SortOrder
+    toClassId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ClassProgressionMinOrderByAggregateInput = {
+    id?: SortOrder
+    fromClassId?: SortOrder
+    toClassId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
   export type SchoolSettingsCountOrderByAggregateInput = {
     id?: SortOrder
     logoUrl?: SortOrder
@@ -34935,6 +36392,7 @@ export namespace Prisma {
     reportCardLetterheadUrl?: SortOrder
     letterheadContentTopMm?: SortOrder
     letterheadContentBottomMm?: SortOrder
+    allowStudentLogin?: SortOrder
     signature?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -34961,6 +36419,7 @@ export namespace Prisma {
     reportCardLetterheadUrl?: SortOrder
     letterheadContentTopMm?: SortOrder
     letterheadContentBottomMm?: SortOrder
+    allowStudentLogin?: SortOrder
     signature?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -34981,6 +36440,7 @@ export namespace Prisma {
     reportCardLetterheadUrl?: SortOrder
     letterheadContentTopMm?: SortOrder
     letterheadContentBottomMm?: SortOrder
+    allowStudentLogin?: SortOrder
     signature?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -36726,6 +38186,20 @@ export namespace Prisma {
     connect?: ClassSubjectWhereUniqueInput | ClassSubjectWhereUniqueInput[]
   }
 
+  export type ClassProgressionCreateNestedManyWithoutFromClassInput = {
+    create?: XOR<ClassProgressionCreateWithoutFromClassInput, ClassProgressionUncheckedCreateWithoutFromClassInput> | ClassProgressionCreateWithoutFromClassInput[] | ClassProgressionUncheckedCreateWithoutFromClassInput[]
+    connectOrCreate?: ClassProgressionCreateOrConnectWithoutFromClassInput | ClassProgressionCreateOrConnectWithoutFromClassInput[]
+    createMany?: ClassProgressionCreateManyFromClassInputEnvelope
+    connect?: ClassProgressionWhereUniqueInput | ClassProgressionWhereUniqueInput[]
+  }
+
+  export type ClassProgressionCreateNestedManyWithoutToClassInput = {
+    create?: XOR<ClassProgressionCreateWithoutToClassInput, ClassProgressionUncheckedCreateWithoutToClassInput> | ClassProgressionCreateWithoutToClassInput[] | ClassProgressionUncheckedCreateWithoutToClassInput[]
+    connectOrCreate?: ClassProgressionCreateOrConnectWithoutToClassInput | ClassProgressionCreateOrConnectWithoutToClassInput[]
+    createMany?: ClassProgressionCreateManyToClassInputEnvelope
+    connect?: ClassProgressionWhereUniqueInput | ClassProgressionWhereUniqueInput[]
+  }
+
   export type EnrolmentUncheckedCreateNestedManyWithoutClassInput = {
     create?: XOR<EnrolmentCreateWithoutClassInput, EnrolmentUncheckedCreateWithoutClassInput> | EnrolmentCreateWithoutClassInput[] | EnrolmentUncheckedCreateWithoutClassInput[]
     connectOrCreate?: EnrolmentCreateOrConnectWithoutClassInput | EnrolmentCreateOrConnectWithoutClassInput[]
@@ -36738,6 +38212,20 @@ export namespace Prisma {
     connectOrCreate?: ClassSubjectCreateOrConnectWithoutClassInput | ClassSubjectCreateOrConnectWithoutClassInput[]
     createMany?: ClassSubjectCreateManyClassInputEnvelope
     connect?: ClassSubjectWhereUniqueInput | ClassSubjectWhereUniqueInput[]
+  }
+
+  export type ClassProgressionUncheckedCreateNestedManyWithoutFromClassInput = {
+    create?: XOR<ClassProgressionCreateWithoutFromClassInput, ClassProgressionUncheckedCreateWithoutFromClassInput> | ClassProgressionCreateWithoutFromClassInput[] | ClassProgressionUncheckedCreateWithoutFromClassInput[]
+    connectOrCreate?: ClassProgressionCreateOrConnectWithoutFromClassInput | ClassProgressionCreateOrConnectWithoutFromClassInput[]
+    createMany?: ClassProgressionCreateManyFromClassInputEnvelope
+    connect?: ClassProgressionWhereUniqueInput | ClassProgressionWhereUniqueInput[]
+  }
+
+  export type ClassProgressionUncheckedCreateNestedManyWithoutToClassInput = {
+    create?: XOR<ClassProgressionCreateWithoutToClassInput, ClassProgressionUncheckedCreateWithoutToClassInput> | ClassProgressionCreateWithoutToClassInput[] | ClassProgressionUncheckedCreateWithoutToClassInput[]
+    connectOrCreate?: ClassProgressionCreateOrConnectWithoutToClassInput | ClassProgressionCreateOrConnectWithoutToClassInput[]
+    createMany?: ClassProgressionCreateManyToClassInputEnvelope
+    connect?: ClassProgressionWhereUniqueInput | ClassProgressionWhereUniqueInput[]
   }
 
   export type NullableIntFieldUpdateOperationsInput = {
@@ -36786,6 +38274,34 @@ export namespace Prisma {
     deleteMany?: ClassSubjectScalarWhereInput | ClassSubjectScalarWhereInput[]
   }
 
+  export type ClassProgressionUpdateManyWithoutFromClassNestedInput = {
+    create?: XOR<ClassProgressionCreateWithoutFromClassInput, ClassProgressionUncheckedCreateWithoutFromClassInput> | ClassProgressionCreateWithoutFromClassInput[] | ClassProgressionUncheckedCreateWithoutFromClassInput[]
+    connectOrCreate?: ClassProgressionCreateOrConnectWithoutFromClassInput | ClassProgressionCreateOrConnectWithoutFromClassInput[]
+    upsert?: ClassProgressionUpsertWithWhereUniqueWithoutFromClassInput | ClassProgressionUpsertWithWhereUniqueWithoutFromClassInput[]
+    createMany?: ClassProgressionCreateManyFromClassInputEnvelope
+    set?: ClassProgressionWhereUniqueInput | ClassProgressionWhereUniqueInput[]
+    disconnect?: ClassProgressionWhereUniqueInput | ClassProgressionWhereUniqueInput[]
+    delete?: ClassProgressionWhereUniqueInput | ClassProgressionWhereUniqueInput[]
+    connect?: ClassProgressionWhereUniqueInput | ClassProgressionWhereUniqueInput[]
+    update?: ClassProgressionUpdateWithWhereUniqueWithoutFromClassInput | ClassProgressionUpdateWithWhereUniqueWithoutFromClassInput[]
+    updateMany?: ClassProgressionUpdateManyWithWhereWithoutFromClassInput | ClassProgressionUpdateManyWithWhereWithoutFromClassInput[]
+    deleteMany?: ClassProgressionScalarWhereInput | ClassProgressionScalarWhereInput[]
+  }
+
+  export type ClassProgressionUpdateManyWithoutToClassNestedInput = {
+    create?: XOR<ClassProgressionCreateWithoutToClassInput, ClassProgressionUncheckedCreateWithoutToClassInput> | ClassProgressionCreateWithoutToClassInput[] | ClassProgressionUncheckedCreateWithoutToClassInput[]
+    connectOrCreate?: ClassProgressionCreateOrConnectWithoutToClassInput | ClassProgressionCreateOrConnectWithoutToClassInput[]
+    upsert?: ClassProgressionUpsertWithWhereUniqueWithoutToClassInput | ClassProgressionUpsertWithWhereUniqueWithoutToClassInput[]
+    createMany?: ClassProgressionCreateManyToClassInputEnvelope
+    set?: ClassProgressionWhereUniqueInput | ClassProgressionWhereUniqueInput[]
+    disconnect?: ClassProgressionWhereUniqueInput | ClassProgressionWhereUniqueInput[]
+    delete?: ClassProgressionWhereUniqueInput | ClassProgressionWhereUniqueInput[]
+    connect?: ClassProgressionWhereUniqueInput | ClassProgressionWhereUniqueInput[]
+    update?: ClassProgressionUpdateWithWhereUniqueWithoutToClassInput | ClassProgressionUpdateWithWhereUniqueWithoutToClassInput[]
+    updateMany?: ClassProgressionUpdateManyWithWhereWithoutToClassInput | ClassProgressionUpdateManyWithWhereWithoutToClassInput[]
+    deleteMany?: ClassProgressionScalarWhereInput | ClassProgressionScalarWhereInput[]
+  }
+
   export type EnrolmentUncheckedUpdateManyWithoutClassNestedInput = {
     create?: XOR<EnrolmentCreateWithoutClassInput, EnrolmentUncheckedCreateWithoutClassInput> | EnrolmentCreateWithoutClassInput[] | EnrolmentUncheckedCreateWithoutClassInput[]
     connectOrCreate?: EnrolmentCreateOrConnectWithoutClassInput | EnrolmentCreateOrConnectWithoutClassInput[]
@@ -36812,6 +38328,34 @@ export namespace Prisma {
     update?: ClassSubjectUpdateWithWhereUniqueWithoutClassInput | ClassSubjectUpdateWithWhereUniqueWithoutClassInput[]
     updateMany?: ClassSubjectUpdateManyWithWhereWithoutClassInput | ClassSubjectUpdateManyWithWhereWithoutClassInput[]
     deleteMany?: ClassSubjectScalarWhereInput | ClassSubjectScalarWhereInput[]
+  }
+
+  export type ClassProgressionUncheckedUpdateManyWithoutFromClassNestedInput = {
+    create?: XOR<ClassProgressionCreateWithoutFromClassInput, ClassProgressionUncheckedCreateWithoutFromClassInput> | ClassProgressionCreateWithoutFromClassInput[] | ClassProgressionUncheckedCreateWithoutFromClassInput[]
+    connectOrCreate?: ClassProgressionCreateOrConnectWithoutFromClassInput | ClassProgressionCreateOrConnectWithoutFromClassInput[]
+    upsert?: ClassProgressionUpsertWithWhereUniqueWithoutFromClassInput | ClassProgressionUpsertWithWhereUniqueWithoutFromClassInput[]
+    createMany?: ClassProgressionCreateManyFromClassInputEnvelope
+    set?: ClassProgressionWhereUniqueInput | ClassProgressionWhereUniqueInput[]
+    disconnect?: ClassProgressionWhereUniqueInput | ClassProgressionWhereUniqueInput[]
+    delete?: ClassProgressionWhereUniqueInput | ClassProgressionWhereUniqueInput[]
+    connect?: ClassProgressionWhereUniqueInput | ClassProgressionWhereUniqueInput[]
+    update?: ClassProgressionUpdateWithWhereUniqueWithoutFromClassInput | ClassProgressionUpdateWithWhereUniqueWithoutFromClassInput[]
+    updateMany?: ClassProgressionUpdateManyWithWhereWithoutFromClassInput | ClassProgressionUpdateManyWithWhereWithoutFromClassInput[]
+    deleteMany?: ClassProgressionScalarWhereInput | ClassProgressionScalarWhereInput[]
+  }
+
+  export type ClassProgressionUncheckedUpdateManyWithoutToClassNestedInput = {
+    create?: XOR<ClassProgressionCreateWithoutToClassInput, ClassProgressionUncheckedCreateWithoutToClassInput> | ClassProgressionCreateWithoutToClassInput[] | ClassProgressionUncheckedCreateWithoutToClassInput[]
+    connectOrCreate?: ClassProgressionCreateOrConnectWithoutToClassInput | ClassProgressionCreateOrConnectWithoutToClassInput[]
+    upsert?: ClassProgressionUpsertWithWhereUniqueWithoutToClassInput | ClassProgressionUpsertWithWhereUniqueWithoutToClassInput[]
+    createMany?: ClassProgressionCreateManyToClassInputEnvelope
+    set?: ClassProgressionWhereUniqueInput | ClassProgressionWhereUniqueInput[]
+    disconnect?: ClassProgressionWhereUniqueInput | ClassProgressionWhereUniqueInput[]
+    delete?: ClassProgressionWhereUniqueInput | ClassProgressionWhereUniqueInput[]
+    connect?: ClassProgressionWhereUniqueInput | ClassProgressionWhereUniqueInput[]
+    update?: ClassProgressionUpdateWithWhereUniqueWithoutToClassInput | ClassProgressionUpdateWithWhereUniqueWithoutToClassInput[]
+    updateMany?: ClassProgressionUpdateManyWithWhereWithoutToClassInput | ClassProgressionUpdateManyWithWhereWithoutToClassInput[]
+    deleteMany?: ClassProgressionScalarWhereInput | ClassProgressionScalarWhereInput[]
   }
 
   export type ClassSubjectCreateNestedManyWithoutSubjectInput = {
@@ -36984,6 +38528,36 @@ export namespace Prisma {
     upsert?: TermUpsertWithoutEnrolmentsInput
     connect?: TermWhereUniqueInput
     update?: XOR<XOR<TermUpdateToOneWithWhereWithoutEnrolmentsInput, TermUpdateWithoutEnrolmentsInput>, TermUncheckedUpdateWithoutEnrolmentsInput>
+  }
+
+  export type ClassCreateNestedOneWithoutProgressionsFromInput = {
+    create?: XOR<ClassCreateWithoutProgressionsFromInput, ClassUncheckedCreateWithoutProgressionsFromInput>
+    connectOrCreate?: ClassCreateOrConnectWithoutProgressionsFromInput
+    connect?: ClassWhereUniqueInput
+  }
+
+  export type ClassCreateNestedOneWithoutProgressionsToInput = {
+    create?: XOR<ClassCreateWithoutProgressionsToInput, ClassUncheckedCreateWithoutProgressionsToInput>
+    connectOrCreate?: ClassCreateOrConnectWithoutProgressionsToInput
+    connect?: ClassWhereUniqueInput
+  }
+
+  export type ClassUpdateOneRequiredWithoutProgressionsFromNestedInput = {
+    create?: XOR<ClassCreateWithoutProgressionsFromInput, ClassUncheckedCreateWithoutProgressionsFromInput>
+    connectOrCreate?: ClassCreateOrConnectWithoutProgressionsFromInput
+    upsert?: ClassUpsertWithoutProgressionsFromInput
+    connect?: ClassWhereUniqueInput
+    update?: XOR<XOR<ClassUpdateToOneWithWhereWithoutProgressionsFromInput, ClassUpdateWithoutProgressionsFromInput>, ClassUncheckedUpdateWithoutProgressionsFromInput>
+  }
+
+  export type ClassUpdateOneWithoutProgressionsToNestedInput = {
+    create?: XOR<ClassCreateWithoutProgressionsToInput, ClassUncheckedCreateWithoutProgressionsToInput>
+    connectOrCreate?: ClassCreateOrConnectWithoutProgressionsToInput
+    upsert?: ClassUpsertWithoutProgressionsToInput
+    disconnect?: ClassWhereInput | boolean
+    delete?: ClassWhereInput | boolean
+    connect?: ClassWhereUniqueInput
+    update?: XOR<XOR<ClassUpdateToOneWithWhereWithoutProgressionsToInput, ClassUpdateWithoutProgressionsToInput>, ClassUncheckedUpdateWithoutProgressionsToInput>
   }
 
   export type StudentCreateNestedOneWithoutAttendancesInput = {
@@ -37979,6 +39553,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     enrolments?: EnrolmentCreateNestedManyWithoutClassInput
     classSubjects?: ClassSubjectCreateNestedManyWithoutClassInput
+    progressionsFrom?: ClassProgressionCreateNestedManyWithoutFromClassInput
+    progressionsTo?: ClassProgressionCreateNestedManyWithoutToClassInput
   }
 
   export type ClassUncheckedCreateWithoutClassTeacherInput = {
@@ -37990,6 +39566,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     enrolments?: EnrolmentUncheckedCreateNestedManyWithoutClassInput
     classSubjects?: ClassSubjectUncheckedCreateNestedManyWithoutClassInput
+    progressionsFrom?: ClassProgressionUncheckedCreateNestedManyWithoutFromClassInput
+    progressionsTo?: ClassProgressionUncheckedCreateNestedManyWithoutToClassInput
   }
 
   export type ClassCreateOrConnectWithoutClassTeacherInput = {
@@ -39527,6 +41105,54 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type ClassProgressionCreateWithoutFromClassInput = {
+    id?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    toClass?: ClassCreateNestedOneWithoutProgressionsToInput
+  }
+
+  export type ClassProgressionUncheckedCreateWithoutFromClassInput = {
+    id?: string
+    toClassId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ClassProgressionCreateOrConnectWithoutFromClassInput = {
+    where: ClassProgressionWhereUniqueInput
+    create: XOR<ClassProgressionCreateWithoutFromClassInput, ClassProgressionUncheckedCreateWithoutFromClassInput>
+  }
+
+  export type ClassProgressionCreateManyFromClassInputEnvelope = {
+    data: ClassProgressionCreateManyFromClassInput | ClassProgressionCreateManyFromClassInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ClassProgressionCreateWithoutToClassInput = {
+    id?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    fromClass: ClassCreateNestedOneWithoutProgressionsFromInput
+  }
+
+  export type ClassProgressionUncheckedCreateWithoutToClassInput = {
+    id?: string
+    fromClassId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ClassProgressionCreateOrConnectWithoutToClassInput = {
+    where: ClassProgressionWhereUniqueInput
+    create: XOR<ClassProgressionCreateWithoutToClassInput, ClassProgressionUncheckedCreateWithoutToClassInput>
+  }
+
+  export type ClassProgressionCreateManyToClassInputEnvelope = {
+    data: ClassProgressionCreateManyToClassInput | ClassProgressionCreateManyToClassInput[]
+    skipDuplicates?: boolean
+  }
+
   export type StaffUpsertWithoutClassesAsClassTeacherInput = {
     update: XOR<StaffUpdateWithoutClassesAsClassTeacherInput, StaffUncheckedUpdateWithoutClassesAsClassTeacherInput>
     create: XOR<StaffCreateWithoutClassesAsClassTeacherInput, StaffUncheckedCreateWithoutClassesAsClassTeacherInput>
@@ -39606,6 +41232,49 @@ export namespace Prisma {
     data: XOR<ClassSubjectUpdateManyMutationInput, ClassSubjectUncheckedUpdateManyWithoutClassInput>
   }
 
+  export type ClassProgressionUpsertWithWhereUniqueWithoutFromClassInput = {
+    where: ClassProgressionWhereUniqueInput
+    update: XOR<ClassProgressionUpdateWithoutFromClassInput, ClassProgressionUncheckedUpdateWithoutFromClassInput>
+    create: XOR<ClassProgressionCreateWithoutFromClassInput, ClassProgressionUncheckedCreateWithoutFromClassInput>
+  }
+
+  export type ClassProgressionUpdateWithWhereUniqueWithoutFromClassInput = {
+    where: ClassProgressionWhereUniqueInput
+    data: XOR<ClassProgressionUpdateWithoutFromClassInput, ClassProgressionUncheckedUpdateWithoutFromClassInput>
+  }
+
+  export type ClassProgressionUpdateManyWithWhereWithoutFromClassInput = {
+    where: ClassProgressionScalarWhereInput
+    data: XOR<ClassProgressionUpdateManyMutationInput, ClassProgressionUncheckedUpdateManyWithoutFromClassInput>
+  }
+
+  export type ClassProgressionScalarWhereInput = {
+    AND?: ClassProgressionScalarWhereInput | ClassProgressionScalarWhereInput[]
+    OR?: ClassProgressionScalarWhereInput[]
+    NOT?: ClassProgressionScalarWhereInput | ClassProgressionScalarWhereInput[]
+    id?: StringFilter<"ClassProgression"> | string
+    fromClassId?: StringFilter<"ClassProgression"> | string
+    toClassId?: StringNullableFilter<"ClassProgression"> | string | null
+    createdAt?: DateTimeFilter<"ClassProgression"> | Date | string
+    updatedAt?: DateTimeFilter<"ClassProgression"> | Date | string
+  }
+
+  export type ClassProgressionUpsertWithWhereUniqueWithoutToClassInput = {
+    where: ClassProgressionWhereUniqueInput
+    update: XOR<ClassProgressionUpdateWithoutToClassInput, ClassProgressionUncheckedUpdateWithoutToClassInput>
+    create: XOR<ClassProgressionCreateWithoutToClassInput, ClassProgressionUncheckedCreateWithoutToClassInput>
+  }
+
+  export type ClassProgressionUpdateWithWhereUniqueWithoutToClassInput = {
+    where: ClassProgressionWhereUniqueInput
+    data: XOR<ClassProgressionUpdateWithoutToClassInput, ClassProgressionUncheckedUpdateWithoutToClassInput>
+  }
+
+  export type ClassProgressionUpdateManyWithWhereWithoutToClassInput = {
+    where: ClassProgressionScalarWhereInput
+    data: XOR<ClassProgressionUpdateManyMutationInput, ClassProgressionUncheckedUpdateManyWithoutToClassInput>
+  }
+
   export type ClassSubjectCreateWithoutSubjectInput = {
     id?: string
     createdAt?: Date | string
@@ -39657,6 +41326,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     classTeacher?: StaffCreateNestedOneWithoutClassesAsClassTeacherInput
     enrolments?: EnrolmentCreateNestedManyWithoutClassInput
+    progressionsFrom?: ClassProgressionCreateNestedManyWithoutFromClassInput
+    progressionsTo?: ClassProgressionCreateNestedManyWithoutToClassInput
   }
 
   export type ClassUncheckedCreateWithoutClassSubjectsInput = {
@@ -39668,6 +41339,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     enrolments?: EnrolmentUncheckedCreateNestedManyWithoutClassInput
+    progressionsFrom?: ClassProgressionUncheckedCreateNestedManyWithoutFromClassInput
+    progressionsTo?: ClassProgressionUncheckedCreateNestedManyWithoutToClassInput
   }
 
   export type ClassCreateOrConnectWithoutClassSubjectsInput = {
@@ -39801,6 +41474,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     classTeacher?: StaffUpdateOneWithoutClassesAsClassTeacherNestedInput
     enrolments?: EnrolmentUpdateManyWithoutClassNestedInput
+    progressionsFrom?: ClassProgressionUpdateManyWithoutFromClassNestedInput
+    progressionsTo?: ClassProgressionUpdateManyWithoutToClassNestedInput
   }
 
   export type ClassUncheckedUpdateWithoutClassSubjectsInput = {
@@ -39812,6 +41487,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     enrolments?: EnrolmentUncheckedUpdateManyWithoutClassNestedInput
+    progressionsFrom?: ClassProgressionUncheckedUpdateManyWithoutFromClassNestedInput
+    progressionsTo?: ClassProgressionUncheckedUpdateManyWithoutToClassNestedInput
   }
 
   export type SubjectUpsertWithoutClassSubjectsInput = {
@@ -39972,6 +41649,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     classTeacher?: StaffCreateNestedOneWithoutClassesAsClassTeacherInput
     classSubjects?: ClassSubjectCreateNestedManyWithoutClassInput
+    progressionsFrom?: ClassProgressionCreateNestedManyWithoutFromClassInput
+    progressionsTo?: ClassProgressionCreateNestedManyWithoutToClassInput
   }
 
   export type ClassUncheckedCreateWithoutEnrolmentsInput = {
@@ -39983,6 +41662,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     classSubjects?: ClassSubjectUncheckedCreateNestedManyWithoutClassInput
+    progressionsFrom?: ClassProgressionUncheckedCreateNestedManyWithoutFromClassInput
+    progressionsTo?: ClassProgressionUncheckedCreateNestedManyWithoutToClassInput
   }
 
   export type ClassCreateOrConnectWithoutEnrolmentsInput = {
@@ -40110,6 +41791,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     classTeacher?: StaffUpdateOneWithoutClassesAsClassTeacherNestedInput
     classSubjects?: ClassSubjectUpdateManyWithoutClassNestedInput
+    progressionsFrom?: ClassProgressionUpdateManyWithoutFromClassNestedInput
+    progressionsTo?: ClassProgressionUpdateManyWithoutToClassNestedInput
   }
 
   export type ClassUncheckedUpdateWithoutEnrolmentsInput = {
@@ -40121,6 +41804,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     classSubjects?: ClassSubjectUncheckedUpdateManyWithoutClassNestedInput
+    progressionsFrom?: ClassProgressionUncheckedUpdateManyWithoutFromClassNestedInput
+    progressionsTo?: ClassProgressionUncheckedUpdateManyWithoutToClassNestedInput
   }
 
   export type TermUpsertWithoutEnrolmentsInput = {
@@ -40164,6 +41849,142 @@ export namespace Prisma {
     grades?: GradeUncheckedUpdateManyWithoutTermNestedInput
     feeInvoices?: FeeInvoiceUncheckedUpdateManyWithoutTermNestedInput
     reportCards?: ReportCardUncheckedUpdateManyWithoutTermNestedInput
+  }
+
+  export type ClassCreateWithoutProgressionsFromInput = {
+    id?: string
+    name: string
+    level?: string | null
+    capacity?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    classTeacher?: StaffCreateNestedOneWithoutClassesAsClassTeacherInput
+    enrolments?: EnrolmentCreateNestedManyWithoutClassInput
+    classSubjects?: ClassSubjectCreateNestedManyWithoutClassInput
+    progressionsTo?: ClassProgressionCreateNestedManyWithoutToClassInput
+  }
+
+  export type ClassUncheckedCreateWithoutProgressionsFromInput = {
+    id?: string
+    name: string
+    level?: string | null
+    capacity?: number | null
+    classTeacherId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    enrolments?: EnrolmentUncheckedCreateNestedManyWithoutClassInput
+    classSubjects?: ClassSubjectUncheckedCreateNestedManyWithoutClassInput
+    progressionsTo?: ClassProgressionUncheckedCreateNestedManyWithoutToClassInput
+  }
+
+  export type ClassCreateOrConnectWithoutProgressionsFromInput = {
+    where: ClassWhereUniqueInput
+    create: XOR<ClassCreateWithoutProgressionsFromInput, ClassUncheckedCreateWithoutProgressionsFromInput>
+  }
+
+  export type ClassCreateWithoutProgressionsToInput = {
+    id?: string
+    name: string
+    level?: string | null
+    capacity?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    classTeacher?: StaffCreateNestedOneWithoutClassesAsClassTeacherInput
+    enrolments?: EnrolmentCreateNestedManyWithoutClassInput
+    classSubjects?: ClassSubjectCreateNestedManyWithoutClassInput
+    progressionsFrom?: ClassProgressionCreateNestedManyWithoutFromClassInput
+  }
+
+  export type ClassUncheckedCreateWithoutProgressionsToInput = {
+    id?: string
+    name: string
+    level?: string | null
+    capacity?: number | null
+    classTeacherId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    enrolments?: EnrolmentUncheckedCreateNestedManyWithoutClassInput
+    classSubjects?: ClassSubjectUncheckedCreateNestedManyWithoutClassInput
+    progressionsFrom?: ClassProgressionUncheckedCreateNestedManyWithoutFromClassInput
+  }
+
+  export type ClassCreateOrConnectWithoutProgressionsToInput = {
+    where: ClassWhereUniqueInput
+    create: XOR<ClassCreateWithoutProgressionsToInput, ClassUncheckedCreateWithoutProgressionsToInput>
+  }
+
+  export type ClassUpsertWithoutProgressionsFromInput = {
+    update: XOR<ClassUpdateWithoutProgressionsFromInput, ClassUncheckedUpdateWithoutProgressionsFromInput>
+    create: XOR<ClassCreateWithoutProgressionsFromInput, ClassUncheckedCreateWithoutProgressionsFromInput>
+    where?: ClassWhereInput
+  }
+
+  export type ClassUpdateToOneWithWhereWithoutProgressionsFromInput = {
+    where?: ClassWhereInput
+    data: XOR<ClassUpdateWithoutProgressionsFromInput, ClassUncheckedUpdateWithoutProgressionsFromInput>
+  }
+
+  export type ClassUpdateWithoutProgressionsFromInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    level?: NullableStringFieldUpdateOperationsInput | string | null
+    capacity?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    classTeacher?: StaffUpdateOneWithoutClassesAsClassTeacherNestedInput
+    enrolments?: EnrolmentUpdateManyWithoutClassNestedInput
+    classSubjects?: ClassSubjectUpdateManyWithoutClassNestedInput
+    progressionsTo?: ClassProgressionUpdateManyWithoutToClassNestedInput
+  }
+
+  export type ClassUncheckedUpdateWithoutProgressionsFromInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    level?: NullableStringFieldUpdateOperationsInput | string | null
+    capacity?: NullableIntFieldUpdateOperationsInput | number | null
+    classTeacherId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    enrolments?: EnrolmentUncheckedUpdateManyWithoutClassNestedInput
+    classSubjects?: ClassSubjectUncheckedUpdateManyWithoutClassNestedInput
+    progressionsTo?: ClassProgressionUncheckedUpdateManyWithoutToClassNestedInput
+  }
+
+  export type ClassUpsertWithoutProgressionsToInput = {
+    update: XOR<ClassUpdateWithoutProgressionsToInput, ClassUncheckedUpdateWithoutProgressionsToInput>
+    create: XOR<ClassCreateWithoutProgressionsToInput, ClassUncheckedCreateWithoutProgressionsToInput>
+    where?: ClassWhereInput
+  }
+
+  export type ClassUpdateToOneWithWhereWithoutProgressionsToInput = {
+    where?: ClassWhereInput
+    data: XOR<ClassUpdateWithoutProgressionsToInput, ClassUncheckedUpdateWithoutProgressionsToInput>
+  }
+
+  export type ClassUpdateWithoutProgressionsToInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    level?: NullableStringFieldUpdateOperationsInput | string | null
+    capacity?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    classTeacher?: StaffUpdateOneWithoutClassesAsClassTeacherNestedInput
+    enrolments?: EnrolmentUpdateManyWithoutClassNestedInput
+    classSubjects?: ClassSubjectUpdateManyWithoutClassNestedInput
+    progressionsFrom?: ClassProgressionUpdateManyWithoutFromClassNestedInput
+  }
+
+  export type ClassUncheckedUpdateWithoutProgressionsToInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    level?: NullableStringFieldUpdateOperationsInput | string | null
+    capacity?: NullableIntFieldUpdateOperationsInput | number | null
+    classTeacherId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    enrolments?: EnrolmentUncheckedUpdateManyWithoutClassNestedInput
+    classSubjects?: ClassSubjectUncheckedUpdateManyWithoutClassNestedInput
+    progressionsFrom?: ClassProgressionUncheckedUpdateManyWithoutFromClassNestedInput
   }
 
   export type StudentCreateWithoutAttendancesInput = {
@@ -41622,6 +43443,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     enrolments?: EnrolmentUpdateManyWithoutClassNestedInput
     classSubjects?: ClassSubjectUpdateManyWithoutClassNestedInput
+    progressionsFrom?: ClassProgressionUpdateManyWithoutFromClassNestedInput
+    progressionsTo?: ClassProgressionUpdateManyWithoutToClassNestedInput
   }
 
   export type ClassUncheckedUpdateWithoutClassTeacherInput = {
@@ -41633,6 +43456,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     enrolments?: EnrolmentUncheckedUpdateManyWithoutClassNestedInput
     classSubjects?: ClassSubjectUncheckedUpdateManyWithoutClassNestedInput
+    progressionsFrom?: ClassProgressionUncheckedUpdateManyWithoutFromClassNestedInput
+    progressionsTo?: ClassProgressionUncheckedUpdateManyWithoutToClassNestedInput
   }
 
   export type ClassUncheckedUpdateManyWithoutClassTeacherInput = {
@@ -42468,6 +44293,20 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
+  export type ClassProgressionCreateManyFromClassInput = {
+    id?: string
+    toClassId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ClassProgressionCreateManyToClassInput = {
+    id?: string
+    fromClassId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type EnrolmentUpdateWithoutClassInput = {
     id?: StringFieldUpdateOperationsInput | string
     status?: EnumEnrolmentStatusFieldUpdateOperationsInput | $Enums.EnrolmentStatus
@@ -42516,6 +44355,48 @@ export namespace Prisma {
     subjectId?: StringFieldUpdateOperationsInput | string
     staffId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ClassProgressionUpdateWithoutFromClassInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    toClass?: ClassUpdateOneWithoutProgressionsToNestedInput
+  }
+
+  export type ClassProgressionUncheckedUpdateWithoutFromClassInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    toClassId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ClassProgressionUncheckedUpdateManyWithoutFromClassInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    toClassId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ClassProgressionUpdateWithoutToClassInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    fromClass?: ClassUpdateOneRequiredWithoutProgressionsFromNestedInput
+  }
+
+  export type ClassProgressionUncheckedUpdateWithoutToClassInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fromClassId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ClassProgressionUncheckedUpdateManyWithoutToClassInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fromClassId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ClassSubjectCreateManySubjectInput = {

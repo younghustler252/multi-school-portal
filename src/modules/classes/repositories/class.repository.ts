@@ -3,11 +3,8 @@ import {
     ClassEntity,
     SubjectEntity,
     ClassSubjectEntity,
+    ClassProgressionEntity
 }                        from "../domain/class.entity";
-import {
-    PaginatedResult,
-    PaginateParams,
-}                        from "../../../infrastructure/repository/base.repository";
 
 /*
 |--------------------------------------------------------------------------
@@ -82,4 +79,28 @@ export interface IClassRepository {
         subjectName:    string;
         subjectCode:    string | null;
     }>>;
+
+    // ── Class Progressions ────────────────────────────────────────────────
+    findClassProgression(
+        fromClassId: string,
+    ): Promise<ClassProgressionEntity | null>;
+
+    setClassProgression(
+        data: Prisma.ClassProgressionUncheckedCreateInput,
+    ): Promise<ClassProgressionEntity>;
+
+    // ── Class Progressions ────────────────────────────────────────────────
+    findClassProgressionEnriched(
+        fromClassId: string,
+    ): Promise<{
+        id: string;
+        fromClassId: string;
+        fromClassName: string;
+        toClassId: string | null;
+        toClassName: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+    } | null>;
+
+
 }

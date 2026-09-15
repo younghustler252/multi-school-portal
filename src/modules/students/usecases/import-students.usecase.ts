@@ -1,4 +1,5 @@
 import { parse } from "csv-parse/sync";
+import { AuditService } from "../../audit/services/audit.service";
 import { IStudentRepository } from "../repositories/student.repository";
 import { IClassRepository } from "../../classes/repositories/class.repository";
 import { IEnrolmentRepository } from "../../enrolment/repositories/enrolment.repository";
@@ -12,6 +13,7 @@ interface Dependencies {
 	enrolmentRepository: IEnrolmentRepository;
 	sessionRepository: ISessionRepository;
 	createGuardianUseCase: CreateGuardianUseCase;
+	auditService: AuditService;
 }
 
 export interface ImportRowResult {
@@ -34,6 +36,7 @@ export class ImportStudentsUseCase {
 	private readonly enrolmentRepository: IEnrolmentRepository;
 	private readonly sessionRepository: ISessionRepository;
 	private readonly createGuardianUseCase: CreateGuardianUseCase;
+	private readonly auditService: AuditService;
 
 	constructor(deps: Dependencies) {
 		this.studentRepository = deps.studentRepository;
@@ -41,12 +44,14 @@ export class ImportStudentsUseCase {
 		this.enrolmentRepository = deps.enrolmentRepository;
 		this.sessionRepository = deps.sessionRepository;
 		this.createGuardianUseCase = deps.createGuardianUseCase;
+		this.auditService = deps.auditService;
 	}
 
 	// ── Entry point: CSV file upload ──────────────────────────────────────
 	async executeFromCsv(
 		csvBuffer: Buffer,
 		schoolId: string,
+		importedById: string,
 	): Promise<ImportStudentsResult> {
 		const rawRows: any[] = parse(csvBuffer, {
 			columns: true,
@@ -67,13 +72,19 @@ export class ImportStudentsUseCase {
 				: undefined,
 		}));
 
-		return this.executeFromRows(normalizedRows, schoolId, 2);
+		return this.executeFromRows(
+			normalizedRows,
+			schoolId,
+			importedById,
+			2,
+		);
 	}
 
 	// ── Entry point: raw JSON array ───────────────────────────────────────
 	async executeFromRows(
 		rawRows: any[],
 		schoolId: string,
+		importedById: string,
 		startRow = 1,
 	): Promise<ImportStudentsResult> {
 		const currentTerm =
@@ -135,6 +146,7 @@ export class ImportStudentsUseCase {
 							isPrimary: true,
 						},
 						schoolId,
+						importedById,
 					);
 				}
 
@@ -155,14 +167,37 @@ export class ImportStudentsUseCase {
 			}
 		}
 
+		const createdStudentIds = results
+			.filter((result) => result.status === "created")
+			.map((result) => result.studentId)
+			.filter((studentId): studentId is string => Boolean(studentId));
+
+		const failedRows = results.filter(
+			(result) => result.status === "failed",
+		);
+
+		// ── Audit import summary ────────────────────────────────────────────
+		await this.auditService.log({
+			userId: importedById,
+			schoolId,
+			action: "student.bulk_imported",
+			entity: "Student",
+			metadata: {
+				total: results.length,
+				created: createdStudentIds.length,
+				failed: failedRows.length,
+				studentIds: createdStudentIds,
+				failedRows: failedRows.map((result) => ({
+					row: result.row,
+					reason: result.reason,
+				})),
+			},
+		});
+
 		return {
 			total: results.length,
-			created: results.filter(
-				(result) => result.status === "created",
-			).length,
-			failed: results.filter(
-				(result) => result.status === "failed",
-			).length,
+			created: createdStudentIds.length,
+			failed: failedRows.length,
 			results,
 		};
 	}

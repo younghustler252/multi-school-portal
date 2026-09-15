@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/node";
 import { Worker, Job } from "bullmq";
 import { Pool } from "pg";
 import { readdirSync, readFileSync } from "fs";
@@ -5,6 +6,7 @@ import { join } from "path";
 import { redisConnection } from "../connection";
 import { ProvisionSchemaJobData } from "../queues/provision-schema.queue";
 import { prisma } from "../../database/prisma/prisma.client";
+
 
 function getDefaultClasses(category?: string | null): Array<{ name: string; level: string }> {
 	if (category === "primary" || category === "primary_secondary") {
@@ -218,7 +220,8 @@ provisionSchemaWorker.on("completed", (job) => {
 });
 
 provisionSchemaWorker.on("failed", (job, err) => {
-	console.error(`❌ Provision job ${job?.id} failed:`, err.message);
+    console.error(`❌ Provision job ${job?.id} failed:`, err.message);
+    Sentry.captureException(err, { extra: { jobId: job?.id, jobName: job?.name } });
 });
 
 provisionSchemaWorker.on("error", (err) => {

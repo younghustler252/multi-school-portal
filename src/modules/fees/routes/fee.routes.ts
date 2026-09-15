@@ -98,8 +98,6 @@ router.post(
     validate(BulkCreateInvoiceDto),
     (req, res, next) => ctrl().bulkCreateInvoices(req, res, next),
 );
-
-// Update invoice
 router.put(
     "/invoices/:id",
     authenticate,
@@ -109,6 +107,47 @@ router.put(
     validate(UpdateInvoiceDto),
     (req, res, next) => ctrl().updateInvoice(req, res, next),
 );
+
+// Get payments for an invoice
+router.get(
+    "/invoices/:id/payments",
+    authenticate,
+    requireTenant,
+    requireStaff,
+    (req, res, next) => ctrl().getInvoicePayments(req, res, next),
+);
+
+// Waive an invoice
+router.patch(
+    "/invoices/:id/waive",
+    authenticate,
+    requireTenant,
+    requireSchoolAdmin,
+    requireFeature("feeManagement"),
+    (req, res, next) => ctrl().waiveInvoice(req, res, next),
+);
+
+
+// Update invoice item amount
+router.put(
+    "/invoice-items/:itemId",
+    authenticate,
+    requireTenant,
+    requireSchoolAdmin,
+    requireFeature("feeManagement"),
+    (req, res, next) => ctrl().updateInvoiceItem(req, res, next),
+);
+
+// Remove invoice item
+router.delete(
+    "/invoice-items/:itemId",
+    authenticate,
+    requireTenant,
+    requireSchoolAdmin,
+    requireFeature("feeManagement"),
+    (req, res, next) => ctrl().removeInvoiceItem(req, res, next),
+);
+
 
 
 // ── Defaulters Report ─────────────────────────────────────────────────────
@@ -136,9 +175,8 @@ router.post(
 
 
 // ── Record Manual Payment ─────────────────────────────────────────────────
-
 router.post(
-    "/invoices/record-payment",
+    "/invoices/:invoiceId/record-payment",
     authenticate,
     requireTenant,
     requireStaff,
@@ -146,6 +184,7 @@ router.post(
     validate(RecordPaymentDto),
     (req, res, next) => ctrl().recordPayment(req, res, next),
 );
+
 
 
 export default router;

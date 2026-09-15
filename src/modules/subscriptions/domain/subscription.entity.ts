@@ -7,27 +7,35 @@ import { SubscriptionStatus, BillingCycle } from "../../../generated/public";
 */
 
 export interface SubscriptionEntity {
-    id:                      string;
-    schoolId:                string;
-    planId:                  string;
-    status:                  SubscriptionStatus;
-    billingCycle:            BillingCycle;
-    currentPeriodStart:      Date;
-    currentPeriodEnd:        Date;
-    trialEndsAt:             Date | null;
-    cancelAtPeriodEnd:       boolean;
-    cancelledAt:             Date | null;
-    couponId:                string | null;
-    discountedPriceKobo:     number | null;
-    setupFeePaid:            boolean;
-    setupFeePaidAt:          Date | null;
-    paystackCustomerCode:    string | null;
+    id:                       string;
+    schoolId:                 string;
+    planId:                   string;
+    status:                   SubscriptionStatus;
+    billingCycle:             BillingCycle;
+    currentPeriodStart:       Date;
+    currentPeriodEnd:         Date;
+    trialEndsAt:              Date | null;
+    cancelAtPeriodEnd:        boolean;
+    cancelledAt:              Date | null;
+
+    couponId:                 string | null;
+    discountedPriceKobo:      number | null;
+
+    setupFeePaid:             boolean;
+    setupFeePaidAt:           Date | null;
+
+    autoRenew:                boolean;
+
+    paystackCustomerCode:     string | null;
     paystackSubscriptionCode: string | null;
-    nextBillingDate:         Date | null;
-    lastBillingAttemptAt:    Date | null;
-    failedBillingCount:      number;
-    createdAt:               Date;
-    updatedAt:               Date;
+    paystackAuthorizationCode: string | null;
+
+    nextBillingDate:          Date | null;
+    lastBillingAttemptAt:     Date | null;
+    failedBillingCount:       number;
+
+    createdAt:                Date;
+    updatedAt:                Date;
 }
 
 export interface BillingHistoryEntity {
@@ -37,7 +45,7 @@ export interface BillingHistoryEntity {
     status:            string;
     billingCycle:      BillingCycle;
     paystackReference: string | null;
-    paidAt:            Date | null;
+    paidAt:             Date | null;
     failureReason:     string | null;
-    createdAt:         Date;
+    createdAt:          Date;
 }

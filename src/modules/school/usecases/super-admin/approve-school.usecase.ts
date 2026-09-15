@@ -1,3 +1,4 @@
+import { AuditService } from "../../../audit/services/audit.service";
 import { ISchoolRepository }     from "../../repositories/school.repository";
 import { SchoolMapper, SchoolResponseData } from "../../mappers/school.mapper";
 import { NotificationService }   from "../../../notifications/services/notification.service";
@@ -9,27 +10,52 @@ interface Dependencies {
     schoolRepository:    ISchoolRepository;
     schoolMapper:        SchoolMapper;
     notificationService: NotificationService;
+    auditService:        AuditService;
 }
 
 export class ApproveSchoolUseCase {
     private readonly schoolRepository:    ISchoolRepository;
     private readonly schoolMapper:        SchoolMapper;
     private readonly notificationService: NotificationService;
+    private readonly auditService:        AuditService;
 
-    constructor({ schoolRepository, schoolMapper, notificationService }: Dependencies) {
+    constructor({
+        schoolRepository,
+        schoolMapper,
+        notificationService,
+        auditService,
+    }: Dependencies) {
         this.schoolRepository    = schoolRepository;
         this.schoolMapper        = schoolMapper;
         this.notificationService = notificationService;
+        this.auditService        = auditService;
     }
 
-    async execute(schoolId: string, approvedByAdminId: string): Promise<SchoolResponseData> {
+    async execute(
+        schoolId:         string,
+        approvedByAdminId: string,
+    ): Promise<SchoolResponseData> {
+
+        // ── Find school ───────────────────────────────────────────────────
         const school = await this.schoolRepository.findById(schoolId);
         if (!school) throw new NotFoundError(SchoolErrorMessage.NOT_FOUND);
 
+        // ── Already active — idempotent ────────────────────────────────────
         if (school.status === "active") {
             return this.schoolMapper.toResponse(school); // already live — idempotent, not an error
         }
 
+        const oldState = {
+            verificationStatus: school.verificationStatus,
+            status:             school.status,
+            isActive:           school.isActive,
+            verifiedAt:         school.verifiedAt,
+            verifiedById:       school.verifiedById,
+            suspendedAt:        school.suspendedAt,
+            suspensionReason:   school.suspensionReason,
+        };
+
+        // ── Approve school ────────────────────────────────────────────────
         const updated = await this.schoolRepository.update(schoolId, {
             verificationStatus: "verified",
             status:             "active",
@@ -40,12 +66,33 @@ export class ApproveSchoolUseCase {
             suspensionReason:   null,
         });
 
+        // ── Audit school approval ─────────────────────────────────────────
+        await this.auditService.log({
+            userId:   approvedByAdminId,
+            schoolId,
+            action:   "school.approved",
+            entity:   "School",
+            entityId: schoolId,
+            oldValue: oldState,
+            newValue: {
+                verificationStatus: updated.verificationStatus,
+                status:             updated.status,
+                isActive:           updated.isActive,
+                verifiedAt:         updated.verifiedAt,
+                verifiedById:       updated.verifiedById,
+                suspendedAt:        updated.suspendedAt,
+                suspensionReason:   updated.suspensionReason,
+            },
+        });
+
+        // ── Provision school schema ───────────────────────────────────────
         await addProvisionSchemaJob({
             schoolId,
             subdomain:  school.subdomain,
             schoolName: school.name,
         });
 
+        // ── Notify school ─────────────────────────────────────────────────
         await this.notificationService.sendPlatformNotification({
             schoolId,
             type:             "account_verified",

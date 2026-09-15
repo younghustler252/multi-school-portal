@@ -13,6 +13,8 @@ import {
     BulkEnrolDto,
     UpdateEnrolmentDto,
     ListEnrolmentsDto,
+    PromotionPreviewDto,
+    PromoteStudentsDto
 }                                from "../dtos/enrolment.dto";
 
 /*
@@ -55,7 +57,24 @@ router.post(
     validate(BulkEnrolDto),
     (req, res, next) => ctrl().bulkEnrol(req, res, next),
 );
+router.get(
+    "/promotion-preview",
+    authenticate,
+    requireTenant,
+    requireStaff,
+    validate(PromotionPreviewDto, "query"),
+    (req, res, next) => ctrl().previewPromotion(req, res, next),
+);
 
+// ── Promote students ──────────────────────────────────────────────────────
+router.post(
+    "/promote",
+    authenticate,
+    requireTenant,
+    requireSchoolAdmin,
+    validate(PromoteStudentsDto),
+    (req, res, next) => ctrl().promoteStudents(req, res, next),
+);
 // ── Update enrolment status ───────────────────────────────────────────────
 router.put(
     "/:id",

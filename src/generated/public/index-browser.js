@@ -256,6 +256,9 @@ exports.Prisma.SubscriptionScalarFieldEnum = {
   cancelledAt: 'cancelledAt',
   couponId: 'couponId',
   discountedPriceKobo: 'discountedPriceKobo',
+  autoRenew: 'autoRenew',
+  paystackAuthorizationCode: 'paystackAuthorizationCode',
+  scheduledDowngradePlanId: 'scheduledDowngradePlanId',
   setupFeePaid: 'setupFeePaid',
   setupFeePaidAt: 'setupFeePaidAt',
   paystackCustomerCode: 'paystackCustomerCode',
@@ -334,6 +337,26 @@ exports.Prisma.PlatformNotificationRecipientScalarFieldEnum = {
   failedReason: 'failedReason',
   readAt: 'readAt',
   deliveredAt: 'deliveredAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PlatformSettingsScalarFieldEnum = {
+  id: 'id',
+  platformName: 'platformName',
+  supportEmail: 'supportEmail',
+  supportPhone: 'supportPhone',
+  logoUrl: 'logoUrl',
+  termsUrl: 'termsUrl',
+  privacyPolicyUrl: 'privacyPolicyUrl',
+  subscriptionGracePeriodDays: 'subscriptionGracePeriodDays',
+  reminderDaysBeforeExpiry: 'reminderDaysBeforeExpiry',
+  termEndingReminderDays: 'termEndingReminderDays',
+  defaultTrialDays: 'defaultTrialDays',
+  allowNewRegistrations: 'allowNewRegistrations',
+  maintenanceMode: 'maintenanceMode',
+  maintenanceMessage: 'maintenanceMessage',
+  announcementBanner: 'announcementBanner',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -515,7 +538,8 @@ exports.Prisma.ModelName = {
   BillingHistory: 'BillingHistory',
   AuditLog: 'AuditLog',
   PlatformNotification: 'PlatformNotification',
-  PlatformNotificationRecipient: 'PlatformNotificationRecipient'
+  PlatformNotificationRecipient: 'PlatformNotificationRecipient',
+  PlatformSettings: 'PlatformSettings'
 };
 
 /**

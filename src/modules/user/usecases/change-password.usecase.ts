@@ -1,6 +1,7 @@
 import { IUserRepository }       from "../../auth/repositories/user.repository";
 import { IRefreshTokenRepository } from "../../auth/repositories/refresh-token.repository";
 import { PasswordService }       from "../../../shared/services/password.service";
+import { AuditService } from "../../audit/services/audit.service";
 import {
     NotFoundError,
     BadRequestError,
@@ -20,21 +21,25 @@ interface Dependencies {
     userRepository:         IUserRepository;
     refreshTokenRepository: IRefreshTokenRepository;
     passwordService:        PasswordService;
+    auditService:           AuditService;
 }
 
 export class ChangePasswordUseCase {
     private readonly userRepository:         IUserRepository;
     private readonly refreshTokenRepository: IRefreshTokenRepository;
     private readonly passwordService:        PasswordService;
+    private readonly auditService:           AuditService;
 
     constructor({
         userRepository,
         refreshTokenRepository,
         passwordService,
+        auditService,
     }: Dependencies) {
         this.userRepository         = userRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.passwordService        = passwordService;
+        this.auditService           = auditService;
     }
 
     async execute(
@@ -42,11 +47,13 @@ export class ChangePasswordUseCase {
         dto:    ChangePasswordDtoType,
     ): Promise<{ message: string }> {
 
+        // ── Find user ─────────────────────────────────────────────────────
+        const user = await this.userRepository.findById(userId);
+        if (!user) throw new NotFoundError("User");
+
         // ── Find user with password ───────────────────────────────────────
         const userWithPassword = await this.userRepository
-            .findByEmailWithPassword(
-                (await this.userRepository.findById(userId))!.email,
-            );
+            .findByEmailWithPassword(user.email);
 
         if (!userWithPassword) throw new NotFoundError("User");
 
@@ -74,13 +81,26 @@ export class ChangePasswordUseCase {
         const passwordHash = await this.passwordService.hash(dto.newPassword);
 
         // ── Update password ───────────────────────────────────────────────
-       await this.userRepository.update(userId, {
+        await this.userRepository.update(userId, {
             passwordHash,
             passwordChangedAt:  new Date(),
             mustChangePassword: false,
         });
+
         // ── Invalidate all sessions ───────────────────────────────────────
         await this.refreshTokenRepository.deleteByUserId(userId);
+
+        // ── Audit password change ─────────────────────────────────────────
+        await this.auditService.log({
+            userId,
+            schoolId: user.schoolId,
+            action:   "user.password_changed",
+            entity:   "User",
+            entityId: userId,
+            metadata: {
+                sessionsInvalidated: true,
+            },
+        });
 
         return {
             message: "Password changed successfully. Please login again.",

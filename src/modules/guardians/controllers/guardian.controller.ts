@@ -121,6 +121,7 @@ export class GuardianController {
             const result = await this.createGuardianUseCase.execute(
                 req.body, 
                 req.user!.schoolId!,
+                req.user?.id as string,
             );
             sendCreated(res, result, "Guardian created successfully");
         } catch (err) {

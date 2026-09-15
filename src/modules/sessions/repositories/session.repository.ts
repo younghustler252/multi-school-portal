@@ -25,4 +25,9 @@ export interface ISessionRepository {
         data: Record<string, any>,
     ):                                               Promise<TermEntity>;
     setCurrentTerm(id: string):                      Promise<TermEntity>;
+    findPreviousTermInSession(
+        sessionId:      string,
+        currentTermId:  string,
+    ):                                                  Promise<TermEntity | null>;
+
 }

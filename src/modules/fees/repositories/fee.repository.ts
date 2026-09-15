@@ -22,6 +22,12 @@ export interface IFeeRepository {
         note?: string,
     ): Promise<EnrichedInvoice>;
 
+    updateInvoiceFields(
+        id: string,
+        data: Record<string, any>,
+    ): Promise<void>;
+
+
     addInvoiceItem(
         invoiceId: string,
         item: FeeInvoiceItemInput,
@@ -57,4 +63,16 @@ export interface IFeeRepository {
     recalculateInvoiceStatus(
         invoiceId: string,
     ): Promise<void>;
+
+    findInvoiceItemById(id: string): Promise<any | null>;
+
+    findPaymentsByInvoiceId(invoiceId: string): Promise<any[]>;
+
+    updateInvoiceItem(
+        id: string,
+        amountKobo: number,
+    ): Promise<void>;
+
+    deleteInvoiceItem(id: string): Promise<void>;
+
 }

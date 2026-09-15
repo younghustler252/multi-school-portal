@@ -254,6 +254,14 @@ exports.Prisma.EnrolmentScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.ClassProgressionScalarFieldEnum = {
+  id: 'id',
+  fromClassId: 'fromClassId',
+  toClassId: 'toClassId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SchoolSettingsScalarFieldEnum = {
   id: 'id',
   logoUrl: 'logoUrl',
@@ -269,6 +277,7 @@ exports.Prisma.SchoolSettingsScalarFieldEnum = {
   reportCardLetterheadUrl: 'reportCardLetterheadUrl',
   letterheadContentTopMm: 'letterheadContentTopMm',
   letterheadContentBottomMm: 'letterheadContentBottomMm',
+  allowStudentLogin: 'allowStudentLogin',
   signature: 'signature',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -570,6 +579,7 @@ exports.Prisma.ModelName = {
   Subject: 'Subject',
   ClassSubject: 'ClassSubject',
   Enrolment: 'Enrolment',
+  ClassProgression: 'ClassProgression',
   SchoolSettings: 'SchoolSettings',
   Attendance: 'Attendance',
   Grade: 'Grade',

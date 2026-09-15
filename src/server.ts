@@ -1,7 +1,7 @@
 import app from "./app";
 import { env } from "./config/env";
 import { initContainer, disposeContainer } from "./container";
-import { initWorkers } from "./infrastructure/jobs";
+import { initSentry } from "./infrastructure/monitoring/sentry";
 
 
 const PORT = env.PORT || 5000;
@@ -11,8 +11,8 @@ const server = app.listen(PORT, () => {
     console.log(`📦 Environment: ${env.NODE_ENV}`);
 });
 
+initSentry("api");
 initContainer();
-initWorkers();
 // Graceful shutdown — finish existing requests before closing
 const shutdown = (signal: string) => {
     console.log(`\n${signal} received. Shutting down gracefully...`);

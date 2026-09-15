@@ -1,40 +1,28 @@
-import { IFeeRepository }       from "../repositories/fee.repository";
-import { FeeInvoiceMapper }     from "../mappers/fee.mapper";
-import { FeeInvoiceResponseData } from "../mappers/fee.mapper";
-import { NotFoundError }        from "../../../shared/errors/domain.errors";
-import { FeeErrorMessage }      from "../domain/fee.enums";
+import { IFeeRepository } from "../repositories/fee.repository";
+import { NotFoundError }  from "../../../shared/errors/domain.errors";
+import { FeeErrorMessage } from "../domain/fee.enums";
 import { UpdateInvoiceDtoType } from "../dtos/fee.dto";
 
-interface Dependencies {
-    feeRepository:    IFeeRepository;
-    feeInvoiceMapper: FeeInvoiceMapper;
-}
+interface Dependencies { feeRepository: IFeeRepository; }
 
 export class UpdateInvoiceUseCase {
-    private readonly feeRepository:    IFeeRepository;
-    private readonly feeInvoiceMapper: FeeInvoiceMapper;
+    private readonly feeRepository: IFeeRepository;
+    constructor({ feeRepository }: Dependencies) { this.feeRepository = feeRepository; }
 
-    constructor({ feeRepository, feeInvoiceMapper }: Dependencies) {
-        this.feeRepository    = feeRepository;
-        this.feeInvoiceMapper = feeInvoiceMapper;
-    }
-
-    async execute(
-        id:  string,
-        dto: UpdateInvoiceDtoType,
-    ): Promise<FeeInvoiceResponseData> {
-        const invoice = await this.feeRepository.findInvoiceById(id);
+    async execute(invoiceId: string, dto: UpdateInvoiceDtoType) {
+        const invoice = await this.feeRepository.findInvoiceByIdEnriched(invoiceId);
         if (!invoice) throw new NotFoundError(FeeErrorMessage.INVOICE_NOT_FOUND);
 
-        const updateData: Record<string, any> = { ...dto };
-        if (dto.dueDate) updateData.dueDate = new Date(dto.dueDate);
+        await this.feeRepository.updateInvoiceFields(invoiceId, {
+            discountKobo: dto.discountKobo,
+            dueDate:      dto.dueDate ? new Date(dto.dueDate) : undefined,
+            note:         dto.note,
+        });
 
-        // Recalculate balance if amount changed
-        if (dto.amountKobo) {
-            updateData.balanceKobo = dto.amountKobo - invoice.paidKobo;
+        if (dto.discountKobo !== undefined) {
+            await this.feeRepository.recalculateInvoiceStatus(invoiceId);
         }
 
-        const updated = await this.feeRepository.updateInvoice(id, updateData);
-        return this.feeInvoiceMapper.toResponse(updated);
+        return this.feeRepository.findInvoiceByIdEnriched(invoiceId);
     }
 }

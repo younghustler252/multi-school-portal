@@ -2,6 +2,7 @@ import { IStaffRepository }   from "../repositories/staff.repository";
 import { IUserRepository }    from "../../auth/repositories/user.repository";
 import { StaffMapper }        from "../mappers/staff.mapper";
 import { StaffResponseData }  from "../mappers/staff.mapper";
+import { AuditService }       from "../../audit/services/audit.service";
 import {
     NotFoundError,
     BadRequestError,
@@ -20,25 +21,29 @@ interface Dependencies {
     staffRepository: IStaffRepository;
     userRepository:  IUserRepository;
     staffMapper:     StaffMapper;
+    auditService:    AuditService;
 }
 
 export class DeactivateStaffUseCase {
     private readonly staffRepository: IStaffRepository;
     private readonly userRepository:  IUserRepository;
     private readonly staffMapper:     StaffMapper;
+    private readonly auditService:    AuditService;
 
     constructor({
         staffRepository,
         userRepository,
         staffMapper,
+        auditService,
     }: Dependencies) {
         this.staffRepository = staffRepository;
         this.userRepository  = userRepository;
         this.staffMapper     = staffMapper;
+        this.auditService    = auditService;
     }
 
     async execute(
-        id:            string,
+        id:               string,
         requestingUserId: string,
     ): Promise<StaffResponseData> {
 
@@ -61,6 +66,24 @@ export class DeactivateStaffUseCase {
         // ── Deactivate user account ───────────────────────────────────────
         await this.userRepository.update(staff.userId, {
             isActive: false,
+        });
+
+        // ── Audit staff deactivation ──────────────────────────────────────
+        await this.auditService.log({
+            userId:   requestingUserId,
+            action:   "staff.deactivated",
+            entity:   "Staff",
+            entityId: staff.id,
+            oldValue: {
+                staffId:  staff.id,
+                userId:   staff.userId,
+                isActive: staff.isActive,
+            },
+            newValue: {
+                staffId:  updated.id,
+                userId:   staff.userId,
+                isActive: updated.isActive,
+            },
         });
 
         const user = await this.userRepository.findById(staff.userId);
