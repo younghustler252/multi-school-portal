@@ -33,6 +33,12 @@ export const metadata: Metadata = {
 	icons: {
 		icon: "/favicon.ico",
 	},
+	manifest: "/manifest.json",
+	appleWebApp: {
+		capable: true,
+		statusBarStyle: "default",
+		title: COMPANY.name,
+	},
 	openGraph: {
 		type: "website",
 		locale: "en_NG",
@@ -65,6 +71,10 @@ export const metadata: Metadata = {
 			"max-snippet": -1,
 		},
 	},
+};
+
+export const viewport = {
+	themeColor: "#1F7A4D",
 };
 
 export default function RootLayout({

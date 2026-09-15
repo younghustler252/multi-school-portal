@@ -12,6 +12,7 @@ import {
 	DialogDescription,
 	DialogFooter,
 } from "@/components/ui/dialog";
+import { usePathname } from "next/navigation";
 import { usePlans } from "@/features/plans/hooks/use-plans";
 import { useUpgradePlan } from "../hooks/use-subscription";
 import { formatNaira } from "@/lib/format-money";
@@ -25,29 +26,37 @@ interface UpgradePlanDialogProps {
 }
 
 export function UpgradePlanDialog({ currentPlanId, open, onOpenChange }: UpgradePlanDialogProps) {
+	const pathname = usePathname();
 	const { data: plans } = usePlans();
 	const upgradePlan = useUpgradePlan();
 	const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
 	const [cycle, setCycle] = useState<BillingCycle>("monthly");
+	const [isRedirecting, setIsRedirecting] = useState(false);
 
 	async function handleUpgrade() {
 		if (!selectedPlanId) return;
+		setIsRedirecting(true);
 		try {
-			await upgradePlan.mutateAsync({ planId: selectedPlanId, billingCycle: cycle });
-			toast.success("Plan updated");
-			onOpenChange(false);
+			const callbackUrl = `${window.location.origin}${pathname}?tab=billing`;
+			const result = await upgradePlan.mutateAsync({
+				planId: selectedPlanId,
+				billingCycle: cycle,
+				callbackUrl,
+			});
+			window.location.href = result.authorizationUrl;
 		} catch (err) {
 			const apiErr = err as ApiErrorResponse;
-			toast.error(apiErr.message || "Couldn't update plan");
+			toast.error(apiErr.message || "Couldn't start upgrade");
+			setIsRedirecting(false);
 		}
 	}
 
 	return (
-		<Dialog open={open} onOpenChange={onOpenChange}>
+		<Dialog open={open} onOpenChange={(v) => { if (!isRedirecting) onOpenChange(v); }}>
 			<DialogContent className="max-w-2xl">
 				<DialogHeader>
 					<DialogTitle>Change plan</DialogTitle>
-					<DialogDescription>Select a plan and billing cycle.</DialogDescription>
+					<DialogDescription>Select a plan and billing cycle. You'll be redirected to Paystack to complete payment.</DialogDescription>
 				</DialogHeader>
 
 				<div className="flex justify-center gap-2">
@@ -93,12 +102,12 @@ export function UpgradePlanDialog({ currentPlanId, open, onOpenChange }: Upgrade
 				</div>
 
 				<DialogFooter>
-					<Button
-						onClick={handleUpgrade}
-						disabled={!selectedPlanId || upgradePlan.isPending}
-					>
-						{upgradePlan.isPending && <Loader2 className="size-4 animate-spin" />}
-						{upgradePlan.isPending ? "Updating…" : "Confirm plan change"}
+					<Button variant="outline" onClick={() => onOpenChange(false)} disabled={isRedirecting}>
+						Cancel
+					</Button>
+					<Button onClick={handleUpgrade} disabled={!selectedPlanId || isRedirecting}>
+						{isRedirecting && <Loader2 className="size-4 animate-spin" />}
+						{isRedirecting ? "Redirecting…" : "Continue to payment"}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

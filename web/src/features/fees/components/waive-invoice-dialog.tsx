@@ -4,11 +4,11 @@ import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/feedback/confirm-dialog";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { feeApi } from "../services/fee.api";
-import { FeeInvoiceResponseData } from "../types/fee.types";
+import { EnrichedInvoice } from "../types/fee.types";
 import { ApiErrorResponse } from "@/types/api-response";
 
 interface WaiveInvoiceDialogProps {
-	invoice: FeeInvoiceResponseData;
+	invoice: EnrichedInvoice;
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 }
@@ -18,7 +18,7 @@ export function WaiveInvoiceDialog({ invoice, open, onOpenChange }: WaiveInvoice
 
 	const waiveInvoice = useMutation({
 		mutationFn: async () => {
-			const res = await feeApi.updateInvoice(invoice.id, { status: "waived" });
+			const res = await feeApi.waiveInvoice(invoice.id);
 			if (!res.success) throw res;
 			return res.data;
 		},

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { useInvoices, useFeeTypes } from "../hooks/use-fees";
+import { useInvoices } from "../hooks/use-fees";
 import { INVOICE_STATUS_LABELS, INVOICE_STATUS_VARIANT } from "../constants/invoice-status";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -7,7 +7,6 @@ import { formatNaira } from "@/lib/format-money";
 
 export function StudentFeesCard({ studentId, termId }: { studentId: string; termId?: string }) {
 	const { data, isLoading } = useInvoices({ studentId, termId, limit: 10 });
-	const { data: feeTypes } = useFeeTypes();
 
 	if (isLoading) return <Skeleton className="h-32 rounded-xl" />;
 
@@ -32,8 +31,8 @@ export function StudentFeesCard({ studentId, termId }: { studentId: string; term
 					<div className="mt-3 space-y-2">
 						{invoices.slice(0, 3).map((inv) => (
 							<div key={inv.id} className="flex items-center justify-between text-sm">
-								<span className="text-muted-foreground">
-									{feeTypes?.find((f) => f.id === inv.feeTypeId)?.name ?? "Fee"}
+								<span className="text-muted-foreground truncate">
+									{inv.items.map((i) => i.feeTypeName).join(", ")}
 								</span>
 								<Badge variant={INVOICE_STATUS_VARIANT[inv.status]} className="text-[10px]">
 									{INVOICE_STATUS_LABELS[inv.status]}

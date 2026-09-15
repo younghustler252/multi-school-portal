@@ -1,5 +1,9 @@
+import { PaymentStatus } from "@/features/payments/types/payment.types";
 export type SchoolCategory = "primary" | "secondary" | "primary_secondary";
 export type SchoolOwnership = "private" | "public" | "mission" | "international";
+export type SchoolStatus = "pending" | "active" | "suspended" | "deactivated";
+export type VerificationStatus = "unverified" | "under_review" | "verified" | "rejected";
+
 export interface AdminSchoolResponseData {
 	id: string;
 	name: string;
@@ -8,8 +12,8 @@ export interface AdminSchoolResponseData {
 	phone: string | null;
 	schoolCategory: SchoolCategory;
 	schoolOwnership: SchoolOwnership;
-	status: string;
-	verificationStatus: string;
+	status: SchoolStatus;
+	verificationStatus: VerificationStatus;
 	isActive: boolean;
 	createdAt: string;
 	planName: string | null;
@@ -38,4 +42,17 @@ export interface SuspendSchoolDto {
 export interface RejectDocumentDto {
 	documentId: string;
 	reason: string;
+}
+
+
+export interface BillingHistoryEntry {
+	id: string;
+	subscriptionId: string;
+	amountKobo: number;
+	status: PaymentStatus;
+	billingCycle: "monthly" | "yearly";
+	paystackReference: string | null;
+	paidAt: string | null;
+	failureReason: string | null;
+	createdAt: string;
 }

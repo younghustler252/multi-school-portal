@@ -10,3 +10,12 @@ export interface ListSubscriptionsParams {
 	limit?: number;
 	status?: string;
 }
+
+
+export interface SubscriptionStats {
+	active: number;
+	trialing: number;
+	pastDue: number;
+	expired: number;
+	onFreePlan: number;
+}

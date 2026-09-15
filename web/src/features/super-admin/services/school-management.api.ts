@@ -8,6 +8,7 @@ import {
 	SuspendSchoolDto,
 	RejectDocumentDto,
 } from "../types/school-management.types";
+import { EnrichedAuditLog, ListActivityParams } from "../types/audit-log.types";
 import { PlatformUserResponseData } from "../types/super-admin.types";
 import { CreateSchoolFormValues } from "../schemas/create-school.schema";
 
@@ -44,4 +45,22 @@ export const schoolManagementApi = {
 
 	impersonateSchool: (schoolId: string): Promise<ApiResponse<{ accessToken: string; school: AdminSchoolResponseData; admin: PlatformUserResponseData }>> =>
 		API.post(`/super-admin/schools/${schoolId}/impersonate`),
+
+	getActivity: (
+		schoolId: string,
+		params: ListActivityParams,
+	): Promise<ApiResponse<EnrichedAuditLog[]>> =>
+		API.get(`/super-admin/schools/${schoolId}/activity`, { params }),
+
+	changePlan: (
+		schoolId: string,
+		planId: string,
+	): Promise<ApiResponse<AdminSchoolResponseData>> =>
+		API.put(`/super-admin/schools/${schoolId}/plan`, { planId }),
+
+
+	resetAdminPassword: (
+		schoolId: string,
+	): Promise<ApiResponse<{ message: string }>> =>
+		API.post(`/super-admin/schools/${schoolId}/reset-admin-password`),
 };

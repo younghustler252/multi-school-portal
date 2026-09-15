@@ -31,33 +31,32 @@ export default function StudentsPage() {
 
 	return (
 		<>
-		<PageHeader
-			title="Students"
-			description="Manage your school's student records."
-			actions={
-				<div className="flex items-center gap-2">
-					<Button
-						variant="outline"
-						type="button"
-						onClick={() => setImportDialogOpen(true)}
-					>
-						<Upload className="size-4" />
-						Import students
-					</Button>
+			<PageHeader
+				title="Students"
+				description="Manage your school's student records."
+				actions={
+					<div className="flex items-center gap-2">
+						<Button
+							variant="outline"
+							type="button"
+							onClick={() => setImportDialogOpen(true)}
+						>
+							<Upload className="size-4" />
+							Import students
+						</Button>
 
-					<Button
-						nativeButton={false}
-						render={
-							<Link href="/school-admin/students/new">
-								<Plus className="size-4" />
-								Add student
-							</Link>
-						}
-					/>
-				</div>
-			}
-		/>
-
+						<Button
+							nativeButton={false}
+							render={
+								<Link href="/school-admin/students/new">
+									<Plus className="size-4" />
+									Add student
+								</Link>
+							}
+						/>
+					</div>
+				}
+			/>
 
 			<div className="mb-4 flex items-center gap-2">
 				<div className="relative max-w-sm flex-1">

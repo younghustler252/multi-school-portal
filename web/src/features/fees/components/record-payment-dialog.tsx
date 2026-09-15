@@ -8,6 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+	Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import {
 	Dialog,
 	DialogContent,
 	DialogHeader,
@@ -17,42 +20,59 @@ import {
 import { useRecordPayment } from "../hooks/use-fees";
 import { recordPaymentSchema, RecordPaymentFormValues } from "../schemas/fee.schema";
 import { formatNaira } from "@/lib/format-money";
-import { FeeInvoiceResponseData } from "../types/fee.types";
+import { EnrichedInvoice } from "../types/fee.types";
 import { ApiErrorResponse } from "@/types/api-response";
 
 interface RecordPaymentDialogProps {
-	invoice: FeeInvoiceResponseData;
+	invoice: EnrichedInvoice;
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 }
 
+const PAYMENT_METHOD_LABELS = {
+	cash: "Cash",
+	bank_transfer: "Bank transfer",
+} as const;
+
 export function RecordPaymentDialog({ invoice, open, onOpenChange }: RecordPaymentDialogProps) {
 	const recordPayment = useRecordPayment();
-    const {
-        register,
-        handleSubmit,
-        reset,
-        formState: { errors, isSubmitting },
-    } = useForm<RecordPaymentFormValues>({
-        resolver: zodResolver(recordPaymentSchema),
-        defaultValues: { invoiceId: invoice.id, amountNaira: String(invoice.balanceKobo / 100) },
-    });
+	const {
+		register,
+		handleSubmit,
+		reset,
+		setValue,
+		watch,
+		formState: { errors, isSubmitting },
+	} = useForm<RecordPaymentFormValues>({
+		resolver: zodResolver(recordPaymentSchema),
+		defaultValues: {
+			invoiceId: invoice.id,
+			amountNaira: String(invoice.balanceKobo / 100),
+			method: "cash",
+		},
+	});
+	const method = watch("method");
 
-    async function onSubmit(values: RecordPaymentFormValues) {
-        try {
-            await recordPayment.mutateAsync({
-                invoiceId: values.invoiceId,
-                amountKobo: Math.round(Number(values.amountNaira) * 100),
-                note: values.note,
-            });
-            toast.success("Payment recorded");
-            reset();
-            onOpenChange(false);
-        } catch (err) {
-            const apiErr = err as ApiErrorResponse;
-            toast.error(apiErr.message || "Couldn't record payment");
-        }
-    }
+	async function onSubmit(values: RecordPaymentFormValues) {
+		try {
+			await recordPayment.mutateAsync({
+				invoiceId: values.invoiceId,
+				data: {
+					invoiceId: values.invoiceId,
+					amountKobo: Math.round(Number(values.amountNaira) * 100),
+					method: values.method,
+					note: values.note,
+				},
+			});
+			toast.success("Payment recorded");
+			reset();
+			onOpenChange(false);
+		} catch (err) {
+			const apiErr = err as ApiErrorResponse;
+			toast.error(apiErr.message || "Couldn't record payment");
+		}
+	}
+
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent>
@@ -72,6 +92,22 @@ export function RecordPaymentDialog({ invoice, open, onOpenChange }: RecordPayme
 							<Input id="amountNaira" type="number" className="rounded-l-none" {...register("amountNaira")} />
 						</div>
 						{errors.amountNaira && <p className="text-xs text-destructive">{errors.amountNaira.message}</p>}
+					</div>
+
+					<div className="space-y-1.5">
+						<Label>Payment method</Label>
+						<Select value={method ?? ""} onValueChange={(v) => setValue("method", v as RecordPaymentFormValues["method"], { shouldValidate: true })}>
+							<SelectTrigger>
+								<SelectValue placeholder="Select method">
+									{(v: string | null) => PAYMENT_METHOD_LABELS[v as keyof typeof PAYMENT_METHOD_LABELS] ?? "Select method"}
+								</SelectValue>
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="cash">Cash</SelectItem>
+								<SelectItem value="bank_transfer">Bank transfer</SelectItem>
+							</SelectContent>
+						</Select>
+						{errors.method && <p className="text-xs text-destructive">{errors.method.message}</p>}
 					</div>
 
 					<div className="space-y-1.5">

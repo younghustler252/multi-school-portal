@@ -2,6 +2,8 @@ import { API } from "@/lib/api/api-client";
 import { ApiResponse } from "@/types/api-response";
 import {
 	ClassResponseData,
+	ClassProgressionResponseData,
+	SetClassProgressionDto,
 	SubjectResponseData,
 	ClassSubjectResponseData,
 	CreateClassDto,
@@ -44,4 +46,9 @@ export const classApi = {
 	getById: (id: string): Promise<ApiResponse<ClassResponseData>> =>
 		API.get(`/classes/${id}`),
 
+	setProgression: (
+		id: string,
+		data: SetClassProgressionDto,
+	): Promise<ApiResponse<ClassProgressionResponseData>> =>
+		API.put(`/classes/${id}/progression`, data),
 };

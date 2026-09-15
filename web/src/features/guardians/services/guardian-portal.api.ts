@@ -3,7 +3,7 @@ import { ApiResponse, PaginationMeta } from "@/types/api-response";
 import { MyChildResponseData, MyChildrenParams, MyChildrenInvoicesParams } from "../types/guardian-portal.types";
 import { GradeResponseData } from "@/features/grades/types/grade.types";
 import { AttendanceResponseData } from "@/features/attendance/types/attendance.types";
-import { FeeInvoiceResponseData } from "@/features/fees/types/fee.types";
+import { EnrichedInvoice } from "@/features/fees/types/fee.types";
 
 export interface PaginatedResponse<T> {
 	data: T[];
@@ -12,8 +12,6 @@ export interface PaginatedResponse<T> {
 
 export const guardianPortalApi = {
 
-	// "my children" list itself still lives on the guardian module —
-	// confirmed via GetMyChildrenUseCase, which reads from guardianRepository directly
 	getMyChildren: (): Promise<ApiResponse<MyChildResponseData[]>> =>
 		API.get("/guardians/me/children"),
 
@@ -23,9 +21,7 @@ export const guardianPortalApi = {
 	getMyChildrenAttendance: (params: MyChildrenParams): Promise<ApiResponse<AttendanceResponseData[]>> =>
 		API.get("/attendance/my-children", { params }),
 
-	getMyChildrenInvoices: (params: MyChildrenInvoicesParams): Promise<ApiResponse<FeeInvoiceResponseData[]>> =>
+	getMyChildrenInvoices: (params: MyChildrenInvoicesParams): Promise<ApiResponse<EnrichedInvoice[]>> =>
 		API.get("/fees/invoices/my-children", { params }),
-
-	
 
 };

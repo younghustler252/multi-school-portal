@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense } from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import {
 	Building2,
 	GraduationCap,
@@ -19,6 +20,7 @@ import { CalendarTab } from "@/features/school/components/settings/calendar-tab"
 import { GradingConfigTab } from "@/features/grades/components/grading-config-tab";
 import { PaymentSetupTab } from "@/features/school/components/settings/payment-stup-tab";
 import { ReportCardTemplateTab } from "@/features/school/components/settings/report-card-template-tab";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const TABS: SettingsTab[] = [
 	{ id: "profile", label: "School profile", icon: Building2 },
@@ -30,8 +32,35 @@ const TABS: SettingsTab[] = [
 	{ id: "report-card", label: "Report card", icon: FileText },
 ];
 
+const DEFAULT_TAB = "profile";
+const VALID_TAB_IDS = TABS.map((t) => t.id);
+
 export default function SchoolSettingsPage() {
-	const [activeTab, setActiveTab] = useState("profile");
+	return (
+		// useSearchParams requires a Suspense boundary for this to be
+		// statically optimizable — harmless either way, but Next warns without it
+		<Suspense fallback={<Skeleton className="h-96 w-full rounded-xl" />}>
+			<SchoolSettingsContent />
+		</Suspense>
+	);
+}
+
+function SchoolSettingsContent() {
+	const router = useRouter();
+	const pathname = usePathname();
+	const searchParams = useSearchParams();
+
+	const tabParam = searchParams.get("tab");
+	const activeTab = tabParam && VALID_TAB_IDS.includes(tabParam) ? tabParam : DEFAULT_TAB;
+
+	function setActiveTab(tab: string) {
+		const params = new URLSearchParams(searchParams.toString());
+		params.set("tab", tab);
+		// drop any leftover payment-callback params when the user manually switches tabs
+		params.delete("reference");
+		params.delete("trxref");
+		router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+	}
 
 	return (
 		<>
@@ -49,25 +78,12 @@ export default function SchoolSettingsPage() {
 
 				<div className="space-y-6">
 					{activeTab === "profile" && <ProfileTab />}
-
-					{activeTab === "grading" && (
-						<GradingConfigTab />
-					)}
-
-					{activeTab === "report-card" && (
-						<ReportCardTemplateTab />
-					)}
-					
-					{activeTab === "calendar" && (
-						<CalendarTab />
-					)}
-
+					{activeTab === "grading" && <GradingConfigTab />}
+					{activeTab === "report-card" && <ReportCardTemplateTab />}
+					{activeTab === "calendar" && <CalendarTab />}
 					{activeTab === "billing" && <BillingTab />}
-
 					{activeTab === "roles" && <RolesTab />}
-
 					{activeTab === "payment" && <PaymentSetupTab />}
-
 				</div>
 			</div>
 		</>

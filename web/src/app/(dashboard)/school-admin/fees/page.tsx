@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Plus, Search, MoreHorizontal, CreditCard, X } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
@@ -22,63 +23,56 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuthStore } from "@/stores/auth.store";
-import { useFeeTypes, useInvoices, useDefaulters } from "@/features/fees/hooks/use-fees";
+import { useInvoices, useDefaulters } from "@/features/fees/hooks/use-fees";
 import { useCurrentSession } from "@/features/school/hooks/use-sessions";
-import { useStudents } from "@/features/students/hooks/use-students";
+import { useClasses } from "@/features/classes/hooks/use-classes";
 import { CreateFeeTypeDialog } from "@/features/fees/components/create-fee-type-dialog";
 import { InvoiceClassDialog } from "@/features/fees/components/invoice-class-dialog";
 import { RecordPaymentDialog } from "@/features/fees/components/record-payment-dialog";
 import { WaiveInvoiceDialog } from "@/features/fees/components/waive-invoice-dialog";
 import { INVOICE_STATUS_LABELS, INVOICE_STATUS_VARIANT } from "@/features/fees/constants/invoice-status";
-import { InvoiceStatus, FeeInvoiceResponseData } from "@/features/fees/types/fee.types";
+import { InvoiceStatus, EnrichedInvoice } from "@/features/fees/types/fee.types";
 import { formatNaira } from "@/lib/format-money";
 
 export default function FeesPage() {
+	const router = useRouter();
+
 	const { data: currentSession } = useCurrentSession();
 	const termId = currentSession?.currentTerm?.id;
 
 	const role = useAuthStore((s) => s.user?.role);
 	const canManageFeeTypes = role === "school_admin";
 
-
 	const [search, setSearch] = useState("");
 	const [statusFilter, setStatusFilter] = useState<InvoiceStatus | "all">("all");
+	const [classFilter, setClassFilter] = useState<string>("all");
 	const [feeTypeDialogOpen, setFeeTypeDialogOpen] = useState(false);
 	const [invoiceClassOpen, setInvoiceClassOpen] = useState(false);
-	const [payingInvoice, setPayingInvoice] = useState<FeeInvoiceResponseData | null>(null);
-	const [waivingInvoice, setWaivingInvoice] = useState<FeeInvoiceResponseData | null>(null);
+	const [payingInvoice, setPayingInvoice] = useState<EnrichedInvoice | null>(null);
+	const [waivingInvoice, setWaivingInvoice] = useState<EnrichedInvoice | null>(null);
 
-	const { data: invoiceData, isLoading: invoicesLoading } = useInvoices({ termId, limit: 200 });
-	const { data: feeTypes } = useFeeTypes();
+	const { data: invoiceData, isLoading: invoicesLoading } = useInvoices({
+		termId,
+		classId: classFilter === "all" ? undefined : classFilter,
+		limit: 100,
+	});
+	const { data: classes } = useClasses();
 	const { data: defaulters } = useDefaulters();
-	const { data: studentData } = useStudents({ limit: 500 });
-
-	function studentName(studentId: string) {
-		const s = studentData?.students.find((s) => s.id === studentId);
-		return s ? `${s.firstName} ${s.lastName}` : "Unknown student";
-	}
-
-	function feeTypeName(feeTypeId: string) {
-		return feeTypes?.find((f) => f.id === feeTypeId)?.name ?? "Unknown fee";
-	}
 
 	const filteredInvoices = useMemo(() => {
 		if (!invoiceData) return [];
 		return invoiceData.invoices.filter((inv) => {
 			if (statusFilter !== "all" && inv.status !== statusFilter) return false;
-			if (search) {
-				const name = studentName(inv.studentId).toLowerCase();
-				if (!name.includes(search.toLowerCase())) return false;
-			}
+			if (search && !inv.studentName.toLowerCase().includes(search.toLowerCase())) return false;
 			return true;
 		});
-	}, [invoiceData, statusFilter, search, studentData]);
+	}, [invoiceData, statusFilter, search]);
 
 	const totals = useMemo(() => {
 		if (!invoiceData) return { expected: 0, collected: 0, outstanding: 0 };
 		return invoiceData.invoices.reduce(
 			(acc, inv) => {
-				acc.expected += inv.amountKobo;
+				acc.expected += inv.subtotalKobo - inv.discountKobo;
 				acc.collected += inv.paidKobo;
 				acc.outstanding += inv.balanceKobo;
 				return acc;
@@ -153,18 +147,48 @@ export default function FeesPage() {
 						className="pl-9"
 					/>
 				</div>
-				<Select value={statusFilter} onValueChange={(v) => setStatusFilter((v ?? "all") as InvoiceStatus | "all")}>
+
+				<Select value={classFilter} onValueChange={(v) => setClassFilter(v ?? "all")}>
 					<SelectTrigger className="w-40">
-						<SelectValue placeholder="Status">
-							{(value: string | null) =>
-								value === "all" || !value ? "All statuses" : INVOICE_STATUS_LABELS[value as InvoiceStatus]
+						<SelectValue placeholder="Class">
+							{(v: string | null) =>
+								!v || v === "all"
+									? "All classes"
+									: classes?.find((c) => c.id === v)?.name ?? "Class"
 							}
 						</SelectValue>
 					</SelectTrigger>
+
+					<SelectContent>
+						<SelectItem value="all">All classes</SelectItem>
+						{classes?.map((c) => (
+							<SelectItem key={c.id} value={c.id}>
+								{c.name}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
+
+				<Select
+					value={statusFilter}
+					onValueChange={(v) => setStatusFilter((v ?? "all") as InvoiceStatus | "all")}
+				>
+					<SelectTrigger className="w-40">
+						<SelectValue placeholder="Status">
+							{(value: string | null) =>
+								value === "all" || !value
+									? "All statuses"
+									: INVOICE_STATUS_LABELS[value as InvoiceStatus]
+							}
+						</SelectValue>
+					</SelectTrigger>
+
 					<SelectContent>
 						<SelectItem value="all">All statuses</SelectItem>
 						{Object.entries(INVOICE_STATUS_LABELS).map(([value, label]) => (
-							<SelectItem key={value} value={value}>{label}</SelectItem>
+							<SelectItem key={value} value={value}>
+								{label}
+							</SelectItem>
 						))}
 					</SelectContent>
 				</Select>
@@ -175,7 +199,8 @@ export default function FeesPage() {
 					<thead className="bg-muted/40 text-xs text-muted-foreground">
 						<tr>
 							<th className="px-4 py-3 text-left">Student</th>
-							<th className="px-4 py-3 text-left">Fee type</th>
+							<th className="px-4 py-3 text-left">Class</th>
+							<th className="px-4 py-3 text-left">Items</th>
 							<th className="px-4 py-3 text-right">Amount</th>
 							<th className="px-4 py-3 text-right">Paid</th>
 							<th className="px-4 py-3 text-right">Balance</th>
@@ -183,62 +208,144 @@ export default function FeesPage() {
 							<th className="w-10" />
 						</tr>
 					</thead>
+
 					<tbody>
 						{invoicesLoading &&
 							Array.from({ length: 5 }).map((_, i) => (
 								<tr key={i} className="border-t border-border">
-									<td colSpan={7} className="px-4 py-3"><Skeleton className="h-8 w-full" /></td>
+									<td colSpan={8} className="px-4 py-3">
+										<Skeleton className="h-8 w-full" />
+									</td>
 								</tr>
 							))}
 
 						{!invoicesLoading && filteredInvoices.length === 0 && (
 							<tr>
-								<td colSpan={7} className="px-4 py-10 text-center text-muted-foreground">
+								<td colSpan={8} className="px-4 py-10 text-center text-muted-foreground">
 									No invoices match these filters.
 								</td>
 							</tr>
 						)}
 
-						{filteredInvoices.map((inv) => (
-							<tr key={inv.id} className="border-t border-border hover:bg-muted/30">
-								<td className="px-4 py-3 font-medium">{studentName(inv.studentId)}</td>
-								<td className="px-4 py-3 text-muted-foreground">{feeTypeName(inv.feeTypeId)}</td>
-								<td className="px-4 py-3 text-right">{formatNaira(inv.amountKobo)}</td>
-								<td className="px-4 py-3 text-right text-muted-foreground">{formatNaira(inv.paidKobo)}</td>
-								<td className="px-4 py-3 text-right">{formatNaira(inv.balanceKobo)}</td>
-								<td className="px-4 py-3 text-right">
-									<Badge variant={INVOICE_STATUS_VARIANT[inv.status]}>{INVOICE_STATUS_LABELS[inv.status]}</Badge>
-								</td>
-								<td className="px-2 py-3">
-									<DropdownMenu>
-										<DropdownMenuTrigger render={<Button variant="ghost" size="icon" className="size-8"><MoreHorizontal className="size-4" /></Button>} />
-										<DropdownMenuContent align="end">
-											{inv.status !== "paid" && inv.status !== "waived" && (
-												<DropdownMenuItem onClick={() => setPayingInvoice(inv)}>
-													<CreditCard className="size-4" /> Record payment
-												</DropdownMenuItem>
-											)}
-											{inv.status !== "waived" && canManageFeeTypes && (
-												<DropdownMenuItem onClick={() => setWaivingInvoice(inv)}>
-													<X className="size-4" /> Waive invoice
-												</DropdownMenuItem>
-											)}
-										</DropdownMenuContent>
-									</DropdownMenu>
-								</td>
-							</tr>
-						))}
+						{filteredInvoices.map((inv) => {
+							const net = inv.subtotalKobo - inv.discountKobo;
+
+							return (
+								<tr
+									key={inv.id}
+									onClick={() => router.push(`/school-admin/fees/${inv.id}`)}
+									onKeyDown={(e) => {
+										if (e.key === "Enter" || e.key === " ") {
+											e.preventDefault();
+											router.push(`/school-admin/fees/${inv.id}`);
+										}
+									}}
+									tabIndex={0}
+									role="link"
+									className="cursor-pointer border-t border-border hover:bg-muted/30 focus:bg-muted/30 focus:outline-none"
+								>
+									<td className="px-4 py-3 font-medium">{inv.studentName}</td>
+
+									<td className="px-4 py-3 text-muted-foreground">
+										{inv.className}
+									</td>
+
+									<td className="px-4 py-3 text-muted-foreground">
+										{inv.items.map((i) => i.feeTypeName).join(", ")}
+									</td>
+
+									<td className="px-4 py-3 text-right">
+										{formatNaira(net)}
+										{inv.discountKobo > 0 && (
+											<div className="text-[11px] text-success">
+												-{formatNaira(inv.discountKobo)} off
+											</div>
+										)}
+									</td>
+
+									<td className="px-4 py-3 text-right text-muted-foreground">
+										{formatNaira(inv.paidKobo)}
+									</td>
+
+									<td className="px-4 py-3 text-right">
+										{formatNaira(inv.balanceKobo)}
+									</td>
+
+									<td className="px-4 py-3 text-right">
+										<Badge variant={INVOICE_STATUS_VARIANT[inv.status]}>
+											{INVOICE_STATUS_LABELS[inv.status]}
+										</Badge>
+									</td>
+
+									<td
+										className="px-2 py-3"
+										onClick={(e) => e.stopPropagation()}
+										onKeyDown={(e) => e.stopPropagation()}
+									>
+										<DropdownMenu>
+											<DropdownMenuTrigger
+												render={
+													<Button
+														variant="ghost"
+														size="icon"
+														className="size-8"
+													>
+														<MoreHorizontal className="size-4" />
+													</Button>
+												}
+											/>
+
+											<DropdownMenuContent align="end">
+												{inv.status !== "paid" && inv.status !== "waived" && (
+													<DropdownMenuItem onClick={() => setPayingInvoice(inv)}>
+														<CreditCard className="size-4" />
+														Record payment
+													</DropdownMenuItem>
+												)}
+
+												{inv.status !== "waived" && canManageFeeTypes && (
+													<DropdownMenuItem onClick={() => setWaivingInvoice(inv)}>
+														<X className="size-4" />
+														Waive invoice
+													</DropdownMenuItem>
+												)}
+											</DropdownMenuContent>
+										</DropdownMenu>
+									</td>
+								</tr>
+							);
+						})}
 					</tbody>
 				</table>
 			</div>
 
-			<CreateFeeTypeDialog open={feeTypeDialogOpen} onOpenChange={setFeeTypeDialogOpen} />
-			{termId && <InvoiceClassDialog termId={termId} open={invoiceClassOpen} onOpenChange={setInvoiceClassOpen} />}
-			{payingInvoice && (
-				<RecordPaymentDialog invoice={payingInvoice} open={!!payingInvoice} onOpenChange={(o) => !o && setPayingInvoice(null)} />
+			<CreateFeeTypeDialog
+				open={feeTypeDialogOpen}
+				onOpenChange={setFeeTypeDialogOpen}
+			/>
+
+			{termId && (
+				<InvoiceClassDialog
+					termId={termId}
+					open={invoiceClassOpen}
+					onOpenChange={setInvoiceClassOpen}
+				/>
 			)}
+
+			{payingInvoice && (
+				<RecordPaymentDialog
+					invoice={payingInvoice}
+					open={!!payingInvoice}
+					onOpenChange={(o) => !o && setPayingInvoice(null)}
+				/>
+			)}
+
 			{waivingInvoice && (
-				<WaiveInvoiceDialog invoice={waivingInvoice} open={!!waivingInvoice} onOpenChange={(o) => !o && setWaivingInvoice(null)} />
+				<WaiveInvoiceDialog
+					invoice={waivingInvoice}
+					open={!!waivingInvoice}
+					onOpenChange={(o) => !o && setWaivingInvoice(null)}
+				/>
 			)}
 		</>
 	);

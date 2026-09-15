@@ -48,3 +48,17 @@ export interface AssignSubjectDto {
 	subjectId: string;
 	staffId: string;
 }
+
+export interface ClassProgressionResponseData {
+	id: string;
+	fromClassId: string;
+	fromClassName: string;
+	toClassId: string | null;
+	toClassName: string | null;
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface SetClassProgressionDto {
+	toClassId: string | null; // null clears the progression (e.g. a terminal class like SS3)
+}

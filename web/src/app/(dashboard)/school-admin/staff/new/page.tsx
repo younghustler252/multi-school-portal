@@ -10,6 +10,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { SelectWithOther } from "@/components/ui/select-with-other";
 import {
 	Select,
 	SelectContent,
@@ -20,6 +21,7 @@ import {
 import { useCreateStaff } from "@/features/staff/hooks/use-staff";
 import { createStaffSchema, CreateStaffFormValues } from "@/features/staff/schemas/staff.schema";
 import { STAFF_ROLE_LABELS } from "@/features/staff/constants/staff-role-labels";
+import { DEPARTMENT_OPTIONS, DESIGNATION_OPTIONS, QUALIFICATION_OPTIONS } from "@/features/staff/constants/staff-field-options";
 import { ApiErrorResponse } from "@/types/api-response";
 
 export default function NewStaffPage() {
@@ -125,18 +127,33 @@ export default function NewStaffPage() {
 						</div>
 
 						<div className="space-y-1.5">
-							<Label htmlFor="department">Department</Label>
-							<Input id="department" {...register("department")} />
+							<Label>Department</Label>
+							<SelectWithOther
+								options={DEPARTMENT_OPTIONS}
+								value={values.department}
+								onChange={(v) => setValue("department", v)}
+								placeholder="Select department"
+							/>
 						</div>
 
 						<div className="space-y-1.5">
-							<Label htmlFor="designation">Designation</Label>
-							<Input id="designation" {...register("designation")} placeholder="e.g. Senior Teacher" />
+							<Label>Designation</Label>
+							<SelectWithOther
+								options={DESIGNATION_OPTIONS}
+								value={values.designation}
+								onChange={(v) => setValue("designation", v)}
+								placeholder="Select designation"
+							/>
 						</div>
 
 						<div className="space-y-1.5">
-							<Label htmlFor="qualification">Qualification</Label>
-							<Input id="qualification" {...register("qualification")} placeholder="e.g. B.Ed" />
+							<Label>Qualification</Label>
+							<SelectWithOther
+								options={QUALIFICATION_OPTIONS}
+								value={values.qualification}
+								onChange={(v) => setValue("qualification", v)}
+								placeholder="Select qualification"
+							/>
 						</div>
 
 						<div className="space-y-1.5">

@@ -44,7 +44,20 @@ export function ProfileTab() {
 		formState: { errors, isDirty },
 	} = useForm<SchoolProfileFormValues>({
 		resolver: zodResolver(schoolProfileSchema),
+		defaultValues: {
+			name: "",
+			email: "",
+			phone: "",
+			address: "",
+			city: "",
+			state: "",
+			country: "",
+			timezone: "",
+			schoolCategory: "primary",
+			schoolOwnership: "private",
+		},
 	});
+
 
 	useEffect(() => {
 		if (school) {

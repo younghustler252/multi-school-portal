@@ -1,18 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import { Check, X } from "lucide-react";
+import { Check, X, FileText, ExternalLink, ShieldCheck, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ConfirmDialog } from "@/components/feedback/confirm-dialog";
 import { useAdminSchoolDocuments, useApproveDocument, useRejectDocument } from "../hooks/use-school-documents";
-import { DOCUMENT_TYPE_LABELS } from "@/features/school/types/school-document.types";
-import { DocumentType } from "@/features/school/types/school-document.types";
+import {
+	DOCUMENT_TYPE_LABELS,
+	SchoolDocumentType,
+	getRequiredDocumentTypes,
+} from "@/features/school/types/school-document.types";
 import { ApiErrorResponse } from "@/types/api-response";
 
-export function DocumentReviewPanel({ schoolId }: { schoolId: string }) {
+interface DocumentReviewPanelProps {
+	schoolId: string;
+	schoolCategory?: string;
+}
+
+export function DocumentReviewPanel({ schoolId, schoolCategory }: DocumentReviewPanelProps) {
 	const { data: documents, isLoading } = useAdminSchoolDocuments(schoolId);
 	const approveDocument = useApproveDocument();
 	const rejectDocument = useRejectDocument();
@@ -44,35 +52,80 @@ export function DocumentReviewPanel({ schoolId }: { schoolId: string }) {
 
 	if (isLoading) return <Skeleton className="h-32 rounded-xl" />;
 
-	return (
-		<div className="rounded-xl border border-border bg-card/80 p-5 backdrop-blur-sm">
-			<h3 className="font-medium">Verification documents</h3>
+	const required = getRequiredDocumentTypes(schoolCategory);
+	const uploadedTypes = new Set((documents ?? []).map((d) => d.type));
+	const missing = required.filter((t) => !uploadedTypes.has(t));
 
-			{!documents || documents.length === 0 ? (
-				<p className="mt-3 text-sm text-muted-foreground">No documents uploaded yet.</p>
+	const allApproved =
+		(documents ?? []).length > 0 &&
+		missing.length === 0 &&
+		(documents ?? []).every((d) => d.status === "approved");
+
+	return (
+		<div className="space-y-4">
+			<div className="flex items-center gap-2 text-sm">
+				{allApproved ? (
+					<Badge className="gap-1"><ShieldCheck className="size-3" /> Fully verified</Badge>
+				) : (
+					<Badge variant="secondary" className="gap-1"><ShieldAlert className="size-3" /> Verification pending</Badge>
+				)}
+			</div>
+
+			{missing.length > 0 && (
+				<div className="rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground">
+					Missing required documents: {missing.map((t) => DOCUMENT_TYPE_LABELS[t]).join(", ")}
+				</div>
+			)}
+
+			{(!documents || documents.length === 0) ? (
+				<p className="text-sm text-muted-foreground">No documents uploaded yet.</p>
 			) : (
-				<div className="mt-3 space-y-2">
+				<div className="space-y-2">
 					{documents.map((doc) => (
-						<div key={doc.id} className="flex items-center justify-between rounded-lg border border-border px-3 py-2.5">
-							<div>
-								<a href={doc.fileUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-primary hover:underline">
-									{DOCUMENT_TYPE_LABELS[doc.type as DocumentType] ?? doc.type}
-								</a>
-								<div className="text-xs text-muted-foreground">
-									<Badge variant="outline" className="mr-1 text-[10px]">{doc.status}</Badge>
-									{doc.rejectionReason && `Rejected: ${doc.rejectionReason}`}
+						<div key={doc.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border px-3 py-2.5">
+							<div className="flex items-center gap-3 min-w-0">
+								<div className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+									<FileText className="size-4" />
+								</div>
+								<div className="min-w-0">
+									<div className="text-sm font-medium">
+										{DOCUMENT_TYPE_LABELS[doc.type as SchoolDocumentType] ?? doc.type}
+									</div>
+									<div className="text-xs text-muted-foreground">
+										submitted {new Date(doc.createdAt).toLocaleDateString()}
+										{doc.verifiedAt && ` · reviewed ${new Date(doc.verifiedAt).toLocaleDateString()}`}
+									</div>
+									{doc.rejectionReason && (
+										<div className="mt-1 text-xs text-destructive">Rejected: {doc.rejectionReason}</div>
+									)}
 								</div>
 							</div>
-							{doc.status === "pending" && (
-								<div className="flex gap-1.5">
-									<Button size="sm" variant="outline" onClick={() => handleApprove(doc.id)} disabled={approveDocument.isPending}>
-										<Check className="size-3.5" />
-									</Button>
-									<Button size="sm" variant="outline" className="text-destructive" onClick={() => setRejectingId(doc.id)}>
-										<X className="size-3.5" />
-									</Button>
-								</div>
-							)}
+
+							<div className="flex shrink-0 items-center gap-2">
+								<Badge
+									variant={
+										doc.status === "approved" ? "default" : doc.status === "rejected" ? "destructive" : "secondary"
+									}
+									className="text-[10px]"
+								>
+									{doc.status}
+								</Badge>
+								<Button size="sm" variant="outline" className="gap-1.5" render={
+									<a href={doc.fileUrl} target="_blank" rel="noopener noreferrer">
+										<ExternalLink className="size-3.5" /> View
+									</a>
+								} />
+								{doc.status === "pending" && (
+									<>
+										<Button size="sm" variant="outline" onClick={() => handleApprove(doc.id)} disabled={approveDocument.isPending}>
+											<Check className="size-3.5" />
+										</Button>
+										<Button size="sm" variant="outline" className="text-destructive" onClick={() => setRejectingId(doc.id)}>
+											<X className="size-3.5" />
+										</Button>
+									</>
+								)}
+							</div>
 						</div>
 					))}
 				</div>

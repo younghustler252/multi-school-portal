@@ -1,29 +1,38 @@
 "use client";
 
 import { useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Ban, Receipt, Activity } from "lucide-react";
+import { ArrowLeft, Ban, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ConfirmDialog } from "@/components/feedback/confirm-dialog";
-import { ComingSoon } from "@/components/feedback/coming-soon";
 import { DocumentReviewPanel } from "@/features/super-admin/components/document-review-panel";
 import { ImpersonateButton } from "@/features/super-admin/components/impersonate-button";
-import { useAdminSchool, useSuspendSchool } from "@/features/super-admin/hooks/use-school-management";
-import { useAdminSchoolDocuments } from "@/features/super-admin/hooks/use-school-documents";
+import { SchoolBillingHistory } from "@/features/super-admin/components/school-billing-history";
+import { SchoolActivityFeed } from "@/features/super-admin/components/school-activity-feed";
+import { ChangePlanDialog } from "@/features/super-admin/components/change-plan-dialog";
+import { usePlans } from "@/features/plans/hooks/use-plans";
+import { ResetAdminPasswordButton } from "@/features/super-admin/components/reset-admin-password-button";
+import { useAdminSchool, useSuspendSchool, useActivateSchool } from "@/features/super-admin/hooks/use-school-management";
 import { formatNaira } from "@/lib/format-money";
 import { toast } from "sonner";
 import { ApiErrorResponse } from "@/types/api-response";
 
 export default function AdminSchoolDetailPage() {
 	const params = useParams<{ id: string }>();
+	const searchParams = useSearchParams();
+	const router = useRouter();
+
 	const { data: school, isLoading } = useAdminSchool(params.id);
-	const { data: documents } = useAdminSchoolDocuments(params.id);
+	const { data: plans } = usePlans();
+
 	const suspendSchool = useSuspendSchool();
+	const activateSchool = useActivateSchool();
 
 	const [confirmSuspend, setConfirmSuspend] = useState(false);
 	const [reason, setReason] = useState("");
+	const [changePlanOpen, setChangePlanOpen] = useState(searchParams.get("action") === "change-plan");
 
 	async function handleSuspend() {
 		if (reason.length < 10) return;
@@ -37,14 +46,22 @@ export default function AdminSchoolDetailPage() {
 		}
 	}
 
+	async function handleReactivate() {
+		try {
+			await activateSchool.mutateAsync(params.id);
+			toast.success("School reactivated");
+		} catch (err) {
+			toast.error((err as ApiErrorResponse).message || "Couldn't reactivate");
+		}
+	}
+
 	if (isLoading) return <Skeleton className="h-64 rounded-xl" />;
 	if (!school) return <p className="text-muted-foreground">School not found.</p>;
 
-	const hasDocuments = (documents?.length ?? 0) > 0;
-
 	return (
 		<>
-			<Link href="/schools" className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+			<Link href=
+			"/schools" className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
 				<ArrowLeft className="size-3.5" /> Back to schools
 			</Link>
 
@@ -55,12 +72,18 @@ export default function AdminSchoolDetailPage() {
 						{school.subdomain}.schoolos.app · {school.planName ?? "No plan"} plan · joined {new Date(school.createdAt).toLocaleDateString()}
 					</p>
 				</div>
-				<div className="flex gap-2">
-					{school.status === "active" && (
-						<Button variant="outline" onClick={() => setConfirmSuspend(true)}>
+				<div className="flex flex-wrap gap-2">
+					<ResetAdminPasswordButton schoolId={school.id} />
+					<Button nativeButton={false} variant="outline" onClick={() => setChangePlanOpen(true)}>Change plan</Button>
+					{school.status === "active" ? (
+						<Button nativeButton={false} variant="outline" onClick={() => setConfirmSuspend(true)}>
 							<Ban className="size-4" /> Suspend
 						</Button>
-					)}
+					) : school.status === "suspended" ? (
+						<Button nativeButton={false} variant="outline" onClick={handleReactivate} disabled={activateSchool.isPending}>
+							<RotateCcw className="size-4" /> Reactivate
+						</Button>
+					) : null}
 					<ImpersonateButton schoolId={school.id} subdomain={school.subdomain} />
 				</div>
 			</div>
@@ -85,18 +108,13 @@ export default function AdminSchoolDetailPage() {
 			</div>
 
 			<div className="mb-6 rounded-xl border border-border bg-card/80 p-6">
-				<div className="mb-4 flex items-start justify-between gap-4">
-					<div>
-						<div className="font-medium">Verification &amp; documents</div>
-						<p className="mt-1 text-sm text-muted-foreground">
-							A school stays in limited mode — no fee collection, no parent invitations — until its documents are approved.
-						</p>
-					</div>
-					{!hasDocuments && (
-						<span className="shrink-0 rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">No documents yet</span>
-					)}
+				<div className="mb-4">
+					<div className="font-medium">Verification &amp; documents</div>
+					<p className="mt-1 text-sm text-muted-foreground">
+						A school stays in limited mode — no fee collection, no parent invitations — until its documents are approved.
+					</p>
 				</div>
-				<DocumentReviewPanel schoolId={params.id} />
+				<DocumentReviewPanel schoolId={params.id} schoolCategory={school.schoolCategory} />
 			</div>
 
 			<div className="grid gap-6 lg:grid-cols-2">
@@ -105,6 +123,10 @@ export default function AdminSchoolDetailPage() {
 					<dl className="space-y-3 text-sm">
 						{[
 							["Subdomain", `${school.subdomain}.schoolos.app`],
+							["Email", school.email],
+							["Phone", school.phone ?? "—"],
+							["Category", school.schoolCategory.replace("_", " + ")],
+							["Ownership", school.schoolOwnership],
 							["Plan", school.planName ?? "—"],
 							["Students", String(school.studentCount)],
 							["Monthly revenue", formatNaira(school.mrrKobo)],
@@ -119,12 +141,21 @@ export default function AdminSchoolDetailPage() {
 					</dl>
 				</div>
 
-				<ComingSoon icon={Receipt} title="Recent invoices" />
+				<SchoolBillingHistory schoolId={params.id} />
 			</div>
 
 			<div className="mt-6">
-				<ComingSoon icon={Activity} title="Recent activity" />
+				<SchoolActivityFeed schoolId={params.id} />
 			</div>
+
+			{/* plans prop still needs a real source — see note below */}
+			<ChangePlanDialog
+				schoolId={school.id}
+				currentPlanId={null}
+				plans={plans ?? []}
+				open={changePlanOpen}
+				onOpenChange={setChangePlanOpen}
+			/>
 
 			<ConfirmDialog
 				open={confirmSuspend}

@@ -117,3 +117,15 @@ export function useClass(id: string) {
 		enabled: !!id,
 	});
 }
+
+export function useSetClassProgression() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: ({ id, data }: { id: string; data: SetClassProgressionDto }) =>
+			classApi.setProgression(id, data),
+		onSuccess: (_, variables) => {
+			queryClient.invalidateQueries({ queryKey: ["classes"] });
+			queryClient.invalidateQueries({ queryKey: ["classes", variables.id] });
+		},
+	});
+}

@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { StudentCard } from "@/features/students/components/student-card";
+import { GuardianCard } from "@/features/guardians/components/guardian-card";
 import { useGuardians } from "@/features/guardians/hooks/use-guardians";
 import { useDebouncedValue } from "@/lib/use-debounced-value";
 
@@ -23,7 +23,11 @@ export default function GuardiansPage() {
 				title="Guardians"
 				description={`${data?.guardians.length ?? 0} linked accounts`}
 				actions={
-					<Button nativeButton={false} render={<Link href="/school-admin/guardians/new"><Plus className="size-4" /> Add guardian</Link>} />
+					<Button
+						nativeButton={false}
+						className="w-full sm:w-auto"
+						render={<Link href="/school-admin/guardians/new"><Plus className="size-4" /> Add guardian</Link>}
+					/>
 				}
 			/>
 
@@ -37,34 +41,56 @@ export default function GuardiansPage() {
 				/>
 			</div>
 
-			<div className="overflow-hidden rounded-xl border border-border bg-card/60">
+			{/* Mobile: cards */}
+			<div className="space-y-2 md:hidden">
+				{isLoading &&
+					Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-20 rounded-xl" />)}
+
+				{!isLoading && data?.guardians.length === 0 && (
+					<div className="rounded-xl border border-dashed border-border py-10 text-center text-muted-foreground">
+						No guardians found.
+					</div>
+				)}
+
+				{data?.guardians.map((guardian) => (
+					<GuardianCard key={guardian.id} guardian={guardian} />
+				))}
+			</div>
+
+			{/* Desktop: table */}
+			<div className="hidden overflow-hidden rounded-xl border border-border bg-card/60 md:block">
 				<table className="w-full text-sm">
 					<thead className="bg-muted/40 text-xs text-muted-foreground">
 						<tr>
 							<th className="px-4 py-3 text-left">Name</th>
 							<th className="px-4 py-3 text-left">Email</th>
 							<th className="px-4 py-3 text-left">Phone</th>
+							<th className="px-4 py-3 text-left">Children</th>
 						</tr>
 					</thead>
 					<tbody>
 						{isLoading &&
 							Array.from({ length: 5 }).map((_, i) => (
-								<tr key={i} className="border-t border-border"><td colSpan={3} className="px-4 py-3"><Skeleton className="h-8 w-full" /></td></tr>
+								<tr key={i} className="border-t border-border"><td colSpan={4} className="px-4 py-3"><Skeleton className="h-8 w-full" /></td></tr>
 							))}
 
 						{!isLoading && data?.guardians.length === 0 && (
-							<tr><td colSpan={3} className="px-4 py-10 text-center text-muted-foreground">No guardians found.</td></tr>
+							<tr><td colSpan={4} className="px-4 py-10 text-center text-muted-foreground">No guardians found.</td></tr>
 						)}
 
 						{data?.guardians.map((guardian) => (
 							<tr key={guardian.id} className="border-t border-border hover:bg-muted/30">
 								<td className="px-4 py-3">
 									<Link href={`/school-admin/guardians/${guardian.id}`} className="font-medium">
+										{/* title (Mr/Mrs) prepended here once confirmed on GuardianResponseData */}
 										{guardian.firstName} {guardian.lastName}
 									</Link>
 								</td>
 								<td className="px-4 py-3 text-muted-foreground">{guardian.email}</td>
 								<td className="px-4 py-3 text-muted-foreground">{guardian.phone ?? "—"}</td>
+								<td className="px-4 py-3 text-muted-foreground">
+									{/* children names rendered here once the field/shape is confirmed */}
+								</td>
 							</tr>
 						))}
 					</tbody>

@@ -19,6 +19,7 @@ export interface PaymentResponseData {
 export interface InitializePaymentDto {
 	invoiceId: string;
 	callbackUrl?: string;
+	amountKobo?: number;
 }
 
 export interface InitializePaymentResponseData {

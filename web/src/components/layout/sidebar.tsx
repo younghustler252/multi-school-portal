@@ -13,7 +13,7 @@ import { Role } from "@/types/roles";
 import { COMPANY } from "@/config/company";
 import { usePublicSchoolInfo } from "@/features/school/hooks/use-school";
 import { useCurrentSession } from "@/features/school/hooks/use-sessions";
-import { useOnboardingProgress } from "@/features/school/hooks/use-onboarding-progress";
+// import { useOnboardingProgress } from "@/features/school/hooks/use-onboarding-progress";
 import { TERM_LABELS } from "@/features/school/components/term-badge";
 
 interface SidebarProps {
@@ -50,7 +50,7 @@ function SidebarContent({ role, onNavigate }: { role: Role; onNavigate?: () => v
 		? `${TERM_LABELS[currentSession.currentTerm.name]} — ${currentSession.session.name}`
 		: undefined;
 
-	const progress = useOnboardingProgress();
+	// const progress = useOnboardingProgress();
 
 
 	return (
@@ -94,7 +94,7 @@ function SidebarContent({ role, onNavigate }: { role: Role; onNavigate?: () => v
 				})}
 			</nav>
 
-			{isSchoolScoped && !progress.isLoading && !progress.isComplete && (
+			{/* {isSchoolScoped && !progress.isLoading && !progress.isComplete && (
 				<Link
 					href="/setup"
 					className="mx-3 mt-3 block rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-xs"
@@ -107,7 +107,7 @@ function SidebarContent({ role, onNavigate }: { role: Role; onNavigate?: () => v
 						<div className="h-full bg-primary transition-all" style={{ width: `${(progress.currentStepNumber / progress.totalSteps) * 100}%` }} />
 					</div>
 				</Link>
-			)}
+			)} */}
 			<Separator className="bg-sidebar-border" />
 
 			<div className="p-3">

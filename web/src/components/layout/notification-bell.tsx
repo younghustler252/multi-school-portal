@@ -1,17 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { Bell } from "lucide-react";
+import { Bell, CheckCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu, DropdownMenuContent, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useMyNotifications, useUnreadCount, useMarkAsRead } from "@/features/notifications/hooks/use-notification-inbox";
+import { useMyNotifications, useUnreadCount, useMarkAsRead, useMarkAllAsRead } from "@/features/notifications/hooks/use-notification-inbox";
 
 export function NotificationBell({ inboxPath }: { inboxPath: string }) {
 	const unreadCount = useUnreadCount();
 	const { data } = useMyNotifications({ limit: 5 });
 	const markAsRead = useMarkAsRead();
+	const markAllAsRead = useMarkAllAsRead();
 
 	return (
 		<DropdownMenu>
@@ -26,7 +27,18 @@ export function NotificationBell({ inboxPath }: { inboxPath: string }) {
 			<DropdownMenuContent align="end" className="w-80">
 				<div className="flex items-center justify-between px-2 py-1.5">
 					<div className="text-sm font-semibold">Notifications</div>
-					<Link href={inboxPath} className="text-xs text-primary hover:underline">View all</Link>
+					<div className="flex items-center gap-3">
+						{unreadCount > 0 && (
+							<button
+								onClick={(e) => { e.stopPropagation(); markAllAsRead.mutate(); }}
+								disabled={markAllAsRead.isPending}
+								className="flex items-center gap-1 text-xs text-primary hover:underline disabled:opacity-50"
+							>
+								<CheckCheck className="size-3" /> Mark all as read
+							</button>
+						)}
+						<Link href={inboxPath} className="text-xs text-primary hover:underline">View all</Link>
+					</div>
 				</div>
 				<DropdownMenuSeparator />
 
