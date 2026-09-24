@@ -3,32 +3,42 @@ import { TermMapper }           from "../mappers/session.mapper";
 import { TermResponseData }     from "../mappers/session.mapper";
 import { IEnrolmentRepository } from "../../enrolment/repositories/enrolment.repository";
 import { IStudentRepository }   from "../../students/repositories/student.repository";
+import { IClassRepository } from "../../classes/repositories/class.repository";
+import { ClassSubjectResolutionService } from "../../classes/services/class-subject-resolution-service";
 import { NotFoundError }         from "../../../shared/errors/domain.errors";
 import { SessionErrorMessage }   from "../domain/session.enums";
 
 interface Dependencies {
-    sessionRepository:   ISessionRepository;
-    enrolmentRepository: IEnrolmentRepository;
-    studentRepository:   IStudentRepository;
-    termMapper:          TermMapper;
+    sessionRepository:             ISessionRepository;
+    enrolmentRepository:           IEnrolmentRepository;
+    studentRepository:             IStudentRepository;
+    classRepository:               IClassRepository;
+    classSubjectResolutionService: ClassSubjectResolutionService;
+    termMapper:                    TermMapper;
 }
 
 export class SetCurrentTermUseCase {
-    private readonly sessionRepository:   ISessionRepository;
-    private readonly enrolmentRepository: IEnrolmentRepository;
-    private readonly studentRepository:   IStudentRepository;
-    private readonly termMapper:          TermMapper;
+    private readonly sessionRepository:             ISessionRepository;
+    private readonly enrolmentRepository:           IEnrolmentRepository;
+    private readonly studentRepository:             IStudentRepository;
+    private readonly classRepository:               IClassRepository;
+    private readonly classSubjectResolutionService: ClassSubjectResolutionService;
+    private readonly termMapper:                    TermMapper;
 
     constructor({
         sessionRepository,
         enrolmentRepository,
         studentRepository,
+        classRepository,
+        classSubjectResolutionService,
         termMapper,
     }: Dependencies) {
-        this.sessionRepository   = sessionRepository;
-        this.enrolmentRepository = enrolmentRepository;
-        this.studentRepository   = studentRepository;
-        this.termMapper          = termMapper;
+        this.sessionRepository             = sessionRepository;
+        this.enrolmentRepository           = enrolmentRepository;
+        this.studentRepository             = studentRepository;
+        this.classRepository               = classRepository;
+        this.classSubjectResolutionService = classSubjectResolutionService;
+        this.termMapper                    = termMapper;
     }
 
     async execute(termId: string): Promise<TermResponseData> {
@@ -78,6 +88,16 @@ export class SetCurrentTermUseCase {
                     status: "active",
                 });
             }
+        }
+
+        const classes = await this.classRepository.findAllClasses();
+
+        for (const cls of classes) {
+            await this.classSubjectResolutionService.carryForwardAndSeed(
+                cls.id,
+                previousTerm?.id ?? null,
+                updated.id,
+            );
         }
 
         return this.termMapper.toResponse(updated);

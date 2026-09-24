@@ -4,12 +4,13 @@ import { redisConnection } from "../connection";
 /*
 |--------------------------------------------------------------------------
 | DEFAULTER REMINDER QUEUE
-| Runs every day at 8:00 AM
+|--------------------------------------------------------------------------
+| Processes daily fee reminder checks.
 |--------------------------------------------------------------------------
 */
 
 export interface DefaulterReminderJobData {
-    // Add data here later if needed
+    runAt: string;
 }
 
 export const defaulterReminderQueue =
@@ -19,17 +20,3 @@ export const defaulterReminderQueue =
             connection: redisConnection,
         },
     );
-
-export const addDefaulterReminderJob = async (): Promise<void> => {
-    await defaulterReminderQueue.add(
-        "daily-check",
-        {},
-        {
-            repeat: {
-                pattern: "0 8 * * *",
-            },
-            removeOnComplete: true,
-            removeOnFail: false,
-        },
-    );
-};

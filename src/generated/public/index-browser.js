@@ -361,6 +361,19 @@ exports.Prisma.PlatformSettingsScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.FeedbackScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  schoolId: 'schoolId',
+  type: 'type',
+  message: 'message',
+  pageUrl: 'pageUrl',
+  status: 'status',
+  response: 'response',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -525,6 +538,19 @@ exports.DeliveryStatus = exports.$Enums.DeliveryStatus = {
   CANCELLED: 'CANCELLED'
 };
 
+exports.FeedbackType = exports.$Enums.FeedbackType = {
+  bug: 'bug',
+  suggestion: 'suggestion',
+  complaint: 'complaint',
+  praise: 'praise'
+};
+
+exports.FeedbackStatus = exports.$Enums.FeedbackStatus = {
+  open: 'open',
+  reviewed: 'reviewed',
+  resolved: 'resolved'
+};
+
 exports.Prisma.ModelName = {
   School: 'School',
   SchoolDocument: 'SchoolDocument',
@@ -539,7 +565,8 @@ exports.Prisma.ModelName = {
   AuditLog: 'AuditLog',
   PlatformNotification: 'PlatformNotification',
   PlatformNotificationRecipient: 'PlatformNotificationRecipient',
-  PlatformSettings: 'PlatformSettings'
+  PlatformSettings: 'PlatformSettings',
+  Feedback: 'Feedback'
 };
 
 /**

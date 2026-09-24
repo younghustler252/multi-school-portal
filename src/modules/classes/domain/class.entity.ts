@@ -1,4 +1,5 @@
-/*
+ import { ClassSubjectAssignmentSource } from "./class.enums";
+ /*
 |--------------------------------------------------------------------------
 | CLASS DOMAIN ENTITIES
 | Tenant-level entities
@@ -16,21 +17,26 @@ export interface ClassEntity {
 }
 
 export interface SubjectEntity {
+    id:               string;
+    name:             string;
+    code:             string | null;
+    description:      string | null;
+    defaultTeacherId: string | null;
+    createdAt:        Date;
+    updatedAt:        Date;
+}
+
+export interface ClassSubjectEntity {
     id:          string;
-    name:        string;
-    code:        string | null;
-    description: string | null;
+    classId:     string;
+    subjectId:   string;
+    staffId:     string;
+    termId:      string;
+    assignedVia: ClassSubjectAssignmentSource;
     createdAt:   Date;
     updatedAt:   Date;
 }
 
-export interface ClassSubjectEntity {
-    id:        string;
-    classId:   string;
-    subjectId: string;
-    staffId:   string;
-    createdAt: Date;
-}
 
 export interface ClassProgressionEntity {
     id:          string;

@@ -40,6 +40,7 @@ import { registerNotifications } from "../modules/notifications/notifications.co
 import { registerSuperAdmin }    from "../modules/super-admin/super-admin.container";
 import { registerSchoolSettings } from "../modules/school-settings/school-settings.container";
 import { registerPlatformSettings } from "../modules/platform-settings/platform-settings.container";
+import { registerFeedback } from "../modules/feedback/feedback.container";
 
 const modules: Array<(c: AwilixContainer) => void> = [
     registerShared,
@@ -63,7 +64,8 @@ const modules: Array<(c: AwilixContainer) => void> = [
     registerNotifications,
     registerSuperAdmin, 
     registerSchoolSettings,
-    registerPlatformSettings
+    registerPlatformSettings,
+    registerFeedback
 ];
 
 /*

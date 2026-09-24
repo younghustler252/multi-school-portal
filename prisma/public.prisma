@@ -50,6 +50,8 @@ model School {
   documents                      SchoolDocument[]
   auditLogs                      AuditLog[]
   platformNotificationRecipients PlatformNotificationRecipient[]
+  feedback          Feedback[]
+
 }
 
 
@@ -158,6 +160,7 @@ model User {
   refreshTokens     RefreshToken[]
   otps              Otp[]
   invitesSent       Invite[]  @relation("InviteSender")
+  feedback          Feedback[]
 }
 
 model Otp {
@@ -469,4 +472,33 @@ model PlatformSettings {
   announcementBanner          String?
   createdAt                   DateTime @default(now())
   updatedAt                   DateTime @updatedAt
+}
+
+model Feedback {
+  id        String         @id @default(uuid())
+  userId    String?
+  schoolId  String?
+  type      FeedbackType   @default(suggestion)
+  message   String
+  pageUrl   String?
+  status    FeedbackStatus @default(open)
+  response  String?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  user   User?   @relation(fields: [userId], references: [id])
+  school School? @relation(fields: [schoolId], references: [id])
+}
+
+enum FeedbackType {
+  bug
+  suggestion
+  complaint
+  praise
+}
+
+enum FeedbackStatus {
+  open
+  reviewed
+  resolved
 }

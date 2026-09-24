@@ -23,3 +23,9 @@ export enum ClassSuccessMessage {
     SUBJECT_ASSIGNED = "Subject assigned to class successfully",
     SUBJECT_REMOVED  = "Subject removed from class successfully",
 }
+
+export enum ClassSubjectAssignmentSource {
+    manual = "manual",
+    auto_subject_default = "auto_subject_default",
+    auto_homeroom = "auto_homeroom",
+}

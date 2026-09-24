@@ -45,6 +45,15 @@ router.get(
     (req, res, next) => ctrl().getMyChildrenAttendance(req, res, next),
 );
 
+// ── Bulk mark attendance ──────────────────────────────────────────────────
+router.post(
+    "/bulk",
+    authenticate,
+    requireTenant,
+    requireStaff,
+    validate(BulkMarkAttendanceDto),
+    (req, res, next) => ctrl().bulkMarkAttendance(req, res, next),
+);
 // ── Get attendance summary for a student ──────────────────────────────────
 router.get(
     "/summary/:studentId",
@@ -56,7 +65,7 @@ router.get(
 
 // ── Mark single attendance ────────────────────────────────────────────────
 router.post(
-    "/",
+    "/:classId",
     authenticate,
     requireTenant,
     requireStaff,
@@ -64,15 +73,6 @@ router.post(
     (req, res, next) => ctrl().markAttendance(req, res, next),
 );
 
-// ── Bulk mark attendance ──────────────────────────────────────────────────
-router.post(
-    "/bulk",
-    authenticate,
-    requireTenant,
-    requireStaff,
-    validate(BulkMarkAttendanceDto),
-    (req, res, next) => ctrl().bulkMarkAttendance(req, res, next),
-);
 
 // ── Update attendance ─────────────────────────────────────────────────────
 router.put(

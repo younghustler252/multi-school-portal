@@ -28,6 +28,12 @@ router.get(
     validate(ListReportCardsDto, "query"),
     (req, res, next) => ctrl().getReportCards(req, res, next),
 );
+router.get(
+    "/my-children",
+    authenticate,
+    requireTenant,
+    (req, res, next) => ctrl().getMyChildrenReportCards(req, res, next),
+)
 
 // ── Get single report card ────────────────────────────────────────────────
 router.get(
@@ -95,5 +101,6 @@ router.post(
     requireFeature("reportCardPdf"),
     (req, res, next) => ctrl().sendReportCard(req, res, next),
 );
+
 
 export default router;

@@ -1,5 +1,5 @@
-import { IClassRepository } from "../../repositories/class.repository";
-import { NotFoundError }    from "../../../../shared/errors/domain.errors";
+import { IClassRepository }  from "../../repositories/class.repository";
+import { NotFoundError }     from "../../../../shared/errors/domain.errors";
 import { ClassErrorMessage } from "../../domain/class.enums";
 
 interface Dependencies {
@@ -14,13 +14,10 @@ export class RemoveSubjectUseCase {
     }
 
     async execute(classSubjectId: string): Promise<void> {
-        const existing = await this.classRepository
-            .findClassSubjects(classSubjectId);
+        const existing = await this.classRepository.findClassSubjectById(classSubjectId);
 
         if (!existing) {
-            throw new NotFoundError(
-                ClassErrorMessage.CLASS_SUBJECT_NOT_FOUND,
-            );
+            throw new NotFoundError(ClassErrorMessage.CLASS_SUBJECT_NOT_FOUND);
         }
 
         await this.classRepository.removeSubject(classSubjectId);

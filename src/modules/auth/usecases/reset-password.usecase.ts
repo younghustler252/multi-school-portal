@@ -107,9 +107,9 @@ export class ResetPasswordUseCase {
         await this.userRepository.update(user.id, {
             passwordHash,
             passwordChangedAt: new Date(),
-            // Unlock account in case it was locked
             failedLoginCount:  0,
             lockedUntil:       null,
+            mustChangePassword: false, // ← the fix — a completed reset satisfies the same requirement as a normal change
         });
 
         // ── 9. Invalidate all refresh tokens ──────────────────────────────

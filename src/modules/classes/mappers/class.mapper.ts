@@ -6,6 +6,8 @@ import {
     ClassProgressionEntity,
 } from "../domain/class.entity";
 
+import { ClassSubjectAssignmentSource } from "../domain/class.enums";
+
 import {
     ClassResponseData,
     SubjectResponseData,
@@ -59,6 +61,7 @@ export class SubjectMapper implements IMapper<any, SubjectEntity> {
             name: raw.name,
             code: raw.code ?? null,
             description: raw.description ?? null,
+            defaultTeacherId: raw.defaultTeacherId ?? null,
             createdAt: raw.createdAt,
             updatedAt: raw.updatedAt,
         };
@@ -70,6 +73,7 @@ export class SubjectMapper implements IMapper<any, SubjectEntity> {
             name: entity.name,
             code: entity.code,
             description: entity.description,
+            defaultTeacherId: entity.defaultTeacherId,
             createdAt: entity.createdAt,
         };
     }
@@ -88,7 +92,10 @@ export class ClassSubjectMapper implements IMapper<any, ClassSubjectEntity> {
             classId: raw.classId,
             subjectId: raw.subjectId,
             staffId: raw.staffId,
+            termId: raw.termId,
+            assignedVia: raw.assignedVia as ClassSubjectAssignmentSource,
             createdAt: raw.createdAt,
+            updatedAt: raw.updatedAt,
         };
     }
 
@@ -98,7 +105,10 @@ export class ClassSubjectMapper implements IMapper<any, ClassSubjectEntity> {
             classId: entity.classId,
             subjectId: entity.subjectId,
             staffId: entity.staffId,
+            termId: entity.termId,
+            assignedVia: entity.assignedVia,
             createdAt: entity.createdAt,
+            updatedAt: entity.updatedAt,
         };
     }
 }
@@ -108,6 +118,7 @@ export class ClassSubjectMapper implements IMapper<any, ClassSubjectEntity> {
 | CLASS PROGRESSION MAPPER
 |--------------------------------------------------------------------------
 */
+
 export class ClassProgressionMapper
     implements IMapper<any, ClassProgressionEntity>
 {
@@ -118,6 +129,18 @@ export class ClassProgressionMapper
             toClassId: raw.toClassId ?? null,
             createdAt: raw.createdAt,
             updatedAt: raw.updatedAt,
+        };
+    }
+
+    toResponse(entity: ClassProgressionEntity): ClassProgressionResponseData {
+        return {
+            id: entity.id,
+            fromClassId: entity.fromClassId,
+            fromClassName: "",
+            toClassId: entity.toClassId,
+            toClassName: null,
+            createdAt: entity.createdAt,
+            updatedAt: entity.updatedAt,
         };
     }
 }

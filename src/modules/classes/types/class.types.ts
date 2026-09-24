@@ -25,15 +25,29 @@ export interface SubjectResponseData {
     name: string;
     code: string | null;
     description: string | null;
+    defaultTeacherId: string | null;
     createdAt: Date;
 }
 
+export interface EnrichedSubject extends SubjectResponseData {
+    defaultTeacherName: string | null;
+}
 export interface ClassSubjectResponseData {
     id: string;
     classId: string;
     subjectId: string;
-    staffId: string;
+    staffId: string | null;
+    termId: string;
+    assignedVia: "manual" | "auto_subject_default" | "auto_homeroom" | null;
     createdAt: Date;
+    updatedAt: Date;
+}
+
+export interface EnrichedClassSubject extends ClassSubjectResponseData {
+    className: string;
+    subjectName: string;
+    subjectCode: string | null;
+    staffName: string | null;
 }
 
 export interface ClassProgressionResponseData {

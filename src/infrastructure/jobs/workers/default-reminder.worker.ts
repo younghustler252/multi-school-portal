@@ -1,11 +1,12 @@
 // infrastructure/jobs/workers/defaulter-reminder.worker.ts
-import { Worker } from "bullmq";
+import { Worker, Job } from "bullmq";
 import { redisConnection } from "../connection";
 import { TenantContext } from "../../database/prisma/tenant.context";
 import { getTenantClient } from "../../database/prisma/prisma.client";
 import { prisma } from "../../database/prisma/prisma.client";
 import { container } from "../../../container";
 import { MailService } from "../../mail/mail.service";
+import { DefaulterReminderJobData } from "../queues/defaulter-reminder.queue";
 import { INotificationRepository } from "../../../modules/notifications/repositories/notification.repository";
 import { NotificationService } from "../../../modules/notifications/services/notification.service";
 import { AuditService } from "../../../modules/audit/services/audit.service";
@@ -13,9 +14,13 @@ import { ActorType } from "../../../modules/audit/domain/audit.enums";
 
 const ACTOR_ID = "SYSTEM_DEFAULTER_REMINDER";
 
-export const defaulterReminderWorker = new Worker(
-    "defaulter-reminder",
-    async () => {
+export const defaulterReminderWorker =
+    new Worker<DefaulterReminderJobData>(
+        "defaulter-reminder",
+        async (job: Job<DefaulterReminderJobData>) => {
+            console.log(
+                `📨 Processing defaulter reminder job: ${job.id}`,
+            );
         const mailService = container.resolve<MailService>("mailService");
         const notificationRepository = container.resolve<INotificationRepository>("notificationRepository");
         const notificationService = container.resolve<NotificationService>("notificationService");

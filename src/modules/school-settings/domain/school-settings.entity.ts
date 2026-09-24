@@ -1,4 +1,7 @@
-import { ReportCardTemplate } from "./school-settings.enums";
+import {
+    ReportCardTemplate,
+    TeachingModel,
+} from "./school-settings.enums";
 
 export interface SchoolSettingsEntity {
     id: string;
@@ -32,9 +35,11 @@ export interface SchoolSettingsEntity {
     letterheadContentTopMm: number | null;
 
     letterheadContentBottomMm: number | null;
+
     allowStudentLogin: boolean;
 
-    createdAt: Date;
+    teachingModel: TeachingModel | null;
 
+    createdAt: Date;
     updatedAt: Date;
 }

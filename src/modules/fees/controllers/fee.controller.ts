@@ -13,7 +13,9 @@ import { InvoiceClassUseCase }  from "../usecases/invoice-class.usecase";
 import { RecordPaymentUseCase } from "../usecases/record-payment.usecase";
 import { GetMyChildrenInvoicesUseCase } from "../usecases/get-my-children-invoices.usecase";
 import { WaiveInvoiceUseCase } from "../usecases/waive-invoice.usecase";
-import { GetInvoicePaymentsUseCase } from "../usecases/get-invoice-payments.usecase"
+import { GetInvoicePaymentsUseCase } from "../usecases/get-invoice-payments.usecase";
+import { PingDefaultersUseCase } from "../usecases/ping-defaulters.usecase";
+import { InvoiceStudentLikeClassUseCase } from "../usecases/invoice-student-like-classes";
 import {
     sendSuccess,
     sendCreated,
@@ -36,6 +38,9 @@ interface Dependencies {
     getInvoicePaymentsUseCase: GetInvoicePaymentsUseCase;
     waiveInvoiceUseCase:       WaiveInvoiceUseCase;
     getMyChildrenInvoicesUseCase:  GetMyChildrenInvoicesUseCase;
+    pingDefaultersUseCase:          PingDefaultersUseCase;
+    invoiceStudentLikeClassUseCase:  InvoiceStudentLikeClassUseCase;
+    
 }
 
 export class FeeController {
@@ -54,6 +59,8 @@ export class FeeController {
     private readonly getMyChildrenInvoicesUseCase: GetMyChildrenInvoicesUseCase;
     private readonly getInvoicePaymentsUseCase: GetInvoicePaymentsUseCase;
     private readonly waiveInvoiceUseCase: WaiveInvoiceUseCase;
+    private readonly pingDefaultersUseCase: PingDefaultersUseCase;
+    private readonly invoiceStudentLikeClassUseCase: InvoiceStudentLikeClassUseCase;
 
     constructor({
         createFeeTypeUseCase,
@@ -71,6 +78,8 @@ export class FeeController {
         getMyChildrenInvoicesUseCase,
         getInvoicePaymentsUseCase,
         waiveInvoiceUseCase,
+        pingDefaultersUseCase,
+        invoiceStudentLikeClassUseCase,
 
     }: Dependencies) {
         this.createFeeTypeUseCase      = createFeeTypeUseCase;
@@ -88,6 +97,9 @@ export class FeeController {
         this.getMyChildrenInvoicesUseCase = getMyChildrenInvoicesUseCase;
         this.getInvoicePaymentsUseCase = getInvoicePaymentsUseCase;
         this.waiveInvoiceUseCase = waiveInvoiceUseCase;
+        this.pingDefaultersUseCase = pingDefaultersUseCase;
+        this.invoiceStudentLikeClassUseCase = invoiceStudentLikeClassUseCase;
+
     }
 
     // ── Fee Types ─────────────────────────────────────────────────────────
@@ -314,4 +326,52 @@ export class FeeController {
             next(err);
         }
     };
+
+        // ── Fee Actions ───────────────────────────────────────────────────────
+
+    pingDefaulters = async (
+        req: Request, res: Response, next: NextFunction,
+    ): Promise<void> => {
+        try {
+            const result = await this.pingDefaultersUseCase.execute(
+                req.body.termId,
+                req.user?.id as string,
+            );
+
+            sendSuccess(
+                res,
+                result,
+                "Defaulters notified successfully",
+            );
+        } catch (err) {
+            next(err);
+        }
+    };
+
+    invoiceStudentLikeClass = async (
+        req: Request,
+        res: Response,
+        next: NextFunction,
+    ): Promise<void> => {
+        try {
+            const { studentId, classId, termId } = req.body;
+
+            const result =
+                await this.invoiceStudentLikeClassUseCase.execute(
+                    studentId,
+                    classId,
+                    termId,
+                );
+
+            sendCreated(
+                res,
+                result,
+                "Invoice created successfully",
+            );
+        } catch (err) {
+            next(err);
+        }
+    };
+
+
 }

@@ -69,7 +69,7 @@ export class GetMyChildrenReportCardsUseCase {
                 return response;
             }),
         );
-
+        console.log("reportcards", data)
         return { data, meta: result.meta };
     }
 }

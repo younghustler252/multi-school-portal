@@ -71,12 +71,21 @@ export class BulkEnrolUseCase {
         const skipped:  string[]                = [];
 
         for (const studentId of dto.studentIds) {
-            // Check already enrolled this term
             const existing = await this.enrolmentRepository
                 .findByStudentAndTerm(studentId, dto.termId);
 
-            if (existing) {
+            if (existing?.status === "active") {
                 skipped.push(studentId);
+                continue;
+            }
+
+            if (existing) {
+                const enrolment = await this.enrolmentRepository.update(existing.id, {
+                    classId: dto.classId,
+                    status:  "active",
+                });
+
+                enrolled.push(this.enrolmentMapper.toResponse(enrolment));
                 continue;
             }
 

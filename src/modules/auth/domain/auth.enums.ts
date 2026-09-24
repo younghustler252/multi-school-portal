@@ -27,5 +27,5 @@ export enum OtpExpiryMinutes {
 }
 
 export const MAX_FAILED_LOGIN_ATTEMPTS = 5;
-export const LOCK_DURATION_MINUTES     = 30;
+export const LOCK_DURATION_MINUTES     = 1;
 export const INVITE_EXPIRY_DAYS        = 7;

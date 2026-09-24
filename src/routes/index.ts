@@ -22,6 +22,7 @@ import auditRouter from "../modules/audit/routes/audit.routes"
 import notificationRouter from "../modules/notifications/routes/notification.routes";
 import schoolSettingRouter from "../modules/school-settings/routes/school-settings.routes"
 import platformsettingsRouter from "../modules/platform-settings/routes/platform-settings.route"
+import feedbackRouter from "../modules/feedback/routes/feedback.routes"
 
 const router = Router();
 
@@ -47,4 +48,6 @@ router.use("/audit", auditRouter)
 router.use("/notifications", notificationRouter);
 router.use("/school-settings", schoolSettingRouter)
 router.use("/platform-settings", platformsettingsRouter)
+router.use("/feedback", feedbackRouter)
+
 export default router;

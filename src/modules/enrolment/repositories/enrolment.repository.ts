@@ -22,7 +22,7 @@ export interface IEnrolmentRepository {
     findMany(where?: Record<string, any>):           Promise<EnrolmentEntity[]>;
     paginate(params: PaginateParams):                Promise<PaginatedResult<EnrolmentEntity>>;
     create(data: Prisma.EnrolmentUncheckedCreateInput):               Promise<EnrolmentEntity>;
-    update(id: string, data: Prisma.EnrolmentUncheckedUpdateInput):   Promise<EnrolmentEntity>;
+    update(id: string, data: Prisma.EnrolmentUncheckedUpdateInput): Promise<EnrolmentEntity>;
     exists(where: Record<string, any>):              Promise<boolean>;
     count(where?: Record<string, any>):              Promise<number>;
 

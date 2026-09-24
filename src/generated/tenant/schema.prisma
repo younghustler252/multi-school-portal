@@ -30,6 +30,7 @@ model Staff {
   updatedAt             DateTime       @updatedAt
   classSubjects         ClassSubject[]
   classesAsClassTeacher Class[]
+  subjectDefaults       Subject[]      @relation("SubjectDefaultTeacher")
 }
 
 enum StaffRole {
@@ -164,6 +165,7 @@ model Term {
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   session        Session         @relation(fields: [sessionId], references: [id])
+  classSubjects  ClassSubject[]
   attendances    Attendance[]
   calendarEvents CalendarEvent[]
 
@@ -196,25 +198,41 @@ model Class {
 }
 
 model Subject {
-  id            String         @id @default(uuid())
-  name          String
-  code          String?        @unique
-  description   String?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  classSubjects ClassSubject[]
+  id               String   @id @default(uuid())
+  name             String
+  code             String?  @unique
+  description      String?
+  defaultTeacherId String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  defaultTeacher Staff?         @relation("SubjectDefaultTeacher", fields: [defaultTeacherId], references: [id])
+  classSubjects  ClassSubject[]
 }
 
 model ClassSubject {
-  id        String   @id @default(uuid())
-  classId   String
-  subjectId String
-  staffId   String
-  createdAt DateTime @default(now())
-  class     Class    @relation(fields: [classId], references: [id])
-  subject   Subject  @relation(fields: [subjectId], references: [id])
-  staff     Staff    @relation(fields: [staffId], references: [id])
-  grades    Grade[]
+  id          String                       @id @default(uuid())
+  classId     String
+  subjectId   String
+  staffId     String
+  termId      String
+  assignedVia ClassSubjectAssignmentSource @default(manual)
+  createdAt   DateTime                     @default(now())
+  updatedAt   DateTime                     @updatedAt
+
+  class   Class   @relation(fields: [classId], references: [id])
+  subject Subject @relation(fields: [subjectId], references: [id])
+  staff   Staff   @relation(fields: [staffId], references: [id])
+  term    Term    @relation(fields: [termId], references: [id])
+  grades  Grade[]
+
+  @@unique([classId, subjectId, termId])
+}
+
+enum ClassSubjectAssignmentSource {
+  manual
+  auto_subject_default
+  auto_homeroom
 }
 
 model Enrolment {
@@ -249,10 +267,15 @@ model ClassProgression {
   updatedAt   DateTime @updatedAt
 }
 
+enum TeachingModel {
+  homeroom
+  subject_specialist
+}
+
 model SchoolSettings {
-  id                        String   @id @default(uuid())
+  id                        String         @id @default(uuid())
   logoUrl                   String?
-  primaryColor              String?  @default("#1a1a2e")
+  primaryColor              String?        @default("#1a1a2e")
   secondaryColor            String?
   motto                     String?
   address                   String?
@@ -260,14 +283,15 @@ model SchoolSettings {
   foundedYear               Int?
   principalName             String?
   stamp                     String?
-  reportCardTemplate        String   @default("classic") // "classic" | "modern" | "minimal" | "custom_letterhead"
+  reportCardTemplate        String         @default("classic") // "classic" | "modern" | "minimal" | "custom_letterhead"
   reportCardLetterheadUrl   String?
-  letterheadContentTopMm    Int?     @default(50)
-  letterheadContentBottomMm Int?     @default(30)
-  allowStudentLogin         Boolean  @default(false)
+  letterheadContentTopMm    Int?           @default(50)
+  letterheadContentBottomMm Int?           @default(30)
+  allowStudentLogin         Boolean        @default(false)
   signature                 String?
-  createdAt                 DateTime @default(now())
-  updatedAt                 DateTime @updatedAt
+  createdAt                 DateTime       @default(now())
+  updatedAt                 DateTime       @updatedAt
+  teachingModel             TeachingModel?
 }
 
 // ===== ATTENDANCE (tenant schema) =====
@@ -366,6 +390,7 @@ model FeeType {
   updatedAt   DateTime @updatedAt
 
   invoiceItems FeeInvoiceItem[]
+  isActive     Boolean          @default(true)
 }
 
 model FeeInvoice {

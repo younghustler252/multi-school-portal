@@ -17,6 +17,7 @@ import {
     ListInvoicesDto,
     InvoiceClassDto,
     RecordPaymentDto,
+    CopyInvoiceFromClassDto
 }                           from "../dtos/fee.dto";
 
 
@@ -68,6 +69,13 @@ router.get(
     (req, res, next) => ctrl().getMyChildrenInvoices(req, res, next),
 );
 
+router.post(
+    "/defaulters/ping",
+    authenticate,
+    requireTenant,
+    requireStaff,
+    (req, res, next) => ctrl().pingDefaulters(req, res, next),
+)
 // Get invoice by ID
 router.get(
     "/invoices/:id",
@@ -174,6 +182,14 @@ router.post(
 );
 
 
+router.post(
+    "/invoices/copy-from-class",
+    authenticate,
+    requireTenant,
+    requireStaff,
+    validate(CopyInvoiceFromClassDto),
+    (req, res, next) => ctrl().invoiceStudentLikeClass(req, res, next),
+);
 // ── Record Manual Payment ─────────────────────────────────────────────────
 router.post(
     "/invoices/:invoiceId/record-payment",
@@ -184,7 +200,5 @@ router.post(
     validate(RecordPaymentDto),
     (req, res, next) => ctrl().recordPayment(req, res, next),
 );
-
-
 
 export default router;

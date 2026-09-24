@@ -1,3 +1,4 @@
+import { Role } from "../../../generated/public";
 import { Request, Response, NextFunction } from "express";
 import { EnterGradeUseCase }          from "../usecases/enter-grade.usecase";
 import { BulkEnterGradesUseCase }     from "../usecases/bulk-enter-grades.usecase";
@@ -74,31 +75,47 @@ export class GradeController {
         } catch (err) { next(err); }
     };
 
-    // ── Enter grade ───────────────────────────────────────────────────────
     enterGrade = async (
         req: Request, res: Response, next: NextFunction,
     ): Promise<void> => {
         try {
-            const result = await this.enterGradeUseCase.execute(req.body);
+            const result = await this.enterGradeUseCase.execute(
+                req.body,
+                req.user!.id,
+                req.user!.role as Role,
+            );
+
             sendCreated(res, result, "Grade entered successfully");
         } catch (err) { next(err); }
     };
 
+
     // ── Bulk enter grades ─────────────────────────────────────────────────
     bulkEnterGrades = async (
-        req: Request, res: Response, next: NextFunction,
+        req: Request,
+        res: Response,
+        next: NextFunction,
     ): Promise<void> => {
         try {
+            const requestingUserId = req.user?.id as string;
+            const requestingUserRole = req.user?.role as Role;
+
             const result = await this.bulkEnterGradesUseCase.execute(
                 req.body,
+                requestingUserId,
+                requestingUserRole,
             );
+
             sendCreated(
                 res,
                 result,
                 `Entered ${result.entered.length} grade(s). Skipped ${result.skipped.length}.`,
             );
-        } catch (err) { next(err); }
+        } catch (err) {
+            next(err);
+        }
     };
+
 
     // ── Update grade ──────────────────────────────────────────────────────
     updateGrade = async (

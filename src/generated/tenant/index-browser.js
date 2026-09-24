@@ -232,6 +232,7 @@ exports.Prisma.SubjectScalarFieldEnum = {
   name: 'name',
   code: 'code',
   description: 'description',
+  defaultTeacherId: 'defaultTeacherId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -241,7 +242,10 @@ exports.Prisma.ClassSubjectScalarFieldEnum = {
   classId: 'classId',
   subjectId: 'subjectId',
   staffId: 'staffId',
-  createdAt: 'createdAt'
+  termId: 'termId',
+  assignedVia: 'assignedVia',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.EnrolmentScalarFieldEnum = {
@@ -280,7 +284,8 @@ exports.Prisma.SchoolSettingsScalarFieldEnum = {
   allowStudentLogin: 'allowStudentLogin',
   signature: 'signature',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  teachingModel: 'teachingModel'
 };
 
 exports.Prisma.AttendanceScalarFieldEnum = {
@@ -345,7 +350,8 @@ exports.Prisma.FeeTypeScalarFieldEnum = {
   name: 'name',
   description: 'description',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  isActive: 'isActive'
 };
 
 exports.Prisma.FeeInvoiceScalarFieldEnum = {
@@ -480,11 +486,22 @@ exports.TermName = exports.$Enums.TermName = {
   third: 'third'
 };
 
+exports.ClassSubjectAssignmentSource = exports.$Enums.ClassSubjectAssignmentSource = {
+  manual: 'manual',
+  auto_subject_default: 'auto_subject_default',
+  auto_homeroom: 'auto_homeroom'
+};
+
 exports.EnrolmentStatus = exports.$Enums.EnrolmentStatus = {
   active: 'active',
   withdrawn: 'withdrawn',
   transferred: 'transferred',
   completed: 'completed'
+};
+
+exports.TeachingModel = exports.$Enums.TeachingModel = {
+  homeroom: 'homeroom',
+  subject_specialist: 'subject_specialist'
 };
 
 exports.AttendanceStatus = exports.$Enums.AttendanceStatus = {

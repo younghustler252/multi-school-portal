@@ -20,13 +20,13 @@ const ctrl = () =>
     container.resolve<PaymentController>("paymentController");
 
 
-// ── Paystack webhook — no auth ────────────────────────────────────────────
-router.post(
-    "/webhook/paystack",
-    webhookLimiter,
-    (req, res, next) =>
-        ctrl().handleWebhook(req, res, next),
-);
+// // ── Paystack webhook — no auth ────────────────────────────────────────────
+// router.post(
+//     "/webhook/paystack",
+//     webhookLimiter,
+//     (req, res, next) =>
+//         ctrl().handleWebhook(req, res, next),
+// );
 
 
 // ── Get my payments ───────────────────────────────────────────────────────

@@ -1,11 +1,13 @@
 import { IStaffRepository } from "../repositories/staff.repository";
 import { IClassRepository } from "../../classes/repositories/class.repository";
-import { NotFoundError }    from "../../../shared/errors/domain.errors";
+import { ISessionRepository } from "../../sessions/repositories/session.repository";
+import { NotFoundError, BadRequestError } from "../../../shared/errors/domain.errors";
 import { StaffErrorMessage } from "../domain/staff.enums";
 
 interface Dependencies {
     staffRepository: IStaffRepository;
     classRepository: IClassRepository;
+    sessionRepository: ISessionRepository;
 }
 
 export interface MyClassSubjectData {
@@ -15,31 +17,60 @@ export interface MyClassSubjectData {
     subjectCode:    string | null;
 }
 
-export interface MyClassResponseData {
+export interface MySubjectClassResponseData {
     classId:   string;
     className: string;
     subjects:  MyClassSubjectData[];
 }
 
+export interface MyHomeroomClassResponseData {
+    classId:      string;
+    className:    string;
+    studentCount: number;
+}
+
+export interface MyClassesResponse {
+    classesAsClassTeacher:   MyHomeroomClassResponseData[];
+    classesAsSubjectTeacher: MySubjectClassResponseData[];
+}
+
 export class GetMyClassesUseCase {
     private readonly staffRepository: IStaffRepository;
     private readonly classRepository: IClassRepository;
+    private readonly sessionRepository: ISessionRepository;
 
-    constructor({ staffRepository, classRepository }: Dependencies) {
+    constructor({
+        staffRepository,
+        classRepository,
+        sessionRepository,
+    }: Dependencies) {
         this.staffRepository = staffRepository;
         this.classRepository = classRepository;
+        this.sessionRepository = sessionRepository;
     }
 
-    async execute(userId: string): Promise<MyClassResponseData[]> {
+    async execute(userId: string): Promise<MyClassesResponse> {
         const staff = await this.staffRepository.findByUserId(userId);
 
         if (!staff) {
             throw new NotFoundError(StaffErrorMessage.NOT_FOUND);
         }
 
-        const assignments = await this.classRepository.findStaffAssignments(staff.id);
+        const currentTerm = await this.sessionRepository.findCurrentTerm();
 
-        const grouped = new Map<string, MyClassResponseData>();
+        if (!currentTerm) {
+            throw new BadRequestError("No current term set.");
+        }
+
+        const [homerooms, assignments] = await Promise.all([
+            this.classRepository.findClassesByClassTeacher(staff.id),
+            this.classRepository.findStaffAssignments(
+                staff.id,
+                currentTerm.id,
+            ),
+        ]);
+
+        const grouped = new Map<string, MySubjectClassResponseData>();
 
         for (const a of assignments) {
             if (!grouped.has(a.classId)) {
@@ -58,6 +89,9 @@ export class GetMyClassesUseCase {
             });
         }
 
-        return Array.from(grouped.values());
+        return {
+            classesAsClassTeacher:   homerooms,
+            classesAsSubjectTeacher: Array.from(grouped.values()),
+        };
     }
 }

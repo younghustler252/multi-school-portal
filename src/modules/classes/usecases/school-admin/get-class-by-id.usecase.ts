@@ -20,6 +20,8 @@ export interface EnrichedClass {
     classTeacherId:   string | null;
     classTeacherName: string | null;
     studentCount:     number;
+    toClassId:        string | null;
+    toClassName:      string | null;
     createdAt:        Date;
 }
 
@@ -29,7 +31,12 @@ export class GetClassByIdUseCase {
     private readonly userRepository:    IUserRepository;
     private readonly sessionRepository: ISessionRepository;
 
-    constructor({ classRepository, staffRepository, userRepository, sessionRepository }: Dependencies) {
+    constructor({
+        classRepository,
+        staffRepository,
+        userRepository,
+        sessionRepository,
+    }: Dependencies) {
         this.classRepository   = classRepository;
         this.staffRepository   = staffRepository;
         this.userRepository    = userRepository;
@@ -52,6 +59,13 @@ export class GetClassByIdUseCase {
             }
         }
 
-        return { ...cls, classTeacherName };
+        const progression = await this.classRepository.findClassProgressionEnriched(id);
+
+        return {
+            ...cls,
+            classTeacherName,
+            toClassId:   progression?.toClassId   ?? null,
+            toClassName: progression?.toClassName ?? null,
+        };
     }
 }

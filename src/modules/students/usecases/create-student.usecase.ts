@@ -29,7 +29,7 @@ interface Dependencies {
     userRepository: IUserRepository;
     passwordService: PasswordService;
     mailService: MailService;
-    IschoolSettingsRepository: ISchoolSettingsRepository;
+    schoolSettingsRepository: ISchoolSettingsRepository;
 }
 
 export class CreateStudentUseCase {
@@ -38,7 +38,7 @@ export class CreateStudentUseCase {
     private readonly userRepository: IUserRepository;
     private readonly passwordService: PasswordService;
     private readonly mailService: MailService;
-    private readonly IschoolSettingsRepository: ISchoolSettingsRepository;
+    private readonly schoolSettingsRepository: ISchoolSettingsRepository;
 
     constructor({
         studentRepository,
@@ -46,14 +46,14 @@ export class CreateStudentUseCase {
         userRepository,
         passwordService,
         mailService,
-        IschoolSettingsRepository,
+        schoolSettingsRepository,
     }: Dependencies) {
         this.studentRepository = studentRepository;
         this.studentMapper = studentMapper;
         this.userRepository = userRepository;
         this.passwordService = passwordService;
         this.mailService = mailService;
-        this.IschoolSettingsRepository = IschoolSettingsRepository;
+        this.schoolSettingsRepository = schoolSettingsRepository;
     }
 
     async execute(
@@ -76,7 +76,7 @@ export class CreateStudentUseCase {
         }
 
         // ── 2. Get school settings ────────────────────────────────────────
-        const settings = await this.IschoolSettingsRepository.find();
+        const settings = await this.schoolSettingsRepository.find();
         const allowStudentLogin = settings?.allowStudentLogin ?? false;
 
 

@@ -75,4 +75,15 @@ export interface IFeeRepository {
 
     deleteInvoiceItem(id: string): Promise<void>;
 
+    findGuardianLinksByStudent(studentId: string): Promise<
+        Array<{
+            guardianId: string;
+            guardian: {
+                email: string;
+                firstName: string;
+            };
+        }>
+    >;
+
+
 }

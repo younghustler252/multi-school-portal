@@ -3,6 +3,7 @@ import { Worker } from "bullmq";
 import { redisConnection } from "../connection";
 import { prisma } from "../../database/prisma/prisma.client";
 import { container } from "../../../container";
+import { IPaymentProvider } from "../../payments/interfaces/payment.provider.interface";
 import { NotificationService } from "../../../modules/notifications/services/notification.service";
 import { AuditService } from "../../../modules/audit/services/audit.service";
 import { ActorType } from "../../../modules/audit/domain/audit.enums";
@@ -14,6 +15,7 @@ export const subscriptionExpiryWorker = new Worker(
     async () => {
         const notificationService = container.resolve<NotificationService>("notificationService");
         const auditService = container.resolve<AuditService>("auditService");
+        const paymentProvider  = container.resolve<IPaymentProvider>("paymentProvider")
 
         const settings = await prisma.platformSettings.findFirst();
         const graceDays    = settings?.subscriptionGracePeriodDays ?? 7;

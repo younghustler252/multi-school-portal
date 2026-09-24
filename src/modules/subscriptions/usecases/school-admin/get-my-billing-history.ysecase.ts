@@ -43,25 +43,24 @@ export class GetMyBillingHistoryUseCase {
     }
 
     async execute(
-    schoolId: string,
-    params: {
-        page?: number;
-        limit?: number;
-    },
-): Promise<BillingHistoryResponse> {
-    const page = params.page ?? 1;
-    const limit = params.limit ?? 20;
+        schoolId: string,
+        params: {
+            page?: number;
+            limit?: number;
+        },
+    ): Promise<BillingHistoryResponse> {
+        const page = params.page ?? 1;
+        const limit = params.limit ?? 20;
 
-    const response =
-        await this.subscriptionRepository.paginateBillingHistoryBySchool(
-            schoolId,
-            page,
-            limit,
-        );
+        const response =
+            await this.subscriptionRepository.paginateBillingHistoryBySchool(
+                schoolId,
+                page,
+                limit,
+            );
 
-    console.log("Billing history response:", response);
 
-    return response;
-}
+        return response;
+    }
 
 }

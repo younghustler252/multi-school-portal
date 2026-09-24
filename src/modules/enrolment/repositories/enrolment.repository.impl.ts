@@ -21,6 +21,15 @@ export class EnrolmentRepositoryImpl
         return this.mapMany(results);
     }
 
+    async update(id: string, data: Prisma.EnrolmentUncheckedUpdateInput): Promise<EnrolmentEntity> {
+        const result = await this.model().update({ where: { id }, data });
+        const mapped = this.mapOne(result);
+        if (!mapped) throw new Error("Failed to map updated enrolment");
+        return mapped;
+    }
+
+
+
     async findByStudentAndTerm(studentId: string, termId: string): Promise<EnrolmentEntity | null> {
         return this.findOne({ studentId, termId });
     }
@@ -34,8 +43,9 @@ export class EnrolmentRepositoryImpl
     }
 
     async countByClass(classId: string, termId: string): Promise<number> {
-        return this.count({ classId, termId });
+        return this.count({ classId, termId, status: "active" });
     }
+
 
     async getStudentSummary(studentId: string): Promise<StudentSummary> {
         const student = await this.prisma.student.findUnique({

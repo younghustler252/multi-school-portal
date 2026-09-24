@@ -96,6 +96,8 @@ export class GuardianRepositoryImpl
             select: { studentId: true },
         });
 
+        console.log("student links",  links)
+
         return links.map(l => l.studentId);
     }
 }

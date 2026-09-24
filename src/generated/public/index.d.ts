@@ -83,6 +83,11 @@ export type PlatformNotificationRecipient = $Result.DefaultSelection<Prisma.$Pla
  * 
  */
 export type PlatformSettings = $Result.DefaultSelection<Prisma.$PlatformSettingsPayload>
+/**
+ * Model Feedback
+ * 
+ */
+export type Feedback = $Result.DefaultSelection<Prisma.$FeedbackPayload>
 
 /**
  * Enums
@@ -276,6 +281,25 @@ export const DeliveryStatus: {
 
 export type DeliveryStatus = (typeof DeliveryStatus)[keyof typeof DeliveryStatus]
 
+
+export const FeedbackType: {
+  bug: 'bug',
+  suggestion: 'suggestion',
+  complaint: 'complaint',
+  praise: 'praise'
+};
+
+export type FeedbackType = (typeof FeedbackType)[keyof typeof FeedbackType]
+
+
+export const FeedbackStatus: {
+  open: 'open',
+  reviewed: 'reviewed',
+  resolved: 'resolved'
+};
+
+export type FeedbackStatus = (typeof FeedbackStatus)[keyof typeof FeedbackStatus]
+
 }
 
 export type SchoolCategory = $Enums.SchoolCategory
@@ -349,6 +373,14 @@ export const NotificationState: typeof $Enums.NotificationState
 export type DeliveryStatus = $Enums.DeliveryStatus
 
 export const DeliveryStatus: typeof $Enums.DeliveryStatus
+
+export type FeedbackType = $Enums.FeedbackType
+
+export const FeedbackType: typeof $Enums.FeedbackType
+
+export type FeedbackStatus = $Enums.FeedbackStatus
+
+export const FeedbackStatus: typeof $Enums.FeedbackStatus
 
 /**
  * ##  Prisma Client ʲˢ
@@ -610,6 +642,16 @@ export class PrismaClient<
     * ```
     */
   get platformSettings(): Prisma.PlatformSettingsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.feedback`: Exposes CRUD operations for the **Feedback** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Feedbacks
+    * const feedbacks = await prisma.feedback.findMany()
+    * ```
+    */
+  get feedback(): Prisma.FeedbackDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1070,7 +1112,8 @@ export namespace Prisma {
     AuditLog: 'AuditLog',
     PlatformNotification: 'PlatformNotification',
     PlatformNotificationRecipient: 'PlatformNotificationRecipient',
-    PlatformSettings: 'PlatformSettings'
+    PlatformSettings: 'PlatformSettings',
+    Feedback: 'Feedback'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1086,7 +1129,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "school" | "schoolDocument" | "user" | "otp" | "refreshToken" | "invite" | "plan" | "subscription" | "coupon" | "billingHistory" | "auditLog" | "platformNotification" | "platformNotificationRecipient" | "platformSettings"
+      modelProps: "school" | "schoolDocument" | "user" | "otp" | "refreshToken" | "invite" | "plan" | "subscription" | "coupon" | "billingHistory" | "auditLog" | "platformNotification" | "platformNotificationRecipient" | "platformSettings" | "feedback"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2126,6 +2169,80 @@ export namespace Prisma {
           }
         }
       }
+      Feedback: {
+        payload: Prisma.$FeedbackPayload<ExtArgs>
+        fields: Prisma.FeedbackFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.FeedbackFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.FeedbackFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload>
+          }
+          findFirst: {
+            args: Prisma.FeedbackFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.FeedbackFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload>
+          }
+          findMany: {
+            args: Prisma.FeedbackFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload>[]
+          }
+          create: {
+            args: Prisma.FeedbackCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload>
+          }
+          createMany: {
+            args: Prisma.FeedbackCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.FeedbackCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload>[]
+          }
+          delete: {
+            args: Prisma.FeedbackDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload>
+          }
+          update: {
+            args: Prisma.FeedbackUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload>
+          }
+          deleteMany: {
+            args: Prisma.FeedbackDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.FeedbackUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.FeedbackUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload>[]
+          }
+          upsert: {
+            args: Prisma.FeedbackUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload>
+          }
+          aggregate: {
+            args: Prisma.FeedbackAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateFeedback>
+          }
+          groupBy: {
+            args: Prisma.FeedbackGroupByArgs<ExtArgs>
+            result: $Utils.Optional<FeedbackGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.FeedbackCountArgs<ExtArgs>
+            result: $Utils.Optional<FeedbackCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -2263,6 +2380,7 @@ export namespace Prisma {
     platformNotification?: PlatformNotificationOmit
     platformNotificationRecipient?: PlatformNotificationRecipientOmit
     platformSettings?: PlatformSettingsOmit
+    feedback?: FeedbackOmit
   }
 
   /* Types for Logging */
@@ -2348,6 +2466,7 @@ export namespace Prisma {
     documents: number
     auditLogs: number
     platformNotificationRecipients: number
+    feedback: number
   }
 
   export type SchoolCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2356,6 +2475,7 @@ export namespace Prisma {
     documents?: boolean | SchoolCountOutputTypeCountDocumentsArgs
     auditLogs?: boolean | SchoolCountOutputTypeCountAuditLogsArgs
     platformNotificationRecipients?: boolean | SchoolCountOutputTypeCountPlatformNotificationRecipientsArgs
+    feedback?: boolean | SchoolCountOutputTypeCountFeedbackArgs
   }
 
   // Custom InputTypes
@@ -2404,6 +2524,13 @@ export namespace Prisma {
     where?: PlatformNotificationRecipientWhereInput
   }
 
+  /**
+   * SchoolCountOutputType without action
+   */
+  export type SchoolCountOutputTypeCountFeedbackArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FeedbackWhereInput
+  }
+
 
   /**
    * Count Type UserCountOutputType
@@ -2413,12 +2540,14 @@ export namespace Prisma {
     refreshTokens: number
     otps: number
     invitesSent: number
+    feedback: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     refreshTokens?: boolean | UserCountOutputTypeCountRefreshTokensArgs
     otps?: boolean | UserCountOutputTypeCountOtpsArgs
     invitesSent?: boolean | UserCountOutputTypeCountInvitesSentArgs
+    feedback?: boolean | UserCountOutputTypeCountFeedbackArgs
   }
 
   // Custom InputTypes
@@ -2451,6 +2580,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountInvitesSentArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: InviteWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountFeedbackArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FeedbackWhereInput
   }
 
 
@@ -2951,6 +3087,7 @@ export namespace Prisma {
     documents?: boolean | School$documentsArgs<ExtArgs>
     auditLogs?: boolean | School$auditLogsArgs<ExtArgs>
     platformNotificationRecipients?: boolean | School$platformNotificationRecipientsArgs<ExtArgs>
+    feedback?: boolean | School$feedbackArgs<ExtArgs>
     _count?: boolean | SchoolCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["school"]>
 
@@ -3060,6 +3197,7 @@ export namespace Prisma {
     documents?: boolean | School$documentsArgs<ExtArgs>
     auditLogs?: boolean | School$auditLogsArgs<ExtArgs>
     platformNotificationRecipients?: boolean | School$platformNotificationRecipientsArgs<ExtArgs>
+    feedback?: boolean | School$feedbackArgs<ExtArgs>
     _count?: boolean | SchoolCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type SchoolIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -3073,6 +3211,7 @@ export namespace Prisma {
       documents: Prisma.$SchoolDocumentPayload<ExtArgs>[]
       auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
       platformNotificationRecipients: Prisma.$PlatformNotificationRecipientPayload<ExtArgs>[]
+      feedback: Prisma.$FeedbackPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -3504,6 +3643,7 @@ export namespace Prisma {
     documents<T extends School$documentsArgs<ExtArgs> = {}>(args?: Subset<T, School$documentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SchoolDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     auditLogs<T extends School$auditLogsArgs<ExtArgs> = {}>(args?: Subset<T, School$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     platformNotificationRecipients<T extends School$platformNotificationRecipientsArgs<ExtArgs> = {}>(args?: Subset<T, School$platformNotificationRecipientsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PlatformNotificationRecipientPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    feedback<T extends School$feedbackArgs<ExtArgs> = {}>(args?: Subset<T, School$feedbackArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4073,6 +4213,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: PlatformNotificationRecipientScalarFieldEnum | PlatformNotificationRecipientScalarFieldEnum[]
+  }
+
+  /**
+   * School.feedback
+   */
+  export type School$feedbackArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Feedback
+     */
+    omit?: FeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackInclude<ExtArgs> | null
+    where?: FeedbackWhereInput
+    orderBy?: FeedbackOrderByWithRelationInput | FeedbackOrderByWithRelationInput[]
+    cursor?: FeedbackWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: FeedbackScalarFieldEnum | FeedbackScalarFieldEnum[]
   }
 
   /**
@@ -5618,6 +5782,7 @@ export namespace Prisma {
     refreshTokens?: boolean | User$refreshTokensArgs<ExtArgs>
     otps?: boolean | User$otpsArgs<ExtArgs>
     invitesSent?: boolean | User$invitesSentArgs<ExtArgs>
+    feedback?: boolean | User$feedbackArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -5698,6 +5863,7 @@ export namespace Prisma {
     refreshTokens?: boolean | User$refreshTokensArgs<ExtArgs>
     otps?: boolean | User$otpsArgs<ExtArgs>
     invitesSent?: boolean | User$invitesSentArgs<ExtArgs>
+    feedback?: boolean | User$feedbackArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5714,6 +5880,7 @@ export namespace Prisma {
       refreshTokens: Prisma.$RefreshTokenPayload<ExtArgs>[]
       otps: Prisma.$OtpPayload<ExtArgs>[]
       invitesSent: Prisma.$InvitePayload<ExtArgs>[]
+      feedback: Prisma.$FeedbackPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -6134,6 +6301,7 @@ export namespace Prisma {
     refreshTokens<T extends User$refreshTokensArgs<ExtArgs> = {}>(args?: Subset<T, User$refreshTokensArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     otps<T extends User$otpsArgs<ExtArgs> = {}>(args?: Subset<T, User$otpsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OtpPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     invitesSent<T extends User$invitesSentArgs<ExtArgs> = {}>(args?: Subset<T, User$invitesSentArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvitePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    feedback<T extends User$feedbackArgs<ExtArgs> = {}>(args?: Subset<T, User$feedbackArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6672,6 +6840,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: InviteScalarFieldEnum | InviteScalarFieldEnum[]
+  }
+
+  /**
+   * User.feedback
+   */
+  export type User$feedbackArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Feedback
+     */
+    omit?: FeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackInclude<ExtArgs> | null
+    where?: FeedbackWhereInput
+    orderBy?: FeedbackOrderByWithRelationInput | FeedbackOrderByWithRelationInput[]
+    cursor?: FeedbackWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: FeedbackScalarFieldEnum | FeedbackScalarFieldEnum[]
   }
 
   /**
@@ -19724,6 +19916,1180 @@ export namespace Prisma {
 
 
   /**
+   * Model Feedback
+   */
+
+  export type AggregateFeedback = {
+    _count: FeedbackCountAggregateOutputType | null
+    _min: FeedbackMinAggregateOutputType | null
+    _max: FeedbackMaxAggregateOutputType | null
+  }
+
+  export type FeedbackMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    schoolId: string | null
+    type: $Enums.FeedbackType | null
+    message: string | null
+    pageUrl: string | null
+    status: $Enums.FeedbackStatus | null
+    response: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type FeedbackMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    schoolId: string | null
+    type: $Enums.FeedbackType | null
+    message: string | null
+    pageUrl: string | null
+    status: $Enums.FeedbackStatus | null
+    response: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type FeedbackCountAggregateOutputType = {
+    id: number
+    userId: number
+    schoolId: number
+    type: number
+    message: number
+    pageUrl: number
+    status: number
+    response: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type FeedbackMinAggregateInputType = {
+    id?: true
+    userId?: true
+    schoolId?: true
+    type?: true
+    message?: true
+    pageUrl?: true
+    status?: true
+    response?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type FeedbackMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    schoolId?: true
+    type?: true
+    message?: true
+    pageUrl?: true
+    status?: true
+    response?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type FeedbackCountAggregateInputType = {
+    id?: true
+    userId?: true
+    schoolId?: true
+    type?: true
+    message?: true
+    pageUrl?: true
+    status?: true
+    response?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type FeedbackAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Feedback to aggregate.
+     */
+    where?: FeedbackWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Feedbacks to fetch.
+     */
+    orderBy?: FeedbackOrderByWithRelationInput | FeedbackOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: FeedbackWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Feedbacks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Feedbacks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Feedbacks
+    **/
+    _count?: true | FeedbackCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: FeedbackMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: FeedbackMaxAggregateInputType
+  }
+
+  export type GetFeedbackAggregateType<T extends FeedbackAggregateArgs> = {
+        [P in keyof T & keyof AggregateFeedback]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateFeedback[P]>
+      : GetScalarType<T[P], AggregateFeedback[P]>
+  }
+
+
+
+
+  export type FeedbackGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FeedbackWhereInput
+    orderBy?: FeedbackOrderByWithAggregationInput | FeedbackOrderByWithAggregationInput[]
+    by: FeedbackScalarFieldEnum[] | FeedbackScalarFieldEnum
+    having?: FeedbackScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: FeedbackCountAggregateInputType | true
+    _min?: FeedbackMinAggregateInputType
+    _max?: FeedbackMaxAggregateInputType
+  }
+
+  export type FeedbackGroupByOutputType = {
+    id: string
+    userId: string | null
+    schoolId: string | null
+    type: $Enums.FeedbackType
+    message: string
+    pageUrl: string | null
+    status: $Enums.FeedbackStatus
+    response: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: FeedbackCountAggregateOutputType | null
+    _min: FeedbackMinAggregateOutputType | null
+    _max: FeedbackMaxAggregateOutputType | null
+  }
+
+  type GetFeedbackGroupByPayload<T extends FeedbackGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<FeedbackGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof FeedbackGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], FeedbackGroupByOutputType[P]>
+            : GetScalarType<T[P], FeedbackGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type FeedbackSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    schoolId?: boolean
+    type?: boolean
+    message?: boolean
+    pageUrl?: boolean
+    status?: boolean
+    response?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | Feedback$userArgs<ExtArgs>
+    school?: boolean | Feedback$schoolArgs<ExtArgs>
+  }, ExtArgs["result"]["feedback"]>
+
+  export type FeedbackSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    schoolId?: boolean
+    type?: boolean
+    message?: boolean
+    pageUrl?: boolean
+    status?: boolean
+    response?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | Feedback$userArgs<ExtArgs>
+    school?: boolean | Feedback$schoolArgs<ExtArgs>
+  }, ExtArgs["result"]["feedback"]>
+
+  export type FeedbackSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    schoolId?: boolean
+    type?: boolean
+    message?: boolean
+    pageUrl?: boolean
+    status?: boolean
+    response?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | Feedback$userArgs<ExtArgs>
+    school?: boolean | Feedback$schoolArgs<ExtArgs>
+  }, ExtArgs["result"]["feedback"]>
+
+  export type FeedbackSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    schoolId?: boolean
+    type?: boolean
+    message?: boolean
+    pageUrl?: boolean
+    status?: boolean
+    response?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type FeedbackOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "schoolId" | "type" | "message" | "pageUrl" | "status" | "response" | "createdAt" | "updatedAt", ExtArgs["result"]["feedback"]>
+  export type FeedbackInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | Feedback$userArgs<ExtArgs>
+    school?: boolean | Feedback$schoolArgs<ExtArgs>
+  }
+  export type FeedbackIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | Feedback$userArgs<ExtArgs>
+    school?: boolean | Feedback$schoolArgs<ExtArgs>
+  }
+  export type FeedbackIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | Feedback$userArgs<ExtArgs>
+    school?: boolean | Feedback$schoolArgs<ExtArgs>
+  }
+
+  export type $FeedbackPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Feedback"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs> | null
+      school: Prisma.$SchoolPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string | null
+      schoolId: string | null
+      type: $Enums.FeedbackType
+      message: string
+      pageUrl: string | null
+      status: $Enums.FeedbackStatus
+      response: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["feedback"]>
+    composites: {}
+  }
+
+  type FeedbackGetPayload<S extends boolean | null | undefined | FeedbackDefaultArgs> = $Result.GetResult<Prisma.$FeedbackPayload, S>
+
+  type FeedbackCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<FeedbackFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: FeedbackCountAggregateInputType | true
+    }
+
+  export interface FeedbackDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Feedback'], meta: { name: 'Feedback' } }
+    /**
+     * Find zero or one Feedback that matches the filter.
+     * @param {FeedbackFindUniqueArgs} args - Arguments to find a Feedback
+     * @example
+     * // Get one Feedback
+     * const feedback = await prisma.feedback.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends FeedbackFindUniqueArgs>(args: SelectSubset<T, FeedbackFindUniqueArgs<ExtArgs>>): Prisma__FeedbackClient<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Feedback that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {FeedbackFindUniqueOrThrowArgs} args - Arguments to find a Feedback
+     * @example
+     * // Get one Feedback
+     * const feedback = await prisma.feedback.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends FeedbackFindUniqueOrThrowArgs>(args: SelectSubset<T, FeedbackFindUniqueOrThrowArgs<ExtArgs>>): Prisma__FeedbackClient<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Feedback that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FeedbackFindFirstArgs} args - Arguments to find a Feedback
+     * @example
+     * // Get one Feedback
+     * const feedback = await prisma.feedback.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends FeedbackFindFirstArgs>(args?: SelectSubset<T, FeedbackFindFirstArgs<ExtArgs>>): Prisma__FeedbackClient<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Feedback that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FeedbackFindFirstOrThrowArgs} args - Arguments to find a Feedback
+     * @example
+     * // Get one Feedback
+     * const feedback = await prisma.feedback.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends FeedbackFindFirstOrThrowArgs>(args?: SelectSubset<T, FeedbackFindFirstOrThrowArgs<ExtArgs>>): Prisma__FeedbackClient<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Feedbacks that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FeedbackFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Feedbacks
+     * const feedbacks = await prisma.feedback.findMany()
+     * 
+     * // Get first 10 Feedbacks
+     * const feedbacks = await prisma.feedback.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const feedbackWithIdOnly = await prisma.feedback.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends FeedbackFindManyArgs>(args?: SelectSubset<T, FeedbackFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Feedback.
+     * @param {FeedbackCreateArgs} args - Arguments to create a Feedback.
+     * @example
+     * // Create one Feedback
+     * const Feedback = await prisma.feedback.create({
+     *   data: {
+     *     // ... data to create a Feedback
+     *   }
+     * })
+     * 
+     */
+    create<T extends FeedbackCreateArgs>(args: SelectSubset<T, FeedbackCreateArgs<ExtArgs>>): Prisma__FeedbackClient<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Feedbacks.
+     * @param {FeedbackCreateManyArgs} args - Arguments to create many Feedbacks.
+     * @example
+     * // Create many Feedbacks
+     * const feedback = await prisma.feedback.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends FeedbackCreateManyArgs>(args?: SelectSubset<T, FeedbackCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Feedbacks and returns the data saved in the database.
+     * @param {FeedbackCreateManyAndReturnArgs} args - Arguments to create many Feedbacks.
+     * @example
+     * // Create many Feedbacks
+     * const feedback = await prisma.feedback.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Feedbacks and only return the `id`
+     * const feedbackWithIdOnly = await prisma.feedback.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends FeedbackCreateManyAndReturnArgs>(args?: SelectSubset<T, FeedbackCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Feedback.
+     * @param {FeedbackDeleteArgs} args - Arguments to delete one Feedback.
+     * @example
+     * // Delete one Feedback
+     * const Feedback = await prisma.feedback.delete({
+     *   where: {
+     *     // ... filter to delete one Feedback
+     *   }
+     * })
+     * 
+     */
+    delete<T extends FeedbackDeleteArgs>(args: SelectSubset<T, FeedbackDeleteArgs<ExtArgs>>): Prisma__FeedbackClient<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Feedback.
+     * @param {FeedbackUpdateArgs} args - Arguments to update one Feedback.
+     * @example
+     * // Update one Feedback
+     * const feedback = await prisma.feedback.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends FeedbackUpdateArgs>(args: SelectSubset<T, FeedbackUpdateArgs<ExtArgs>>): Prisma__FeedbackClient<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Feedbacks.
+     * @param {FeedbackDeleteManyArgs} args - Arguments to filter Feedbacks to delete.
+     * @example
+     * // Delete a few Feedbacks
+     * const { count } = await prisma.feedback.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends FeedbackDeleteManyArgs>(args?: SelectSubset<T, FeedbackDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Feedbacks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FeedbackUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Feedbacks
+     * const feedback = await prisma.feedback.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends FeedbackUpdateManyArgs>(args: SelectSubset<T, FeedbackUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Feedbacks and returns the data updated in the database.
+     * @param {FeedbackUpdateManyAndReturnArgs} args - Arguments to update many Feedbacks.
+     * @example
+     * // Update many Feedbacks
+     * const feedback = await prisma.feedback.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Feedbacks and only return the `id`
+     * const feedbackWithIdOnly = await prisma.feedback.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends FeedbackUpdateManyAndReturnArgs>(args: SelectSubset<T, FeedbackUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Feedback.
+     * @param {FeedbackUpsertArgs} args - Arguments to update or create a Feedback.
+     * @example
+     * // Update or create a Feedback
+     * const feedback = await prisma.feedback.upsert({
+     *   create: {
+     *     // ... data to create a Feedback
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Feedback we want to update
+     *   }
+     * })
+     */
+    upsert<T extends FeedbackUpsertArgs>(args: SelectSubset<T, FeedbackUpsertArgs<ExtArgs>>): Prisma__FeedbackClient<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Feedbacks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FeedbackCountArgs} args - Arguments to filter Feedbacks to count.
+     * @example
+     * // Count the number of Feedbacks
+     * const count = await prisma.feedback.count({
+     *   where: {
+     *     // ... the filter for the Feedbacks we want to count
+     *   }
+     * })
+    **/
+    count<T extends FeedbackCountArgs>(
+      args?: Subset<T, FeedbackCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], FeedbackCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Feedback.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FeedbackAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends FeedbackAggregateArgs>(args: Subset<T, FeedbackAggregateArgs>): Prisma.PrismaPromise<GetFeedbackAggregateType<T>>
+
+    /**
+     * Group by Feedback.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FeedbackGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends FeedbackGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: FeedbackGroupByArgs['orderBy'] }
+        : { orderBy?: FeedbackGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, FeedbackGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFeedbackGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Feedback model
+   */
+  readonly fields: FeedbackFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Feedback.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__FeedbackClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends Feedback$userArgs<ExtArgs> = {}>(args?: Subset<T, Feedback$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    school<T extends Feedback$schoolArgs<ExtArgs> = {}>(args?: Subset<T, Feedback$schoolArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Feedback model
+   */
+  interface FeedbackFieldRefs {
+    readonly id: FieldRef<"Feedback", 'String'>
+    readonly userId: FieldRef<"Feedback", 'String'>
+    readonly schoolId: FieldRef<"Feedback", 'String'>
+    readonly type: FieldRef<"Feedback", 'FeedbackType'>
+    readonly message: FieldRef<"Feedback", 'String'>
+    readonly pageUrl: FieldRef<"Feedback", 'String'>
+    readonly status: FieldRef<"Feedback", 'FeedbackStatus'>
+    readonly response: FieldRef<"Feedback", 'String'>
+    readonly createdAt: FieldRef<"Feedback", 'DateTime'>
+    readonly updatedAt: FieldRef<"Feedback", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Feedback findUnique
+   */
+  export type FeedbackFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Feedback
+     */
+    omit?: FeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackInclude<ExtArgs> | null
+    /**
+     * Filter, which Feedback to fetch.
+     */
+    where: FeedbackWhereUniqueInput
+  }
+
+  /**
+   * Feedback findUniqueOrThrow
+   */
+  export type FeedbackFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Feedback
+     */
+    omit?: FeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackInclude<ExtArgs> | null
+    /**
+     * Filter, which Feedback to fetch.
+     */
+    where: FeedbackWhereUniqueInput
+  }
+
+  /**
+   * Feedback findFirst
+   */
+  export type FeedbackFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Feedback
+     */
+    omit?: FeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackInclude<ExtArgs> | null
+    /**
+     * Filter, which Feedback to fetch.
+     */
+    where?: FeedbackWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Feedbacks to fetch.
+     */
+    orderBy?: FeedbackOrderByWithRelationInput | FeedbackOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Feedbacks.
+     */
+    cursor?: FeedbackWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Feedbacks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Feedbacks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Feedbacks.
+     */
+    distinct?: FeedbackScalarFieldEnum | FeedbackScalarFieldEnum[]
+  }
+
+  /**
+   * Feedback findFirstOrThrow
+   */
+  export type FeedbackFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Feedback
+     */
+    omit?: FeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackInclude<ExtArgs> | null
+    /**
+     * Filter, which Feedback to fetch.
+     */
+    where?: FeedbackWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Feedbacks to fetch.
+     */
+    orderBy?: FeedbackOrderByWithRelationInput | FeedbackOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Feedbacks.
+     */
+    cursor?: FeedbackWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Feedbacks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Feedbacks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Feedbacks.
+     */
+    distinct?: FeedbackScalarFieldEnum | FeedbackScalarFieldEnum[]
+  }
+
+  /**
+   * Feedback findMany
+   */
+  export type FeedbackFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Feedback
+     */
+    omit?: FeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackInclude<ExtArgs> | null
+    /**
+     * Filter, which Feedbacks to fetch.
+     */
+    where?: FeedbackWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Feedbacks to fetch.
+     */
+    orderBy?: FeedbackOrderByWithRelationInput | FeedbackOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Feedbacks.
+     */
+    cursor?: FeedbackWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Feedbacks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Feedbacks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Feedbacks.
+     */
+    distinct?: FeedbackScalarFieldEnum | FeedbackScalarFieldEnum[]
+  }
+
+  /**
+   * Feedback create
+   */
+  export type FeedbackCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Feedback
+     */
+    omit?: FeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Feedback.
+     */
+    data: XOR<FeedbackCreateInput, FeedbackUncheckedCreateInput>
+  }
+
+  /**
+   * Feedback createMany
+   */
+  export type FeedbackCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Feedbacks.
+     */
+    data: FeedbackCreateManyInput | FeedbackCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Feedback createManyAndReturn
+   */
+  export type FeedbackCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Feedback
+     */
+    omit?: FeedbackOmit<ExtArgs> | null
+    /**
+     * The data used to create many Feedbacks.
+     */
+    data: FeedbackCreateManyInput | FeedbackCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Feedback update
+   */
+  export type FeedbackUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Feedback
+     */
+    omit?: FeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Feedback.
+     */
+    data: XOR<FeedbackUpdateInput, FeedbackUncheckedUpdateInput>
+    /**
+     * Choose, which Feedback to update.
+     */
+    where: FeedbackWhereUniqueInput
+  }
+
+  /**
+   * Feedback updateMany
+   */
+  export type FeedbackUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Feedbacks.
+     */
+    data: XOR<FeedbackUpdateManyMutationInput, FeedbackUncheckedUpdateManyInput>
+    /**
+     * Filter which Feedbacks to update
+     */
+    where?: FeedbackWhereInput
+    /**
+     * Limit how many Feedbacks to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Feedback updateManyAndReturn
+   */
+  export type FeedbackUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Feedback
+     */
+    omit?: FeedbackOmit<ExtArgs> | null
+    /**
+     * The data used to update Feedbacks.
+     */
+    data: XOR<FeedbackUpdateManyMutationInput, FeedbackUncheckedUpdateManyInput>
+    /**
+     * Filter which Feedbacks to update
+     */
+    where?: FeedbackWhereInput
+    /**
+     * Limit how many Feedbacks to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Feedback upsert
+   */
+  export type FeedbackUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Feedback
+     */
+    omit?: FeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Feedback to update in case it exists.
+     */
+    where: FeedbackWhereUniqueInput
+    /**
+     * In case the Feedback found by the `where` argument doesn't exist, create a new Feedback with this data.
+     */
+    create: XOR<FeedbackCreateInput, FeedbackUncheckedCreateInput>
+    /**
+     * In case the Feedback was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<FeedbackUpdateInput, FeedbackUncheckedUpdateInput>
+  }
+
+  /**
+   * Feedback delete
+   */
+  export type FeedbackDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Feedback
+     */
+    omit?: FeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackInclude<ExtArgs> | null
+    /**
+     * Filter which Feedback to delete.
+     */
+    where: FeedbackWhereUniqueInput
+  }
+
+  /**
+   * Feedback deleteMany
+   */
+  export type FeedbackDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Feedbacks to delete
+     */
+    where?: FeedbackWhereInput
+    /**
+     * Limit how many Feedbacks to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Feedback.user
+   */
+  export type Feedback$userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * Feedback.school
+   */
+  export type Feedback$schoolArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the School
+     */
+    select?: SchoolSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the School
+     */
+    omit?: SchoolOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SchoolInclude<ExtArgs> | null
+    where?: SchoolWhereInput
+  }
+
+  /**
+   * Feedback without action
+   */
+  export type FeedbackDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Feedback
+     */
+    omit?: FeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -20018,6 +21384,22 @@ export namespace Prisma {
   };
 
   export type PlatformSettingsScalarFieldEnum = (typeof PlatformSettingsScalarFieldEnum)[keyof typeof PlatformSettingsScalarFieldEnum]
+
+
+  export const FeedbackScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    schoolId: 'schoolId',
+    type: 'type',
+    message: 'message',
+    pageUrl: 'pageUrl',
+    status: 'status',
+    response: 'response',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type FeedbackScalarFieldEnum = (typeof FeedbackScalarFieldEnum)[keyof typeof FeedbackScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -20389,6 +21771,34 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'FeedbackType'
+   */
+  export type EnumFeedbackTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FeedbackType'>
+    
+
+
+  /**
+   * Reference to a field of type 'FeedbackType[]'
+   */
+  export type ListEnumFeedbackTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FeedbackType[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'FeedbackStatus'
+   */
+  export type EnumFeedbackStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FeedbackStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'FeedbackStatus[]'
+   */
+  export type ListEnumFeedbackStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FeedbackStatus[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Float'
    */
   export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -20444,6 +21854,7 @@ export namespace Prisma {
     documents?: SchoolDocumentListRelationFilter
     auditLogs?: AuditLogListRelationFilter
     platformNotificationRecipients?: PlatformNotificationRecipientListRelationFilter
+    feedback?: FeedbackListRelationFilter
   }
 
   export type SchoolOrderByWithRelationInput = {
@@ -20482,6 +21893,7 @@ export namespace Prisma {
     documents?: SchoolDocumentOrderByRelationAggregateInput
     auditLogs?: AuditLogOrderByRelationAggregateInput
     platformNotificationRecipients?: PlatformNotificationRecipientOrderByRelationAggregateInput
+    feedback?: FeedbackOrderByRelationAggregateInput
   }
 
   export type SchoolWhereUniqueInput = Prisma.AtLeast<{
@@ -20523,6 +21935,7 @@ export namespace Prisma {
     documents?: SchoolDocumentListRelationFilter
     auditLogs?: AuditLogListRelationFilter
     platformNotificationRecipients?: PlatformNotificationRecipientListRelationFilter
+    feedback?: FeedbackListRelationFilter
   }, "id" | "subdomain" | "email" | "schemaName">
 
   export type SchoolOrderByWithAggregationInput = {
@@ -20735,6 +22148,7 @@ export namespace Prisma {
     refreshTokens?: RefreshTokenListRelationFilter
     otps?: OtpListRelationFilter
     invitesSent?: InviteListRelationFilter
+    feedback?: FeedbackListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -20762,6 +22176,7 @@ export namespace Prisma {
     refreshTokens?: RefreshTokenOrderByRelationAggregateInput
     otps?: OtpOrderByRelationAggregateInput
     invitesSent?: InviteOrderByRelationAggregateInput
+    feedback?: FeedbackOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -20792,6 +22207,7 @@ export namespace Prisma {
     refreshTokens?: RefreshTokenListRelationFilter
     otps?: OtpListRelationFilter
     invitesSent?: InviteListRelationFilter
+    feedback?: FeedbackListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -21867,6 +23283,89 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"PlatformSettings"> | Date | string
   }
 
+  export type FeedbackWhereInput = {
+    AND?: FeedbackWhereInput | FeedbackWhereInput[]
+    OR?: FeedbackWhereInput[]
+    NOT?: FeedbackWhereInput | FeedbackWhereInput[]
+    id?: StringFilter<"Feedback"> | string
+    userId?: StringNullableFilter<"Feedback"> | string | null
+    schoolId?: StringNullableFilter<"Feedback"> | string | null
+    type?: EnumFeedbackTypeFilter<"Feedback"> | $Enums.FeedbackType
+    message?: StringFilter<"Feedback"> | string
+    pageUrl?: StringNullableFilter<"Feedback"> | string | null
+    status?: EnumFeedbackStatusFilter<"Feedback"> | $Enums.FeedbackStatus
+    response?: StringNullableFilter<"Feedback"> | string | null
+    createdAt?: DateTimeFilter<"Feedback"> | Date | string
+    updatedAt?: DateTimeFilter<"Feedback"> | Date | string
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    school?: XOR<SchoolNullableScalarRelationFilter, SchoolWhereInput> | null
+  }
+
+  export type FeedbackOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    schoolId?: SortOrderInput | SortOrder
+    type?: SortOrder
+    message?: SortOrder
+    pageUrl?: SortOrderInput | SortOrder
+    status?: SortOrder
+    response?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+    school?: SchoolOrderByWithRelationInput
+  }
+
+  export type FeedbackWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: FeedbackWhereInput | FeedbackWhereInput[]
+    OR?: FeedbackWhereInput[]
+    NOT?: FeedbackWhereInput | FeedbackWhereInput[]
+    userId?: StringNullableFilter<"Feedback"> | string | null
+    schoolId?: StringNullableFilter<"Feedback"> | string | null
+    type?: EnumFeedbackTypeFilter<"Feedback"> | $Enums.FeedbackType
+    message?: StringFilter<"Feedback"> | string
+    pageUrl?: StringNullableFilter<"Feedback"> | string | null
+    status?: EnumFeedbackStatusFilter<"Feedback"> | $Enums.FeedbackStatus
+    response?: StringNullableFilter<"Feedback"> | string | null
+    createdAt?: DateTimeFilter<"Feedback"> | Date | string
+    updatedAt?: DateTimeFilter<"Feedback"> | Date | string
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    school?: XOR<SchoolNullableScalarRelationFilter, SchoolWhereInput> | null
+  }, "id">
+
+  export type FeedbackOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    schoolId?: SortOrderInput | SortOrder
+    type?: SortOrder
+    message?: SortOrder
+    pageUrl?: SortOrderInput | SortOrder
+    status?: SortOrder
+    response?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: FeedbackCountOrderByAggregateInput
+    _max?: FeedbackMaxOrderByAggregateInput
+    _min?: FeedbackMinOrderByAggregateInput
+  }
+
+  export type FeedbackScalarWhereWithAggregatesInput = {
+    AND?: FeedbackScalarWhereWithAggregatesInput | FeedbackScalarWhereWithAggregatesInput[]
+    OR?: FeedbackScalarWhereWithAggregatesInput[]
+    NOT?: FeedbackScalarWhereWithAggregatesInput | FeedbackScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Feedback"> | string
+    userId?: StringNullableWithAggregatesFilter<"Feedback"> | string | null
+    schoolId?: StringNullableWithAggregatesFilter<"Feedback"> | string | null
+    type?: EnumFeedbackTypeWithAggregatesFilter<"Feedback"> | $Enums.FeedbackType
+    message?: StringWithAggregatesFilter<"Feedback"> | string
+    pageUrl?: StringNullableWithAggregatesFilter<"Feedback"> | string | null
+    status?: EnumFeedbackStatusWithAggregatesFilter<"Feedback"> | $Enums.FeedbackStatus
+    response?: StringNullableWithAggregatesFilter<"Feedback"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"Feedback"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Feedback"> | Date | string
+  }
+
   export type SchoolCreateInput = {
     id?: string
     name: string
@@ -21903,6 +23402,7 @@ export namespace Prisma {
     documents?: SchoolDocumentCreateNestedManyWithoutSchoolInput
     auditLogs?: AuditLogCreateNestedManyWithoutSchoolInput
     platformNotificationRecipients?: PlatformNotificationRecipientCreateNestedManyWithoutSchoolInput
+    feedback?: FeedbackCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateInput = {
@@ -21941,6 +23441,7 @@ export namespace Prisma {
     documents?: SchoolDocumentUncheckedCreateNestedManyWithoutSchoolInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutSchoolInput
     platformNotificationRecipients?: PlatformNotificationRecipientUncheckedCreateNestedManyWithoutSchoolInput
+    feedback?: FeedbackUncheckedCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolUpdateInput = {
@@ -21979,6 +23480,7 @@ export namespace Prisma {
     documents?: SchoolDocumentUpdateManyWithoutSchoolNestedInput
     auditLogs?: AuditLogUpdateManyWithoutSchoolNestedInput
     platformNotificationRecipients?: PlatformNotificationRecipientUpdateManyWithoutSchoolNestedInput
+    feedback?: FeedbackUpdateManyWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateInput = {
@@ -22017,6 +23519,7 @@ export namespace Prisma {
     documents?: SchoolDocumentUncheckedUpdateManyWithoutSchoolNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
     platformNotificationRecipients?: PlatformNotificationRecipientUncheckedUpdateManyWithoutSchoolNestedInput
+    feedback?: FeedbackUncheckedUpdateManyWithoutSchoolNestedInput
   }
 
   export type SchoolCreateManyInput = {
@@ -22274,6 +23777,7 @@ export namespace Prisma {
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
     otps?: OtpCreateNestedManyWithoutUserInput
     invitesSent?: InviteCreateNestedManyWithoutSentByInput
+    feedback?: FeedbackCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -22300,6 +23804,7 @@ export namespace Prisma {
     refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
     otps?: OtpUncheckedCreateNestedManyWithoutUserInput
     invitesSent?: InviteUncheckedCreateNestedManyWithoutSentByInput
+    feedback?: FeedbackUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -22326,6 +23831,7 @@ export namespace Prisma {
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
     otps?: OtpUpdateManyWithoutUserNestedInput
     invitesSent?: InviteUpdateManyWithoutSentByNestedInput
+    feedback?: FeedbackUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -22352,6 +23858,7 @@ export namespace Prisma {
     refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
     otps?: OtpUncheckedUpdateManyWithoutUserNestedInput
     invitesSent?: InviteUncheckedUpdateManyWithoutSentByNestedInput
+    feedback?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -23590,6 +25097,95 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type FeedbackCreateInput = {
+    id?: string
+    type?: $Enums.FeedbackType
+    message: string
+    pageUrl?: string | null
+    status?: $Enums.FeedbackStatus
+    response?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user?: UserCreateNestedOneWithoutFeedbackInput
+    school?: SchoolCreateNestedOneWithoutFeedbackInput
+  }
+
+  export type FeedbackUncheckedCreateInput = {
+    id?: string
+    userId?: string | null
+    schoolId?: string | null
+    type?: $Enums.FeedbackType
+    message: string
+    pageUrl?: string | null
+    status?: $Enums.FeedbackStatus
+    response?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type FeedbackUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumFeedbackTypeFieldUpdateOperationsInput | $Enums.FeedbackType
+    message?: StringFieldUpdateOperationsInput | string
+    pageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumFeedbackStatusFieldUpdateOperationsInput | $Enums.FeedbackStatus
+    response?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneWithoutFeedbackNestedInput
+    school?: SchoolUpdateOneWithoutFeedbackNestedInput
+  }
+
+  export type FeedbackUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    schoolId?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumFeedbackTypeFieldUpdateOperationsInput | $Enums.FeedbackType
+    message?: StringFieldUpdateOperationsInput | string
+    pageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumFeedbackStatusFieldUpdateOperationsInput | $Enums.FeedbackStatus
+    response?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FeedbackCreateManyInput = {
+    id?: string
+    userId?: string | null
+    schoolId?: string | null
+    type?: $Enums.FeedbackType
+    message: string
+    pageUrl?: string | null
+    status?: $Enums.FeedbackStatus
+    response?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type FeedbackUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumFeedbackTypeFieldUpdateOperationsInput | $Enums.FeedbackType
+    message?: StringFieldUpdateOperationsInput | string
+    pageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumFeedbackStatusFieldUpdateOperationsInput | $Enums.FeedbackStatus
+    response?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FeedbackUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    schoolId?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumFeedbackTypeFieldUpdateOperationsInput | $Enums.FeedbackType
+    message?: StringFieldUpdateOperationsInput | string
+    pageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumFeedbackStatusFieldUpdateOperationsInput | $Enums.FeedbackStatus
+    response?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -23705,6 +25301,12 @@ export namespace Prisma {
     none?: PlatformNotificationRecipientWhereInput
   }
 
+  export type FeedbackListRelationFilter = {
+    every?: FeedbackWhereInput
+    some?: FeedbackWhereInput
+    none?: FeedbackWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -23727,6 +25329,10 @@ export namespace Prisma {
   }
 
   export type PlatformNotificationRecipientOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type FeedbackOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -25108,6 +26714,84 @@ export namespace Prisma {
     defaultTrialDays?: SortOrder
   }
 
+  export type EnumFeedbackTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.FeedbackType | EnumFeedbackTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.FeedbackType[] | ListEnumFeedbackTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.FeedbackType[] | ListEnumFeedbackTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumFeedbackTypeFilter<$PrismaModel> | $Enums.FeedbackType
+  }
+
+  export type EnumFeedbackStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.FeedbackStatus | EnumFeedbackStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.FeedbackStatus[] | ListEnumFeedbackStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.FeedbackStatus[] | ListEnumFeedbackStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumFeedbackStatusFilter<$PrismaModel> | $Enums.FeedbackStatus
+  }
+
+  export type UserNullableScalarRelationFilter = {
+    is?: UserWhereInput | null
+    isNot?: UserWhereInput | null
+  }
+
+  export type FeedbackCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    schoolId?: SortOrder
+    type?: SortOrder
+    message?: SortOrder
+    pageUrl?: SortOrder
+    status?: SortOrder
+    response?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type FeedbackMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    schoolId?: SortOrder
+    type?: SortOrder
+    message?: SortOrder
+    pageUrl?: SortOrder
+    status?: SortOrder
+    response?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type FeedbackMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    schoolId?: SortOrder
+    type?: SortOrder
+    message?: SortOrder
+    pageUrl?: SortOrder
+    status?: SortOrder
+    response?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EnumFeedbackTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.FeedbackType | EnumFeedbackTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.FeedbackType[] | ListEnumFeedbackTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.FeedbackType[] | ListEnumFeedbackTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumFeedbackTypeWithAggregatesFilter<$PrismaModel> | $Enums.FeedbackType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumFeedbackTypeFilter<$PrismaModel>
+    _max?: NestedEnumFeedbackTypeFilter<$PrismaModel>
+  }
+
+  export type EnumFeedbackStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.FeedbackStatus | EnumFeedbackStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.FeedbackStatus[] | ListEnumFeedbackStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.FeedbackStatus[] | ListEnumFeedbackStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumFeedbackStatusWithAggregatesFilter<$PrismaModel> | $Enums.FeedbackStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumFeedbackStatusFilter<$PrismaModel>
+    _max?: NestedEnumFeedbackStatusFilter<$PrismaModel>
+  }
+
   export type UserCreateNestedManyWithoutSchoolInput = {
     create?: XOR<UserCreateWithoutSchoolInput, UserUncheckedCreateWithoutSchoolInput> | UserCreateWithoutSchoolInput[] | UserUncheckedCreateWithoutSchoolInput[]
     connectOrCreate?: UserCreateOrConnectWithoutSchoolInput | UserCreateOrConnectWithoutSchoolInput[]
@@ -25143,6 +26827,13 @@ export namespace Prisma {
     connect?: PlatformNotificationRecipientWhereUniqueInput | PlatformNotificationRecipientWhereUniqueInput[]
   }
 
+  export type FeedbackCreateNestedManyWithoutSchoolInput = {
+    create?: XOR<FeedbackCreateWithoutSchoolInput, FeedbackUncheckedCreateWithoutSchoolInput> | FeedbackCreateWithoutSchoolInput[] | FeedbackUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: FeedbackCreateOrConnectWithoutSchoolInput | FeedbackCreateOrConnectWithoutSchoolInput[]
+    createMany?: FeedbackCreateManySchoolInputEnvelope
+    connect?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+  }
+
   export type UserUncheckedCreateNestedManyWithoutSchoolInput = {
     create?: XOR<UserCreateWithoutSchoolInput, UserUncheckedCreateWithoutSchoolInput> | UserCreateWithoutSchoolInput[] | UserUncheckedCreateWithoutSchoolInput[]
     connectOrCreate?: UserCreateOrConnectWithoutSchoolInput | UserCreateOrConnectWithoutSchoolInput[]
@@ -25176,6 +26867,13 @@ export namespace Prisma {
     connectOrCreate?: PlatformNotificationRecipientCreateOrConnectWithoutSchoolInput | PlatformNotificationRecipientCreateOrConnectWithoutSchoolInput[]
     createMany?: PlatformNotificationRecipientCreateManySchoolInputEnvelope
     connect?: PlatformNotificationRecipientWhereUniqueInput | PlatformNotificationRecipientWhereUniqueInput[]
+  }
+
+  export type FeedbackUncheckedCreateNestedManyWithoutSchoolInput = {
+    create?: XOR<FeedbackCreateWithoutSchoolInput, FeedbackUncheckedCreateWithoutSchoolInput> | FeedbackCreateWithoutSchoolInput[] | FeedbackUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: FeedbackCreateOrConnectWithoutSchoolInput | FeedbackCreateOrConnectWithoutSchoolInput[]
+    createMany?: FeedbackCreateManySchoolInputEnvelope
+    connect?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -25284,6 +26982,20 @@ export namespace Prisma {
     deleteMany?: PlatformNotificationRecipientScalarWhereInput | PlatformNotificationRecipientScalarWhereInput[]
   }
 
+  export type FeedbackUpdateManyWithoutSchoolNestedInput = {
+    create?: XOR<FeedbackCreateWithoutSchoolInput, FeedbackUncheckedCreateWithoutSchoolInput> | FeedbackCreateWithoutSchoolInput[] | FeedbackUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: FeedbackCreateOrConnectWithoutSchoolInput | FeedbackCreateOrConnectWithoutSchoolInput[]
+    upsert?: FeedbackUpsertWithWhereUniqueWithoutSchoolInput | FeedbackUpsertWithWhereUniqueWithoutSchoolInput[]
+    createMany?: FeedbackCreateManySchoolInputEnvelope
+    set?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    disconnect?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    delete?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    connect?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    update?: FeedbackUpdateWithWhereUniqueWithoutSchoolInput | FeedbackUpdateWithWhereUniqueWithoutSchoolInput[]
+    updateMany?: FeedbackUpdateManyWithWhereWithoutSchoolInput | FeedbackUpdateManyWithWhereWithoutSchoolInput[]
+    deleteMany?: FeedbackScalarWhereInput | FeedbackScalarWhereInput[]
+  }
+
   export type UserUncheckedUpdateManyWithoutSchoolNestedInput = {
     create?: XOR<UserCreateWithoutSchoolInput, UserUncheckedCreateWithoutSchoolInput> | UserCreateWithoutSchoolInput[] | UserUncheckedCreateWithoutSchoolInput[]
     connectOrCreate?: UserCreateOrConnectWithoutSchoolInput | UserCreateOrConnectWithoutSchoolInput[]
@@ -25354,6 +27066,20 @@ export namespace Prisma {
     deleteMany?: PlatformNotificationRecipientScalarWhereInput | PlatformNotificationRecipientScalarWhereInput[]
   }
 
+  export type FeedbackUncheckedUpdateManyWithoutSchoolNestedInput = {
+    create?: XOR<FeedbackCreateWithoutSchoolInput, FeedbackUncheckedCreateWithoutSchoolInput> | FeedbackCreateWithoutSchoolInput[] | FeedbackUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: FeedbackCreateOrConnectWithoutSchoolInput | FeedbackCreateOrConnectWithoutSchoolInput[]
+    upsert?: FeedbackUpsertWithWhereUniqueWithoutSchoolInput | FeedbackUpsertWithWhereUniqueWithoutSchoolInput[]
+    createMany?: FeedbackCreateManySchoolInputEnvelope
+    set?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    disconnect?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    delete?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    connect?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    update?: FeedbackUpdateWithWhereUniqueWithoutSchoolInput | FeedbackUpdateWithWhereUniqueWithoutSchoolInput[]
+    updateMany?: FeedbackUpdateManyWithWhereWithoutSchoolInput | FeedbackUpdateManyWithWhereWithoutSchoolInput[]
+    deleteMany?: FeedbackScalarWhereInput | FeedbackScalarWhereInput[]
+  }
+
   export type SchoolCreateNestedOneWithoutDocumentsInput = {
     create?: XOR<SchoolCreateWithoutDocumentsInput, SchoolUncheckedCreateWithoutDocumentsInput>
     connectOrCreate?: SchoolCreateOrConnectWithoutDocumentsInput
@@ -25407,6 +27133,13 @@ export namespace Prisma {
     connect?: InviteWhereUniqueInput | InviteWhereUniqueInput[]
   }
 
+  export type FeedbackCreateNestedManyWithoutUserInput = {
+    create?: XOR<FeedbackCreateWithoutUserInput, FeedbackUncheckedCreateWithoutUserInput> | FeedbackCreateWithoutUserInput[] | FeedbackUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: FeedbackCreateOrConnectWithoutUserInput | FeedbackCreateOrConnectWithoutUserInput[]
+    createMany?: FeedbackCreateManyUserInputEnvelope
+    connect?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+  }
+
   export type RefreshTokenUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<RefreshTokenCreateWithoutUserInput, RefreshTokenUncheckedCreateWithoutUserInput> | RefreshTokenCreateWithoutUserInput[] | RefreshTokenUncheckedCreateWithoutUserInput[]
     connectOrCreate?: RefreshTokenCreateOrConnectWithoutUserInput | RefreshTokenCreateOrConnectWithoutUserInput[]
@@ -25426,6 +27159,13 @@ export namespace Prisma {
     connectOrCreate?: InviteCreateOrConnectWithoutSentByInput | InviteCreateOrConnectWithoutSentByInput[]
     createMany?: InviteCreateManySentByInputEnvelope
     connect?: InviteWhereUniqueInput | InviteWhereUniqueInput[]
+  }
+
+  export type FeedbackUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<FeedbackCreateWithoutUserInput, FeedbackUncheckedCreateWithoutUserInput> | FeedbackCreateWithoutUserInput[] | FeedbackUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: FeedbackCreateOrConnectWithoutUserInput | FeedbackCreateOrConnectWithoutUserInput[]
+    createMany?: FeedbackCreateManyUserInputEnvelope
+    connect?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
   }
 
   export type EnumRoleFieldUpdateOperationsInput = {
@@ -25492,6 +27232,20 @@ export namespace Prisma {
     deleteMany?: InviteScalarWhereInput | InviteScalarWhereInput[]
   }
 
+  export type FeedbackUpdateManyWithoutUserNestedInput = {
+    create?: XOR<FeedbackCreateWithoutUserInput, FeedbackUncheckedCreateWithoutUserInput> | FeedbackCreateWithoutUserInput[] | FeedbackUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: FeedbackCreateOrConnectWithoutUserInput | FeedbackCreateOrConnectWithoutUserInput[]
+    upsert?: FeedbackUpsertWithWhereUniqueWithoutUserInput | FeedbackUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: FeedbackCreateManyUserInputEnvelope
+    set?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    disconnect?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    delete?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    connect?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    update?: FeedbackUpdateWithWhereUniqueWithoutUserInput | FeedbackUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: FeedbackUpdateManyWithWhereWithoutUserInput | FeedbackUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: FeedbackScalarWhereInput | FeedbackScalarWhereInput[]
+  }
+
   export type RefreshTokenUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<RefreshTokenCreateWithoutUserInput, RefreshTokenUncheckedCreateWithoutUserInput> | RefreshTokenCreateWithoutUserInput[] | RefreshTokenUncheckedCreateWithoutUserInput[]
     connectOrCreate?: RefreshTokenCreateOrConnectWithoutUserInput | RefreshTokenCreateOrConnectWithoutUserInput[]
@@ -25532,6 +27286,20 @@ export namespace Prisma {
     update?: InviteUpdateWithWhereUniqueWithoutSentByInput | InviteUpdateWithWhereUniqueWithoutSentByInput[]
     updateMany?: InviteUpdateManyWithWhereWithoutSentByInput | InviteUpdateManyWithWhereWithoutSentByInput[]
     deleteMany?: InviteScalarWhereInput | InviteScalarWhereInput[]
+  }
+
+  export type FeedbackUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<FeedbackCreateWithoutUserInput, FeedbackUncheckedCreateWithoutUserInput> | FeedbackCreateWithoutUserInput[] | FeedbackUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: FeedbackCreateOrConnectWithoutUserInput | FeedbackCreateOrConnectWithoutUserInput[]
+    upsert?: FeedbackUpsertWithWhereUniqueWithoutUserInput | FeedbackUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: FeedbackCreateManyUserInputEnvelope
+    set?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    disconnect?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    delete?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    connect?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    update?: FeedbackUpdateWithWhereUniqueWithoutUserInput | FeedbackUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: FeedbackUpdateManyWithWhereWithoutUserInput | FeedbackUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: FeedbackScalarWhereInput | FeedbackScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutOtpsInput = {
@@ -25892,6 +27660,46 @@ export namespace Prisma {
     upsert?: SchoolUpsertWithoutPlatformNotificationRecipientsInput
     connect?: SchoolWhereUniqueInput
     update?: XOR<XOR<SchoolUpdateToOneWithWhereWithoutPlatformNotificationRecipientsInput, SchoolUpdateWithoutPlatformNotificationRecipientsInput>, SchoolUncheckedUpdateWithoutPlatformNotificationRecipientsInput>
+  }
+
+  export type UserCreateNestedOneWithoutFeedbackInput = {
+    create?: XOR<UserCreateWithoutFeedbackInput, UserUncheckedCreateWithoutFeedbackInput>
+    connectOrCreate?: UserCreateOrConnectWithoutFeedbackInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type SchoolCreateNestedOneWithoutFeedbackInput = {
+    create?: XOR<SchoolCreateWithoutFeedbackInput, SchoolUncheckedCreateWithoutFeedbackInput>
+    connectOrCreate?: SchoolCreateOrConnectWithoutFeedbackInput
+    connect?: SchoolWhereUniqueInput
+  }
+
+  export type EnumFeedbackTypeFieldUpdateOperationsInput = {
+    set?: $Enums.FeedbackType
+  }
+
+  export type EnumFeedbackStatusFieldUpdateOperationsInput = {
+    set?: $Enums.FeedbackStatus
+  }
+
+  export type UserUpdateOneWithoutFeedbackNestedInput = {
+    create?: XOR<UserCreateWithoutFeedbackInput, UserUncheckedCreateWithoutFeedbackInput>
+    connectOrCreate?: UserCreateOrConnectWithoutFeedbackInput
+    upsert?: UserUpsertWithoutFeedbackInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutFeedbackInput, UserUpdateWithoutFeedbackInput>, UserUncheckedUpdateWithoutFeedbackInput>
+  }
+
+  export type SchoolUpdateOneWithoutFeedbackNestedInput = {
+    create?: XOR<SchoolCreateWithoutFeedbackInput, SchoolUncheckedCreateWithoutFeedbackInput>
+    connectOrCreate?: SchoolCreateOrConnectWithoutFeedbackInput
+    upsert?: SchoolUpsertWithoutFeedbackInput
+    disconnect?: SchoolWhereInput | boolean
+    delete?: SchoolWhereInput | boolean
+    connect?: SchoolWhereUniqueInput
+    update?: XOR<XOR<SchoolUpdateToOneWithWhereWithoutFeedbackInput, SchoolUpdateWithoutFeedbackInput>, SchoolUncheckedUpdateWithoutFeedbackInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -26447,6 +28255,40 @@ export namespace Prisma {
     _max?: NestedEnumDeliveryStatusFilter<$PrismaModel>
   }
 
+  export type NestedEnumFeedbackTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.FeedbackType | EnumFeedbackTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.FeedbackType[] | ListEnumFeedbackTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.FeedbackType[] | ListEnumFeedbackTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumFeedbackTypeFilter<$PrismaModel> | $Enums.FeedbackType
+  }
+
+  export type NestedEnumFeedbackStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.FeedbackStatus | EnumFeedbackStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.FeedbackStatus[] | ListEnumFeedbackStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.FeedbackStatus[] | ListEnumFeedbackStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumFeedbackStatusFilter<$PrismaModel> | $Enums.FeedbackStatus
+  }
+
+  export type NestedEnumFeedbackTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.FeedbackType | EnumFeedbackTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.FeedbackType[] | ListEnumFeedbackTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.FeedbackType[] | ListEnumFeedbackTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumFeedbackTypeWithAggregatesFilter<$PrismaModel> | $Enums.FeedbackType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumFeedbackTypeFilter<$PrismaModel>
+    _max?: NestedEnumFeedbackTypeFilter<$PrismaModel>
+  }
+
+  export type NestedEnumFeedbackStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.FeedbackStatus | EnumFeedbackStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.FeedbackStatus[] | ListEnumFeedbackStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.FeedbackStatus[] | ListEnumFeedbackStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumFeedbackStatusWithAggregatesFilter<$PrismaModel> | $Enums.FeedbackStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumFeedbackStatusFilter<$PrismaModel>
+    _max?: NestedEnumFeedbackStatusFilter<$PrismaModel>
+  }
+
   export type UserCreateWithoutSchoolInput = {
     id?: string
     email: string
@@ -26470,6 +28312,7 @@ export namespace Prisma {
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
     otps?: OtpCreateNestedManyWithoutUserInput
     invitesSent?: InviteCreateNestedManyWithoutSentByInput
+    feedback?: FeedbackCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSchoolInput = {
@@ -26495,6 +28338,7 @@ export namespace Prisma {
     refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
     otps?: OtpUncheckedCreateNestedManyWithoutUserInput
     invitesSent?: InviteUncheckedCreateNestedManyWithoutSentByInput
+    feedback?: FeedbackUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSchoolInput = {
@@ -26693,6 +28537,40 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type FeedbackCreateWithoutSchoolInput = {
+    id?: string
+    type?: $Enums.FeedbackType
+    message: string
+    pageUrl?: string | null
+    status?: $Enums.FeedbackStatus
+    response?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user?: UserCreateNestedOneWithoutFeedbackInput
+  }
+
+  export type FeedbackUncheckedCreateWithoutSchoolInput = {
+    id?: string
+    userId?: string | null
+    type?: $Enums.FeedbackType
+    message: string
+    pageUrl?: string | null
+    status?: $Enums.FeedbackStatus
+    response?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type FeedbackCreateOrConnectWithoutSchoolInput = {
+    where: FeedbackWhereUniqueInput
+    create: XOR<FeedbackCreateWithoutSchoolInput, FeedbackUncheckedCreateWithoutSchoolInput>
+  }
+
+  export type FeedbackCreateManySchoolInputEnvelope = {
+    data: FeedbackCreateManySchoolInput | FeedbackCreateManySchoolInput[]
+    skipDuplicates?: boolean
+  }
+
   export type UserUpsertWithWhereUniqueWithoutSchoolInput = {
     where: UserWhereUniqueInput
     update: XOR<UserUpdateWithoutSchoolInput, UserUncheckedUpdateWithoutSchoolInput>
@@ -26887,6 +28765,38 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"PlatformNotificationRecipient"> | Date | string
   }
 
+  export type FeedbackUpsertWithWhereUniqueWithoutSchoolInput = {
+    where: FeedbackWhereUniqueInput
+    update: XOR<FeedbackUpdateWithoutSchoolInput, FeedbackUncheckedUpdateWithoutSchoolInput>
+    create: XOR<FeedbackCreateWithoutSchoolInput, FeedbackUncheckedCreateWithoutSchoolInput>
+  }
+
+  export type FeedbackUpdateWithWhereUniqueWithoutSchoolInput = {
+    where: FeedbackWhereUniqueInput
+    data: XOR<FeedbackUpdateWithoutSchoolInput, FeedbackUncheckedUpdateWithoutSchoolInput>
+  }
+
+  export type FeedbackUpdateManyWithWhereWithoutSchoolInput = {
+    where: FeedbackScalarWhereInput
+    data: XOR<FeedbackUpdateManyMutationInput, FeedbackUncheckedUpdateManyWithoutSchoolInput>
+  }
+
+  export type FeedbackScalarWhereInput = {
+    AND?: FeedbackScalarWhereInput | FeedbackScalarWhereInput[]
+    OR?: FeedbackScalarWhereInput[]
+    NOT?: FeedbackScalarWhereInput | FeedbackScalarWhereInput[]
+    id?: StringFilter<"Feedback"> | string
+    userId?: StringNullableFilter<"Feedback"> | string | null
+    schoolId?: StringNullableFilter<"Feedback"> | string | null
+    type?: EnumFeedbackTypeFilter<"Feedback"> | $Enums.FeedbackType
+    message?: StringFilter<"Feedback"> | string
+    pageUrl?: StringNullableFilter<"Feedback"> | string | null
+    status?: EnumFeedbackStatusFilter<"Feedback"> | $Enums.FeedbackStatus
+    response?: StringNullableFilter<"Feedback"> | string | null
+    createdAt?: DateTimeFilter<"Feedback"> | Date | string
+    updatedAt?: DateTimeFilter<"Feedback"> | Date | string
+  }
+
   export type SchoolCreateWithoutDocumentsInput = {
     id?: string
     name: string
@@ -26922,6 +28832,7 @@ export namespace Prisma {
     subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
     auditLogs?: AuditLogCreateNestedManyWithoutSchoolInput
     platformNotificationRecipients?: PlatformNotificationRecipientCreateNestedManyWithoutSchoolInput
+    feedback?: FeedbackCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutDocumentsInput = {
@@ -26959,6 +28870,7 @@ export namespace Prisma {
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutSchoolInput
     platformNotificationRecipients?: PlatformNotificationRecipientUncheckedCreateNestedManyWithoutSchoolInput
+    feedback?: FeedbackUncheckedCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutDocumentsInput = {
@@ -27012,6 +28924,7 @@ export namespace Prisma {
     subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
     auditLogs?: AuditLogUpdateManyWithoutSchoolNestedInput
     platformNotificationRecipients?: PlatformNotificationRecipientUpdateManyWithoutSchoolNestedInput
+    feedback?: FeedbackUpdateManyWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutDocumentsInput = {
@@ -27049,6 +28962,7 @@ export namespace Prisma {
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
     platformNotificationRecipients?: PlatformNotificationRecipientUncheckedUpdateManyWithoutSchoolNestedInput
+    feedback?: FeedbackUncheckedUpdateManyWithoutSchoolNestedInput
   }
 
   export type SchoolCreateWithoutUsersInput = {
@@ -27086,6 +29000,7 @@ export namespace Prisma {
     documents?: SchoolDocumentCreateNestedManyWithoutSchoolInput
     auditLogs?: AuditLogCreateNestedManyWithoutSchoolInput
     platformNotificationRecipients?: PlatformNotificationRecipientCreateNestedManyWithoutSchoolInput
+    feedback?: FeedbackCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutUsersInput = {
@@ -27123,6 +29038,7 @@ export namespace Prisma {
     documents?: SchoolDocumentUncheckedCreateNestedManyWithoutSchoolInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutSchoolInput
     platformNotificationRecipients?: PlatformNotificationRecipientUncheckedCreateNestedManyWithoutSchoolInput
+    feedback?: FeedbackUncheckedCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutUsersInput = {
@@ -27216,6 +29132,40 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type FeedbackCreateWithoutUserInput = {
+    id?: string
+    type?: $Enums.FeedbackType
+    message: string
+    pageUrl?: string | null
+    status?: $Enums.FeedbackStatus
+    response?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    school?: SchoolCreateNestedOneWithoutFeedbackInput
+  }
+
+  export type FeedbackUncheckedCreateWithoutUserInput = {
+    id?: string
+    schoolId?: string | null
+    type?: $Enums.FeedbackType
+    message: string
+    pageUrl?: string | null
+    status?: $Enums.FeedbackStatus
+    response?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type FeedbackCreateOrConnectWithoutUserInput = {
+    where: FeedbackWhereUniqueInput
+    create: XOR<FeedbackCreateWithoutUserInput, FeedbackUncheckedCreateWithoutUserInput>
+  }
+
+  export type FeedbackCreateManyUserInputEnvelope = {
+    data: FeedbackCreateManyUserInput | FeedbackCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type SchoolUpsertWithoutUsersInput = {
     update: XOR<SchoolUpdateWithoutUsersInput, SchoolUncheckedUpdateWithoutUsersInput>
     create: XOR<SchoolCreateWithoutUsersInput, SchoolUncheckedCreateWithoutUsersInput>
@@ -27262,6 +29212,7 @@ export namespace Prisma {
     documents?: SchoolDocumentUpdateManyWithoutSchoolNestedInput
     auditLogs?: AuditLogUpdateManyWithoutSchoolNestedInput
     platformNotificationRecipients?: PlatformNotificationRecipientUpdateManyWithoutSchoolNestedInput
+    feedback?: FeedbackUpdateManyWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutUsersInput = {
@@ -27299,6 +29250,7 @@ export namespace Prisma {
     documents?: SchoolDocumentUncheckedUpdateManyWithoutSchoolNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
     platformNotificationRecipients?: PlatformNotificationRecipientUncheckedUpdateManyWithoutSchoolNestedInput
+    feedback?: FeedbackUncheckedUpdateManyWithoutSchoolNestedInput
   }
 
   export type RefreshTokenUpsertWithWhereUniqueWithoutUserInput = {
@@ -27389,6 +29341,22 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Invite"> | Date | string
   }
 
+  export type FeedbackUpsertWithWhereUniqueWithoutUserInput = {
+    where: FeedbackWhereUniqueInput
+    update: XOR<FeedbackUpdateWithoutUserInput, FeedbackUncheckedUpdateWithoutUserInput>
+    create: XOR<FeedbackCreateWithoutUserInput, FeedbackUncheckedCreateWithoutUserInput>
+  }
+
+  export type FeedbackUpdateWithWhereUniqueWithoutUserInput = {
+    where: FeedbackWhereUniqueInput
+    data: XOR<FeedbackUpdateWithoutUserInput, FeedbackUncheckedUpdateWithoutUserInput>
+  }
+
+  export type FeedbackUpdateManyWithWhereWithoutUserInput = {
+    where: FeedbackScalarWhereInput
+    data: XOR<FeedbackUpdateManyMutationInput, FeedbackUncheckedUpdateManyWithoutUserInput>
+  }
+
   export type UserCreateWithoutOtpsInput = {
     id?: string
     email: string
@@ -27412,6 +29380,7 @@ export namespace Prisma {
     school?: SchoolCreateNestedOneWithoutUsersInput
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
     invitesSent?: InviteCreateNestedManyWithoutSentByInput
+    feedback?: FeedbackCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOtpsInput = {
@@ -27437,6 +29406,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
     invitesSent?: InviteUncheckedCreateNestedManyWithoutSentByInput
+    feedback?: FeedbackUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOtpsInput = {
@@ -27478,6 +29448,7 @@ export namespace Prisma {
     school?: SchoolUpdateOneWithoutUsersNestedInput
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
     invitesSent?: InviteUpdateManyWithoutSentByNestedInput
+    feedback?: FeedbackUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOtpsInput = {
@@ -27503,6 +29474,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
     invitesSent?: InviteUncheckedUpdateManyWithoutSentByNestedInput
+    feedback?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutRefreshTokensInput = {
@@ -27528,6 +29500,7 @@ export namespace Prisma {
     school?: SchoolCreateNestedOneWithoutUsersInput
     otps?: OtpCreateNestedManyWithoutUserInput
     invitesSent?: InviteCreateNestedManyWithoutSentByInput
+    feedback?: FeedbackCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutRefreshTokensInput = {
@@ -27553,6 +29526,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     otps?: OtpUncheckedCreateNestedManyWithoutUserInput
     invitesSent?: InviteUncheckedCreateNestedManyWithoutSentByInput
+    feedback?: FeedbackUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutRefreshTokensInput = {
@@ -27594,6 +29568,7 @@ export namespace Prisma {
     school?: SchoolUpdateOneWithoutUsersNestedInput
     otps?: OtpUpdateManyWithoutUserNestedInput
     invitesSent?: InviteUpdateManyWithoutSentByNestedInput
+    feedback?: FeedbackUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRefreshTokensInput = {
@@ -27619,6 +29594,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     otps?: OtpUncheckedUpdateManyWithoutUserNestedInput
     invitesSent?: InviteUncheckedUpdateManyWithoutSentByNestedInput
+    feedback?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutInvitesSentInput = {
@@ -27644,6 +29620,7 @@ export namespace Prisma {
     school?: SchoolCreateNestedOneWithoutUsersInput
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
     otps?: OtpCreateNestedManyWithoutUserInput
+    feedback?: FeedbackCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutInvitesSentInput = {
@@ -27669,6 +29646,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
     otps?: OtpUncheckedCreateNestedManyWithoutUserInput
+    feedback?: FeedbackUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutInvitesSentInput = {
@@ -27710,6 +29688,7 @@ export namespace Prisma {
     school?: SchoolUpdateOneWithoutUsersNestedInput
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
     otps?: OtpUpdateManyWithoutUserNestedInput
+    feedback?: FeedbackUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutInvitesSentInput = {
@@ -27735,6 +29714,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
     otps?: OtpUncheckedUpdateManyWithoutUserNestedInput
+    feedback?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type SubscriptionCreateWithoutPlanInput = {
@@ -27852,6 +29832,7 @@ export namespace Prisma {
     documents?: SchoolDocumentCreateNestedManyWithoutSchoolInput
     auditLogs?: AuditLogCreateNestedManyWithoutSchoolInput
     platformNotificationRecipients?: PlatformNotificationRecipientCreateNestedManyWithoutSchoolInput
+    feedback?: FeedbackCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutSubscriptionsInput = {
@@ -27889,6 +29870,7 @@ export namespace Prisma {
     documents?: SchoolDocumentUncheckedCreateNestedManyWithoutSchoolInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutSchoolInput
     platformNotificationRecipients?: PlatformNotificationRecipientUncheckedCreateNestedManyWithoutSchoolInput
+    feedback?: FeedbackUncheckedCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutSubscriptionsInput = {
@@ -28048,6 +30030,7 @@ export namespace Prisma {
     documents?: SchoolDocumentUpdateManyWithoutSchoolNestedInput
     auditLogs?: AuditLogUpdateManyWithoutSchoolNestedInput
     platformNotificationRecipients?: PlatformNotificationRecipientUpdateManyWithoutSchoolNestedInput
+    feedback?: FeedbackUpdateManyWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutSubscriptionsInput = {
@@ -28085,6 +30068,7 @@ export namespace Prisma {
     documents?: SchoolDocumentUncheckedUpdateManyWithoutSchoolNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
     platformNotificationRecipients?: PlatformNotificationRecipientUncheckedUpdateManyWithoutSchoolNestedInput
+    feedback?: FeedbackUncheckedUpdateManyWithoutSchoolNestedInput
   }
 
   export type PlanUpsertWithoutSubscriptionsInput = {
@@ -28443,6 +30427,7 @@ export namespace Prisma {
     subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentCreateNestedManyWithoutSchoolInput
     platformNotificationRecipients?: PlatformNotificationRecipientCreateNestedManyWithoutSchoolInput
+    feedback?: FeedbackCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutAuditLogsInput = {
@@ -28480,6 +30465,7 @@ export namespace Prisma {
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentUncheckedCreateNestedManyWithoutSchoolInput
     platformNotificationRecipients?: PlatformNotificationRecipientUncheckedCreateNestedManyWithoutSchoolInput
+    feedback?: FeedbackUncheckedCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutAuditLogsInput = {
@@ -28533,6 +30519,7 @@ export namespace Prisma {
     subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUpdateManyWithoutSchoolNestedInput
     platformNotificationRecipients?: PlatformNotificationRecipientUpdateManyWithoutSchoolNestedInput
+    feedback?: FeedbackUpdateManyWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutAuditLogsInput = {
@@ -28570,6 +30557,7 @@ export namespace Prisma {
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUncheckedUpdateManyWithoutSchoolNestedInput
     platformNotificationRecipients?: PlatformNotificationRecipientUncheckedUpdateManyWithoutSchoolNestedInput
+    feedback?: FeedbackUncheckedUpdateManyWithoutSchoolNestedInput
   }
 
   export type PlatformNotificationRecipientCreateWithoutNotificationInput = {
@@ -28692,6 +30680,7 @@ export namespace Prisma {
     subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentCreateNestedManyWithoutSchoolInput
     auditLogs?: AuditLogCreateNestedManyWithoutSchoolInput
+    feedback?: FeedbackCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolUncheckedCreateWithoutPlatformNotificationRecipientsInput = {
@@ -28729,6 +30718,7 @@ export namespace Prisma {
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentUncheckedCreateNestedManyWithoutSchoolInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutSchoolInput
+    feedback?: FeedbackUncheckedCreateNestedManyWithoutSchoolInput
   }
 
   export type SchoolCreateOrConnectWithoutPlatformNotificationRecipientsInput = {
@@ -28821,6 +30811,7 @@ export namespace Prisma {
     subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUpdateManyWithoutSchoolNestedInput
     auditLogs?: AuditLogUpdateManyWithoutSchoolNestedInput
+    feedback?: FeedbackUpdateManyWithoutSchoolNestedInput
   }
 
   export type SchoolUncheckedUpdateWithoutPlatformNotificationRecipientsInput = {
@@ -28858,6 +30849,295 @@ export namespace Prisma {
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUncheckedUpdateManyWithoutSchoolNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
+    feedback?: FeedbackUncheckedUpdateManyWithoutSchoolNestedInput
+  }
+
+  export type UserCreateWithoutFeedbackInput = {
+    id?: string
+    email: string
+    passwordHash: string
+    role: $Enums.Role
+    firstName?: string | null
+    lastName?: string | null
+    phone?: string | null
+    photoUrl?: string | null
+    isActive?: boolean
+    isEmailVerified?: boolean
+    emailVerifiedAt?: Date | string | null
+    lastLoginAt?: Date | string | null
+    lastLoginIp?: string | null
+    failedLoginCount?: number
+    lockedUntil?: Date | string | null
+    passwordChangedAt?: Date | string | null
+    mustChangePassword?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    school?: SchoolCreateNestedOneWithoutUsersInput
+    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
+    otps?: OtpCreateNestedManyWithoutUserInput
+    invitesSent?: InviteCreateNestedManyWithoutSentByInput
+  }
+
+  export type UserUncheckedCreateWithoutFeedbackInput = {
+    id?: string
+    schoolId?: string | null
+    email: string
+    passwordHash: string
+    role: $Enums.Role
+    firstName?: string | null
+    lastName?: string | null
+    phone?: string | null
+    photoUrl?: string | null
+    isActive?: boolean
+    isEmailVerified?: boolean
+    emailVerifiedAt?: Date | string | null
+    lastLoginAt?: Date | string | null
+    lastLoginIp?: string | null
+    failedLoginCount?: number
+    lockedUntil?: Date | string | null
+    passwordChangedAt?: Date | string | null
+    mustChangePassword?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+    otps?: OtpUncheckedCreateNestedManyWithoutUserInput
+    invitesSent?: InviteUncheckedCreateNestedManyWithoutSentByInput
+  }
+
+  export type UserCreateOrConnectWithoutFeedbackInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutFeedbackInput, UserUncheckedCreateWithoutFeedbackInput>
+  }
+
+  export type SchoolCreateWithoutFeedbackInput = {
+    id?: string
+    name: string
+    subdomain: string
+    customDomain?: string | null
+    customDomainVerifiedAt?: Date | string | null
+    email: string
+    phone?: string | null
+    address?: string | null
+    city?: string | null
+    state?: string | null
+    country?: string
+    timezone?: string
+    logoUrl?: string | null
+    schoolCategory?: $Enums.SchoolCategory
+    schoolOwnership?: $Enums.SchoolOwnership
+    status?: $Enums.SchoolStatus
+    verificationStatus?: $Enums.VerificationStatus
+    verifiedAt?: Date | string | null
+    verifiedById?: string | null
+    suspendedAt?: Date | string | null
+    suspensionReason?: string | null
+    isActive?: boolean
+    schemaName?: string | null
+    schemaProvisionedAt?: Date | string | null
+    paystackSubaccountCode?: string | null
+    paystackSubaccountId?: string | null
+    settlementBankCode?: string | null
+    settlementAccountNumber?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutSchoolInput
+    subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
+    documents?: SchoolDocumentCreateNestedManyWithoutSchoolInput
+    auditLogs?: AuditLogCreateNestedManyWithoutSchoolInput
+    platformNotificationRecipients?: PlatformNotificationRecipientCreateNestedManyWithoutSchoolInput
+  }
+
+  export type SchoolUncheckedCreateWithoutFeedbackInput = {
+    id?: string
+    name: string
+    subdomain: string
+    customDomain?: string | null
+    customDomainVerifiedAt?: Date | string | null
+    email: string
+    phone?: string | null
+    address?: string | null
+    city?: string | null
+    state?: string | null
+    country?: string
+    timezone?: string
+    logoUrl?: string | null
+    schoolCategory?: $Enums.SchoolCategory
+    schoolOwnership?: $Enums.SchoolOwnership
+    status?: $Enums.SchoolStatus
+    verificationStatus?: $Enums.VerificationStatus
+    verifiedAt?: Date | string | null
+    verifiedById?: string | null
+    suspendedAt?: Date | string | null
+    suspensionReason?: string | null
+    isActive?: boolean
+    schemaName?: string | null
+    schemaProvisionedAt?: Date | string | null
+    paystackSubaccountCode?: string | null
+    paystackSubaccountId?: string | null
+    settlementBankCode?: string | null
+    settlementAccountNumber?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
+    subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
+    documents?: SchoolDocumentUncheckedCreateNestedManyWithoutSchoolInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutSchoolInput
+    platformNotificationRecipients?: PlatformNotificationRecipientUncheckedCreateNestedManyWithoutSchoolInput
+  }
+
+  export type SchoolCreateOrConnectWithoutFeedbackInput = {
+    where: SchoolWhereUniqueInput
+    create: XOR<SchoolCreateWithoutFeedbackInput, SchoolUncheckedCreateWithoutFeedbackInput>
+  }
+
+  export type UserUpsertWithoutFeedbackInput = {
+    update: XOR<UserUpdateWithoutFeedbackInput, UserUncheckedUpdateWithoutFeedbackInput>
+    create: XOR<UserCreateWithoutFeedbackInput, UserUncheckedCreateWithoutFeedbackInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutFeedbackInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutFeedbackInput, UserUncheckedUpdateWithoutFeedbackInput>
+  }
+
+  export type UserUpdateWithoutFeedbackInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isEmailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    failedLoginCount?: IntFieldUpdateOperationsInput | number
+    lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    school?: SchoolUpdateOneWithoutUsersNestedInput
+    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
+    otps?: OtpUpdateManyWithoutUserNestedInput
+    invitesSent?: InviteUpdateManyWithoutSentByNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutFeedbackInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isEmailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    failedLoginCount?: IntFieldUpdateOperationsInput | number
+    lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+    otps?: OtpUncheckedUpdateManyWithoutUserNestedInput
+    invitesSent?: InviteUncheckedUpdateManyWithoutSentByNestedInput
+  }
+
+  export type SchoolUpsertWithoutFeedbackInput = {
+    update: XOR<SchoolUpdateWithoutFeedbackInput, SchoolUncheckedUpdateWithoutFeedbackInput>
+    create: XOR<SchoolCreateWithoutFeedbackInput, SchoolUncheckedCreateWithoutFeedbackInput>
+    where?: SchoolWhereInput
+  }
+
+  export type SchoolUpdateToOneWithWhereWithoutFeedbackInput = {
+    where?: SchoolWhereInput
+    data: XOR<SchoolUpdateWithoutFeedbackInput, SchoolUncheckedUpdateWithoutFeedbackInput>
+  }
+
+  export type SchoolUpdateWithoutFeedbackInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    subdomain?: StringFieldUpdateOperationsInput | string
+    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    customDomainVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    schoolCategory?: EnumSchoolCategoryFieldUpdateOperationsInput | $Enums.SchoolCategory
+    schoolOwnership?: EnumSchoolOwnershipFieldUpdateOperationsInput | $Enums.SchoolOwnership
+    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
+    verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verifiedById?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    schemaName?: NullableStringFieldUpdateOperationsInput | string | null
+    schemaProvisionedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackSubaccountCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubaccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    settlementBankCode?: NullableStringFieldUpdateOperationsInput | string | null
+    settlementAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutSchoolNestedInput
+    subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
+    documents?: SchoolDocumentUpdateManyWithoutSchoolNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutSchoolNestedInput
+    platformNotificationRecipients?: PlatformNotificationRecipientUpdateManyWithoutSchoolNestedInput
+  }
+
+  export type SchoolUncheckedUpdateWithoutFeedbackInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    subdomain?: StringFieldUpdateOperationsInput | string
+    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    customDomainVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    schoolCategory?: EnumSchoolCategoryFieldUpdateOperationsInput | $Enums.SchoolCategory
+    schoolOwnership?: EnumSchoolOwnershipFieldUpdateOperationsInput | $Enums.SchoolOwnership
+    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
+    verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verifiedById?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    schemaName?: NullableStringFieldUpdateOperationsInput | string | null
+    schemaProvisionedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackSubaccountCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubaccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    settlementBankCode?: NullableStringFieldUpdateOperationsInput | string | null
+    settlementAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
+    subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
+    documents?: SchoolDocumentUncheckedUpdateManyWithoutSchoolNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
+    platformNotificationRecipients?: PlatformNotificationRecipientUncheckedUpdateManyWithoutSchoolNestedInput
   }
 
   export type UserCreateManySchoolInput = {
@@ -28954,6 +31234,18 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type FeedbackCreateManySchoolInput = {
+    id?: string
+    userId?: string | null
+    type?: $Enums.FeedbackType
+    message: string
+    pageUrl?: string | null
+    status?: $Enums.FeedbackStatus
+    response?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type UserUpdateWithoutSchoolInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
@@ -28977,6 +31269,7 @@ export namespace Prisma {
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
     otps?: OtpUpdateManyWithoutUserNestedInput
     invitesSent?: InviteUpdateManyWithoutSentByNestedInput
+    feedback?: FeedbackUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSchoolInput = {
@@ -29002,6 +31295,7 @@ export namespace Prisma {
     refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
     otps?: OtpUncheckedUpdateManyWithoutUserNestedInput
     invitesSent?: InviteUncheckedUpdateManyWithoutSentByNestedInput
+    feedback?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutSchoolInput = {
@@ -29244,6 +31538,42 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type FeedbackUpdateWithoutSchoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumFeedbackTypeFieldUpdateOperationsInput | $Enums.FeedbackType
+    message?: StringFieldUpdateOperationsInput | string
+    pageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumFeedbackStatusFieldUpdateOperationsInput | $Enums.FeedbackStatus
+    response?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneWithoutFeedbackNestedInput
+  }
+
+  export type FeedbackUncheckedUpdateWithoutSchoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumFeedbackTypeFieldUpdateOperationsInput | $Enums.FeedbackType
+    message?: StringFieldUpdateOperationsInput | string
+    pageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumFeedbackStatusFieldUpdateOperationsInput | $Enums.FeedbackStatus
+    response?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FeedbackUncheckedUpdateManyWithoutSchoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumFeedbackTypeFieldUpdateOperationsInput | $Enums.FeedbackType
+    message?: StringFieldUpdateOperationsInput | string
+    pageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumFeedbackStatusFieldUpdateOperationsInput | $Enums.FeedbackStatus
+    response?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type RefreshTokenCreateManyUserInput = {
     id?: string
     token: string
@@ -29270,6 +31600,18 @@ export namespace Prisma {
     accepted?: boolean
     expiresAt: Date | string
     createdAt?: Date | string
+  }
+
+  export type FeedbackCreateManyUserInput = {
+    id?: string
+    schoolId?: string | null
+    type?: $Enums.FeedbackType
+    message: string
+    pageUrl?: string | null
+    status?: $Enums.FeedbackStatus
+    response?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type RefreshTokenUpdateWithoutUserInput = {
@@ -29354,6 +31696,42 @@ export namespace Prisma {
     accepted?: BoolFieldUpdateOperationsInput | boolean
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FeedbackUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumFeedbackTypeFieldUpdateOperationsInput | $Enums.FeedbackType
+    message?: StringFieldUpdateOperationsInput | string
+    pageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumFeedbackStatusFieldUpdateOperationsInput | $Enums.FeedbackStatus
+    response?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    school?: SchoolUpdateOneWithoutFeedbackNestedInput
+  }
+
+  export type FeedbackUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumFeedbackTypeFieldUpdateOperationsInput | $Enums.FeedbackType
+    message?: StringFieldUpdateOperationsInput | string
+    pageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumFeedbackStatusFieldUpdateOperationsInput | $Enums.FeedbackStatus
+    response?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FeedbackUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schoolId?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumFeedbackTypeFieldUpdateOperationsInput | $Enums.FeedbackType
+    message?: StringFieldUpdateOperationsInput | string
+    pageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumFeedbackStatusFieldUpdateOperationsInput | $Enums.FeedbackStatus
+    response?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SubscriptionCreateManyPlanInput = {

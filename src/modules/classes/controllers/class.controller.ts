@@ -8,9 +8,13 @@ import { CreateSubjectUseCase }     from "../usecases/school-admin/create-subjec
 import { DeleteClassUseCase } from "../usecases/school-admin/delete-class.usecase";
 import { GetSubjectsUseCase }       from "../usecases/school-admin/get-subjects.usecase";
 import { AssignSubjectUseCase }     from "../usecases/school-admin/assign-subject.usecase";
+import { SetSubjectDefaultTeacherUseCase } from "../usecases/school-admin/set-subject-default-teacher.usecase";
+import { BulkAssignSubjectsUseCase } from "../usecases/school-admin/bulk-assign-subject.usecase";
 import { GetClassSubjectsUseCase }  from "../usecases/school-admin/get-class-subjects.usecase";
 import { RemoveSubjectUseCase }     from "../usecases/school-admin/remove-subject.usecase";
+import { ApplyDefaultsUseCase } from "../usecases/school-admin/apply-default-usecase";
 import { SetClassProgressionUseCase } from "../usecases/school-admin/set-class-progression.usecase";
+import { ClearSubjectOverrideUseCase } from "../usecases/school-admin/clear-subject-override.usecase";
 import {
     sendSuccess,
     sendCreated,
@@ -31,10 +35,14 @@ interface Dependencies {
     createSubjectUseCase:    CreateSubjectUseCase;
     getSubjectsUseCase:      GetSubjectsUseCase;
     assignSubjectUseCase:    AssignSubjectUseCase;
+    setSubjectDefaultTeacherUseCase: SetSubjectDefaultTeacherUseCase;
+    bulkAssignSubjectsUseCase: BulkAssignSubjectsUseCase;
     getClassSubjectsUseCase: GetClassSubjectsUseCase;
     removeSubjectUseCase:    RemoveSubjectUseCase;
     setClassTeacherUseCase:  SetClassTeacherUseCase;
     setClassProgressionUseCase: SetClassProgressionUseCase;
+    applyDefaultsUseCase:        ApplyDefaultsUseCase;
+    clearSubjectOverrideUseCase:    ClearSubjectOverrideUseCase;
 }
 
 export class ClassController {
@@ -47,9 +55,13 @@ export class ClassController {
     private readonly createSubjectUseCase:    CreateSubjectUseCase;
     private readonly getSubjectsUseCase:      GetSubjectsUseCase;
     private readonly assignSubjectUseCase:    AssignSubjectUseCase;
+    private readonly setSubjectDefaultTeacherUseCase: SetSubjectDefaultTeacherUseCase;
+    private readonly bulkAssignSubjectsUseCase: BulkAssignSubjectsUseCase;
     private readonly getClassSubjectsUseCase: GetClassSubjectsUseCase;
     private readonly removeSubjectUseCase:    RemoveSubjectUseCase;
     private readonly setClassProgressionUseCase: SetClassProgressionUseCase;
+    private readonly applyDefaultsUseCase:       ApplyDefaultsUseCase;
+    private readonly clearSubjectOverrideUseCase:   ClearSubjectOverrideUseCase;
 
     constructor({
         createClassUseCase,
@@ -61,22 +73,30 @@ export class ClassController {
         createSubjectUseCase,
         getSubjectsUseCase,
         assignSubjectUseCase,
+        setSubjectDefaultTeacherUseCase,
+        bulkAssignSubjectsUseCase,
         getClassSubjectsUseCase,
         removeSubjectUseCase,
         setClassProgressionUseCase,
+        applyDefaultsUseCase,
+        clearSubjectOverrideUseCase,
     }: Dependencies) {
-        this.createClassUseCase      = createClassUseCase;
-        this.updateClassUseCase      = updateClassUseCase;
-        this.getClassesUseCase       = getClassesUseCase;
-        this.getClassByIdUseCase     = getClassByIdUseCase;
-        this.setClassTeacherUseCase  = setClassTeacherUseCase;
-        this.deleteClassUseCase      = deleteClassUseCase;
-        this.createSubjectUseCase    = createSubjectUseCase;
-        this.getSubjectsUseCase      = getSubjectsUseCase;
-        this.assignSubjectUseCase    = assignSubjectUseCase;
-        this.getClassSubjectsUseCase = getClassSubjectsUseCase;
-        this.removeSubjectUseCase    = removeSubjectUseCase;
+        this.createClassUseCase         = createClassUseCase;
+        this.updateClassUseCase         = updateClassUseCase;
+        this.getClassesUseCase          = getClassesUseCase;
+        this.getClassByIdUseCase        = getClassByIdUseCase;
+        this.setClassTeacherUseCase     = setClassTeacherUseCase;
+        this.deleteClassUseCase         = deleteClassUseCase;
+        this.createSubjectUseCase       = createSubjectUseCase;
+        this.getSubjectsUseCase         = getSubjectsUseCase;
+        this.assignSubjectUseCase       = assignSubjectUseCase;
+        this.setSubjectDefaultTeacherUseCase = setSubjectDefaultTeacherUseCase;
+        this.bulkAssignSubjectsUseCase  = bulkAssignSubjectsUseCase,
+        this.getClassSubjectsUseCase    = getClassSubjectsUseCase;
+        this.removeSubjectUseCase       = removeSubjectUseCase;
         this.setClassProgressionUseCase = setClassProgressionUseCase;
+        this.applyDefaultsUseCase       = applyDefaultsUseCase;
+        this.clearSubjectOverrideUseCase= clearSubjectOverrideUseCase;
     }
 
     // ── Classes ───────────────────────────────────────────────────────────
@@ -203,6 +223,49 @@ export class ClassController {
         } catch (err) { next(err); }
     };
 
+    async setSubjectDefaultTeacher(
+        req: Request,
+        res: Response,
+        next: NextFunction,
+    ) {
+        try {
+            const subjectId = req.params.id as string;
+            const { staffId } = req.body;
+
+            const result = await this.setSubjectDefaultTeacherUseCase.execute(
+                subjectId,
+                staffId,
+            );
+
+            return res.status(200).json({
+                success: true,
+                data: result,
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+
+   bulkAssignSubjects = async (
+        req: Request,
+        res: Response,
+        next: NextFunction,
+    ): Promise<void> => {
+        try {
+            const result = await this.bulkAssignSubjectsUseCase.execute(
+                req.params.id as string,
+                req.body,
+            );
+
+            sendCreated(res, result, "Subjects assigned successfully");
+        } catch (err) {
+            next(err);
+        }
+    };
+
+
+
     removeSubject = async (
         req: Request, res: Response, next: NextFunction,
     ): Promise<void> => {
@@ -234,5 +297,44 @@ export class ClassController {
             next(err);
         }
     };
+
+    applyTeachingDefaults = async (
+        req: Request,
+        res: Response,
+        next: NextFunction,
+    ): Promise<void> => {
+        try {
+            const result = await this.applyDefaultsUseCase.execute();
+
+            sendSuccess(
+                res,
+                result,
+                "Teaching defaults applied successfully",
+            );
+        } catch (err) {
+            next(err);
+        }
+    };
+
+    clearSubjectOverride = async (
+        req: Request,
+        res: Response,
+        next: NextFunction,
+    ): Promise<void> => {
+        try {
+            const result = await this.clearSubjectOverrideUseCase.execute(
+                req.params.classSubjectId as string,
+            );
+
+            sendSuccess(
+                res,
+                result,
+                "Subject override cleared successfully",
+            );
+        } catch (err) {
+            next(err);
+        }
+    };
+
 
 }

@@ -87,6 +87,19 @@ export class LoginUseCase {
             throw new ForbiddenError(AuthErrorMessage.ACCOUNT_INACTIVE);
         }
 
+        const now = new Date();
+
+        if (
+            userWithPassword.lockedUntil &&
+            userWithPassword.lockedUntil <= now
+        ) {
+            await this.userRepository.resetFailedLogin(userWithPassword.id);
+
+            userWithPassword.failedLoginCount = 0;
+            userWithPassword.lockedUntil = null;
+        }
+
+
         // ── 3. Check account is not locked ────────────────────────────────
         if (
             userWithPassword.lockedUntil &&

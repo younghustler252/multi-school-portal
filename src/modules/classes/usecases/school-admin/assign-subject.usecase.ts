@@ -1,81 +1,30 @@
-import { IClassRepository }      from "../../repositories/class.repository";
-import { IStaffRepository }      from "../../../staff/repositories/staff.repository";
-import { ClassSubjectMapper }    from "../../mappers/class.mapper";
-import { ClassSubjectResponseData } from "../../types/class.types";
-import {
-    NotFoundError,
-    ConflictError,
-}                                from "../../../../shared/errors/domain.errors";
-import { ClassErrorMessage }     from "../../domain/class.enums";
-import { AssignSubjectDtoType }  from "../../dtos/class.dto";
-
-/*
-|--------------------------------------------------------------------------
-| ASSIGN SUBJECT USE CASE
-| Assigns a subject to a class with a teacher
-|--------------------------------------------------------------------------
-*/
+import { IClassRepository }        from "../../repositories/class.repository";
+import { AssignSubjectDtoType }    from "../../dtos/class.dto";
+import { ClassSubjectAssignmentSource } from "../../domain/class.enums";
 
 interface Dependencies {
-    classRepository:    IClassRepository;
-    staffRepository:    IStaffRepository;
-    classSubjectMapper: ClassSubjectMapper;
+    classRepository: IClassRepository;
 }
 
 export class AssignSubjectUseCase {
-    private readonly classRepository:    IClassRepository;
-    private readonly staffRepository:    IStaffRepository;
-    private readonly classSubjectMapper: ClassSubjectMapper;
+    private readonly classRepository: IClassRepository;
 
-    constructor({
-        classRepository,
-        staffRepository,
-        classSubjectMapper,
-    }: Dependencies) {
-        this.classRepository    = classRepository;
-        this.staffRepository    = staffRepository;
-        this.classSubjectMapper = classSubjectMapper;
+    constructor({ classRepository }: Dependencies) {
+        this.classRepository = classRepository;
     }
 
-    async execute(
-        classId: string,
-        dto:     AssignSubjectDtoType,
-    ): Promise<ClassSubjectResponseData> {
-
-        // ── Check class exists ────────────────────────────────────────────
-        const cls = await this.classRepository.findClassById(classId);
-        if (!cls) throw new NotFoundError(ClassErrorMessage.NOT_FOUND);
-
-        // ── Check subject exists ──────────────────────────────────────────
-        const subject = await this.classRepository
-            .findSubjectById(dto.subjectId);
-        if (!subject) {
-            throw new NotFoundError(ClassErrorMessage.SUBJECT_NOT_FOUND);
-        }
-
-        // ── Check staff exists ────────────────────────────────────────────
-        const staff = await this.staffRepository.findById(dto.staffId);
-        if (!staff) {
-            throw new NotFoundError(ClassErrorMessage.STAFF_NOT_FOUND);
-        }
-
-        // ── Check not already assigned ────────────────────────────────────
-        const existing = await this.classRepository.findClassSubject(
-            classId,
-            dto.subjectId,
-        );
+    async execute(classId: string, dto: AssignSubjectDtoType) {
+        const existing = await this.classRepository.findClassSubject(classId, dto.subjectId, dto.termId);
 
         if (existing) {
-            throw new ConflictError(ClassErrorMessage.ALREADY_ASSIGNED);
+            return this.classRepository.updateClassSubject(existing.id, {
+                staffId: dto.staffId, assignedVia: ClassSubjectAssignmentSource.manual,
+            });
         }
 
-        // ── Assign ────────────────────────────────────────────────────────
-        const assignment = await this.classRepository.assignSubject({
-            classId,
-            subjectId: dto.subjectId,
-            staffId:   dto.staffId,
+        return this.classRepository.assignSubject({
+            classId, subjectId: dto.subjectId, staffId: dto.staffId,
+            termId: dto.termId, assignedVia: ClassSubjectAssignmentSource.manual,
         });
-
-        return this.classSubjectMapper.toResponse(assignment);
     }
 }

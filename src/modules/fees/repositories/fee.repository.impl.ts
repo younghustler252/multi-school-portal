@@ -67,10 +67,9 @@ export class FeeRepositoryImpl implements IFeeRepository {
         return this.feeTypeMapper.toDomain(raw);
     }
 
+    // FeeRepositoryImpl
     async deleteFeeType(id: string): Promise<void> {
-        await this.prisma.feeType.delete({
-            where: { id },
-        });
+        await this.prisma.feeType.update({ where: { id }, data: { isActive: false } });
     }
 
     async createInvoice(
@@ -95,10 +94,45 @@ export class FeeRepositoryImpl implements IFeeRepository {
             },
         });
 
+        // Find all guardians linked to this student
+        const guardians = await this.prisma.studentGuardian.findMany({
+            where: {
+                studentId,
+            },
+            select: {
+                guardianId: true,
+            },
+        });
+
+        // Notify guardians that a new invoice has been created
+        if (guardians.length > 0) {
+            const notification = await this.prisma.schoolNotification.create({
+                data: {
+                    title: "New fee invoice",
+                    message:
+                        "A new fee invoice has been issued for your child. Please log in to view it.",
+                    type: "fee_invoice",
+                    targetType: "GUARDIAN",
+                    sentById: "SYSTEM_INVOICE_ISSUED",
+                    sentAt: new Date(),
+                },
+            });
+
+            await this.prisma.schoolNotificationRecipient.createMany({
+                data: guardians.map((guardian) => ({
+                    notificationId: notification.id,
+                    guardianId: guardian.guardianId,
+                    channel: "IN_APP",
+                    status: "SENT",
+                })),
+            });
+        }
+
         return this.findInvoiceByIdEnriched(
             invoice.id,
         ) as Promise<EnrichedInvoice>;
     }
+
 
     async updateInvoiceFields(
         id: string,
@@ -503,4 +537,22 @@ export class FeeRepositoryImpl implements IFeeRepository {
             orderBy: { createdAt: "desc" },
         });
     }
+
+    async findGuardianLinksByStudent(studentId: string) {
+        return this.prisma.studentGuardian.findMany({
+            where: {
+                studentId,
+            },
+            select: {
+                guardianId: true,
+                guardian: {
+                    select: {
+                        email: true,
+                        firstName: true,
+                    },
+                },
+            },
+        });
+    }
+
 }

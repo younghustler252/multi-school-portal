@@ -12,6 +12,7 @@ import { resolveTenant, validateTenantOwnership }    from "./infrastructure/midd
 import { requireSuperAdmin } from "./infrastructure/middleware/rbac.middleware";
 import { optionalAuthenticate, authenticate }                      from "./infrastructure/middleware/auth.middleware";
 import { createBullBoardRouter } from "./infrastructure/jobs/bull-board";
+import { handlePaystackWebhook } from "./modules/payments/controllers/webhook-entry.controller";
 import routes                                        from "./routes";
 import { join } from "node:path";
 const app = express();
@@ -40,10 +41,16 @@ app.use(cors({
 
 app.use(globalLimiter);
 
+app.post(
+    "/api/v1/payments/webhook",
+    express.raw({ type: "application/json" }),
+    handlePaystackWebhook,
+);
 // ── Static assets (no auth/tenant context needed at all) ───────────────────
 app.use("/api/v1/report-cards/template-previews", express.static(
     join(process.cwd(), "public", "template-previews"),
 ));
+
 
 // ── Body Parsing ──────────────────────────────────────────────────────────
 app.use(express.json({ limit: "10mb" }));

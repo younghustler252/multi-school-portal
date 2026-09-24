@@ -75,15 +75,30 @@ export class AttendanceController {
         } catch (err) { next(err); }
     };
 
-    // ── Mark single attendance ────────────────────────────────────────────
     markAttendance = async (
-        req: Request, res: Response, next: NextFunction,
+        req: Request,
+        res: Response,
+        next: NextFunction,
     ): Promise<void> => {
         try {
-            const result = await this.markAttendanceUseCase.execute(req.body);
+            const classId = req.params.classId as string;
+            const requestingUserId = req.user?.id as string;
+            const requestingUserRole = req.user?.role as string;
+
+            const result = await this.markAttendanceUseCase.execute(
+                req.body,
+                classId,
+                requestingUserId,
+                requestingUserRole,
+            );
+
             sendCreated(res, result, "Attendance marked successfully");
-        } catch (err) { next(err); }
+        } catch (err) {
+            next(err);
+        }
     };
+
+
 
     // ── Bulk mark attendance ──────────────────────────────────────────────
     bulkMarkAttendance = async (

@@ -38,10 +38,7 @@ export class TokenService {
     }
 
     verifyAccessToken(token: string): AccessTokenPayload {
-        return jwt.verify(
-            token,
-            env.jwt.accessSecret,
-        ) as AccessTokenPayload;
+        return jwt.verify(token, env.jwt.accessSecret, { algorithms: ["HS256"] }) as AccessTokenPayload;
     }
 
     // ── Refresh Token ────────────────────────────────────────────────────
@@ -57,6 +54,7 @@ export class TokenService {
         return jwt.verify(
             token,
             env.jwt.refreshSecret,
+            { algorithms: ["HS256"] }
         ) as RefreshTokenPayload;
     }
 

@@ -1,6 +1,9 @@
 import { IMapper }              from "../../../infrastructure/repository/base.repository";
 import { SchoolSettingsEntity } from "../domain/school-settings.entity";
-import { ReportCardTemplate } from "../domain/school-settings.enums";
+import {
+    ReportCardTemplate,
+    TeachingModel,
+} from "../domain/school-settings.enums";
 
 export interface SchoolSettingsResponseData {
     id:                         string;
@@ -20,7 +23,9 @@ export interface SchoolSettingsResponseData {
     reportCardLetterheadUrl:    string | null;
     letterheadContentTopMm:     number | null;
     letterheadContentBottomMm:  number | null;
-    allowStudentLogin: boolean,
+    allowStudentLogin:          boolean;
+    teachingModel:              TeachingModel | null;
+
     updatedAt:                  Date;
 }
 
@@ -41,14 +46,15 @@ export class SchoolSettingsMapper
             stamp:                      raw.stamp                      ?? null,
             signature:                  raw.signature                  ?? null,
 
-            reportCardTemplate: raw.reportCardTemplate ?? "classic",
+            reportCardTemplate:         raw.reportCardTemplate ?? "classic",
             customReportCard:           raw.customReportCard,
 
             reportCardLetterheadUrl:    raw.reportCardLetterheadUrl    ?? null,
             letterheadContentTopMm:     raw.letterheadContentTopMm     ?? null,
             letterheadContentBottomMm:  raw.letterheadContentBottomMm  ?? null,
-            
+
             allowStudentLogin:          raw.allowStudentLogin,
+            teachingModel:              raw.teachingModel ?? null,
 
             createdAt:                  raw.createdAt,
             updatedAt:                  raw.updatedAt,
@@ -79,7 +85,7 @@ export class SchoolSettingsMapper
             letterheadContentBottomMm:  entity.letterheadContentBottomMm,
 
             allowStudentLogin:          entity.allowStudentLogin,
-
+            teachingModel:              entity.teachingModel,
 
             updatedAt:                  entity.updatedAt,
         };

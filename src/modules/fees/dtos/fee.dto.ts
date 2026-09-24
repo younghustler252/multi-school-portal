@@ -99,6 +99,14 @@ export const ListInvoicesDto = z.object({
     classId:   z.string().uuid().optional(),
     status:    InvoiceStatus.optional(),
 });
+
+export const CopyInvoiceFromClassDto = z.object({
+	studentId: z.string().uuid(),
+	classId: z.string().uuid(),
+	termId: z.string().uuid(),
+});
+
+
 // ── Record payment ────────────────────────────────────────────────────────
 export const RecordPaymentDto = z.object({
 	invoiceId: z.string().uuid(),
@@ -115,18 +123,21 @@ export type CreateClassFeeDtoType =
 export type InvoiceClassDtoType =
     z.infer<typeof InvoiceClassDto>;
 
-export type CreateFeeTypeDtoType =
+    export type CreateFeeTypeDtoType =
     z.infer<typeof CreateFeeTypeDto>;
-
-export type UpdateFeeTypeDtoType =
+    
+    export type UpdateFeeTypeDtoType =
     z.infer<typeof UpdateFeeTypeDto>;
-
-export type CreateInvoiceDtoType =
+    
+    export type CreateInvoiceDtoType =
     z.infer<typeof CreateInvoiceDto>;
-
-export type BulkCreateInvoiceDtoType =
+    
+    export type BulkCreateInvoiceDtoType =
     z.infer<typeof BulkCreateInvoiceDto>;
+    
+    export type CopyInvoiceFromClassDtoType = z.infer<typeof CopyInvoiceFromClassDto>;
 
+    
 export type UpdateInvoiceDtoType =
     z.infer<typeof UpdateInvoiceDto>;
 
