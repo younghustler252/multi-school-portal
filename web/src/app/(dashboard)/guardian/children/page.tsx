@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FileText, CalendarCheck, Wallet } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { StatCard } from "@/components/ui/stat-card";
 import { Badge } from "@/components/ui/badge";
@@ -72,45 +72,47 @@ export default function MyChildrenPage() {
 
 					<div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
 						{children.map((child) => {
-	const balance = balanceFor(child.studentId);
-	const pct = attendancePctFor(child.studentId);
-	return (
-		<Link
-			key={child.studentId}
-			href={`/guardian/children/${child.studentId}`}
-			className="block rounded-xl border border-border bg-card/80 p-5 backdrop-blur-sm transition-colors hover:border-primary/40"
-		>
-			<div className="flex items-start gap-3">
-				{child.photoUrl ? (
-					// eslint-disable-next-line @next/next/no-img-element
-					<img src={child.photoUrl} alt={child.firstName} className="size-12 rounded-full object-cover" />
-				) : (
-					<div className="grid size-12 place-items-center rounded-full bg-primary/10 font-semibold text-primary">
-						{child.firstName.charAt(0)}{child.lastName.charAt(0)}
-					</div>
-				)}
-				<div className="min-w-0 flex-1">
-					<div className="truncate font-medium">{child.firstName} {child.lastName}</div>
-					<div className="text-xs text-muted-foreground">{GUARDIAN_RELATION_LABELS[child.relation]}</div>
-				</div>
-				{child.isPrimary && <Badge className="shrink-0 text-[10px]">Primary</Badge>}
-			</div>
+							const balance = balanceFor(child.studentId);
+							const pct = attendancePctFor(child.studentId);
 
-			<div className="mt-4 grid grid-cols-2 gap-2 text-center">
-				<div className="rounded-lg bg-muted/50 p-2">
-					<div className="text-sm font-semibold">{pct !== null ? `${pct}%` : "—"}</div>
-					<div className="text-[10px] text-muted-foreground">Attendance</div>
-				</div>
-				<div className="rounded-lg bg-muted/50 p-2">
-					<div className={`text-sm font-semibold ${balance > 0 ? "text-warning-foreground" : ""}`}>
-						{balance > 0 ? formatNaira(balance) : "Cleared"}
-					</div>
-					<div className="text-[10px] text-muted-foreground">Fees</div>
-				</div>
-			</div>
-		</Link>
-	);
-})}
+							return (
+								<Link
+									key={child.studentId}
+									href={`/guardian/children/${child.studentId}`}
+									className="block rounded-xl border border-border bg-card/80 p-5 backdrop-blur-sm active:bg-muted/40 transition-colors hover:border-primary/40"
+								>
+									<div className="flex items-start gap-3">
+										{child.photoUrl ? (
+											// eslint-disable-next-line @next/next/no-img-element
+											<img src={child.photoUrl} alt={child.firstName} className="size-12 rounded-full object-cover" />
+										) : (
+											<div className="grid size-12 place-items-center rounded-full bg-primary/10 font-semibold text-primary">
+												{child.firstName.charAt(0)}{child.lastName.charAt(0)}
+											</div>
+										)}
+										<div className="min-w-0 flex-1">
+											<div className="truncate font-medium">{child.firstName} {child.lastName}</div>
+											<div className="text-xs text-muted-foreground">{GUARDIAN_RELATION_LABELS[child.relation]}</div>
+										</div>
+										{child.isPrimary && <Badge className="shrink-0 text-[10px]">Primary</Badge>}
+										<ChevronRight className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+									</div>
+
+									<div className="mt-4 grid grid-cols-2 gap-2 text-center">
+										<div className="rounded-lg bg-muted/50 p-2">
+											<div className="text-sm font-semibold">{pct !== null ? `${pct}%` : "—"}</div>
+											<div className="text-[10px] text-muted-foreground">Attendance</div>
+										</div>
+										<div className="rounded-lg bg-muted/50 p-2">
+											<div className={`text-sm font-semibold ${balance > 0 ? "text-warning-foreground" : ""}`}>
+												{balance > 0 ? formatNaira(balance) : "Cleared"}
+											</div>
+											<div className="text-[10px] text-muted-foreground">Fees</div>
+										</div>
+									</div>
+								</Link>
+							);
+						})}
 					</div>
 				</>
 			)}

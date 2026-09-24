@@ -1,6 +1,6 @@
 import {
 	LayoutDashboard, Users, UserCog, GraduationCap, BookOpen, ClipboardCheck,
-	FileText, Wallet, CreditCard, UserPlus, Settings, Building2, Layers, ShieldCheck, Bell,
+	FileText, Wallet, CreditCard, UserPlus, Settings, Building2, Layers, ShieldCheck, Bell, MessageSquareMore,
 	type LucideIcon,
 } from "lucide-react";
 import { Role } from "@/types/roles";
@@ -26,6 +26,7 @@ export const NAV_CONFIG: Record<Role, NavItem[]> = {
 		{ label: "Fees", to: "/school-admin/fees", icon: Wallet },
 		{ label: "Payments", to: "/school-admin/payments", icon: CreditCard },
 		{ label: "Notifications", to: "/school-admin/notifications", icon: Bell },
+		{ label: "announcement", to: "/school-admin/announcement", icon: Bell },
 		{ label: "Settings", to: "/school-admin/settings", icon: Settings },
 	],
 
@@ -73,6 +74,9 @@ export const NAV_CONFIG: Record<Role, NavItem[]> = {
 		{ label: "Users", to: "/users", icon: Users },
 		{ label: "Plans", to: "/plans", icon: Layers },
 		{ label: "Subscriptions", to: "/subscriptions", icon: CreditCard },
+		{ label: "feedback", to: "/feedback", icon: MessageSquareMore },
+		{ label: "notification", to: "/notifications", icon: Bell },
+		{ label: "settings", to: "/setting", icon: Settings },
 	],
 
 };

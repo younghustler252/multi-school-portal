@@ -41,7 +41,7 @@ import {
 	NATIONALITIES,
 	NIGERIAN_STATES,
 	RELIGIONS,
-	BLOOD_GROUPS
+	BLOOD_GROUPS,
 } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
@@ -202,7 +202,7 @@ export function EditStudentDialog({
 						<Label>Blood group</Label>
 						<Select
 							value={values.bloodGroup ?? ""}
-							onValueChange={(v) => setValue("bloodGroup", v)}
+							onValueChange={(v) => setValue("bloodGroup", v ?? undefined)}
 						>
 							<SelectTrigger>
 								<SelectValue placeholder="Select blood group" />
@@ -216,6 +216,7 @@ export function EditStudentDialog({
 							</SelectContent>
 						</Select>
 					</div>
+
 					<div className="space-y-1.5">
 						<Label htmlFor="admittedAt">Admission date</Label>
 						<Input
@@ -235,7 +236,7 @@ export function EditStudentDialog({
 						<Select
 							value={values.religion ?? ""}
 							onValueChange={(v) =>
-								setValue("religion", v)
+								setValue("religion", v ?? undefined)
 							}
 						>
 							<SelectTrigger>
@@ -259,7 +260,7 @@ export function EditStudentDialog({
 						<Select
 							value={values.nationality ?? ""}
 							onValueChange={(v) =>
-								setValue("nationality", v)
+								setValue("nationality", v ?? undefined)
 							}
 						>
 							<SelectTrigger>
@@ -282,20 +283,19 @@ export function EditStudentDialog({
 						<Label>State of origin</Label>
 
 						<Popover>
-							<PopoverTrigger asChild>
-								<Button
-									type="button"
-									variant="outline"
-									role="combobox"
-									className={cn(
-										"w-full justify-between font-normal",
-										!values.stateOfOrigin &&
-											"text-muted-foreground",
-									)}
-								>
-									{values.stateOfOrigin || "Select state"}
-									<ChevronsUpDown className="size-4 opacity-50" />
-								</Button>
+							<PopoverTrigger
+								type="button"
+								role="combobox"
+								className={cn(
+									"inline-flex w-full items-center justify-between rounded-lg border bg-background px-3 py-2 text-sm font-normal shadow-xs",
+									"hover:bg-accent hover:text-accent-foreground",
+									"focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+									!values.stateOfOrigin &&
+										"text-muted-foreground",
+								)}
+							>
+								{values.stateOfOrigin || "Select state"}
+								<ChevronsUpDown className="size-4 opacity-50" />
 							</PopoverTrigger>
 
 							<PopoverContent className="w-[--radix-popover-trigger-width] p-0">

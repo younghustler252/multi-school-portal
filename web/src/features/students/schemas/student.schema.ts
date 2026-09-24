@@ -16,17 +16,36 @@ export const createStudentSchema = z.object({
 
 	guardianFirstName: z.string().optional(),
 	guardianLastName: z.string().optional(),
-	guardianEmail: z.string().email("Enter a valid email").optional().or(z.literal("")),
+	guardianEmail: z
+		.string()
+		.email("Enter a valid email")
+		.optional()
+		.or(z.literal("")),
 	guardianPhone: z.string().optional(),
 	guardianRelation: z
-		.enum(["father", "mother", "uncle", "aunt", "grandparent", "sibling", "guardian", "other"])
+		.enum([
+			"father",
+			"mother",
+			"uncle",
+			"aunt",
+			"grandparent",
+			"sibling",
+			"guardian",
+			"other",
+		])
 		.optional(),
 });
 
 export type CreateStudentFormValues = z.infer<typeof createStudentSchema>;
 
 export const updateStudentSchema = createStudentSchema
-	.omit({ guardianFirstName: true, guardianLastName: true, guardianEmail: true, guardianPhone: true, guardianRelation: true })
+	.omit({
+		guardianFirstName: true,
+		guardianLastName: true,
+		guardianEmail: true,
+		guardianPhone: true,
+		guardianRelation: true,
+	})
 	.partial();
 
 export type UpdateStudentFormValues = z.infer<typeof updateStudentSchema>;

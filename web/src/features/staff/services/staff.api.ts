@@ -35,5 +35,5 @@ export const staffApi = {
 		API.get(`/staff/${id}/assignments`),
 
 	getMyClasses: (): Promise<ApiResponse<MyClassesResponse>> =>
-		API.get("/staff/my-classes"),
+		API.get("/staff/me/classes"),
 };

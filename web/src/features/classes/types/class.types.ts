@@ -1,13 +1,38 @@
 // src/features/classes/types/class.types.ts
+
+export interface ClassResponseData {
+	id: string;
+	name: string;
+	level: string | null;
+	capacity: number | null;
+	classTeacherId: string | null;
+	classTeacherName: string | null;
+	studentCount: number;
+	toClassId: string | null;
+	toClassName: string | null;
+	createdAt: string;
+}
 export interface ClassSubjectResponseData {
-	classSubjectId: string; // was `id` — fix to match real API field name
+	id: string | null; // null when this subject has no ClassSubject row yet
 	classId: string;
 	subjectId: string;
-	staffId: string;
+	staffId: string | null;
+	termId: string;
+	assignedVia: "manual" | "auto_subject_default" | "auto_homeroom" | null;
+	createdAt: string | null;
+	updatedAt: string | null;
+}
+
+export interface EnrichedClassSubject {
+	classSubjectId: string | null;
+	classId: string;
+	subjectId: string;
 	subjectName: string;
 	subjectCode: string | null;
-	teacherName: string;
-	createdAt: string;
+	staffId: string | null;
+	teacherName: string | null;
+	termId: string;
+	assignedVia: "manual" | "auto_subject_default" | "auto_homeroom" | null;
 }
 
 export interface SubjectResponseData {
@@ -15,16 +40,7 @@ export interface SubjectResponseData {
 	name: string;
 	code: string | null;
 	description: string | null;
-	createdAt: string;
-}
-export interface ClassSubjectResponseData {
-	id: string;
-	classId: string;
-	subjectId: string;
-	staffId: string;
-	subjectName: string;   // NEW
-	subjectCode: string | null; // NEW
-	teacherName: string;   // NEW
+	defaultTeacherId: string | null;
 	createdAt: string;
 }
 
@@ -44,8 +60,28 @@ export interface CreateSubjectDto {
 
 export type UpdateSubjectDto = Partial<CreateSubjectDto>;
 
+/**
+ * Assign a subject to a class for a specific term.
+ */
 export interface AssignSubjectDto {
 	subjectId: string;
+	staffId: string;
+	termId: string;
+}
+
+/**
+ * Bulk assign subjects to a class for a specific term.
+ */
+export interface BulkAssignSubjectsDto {
+	staffId: string;
+	termId: string;
+	subjectIds: string[];
+}
+
+/**
+ * Update an existing class-subject assignment.
+ */
+export interface UpdateClassSubjectDto {
 	staffId: string;
 }
 
@@ -60,5 +96,15 @@ export interface ClassProgressionResponseData {
 }
 
 export interface SetClassProgressionDto {
-	toClassId: string | null; // null clears the progression (e.g. a terminal class like SS3)
+	toClassId: string | null;
+}
+
+export interface ApplyTeachingDefaultsDto {
+	classId: string;
+	termId: string;
+}
+
+export interface ApplyTeachingDefaultsResult {
+	updated: number;
+	skipped: number; // rows left alone because assignedVia === "manual"
 }

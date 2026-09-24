@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Search, MoreHorizontal, CreditCard, X } from "lucide-react";
+import { Plus, Search, MoreHorizontal, CreditCard, X, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,8 +24,8 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuthStore } from "@/stores/auth.store";
-import { useInvoices, useDefaulters } from "@/features/fees/hooks/use-fees";
-import { useCurrentSession } from "@/features/school/hooks/use-sessions";
+import { useInvoices, useDefaulters, usePingDefaulters } from "@/features/fees/hooks/use-fees";
+import { useCurrentSession, useSessions } from "@/features/school/hooks/use-sessions";
 import { useClasses } from "@/features/classes/hooks/use-classes";
 import { CreateFeeTypeDialog } from "@/features/fees/components/create-fee-type-dialog";
 import { InvoiceClassDialog } from "@/features/fees/components/invoice-class-dialog";
@@ -33,12 +34,15 @@ import { WaiveInvoiceDialog } from "@/features/fees/components/waive-invoice-dia
 import { INVOICE_STATUS_LABELS, INVOICE_STATUS_VARIANT } from "@/features/fees/constants/invoice-status";
 import { InvoiceStatus, EnrichedInvoice } from "@/features/fees/types/fee.types";
 import { formatNaira } from "@/lib/format-money";
+import { ApiErrorResponse } from "@/types/api-response";
 
 export default function FeesPage() {
 	const router = useRouter();
 
 	const { data: currentSession } = useCurrentSession();
-	const termId = currentSession?.currentTerm?.id;
+	const { data: sessions } = useSessions();
+
+	const currentTermId = currentSession?.currentTerm?.id;
 
 	const role = useAuthStore((s) => s.user?.role);
 	const canManageFeeTypes = role === "school_admin";
@@ -46,21 +50,58 @@ export default function FeesPage() {
 	const [search, setSearch] = useState("");
 	const [statusFilter, setStatusFilter] = useState<InvoiceStatus | "all">("all");
 	const [classFilter, setClassFilter] = useState<string>("all");
+	const [selectedTermId, setSelectedTermId] = useState<string | undefined>(undefined);
 	const [feeTypeDialogOpen, setFeeTypeDialogOpen] = useState(false);
 	const [invoiceClassOpen, setInvoiceClassOpen] = useState(false);
 	const [payingInvoice, setPayingInvoice] = useState<EnrichedInvoice | null>(null);
 	const [waivingInvoice, setWaivingInvoice] = useState<EnrichedInvoice | null>(null);
+
+	const termId = selectedTermId ?? currentTermId;
+
+	const terms = useMemo(() => {
+		if (!sessions) return [];
+
+		return sessions
+			.flatMap((session) =>
+				(session.terms ?? []).map((term) => ({
+					...term,
+					sessionName: session.name,
+				}))
+			)
+			.sort((a, b) => {
+				return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
+			});
+	}, [sessions]);
 
 	const { data: invoiceData, isLoading: invoicesLoading } = useInvoices({
 		termId,
 		classId: classFilter === "all" ? undefined : classFilter,
 		limit: 100,
 	});
+
 	const { data: classes } = useClasses();
-	const { data: defaulters } = useDefaulters();
+
+	const { data: defaulters } = useDefaulters(termId);
+
+	const pingDefaulters = usePingDefaulters();
+
+	const selectedTerm = terms.find((term) => term.id === termId);
+
+	async function handlePingDefaulters() {
+		if (!termId) return;
+
+		try {
+			await pingDefaulters.mutateAsync({ termId });
+			toast.success("Reminder sent to all defaulting guardians");
+		} catch (err) {
+			const apiErr = err as ApiErrorResponse;
+			toast.error(apiErr.message || "Couldn't send reminders");
+		}
+	}
 
 	const filteredInvoices = useMemo(() => {
 		if (!invoiceData) return [];
+
 		return invoiceData.invoices.filter((inv) => {
 			if (statusFilter !== "all" && inv.status !== statusFilter) return false;
 			if (search && !inv.studentName.toLowerCase().includes(search.toLowerCase())) return false;
@@ -70,6 +111,7 @@ export default function FeesPage() {
 
 	const totals = useMemo(() => {
 		if (!invoiceData) return { expected: 0, collected: 0, outstanding: 0 };
+
 		return invoiceData.invoices.reduce(
 			(acc, inv) => {
 				acc.expected += inv.subtotalKobo - inv.discountKobo;
@@ -102,9 +144,40 @@ export default function FeesPage() {
 
 			{!termId && (
 				<p className="mb-4 text-sm text-muted-foreground">
-					No current term set — set one in Settings → Term &amp; calendar before invoicing.
+					No term available — create a session and term before invoicing.
 				</p>
 			)}
+
+			<div className="mb-6 flex flex-wrap items-center gap-3">
+				<div className="text-sm font-medium">Term</div>
+
+				<Select
+					value={termId ?? "none"}
+					onValueChange={(value) => {
+						if (value && value !== "none") {
+							setSelectedTermId(value);
+						}
+					}}
+				>
+					<SelectTrigger className="w-64">
+						<SelectValue placeholder="Select term">
+							{selectedTerm
+								? `${selectedTerm.sessionName} — ${selectedTerm.name.charAt(0).toUpperCase()}${selectedTerm.name.slice(1)} term`
+								: "Select term"}
+						</SelectValue>
+					</SelectTrigger>
+
+					<SelectContent>
+						{terms.map((term) => (
+							<SelectItem key={term.id} value={term.id}>
+								{term.sessionName} — {term.name.charAt(0).toUpperCase()}
+								{term.name.slice(1)} term
+								{term.isCurrent ? " (Current)" : ""}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
+			</div>
 
 			<div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
 				<StatCard label="Expected this term" value={formatNaira(totals.expected)} accent="primary" />
@@ -125,7 +198,20 @@ export default function FeesPage() {
 
 			{defaulters && defaulters.length > 0 && (
 				<div className="mb-6 rounded-xl border border-border bg-card/80 p-5 backdrop-blur-sm">
-					<h3 className="font-medium">Top defaulters</h3>
+					<div className="flex items-center justify-between">
+						<h3 className="font-medium">Top defaulters</h3>
+
+						<Button
+							size="sm"
+							variant="outline"
+							onClick={handlePingDefaulters}
+							disabled={pingDefaulters.isPending || !termId}
+						>
+							{pingDefaulters.isPending && <Loader2 className="size-3.5 animate-spin" />}
+							Remind all
+						</Button>
+					</div>
+
 					<ul className="mt-3 space-y-2.5">
 						{defaulters.slice(0, 5).map((d) => (
 							<li key={d.studentId} className="flex items-center justify-between text-sm">

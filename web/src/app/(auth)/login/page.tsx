@@ -14,7 +14,6 @@ import { COMPANY } from "@/config/company";
 import { useAuthStore } from "@/stores/auth.store";
 import { loginSchema, LoginFormValues } from "@/features/auth/schemas/login.schema";
 import { ApiErrorResponse } from "@/types/api-response";
-import { ROLE_DEFAULT_ROUTE } from "@/types/roles";
 import { authApi } from "@/features/auth/services/auth.api";
 
 export default function LoginPage() {

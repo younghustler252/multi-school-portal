@@ -1,4 +1,6 @@
 export type ReportCardTemplate = "classic" | "modern" | "minimal" | "custom_letterhead";
+export type TeachingModel = "homeroom" | "subject_specialist"
+
 
 export interface SchoolSettingsResponseData {
 	id: string;
@@ -16,6 +18,7 @@ export interface SchoolSettingsResponseData {
 	reportCardLetterheadUrl: string | null;
 	letterheadContentTopMm: number | null;
 	letterheadContentBottomMm: number | null;
+	teachingModel: 	TeachingModel | null;
 	updatedAt: string;
 }
 
@@ -31,6 +34,7 @@ export interface UpdateSchoolSettingsDto {
 	reportCardLetterheadUrl?: string;
 	letterheadContentTopMm?: number;
 	letterheadContentBottomMm?: number;
+	teachingModel: 	TeachingModel | null;
 }
 
 export interface UploadFileResponseData {

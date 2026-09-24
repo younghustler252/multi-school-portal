@@ -5,6 +5,7 @@ import {
 	EnrichedInvoice,
 	CreateFeeTypeDto,
 	CreateInvoiceDto,
+	CopyInvoiceFromClassDto,
 	BulkCreateInvoiceDto,
 	InvoiceClassDto,
 	UpdateInvoiceDto,
@@ -12,6 +13,7 @@ import {
 	RecordPaymentDto,
 	ListInvoicesParams,
 	DefaulterEntry,
+	PingDefaultersDto
 } from "../types/fee.types";
 import { PaymentResponseData } from "@/features/payments/types/payment.types";
 
@@ -51,11 +53,14 @@ export const feeApi = {
 		data: BulkCreateInvoiceDto,
 	): Promise<ApiResponse<EnrichedInvoice[]>> =>
 		API.post("/fees/invoices/bulk", data),
-
-	invoiceClass: (
-		data: InvoiceClassDto,
-	): Promise<ApiResponse<EnrichedInvoice[]>> =>
-		API.post("/fees/invoices/class", data),
+		
+		invoiceClass: (
+			data: InvoiceClassDto,
+		): Promise<ApiResponse<EnrichedInvoice[]>> =>
+			API.post("/fees/invoices/class", data),
+			
+	copyFromClass: (data: CopyInvoiceFromClassDto): Promise<ApiResponse<EnrichedInvoice>> =>
+		API.post("/fees/invoices/copy-from-class", data),
 
 	updateInvoice: (
 		id: string,
@@ -104,6 +109,13 @@ export const feeApi = {
 
 	// ── Reports ───────────────────────────────────────────────────────────
 
-	getDefaulters: (): Promise<ApiResponse<DefaulterEntry[]>> =>
-		API.get("/fees/defaulters"),
+	getDefaulters: (termId: string): Promise<ApiResponse<DefaulterEntry[]>> =>
+		API.get("/fees/defaulters", {
+			params: { termId },
+		}),
+
+
+	pingDefaulters: (data: PingDefaultersDto): Promise<ApiResponse<null>> =>
+		API.post("/fees/defaulters/ping", data),
+
 };

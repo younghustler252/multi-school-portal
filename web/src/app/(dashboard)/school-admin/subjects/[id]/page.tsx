@@ -6,33 +6,45 @@ import Link from "next/link";
 import { ArrowLeft, Plus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+	Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+} from "@/components/ui/dialog";
+import {
+	Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
 import { TeacherPicker } from "@/features/classes/components/teacher-picker";
+import { DefaultTeacherCard } from "@/features/classes/components/default-teacher-card";
 import { useSubjects, useClasses, useAssignSubject } from "@/features/classes/hooks/use-classes";
 import { useSubjectUsage } from "@/features/classes/hooks/use-subject-usage";
-import { useStudentsBatch } from "@/features/students/hooks/use-students"; // not used here, remove if unused
+import { useCurrentSession } from "@/features/school/hooks/use-sessions";
 import { ApiErrorResponse } from "@/types/api-response";
 
 export default function SubjectDetailPage() {
 	const params = useParams<{ id: string }>();
+	const { data: currentSession } = useCurrentSession();
+	const termId = currentSession?.currentTerm?.id;
+
 	const { data: subjects, isLoading: subjectsLoading } = useSubjects();
 	const { data: classes } = useClasses();
-	const { data: usage, isLoading: usageLoading } = useSubjectUsage(params.id);
+	const { data: usage, isLoading: usageLoading } = useSubjectUsage(params.id, termId);
 
 	const subject = subjects?.find((s) => s.id === params.id);
-	const unassignedClasses = classes?.filter((c) => !usage?.some((u) => u.classId === c.id)) ?? [];
+	const assignedClassIds = new Set(usage?.filter((u) => u.staffId).map((u) => u.classId) ?? []);
+	const availableClasses = classes?.filter((c) => !assignedClassIds.has(c.id)) ?? [];
 
 	const [assignOpen, setAssignOpen] = useState(false);
 	const [selectedClassId, setSelectedClassId] = useState("");
 	const [selectedTeacherId, setSelectedTeacherId] = useState("");
-	const assignSubject = useAssignSubject(selectedClassId);
+	const assignSubject = useAssignSubject();
 
 	async function handleAssign() {
-		if (!selectedClassId || !selectedTeacherId) return;
+		if (!selectedClassId || !selectedTeacherId || !termId) return;
 		try {
-			await assignSubject.mutateAsync({ subjectId: params.id, staffId: selectedTeacherId });
+			await assignSubject.mutateAsync({
+				classId: selectedClassId,
+				data: { subjectId: params.id, staffId: selectedTeacherId, termId },
+			});
 			toast.success("Assigned to class");
 			setAssignOpen(false);
 			setSelectedClassId("");
@@ -55,30 +67,38 @@ export default function SubjectDetailPage() {
 			<h1 className="text-2xl font-semibold tracking-tight">{subject.name}</h1>
 			{subject.code && <p className="mt-1 text-sm text-muted-foreground">Code: {subject.code}</p>}
 
-			<div className="mt-6 rounded-xl border border-border bg-card/80 p-6 backdrop-blur-sm">
-				<div className="flex items-center justify-between">
-					<h3 className="font-medium">Classes teaching this subject</h3>
-					<Button size="sm" onClick={() => setAssignOpen(true)} disabled={unassignedClasses.length === 0}>
-						<Plus className="size-3.5" /> Assign to class
-					</Button>
-				</div>
+			{!termId && (
+				<p className="mt-4 text-sm text-muted-foreground">No current term set — set one in Settings → Term &amp; calendar.</p>
+			)}
 
-				{usageLoading && <Skeleton className="mt-4 h-24" />}
+			<div className="mt-6 space-y-6">
+				<DefaultTeacherCard subjectId={subject.id} defaultTeacherId={subject.defaultTeacherId} />
 
-				{!usageLoading && (!usage || usage.length === 0) && (
-					<p className="mt-3 text-sm text-muted-foreground">Not assigned to any class yet.</p>
-				)}
-
-				{usage && usage.length > 0 && (
-					<div className="mt-4 space-y-2">
-						{usage.map((u) => (
-							<div key={u.classSubjectId} className="flex items-center justify-between rounded-lg border border-border px-3 py-2.5 text-sm">
-								<Link href={`/school-admin/classes/${u.classId}`} className="font-medium hover:underline">{u.className}</Link>
-								<Badge variant="secondary">Teacher assigned</Badge>
-							</div>
-						))}
+				<div className="rounded-2xl border border-border/60 bg-card/80 p-6 shadow-sm">
+					<div className="flex items-center justify-between">
+						<h3 className="font-medium">Classes teaching this subject</h3>
+						<Button size="sm" onClick={() => setAssignOpen(true)} disabled={availableClasses.length === 0 || !termId}>
+							<Plus className="size-3.5" /> Assign to class
+						</Button>
 					</div>
-				)}
+
+					{usageLoading && <Skeleton className="mt-4 h-24" />}
+
+					{!usageLoading && (!usage || usage.filter((u) => u.staffId).length === 0) && (
+						<p className="mt-3 text-sm text-muted-foreground">Not assigned to any class yet.</p>
+					)}
+
+					{usage && usage.filter((u) => u.staffId).length > 0 && (
+						<div className="mt-4 space-y-2">
+							{usage.filter((u) => u.staffId).map((u) => (
+								<div key={u.classId} className="flex items-center justify-between rounded-lg border border-border px-3 py-2.5 text-sm">
+									<Link href={`/school-admin/classes/${u.classId}`} className="font-medium hover:underline">{u.className}</Link>
+									<span className="text-muted-foreground">{u.teacherName}</span>
+								</div>
+							))}
+						</div>
+					)}
+				</div>
 			</div>
 
 			<Dialog open={assignOpen} onOpenChange={setAssignOpen}>
@@ -87,14 +107,16 @@ export default function SubjectDetailPage() {
 					<div className="space-y-4">
 						<div className="space-y-1.5">
 							<label className="text-sm text-muted-foreground">Class</label>
-							<select
-								value={selectedClassId}
-								onChange={(e) => setSelectedClassId(e.target.value)}
-								className="w-full rounded-md border border-input bg-background p-2 text-sm"
-							>
-								<option value="">Select a class</option>
-								{unassignedClasses.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-							</select>
+							<Select value={selectedClassId} onValueChange={(v) => setSelectedClassId(v ?? "")}>
+								<SelectTrigger className="w-full">
+									<SelectValue placeholder="Select a class">
+										{() => availableClasses.find((c) => c.id === selectedClassId)?.name ?? "Select a class"}
+									</SelectValue>
+								</SelectTrigger>
+								<SelectContent>
+									{availableClasses.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+								</SelectContent>
+							</Select>
 						</div>
 						<div className="space-y-1.5">
 							<label className="text-sm text-muted-foreground">Teacher</label>

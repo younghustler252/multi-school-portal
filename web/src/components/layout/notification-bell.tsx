@@ -11,6 +11,8 @@ import { useMyNotifications, useUnreadCount, useMarkAsRead, useMarkAllAsRead } f
 export function NotificationBell({ inboxPath }: { inboxPath: string }) {
 	const unreadCount = useUnreadCount();
 	const { data } = useMyNotifications({ limit: 5 });
+	// console.log("Notification", data);
+	
 	const markAsRead = useMarkAsRead();
 	const markAllAsRead = useMarkAllAsRead();
 

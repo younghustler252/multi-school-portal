@@ -8,6 +8,7 @@ import {
 	useOnboardingProgress,
 	OnboardingStepKey,
 } from "@/features/school/hooks/use-onboarding-progress";
+import { buildSubdomainUrl } from "@/lib/subdomain-url";
 import { DocumentsGateStep } from "@/features/school/components/onboarding/documents-gate-step";
 import { BusinessInfoStep } from "@/features/school/components/onboarding/business-info-step";
 import { PaymentSetupStep } from "@/features/school/components/onboarding/payment-setup-step";
@@ -170,9 +171,9 @@ export default function SchoolSetupWizardPage() {
 				{activeStep === "done" && (
 					<CompletionScreen
 						completed={progress.completed}
-						onEnter={() =>
-							router.push("/school-admin/dashboard")
-						}
+						onEnter={() => {
+							if (school?.subdomain) window.location.href = buildSubdomainUrl(school.subdomain);
+						}}
 					/>
 				)}
 			</div>

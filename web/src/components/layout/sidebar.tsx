@@ -10,11 +10,8 @@ import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { NAV_CONFIG } from "@/lib/nav-config";
 import { Role } from "@/types/roles";
-import { COMPANY } from "@/config/company";
 import { usePublicSchoolInfo } from "@/features/school/hooks/use-school";
-import { useCurrentSession } from "@/features/school/hooks/use-sessions";
-// import { useOnboardingProgress } from "@/features/school/hooks/use-onboarding-progress";
-import { TERM_LABELS } from "@/features/school/components/term-badge";
+import { useOnboardingProgress } from "@/features/school/hooks/use-onboarding-progress";
 
 interface SidebarProps {
 	role: Role;
@@ -36,42 +33,48 @@ function useCurrentSubdomain(): string | null {
 	return subdomain;
 }
 
+// Isolated so its hooks only ever run when this actually mounts — i.e. only
+// for school_admin. Rendering it conditionally is what keeps the onboarding
+// queries from ever firing (and erroring on permission) for other roles.
+function FinishSetupLink() {
+	const progress = useOnboardingProgress();
+	if (progress.isLoading || progress.isComplete) return null;
+
+	return (
+		<Link
+			href="/onboarding/setup"
+			className="mx-3 mt-3 block rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-xs"
+		>
+			<div className="flex items-center justify-between">
+				<span className="font-medium text-primary">Finish setup</span>
+				<span className="text-muted-foreground">{progress.currentStepNumber}/{progress.totalSteps}</span>
+			</div>
+			<div className="mt-1.5 h-1 overflow-hidden rounded-full bg-muted">
+				<div
+					className="h-full bg-primary transition-all"
+					style={{ width: `${(progress.currentStepNumber / progress.totalSteps) * 100}%` }}
+				/>
+			</div>
+		</Link>
+	);
+}
+
 function SidebarContent({ role, onNavigate }: { role: Role; onNavigate?: () => void }) {
 	const pathname = usePathname();
 	const navItems = NAV_CONFIG[role];
-	const isSchoolScoped = role !== "super_admin";
 	const subdomain = useCurrentSubdomain();
-
 	const { data: school } = usePublicSchoolInfo(subdomain ?? "");
-	const { data: currentSession } = useCurrentSession();
-
-	const brandHref = role === "super_admin" ? "/dashboard" : "/school-admin/dashboard";
-	const currentTermLabel = currentSession?.currentTerm
-		? `${TERM_LABELS[currentSession.currentTerm.name]} — ${currentSession.session.name}`
-		: undefined;
-
-	// const progress = useOnboardingProgress();
-
 
 	return (
 		<div className="flex h-full flex-col bg-sidebar/95 backdrop-blur-md text-sidebar-foreground">
-			<Link href={brandHref} className="flex h-16 items-center gap-2 border-b border-sidebar-border px-5">
-				<Logo size={32} logoUrl={isSchoolScoped ? school?.logoUrl : undefined} name={isSchoolScoped ? school?.name : COMPANY.name} />
+			<Link href="/school-admin/dashboard" className="flex h-16 items-center gap-2 border-b border-sidebar-border px-5">
+				<Logo size={32} logoUrl={school?.logoUrl} name={school?.name} />
 				<div className="leading-tight">
-					<div className="font-semibold text-sidebar-foreground">{COMPANY.name}</div>
-					<div className="max-w-[160px] truncate text-[11px] text-muted-foreground">
-						{isSchoolScoped ? (school?.name ?? "School Portal") : "Super Admin"}
+					<div className="max-w-[180px] truncate font-semibold text-sidebar-foreground">
+						{school?.name ?? "School Portal"}
 					</div>
 				</div>
 			</Link>
-
-			{/* {isSchoolScoped && school && (
-				<div className="mx-3 mt-3 rounded-md bg-sidebar-accent/60 px-3 py-2">
-					<div className="text-xs text-muted-foreground">School</div>
-					<div className="text-sm font-medium text-sidebar-foreground">{school.name}</div>
-					{currentTermLabel && <div className="text-[11px] text-muted-foreground">{currentTermLabel}</div>}
-				</div>
-			)} */}
 
 			<nav className="flex-1 space-y-0.5 overflow-y-auto p-3">
 				{navItems.map((item) => {
@@ -94,20 +97,8 @@ function SidebarContent({ role, onNavigate }: { role: Role; onNavigate?: () => v
 				})}
 			</nav>
 
-			{/* {isSchoolScoped && !progress.isLoading && !progress.isComplete && (
-				<Link
-					href="/setup"
-					className="mx-3 mt-3 block rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-xs"
-				>
-					<div className="flex items-center justify-between">
-						<span className="font-medium text-primary">Finish setup</span>
-						<span className="text-muted-foreground">{progress.currentStepNumber}/{progress.totalSteps}</span>
-					</div>
-					<div className="mt-1.5 h-1 overflow-hidden rounded-full bg-muted">
-						<div className="h-full bg-primary transition-all" style={{ width: `${(progress.currentStepNumber / progress.totalSteps) * 100}%` }} />
-					</div>
-				</Link>
-			)} */}
+			{role === "school_admin" && <FinishSetupLink />}
+
 			<Separator className="bg-sidebar-border" />
 
 			<div className="p-3">
@@ -133,4 +124,4 @@ export function Sidebar({ role, isOpen, onClose }: SidebarProps) {
 			</Sheet>
 		</>
 	);
-}
+}	

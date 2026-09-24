@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CheckCircle2, Clock, XCircle } from "lucide-react";
 import { toast } from "sonner";
 
@@ -11,9 +11,9 @@ import { COMPANY } from "@/config/company";
 import { useMyDocuments } from "@/features/school/hooks/use-school-document";
 import { schoolApi } from "@/features/school/services/school.api";
 import type { SchoolDocumentType, UploadDocumentExtraFields } from "@/features/school/types/school-document.types";
-import { DOCUMENT_TYPE_LABELS, REQUIRED_DOCUMENT_TYPES } from "@/features/school/types/school-document.types";
+import { DOCUMENT_TYPE_LABELS, getRequiredDocumentTypes } from "@/features/school/types/school-document.types";
 import { queryClient } from "@/lib/api/query-client";
-import { getSavedSubdomain } from "@/lib/onboarding-storage";
+import { getSavedSubdomain, clearSavedSubdomain } from "@/lib/onboarding-storage";
 
 import { ProprietorIdDialog } from "./proprietor-id-dialog";
 
@@ -28,35 +28,34 @@ export function DocumentsGateStep({ isVerified, onVerified, schoolCategory }: Do
 	const [uploadingType, setUploadingType] = useState<SchoolDocumentType | null>(null);
 	const [proprietorDialogOpen, setProprietorDialogOpen] = useState(false);
 	const [proprietorFile, setProprietorFile] = useState<File | null>(null);
+	const hasRedirected = useRef(false);
 
 	useEffect(() => {
-		if (isVerified) {
-			const subdomain = getSavedSubdomain();
-			if (subdomain) {
-				const isLocal = window.location.hostname.endsWith(".localhost");
-				const target = isLocal
-					? `http://${subdomain}.localhost:3000/login?verified=true`
-					: `https://${subdomain}.schoolos.app/login?verified=true`;
-				window.location.href = target;
-			}
-		}
+		if (!isVerified || hasRedirected.current) return;
+
+		const subdomain = getSavedSubdomain();
+		if (!subdomain) return;
+
+		hasRedirected.current = true;
+		clearSavedSubdomain();
+
+		const isLocal = window.location.hostname.endsWith(".localhost");
+		const target = isLocal
+			? `http://${subdomain}.localhost:3000/login?verified=true`
+			: `https://${subdomain}.schoolos.app/login?verified=true`;
+		window.location.href = target;
 	}, [isVerified]);
 
 	async function handleUpload(file: File, type: SchoolDocumentType, extra?: UploadDocumentExtraFields) {
 		setUploadingType(type);
-
 		try {
 			const res = await schoolApi.uploadDocument(file, type, extra);
-
 			if (!res.success) {
 				toast.error(res.message);
 				return;
 			}
-
 			toast.success(`${DOCUMENT_TYPE_LABELS[type]} uploaded`);
-
 			await queryClient.invalidateQueries({ queryKey: ["school", "documents"] });
-
 			if (type === "proprietor_id") {
 				setProprietorDialogOpen(false);
 				setProprietorFile(null);
@@ -74,7 +73,6 @@ export function DocumentsGateStep({ isVerified, onVerified, schoolCategory }: Do
 			setProprietorDialogOpen(true);
 			return;
 		}
-
 		void handleUpload(file, type);
 	}
 
@@ -96,7 +94,6 @@ export function DocumentsGateStep({ isVerified, onVerified, schoolCategory }: Do
 						</div>
 					</div>
 				</div>
-
 				<Button className="w-full gap-2" size="lg" onClick={onVerified}>
 					Continue
 					<CheckCircle2 className="size-4" />
@@ -105,8 +102,15 @@ export function DocumentsGateStep({ isVerified, onVerified, schoolCategory }: Do
 		);
 	}
 
+	// Required set depends on school type — a private secondary school needs
+	// WAEC approval, a public school needs ministry approval, etc.
+	const requiredTypes = getRequiredDocumentTypes(schoolCategory);
+	const requiredSet = new Set(requiredTypes);
+	// "other" is always optional, always offered, never required.
+	const visibleTypes: SchoolDocumentType[] = [...requiredTypes, "other"];
+
 	const uploadedTypes = new Set(documents?.map((document) => document.type));
-	const allRequiredUploaded = REQUIRED_DOCUMENT_TYPES.every((type) => uploadedTypes.has(type));
+	const allRequiredUploaded = requiredTypes.every((type) => uploadedTypes.has(type));
 	const anyRejected = documents?.some((document) => document.status === "rejected");
 
 	return (
@@ -125,16 +129,15 @@ export function DocumentsGateStep({ isVerified, onVerified, schoolCategory }: Do
 				</div>
 			</div>
 
-			{schoolCategory && (
-				<div className="text-xs text-muted-foreground">
-					Required documents are based on your school type.
-				</div>
-			)}
+			<div className="text-xs text-muted-foreground">
+				Showing the documents required for your school type — you can also add supporting documents if you'd like.
+			</div>
 
 			<div className="space-y-6">
-				{(Object.keys(DOCUMENT_TYPE_LABELS) as SchoolDocumentType[]).map((type) => {
+				{visibleTypes.map((type) => {
 					const document = documents?.find((item) => item.type === type);
 					const isUploading = uploadingType === type;
+					const isRequired = requiredSet.has(type);
 
 					return (
 						<div key={type} className="space-y-3">
@@ -142,7 +145,11 @@ export function DocumentsGateStep({ isVerified, onVerified, schoolCategory }: Do
 								<div className="min-w-0">
 									<div className="flex flex-wrap items-center gap-2">
 										<span className="text-sm font-medium">{DOCUMENT_TYPE_LABELS[type]}</span>
-										{REQUIRED_DOCUMENT_TYPES.includes(type) && <Badge variant="secondary" className="text-[10px]">Required</Badge>}
+										{isRequired ? (
+											<Badge variant="secondary" className="text-[10px]">Required</Badge>
+										) : (
+											<Badge variant="outline" className="text-[10px]">Optional</Badge>
+										)}
 									</div>
 								</div>
 							</div>

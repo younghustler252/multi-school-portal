@@ -33,10 +33,10 @@ export default function ClassesPage() {
                 title="Classes"
                 description="Your school's class structure."
                 actions={
-                    <Button onClick={() => setCreateOpen(true)}>
-                        <Plus className="size-4" /> Add class
-                    </Button>
-                }
+					<Button className="w-full sm:w-auto" onClick={() => setCreateOpen(true)}>
+						<Plus className="size-4" /> Add class
+					</Button>
+				}
             />
 
             {isLoading && (

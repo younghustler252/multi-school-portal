@@ -115,7 +115,7 @@ export function DocumentReviewPanel({ schoolId, schoolCategory }: DocumentReview
 										<ExternalLink className="size-3.5" /> View
 									</a>
 								} />
-								{doc.status === "pending" && (
+								{doc.status === "under_review" && (
 									<>
 										<Button size="sm" variant="outline" onClick={() => handleApprove(doc.id)} disabled={approveDocument.isPending}>
 											<Check className="size-3.5" />

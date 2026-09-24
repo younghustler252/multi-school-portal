@@ -94,11 +94,11 @@ export default function AttendancePage() {
 		<>
 			<PageHeader title="Attendance" description="Mark daily attendance for a class." />
 
-			<div className="mb-6 flex flex-wrap items-end gap-3">
-				<div className="w-56 space-y-1.5">
+			<div className="mb-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
+				<div className="space-y-1.5 sm:w-56">
 					<label className="text-xs text-muted-foreground">Class</label>
 					<Select value={classId} onValueChange={(v) => setClassId(v ?? "")}>
-						<SelectTrigger>
+						<SelectTrigger className="w-full">
 							<SelectValue placeholder="Select a class">
 								{(value: string | null) => classes.find((c) => c.id === value)?.name ?? "Select a class"}
 							</SelectValue>
@@ -109,13 +109,13 @@ export default function AttendancePage() {
 					</Select>
 				</div>
 
-				<div className="w-44 space-y-1.5">
+				<div className="space-y-1.5 sm:w-44">
 					<label className="text-xs text-muted-foreground">Date</label>
-					<Input type="date" value={date} onChange={(e) => setDate(e.target.value)} max={todayISO()} />
+					<Input type="date" value={date} onChange={(e) => setDate(e.target.value)} max={todayISO()} className="w-full" />
 				</div>
 
 				{roster.length > 0 && (
-					<Button variant="outline" size="sm" onClick={markAllPresent}>
+					<Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={markAllPresent}>
 						<CheckCheck className="size-3.5" /> Mark all present
 					</Button>
 				)}
@@ -136,7 +136,7 @@ export default function AttendancePage() {
 
 			{termId && classId && roster.length > 0 && !enrolmentsLoading && (
 				<>
-					<div className="overflow-hidden rounded-xl border border-border bg-card/60">
+					<div className="overflow-hidden rounded-xl border border-border bg-card/60 pb-20 sm:pb-0">
 						{roster.map((student, i) => (
 							<div
 								key={student.id}
@@ -153,8 +153,8 @@ export default function AttendancePage() {
 						))}
 					</div>
 
-					<div className="sticky bottom-0 -mx-4 mt-4 flex justify-end border-t border-border bg-background/80 px-4 py-3 backdrop-blur">
-						<Button onClick={handleSubmit} disabled={bulkMark.isPending}>
+					<div className="fixed inset-x-0 bottom-0 z-10 border-t border-border bg-background/95 p-4 backdrop-blur sm:sticky sm:mt-4 sm:flex sm:justify-end sm:bg-background/80 sm:p-3">
+						<Button className="w-full sm:w-auto" onClick={handleSubmit} disabled={bulkMark.isPending}>
 							{bulkMark.isPending && <Loader2 className="size-4 animate-spin" />}
 							{bulkMark.isPending ? "Saving…" : "Save attendance"}
 						</Button>

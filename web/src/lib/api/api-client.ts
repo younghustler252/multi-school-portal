@@ -17,6 +17,17 @@ axiosInstance.interceptors.response.use(
 	async (error: AxiosError<ApiErrorResponse>) => {
 		const originalRequest = error.config as InternalAxiosRequestConfig | undefined;
 
+		// Handle platform maintenance mode — blocks everything except
+		// super-admin routes and the public platform-settings read
+		if (
+			error.response?.data?.code === "MAINTENANCE_MODE" &&
+			typeof window !== "undefined" &&
+			window.location.pathname !== "/maintenance"
+		) {
+			window.location.href = "/maintenance";
+			return Promise.reject(error.response.data);
+		}
+
 		// Handle forced password change — can fire on ANY authenticated call
 		if (
 			error.response?.data?.code === "MUST_CHANGE_PASSWORD" &&
@@ -28,7 +39,7 @@ axiosInstance.interceptors.response.use(
 			return Promise.reject(error.response.data);
 		}
 
-		if (error.response?.status === 401 && !isRefreshing && originalRequest) {
+		if (error.response?.status === 401 && !isRefreshing && originalRequest && !originalRequest.url?.includes("/auth/login")) {
 			isRefreshing = true;
 			try {
 				const refreshRes = await authApi.refresh();

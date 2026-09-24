@@ -25,7 +25,7 @@ export interface OnboardingProgress {
 	completed: Record<OnboardingStepKey, boolean>;
 }
 
-const STEP_ORDER: OnboardingStepKey[] = [
+export const STEP_ORDER: OnboardingStepKey[] = [
 	"documents",
 	"business-info",
 	"payment",

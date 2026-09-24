@@ -11,6 +11,7 @@ import { StudentHeaderCard } from "@/features/students/components/student-header
 import { StudentGuardiansPanel } from "@/features/students/components/student-guardians-panel";
 import { InfoRow } from "@/components/ui/info-row";
 import { useCurrentSession } from "@/features/school/hooks/use-sessions";
+import { useStudentCurrentEnrolment } from "@/features/enrolment/hooks/use-student-enrolment";
 import { EditStudentDialog } from "@/features/students/components/edit-student-dialog";
 import { StudentClassCard } from "@/features/enrolment/components/student-class-card";
 import { AttendanceSummaryCard } from "@/features/attendance/components/attendance-summary-card";
@@ -29,6 +30,7 @@ export default function StudentDetailPage() {
 	const { data: currentSession } = useCurrentSession();
 	const termId = currentSession?.currentTerm?.id;
 	const deactivateStudent = useDeactivateStudent();
+	const { data: currentEnrolment } = useStudentCurrentEnrolment(student?.id ?? "", termId);
 	const patchPhoto = usePatchStudentPhoto();
 	const [editOpen, setEditOpen] = useState(false);
 	const [confirmingDeactivate, setConfirmingDeactivate] = useState(false);
@@ -113,7 +115,8 @@ export default function StudentDetailPage() {
 						<StudentGradesCard studentId={student.id} termId={termId} />
 					</div>
 					<div className="mt-4">
-						<StudentFeesCard studentId={student.id} termId={termId} />
+						<StudentFeesCard studentId={student.id} classId={currentEnrolment?.classId} termId={termId} />
+
 					</div>
 				</div>
 

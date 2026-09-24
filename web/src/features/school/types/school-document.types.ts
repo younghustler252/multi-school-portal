@@ -14,7 +14,7 @@ export type IdDocumentType =
 	| "international_passport"
 	| "other";
 
-export type DocumentStatus = "pending" | "approved" | "rejected";
+export type DocumentStatus = "pending"| "under_review" | "approved" | "rejected";
 
 export const DOCUMENT_TYPE_LABELS: Record<SchoolDocumentType, string> = {
 	cac_certificate: "CAC Certificate",
@@ -39,24 +39,24 @@ export const REQUIRED_DOCUMENT_TYPES: SchoolDocumentType[] = [
 	"cac_certificate",
 	"proprietor_id",
 ];
-
 export function getRequiredDocumentTypes(
 	schoolCategory?: string,
+	schoolOwnership?: string,
 ): SchoolDocumentType[] {
-	const base: SchoolDocumentType[] = [
-		"cac_certificate",
-		"proprietor_id",
-		"ministry_approval",
-	];
+	const required: SchoolDocumentType[] = [];
 
-	if (
-		schoolCategory === "secondary" ||
-		schoolCategory === "primary_secondary"
-	) {
-		return [...base, "waec_approval"];
+	if (schoolOwnership === "public") {
+		required.push("ministry_approval");
+	} else {
+		// private, mission, international — treated as needing standard registration proof
+		required.push("cac_certificate", "proprietor_id");
 	}
 
-	return base;
+	if (schoolCategory === "secondary" || schoolCategory === "primary_secondary") {
+		required.push("waec_approval");
+	}
+
+	return required;
 }
 
 export interface SchoolDocumentResponseData {

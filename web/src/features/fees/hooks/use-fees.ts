@@ -11,9 +11,11 @@ import {
 	CreateInvoiceDto,
 	BulkCreateInvoiceDto,
 	InvoiceClassDto,
+	CopyInvoiceFromClassDto,
 	UpdateInvoiceDto,
 	UpdateInvoiceItemDto,
 	RecordPaymentDto,
+	PingDefaultersDto,
 	ListInvoicesParams,
 } from "../types/fee.types";
 
@@ -78,6 +80,7 @@ export function useInvoices(params: ListInvoicesParams) {
 		},
 	});
 }
+
 
 export function useInvoice(id: string) {
 	return useQuery({
@@ -200,7 +203,20 @@ export function useInvoiceClass() {
 	});
 }
 
-
+export function useCopyInvoiceFromClass() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: async (data: CopyInvoiceFromClassDto) => {
+			const res = await feeApi.copyFromClass(data);
+			if (!res.success) throw res;
+			return res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["fees", "invoices"] });
+			queryClient.invalidateQueries({ queryKey: ["fees", "defaulters"] });
+		},
+	});
+}
 // ── Update Invoice ────────────────────────────────────────────────────────
 
 export function useUpdateInvoice() {
@@ -341,13 +357,12 @@ export function useRecordPayment() {
 
 
 // ── Defaulters ────────────────────────────────────────────────────────────
-
-export function useDefaulters() {
+export function useDefaulters(termId?: string) {
 	return useQuery({
-		queryKey: ["fees", "defaulters"],
+		queryKey: ["fees", "defaulters", termId],
 
 		queryFn: async () => {
-			const res = await feeApi.getDefaulters();
+			const res = await feeApi.getDefaulters(termId!);
 
 			if (!res.success) {
 				throw res;
@@ -355,6 +370,8 @@ export function useDefaulters() {
 
 			return res.data;
 		},
+
+		enabled: !!termId,
 	});
 }
 
@@ -394,6 +411,16 @@ export function useWaiveInvoice() {
 			queryClient.invalidateQueries({ queryKey: ["fees", "invoices"] });
 			queryClient.invalidateQueries({ queryKey: ["fees", "invoices", id] });
 			queryClient.invalidateQueries({ queryKey: ["fees", "defaulters"] });
+		},
+	});
+}
+
+export function usePingDefaulters() {
+	return useMutation({
+		mutationFn: async (data: PingDefaultersDto) => {
+			const res = await feeApi.pingDefaulters(data);
+			if (!res.success) throw res;
+			return res.data;
 		},
 	});
 }

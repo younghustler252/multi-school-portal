@@ -155,3 +155,15 @@ export interface CreateFeeTypeDto {
 	name: string;
 	description?: string;
 }
+
+
+export interface PingDefaultersDto {
+	termId: string;
+}
+
+
+export interface CopyInvoiceFromClassDto {
+	studentId: string;
+	classId: string;
+	termId: string;
+}

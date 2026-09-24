@@ -3,12 +3,13 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { Menu, Search, Sun, Moon, UserCircle, Settings, LogOut } from "lucide-react";
+import { Menu, Search, Sun, Moon, UserCircle, Settings, LogOut, MessageSquarePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { NotificationBell } from "./notification-bell";
+import { FeedbackDialog } from "@/features/feedback/components/feedback-dialog";
 import { Role } from "@/types/roles";
 import { useAuthStore } from "@/stores/auth.store";
 
@@ -31,6 +32,7 @@ const NOTIFICATION_INBOX_PATH: Record<Role, string> = {
 export function Topbar({ role, onMenuClick, searchPlaceholder = "Search…" }: TopbarProps) {
 	const { theme, setTheme } = useTheme();
 	const [mounted, setMounted] = useState(false);
+	const [feedbackOpen, setFeedbackOpen] = useState(false);
 	const router = useRouter();
 	const logout = useAuthStore((s) => s.logout);
 	const user = useAuthStore((s) => s.user);
@@ -70,9 +72,12 @@ export function Topbar({ role, onMenuClick, searchPlaceholder = "Search…" }: T
 						</Button>
 					}
 				/>
-				<DropdownMenuContent align="end">
+				<DropdownMenuContent align="end" className="w-[min(20rem,calc(100vw-2rem))]">
 					<DropdownMenuItem onClick={() => router.push("/settings")}>
 						<Settings className="size-4" /> Account settings
+					</DropdownMenuItem>
+					<DropdownMenuItem onClick={() => setFeedbackOpen(true)}>
+						<MessageSquarePlus className="size-4" /> Send feedback
 					</DropdownMenuItem>
 					<DropdownMenuSeparator />
 					<DropdownMenuItem onClick={handleLogout}>
@@ -80,6 +85,8 @@ export function Topbar({ role, onMenuClick, searchPlaceholder = "Search…" }: T
 					</DropdownMenuItem>
 				</DropdownMenuContent>
 			</DropdownMenu>
+
+			<FeedbackDialog open={feedbackOpen} onOpenChange={setFeedbackOpen} />
 		</header>
 	);
 }

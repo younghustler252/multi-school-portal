@@ -10,6 +10,8 @@ import { Users } from "lucide-react";
 export default function MyClassesPage() {
 	const { data, isLoading } = useMyClasses();
 
+	// console.log("classes", data)
+
 	return (
 		<>
 			<PageHeader title="My Classes" description="Classes you teach and classes you manage." />

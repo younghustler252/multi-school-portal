@@ -3,15 +3,15 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Trash2, Loader2, Pencil } from "lucide-react";
+import { ArrowLeft, Trash2, Pencil, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { StatCard } from "@/components/ui/stat-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ConfirmDialog } from "@/components/feedback/confirm-dialog";
-import { SubjectTags } from "@/features/classes/components/subject-tags";
+import { ClassSubjectsSection } from "@/features/classes/components/class-subjects-section";
 import { SetClassTeacherDialog } from "@/features/classes/components/set-class-teacher-dialog";
+import { SetClassProgressionDialog } from "@/features/classes/components/set-class-progression-dialog";
 import { ClassRoster } from "@/features/enrolment/components/class-roster";
 import { useClass, useDeleteClass } from "@/features/classes/hooks/use-classes";
 import { useCurrentSession } from "@/features/school/hooks/use-sessions";
@@ -30,6 +30,7 @@ export default function ClassDetailPage() {
 
 	const [confirmDelete, setConfirmDelete] = useState(false);
 	const [teacherDialogOpen, setTeacherDialogOpen] = useState(false);
+	const [progressionDialogOpen, setProgressionDialogOpen] = useState(false);
 
 	async function handleDelete() {
 		try {
@@ -60,8 +61,20 @@ export default function ClassDetailPage() {
 							<Pencil className="inline size-3" /> Edit
 						</button>
 					</p>
+					<p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
+						Promotes to: {classItem.toClassName ?? "Not set"}
+						<ArrowRight className="hidden size-3 sm:inline" />
+						<button onClick={() => setProgressionDialogOpen(true)} className="text-primary hover:underline">
+							<Pencil className="inline size-3" /> Edit
+						</button>
+					</p>
 				</div>
-				<Button variant="outline" className="text-destructive hover:text-destructive" onClick={() => setConfirmDelete(true)}>
+
+				<Button
+					variant="outline"
+					className="w-full text-destructive hover:text-destructive sm:w-auto"
+					onClick={() => setConfirmDelete(true)}
+				>
 					<Trash2 className="size-4" /> Delete class
 				</Button>
 			</div>
@@ -74,11 +87,18 @@ export default function ClassDetailPage() {
 			</div>
 
 			<div className="space-y-6">
-				<SubjectTags classId={params.id} />
+				<ClassSubjectsSection classId={params.id} termId={termId ?? ""} />
 				<ClassRoster classId={params.id} termId={termId} />
 			</div>
 
 			<SetClassTeacherDialog classId={params.id} open={teacherDialogOpen} onOpenChange={setTeacherDialogOpen} />
+
+			<SetClassProgressionDialog
+				classId={params.id}
+				currentToClassId={classItem.toClassId}
+				open={progressionDialogOpen}
+				onOpenChange={setProgressionDialogOpen}
+			/>
 
 			<ConfirmDialog
 				open={confirmDelete}
