@@ -1,139 +1,64 @@
 import { Worker } from "bullmq";
 import { redisConnection } from "../connection";
-
-import {
-    prisma,
-    getTenantClient,
-} from "../../database/prisma/prisma.client";
-
+import { prisma, getTenantClient } from "../../database/prisma/prisma.client";
 import { TenantContext } from "../../database/prisma/tenant.context";
-
 import { container } from "../../../container";
 import { VerifyPaymentUseCase } from "../../../modules/payments/usecases/verify-payment.usecase";
-import { VerifySubscriptionUpgradeUseCase } from "../../../modules/subscriptions/usecases/school-admin/verify-subscription-upgrade";
+import { BillingEngine } from "../../../../billing-module-v1 (1)/modules/subscriptions/services/billing-engine.service";
 
+/*
+| PAYMENT RECONCILIATION: a safety net for payments whose webhook or return visit never arrived.
+|  - school FEE payments still pending after 15 minutes are re-verified inside their school (unchanged)
+|  - SUBSCRIPTION payments: pending attempts older than 15 minutes are re-verified through the billing engine
+|    (the old version looked at the billing-history table, which no longer exists as the source of truth).
+|    The hourly billing job does the same; this job exists so the check can also run more often.
+*/
 export const paymentReconciliationWorker = new Worker(
     "payment-reconciliation",
     async () => {
+        const verifyPaymentUseCase = container.resolve<VerifyPaymentUseCase>("verifyPaymentUseCase");
+        const billingEngine        = container.resolve<BillingEngine>("billingEngine");
+        const cutoff = new Date(Date.now() - 15 * 60 * 1000);
 
-        const verifyPaymentUseCase =
-            container.resolve<VerifyPaymentUseCase>("verifyPaymentUseCase");
-
-        const verifySubscriptionUpgradeUseCase =
-            container.resolve<VerifySubscriptionUpgradeUseCase>(
-                "verifySubscriptionUpgradeUseCase"
-            );
-
-        // ─────────────────────────────────────────────────────────────
-        // PUBLIC: Get schools that have tenant schemas
-        // ─────────────────────────────────────────────────────────────
-
+        // ── School fee payments (inside each school's own schema) ──
         const schools = await prisma.school.findMany({
-            where: {
-                isActive: true,
-                schemaName: {
-                    not: null,
-                },
-            },
-            select: {
-                id: true,
-                schemaName: true,
-            },
+            where: { isActive: true, schemaName: { not: null }, schemaProvisionedAt: { not: null } },
+            select: { id: true, schemaName: true },
         });
-
-        // ─────────────────────────────────────────────────────────────
-        // TENANT: Reconcile stale fee payments
-        // ─────────────────────────────────────────────────────────────
 
         for (const school of schools) {
             if (!school.schemaName) continue;
-
             try {
-                await TenantContext.run(
-                    {
-                        schoolId: school.id,
-                        tenantSchema: school.schemaName,
-                    },
-                    async () => {
-                        const tenantPrisma = getTenantClient();
-
-                        const staleFeePayments =
-                            await tenantPrisma.payment.findMany({
-                                where: {
-                                    status: "pending",
-                                    createdAt: {
-                                        lt: new Date(
-                                            Date.now() - 15 * 60 * 1000
-                                        ),
-                                    },
-                                },
-                            });
-
-                        for (const payment of staleFeePayments) {
-                            if (!payment.reference) continue;
-
-                            try {
-                                await verifyPaymentUseCase.execute({
-                                    reference: payment.reference,
-                                });
-
-                                console.log(
-                                    `🔁 Reconciled fee payment: ${payment.reference} ` +
-                                    `(school: ${school.id})`
-                                );
-                            } catch (err) {
-                                console.error(
-                                    `⚠️ Reconciliation failed for ${payment.reference} ` +
-                                    `(school: ${school.id}):`,
-                                    err
-                                );
-                            }
+                await TenantContext.run({ schoolId: school.id, tenantSchema: school.schemaName }, async () => {
+                    const stale = await getTenantClient().payment.findMany({ where: { status: "pending", createdAt: { lt: cutoff } } });
+                    for (const payment of stale) {
+                        if (!payment.reference) continue;
+                        try {
+                            await verifyPaymentUseCase.execute({ reference: payment.reference });
+                            console.log(`🔁 Reconciled fee payment: ${payment.reference} (school: ${school.id})`);
+                        } catch (err) {
+                            console.error(`⚠️ Reconciliation failed for ${payment.reference} (school: ${school.id}):`, err);
                         }
                     }
-                );
+                });
             } catch (err) {
-                console.error(
-                    `⚠️ Failed to reconcile tenant ${school.schemaName} ` +
-                    `(school: ${school.id}):`,
-                    err
-                );
+                console.error(`⚠️ Failed to reconcile tenant ${school.schemaName} (school: ${school.id}):`, err);
             }
         }
 
-        // ─────────────────────────────────────────────────────────────
-        // PUBLIC: Reconcile stale subscription payments
-        // ─────────────────────────────────────────────────────────────
-
-        const staleBilling = await prisma.billingHistory.findMany({
-            where: {
-                status: "pending",
-                createdAt: {
-                    lt: new Date(Date.now() - 15 * 60 * 1000),
-                },
-            },
+        // ── Subscription payments ──
+        const pending = await prisma.paymentAttempt.findMany({
+            where: { status: "pending", method: { not: "manual" }, createdAt: { lt: cutoff } },
+            orderBy: { createdAt: "asc" }, take: 200, select: { reference: true },
         });
-
-        for (const billing of staleBilling) {
-            if (!billing.paystackReference) continue;
-
+        for (const a of pending) {
             try {
-                await verifySubscriptionUpgradeUseCase.execute(
-                    billing.paystackReference
-                );
-
-                console.log(
-                    `🔁 Reconciled subscription payment: ${billing.paystackReference}`
-                );
+                await billingEngine.reconcile(a.reference);
+                console.log(`🔁 Reconciled subscription payment: ${a.reference}`);
             } catch (err) {
-                console.error(
-                    `⚠️ Reconciliation failed for ${billing.paystackReference}:`,
-                    err
-                );
+                console.error(`⚠️ Reconciliation failed for ${a.reference}:`, err);
             }
         }
     },
-    {
-        connection: redisConnection,
-        concurrency: 1,
-    }
+    { connection: redisConnection, concurrency: 1 },
 );

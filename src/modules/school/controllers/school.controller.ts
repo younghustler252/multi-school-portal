@@ -1,504 +1,82 @@
-import { Request, Response, NextFunction, RequestHandler } from "express";
-
-// ── School Admin Use Cases ────────────────────────────────────────────────
-import { GetSchoolUseCase }        from "../usecases/school-admin/get-school.usecase";
-import { UpdateSchoolUseCase }     from "../usecases/school-admin/update-school.usecase";
-import { UploadLogoUseCase }       from "../usecases/school-admin/upload-logo.usecase";
-import { UploadDocumentUseCase }   from "../usecases/school-admin/upload-document.usecase";
-import { GetDocumentsUseCase }     from "../usecases/school-admin/get-documents.usecase";
-import { SetupPaymentUseCase }     from "../usecases/school-admin/setup-payment.usecase";
-import { GetDashboardUseCase } from "../usecases/school-admin/get-dashboard.usecase";
-import { GetSetupChecklistUseCase } from "../usecases/school-admin/get-setup-checklist.usecase";
-import { GetPublicSchoolInfoUseCase } from "../usecases/school-admin/get-public-school-info.usecase";
-
-// ── Super Admin Use Cases ─────────────────────────────────────────────────
-import { GetAllSchoolsUseCase }    from "../usecases/super-admin/get-all-schools.usecase";
-import { GetSchoolByIdUseCase }    from "../usecases/super-admin/get-school-by-id.usecase";
-import { CreateSchoolUseCase }     from "../usecases/super-admin/create-school.usecase";
-import { VerifySchoolUseCase }     from "../usecases/super-admin/verify-school.usecase";
-import { RejectSchoolUseCase }     from "../usecases/super-admin/reject-school.usecase";
-import { SuspendSchoolUseCase }    from "../usecases/super-admin/suspend-school.usecase";
-import { GetSchoolDocumentsUseCase } from "../usecases/super-admin/get-school-document.usecase";
-import { ApproveSchoolUseCase }  from "../usecases/super-admin/approve-school.usecase";
-import { ApproveDocumentUseCase }  from "../usecases/super-admin/approve-document.usecase";
-import { RejectDocumentUseCase }   from "../usecases/super-admin/reject-document.usecase";
-
- 
- import {
-     sendSuccess,
-     sendCreated,
-     sendPaginated,
-    }                                  from "../../../shared/utils/api-response";
-
-    /*
-|--------------------------------------------------------------------------
-| SCHOOL CONTROLLER
-| Parses request → calls use case → sends response
-|--------------------------------------------------------------------------
-*/
+import { Request, Response, NextFunction } from "express";
+import { GetSchoolUseCase }           from "../usecases/get-school.usecase";
+import { UpdateSchoolUseCase }        from "../usecases/update-school.usecase";
+import { UploadLogoUseCase }          from "../usecases/upload-logo.usecase";
+import { UploadDocumentUseCase }      from "../usecases/upload-document.usecase";
+import { GetDocumentsUseCase }        from "../usecases/get-documents.usecase";
+import { SetupPaymentUseCase }        from "../usecases/setup-payment.usecase";
+import { GetDashboardUseCase }        from "../usecases/get-dashboard.usecase";
+import { GetSetupChecklistUseCase }   from "../usecases/get-setup-checklist.usecase";
+import { GetPublicSchoolInfoUseCase } from "../usecases/get-public-school-info.usecase";
+import { sendSuccess, sendCreated }   from "../../../shared/utils/api-response";
+import { getAccess }                  from "../../../infrastructure/middleware/rbac.middleware";
+import { schoolErrors }               from "../domain/school.errors";
 
 interface Dependencies {
-    // ── School Admin ──────────────────────────────────────────────────────
-    getSchoolUseCase:       GetSchoolUseCase;
-    updateSchoolUseCase:    UpdateSchoolUseCase;
-    uploadLogoUseCase:      UploadLogoUseCase;
-    uploadDocumentUseCase:  UploadDocumentUseCase;
-    getDocumentsUseCase:    GetDocumentsUseCase;
-    setupPaymentUseCase:    SetupPaymentUseCase;
-    getDashboardUseCase: GetDashboardUseCase;
-    getSetupChecklistUseCase: GetSetupChecklistUseCase;
-    getPublicSchoolInfoUseCase: GetPublicSchoolInfoUseCase;
-
-
-    // ── Super Admin ───────────────────────────────────────────────────────
-    getAllSchoolsUseCase:   GetAllSchoolsUseCase;
-    getSchoolByIdUseCase:  GetSchoolByIdUseCase;
-    createSchoolUseCase:   CreateSchoolUseCase;
-    verifySchoolUseCase:   VerifySchoolUseCase;
-    rejectSchoolUseCase:   RejectSchoolUseCase;
-    suspendSchoolUseCase:  SuspendSchoolUseCase;
-    getSchoolDocumentsUseCase: GetSchoolDocumentsUseCase;
-    approveSchoolUseCase: ApproveSchoolUseCase;
-    approveDocumentUseCase: ApproveDocumentUseCase;
-    rejectDocumentUseCase:  RejectDocumentUseCase;
+    getSchoolUseCase: GetSchoolUseCase; updateSchoolUseCase: UpdateSchoolUseCase; uploadLogoUseCase: UploadLogoUseCase;
+    uploadDocumentUseCase: UploadDocumentUseCase; getDocumentsUseCase: GetDocumentsUseCase;
+    setupPaymentUseCase: SetupPaymentUseCase; getDashboardUseCase: GetDashboardUseCase;
+    getSetupChecklistUseCase: GetSetupChecklistUseCase; getPublicSchoolInfoUseCase: GetPublicSchoolInfoUseCase;
 }
 
+/*
+| SCHOOL CONTROLLER (school realm + public). The school is always the one the request host resolved to
+| (requireTenant guarantees it); the user is always req.auth. Nothing comes from the body or URL.
+*/
+const schoolIdOf = (req: Request): string => req.schoolId as string;
+const userIdOf   = (req: Request): string => {
+    if (!req.auth) throw schoolErrors.notFound();
+    return req.auth.userId;
+};
+const ipOf = (req: Request): string => req.ip ?? req.socket.remoteAddress ?? "unknown";
+
 export class SchoolController {
-    private readonly getSchoolUseCase:        GetSchoolUseCase;
-    private readonly updateSchoolUseCase:     UpdateSchoolUseCase;
-    private readonly uploadLogoUseCase:       UploadLogoUseCase;
-    private readonly uploadDocumentUseCase:   UploadDocumentUseCase;
-    private readonly getDocumentsUseCase:     GetDocumentsUseCase;
-    private readonly setupPaymentUseCase:     SetupPaymentUseCase;
-    private readonly getDashboardUseCase:     GetDashboardUseCase;
-    private readonly getSetupChecklistUseCase: GetSetupChecklistUseCase;
-    private readonly getPublicSchoolInfoUseCase:   GetPublicSchoolInfoUseCase;
+    constructor(private readonly d: Dependencies) {}
 
-    private readonly getAllSchoolsUseCase:     GetAllSchoolsUseCase;
-    private readonly getSchoolByIdUseCase:    GetSchoolByIdUseCase;
-    private readonly createSchoolUseCase:     CreateSchoolUseCase;
-    private readonly verifySchoolUseCase:     VerifySchoolUseCase;
-    private readonly rejectSchoolUseCase:     RejectSchoolUseCase;
-    private readonly suspendSchoolUseCase:    SuspendSchoolUseCase;
-    private readonly getSchoolDocumentsUseCase:    GetSchoolDocumentsUseCase
-    private readonly approveSchoolUseCase:   ApproveSchoolUseCase;
-    private readonly approveDocumentUseCase:  ApproveDocumentUseCase;
-    private readonly rejectDocumentUseCase:   RejectDocumentUseCase;
+    getMySchool = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.getSchoolUseCase.execute(schoolIdOf(req)), "School retrieved successfully"); } catch (e) { next(e); }
+    };
 
-    constructor({
-        getSchoolUseCase,
-        updateSchoolUseCase,
-        uploadLogoUseCase,
-        uploadDocumentUseCase,
-        getDocumentsUseCase,
-        setupPaymentUseCase,
-        getDashboardUseCase,
-        getSetupChecklistUseCase,
+    updateMySchool = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.updateSchoolUseCase.execute(schoolIdOf(req), userIdOf(req), req.body), "School updated successfully"); } catch (e) { next(e); }
+    };
 
-
-        getAllSchoolsUseCase,
-        getSchoolByIdUseCase,
-        createSchoolUseCase,
-        verifySchoolUseCase,
-        rejectSchoolUseCase,
-        suspendSchoolUseCase,
-        approveSchoolUseCase,
-        getSchoolDocumentsUseCase,
-        approveDocumentUseCase,
-        rejectDocumentUseCase,
-        getPublicSchoolInfoUseCase,
-    }: Dependencies) {
-        this.getSchoolUseCase        = getSchoolUseCase;
-        this.updateSchoolUseCase     = updateSchoolUseCase;
-        this.uploadLogoUseCase       = uploadLogoUseCase;
-        this.uploadDocumentUseCase   = uploadDocumentUseCase;
-        this.getDocumentsUseCase     = getDocumentsUseCase;
-        this.setupPaymentUseCase     = setupPaymentUseCase;
-        this.getDashboardUseCase     = getDashboardUseCase
-        this.getSetupChecklistUseCase = getSetupChecklistUseCase;
-        this.getPublicSchoolInfoUseCase = getPublicSchoolInfoUseCase;
-
-        this.getAllSchoolsUseCase     = getAllSchoolsUseCase;
-        this.getSchoolByIdUseCase    = getSchoolByIdUseCase;
-        this.createSchoolUseCase     = createSchoolUseCase;
-        this.verifySchoolUseCase     = verifySchoolUseCase;
-        this.rejectSchoolUseCase     = rejectSchoolUseCase;
-        this.suspendSchoolUseCase    = suspendSchoolUseCase;
-        this.getSchoolDocumentsUseCase = getSchoolDocumentsUseCase;
-        this.approveSchoolUseCase   = approveSchoolUseCase;
-        this.approveDocumentUseCase  = approveDocumentUseCase;
-        this.rejectDocumentUseCase   = rejectDocumentUseCase;
-    }
-
-    // ========================================
-    // SCHOOL ADMIN METHODS
-    // ========================================
-
-    // ── Get own school ────────────────────────────────────────────────────
-    getMySchool = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
+    uploadLogo = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const result = await this.getSchoolUseCase.execute(
-                req.user!.schoolId!,
-            );
-            sendSuccess(res, result, "School retrieved successfully");
-        } catch (err) {
-            next(err);
-        }
+            if (!req.file) throw schoolErrors.invalidImage("No file uploaded");
+            sendSuccess(res, await this.d.uploadLogoUseCase.execute(schoolIdOf(req), userIdOf(req), { buffer: req.file.buffer }), "Logo uploaded successfully");
+        } catch (e) { next(e); }
     };
 
-    // ── Update own school ─────────────────────────────────────────────────
-    updateMySchool = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
+    uploadDocument = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const result = await this.updateSchoolUseCase.execute(
-                req.user!.schoolId!,
-                req.body,
-            );
-            sendSuccess(res, result, "School updated successfully");
-        } catch (err) {
-            next(err);
-        }
+            if (!req.file) throw schoolErrors.invalidFile("No file uploaded");
+            sendCreated(res, await this.d.uploadDocumentUseCase.execute(schoolIdOf(req), userIdOf(req), req.body, { buffer: req.file.buffer }), "Document uploaded successfully");
+        } catch (e) { next(e); }
     };
 
-    // ── Upload logo ───────────────────────────────────────────────────────
-    uploadLogo = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
+    getMyDocuments = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.getDocumentsUseCase.execute(schoolIdOf(req)), "Documents retrieved successfully"); } catch (e) { next(e); }
+    };
+
+    setupPayment = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const file = req.file;
-
-            if (!file) {
-                res.status(400).json({
-                    success: false,
-                    message: "No file uploaded",
-                });
-                return;
-            }
-
-            const result = await this.uploadLogoUseCase.execute(
-                req.user!.schoolId!,
-                {
-                    buffer:   file.buffer,
-                    mimetype: file.mimetype,
-                    filename: file.originalname,
-                },
-            );
-            sendSuccess(res, result, "Logo uploaded successfully");
-        } catch (err) {
-            next(err);
-        }
+            sendSuccess(res, await this.d.setupPaymentUseCase.execute(schoolIdOf(req), { userId: userIdOf(req), ip: ipOf(req) }, req.body), "Payment setup successful");
+        } catch (e) { next(e); }
     };
 
-    // ── Upload document ───────────────────────────────────────────────────
-    uploadDocument = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
+    getDashboard = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const file = req.file;
-
-            if (!file) {
-                res.status(400).json({
-                    success: false,
-                    message: "No file uploaded",
-                });
-                return;
-            }
-
-            const result = await this.uploadDocumentUseCase.execute(
-                req.user!.schoolId!,
-                req.body,
-                {
-                    buffer:   file.buffer,
-                    mimetype: file.mimetype,
-                    filename: file.originalname,
-                },
-            );
-            sendCreated(res, result, "Document uploaded successfully");
-        } catch (err) {
-            next(err);
-        }
+            const access = getAccess(req);
+            sendSuccess(res, await this.d.getDashboardUseCase.execute(schoolIdOf(req), k => access.can(k)), "Dashboard retrieved successfully");
+        } catch (e) { next(e); }
     };
 
-    // ── Get own documents ─────────────────────────────────────────────────
-    getMyDocuments = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.getDocumentsUseCase.execute(
-                req.user!.schoolId!,
-            );
-            sendSuccess(res, result, "Documents retrieved successfully");
-        } catch (err) {
-            next(err);
-        }
+    getSetupChecklist = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.getSetupChecklistUseCase.execute(schoolIdOf(req)), "Setup checklist retrieved successfully"); } catch (e) { next(e); }
     };
 
-    // ── Setup payment ─────────────────────────────────────────────────────
-    setupPayment = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.setupPaymentUseCase.execute(
-                req.user!.schoolId!,
-                req.body,
-            );
-            sendSuccess(res, result, "Payment setup successful");
-        } catch (err) {
-            next(err);
-        }
+    getPublicSchoolInfo = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.getPublicSchoolInfoUseCase.execute(String(req.params.subdomain)), "School info retrieved successfully"); } catch (e) { next(e); }
     };
-
-    getDashboard = async (
-        req: Request, res: Response, next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.getDashboardUseCase.execute(
-                req.user!.schoolId!,
-            );
-            sendSuccess(res, result, "Dashboard data retrieved successfully");
-        } catch (err) { next(err); }
-    };
-
-    // ── Get setup checklist ────────────────────────────────────────────────
-    getSetupChecklist = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.getSetupChecklistUseCase.execute(
-                req.user!.schoolId!,
-            );
-
-            sendSuccess(
-                res,
-                result,
-                "Setup checklist retrieved successfully",
-            );
-        } catch (err) {
-            next(err);
-        }
-    };
-
-
-    // ========================================
-    // PUBLIC METHODS
-    // ========================================
-
-
-    getPublicSchoolInfo = async (
-        req: Request, res: Response, next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.getPublicSchoolInfoUseCase.execute(
-                req.params.subdomain as string,
-            );
-            sendSuccess(res, result, "School info retrieved successfully");
-        } catch (err) { next(err); }
-    };
-
-    // ========================================
-    // SUPER ADMIN METHODS
-    // ========================================
-
-    // ── Get all schools ───────────────────────────────────────────────────
-    getAllSchools = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.getAllSchoolsUseCase.execute({
-                page:               Number(req.query.page),
-                limit:              Number(req.query.limit),
-                status:             req.query.status as string,
-                verificationStatus: req.query.verificationStatus as string,
-                search:             req.query.search as string,
-            });
-            sendPaginated(res, result.data, result.meta);
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    // ── Get school by ID ──────────────────────────────────────────────────
-    getSchoolById = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.getSchoolByIdUseCase.execute(
-                req.params.id as string,
-            );
-            sendSuccess(res, result, "School retrieved successfully");
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    // ── Create school (super admin) ───────────────────────────────────────
-    createSchool = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.createSchoolUseCase.execute(req.body);
-            sendCreated(res, result, "School created successfully");
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    // ── Verify school ─────────────────────────────────────────────────────
-    verifySchool = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.approveSchoolUseCase.execute(
-                req.params.id as string,
-                req.user?.id as string,
-            );
-            sendSuccess(res, result, "School verified successfully");
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    // ── Reject school ─────────────────────────────────────────────────────
-    rejectSchool = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.rejectSchoolUseCase.execute({
-                schoolId: req.params.id as string,
-                reason:   req.body.reason,
-            });
-            sendSuccess(res, result, "School verification rejected");
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    // ── Suspend school ────────────────────────────────────────────────────
-   suspendSchool = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.suspendSchoolUseCase.execute({
-                schoolId: req.params.id as string,
-                reason:   req.body.reason,
-            });
-            sendSuccess(res, result, "School suspended successfully");
-        } catch (err) {
-            next(err);
-        }
-    };
-
-
-    // ── Approve school ───────────────────────────────────────────────────
-    approveSchool = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
-    try {
-        const result = await this.approveSchoolUseCase.execute(
-            req.params.id as string,
-            req.user?.id as string,
-        );
-
-        sendSuccess(res, result, "School activated successfully");
-    } catch (err) {
-        next(err);
-    }
-    };
-
-    // ── Get school documents ────────────────────────────────────────────────
-    getSchoolDocuments = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const { schoolId } = req.params;
-
-            const result = await this.getSchoolDocumentsUseCase.execute(
-                schoolId as string,
-            );
-
-            sendSuccess(
-                res,
-                result,
-                "School documents retrieved successfully",
-            );
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    // ── Approve document ──────────────────────────────────────────────────
-    approveDocument = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.approveDocumentUseCase.execute(
-                {
-                    documentId: req.params.documentId as string,
-                },
-                req.user?.id as string,
-            );
-
-            sendSuccess(res, result, "Document approved successfully");
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    // ── Reject document ───────────────────────────────────────────────────
-    rejectDocument = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.rejectDocumentUseCase.execute(
-                {
-                    documentId: req.params.documentId as string,
-                    reason:     req.body.reason,
-                },
-                req.user?.id as string,
-            );
-            sendSuccess(res, result, "Document rejected successfully");
-        } catch (err) {
-            next(err);
-        }
-    };
-
-
-   
 }

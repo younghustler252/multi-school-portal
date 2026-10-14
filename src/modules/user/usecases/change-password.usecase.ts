@@ -1,109 +1,95 @@
-import { IUserRepository }       from "../../auth/repositories/user.repository";
-import { IRefreshTokenRepository } from "../../auth/repositories/refresh-token.repository";
-import { PasswordService }       from "../../../shared/services/password.service";
-import { AuditService } from "../../audit/services/audit.service";
-import {
-    NotFoundError,
-    BadRequestError,
-}                                from "../../../shared/errors/domain.errors";
-import { UserErrorMessage }      from "../domain/user.enums";
-import { ChangePasswordDtoType } from "../dtos/user.dto";
-
-/*
-|--------------------------------------------------------------------------
-| CHANGE PASSWORD USE CASE
-| Logged-in user changes their own password
-| Invalidates all refresh tokens — forces re-login on all devices
-|--------------------------------------------------------------------------
-*/
+import { IUserRepository }         from "../../auth/repositories/user.repository";
+import { IRefreshTokenRepository } from "../../../usernew/user-module-v1/modules/auth/repositories/refresh-token.repository";
+import { PasswordService }         from "../../../shared/services/password.service";
+import { UserMapper }              from "../../auth/mappers/user.mapper";
+import { AuthPolicyService }       from "../../auth/services/auth-policy.service";
+import { AuthSessionService }      from "../../auth/services/auth-session.service";
+import { LoginAttemptService }     from "../../auth/services/login-attempt.service";
+import { MembershipService }       from "../../auth/services/membership.service";
+import { AuthMessageService }      from "../../auth/services/auth-message.service";
+import { AuthAuditService }        from "../../auth/services/auth-audit.service";
+import { AuthenticatedResult, SessionInfo } from "../../auth/types/auth.types";
+import { userErrors }              from "../domain/user.errors";
+import { UserActionContext }       from "../domain/user.types";
+import { ChangePasswordDtoType }   from "../dtos/user.dto";
 
 interface Dependencies {
     userRepository:         IUserRepository;
     refreshTokenRepository: IRefreshTokenRepository;
     passwordService:        PasswordService;
-    auditService:           AuditService;
+    userMapper:             UserMapper;
+    authPolicyService:      AuthPolicyService;
+    authSessionService:     AuthSessionService;
+    loginAttemptService:    LoginAttemptService;
+    membershipService:      MembershipService;
+    authMessageService:     AuthMessageService;
+    authAuditService:       AuthAuditService;
 }
 
+/*
+|--------------------------------------------------------------------------
+| CHANGE PASSWORD (signed-in user)
+| - not allowed while impersonating
+| - the current-password check is rate limited like a login (a stolen session
+|   must not become a password-guessing oracle)
+| - new password follows the school's policy (security.password_min_length)
+| - every session is revoked, then a FRESH session is issued for this device with
+|   mustChangePassword cleared. This is what lets a user who was forced to change
+|   their password continue without a second login.
+|--------------------------------------------------------------------------
+*/
 export class ChangePasswordUseCase {
-    private readonly userRepository:         IUserRepository;
-    private readonly refreshTokenRepository: IRefreshTokenRepository;
-    private readonly passwordService:        PasswordService;
-    private readonly auditService:           AuditService;
+    constructor(private readonly d: Dependencies) {}
 
-    constructor({
-        userRepository,
-        refreshTokenRepository,
-        passwordService,
-        auditService,
-    }: Dependencies) {
-        this.userRepository         = userRepository;
-        this.refreshTokenRepository = refreshTokenRepository;
-        this.passwordService        = passwordService;
-        this.auditService           = auditService;
-    }
+    async execute(ctx: UserActionContext, dto: ChangePasswordDtoType): Promise<AuthenticatedResult> {
+        const d = this.d;
+        if (ctx.impersonatedBy) throw userErrors.notWhileImpersonating();
 
-    async execute(
-        userId: string,
-        dto:    ChangePasswordDtoType,
-    ): Promise<{ message: string }> {
+        const user = await d.userRepository.findById(ctx.userId);
+        if (!user) throw userErrors.notFound();
+        const full = await d.userRepository.findByEmailWithPassword(user.email);
+        if (!full) throw userErrors.notFound();
 
-        // ── Find user ─────────────────────────────────────────────────────
-        const user = await this.userRepository.findById(userId);
-        if (!user) throw new NotFoundError("User");
-
-        // ── Find user with password ───────────────────────────────────────
-        const userWithPassword = await this.userRepository
-            .findByEmailWithPassword(user.email);
-
-        if (!userWithPassword) throw new NotFoundError("User");
-
-        // ── Verify current password ───────────────────────────────────────
-        const isValid = await this.passwordService.compare(
-            dto.currentPassword,
-            userWithPassword.passwordHash,
-        );
-
-        if (!isValid) {
-            throw new BadRequestError(UserErrorMessage.WRONG_PASSWORD);
+        await d.loginAttemptService.assertNotBlocked(user.email, ctx.ip);
+        if (!(await d.passwordService.compare(dto.currentPassword, full.passwordHash))) {
+            await d.loginAttemptService.recordFailure(user.email, ctx.ip);
+            throw userErrors.currentPasswordIncorrect();
         }
+        await d.loginAttemptService.clear(user.email, ctx.ip);
 
-        // ── Check new password is different ───────────────────────────────
-        const isSame = await this.passwordService.compare(
-            dto.newPassword,
-            userWithPassword.passwordHash,
-        );
+        if (await d.passwordService.compare(dto.newPassword, full.passwordHash)) throw userErrors.samePassword();
+        await d.authPolicyService.assertPasswordAllowed(dto.newPassword, !!ctx.schoolId);
 
-        if (isSame) {
-            throw new BadRequestError(UserErrorMessage.SAME_PASSWORD);
-        }
-
-        // ── Hash new password ─────────────────────────────────────────────
-        const passwordHash = await this.passwordService.hash(dto.newPassword);
-
-        // ── Update password ───────────────────────────────────────────────
-        await this.userRepository.update(userId, {
-            passwordHash,
+        const updated = await d.userRepository.update(ctx.userId, {
+            passwordHash:       await d.passwordService.hash(dto.newPassword),
             passwordChangedAt:  new Date(),
             mustChangePassword: false,
+            failedLoginCount:   0,
+            lockedUntil:        null,
         });
 
-        // ── Invalidate all sessions ───────────────────────────────────────
-        await this.refreshTokenRepository.deleteByUserId(userId);
+        await d.refreshTokenRepository.revokeAllForUser(ctx.userId);
 
-        // ── Audit password change ─────────────────────────────────────────
-        await this.auditService.log({
-            userId,
-            schoolId: user.schoolId,
-            action:   "user.password_changed",
-            entity:   "User",
-            entityId: userId,
-            metadata: {
-                sessionsInvalidated: true,
-            },
+        // Fresh session for this device, same school and membership
+        let session: SessionInfo = { kind: "platform", schoolId: null, membershipId: ctx.membershipId, persona: null };
+        if (ctx.schoolId) {
+            const m = ctx.membershipId ? await d.membershipService.findById(ctx.membershipId) : null;
+            session = { kind: "school", schoolId: ctx.schoolId, membershipId: m?.id ?? null, persona: m?.persona ?? null };
+        }
+        const tokens = await d.authSessionService.issue({
+            userId: ctx.userId, schoolId: session.schoolId, membershipId: session.membershipId,
+            mustChangePassword: false, ip: ctx.ip, userAgent: ctx.userAgent,
         });
 
-        return {
-            message: "Password changed successfully. Please login again.",
-        };
+        await d.authAuditService.record({
+            action: "user.password_changed", module: "user", userId: ctx.userId, schoolId: ctx.schoolId,
+            actorMembershipId: ctx.membershipId, entity: "User", entityId: ctx.userId,
+            ip: ctx.ip, userAgent: ctx.userAgent, metadata: { otherSessionsRevoked: true },
+        });
+        d.authMessageService.sendEmailSafely("auth.password_changed", user.email, {
+            "recipient.firstName": user.firstName ?? undefined,
+        });
+
+        return { status: "AUTHENTICATED", user: d.userMapper.toResponse(updated), session, tokens };
     }
 }

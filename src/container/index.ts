@@ -18,7 +18,9 @@ export const container: AwilixContainer = createContainer({
 | MODULE REGISTRATIONS
 | Uncomment each module as you build it
 |--------------------------------------------------------------------------
+
 */
+import { registerFoundation } from "../foundation/foundation.container";
 import { registerAuth }          from "../modules/auth/auth.container";
 import { registerSchool }        from "../modules/school/school.container";
 import { registerUser }          from "../modules/user/user.container";
@@ -44,6 +46,7 @@ import { registerFeedback } from "../modules/feedback/feedback.container";
 
 const modules: Array<(c: AwilixContainer) => void> = [
     registerShared,
+    registerFoundation,
     registerAuth,
     registerSchool,
     registerUser,

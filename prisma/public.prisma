@@ -1,59 +1,55 @@
-// NOTE: this schema exists ONLY to drive `prisma migrate dev`/`migrate diff`
-// for the public "migrations/" folder going forward. The app's actual
-// Prisma Client still comes from the merged prisma/schema.prisma (via
-// merge.ts) — do not import anything from this generator's output.
 generator client {
   provider = "prisma-client-js"
   output   = "../src/generated/public"
 }
+
 datasource db {
   provider = "postgresql"
 }
-// ===== SCHOOL =====
-model School {
-  id                     String             @id @default(uuid())
-  name                   String
-  subdomain              String             @unique
-  customDomain            String?
-  customDomainVerifiedAt DateTime?
-  email                  String             @unique
-  phone                  String?
-  address                String?
-  city                   String?
-  state                  String?
-  country                String             @default("Nigeria")
-  timezone               String             @default("Africa/Lagos")
-  logoUrl                String?
-  schoolCategory         SchoolCategory     @default(primary)
-  schoolOwnership        SchoolOwnership    @default(private)
-  status                 SchoolStatus       @default(pending)
-  verificationStatus     VerificationStatus @default(unverified)
-  verifiedAt             DateTime?
-  verifiedById           String?
-  suspendedAt            DateTime?
-  suspensionReason       String?
-  isActive               Boolean            @default(false)
 
-  schemaName          String?   @unique
-  schemaProvisionedAt DateTime?
+// ===== PLATFORM AUTHORITY =====
 
-  paystackSubaccountCode  String?
-  paystackSubaccountId    String?
-  settlementBankCode      String?
-  settlementAccountNumber String?
-
-  createdAt              DateTime           @default(now())
-  updatedAt              DateTime           @updatedAt
-
-  users                          User[]
-  subscriptions                  Subscription[]
-  documents                      SchoolDocument[]
-  auditLogs                      AuditLog[]
-  platformNotificationRecipients PlatformNotificationRecipient[]
-  feedback          Feedback[]
-
+enum LegacyPlatformRole {
+  super_admin
 }
 
+enum Role {
+  super_admin
+  school_admin
+  principal
+  teacher
+  bursar
+  student
+  guardian
+}
+
+enum Persona {
+  STAFF
+  STUDENT
+  GUARDIAN
+}
+
+enum MemberStatus {
+  active
+  suspended
+  removed
+}
+
+enum PlatformRoleKind {
+  LOCKED
+  CUSTOM
+}
+
+enum PermissionScope {
+  ALL
+  ASSIGNED
+  OWN
+}
+
+enum PermissionRealm {
+  PLATFORM
+  SCHOOL
+}
 
 enum SchoolCategory {
   primary
@@ -81,6 +77,7 @@ enum VerificationStatus {
   verified
   rejected
 }
+
 enum IdDocumentType {
   nin
   voters_card
@@ -88,25 +85,7 @@ enum IdDocumentType {
   international_passport
   other
 }
-model SchoolDocument {
-  id                     String          @id @default(uuid())
-  schoolId               String
-  type                   DocumentType
-  idDocumentType         IdDocumentType?
-  idNumber               String?
-  proprietorFullName     String?
-  proprietorDateOfBirth  DateTime?
-  fileUrl                String
-  status                 DocumentStatus  @default(pending)
-  rejectionReason        String?
-  verifiedAt             DateTime?
-  verifiedById           String?
-  apiVerified            Boolean         @default(false)
-  apiResponse            Json?
-  createdAt              DateTime        @default(now())
-  updatedAt              DateTime        @updatedAt
-  school                 School          @relation(fields: [schoolId], references: [id])
-}
+
 enum DocumentType {
   cac_certificate
   proprietor_id
@@ -122,208 +101,10 @@ enum DocumentStatus {
   rejected
 }
 
-// =====================
-// AUTH / IDENTITY MODULE
-// =====================
-
-model User {
-  id                String    @id @default(uuid())
-
-  schoolId          String?
-
-  email             String    @unique
-  passwordHash      String
-
-  role              Role
-
-  firstName         String?
-  lastName          String?
-  phone             String?
-  photoUrl          String?
-
-  isActive          Boolean   @default(true)
-  isEmailVerified   Boolean   @default(false)
-  emailVerifiedAt   DateTime?
-
-  lastLoginAt       DateTime?
-  lastLoginIp       String?
-  failedLoginCount  Int       @default(0)
-  lockedUntil       DateTime?
-  passwordChangedAt DateTime?
-  mustChangePassword Boolean @default(false)
-
-
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-
-  school            School?   @relation(fields: [schoolId], references: [id])
-  refreshTokens     RefreshToken[]
-  otps              Otp[]
-  invitesSent       Invite[]  @relation("InviteSender")
-  feedback          Feedback[]
-}
-
-model Otp {
-  id        String   @id @default(uuid())
-
-  userId    String
-  code      String
-  type      OtpType
-
-  expiresAt DateTime
-  usedAt    DateTime?
-  attempts  Int      @default(0)
-
-  createdAt DateTime @default(now())
-
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model RefreshToken {
-  id        String   @id @default(uuid())
-
-  userId    String
-  token     String   @unique
-
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model Invite {
-  id          String   @id @default(uuid())
-
-  email       String
-  role        Role
-
-  token       String   @unique
-  schoolId    String
-
-  sentById    String
-
-  accepted    Boolean  @default(false)
-  expiresAt   DateTime
-
-  createdAt   DateTime @default(now())
-
-  sentBy      User     @relation("InviteSender", fields: [sentById], references: [id])
-}
-
-enum Role {
-  super_admin
-  school_admin
-  principal
-  teacher
-  bursar
-  student
-  guardian
-}
-
 enum OtpType {
   email_verification
   password_reset
   two_factor
-}
-
-// =====================
-// BILLING / SUBSCRIPTION MODULE
-// =====================
-model Plan {
-  id               String   @id @default(uuid())
-  name             String   @unique
-  description      String?
-
-  studentLimit     Int
-  staffLimit       Int
-  features         Json     @default("{}")
-
-  monthlyPriceKobo Int      @default(0)
-  yearlyPriceKobo  Int      @default(0)
-  setupFeeKobo     Int      @default(0)
-
-  isPublic         Boolean  @default(true)
-  isActive         Boolean  @default(true)
-  isCustom         Boolean  @default(false)
-
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-
-  subscriptions    Subscription[]
-}
-
-model Subscription {
-  id                       String             @id @default(uuid())
-  schoolId                 String
-  planId                   String
-  status                   SubscriptionStatus @default(active)
-  billingCycle             BillingCycle       @default(monthly)
-  currentPeriodStart       DateTime
-  currentPeriodEnd         DateTime
-  trialEndsAt              DateTime?
-  cancelAtPeriodEnd        Boolean            @default(false)
-  cancelledAt              DateTime?
-  couponId                 String?
-  discountedPriceKobo      Int?
-  autoRenew                 Boolean @default(false)
-  paystackAuthorizationCode String?
-  scheduledDowngradePlanId String?
-  setupFeePaid             Boolean            @default(false)
-  setupFeePaidAt           DateTime?
-  paystackCustomerCode     String?
-  paystackSubscriptionCode String?
-  nextBillingDate          DateTime?
-  lastBillingAttemptAt     DateTime?
-  failedBillingCount       Int                @default(0)
-  createdAt                DateTime           @default(now())
-  updatedAt                DateTime           @updatedAt
-  school                   School             @relation(fields: [schoolId], references: [id])
-  plan                     Plan               @relation(fields: [planId], references: [id])
-  coupon                   Coupon?            @relation(fields: [couponId], references: [id])
-  billingHistory           BillingHistory[]
-}
-
-model Coupon {
-  id              String   @id @default(uuid())
-
-  code            String   @unique
-  description     String?
-
-  discountType    DiscountType
-  discountValue   Int
-
-  maxUses         Int?
-  usedCount       Int      @default(0)
-
-  validFrom       DateTime
-  validUntil      DateTime?
-
-  isActive        Boolean  @default(true)
-
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  subscriptions   Subscription[]
-}
-
-model BillingHistory {
-  id                String        @id @default(uuid())
-
-  subscriptionId    String
-
-  amountKobo        Int
-  status            PaymentStatus @default(pending)
-
-  billingCycle      BillingCycle
-
-  paystackReference String?
-
-  paidAt            DateTime?
-  failureReason     String?
-
-  createdAt         DateTime @default(now())
-
-  subscription      Subscription @relation(fields: [subscriptionId], references: [id])
 }
 
 enum SubscriptionStatus {
@@ -345,9 +126,6 @@ enum DiscountType {
   fixed_amount
 }
 
-// Public-schema copy of PaymentStatus — used only for BillingHistory (platform billing).
-// This is a distinct type from the tenant schema's PaymentStatus (fee payments),
-// even though the values happen to match today. Keep them independently editable.
 enum PaymentStatus {
   pending
   success
@@ -355,23 +133,50 @@ enum PaymentStatus {
   refunded
 }
 
-// ===== AUDIT LOG =====
+enum FeatureKind {
+  BOOLEAN
+  LIMIT
+  QUOTA
+  ENUM
+}
 
-model AuditLog {
-  id         String     @id @default(uuid())
-  userId     String?
-  schoolId   String?
-  actorType  ActorType  @default(user)
-  action     String
-  entity     String
-  entityId   String?
-  oldValue   Json?
-  newValue   Json?
-  ipAddress  String?
-  userAgent  String?
-  metadata   Json?
-  createdAt  DateTime   @default(now())
-  school     School?    @relation(fields: [schoolId], references: [id])
+enum Enforcement {
+  BLOCK
+  WARN
+}
+
+enum DefinitionOrigin {
+  CODE
+  PLATFORM
+}
+
+enum SettingType {
+  BOOLEAN
+  INTEGER
+  DECIMAL
+  STRING
+  ENUM
+  TIME
+  STRING_LIST
+  INTEGER_LIST
+  ENTITY_REF
+}
+
+enum AutomationTrigger {
+  EVENT
+  SCHEDULE
+  OFFSET_BEFORE
+  OFFSET_AFTER
+}
+
+enum TemplateCategory {
+  AUTH
+  BILLING
+  SYSTEM
+  FEES
+  ACADEMIC
+  ATTENDANCE
+  GENERAL
 }
 
 enum ActorType {
@@ -379,44 +184,6 @@ enum ActorType {
   system
   super_admin
   webhook
-}
-
-model PlatformNotification {
-  id               String                          @id @default(uuid())
-  title            String
-  message          String
-  type             PlatformNotificationType
-  state            NotificationState               @default(QUEUED)
-  createdByAdminId String
-  metadata         Json?
-  sentAt           DateTime?
-  completedAt      DateTime?
-  createdAt        DateTime                        @default(now())
-  updatedAt        DateTime                        @updatedAt
-  recipients       PlatformNotificationRecipient[]
-
-  @@index([state, createdAt])
-  @@index([type])
-}
-
-model PlatformNotificationRecipient {
-  id             String               @id @default(uuid())
-  notificationId String
-  schoolId       String
-  channel        NotificationChannel
-  status         DeliveryStatus       @default(PENDING)
-  retryCount     Int                  @default(0)
-  failedReason   String?
-  readAt         DateTime?
-  deliveredAt    DateTime?
-  createdAt      DateTime             @default(now())
-  updatedAt      DateTime             @updatedAt
-
-  notification   PlatformNotification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
-  school         School               @relation(fields: [schoolId], references: [id], onDelete: Cascade)
-
-  @@unique([notificationId, schoolId, channel])
-  @@index([schoolId, status])
 }
 
 enum PlatformNotificationType {
@@ -454,25 +221,700 @@ enum DeliveryStatus {
   FAILED
   CANCELLED
 }
+
+enum FeedbackType {
+  bug
+  suggestion
+  complaint
+  praise
+}
+
+enum FeedbackStatus {
+  open
+  reviewed
+  resolved
+}
+
+// ===== SCHOOL =====
+
+model School {
+  id                     String             @id @default(uuid())
+  name                   String
+  subdomain              String             @unique
+  customDomain           String?
+  customDomainVerifiedAt DateTime?
+  email                  String             @unique
+  phone                  String?
+  address                String?
+  city                   String?
+  state                  String?
+  country                String             @default("Nigeria")
+  timezone               String             @default("Africa/Lagos")
+  logoUrl                String?
+  website                String?
+  schoolCategory         SchoolCategory     @default(primary)
+  schoolOwnership        SchoolOwnership    @default(private)
+  status                 SchoolStatus       @default(pending)
+  verificationStatus     VerificationStatus @default(unverified)
+  verifiedAt             DateTime?
+  verifiedById           String?
+  suspendedAt            DateTime?
+  suspensionReason       String?
+  isActive               Boolean            @default(false)
+  deletedAt              DateTime?
+
+  schemaName          String?   @unique
+  schemaProvisionedAt DateTime?
+
+  paystackSubaccountCode  String?
+  paystackSubaccountId    String?
+  settlementBankCode      String?
+  settlementAccountNumber String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users                          User[]
+  userSchools                    UserSchool[]
+  subscriptions                  Subscription[]
+  documents                      SchoolDocument[]
+  auditLogs                      AuditLog[]
+  platformNotificationRecipients PlatformNotificationRecipient[]
+  entitlementOverrides           SchoolEntitlementOverride[]
+  feedback                       Feedback[]
+
+  @@index([status])
+  @@index([deletedAt])
+}
+
+model SchoolDocument {
+  id                    String         @id @default(uuid())
+  schoolId              String
+  type                  DocumentType
+  idDocumentType        IdDocumentType?
+  idNumber              String?
+  proprietorFullName    String?
+  proprietorDateOfBirth DateTime?
+  fileUrl               String
+  status                DocumentStatus @default(pending)
+  rejectionReason       String?
+  verifiedAt            DateTime?
+  verifiedById          String?
+  apiVerified           Boolean        @default(false)
+  apiResponse           Json?
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+
+  school School @relation(fields: [schoolId], references: [id])
+
+  @@index([schoolId])
+}
+
+// ===== AUTH / IDENTITY MODULE =====
+
+model User {
+  id String @id @default(uuid())
+
+  // Legacy tenant context retained until the final migration stage.
+  schoolId String?
+
+  email        String @unique
+  passwordHash String
+
+  // Legacy authorization fields retained during migration.
+  role         Role
+  platformRole LegacyPlatformRole?
+
+  firstName String?
+  lastName  String?
+  phone     String?
+  photoUrl  String?
+
+  isActive           Boolean   @default(true)
+  isEmailVerified    Boolean   @default(false)
+  emailVerifiedAt    DateTime?
+  lastLoginAt        DateTime?
+  lastLoginIp        String?
+  failedLoginCount   Int       @default(0)
+  lockedUntil        DateTime?
+  passwordChangedAt  DateTime?
+  mustChangePassword Boolean   @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  school          School?          @relation(fields: [schoolId], references: [id])
+  platformMember  PlatformMember?
+  schools          UserSchool[]
+  refreshTokens    RefreshToken[]
+  otps             Otp[]
+  invitesSent      Invite[]         @relation("InviteSender")
+  feedback         Feedback[]
+
+  @@index([schoolId])
+  @@index([platformRole])
+}
+
+model UserSchool {
+  userId    String
+  schoolId  String
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  school School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  @@id([userId, schoolId])
+  @@index([schoolId])
+}
+
+model Otp {
+  id String @id @default(uuid())
+
+  userId String
+  code   String
+  type   OtpType
+
+  expiresAt DateTime
+  usedAt    DateTime?
+  attempts  Int       @default(0)
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type])
+  @@index([expiresAt])
+}
+
+model RefreshToken {
+  id             String    @id @default(uuid())
+  userId         String
+  token          String    @unique   // HMAC of the JWT
+  familyId       String
+  schoolId       String?
+  membershipId   String?
+  impersonatorId String?
+  userAgent      String?
+  ipAddress      String?
+  lastUsedAt     DateTime?
+  revokedAt      DateTime?
+  replacedById   String?
+  expiresAt      DateTime
+  createdAt      DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([familyId])
+}
+model Invite {
+  id String @id @default(uuid())
+
+  email String
+
+  // Legacy role retained until the final migration stage.
+  role Role
+
+  persona    Persona  @default(STAFF)
+  personaEntityId String?
+  roleId     String?
+  roleKey    String?
+  token      String   @unique
+  schoolId   String
+  sentById   String
+  accepted   Boolean  @default(false)
+  acceptedAt DateTime?
+  revokedAt  DateTime?
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  sentBy User @relation("InviteSender", fields: [sentById], references: [id])
+
+  @@index([schoolId, email])
+  @@index([roleId])
+  @@index([roleKey])
+  @@index([expiresAt])
+}
+
+// ===== BILLING / SUBSCRIPTION MODULE =====
+
+model Plan {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  systemKey   String? @unique
+  description String?
+
+  // Legacy limits and features retained until final cleanup.
+  // Legacy -1 limits are migrated to null limitValue during backfill.
+  studentLimit Int    @default(0)
+  staffLimit   Int    @default(0)
+  features     Json   @default("{}")
+
+  monthlyPriceKobo Int @default(0)
+  yearlyPriceKobo  Int @default(0)
+  setupFeeKobo     Int @default(0)
+
+  isPublic Boolean @default(true)
+  isActive Boolean @default(true)
+  isCustom Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  subscriptions Subscription[]
+  entitlements  PlanEntitlement[]
+}
+
+
+model Subscription {
+  id                       String             @id @default(uuid())
+  schoolId                 String
+  planId                   String
+  status                   SubscriptionStatus @default(active)
+  billingCycle             BillingCycle       @default(monthly)
+  currentPeriodStart       DateTime
+  currentPeriodEnd         DateTime
+  trialEndsAt              DateTime?
+  cancelAtPeriodEnd        Boolean            @default(false)
+  cancelledAt              DateTime?
+  couponId                 String?
+  discountedPriceKobo      Int?
+  autoRenew                Boolean            @default(false)
+  paystackAuthorizationCode String?
+  scheduledDowngradePlanId String?
+  setupFeePaid             Boolean            @default(false)
+  setupFeePaidAt           DateTime?
+  paystackCustomerCode     String?
+  paystackSubscriptionCode String?
+  nextBillingDate          DateTime?
+  lastBillingAttemptAt     DateTime?
+  failedBillingCount       Int                @default(0)
+  createdAt                DateTime           @default(now())
+  updatedAt                DateTime           @updatedAt
+
+  school         School           @relation(fields: [schoolId], references: [id])
+  plan           Plan             @relation(fields: [planId], references: [id])
+  coupon         Coupon?          @relation(fields: [couponId], references: [id])
+  billingHistory BillingHistory[]
+
+  @@index([schoolId, status])
+  @@index([planId])
+  @@index([currentPeriodEnd])
+}
+
+model Coupon {
+  id String @id @default(uuid())
+
+  code        String  @unique
+  description String?
+
+  discountType  DiscountType
+  discountValue Int
+
+  maxUses   Int?
+  usedCount Int  @default(0)
+
+  validFrom  DateTime
+  validUntil DateTime?
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  subscriptions Subscription[]
+}
+
+model BillingHistory {
+  id String @id @default(uuid())
+
+  subscriptionId String
+
+  amountKobo Int
+  status     PaymentStatus @default(pending)
+
+  billingCycle      BillingCycle
+  paystackReference String?
+
+  paidAt        DateTime?
+  failureReason String?
+
+  createdAt DateTime @default(now())
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id])
+
+  @@index([subscriptionId, createdAt])
+  @@index([status])
+}
+
+// ===== PLATFORM RBAC =====
+
+model PlatformRole {
+  id          String           @id @default(uuid())
+  name        String           @unique
+  description String?
+  systemKey   String?          @unique
+  kind        PlatformRoleKind
+  grantsAll   Boolean          @default(false)
+  isActive    Boolean          @default(true)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  permissions PlatformRolePermission[]
+  members     PlatformMemberRole[]
+}
+
+model PlatformRolePermission {
+  roleId        String
+  permissionKey String
+
+  role       PlatformRole         @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission PermissionDefinition @relation(fields: [permissionKey], references: [key])
+
+  @@id([roleId, permissionKey])
+  @@index([permissionKey])
+}
+
+model PlatformMember {
+  id        String       @id @default(uuid())
+  userId    String       @unique
+  status    MemberStatus @default(active)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  user  User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roles PlatformMemberRole[]
+}
+
+model PlatformMemberRole {
+  memberId     String
+  roleId       String
+  assignedAt   DateTime @default(now())
+  assignedById String?
+
+  member PlatformMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  role   PlatformRole   @relation(fields: [roleId], references: [id])
+
+  @@id([memberId, roleId])
+  @@index([roleId])
+}
+
+model PermissionDefinition {
+  key                 String           @id
+  realm               PermissionRealm
+  module              String
+  scopes              PermissionScope[]
+  personas            Persona[]
+  requiresFeature     String?
+  introducedInVersion Int
+  label               String
+  description         String?
+  isSensitive         Boolean          @default(false)
+  isDeprecated        Boolean          @default(false)
+  sortOrder           Int              @default(0)
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+
+  templatePermissions     RoleTemplatePermission[]
+  platformRolePermissions PlatformRolePermission[]
+
+  @@index([realm, module])
+  @@index([isDeprecated])
+}
+
+model RoleTemplate {
+  id                String   @id @default(uuid())
+  key               String   @unique
+  name              String
+  description       String?
+  persona            Persona  @default(STAFF)
+  isLocked           Boolean  @default(false)
+  grantsAll          Boolean  @default(false)
+  autoProvision      Boolean  @default(true)
+  defaultForPersona  Persona? @unique
+  version            Int      @default(1)
+  isActive           Boolean  @default(true)
+  sortOrder          Int      @default(0)
+  updatedById        String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  permissions RoleTemplatePermission[]
+}
+
+model RoleTemplatePermission {
+  templateId    String
+  permissionKey String
+  scope         PermissionScope @default(ALL)
+
+  template   RoleTemplate         @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  permission PermissionDefinition @relation(fields: [permissionKey], references: [key])
+
+  @@id([templateId, permissionKey])
+  @@index([permissionKey])
+}
+
+// ===== ENTITLEMENTS =====
+
+model FeatureDefinition {
+  key           String           @id
+  origin        DefinitionOrigin @default(CODE)
+  kind          FeatureKind
+  module        String
+  meterKey      String?
+  unit          String?
+  name          String
+  description   String?
+  enforcement   Enforcement      @default(BLOCK)
+  upsellMessage String?
+  isActive      Boolean          @default(true)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  planEntitlements PlanEntitlement[]
+  overrides        SchoolEntitlementOverride[]
+
+  @@index([module, isActive])
+  @@index([kind])
+  @@index([origin])
+}
+
+model PlanEntitlement {
+  planId     String
+  featureKey String
+  boolValue  Boolean?
+  limitValue Int?
+  enumValue  String?
+
+  plan    Plan              @relation(fields: [planId], references: [id], onDelete: Cascade)
+  feature FeatureDefinition @relation(fields: [featureKey], references: [key])
+
+  @@id([planId, featureKey])
+  @@index([featureKey])
+}
+
+model SchoolEntitlementOverride {
+  schoolId    String
+  featureKey  String
+  boolValue   Boolean?
+  limitValue  Int?
+  enumValue   String?
+  reason      String
+  expiresAt   DateTime?
+  createdById String
+  createdAt   DateTime @default(now())
+
+  school  School            @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  feature FeatureDefinition @relation(fields: [featureKey], references: [key])
+
+  @@id([schoolId, featureKey])
+  @@index([featureKey])
+  @@index([expiresAt])
+  @@index([createdById])
+}
+
+// No entitlement row means the feature is not granted.
+// A null limitValue on a LIMIT feature represents an unlimited limit.
+// QUOTA features can use meterKey for usage tracking.
+
+// ===== PLATFORM SETTINGS DEFINITIONS =====
+
+model SettingDefinition {
+  key              String      @id
+  area             String
+  type             SettingType
+  constraints      Json?
+  dependsOn        Json?
+  requiresFeature  String?
+  isSecret         Boolean     @default(false)
+  group            String?
+  label            String
+  description      String?
+  defaultValue     Json
+  isSchoolEditable Boolean     @default(true)
+  sortOrder        Int         @default(0)
+  isActive         Boolean     @default(true)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  @@index([area, isActive])
+  @@index([sortOrder])
+}
+
+// ===== AUTOMATION DEFINITIONS =====
+
+model AutomationRuleDefinition {
+  key              String             @id
+  module           String
+  trigger          AutomationTrigger
+  eventKey         String?
+  anchor           String?
+  paramsSchema     Json
+  allowedChannels  NotificationChannel[]
+  allowedAudiences String[]
+  templateKey      String
+  allowMultiple    Boolean            @default(false)
+  requiresFeature  String?
+  name             String
+  description      String?
+  defaultEnabled   Boolean            @default(false)
+  defaultParams    Json
+  defaultChannels  NotificationChannel[]
+  isActive         Boolean            @default(true)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  @@index([module, isActive])
+  @@index([trigger])
+}
+
+// ===== MESSAGE TEMPLATES =====
+
+model MessageTemplate {
+  id                  String           @id @default(uuid())
+  key                 String
+  channel             NotificationChannel
+  locale              String           @default("en")
+  category            TemplateCategory
+  variables           Json
+  isSchoolOverridable Boolean          @default(true)
+  subject             String?
+  body                String
+  isActive            Boolean          @default(true)
+  version             Int              @default(1)
+  updatedById         String?
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+
+  @@unique([key, channel, locale])
+  @@index([category, isActive])
+}
+
+
+// ===== AUDIT LOG =====
+
+model AuditLog {
+  id                  String    @id @default(uuid())
+  userId              String?
+  schoolId            String?
+  actorMembershipId   String?
+  actorName           String?
+  actorType           ActorType  @default(user)
+  action              String
+  entity              String
+  entityId            String?
+  module              String?
+  requestId           String?
+  oldValue            Json?
+  newValue            Json?
+  ipAddress           String?
+  userAgent           String?
+  metadata            Json?
+  createdAt           DateTime   @default(now())
+
+  school School? @relation(fields: [schoolId], references: [id])
+
+  @@index([schoolId, createdAt])
+  @@index([entity, entityId])
+  @@index([userId, createdAt])
+  @@index([module, action])
+  @@index([requestId])
+  @@index([actorMembershipId])
+}
+
+// ===== PLATFORM NOTIFICATIONS =====
+
+model PlatformNotification {
+  id               String                  @id @default(uuid())
+  title            String
+  message          String
+  type             PlatformNotificationType
+  state            NotificationState       @default(QUEUED)
+  createdByAdminId String
+  metadata         Json?
+  sentAt           DateTime?
+  completedAt      DateTime?
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
+
+  recipients PlatformNotificationRecipient[]
+
+  @@index([state, createdAt])
+  @@index([type])
+}
+
+model PlatformNotificationRecipient {
+  id             String           @id @default(uuid())
+  notificationId String
+  schoolId       String
+  channel        NotificationChannel
+  status         DeliveryStatus   @default(PENDING)
+  retryCount     Int              @default(0)
+  failedReason   String?
+  providerMsgId  String?
+  idempotencyKey String?          @unique
+  queuedAt       DateTime?
+  sentAt         DateTime?
+  failedAt       DateTime?
+  cancelledAt    DateTime?
+  nextRetryAt    DateTime?
+  readAt         DateTime?
+  deliveredAt    DateTime?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  notification PlatformNotification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  school       School               @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  @@unique([notificationId, schoolId, channel])
+  @@index([schoolId, status])
+  @@index([status, nextRetryAt])
+}
+
+// ===== PLATFORM SETTINGS =====
+
 model PlatformSettings {
   id                          String   @id @default(uuid())
   platformName                String   @default("SchoolPortal")
+  legalName                   String?
+  shortName                   String?
+  tagline                     String?
   supportEmail                String   @default("support@schoolportal.com")
   supportPhone                String?
   logoUrl                     String?
+  faviconUrl                  String?
+  primaryColor                String?
+  secondaryColor              String?
+  companyAddress              String?
   termsUrl                    String?
   privacyPolicyUrl            String?
+  smsSenderId                 String?
+  emailFromName               String?
+  emailFromAddress            String?
+  emailReplyTo                String?
+  supportWhatsapp             String?
+  marketingSiteUrl            String?
+  helpCenterUrl               String?
+  statusPageUrl               String?
+  socialLinks                 Json?
+  defaultTimezone             String   @default("Africa/Lagos")
+  defaultCountry              String   @default("Nigeria")
+  defaultCurrency             String   @default("NGN")
+  defaultLocale               String   @default("en-NG")
   subscriptionGracePeriodDays Int      @default(7)
   reminderDaysBeforeExpiry    Int      @default(7)
-  termEndingReminderDays Int @default(7)
+  termEndingReminderDays      Int      @default(7)
   defaultTrialDays            Int      @default(0)
   allowNewRegistrations       Boolean  @default(true)
   maintenanceMode             Boolean  @default(false)
   maintenanceMessage          String?
   announcementBanner          String?
+  updatedById                 String?
   createdAt                   DateTime @default(now())
   updatedAt                   DateTime @updatedAt
 }
+
+// ===== FEEDBACK =====
 
 model Feedback {
   id        String         @id @default(uuid())
@@ -488,17 +930,8 @@ model Feedback {
 
   user   User?   @relation(fields: [userId], references: [id])
   school School? @relation(fields: [schoolId], references: [id])
-}
 
-enum FeedbackType {
-  bug
-  suggestion
-  complaint
-  praise
-}
-
-enum FeedbackStatus {
-  open
-  reviewed
-  resolved
+  @@index([userId, createdAt])
+  @@index([schoolId, createdAt])
+  @@index([status])
 }

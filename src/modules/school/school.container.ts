@@ -1,86 +1,73 @@
-import { asClass }                     from "awilix";
-import type { AwilixContainer }        from "awilix";
-
-// ── Mappers ───────────────────────────────────────────────────────────────
-import { SchoolMapper }                from "./mappers/school.mapper";
-import { SchoolDocumentMapper }        from "./mappers/school.mapper";
-
-// ── Repository ────────────────────────────────────────────────────────────
-import { SchoolRepositoryImpl }        from "./repositories/school.repository.impl";
-
-// ── School Admin Use Cases ────────────────────────────────────────────────
-import { GetSchoolUseCase }            from "./usecases/school-admin/get-school.usecase";
-import { UpdateSchoolUseCase }         from "./usecases/school-admin/update-school.usecase";
-import { UploadLogoUseCase }           from "./usecases/school-admin/upload-logo.usecase";
-import { UploadDocumentUseCase }       from "./usecases/school-admin/upload-document.usecase";
-import { GetDocumentsUseCase }         from "./usecases/school-admin/get-documents.usecase";
-import { SetupPaymentUseCase }         from "./usecases/school-admin/setup-payment.usecase";
-import { GetDashboardUseCase } from "./usecases/school-admin/get-dashboard.usecase";
-import { GetSetupChecklistUseCase } from "./usecases/school-admin/get-setup-checklist.usecase";
-import { GetPublicSchoolInfoUseCase } from "./usecases/school-admin/get-public-school-info.usecase";
-
-// ── Super Admin Use Cases ─────────────────────────────────────────────────
-import { GetAllSchoolsUseCase }        from "./usecases/super-admin/get-all-schools.usecase";
-import { GetSchoolByIdUseCase }        from "./usecases/super-admin/get-school-by-id.usecase";
-import { CreateSchoolUseCase }         from "./usecases/super-admin/create-school.usecase";
-import { VerifySchoolUseCase }         from "./usecases/super-admin/verify-school.usecase";
-import { RejectSchoolUseCase }         from "./usecases/super-admin/reject-school.usecase";
-import { SuspendSchoolUseCase }        from "./usecases/super-admin/suspend-school.usecase";
-import { GetSchoolDocumentsUseCase } from "./usecases/super-admin/get-school-document.usecase";
-import { ApproveDocumentUseCase }      from "./usecases/super-admin/approve-document.usecase";
-import { RejectDocumentUseCase }       from "./usecases/super-admin/reject-document.usecase";
-import { ApproveSchoolUseCase } from "./usecases/super-admin/approve-school.usecase";
-import { ActivateSchoolUseCase } from "./usecases/super-admin/activate-school.usecase";
+import { asClass } from "awilix";
+import type { AwilixContainer } from "awilix";
+import { SchoolMapper, SchoolDocumentMapper } from "./mappers/school.mapper";
+import { SchoolRepositoryImpl } from "./repositories/school.repository.impl";
 import { SchoolApprovalCheckerService } from "./services/school-approval-checker.service";
-// ── Controller ────────────────────────────────────────────────────────────
-import { SchoolController }            from "./controllers/school.controller";
+import { WorkspaceActivationService } from "./services/workspace-activation.service";
+
+// School realm
+import { GetSchoolUseCase } from "./usecases/get-school.usecase";
+import { UpdateSchoolUseCase } from "./usecases/update-school.usecase";
+import { UploadLogoUseCase } from "./usecases/upload-logo.usecase";
+import { UploadDocumentUseCase } from "./usecases/upload-document.usecase";
+import { GetDocumentsUseCase } from "./usecases/get-documents.usecase";
+import { SetupPaymentUseCase } from "./usecases/setup-payment.usecase";
+import { GetDashboardUseCase } from "./usecases/get-dashboard.usecase";
+import { GetSetupChecklistUseCase } from "./usecases/get-setup-checklist.usecase";
+import { GetPublicSchoolInfoUseCase } from "./usecases/get-public-school-info.usecase";
+
+// Platform realm
+import { ListSchoolsUseCase } from "./usecases/platform/list-schools.usecase";
+import { GetPlatformSchoolUseCase } from "./usecases/platform/get-school.usecase";
+import { CreatePlatformSchoolUseCase } from "./usecases/platform/create-school.usecase";
+import { UpdatePlatformSchoolUseCase } from "./usecases/platform/update-school.usecase";
+import { VerifySchoolUseCase } from "./usecases/platform/verify-school.usecase";
+import { RejectSchoolUseCase } from "./usecases/platform/reject-school.usecase";
+import { SuspendSchoolUseCase, ReactivateSchoolUseCase } from "./usecases/platform/suspend-school.usecase";
+import { SchoolDocumentsReviewUseCase } from "./usecases/platform/school-documents.usecases";
+import { RunSchoolLifecycleUseCase } from "./usecases/platform/run-school-lifecycle.usecase";
+
+import { SchoolController } from "./controllers/school.controller";
+import { SchoolPlatformController } from "./controllers/school-platform.controller";
 
 /*
-|--------------------------------------------------------------------------
-| SCHOOL CONTAINER
-| Registers all school module dependencies into Awilix
-|--------------------------------------------------------------------------
+| Requires: registerAuth (userRepository, urlService, authMessageService, passwordService, loginAttemptService),
+| plans, subscriptions, audit, notifications, and from registerShared: prismaClient, storageService,
+| encryptionService, paymentProvider, verificationProvider.
 */
-
 export const registerSchool = (container: AwilixContainer): void => {
     container.register({
+        schoolMapper:         asClass(SchoolMapper).singleton(),
+        schoolDocumentMapper: asClass(SchoolDocumentMapper).singleton(),
+        schoolRepository:     asClass(SchoolRepositoryImpl).scoped(),
 
-        // ── Mappers ───────────────────────────────────────────────────────
-        schoolMapper:                  asClass(SchoolMapper).singleton(),
-        schoolDocumentMapper:          asClass(SchoolDocumentMapper).singleton(),
-
-        // ── Repository ────────────────────────────────────────────────────
-        schoolRepository:              asClass(SchoolRepositoryImpl).scoped(),
-
-        // ── School Admin Use Cases ────────────────────────────────────────
-        getSchoolUseCase:              asClass(GetSchoolUseCase).scoped(),
-        updateSchoolUseCase:           asClass(UpdateSchoolUseCase).scoped(),
-        uploadLogoUseCase:             asClass(UploadLogoUseCase).scoped(),
-        uploadDocumentUseCase:         asClass(UploadDocumentUseCase).scoped(),
-        getDocumentsUseCase:           asClass(GetDocumentsUseCase).scoped(),
-        setupPaymentUseCase:           asClass(SetupPaymentUseCase).scoped(),
-        getDashboardUseCase:           asClass(GetDashboardUseCase).scoped(),
-        getSetupChecklistUseCase:           asClass(GetSetupChecklistUseCase).scoped(),
-
-        getPublicSchoolInfoUseCase:    asClass(GetPublicSchoolInfoUseCase).scoped(),
-
-        // ── Super Admin Use Cases ─────────────────────────────────────────
-        getAllSchoolsUseCase:           asClass(GetAllSchoolsUseCase).scoped(),
-        getSchoolByIdUseCase:          asClass(GetSchoolByIdUseCase).scoped(),
-        createSchoolUseCase:           asClass(CreateSchoolUseCase).scoped(),
-        verifySchoolUseCase:           asClass(VerifySchoolUseCase).scoped(),
-        rejectSchoolUseCase:           asClass(RejectSchoolUseCase).scoped(),
-        suspendSchoolUseCase:          asClass(SuspendSchoolUseCase).scoped(),
-        getSchoolDocumentsUseCase:     asClass(GetSchoolDocumentsUseCase).scoped(),
-        approveDocumentUseCase:        asClass(ApproveDocumentUseCase).scoped(),
-        rejectDocumentUseCase:         asClass(RejectDocumentUseCase).scoped(),
-        approveSchoolUseCase: asClass(ApproveSchoolUseCase).scoped(),
-        activateSchoolUseCase: asClass(ActivateSchoolUseCase).scoped(),
-        
-        // ── Services ──────────────────────────────────────────────────────
         schoolApprovalCheckerService: asClass(SchoolApprovalCheckerService).scoped(),
+        workspaceActivationService:   asClass(WorkspaceActivationService).scoped(),
 
-        // ── Controller ────────────────────────────────────────────────────
-        schoolController:              asClass(SchoolController).scoped(),
+        // ── School realm ──
+        getSchoolUseCase:          asClass(GetSchoolUseCase).scoped(),
+        updateSchoolUseCase:       asClass(UpdateSchoolUseCase).scoped(),
+        uploadLogoUseCase:         asClass(UploadLogoUseCase).scoped(),
+        uploadDocumentUseCase:     asClass(UploadDocumentUseCase).scoped(),
+        getDocumentsUseCase:       asClass(GetDocumentsUseCase).scoped(),
+        setupPaymentUseCase:       asClass(SetupPaymentUseCase).scoped(),
+        getDashboardUseCase:       asClass(GetDashboardUseCase).scoped(),
+        getSetupChecklistUseCase:  asClass(GetSetupChecklistUseCase).scoped(),
+        getPublicSchoolInfoUseCase: asClass(GetPublicSchoolInfoUseCase).scoped(),
+
+        // ── Platform realm ──
+        listSchoolsUseCase:           asClass(ListSchoolsUseCase).scoped(),
+        getPlatformSchoolUseCase:     asClass(GetPlatformSchoolUseCase).scoped(),
+        createPlatformSchoolUseCase:  asClass(CreatePlatformSchoolUseCase).scoped(),
+        updatePlatformSchoolUseCase:  asClass(UpdatePlatformSchoolUseCase).scoped(),
+        verifySchoolUseCase:          asClass(VerifySchoolUseCase).scoped(),
+        rejectSchoolUseCase:          asClass(RejectSchoolUseCase).scoped(),
+        suspendSchoolUseCase:         asClass(SuspendSchoolUseCase).scoped(),
+        reactivateSchoolUseCase:      asClass(ReactivateSchoolUseCase).scoped(),
+        schoolDocumentsReviewUseCase: asClass(SchoolDocumentsReviewUseCase).scoped(),
+        runSchoolLifecycleUseCase:    asClass(RunSchoolLifecycleUseCase).scoped(),
+
+        schoolController:         asClass(SchoolController).scoped(),
+        schoolPlatformController: asClass(SchoolPlatformController).scoped(),
     });
 };

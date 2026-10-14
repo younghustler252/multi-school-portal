@@ -1,14 +1,6 @@
-import { Prisma, PrismaClient } from "../../../generated/public";
-import { OtpType } from "../../../generated/public";
+import { PrismaClient, OtpType } from "../../../generated/public/client";
 import { OtpEntity }             from "../domain/auth.entity";
-import { IOtpRepository}         from "./otp.repository";
-
-/*
-|--------------------------------------------------------------------------
-| OTP REPOSITORY IMPLEMENTATION
-| Handles raw database persistence and maps outputs strictly to entities.
-|--------------------------------------------------------------------------
-*/
+import { IOtpRepository }        from "./otp.repository";
 
 export class OtpRepositoryImpl implements IOtpRepository {
     private readonly prisma: PrismaClient;
@@ -17,58 +9,49 @@ export class OtpRepositoryImpl implements IOtpRepository {
         this.prisma = prismaClient;
     }
 
-    // ── Create OTP ────────────────────────────────────────────────────────
-    async create(data: Prisma.OtpUncheckedCreateInput): Promise<OtpEntity> {
-        const created = await this.prisma.otp.create({ data });
-        return created as unknown as OtpEntity;
+    async create(data: { userId: string; code: string; type: OtpType; expiresAt: Date }): Promise<OtpEntity> {
+        return (await this.prisma.otp.create({ data })) as unknown as OtpEntity;
     }
 
-    // ── Find valid OTP ────────────────────────────────────────────────────
-    async findValid(
-        userId: string,
-        type:   OtpType,
-    ): Promise<OtpEntity | null> {
-        const otp = await this.prisma.otp.findFirst({
-            where: {
-                userId,
-                type,
-                usedAt:    null,
-                expiresAt: { gt: new Date() },
-            },
+    // Newest OTP of the type, used or not (resend cooldown)
+    async findLatest(userId: string, type: OtpType): Promise<OtpEntity | null> {
+        return (await this.prisma.otp.findFirst({
+            where:   { userId, type },
             orderBy: { createdAt: "desc" },
-        });
-
-        if (!otp) return null;
-        return otp as unknown as OtpEntity;
+        })) as unknown as OtpEntity | null;
     }
 
-    // ── Mark OTP as used ─────────────────────────────────────────────────
-    async markUsed(id: string): Promise<void> {
-        await this.prisma.otp.update({
-            where: { id },
+    async findValid(userId: string, type: OtpType): Promise<OtpEntity | null> {
+        return (await this.prisma.otp.findFirst({
+            where:   { userId, type, usedAt: null, expiresAt: { gt: new Date() } },
+            orderBy: { createdAt: "desc" },
+        })) as unknown as OtpEntity | null;
+    }
+
+    // Atomic: concurrent guesses each get a distinct, increasing count
+    async registerAttempt(id: string): Promise<number> {
+        const row = await this.prisma.otp.update({
+            where:  { id },
+            data:   { attempts: { increment: 1 } },
+            select: { attempts: true },
+        });
+        return row.attempts;
+    }
+
+    // Atomic single use: only one caller can flip usedAt from null
+    async consume(id: string): Promise<boolean> {
+        const res = await this.prisma.otp.updateMany({
+            where: { id, usedAt: null, expiresAt: { gt: new Date() } },
             data:  { usedAt: new Date() },
         });
+        return res.count === 1;
     }
 
-    // ── Increment attempts ────────────────────────────────────────────────
-    async incrementAttempts(id: string): Promise<void> {
-        await this.prisma.otp.update({
-            where: { id },
-            data:  { attempts: { increment: 1 } },
-        });
-    }
-
-    // ── Delete all OTPs for user + type ───────────────────────────────────
     async deleteByUserId(userId: string, type: OtpType): Promise<void> {
-        await this.prisma.otp.deleteMany({
-            where: { userId, type },
-        });
+        await this.prisma.otp.deleteMany({ where: { userId, type } });
     }
 
-    // ── Delete expired OTPs ───────────────────────────────────────────────
     async deleteExpired(): Promise<void> {
-        await this.prisma.otp.deleteMany({
-            where: { expiresAt: { lt: new Date() } },
-        });
+        await this.prisma.otp.deleteMany({ where: { expiresAt: { lt: new Date() } } });
     }
 }

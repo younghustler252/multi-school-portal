@@ -1,11 +1,16 @@
 import * as Sentry from "@sentry/node";
 import { Worker, Job } from "bullmq";
 import { Pool } from "pg";
+import { randomUUID } from "crypto";
 import { readdirSync, readFileSync } from "fs";
 import { join } from "path";
 import { redisConnection } from "../connection";
 import { ProvisionSchemaJobData } from "../queues/provision-schema.queue";
 import { prisma } from "../../database/prisma/prisma.client";
+import { TenantContext } from "../../database/prisma/tenant.context";
+import { env } from "../../../config/env";
+import { MembershipService } from "../../../modules/auth/services/membership.service";
+import { UrlService } from "../../../shared/services/url.service";
 
 
 function getDefaultClasses(category?: string | null): Array<{ name: string; level: string }> {
@@ -92,6 +97,12 @@ const defaultFeeTypes = [
 
 const SCHEMA_NAME_PATTERN = /^[a-z][a-z0-9_]*$/;
 
+// Used only for the first-admin step (it reads the public database and the school's own schema)
+const membershipService = new MembershipService({
+	prismaClient: prisma,
+	urlService: new UrlService(),
+});
+
 export const provisionSchemaWorker = new Worker<ProvisionSchemaJobData>(
 	"provision-schema",
 
@@ -115,94 +126,153 @@ export const provisionSchemaWorker = new Worker<ProvisionSchemaJobData>(
 
 		console.log(`🏗️  Provisioning schema: ${schemaName} for ${schoolName}`);
 
-		const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+		const pool = new Pool({ connectionString: env.DATABASE_URL });
 		const client = await pool.connect();
 
 		try {
-			await client.query("BEGIN");
+			// ── 1. Build the school's tables and starting data (all or nothing) ──
+			// If the schema already exists (an earlier run built it and only a later step failed),
+			// it is NEVER dropped or rebuilt: we resume at the first-admin step.
+			const exists = await client.query(
+				"SELECT 1 FROM information_schema.schemata WHERE schema_name = $1",
+				[schemaName],
+			);
 
-			await client.query(`DROP SCHEMA IF EXISTS "${schemaName}" CASCADE`);
-			await client.query(`CREATE SCHEMA "${schemaName}"`);
-			await client.query(`SET search_path TO "${schemaName}"`);
+			if (exists.rowCount === 0) {
+				try {
+					await client.query("BEGIN");
 
-			const tenantMigrationsDir = join(process.cwd(), "prisma", "tenant-migrations");
-			const migrations = readdirSync(tenantMigrationsDir, { withFileTypes: true })
-				.filter(entry => entry.isDirectory())
-				.map(entry => entry.name)
-				.sort();
+					await client.query(`CREATE SCHEMA "${schemaName}"`);
+					await client.query(`SET search_path TO "${schemaName}"`);
 
-			for (const migration of migrations) {
-				const sqlPath = join(tenantMigrationsDir, migration, "migration.sql");
-				await client.query(readFileSync(sqlPath, "utf8"));
+					const tenantMigrationsDir = join(process.cwd(), "prisma", "tenant-migrations");
+					const migrations = readdirSync(tenantMigrationsDir, { withFileTypes: true })
+						.filter(entry => entry.isDirectory())
+						.map(entry => entry.name)
+						.sort();
+
+					for (const migration of migrations) {
+						const sqlPath = join(tenantMigrationsDir, migration, "migration.sql");
+						await client.query(readFileSync(sqlPath, "utf8"));
+					}
+
+					console.log(`✅ Tables created: ${schemaName}`);
+
+					const gradingDefaults = [
+						{ minScore: 75, maxScore: 100, grade: "A1", remark: "Excellent" },
+						{ minScore: 70, maxScore: 74, grade: "B2", remark: "Very Good" },
+						{ minScore: 65, maxScore: 69, grade: "B3", remark: "Good" },
+						{ minScore: 60, maxScore: 64, grade: "C4", remark: "Credit" },
+						{ minScore: 55, maxScore: 59, grade: "C5", remark: "Credit" },
+						{ minScore: 50, maxScore: 54, grade: "C6", remark: "Credit" },
+						{ minScore: 45, maxScore: 49, grade: "D7", remark: "Pass" },
+						{ minScore: 40, maxScore: 44, grade: "E8", remark: "Pass" },
+						{ minScore: 0, maxScore: 39, grade: "F9", remark: "Fail" },
+					];
+
+					for (const g of gradingDefaults) {
+						await client.query(
+							`INSERT INTO "GradingConfig" (id, "minScore", "maxScore", grade, remark, "isDefault", "createdAt", "updatedAt")
+							 VALUES (gen_random_uuid(), $1, $2, $3, $4, true, now(), now())`,
+							[g.minScore, g.maxScore, g.grade, g.remark],
+						);
+					}
+
+					console.log(`✅ Grading config seeded: ${schemaName}`);
+
+					for (const feeType of defaultFeeTypes) {
+						await client.query(
+							`INSERT INTO "FeeType" (id, name, description, "createdAt", "updatedAt")
+							 VALUES (gen_random_uuid(), $1, $2, now(), now())`,
+							[feeType.name, feeType.description],
+						);
+					}
+
+					console.log(`✅ Default fee types seeded: ${schemaName}`);
+
+					// ── School roles: copied from the platform's role templates ──
+					// Templates are data the platform team edits; each school gets its own copy
+					// and remembers which template (and version) it came from.
+					const templates = await prisma.roleTemplate.findMany({
+						where: { isActive: true, autoProvision: true },
+						include: { permissions: true },
+					});
+
+					if (!templates.some(t => t.key === "school_admin")) {
+						throw new Error(
+							"The 'school_admin' role template is missing. Seed the role templates before provisioning schools.",
+						);
+					}
+
+					for (const t of templates) {
+						const roleId = randomUUID();
+						await client.query(
+							`INSERT INTO "SchoolRole"
+							   (id, name, description, kind, persona, "grantsAll", "sourceTemplateKey", "sourceTemplateVersion", "isCustomized", "createdAt", "updatedAt")
+							 VALUES ($1, $2, $3, $4::"RoleKind", $5::"Persona", $6, $7, $8, false, now(), now())`,
+							[
+								roleId, t.name, t.description,
+								t.isLocked ? "SYSTEM_LOCKED" : "SYSTEM_EDITABLE",
+								t.persona, t.grantsAll, t.key, t.version,
+							],
+						);
+						for (const p of t.permissions) {
+							await client.query(
+								`INSERT INTO "SchoolRolePermission" ("roleId", "permissionKey", scope)
+								 VALUES ($1, $2, $3::"PermissionScope")`,
+								[roleId, p.permissionKey, p.scope],
+							);
+						}
+					}
+
+					console.log(`✅ ${templates.length} roles created: ${schemaName}`);
+
+					// const school = await prisma.school.findUnique({
+					// 	where: { id: schoolId },
+					// 	select: { schoolCategory: true },
+					// });
+
+					// for (const cls of getDefaultClasses(school?.schoolCategory)) {
+					// 	await client.query(
+					// 		`INSERT INTO "Class" (id, name, level, "createdAt", "updatedAt")
+					// 		 VALUES (gen_random_uuid(), $1, $2, now(), now())`,
+					// 		[cls.name, cls.level],
+					// 	);
+					// }
+
+					// for (const subject of getDefaultSubjects(school?.schoolCategory)) {
+					// 	await client.query(
+					// 		`INSERT INTO "Subject" (id, name, code, "createdAt", "updatedAt")
+					// 		 VALUES (gen_random_uuid(), $1, $2, now(), now())`,
+					// 		[subject.name, subject.code],
+					// 	);
+					// }
+
+					// console.log(`✅ Classes + subjects seeded: ${schemaName}`);
+
+					await client.query("COMMIT");
+				} catch (err) {
+					await client.query("ROLLBACK");   // undoes the new schema too: nothing half-built is left behind
+					throw err;
+				}
+			} else {
+				console.log(`↩️  ${schemaName} already exists, resuming at the first-admin step`);
 			}
-
-			console.log(`✅ Tables created: ${schemaName}`);
-
-			const gradingDefaults = [
-				{ minScore: 75, maxScore: 100, grade: "A1", remark: "Excellent" },
-				{ minScore: 70, maxScore: 74, grade: "B2", remark: "Very Good" },
-				{ minScore: 65, maxScore: 69, grade: "B3", remark: "Good" },
-				{ minScore: 60, maxScore: 64, grade: "C4", remark: "Credit" },
-				{ minScore: 55, maxScore: 59, grade: "C5", remark: "Credit" },
-				{ minScore: 50, maxScore: 54, grade: "C6", remark: "Credit" },
-				{ minScore: 45, maxScore: 49, grade: "D7", remark: "Pass" },
-				{ minScore: 40, maxScore: 44, grade: "E8", remark: "Pass" },
-				{ minScore: 0, maxScore: 39, grade: "F9", remark: "Fail" },
-			];
-
-			for (const g of gradingDefaults) {
-				await client.query(
-					`INSERT INTO "GradingConfig" (id, "minScore", "maxScore", grade, remark, "isDefault", "createdAt", "updatedAt")
-					 VALUES (gen_random_uuid(), $1, $2, $3, $4, true, now(), now())`,
-					[g.minScore, g.maxScore, g.grade, g.remark],
-				);
-			}
-
-			console.log(`✅ Grading config seeded: ${schemaName}`);
-
-			for (const feeType of defaultFeeTypes) {
-				await client.query(
-					`INSERT INTO "FeeType" (id, name, description, "createdAt", "updatedAt")
-					 VALUES (gen_random_uuid(), $1, $2, now(), now())`,
-					[feeType.name, feeType.description],
-				);
-			}
-
-			console.log(`✅ Default fee types seeded: ${schemaName}`);
-
-			// const school = await prisma.school.findUnique({
-			// 	where: { id: schoolId },
-			// 	select: { schoolCategory: true },
-			// });
-
-			// for (const cls of getDefaultClasses(school?.schoolCategory)) {
-			// 	await client.query(
-			// 		`INSERT INTO "Class" (id, name, level, "createdAt", "updatedAt")
-			// 		 VALUES (gen_random_uuid(), $1, $2, now(), now())`,
-			// 		[cls.name, cls.level],
-			// 	);
-			// }
-
-			// for (const subject of getDefaultSubjects(school?.schoolCategory)) {
-			// 	await client.query(
-			// 		`INSERT INTO "Subject" (id, name, code, "createdAt", "updatedAt")
-			// 		 VALUES (gen_random_uuid(), $1, $2, now(), now())`,
-			// 		[subject.name, subject.code],
-			// 	);
-			// }
-
-			// console.log(`✅ Classes + subjects seeded: ${schemaName}`);
-
-			await client.query("COMMIT");
-		} catch (err) {
-			await client.query("ROLLBACK");
-			throw err;
 		} finally {
-			await client.query("SET search_path TO public");
+			await client.query("SET search_path TO public").catch(() => undefined);
 			client.release();
 			await pool.end();
 		}
 
+		// ── 2. Give the person who registered real access (needs the committed schema) ──
+		await new Promise<void>((resolve, reject) =>
+			TenantContext.run({ tenantSchema: schemaName, schoolId }, () => {
+				membershipService.provisionFirstAdmin(schoolId).then(() => resolve(), reject);
+			}),
+		);
+		console.log(`✅ School admin access created: ${schemaName}`);
+
+		// ── 3. Only now is the school marked as provisioned ──
 		await prisma.school.update({
 			where: { id: schoolId },
 			data: { schemaProvisionedAt: new Date() },

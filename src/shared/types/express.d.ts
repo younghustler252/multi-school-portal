@@ -1,22 +1,26 @@
-import "express-serve-static-core";
-import "multer"; 
+import type { Access } from "../../cc/access.service";
 
-declare module "express-serve-static-core" {
-    interface Request {
-        user?: {
-            id: string;
-            email: string;
-            role: string;
-            schoolId: string | null;
-            mustChangePassword: boolean;
-        };
-        tenantSchema?: string;
-        schoolId?: string;
-        
-        // ── ADD THIS LINE FOR MULTER SUPPORT ──────────────────────────────
-        file?: Express.Multer.File;
-        files?: Express.Multer.File[] | { [fieldname: string]: Express.Multer.File[] };
+declare global {
+    namespace Express {
+        interface Request {
+            auth?: {
+                userId:             string;
+                schoolId:           string | null;   // null = platform session
+                membershipId:       string | null;
+                mustChangePassword: boolean;
+                impersonatedBy?:    string;
+            };
+            /** Who the user is and what they may do (set by loadAccess / any rbac guard). */
+            access?: Access;
+            /** @deprecated transitional. Read req.auth / req.access instead. `email` was removed (not in the token). */
+            user?: { 
+                id: string; schoolId: string | null; 
+                mustChangePassword: boolean; 
+                role: string | null 
+            };
+            tenantSchema?: string;
+            schoolId?:     string;
+        }
     }
 }
-
 export {};

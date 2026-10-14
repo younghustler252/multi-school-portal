@@ -132,6 +132,7 @@ exports.Prisma.StaffScalarFieldEnum = {
   address: 'address',
   joinDate: 'joinDate',
   role: 'role',
+  category: 'category',
   isActive: 'isActive',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -392,6 +393,119 @@ exports.Prisma.PaymentScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.SchoolRoleScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  kind: 'kind',
+  persona: 'persona',
+  grantsAll: 'grantsAll',
+  sourceTemplateKey: 'sourceTemplateKey',
+  sourceTemplateVersion: 'sourceTemplateVersion',
+  isCustomized: 'isCustomized',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt'
+};
+
+exports.Prisma.SchoolRolePermissionScalarFieldEnum = {
+  roleId: 'roleId',
+  permissionKey: 'permissionKey',
+  scope: 'scope'
+};
+
+exports.Prisma.MembershipScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  persona: 'persona',
+  personaEntityId: 'personaEntityId',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.MembershipRoleScalarFieldEnum = {
+  membershipId: 'membershipId',
+  roleId: 'roleId',
+  assignedAt: 'assignedAt',
+  assignedById: 'assignedById'
+};
+
+exports.Prisma.SchoolSettingValueScalarFieldEnum = {
+  key: 'key',
+  value: 'value',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AutomationRuleScalarFieldEnum = {
+  id: 'id',
+  definitionKey: 'definitionKey',
+  name: 'name',
+  enabled: 'enabled',
+  params: 'params',
+  channels: 'channels',
+  audience: 'audience',
+  templateKey: 'templateKey',
+  schedule: 'schedule',
+  lastRunAt: 'lastRunAt',
+  nextRunAt: 'nextRunAt',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt'
+};
+
+exports.Prisma.AutomationRunLogScalarFieldEnum = {
+  id: 'id',
+  ruleId: 'ruleId',
+  triggeredAt: 'triggeredAt',
+  trigger: 'trigger',
+  status: 'status',
+  matched: 'matched',
+  notified: 'notified',
+  skippedReason: 'skippedReason',
+  error: 'error',
+  notificationId: 'notificationId'
+};
+
+exports.Prisma.SchoolMessageTemplateScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  channel: 'channel',
+  locale: 'locale',
+  subject: 'subject',
+  body: 'body',
+  isActive: 'isActive',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.NumberSequenceScalarFieldEnum = {
+  key: 'key',
+  period: 'period',
+  nextValue: 'nextValue',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AttachmentScalarFieldEnum = {
+  id: 'id',
+  ownerType: 'ownerType',
+  ownerId: 'ownerId',
+  kind: 'kind',
+  fileName: 'fileName',
+  fileUrl: 'fileUrl',
+  mimeType: 'mimeType',
+  sizeBytes: 'sizeBytes',
+  uploadedById: 'uploadedById',
+  createdAt: 'createdAt',
+  deletedAt: 'deletedAt'
+};
+
 exports.Prisma.SchoolNotificationScalarFieldEnum = {
   id: 'id',
   title: 'title',
@@ -408,15 +522,21 @@ exports.Prisma.SchoolNotificationScalarFieldEnum = {
 exports.Prisma.SchoolNotificationRecipientScalarFieldEnum = {
   id: 'id',
   notificationId: 'notificationId',
-  studentId: 'studentId',
-  guardianId: 'guardianId',
-  staffId: 'staffId',
+  recipientType: 'recipientType',
+  recipientEntityId: 'recipientEntityId',
+  userId: 'userId',
   channel: 'channel',
   status: 'status',
   priority: 'priority',
   retryCount: 'retryCount',
   failedReason: 'failedReason',
   providerMsgId: 'providerMsgId',
+  idempotencyKey: 'idempotencyKey',
+  queuedAt: 'queuedAt',
+  sentAt: 'sentAt',
+  failedAt: 'failedAt',
+  cancelledAt: 'cancelledAt',
+  nextRetryAt: 'nextRetryAt',
   readAt: 'readAt',
   deliveredAt: 'deliveredAt',
   createdAt: 'createdAt',
@@ -430,6 +550,10 @@ exports.Prisma.SortOrder = {
 
 exports.Prisma.NullableJsonNullValueInput = {
   DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.JsonNullValueInput = {
   JsonNull: Prisma.JsonNull
 };
 
@@ -459,6 +583,11 @@ exports.StaffRole = exports.$Enums.StaffRole = {
   teacher: 'teacher',
   bursar: 'bursar',
   other: 'other'
+};
+
+exports.StaffCategory = exports.$Enums.StaffCategory = {
+  teaching: 'teaching',
+  non_teaching: 'non_teaching'
 };
 
 exports.GuardianRelation = exports.$Enums.GuardianRelation = {
@@ -539,6 +668,43 @@ exports.PaymentStatus = exports.$Enums.PaymentStatus = {
   refunded: 'refunded'
 };
 
+exports.RoleKind = exports.$Enums.RoleKind = {
+  SYSTEM_LOCKED: 'SYSTEM_LOCKED',
+  SYSTEM_EDITABLE: 'SYSTEM_EDITABLE',
+  CUSTOM: 'CUSTOM'
+};
+
+exports.Persona = exports.$Enums.Persona = {
+  STAFF: 'STAFF',
+  STUDENT: 'STUDENT',
+  GUARDIAN: 'GUARDIAN'
+};
+
+exports.PermissionScope = exports.$Enums.PermissionScope = {
+  ALL: 'ALL',
+  ASSIGNED: 'ASSIGNED',
+  OWN: 'OWN'
+};
+
+exports.MembershipStatus = exports.$Enums.MembershipStatus = {
+  active: 'active',
+  suspended: 'suspended',
+  removed: 'removed'
+};
+
+exports.NotificationChannel = exports.$Enums.NotificationChannel = {
+  IN_APP: 'IN_APP',
+  EMAIL: 'EMAIL',
+  SMS: 'SMS'
+};
+
+exports.AutomationRunStatus = exports.$Enums.AutomationRunStatus = {
+  SUCCESS: 'SUCCESS',
+  PARTIAL: 'PARTIAL',
+  FAILED: 'FAILED',
+  SKIPPED: 'SKIPPED'
+};
+
 exports.SchoolNotificationType = exports.$Enums.SchoolNotificationType = {
   fee_invoice: 'fee_invoice',
   fee_reminder: 'fee_reminder',
@@ -561,10 +727,10 @@ exports.TargetType = exports.$Enums.TargetType = {
   EVERYONE: 'EVERYONE'
 };
 
-exports.NotificationChannel = exports.$Enums.NotificationChannel = {
-  IN_APP: 'IN_APP',
-  EMAIL: 'EMAIL',
-  SMS: 'SMS'
+exports.RecipientType = exports.$Enums.RecipientType = {
+  STUDENT: 'STUDENT',
+  GUARDIAN: 'GUARDIAN',
+  STAFF: 'STAFF'
 };
 
 exports.DeliveryStatus = exports.$Enums.DeliveryStatus = {
@@ -606,6 +772,16 @@ exports.Prisma.ModelName = {
   FeeInvoice: 'FeeInvoice',
   FeeInvoiceItem: 'FeeInvoiceItem',
   Payment: 'Payment',
+  SchoolRole: 'SchoolRole',
+  SchoolRolePermission: 'SchoolRolePermission',
+  Membership: 'Membership',
+  MembershipRole: 'MembershipRole',
+  SchoolSettingValue: 'SchoolSettingValue',
+  AutomationRule: 'AutomationRule',
+  AutomationRunLog: 'AutomationRunLog',
+  SchoolMessageTemplate: 'SchoolMessageTemplate',
+  NumberSequence: 'NumberSequence',
+  Attachment: 'Attachment',
   SchoolNotification: 'SchoolNotification',
   SchoolNotificationRecipient: 'SchoolNotificationRecipient'
 };

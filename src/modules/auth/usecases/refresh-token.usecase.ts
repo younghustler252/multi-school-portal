@@ -1,85 +1,110 @@
 import { IUserRepository }         from "../repositories/user.repository";
 import { IRefreshTokenRepository } from "../repositories/refresh-token.repository";
 import { TokenService }            from "../../../shared/services/token.service";
-import { AuthErrorMessage }        from "../domain/auth.enums";
-import { UnauthorizedError }       from "../../../shared/errors/domain.errors";
-import { AuthResponse }            from "../types/auth.types";
 import { UserMapper }              from "../mappers/user.mapper";
+import { AuthSessionService }      from "../services/auth-session.service";
+import { TokenHashService }        from "../services/token-hash.service";
+import { MembershipService }       from "../services/membership.service";
+import { AuthAuditService }        from "../services/auth-audit.service";
+import { authErrors }              from "../domain/auth.errors";
+import { REFRESH_REUSE_GRACE_SECONDS } from "../domain/auth.enums";
+import { AuthenticatedResult, RequestMeta, SessionInfo } from "../types/auth.types";
 
 interface Dependencies {
     userRepository:         IUserRepository;
     refreshTokenRepository: IRefreshTokenRepository;
     tokenService:           TokenService;
+    tokenHashService:       TokenHashService;
+    authSessionService:     AuthSessionService;
+    membershipService:      MembershipService;
+    authAuditService:       AuthAuditService;
     userMapper:             UserMapper;
 }
 
+/*
+|--------------------------------------------------------------------------
+| REFRESH (rotation with reuse detection)
+| - the presented JWT must verify AND match the stored HMAC of its row
+| - a row that was already rotated is a REUSE: the whole family is revoked
+|   (a short grace window instead answers REFRESH_IN_PROGRESS so two tabs
+|   refreshing at once do not log the user out)
+| - the session is re-validated against the host school and the CURRENT
+|   membership / platform member status, not just the old token
+| - exactly one caller can claim a row (atomic), then a new row is created in
+|   the same family; impersonation sessions keep their original absolute expiry
+|--------------------------------------------------------------------------
+*/
+
 export class RefreshTokenUseCase {
-    private readonly userRepository:         IUserRepository;
-    private readonly refreshTokenRepository: IRefreshTokenRepository;
-    private readonly tokenService:           TokenService;
-    private readonly userMapper:             UserMapper;
+    constructor(private readonly d: Dependencies) {}
 
-    constructor({
-        userRepository,
-        refreshTokenRepository,
-        tokenService,
-        userMapper,
-    }: Dependencies) {
-        this.userRepository         = userRepository;
-        this.refreshTokenRepository = refreshTokenRepository;
-        this.tokenService           = tokenService;
-        this.userMapper             = userMapper;
-    }
+    async execute(refreshToken: string | undefined, hostSchoolId: string | null, meta: RequestMeta): Promise<AuthenticatedResult> {
+        const d = this.d;
+        if (!refreshToken) throw authErrors.refreshInvalid();
 
-    async execute(refreshToken: string): Promise<AuthResponse> {
-        // ── 1. Verify token signature and expiration ─────────────────────
         let payload;
-        try {
-            payload = this.tokenService.verifyRefreshToken(refreshToken);
-        } catch (error) {
-            throw new UnauthorizedError(AuthErrorMessage.INVALID_REFRESH_TOKEN);
+        try { payload = d.tokenService.verifyRefreshToken(refreshToken); }
+        catch { throw authErrors.refreshInvalid(); }
+
+        const row = await d.refreshTokenRepository.findById(payload.tokenId);
+        if (
+            !row || row.userId !== payload.id ||
+            !d.tokenHashService.safeEqual(row.token, d.tokenHashService.hashToken(refreshToken))
+        ) throw authErrors.refreshInvalid();
+
+        if (row.expiresAt < new Date()) throw authErrors.refreshInvalid();
+
+        // ── Reuse detection ──────────────────────────────────────────────
+        if (row.revokedAt) {
+            if (Date.now() - row.revokedAt.getTime() < REFRESH_REUSE_GRACE_SECONDS * 1000) {
+                throw authErrors.refreshInProgress();
+            }
+            await d.refreshTokenRepository.revokeFamily(row.familyId);
+            await d.authAuditService.record({
+                action: "auth.refresh_reuse_detected", userId: row.userId, schoolId: row.schoolId,
+                ip: meta.ip, userAgent: meta.userAgent, metadata: { familyId: row.familyId },
+            });
+            throw authErrors.refreshReused();
         }
 
-        // findByToken searches by token string — pass the actual token
-        const storedToken = await this.refreshTokenRepository.findByToken(refreshToken);
-        if (!storedToken || storedToken.expiresAt < new Date()) {
-            throw new UnauthorizedError(AuthErrorMessage.INVALID_REFRESH_TOKEN);
-        }
-
-        // ── 3. Find the user attached to the token ───────────────────────
-        const user = await this.userRepository.findById(payload.id);
+        const user = await d.userRepository.findById(row.userId);
         if (!user || !user.isActive) {
-            throw new UnauthorizedError(AuthErrorMessage.INVALID_CREDENTIALS);
+            await d.refreshTokenRepository.revokeFamily(row.familyId);
+            throw authErrors.refreshInvalid();
         }
 
-        // delete using the token string
-        await this.refreshTokenRepository.deleteByToken(refreshToken);
+        // ── Re-validate the session's context ────────────────────────────
+        let session: SessionInfo;
+        if (row.schoolId) {
+            if (!hostSchoolId || hostSchoolId !== row.schoolId) throw authErrors.tenantMismatch();
+            const m = row.membershipId ? await d.membershipService.findById(row.membershipId) : null;
+            if (!m || m.userId !== user.id || m.status !== "active") {
+                await d.refreshTokenRepository.revokeFamily(row.familyId);
+                throw authErrors.refreshInvalid();
+            }
+            session = { kind: "school", schoolId: row.schoolId, membershipId: m.id, persona: m.persona };
+        } else {
+            if (hostSchoolId) throw authErrors.tenantMismatch();
+            const pm = await d.membershipService.getActivePlatformMember(user.id);
+            if (!pm || pm.id !== row.membershipId) {
+                await d.refreshTokenRepository.revokeFamily(row.familyId);
+                throw authErrors.refreshInvalid();
+            }
+            session = { kind: "platform", schoolId: null, membershipId: pm.id, persona: null };
+        }
 
-        // ── 5. Generate a brand new token pair ───────────────────────────
-        const newTokenId = crypto.randomUUID();
-        const tokens = this.tokenService.generateTokenPair(
-            {
-                id:       user.id,
-                email:    user.email,
-                role:     user.role,
-                schoolId: user.schoolId,
-                mustChangePassword: user.mustChangePassword
-            },
-            newTokenId,
-        );
+        // ── Rotate ───────────────────────────────────────────────────────
+        const newId = d.authSessionService.newTokenId();
+        if (!(await d.refreshTokenRepository.revokeIfActive(row.id, newId))) throw authErrors.refreshInProgress();
 
-        // ── 6. Save the new refresh token in DB ──────────────────────────
-        await this.refreshTokenRepository.create({
-            id:        newTokenId,
-            userId:    user.id,
-            token:     tokens.refreshToken,
-            expiresAt: this.tokenService.getRefreshTokenExpiry(),
+        const tokens = await d.authSessionService.issue({
+            userId: user.id, schoolId: session.schoolId, membershipId: session.membershipId,
+            mustChangePassword: row.impersonatorId ? false : user.mustChangePassword,
+            ip: meta.ip, userAgent: meta.userAgent,
+            familyId: row.familyId, tokenId: newId, impersonatorId: row.impersonatorId,
+            expiresAt: row.impersonatorId ? row.expiresAt : undefined,
         });
 
-        // ── 7. Return mapped user response and token pair ──────────────────
-        return {
-            user: this.userMapper.toResponse(user),
-            tokens,
-        };
+        return { status: "AUTHENTICATED", user: d.userMapper.toResponse(user), session, tokens };
     }
 }

@@ -1,115 +1,95 @@
-import { IInviteRepository }   from "../repositories/invite.repository";
-import { IUserRepository }     from "../repositories/user.repository";
-import { MailService }         from "../../../infrastructure/mail/mail.service";
-import { TokenService }        from "../../../shared/services/token.service";
-import { ISchoolRepository }   from "../../school/repositories/school.repository";
-import { ConflictError }       from "../../../shared/errors/domain.errors";
-import { Role }                from "../../../generated/public";
-import { env }                 from "../../../config/env";
-import { INVITE_EXPIRY_DAYS }  from "../domain/auth.enums";
-
-/*
-|--------------------------------------------------------------------------
-| SEND INVITE USE CASE
-| School admin sends invite to staff or guardian
-| Creates invite record + sends email with invite link
-|--------------------------------------------------------------------------
-*/
+import { IInviteRepository } from "../repositories/invite.repository";
+import { IUserRepository }   from "../repositories/user.repository";
+import { TokenService }      from "../../../shared/services/token.service";
+import { InviteService }     from "../services/invite.service";
+import { MembershipService, RoleRecord } from "../services/membership.service";
+import { AuthAuditService }  from "../services/auth-audit.service";
+import { legacyUserRole }    from "../services/legacy-role";
+import { authErrors }        from "../domain/auth.errors";
+import { SendInviteDtoType } from "../dtos/invite.dto";
+import { InviteActor, RequestMeta } from "../types/auth.types";
 
 interface Dependencies {
     inviteRepository:  IInviteRepository;
     userRepository:    IUserRepository;
-    schoolRepository:  ISchoolRepository;
-    mailService:       MailService;
     tokenService:      TokenService;
+    inviteService:     InviteService;
+    membershipService: MembershipService;
+    authAuditService:  AuthAuditService;
 }
 
-export interface SendInviteParams {
-    email:    string;
-    role:     Role;
-    schoolId: string;
-    sentById: string;
-}
-
+/*
+|--------------------------------------------------------------------------
+| SEND INVITE
+| Route guard (users.invite) decides WHO may invite; this decides WHAT they may grant.
+|  - STAFF: the role must exist in this school, and the inviter may only grant a role
+|    whose every permission they hold themselves (a grants-all role only by a School Admin).
+|    This closes the old hole where the role came straight from the request body.
+|  - GUARDIAN / STUDENT: the person record must already exist; the locked default role applies.
+|  - an existing account is allowed (it gains a second membership); someone who already holds
+|    that capacity in this school is a conflict
+|  - an earlier pending invite for the same person and capacity is revoked
+|--------------------------------------------------------------------------
+*/
 export class SendInviteUseCase {
-    private readonly inviteRepository: IInviteRepository;
-    private readonly userRepository:   IUserRepository;
-    private readonly schoolRepository: ISchoolRepository;
-    private readonly mailService:      MailService;
-    private readonly tokenService:     TokenService;
+    constructor(private readonly d: Dependencies) {}
 
-    constructor({
-        inviteRepository,
-        userRepository,
-        schoolRepository,
-        mailService,
-        tokenService,
-    }: Dependencies) {
-        this.inviteRepository = inviteRepository;
-        this.userRepository   = userRepository;
-        this.schoolRepository = schoolRepository;
-        this.mailService      = mailService;
-        this.tokenService     = tokenService;
-    }
+    async execute(
+        dto: SendInviteDtoType, schoolId: string, actor: InviteActor, meta: RequestMeta,
+    ): Promise<{ message: string; inviteId: string; expiresAt: Date }> {
+        const d = this.d;
 
-    async execute(params: SendInviteParams): Promise<{ message: string }> {
-
-        // ── Check user not already registered ────────────────────────────
-        const existingUser = await this.userRepository
-            .findByEmail(params.email);
-
-        if (existingUser) {
-            throw new ConflictError(
-                "A user with this email is already registered.",
-            );
+        // ── Decide and validate the role ─────────────────────────────────
+        let role: RoleRecord | null;
+        if (dto.persona === "STAFF") {
+            role = await d.membershipService.getRole(dto.roleId!);
+            if (!role || role.persona !== "STAFF") throw authErrors.badRequest("That role does not exist");
+            if (role.grantsAll) {
+                if (!actor.isAdmin) throw authErrors.roleNotAllowed();
+            } else if (!role.permissionKeys.every(k => actor.can(k))) {
+                throw authErrors.roleNotAllowed();
+            }
+        } else {
+            role = await d.membershipService.getDefaultRoleForPersona(dto.persona);
+            if (!role) throw authErrors.badRequest("This school has no default role for that profile yet");
+            if (!(await d.membershipService.personaEntityAvailable(dto.persona, dto.personaEntityId!))) {
+                throw authErrors.notFound("Person record");
+            }
         }
 
-        // ── Check no pending invite already ───────────────────────────────
-        const existingInvite = await this.inviteRepository
-            .findByEmail(params.email);
-
-        if (existingInvite && !existingInvite.accepted) {
-            // Delete old invite and send fresh one
-            // (handled by creating new one — token is unique)
+        // ── Already a member? ────────────────────────────────────────────
+        const existing = await d.userRepository.findByEmail(dto.email);
+        if (existing && await d.membershipService.findByUserPersona(existing.id, dto.persona)) {
+            throw authErrors.alreadyMember();
         }
 
-        // ── Get school details ────────────────────────────────────────────
-        const school = await this.schoolRepository
-            .findById(params.schoolId);
+        // ── Supersede earlier invites, create the new one ────────────────
+        await d.inviteRepository.revokePendingForEmail(schoolId, dto.email, dto.persona);
 
-        // ── Generate invite token ─────────────────────────────────────────
-        const token     = this.tokenService.generateInviteToken();
-        const expiresAt = new Date(
-            Date.now() + INVITE_EXPIRY_DAYS * 24 * 60 * 60 * 1000,
-        );
-
-        // ── Save invite ───────────────────────────────────────────────────
-        await this.inviteRepository.create({
-            email:     params.email,
-            role:      params.role,
-            token,
-            schoolId:  params.schoolId,
-            sentById:  params.sentById,
-            accepted:  false,
+        const rawToken  = d.tokenService.generateInviteToken();
+        const expiresAt = d.inviteService.expiresAt();
+        const invite = await d.inviteRepository.create({
+            email:           dto.email,
+            token:           d.inviteService.hash(rawToken),
+            schoolId,
+            sentById:        actor.userId,
+            persona:         dto.persona,
+            roleId:          role.id,
+            personaEntityId: dto.personaEntityId ?? null,
+            accepted:        false,
             expiresAt,
+            role:            legacyUserRole(dto.persona, role.sourceTemplateKey), // transitional
         });
 
-        // ── Build invite URL ──────────────────────────────────────────────
-        const subdomain = school?.subdomain ?? "";
-        const inviteUrl = `https://${subdomain}.${env.APP_BASE_DOMAIN}/accept-invite?token=${token}`;
+        const school = await d.inviteService.getSchool(schoolId);
+        await d.inviteService.deliver(invite, rawToken, school, dto.firstName);
 
-        // ── Send invite email ─────────────────────────────────────────────
-        await this.mailService.sendInvite({
-            to:         params.email,
-            firstName:  params.email.split("@")[0], // best we can do before name is known
-            schoolName: school?.name ?? "Your School",
-            role:       params.role.replace("_", " "),
-            inviteUrl,
-            expiresIn:  `${INVITE_EXPIRY_DAYS} days`,
+        await d.authAuditService.record({
+            action: "auth.invite_sent", userId: actor.userId, schoolId, actorMembershipId: actor.membershipId,
+            entity: "Invite", entityId: invite.id, ip: meta.ip, userAgent: meta.userAgent,
+            metadata: { persona: dto.persona, roleId: role.id },
         });
 
-        return {
-            message: `Invite sent to ${params.email}`,
-        };
+        return { message: `Invitation sent to ${dto.email}`, inviteId: invite.id, expiresAt };
     }
 }

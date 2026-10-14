@@ -1,15 +1,12 @@
+import { Prisma } from "../../../generated/public/client";
 import { RefreshTokenEntity } from "../domain/auth.entity";
 
-/*
-|--------------------------------------------------------------------------
-| REFRESH TOKEN REPOSITORY INTERFACE
-|--------------------------------------------------------------------------
-*/
-
 export interface IRefreshTokenRepository {
-    create(data: Record<string, any>):       Promise<RefreshTokenEntity>;
-    findByToken(token: string):              Promise<RefreshTokenEntity | null>;
-    deleteByToken(token: string):            Promise<void>;
-    deleteByUserId(userId: string):          Promise<void>;
-    deleteExpired():                         Promise<void>;
+    create(data: Prisma.RefreshTokenUncheckedCreateInput): Promise<RefreshTokenEntity>;
+    findById(id: string): Promise<RefreshTokenEntity | null>;
+    revokeIfActive(id: string, replacedById: string | null): Promise<boolean>;
+    revokeFamily(familyId: string): Promise<void>;
+    revokeAllForUser(userId: string): Promise<void>;
+    listActiveForUser(userId: string): Promise<RefreshTokenEntity[]>;
+    deleteExpired(): Promise<void>;
 }

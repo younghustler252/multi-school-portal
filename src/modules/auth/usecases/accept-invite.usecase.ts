@@ -1,167 +1,139 @@
-import { IInviteRepository }     from "../repositories/invite.repository";
-import { IUserRepository }       from "../repositories/user.repository";
-import { IRefreshTokenRepository } from "../repositories/refresh-token.repository";
-import { PasswordService }       from "../../../shared/services/password.service";
-import { TokenService }          from "../../../shared/services/token.service";
-import { MailService }           from "../../../infrastructure/mail/mail.service";
-import { UserMapper }            from "../mappers/user.mapper";
-import {
-    BadRequestError,
-    NotFoundError,
-    ConflictError,
-}                                from "../../../shared/errors/domain.errors";
-import { AuthErrorMessage }      from "../domain/auth.enums";
-import { AcceptInviteDtoType }   from "../dtos/invite.dto";
-import { AuthResponse }          from "../types/auth.types";
-import { Role } from "../../../generated/public";
-import { randomUUID }            from "crypto";
+import { IInviteRepository } from "../repositories/invite.repository";
+import { IUserRepository }   from "../repositories/user.repository";
+import { PasswordService }   from "../../../shared/services/password.service";
+import { UserMapper }        from "../mappers/user.mapper";
+import { InviteService }     from "../services/invite.service";
+import { MembershipService } from "../services/membership.service";
+import { AuthPolicyService } from "../services/auth-policy.service";
+import { AuthSessionService } from "../services/auth-session.service";
+import { LoginAttemptService } from "../services/login-attempt.service";
+import { AuthMessageService } from "../services/auth-message.service";
+import { AuthAuditService }  from "../services/auth-audit.service";
+import { legacyUserRole }    from "../services/legacy-role";
+import { UrlService }        from "../../../shared/services/url.service";
+import { authErrors }        from "../domain/auth.errors";
+import { AcceptInviteDtoType } from "../dtos/invite.dto";
+import { AuthenticatedResult, RequestMeta } from "../types/auth.types";
+
+interface Dependencies {
+    inviteRepository:    IInviteRepository;
+    userRepository:      IUserRepository;
+    passwordService:     PasswordService;
+    userMapper:          UserMapper;
+    inviteService:       InviteService;
+    membershipService:   MembershipService;
+    authPolicyService:   AuthPolicyService;
+    authSessionService:  AuthSessionService;
+    loginAttemptService: LoginAttemptService;
+    authMessageService:  AuthMessageService;
+    authAuditService:    AuthAuditService;
+    urlService:          UrlService;
+}
 
 /*
 |--------------------------------------------------------------------------
-| ACCEPT INVITE USE CASE
-| Staff/guardian clicks invite link and creates their account
-| Flow:
-| 1. Find + validate invite token
-| 2. Check email not already a user
-| 3. Hash password
-| 4. Create User account
-| 5. Mark invite as accepted
-| 6. Generate token pair (auto-login after accept)
-| 7. Send welcome email
-| 8. Return tokens + user
+| ACCEPT INVITE
+| Works for NEW people (create the account) and EXISTING accounts (add a
+| membership after confirming their current password), so one login can hold
+| several schools and personas.
+|
+| Safe against double use: the invite is claimed atomically first. The steps span
+| two databases (public + tenant) so a failure after the claim compensates:
+| the claim is released and a freshly created user is removed.
+| Must run on the school's own host (tenant context active).
 |--------------------------------------------------------------------------
 */
-
-interface Dependencies {
-    inviteRepository:       IInviteRepository;
-    userRepository:         IUserRepository;
-    refreshTokenRepository: IRefreshTokenRepository;
-    passwordService:        PasswordService;
-    tokenService:           TokenService;
-    mailService:            MailService;
-    userMapper:             UserMapper;
-}
-
 export class AcceptInviteUseCase {
-    private readonly inviteRepository:       IInviteRepository;
-    private readonly userRepository:         IUserRepository;
-    private readonly refreshTokenRepository: IRefreshTokenRepository;
-    private readonly passwordService:        PasswordService;
-    private readonly tokenService:           TokenService;
-    private readonly mailService:            MailService;
-    private readonly userMapper:             UserMapper;
+    constructor(private readonly d: Dependencies) {}
 
-    constructor({
-        inviteRepository,
-        userRepository,
-        refreshTokenRepository,
-        passwordService,
-        tokenService,
-        mailService,
-        userMapper,
-    }: Dependencies) {
-        this.inviteRepository       = inviteRepository;
-        this.userRepository         = userRepository;
-        this.refreshTokenRepository = refreshTokenRepository;
-        this.passwordService        = passwordService;
-        this.tokenService           = tokenService;
-        this.mailService            = mailService;
-        this.userMapper             = userMapper;
-    }
+    async execute(dto: AcceptInviteDtoType, hostSchoolId: string, meta: RequestMeta): Promise<AuthenticatedResult> {
+        const d      = this.d;
+        const invite = await d.inviteService.loadUsable(dto.token, hostSchoolId);
 
-    async execute(dto: AcceptInviteDtoType): Promise<AuthResponse> {
+        const role = invite.roleId
+            ? await d.membershipService.getRole(invite.roleId)
+            : await d.membershipService.getDefaultRoleForPersona(invite.persona);
+        if (!role) throw authErrors.badRequest("The role for this invitation no longer exists. Ask for a new invite");
 
-        // ── 1. Find + validate invite ─────────────────────────────────────
-        const invite = await this.inviteRepository.findByToken(dto.token);
+        const existing = await d.userRepository.findByEmail(invite.email);
 
-        if (!invite) {
-            throw new NotFoundError(AuthErrorMessage.INVITE_NOT_FOUND);
+        // ── Existing account: prove ownership, never create a duplicate ──
+        if (existing) {
+            await d.loginAttemptService.assertNotBlocked(invite.email, meta.ip);
+            const full = await d.userRepository.findByEmailWithPassword(invite.email);
+            if (!full || !(await d.passwordService.compare(dto.password, full.passwordHash))) {
+                await d.loginAttemptService.recordFailure(invite.email, meta.ip);
+                throw authErrors.invalidCredentials();
+            }
+            await d.loginAttemptService.clear(invite.email, meta.ip);
+            if (!existing.isActive) throw authErrors.accountInactive();
+            if (await d.membershipService.findByUserPersona(existing.id, invite.persona)) throw authErrors.alreadyMember();
+        } else {
+            if (!dto.firstName || !dto.lastName) throw authErrors.badRequest("First name and last name are required");
+            if (dto.password !== dto.confirmPassword) throw authErrors.badRequest("Passwords do not match");
+            await d.authPolicyService.assertPasswordAllowed(dto.password, true);
         }
 
-        if (invite.accepted) {
-            throw new BadRequestError(AuthErrorMessage.INVITE_ALREADY_USED);
-        }
+        // ── Claim (single winner) ────────────────────────────────────────
+        if (!(await d.inviteRepository.claim(invite.id))) throw authErrors.inviteUsed();
 
-        if (invite.expiresAt < new Date()) {
-            throw new BadRequestError(
-                "This invite has expired. Please ask your admin to resend.",
+        let createdUserId: string | null = null;
+        try {
+            const user = existing ?? await d.userRepository.create({
+                email:           invite.email,
+                passwordHash:    await d.passwordService.hash(dto.password),
+                firstName:       dto.firstName,
+                lastName:        dto.lastName,
+                phone:           dto.phone,
+                isActive:        true,
+                isEmailVerified: true,                 // the invite reached this inbox
+                emailVerifiedAt: new Date(),
+                role:            legacyUserRole(invite.persona, role.sourceTemplateKey), // transitional
+                schoolId:        invite.schoolId,                                       // transitional
+            });
+            if (!existing) createdUserId = user.id;
+            else if (!existing.isEmailVerified) {
+                await d.userRepository.update(existing.id, { isEmailVerified: true, emailVerifiedAt: new Date() });
+            }
+
+            const entityId = await d.membershipService.linkPersonaEntity(
+                invite.persona, invite.personaEntityId, user.id, role.sourceTemplateKey,
             );
+            const membership = await d.membershipService.createMembership({
+                userId: user.id, persona: invite.persona, personaEntityId: entityId,
+                roleId: role.id, assignedById: invite.sentById,
+            });
+            await d.membershipService.ensureUserSchool(user.id, invite.schoolId);
+
+            const tokens = await d.authSessionService.issue({
+                userId: user.id, schoolId: invite.schoolId, membershipId: membership.id,
+                mustChangePassword: user.mustChangePassword, ip: meta.ip, userAgent: meta.userAgent,
+            });
+
+            const school = await d.inviteService.getSchool(invite.schoolId);
+            d.authMessageService.sendEmailSafely("auth.welcome", user.email, {
+                "recipient.firstName": user.firstName ?? dto.firstName,
+                "school.name":         school.name,
+                "school.url":          d.urlService.schoolUrl(school),
+            });
+
+            await d.authAuditService.record({
+                action: "auth.invite_accepted", userId: user.id, schoolId: invite.schoolId,
+                actorMembershipId: membership.id, entity: "Invite", entityId: invite.id,
+                ip: meta.ip, userAgent: meta.userAgent,
+                metadata: { persona: invite.persona, newAccount: !existing },
+            });
+
+            return {
+                status:  "AUTHENTICATED",
+                user:    d.userMapper.toResponse(user),
+                session: { kind: "school", schoolId: invite.schoolId, membershipId: membership.id, persona: invite.persona },
+                tokens,
+            };
+        } catch (err) {
+            await d.inviteRepository.unclaim(invite.id).catch(() => undefined);
+            if (createdUserId) await d.userRepository.deleteById(createdUserId).catch(() => undefined);
+            throw err;
         }
-
-        // ── 2. Check email not already a user ─────────────────────────────
-        const existingUser = await this.userRepository
-            .findByEmail(invite.email);
-
-        if (existingUser) {
-            // User exists — just mark invite accepted and return error
-            // They should login instead
-            throw new ConflictError(
-                "An account with this email already exists. Please login instead.",
-            );
-        }
-
-        // ── 3. Validate + hash password ───────────────────────────────────
-        const passwordValidation = this.passwordService.validate(dto.password);
-        if (!passwordValidation.valid) {
-            throw new BadRequestError(
-                passwordValidation.message ?? "Password is too weak",
-            );
-        }
-
-        const passwordHash = await this.passwordService.hash(dto.password);
-
-        // ── 4. Create user account ────────────────────────────────────────
-        const user = await this.userRepository.create({
-            schoolId:        invite.schoolId,
-            email:           invite.email,
-            passwordHash,
-            role:            invite.role as Role,
-            firstName:       dto.firstName,
-            lastName:        dto.lastName,
-            phone:           dto.phone,
-            isActive:        true,
-            isEmailVerified: true, // invite = email already verified
-        });
-
-        // ── 5. Mark invite as accepted ────────────────────────────────────
-        await this.inviteRepository.markAccepted(invite.id);
-
-        // ── 6. Generate token pair (auto-login) ───────────────────────────
-        const tokenId = randomUUID();
-        const tokens  = this.tokenService.generateTokenPair(
-            {
-                id:       user.id,
-                email:    user.email,
-                role:     user.role,
-                schoolId: user.schoolId,
-                mustChangePassword: user.mustChangePassword,
-            },
-            tokenId,
-        );
-
-        await this.refreshTokenRepository.create({
-            id:        tokenId,
-            userId:    user.id,
-            token:     tokens.refreshToken,
-            expiresAt: this.tokenService.getRefreshTokenExpiry(),
-        });
-
-        // ── 7. Send welcome email ─────────────────────────────────────────
-        await this.mailService.sendLetter(user.email, {
-            subject:    "Welcome — Your account is ready",
-            title:      "Account Created Successfully 🎉",
-            greeting:   `Hi ${dto.firstName},`,
-            paragraphs: [
-                "Your account has been set up successfully.",
-                "You can now login and access your school portal.",
-            ],
-            footer: "If you did not create this account, please contact support immediately.",
-        });
-
-        // ── 8. Return tokens + user ───────────────────────────────────────
-        return {
-            tokens,
-            user: this.userMapper.toResponse(user),
-        };
     }
 }

@@ -1,86 +1,50 @@
-import { IUserRepository }         from "../repositories/user.repository";
-import { IOtpRepository }          from "../repositories/otp.repository";
-import { OtpType }                 from "../../../generated/public";
-import {
-    AuthErrorMessage,
-    OtpExpiryMinutes,
-}                                  from "../domain/auth.enums";
-import { BadRequestError, NotFoundError } from "../../../shared/errors/domain.errors";
-import { VerifyEmailDtoType }      from "../dtos/otp.dto";
+import { OtpType }          from "../../../generated/public/client";
+import { IUserRepository }  from "../repositories/user.repository";
+import { OtpService }       from "../services/otp.service";
+import { AuthAuditService } from "../services/auth-audit.service";
+import { authErrors }       from "../domain/auth.errors";
+import { AuthMessage }      from "../domain/auth.enums";
+import { VerifyEmailDtoType } from "../dtos/otp.dto";
+import { RequestMeta }      from "../types/auth.types";
+import type { WorkspaceActivationService, WorkspaceInfo } from "../../school/services/workspace-activation.service";
+
+interface Dependencies {
+    userRepository:   IUserRepository;
+    otpService:       OtpService;
+    authAuditService: AuthAuditService;
+    workspaceActivationService: WorkspaceActivationService;
+}
 
 /*
 |--------------------------------------------------------------------------
-| VERIFY EMAIL USE CASE
-| Flow:
-| 1. Find user by email
-| 2. Check not already verified
-| 3. Find valid OTP for user
-| 4. Check OTP attempts — block if too many
-| 5. Compare OTP codes
-| 6. Mark OTP as used
-| 7. Mark user email as verified
+| VERIFY EMAIL
+| For someone who just registered a school, confirming the email also ACTIVATES the school: it is built
+| right away and the response says where to sign in (workspace.state "setting_up" until the build finishes;
+| the frontend polls GET /school/public/:subdomain until state is "active").
+| Unknown email, already-verified account and wrong code all answer with the
+| same INVALID_OTP, so this endpoint cannot be used to discover accounts.
 |--------------------------------------------------------------------------
 */
-
-interface Dependencies {
-    userRepository: IUserRepository;
-    otpRepository:  IOtpRepository;
-}
-
 export class VerifyEmailUseCase {
-    private readonly userRepository: IUserRepository;
-    private readonly otpRepository:  IOtpRepository;
+    constructor(private readonly d: Dependencies) {}
 
-    constructor({ userRepository, otpRepository }: Dependencies) {
-        this.userRepository = userRepository;
-        this.otpRepository  = otpRepository;
-    }
+    async execute(dto: VerifyEmailDtoType, meta: RequestMeta): Promise<{ message: string; workspace: WorkspaceInfo | null }> {
+        const user = await this.d.userRepository.findByEmail(dto.email);
+        if (!user || user.isEmailVerified) throw authErrors.invalidOtp();
 
-    async execute(dto: VerifyEmailDtoType): Promise<{ message: string }> {
+        await this.d.otpService.verify(user.id, OtpType.email_verification, dto.otp);
 
-        // ── 1. Find user ─────────────────────────────────────────────────
-        const user = await this.userRepository.findByEmail(dto.email);
-
-        if (!user) {
-            throw new NotFoundError("User");
-        }
-
-        // ── 2. Check not already verified ────────────────────────────────
-        if (user.isEmailVerified) {
-            return { message: "Email already verified. Please login." };
-        }
-
-        // ── 3. Find valid OTP ─────────────────────────────────────────────
-        const otp = await this.otpRepository.findValid(
-            user.id,
-            OtpType.email_verification,
-        );
-
-        if (!otp) {
-            throw new BadRequestError(AuthErrorMessage.INVALID_OTP);
-        }
-
-        // ── 4. Check max attempts ─────────────────────────────────────────
-        if (otp.attempts >= 5) {
-            throw new BadRequestError(AuthErrorMessage.OTP_MAX_ATTEMPTS);
-        }
-
-        // ── 5. Compare codes ──────────────────────────────────────────────
-        if (otp.code !== dto.otp) {
-            // Increment attempts before throwing
-            await this.otpRepository.incrementAttempts(otp.id);
-            throw new BadRequestError(AuthErrorMessage.INVALID_OTP);
-        }
-
-        // ── 6. Mark OTP as used ───────────────────────────────────────────
-        await this.otpRepository.markUsed(otp.id);
-
-        // ── 7. Mark user as verified ──────────────────────────────────────
-        await this.userRepository.update(user.id, {
-            isEmailVerified:  true,
-            emailVerifiedAt:  new Date(),
+        await this.d.userRepository.update(user.id, { isEmailVerified: true, emailVerifiedAt: new Date() });
+        await this.d.authAuditService.record({
+            action: "auth.email_verified", userId: user.id, ip: meta.ip, userAgent: meta.userAgent,
         });
-        
-        return { message: "Email verified successfully. You can now login." };
+
+        // The email is verified either way; a failure here must not undo it. A school left active but unbuilt
+        // is picked up again by the daily lifecycle job.
+        let workspace: WorkspaceInfo | null = null;
+        try { workspace = await this.d.workspaceActivationService.activateForRegistrant(user.id); }
+        catch (err) { console.error("[verify-email] workspace activation failed:", (err as Error).message); }
+
+        return { message: AuthMessage.EMAIL_VERIFIED, workspace };
     }
 }

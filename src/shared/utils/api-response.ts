@@ -1,20 +1,15 @@
 import { Response } from "express";
 
-/*
-|--------------------------------------------------------------------------
-| API RESPONSE HELPERS
-| Consistent response shape across all endpoints
-|--------------------------------------------------------------------------
-*/
 
 export interface ApiResponse<T = null> {
     success:   boolean;
     message:   string;
     data?:     T;
     errors?:   Record<string, string>;
+    code?:     string;                      // new
+    details?:  Record<string, unknown>;     // new
     meta?:     PaginationMeta;
 }
-
 export interface PaginationMeta {
     total:       number;
     page:        number;
@@ -66,17 +61,18 @@ export const sendPaginated = <T>(
 export const sendNoContent = (res: Response): Response => {
     return res.status(204).send();
 };
-
-// ── Error ────────────────────────────────────────────────────────────────
 export const sendError = (
     res:        Response,
     message:    string,
     statusCode = 500,
     errors?:    Record<string, string>,
+    extra?:     { code?: string; details?: Record<string, unknown> },   // new
 ): Response => {
     return res.status(statusCode).json({
         success: false,
         message,
+        ...(extra?.code    && { code: extra.code }),
+        ...(extra?.details && { details: extra.details }),
         ...(errors && { errors }),
-    } satisfies ApiResponse);   
+    } satisfies ApiResponse);
 };

@@ -1,35 +1,34 @@
-import { Role, OtpType } from "../../../generated/public";
+import { OtpType } from "../../../generated/public/client";
+
 /*
 |--------------------------------------------------------------------------
 | AUTH DOMAIN ENTITIES
-| Clean domain objects — no Prisma types, no sensitive fields leaked
+| No Prisma types leak out; no role or school on the user (authority lives in
+| tenant Membership; UserSchool is only a discovery index).
 |--------------------------------------------------------------------------
 */
 
-// ── User Entity ──────────────────────────────────────────────────────────
 export interface UserEntity {
-    id:               string;
-    schoolId:         string | null;
-    email:            string;
-    role:             Role;
-    firstName:        string | null;
-    lastName:         string | null;
-    phone:            string | null;
-    photoUrl:         string | null;
-    isActive:         boolean;
-    isEmailVerified:  boolean;
-    emailVerifiedAt:  Date | null;
-    lastLoginAt:      Date | null;
-    lastLoginIp:      string | null;
-    failedLoginCount: number;
-    lockedUntil:      Date | null;
-    passwordChangedAt: Date | null;
+    id:                 string;
+    email:              string;
+    firstName:          string | null;
+    lastName:           string | null;
+    phone:              string | null;
+    photoUrl:           string | null;
+    isActive:           boolean;
+    isEmailVerified:    boolean;
+    emailVerifiedAt:    Date | null;
+    lastLoginAt:        Date | null;
+    lastLoginIp:        string | null;
+    failedLoginCount:   number;
+    lockedUntil:        Date | null;
+    passwordChangedAt:  Date | null;
     mustChangePassword: boolean;
-    createdAt:        Date;
-    updatedAt:        Date;
+    createdAt:          Date;
+    updatedAt:          Date;
 }
 
-// ── OTP Entity ───────────────────────────────────────────────────────────
+// `code` holds an HMAC of the code, never the code itself
 export interface OtpEntity {
     id:        string;
     userId:    string;
@@ -41,24 +40,37 @@ export interface OtpEntity {
     createdAt: Date;
 }
 
-// ── Refresh Token Entity ─────────────────────────────────────────────────
+// `token` holds an HMAC of the refresh JWT, never the JWT itself
 export interface RefreshTokenEntity {
-    id:        string;
-    userId:    string;
-    token:     string;
-    expiresAt: Date;
-    createdAt: Date;
+    id:             string;
+    userId:         string;
+    token:          string;
+    familyId:       string;
+    schoolId:       string | null;
+    membershipId:   string | null;
+    impersonatorId: string | null;
+    userAgent:      string | null;
+    ipAddress:      string | null;
+    lastUsedAt:     Date | null;
+    revokedAt:      Date | null;
+    replacedById:   string | null;
+    expiresAt:      Date;
+    createdAt:      Date;
 }
 
-// ── Invite Entity ────────────────────────────────────────────────────────
+// `token` holds an HMAC of the invite token
 export interface InviteEntity {
-    id:        string;
-    email:     string;
-    role:      Role;
-    token:     string;
-    schoolId:  string;
-    sentById:  string;
-    accepted:  boolean;
-    expiresAt: Date;
-    createdAt: Date;
+    id:              string;
+    email:           string;
+    token:           string;
+    schoolId:        string;
+    sentById:        string;
+    persona:         "STAFF" | "STUDENT" | "GUARDIAN";
+    roleId:          string | null;
+    personaEntityId: string | null;
+    accepted:        boolean;
+    acceptedAt:      Date | null;
+    revokedAt:       Date | null;
+    expiresAt:       Date;
+    createdAt:       Date;
 }

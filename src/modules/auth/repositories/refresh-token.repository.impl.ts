@@ -1,13 +1,10 @@
-import { Prisma, PrismaClient } from "../../../generated/public";
-import { RefreshTokenEntity }     from "../domain/auth.entity";
-import { IRefreshTokenRepository} from "./refresh-token.repository";
+import { Prisma, PrismaClient }  from "../../../generated/public/client";
+import { RefreshTokenEntity }    from "../domain/auth.entity";
+import { IRefreshTokenRepository } from "./refresh-token.repository";
 
-/*
-|--------------------------------------------------------------------------
-| REFRESH TOKEN REPOSITORY IMPLEMENTATION
-| Handles secure token storage, rotation checks, and multi-device revocation.
-|--------------------------------------------------------------------------
-*/
+// Rows are revoked (kept) rather than deleted so a replayed, already-rotated token
+// can be recognised as reuse. A cleanup job removes rows long after they expire.
+const RETENTION_DAYS = 30;
 
 export class RefreshTokenRepositoryImpl implements IRefreshTokenRepository {
     private readonly prisma: PrismaClient;
@@ -16,44 +13,47 @@ export class RefreshTokenRepositoryImpl implements IRefreshTokenRepository {
         this.prisma = prismaClient;
     }
 
-    // ── Create ────────────────────────────────────────────────────────────
     async create(data: Prisma.RefreshTokenUncheckedCreateInput): Promise<RefreshTokenEntity> {
-        const created = await this.prisma.refreshToken.create({
-            data,
-        });
-        return created as unknown as RefreshTokenEntity;
+        return (await this.prisma.refreshToken.create({ data })) as unknown as RefreshTokenEntity;
     }
 
-    // ── Find by token string ──────────────────────────────────────────────
-    async findByToken(token: string): Promise<RefreshTokenEntity | null> {
-        const tokenRecord = await this.prisma.refreshToken.findUnique({
-            where: { token },
-        });
-        
-        if (!tokenRecord) return null;
-        return tokenRecord as unknown as RefreshTokenEntity;
+    async findById(id: string): Promise<RefreshTokenEntity | null> {
+        return (await this.prisma.refreshToken.findUnique({ where: { id } })) as unknown as RefreshTokenEntity | null;
     }
 
-    // ── Delete single token (logout) ──────────────────────────────────────
-    async deleteByToken(token: string): Promise<void> {
-        // Use deleteMany instead of delete to prevent throwing an unhandled 
-        // P2025 error if the token was already used/deleted via rotation race conditions
-        await this.prisma.refreshToken.deleteMany({
-            where: { token },
+    // True only for the single caller that actually revoked it (rotation race guard)
+    async revokeIfActive(id: string, replacedById: string | null): Promise<boolean> {
+        const res = await this.prisma.refreshToken.updateMany({
+            where: { id, revokedAt: null },
+            data:  { revokedAt: new Date(), replacedById, lastUsedAt: new Date() },
+        });
+        return res.count === 1;
+    }
+
+    async revokeFamily(familyId: string): Promise<void> {
+        await this.prisma.refreshToken.updateMany({
+            where: { familyId, revokedAt: null },
+            data:  { revokedAt: new Date() },
         });
     }
 
-    // ── Delete all tokens for user (logout all devices) ───────────────────
-    async deleteByUserId(userId: string): Promise<void> {
-        await this.prisma.refreshToken.deleteMany({
-            where: { userId },
+    async revokeAllForUser(userId: string): Promise<void> {
+        await this.prisma.refreshToken.updateMany({
+            where: { userId, revokedAt: null },
+            data:  { revokedAt: new Date() },
         });
     }
 
-    // ── Delete expired tokens ─────────────────────────────────────────────
+    // One active row per live session (rotation revokes the previous one)
+    async listActiveForUser(userId: string): Promise<RefreshTokenEntity[]> {
+        return (await this.prisma.refreshToken.findMany({
+            where:   { userId, revokedAt: null, expiresAt: { gt: new Date() } },
+            orderBy: { createdAt: "desc" },
+        })) as unknown as RefreshTokenEntity[];
+    }
+
     async deleteExpired(): Promise<void> {
-        await this.prisma.refreshToken.deleteMany({
-            where: { expiresAt: { lt: new Date() } },
-        });
+        const cutoff = new Date(Date.now() - RETENTION_DAYS * 86_400_000);
+        await this.prisma.refreshToken.deleteMany({ where: { expiresAt: { lt: cutoff } } });
     }
 }

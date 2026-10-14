@@ -1,7 +1,7 @@
-import { IUserRepository }        from "../../auth/repositories/user.repository";
-import { UserProfileMapper }      from "../mappers/user.mapper";
-import { UserProfileResponseData } from "../mappers/user.mapper";
-import { NotFoundError }          from "../../../shared/errors/domain.errors";
+import { IUserRepository }    from "../../auth/repositories/user.repository";
+import { UserProfileMapper, UserProfileResponseData } from "../mappers/user.mapper";
+import { userErrors }         from "../domain/user.errors";
+import { UserActionContext }  from "../domain/user.types";
 
 interface Dependencies {
     userRepository:    IUserRepository;
@@ -9,21 +9,13 @@ interface Dependencies {
 }
 
 export class GetProfileUseCase {
-    private readonly userRepository:    IUserRepository;
-    private readonly userProfileMapper: UserProfileMapper;
+    constructor(private readonly d: Dependencies) {}
 
-    constructor({ userRepository, userProfileMapper }: Dependencies) {
-        this.userRepository    = userRepository;
-        this.userProfileMapper = userProfileMapper;
-    }
-
-    async execute(userId: string): Promise<UserProfileResponseData> {
-        const user = await this.userRepository.findById(userId);
-        if (!user) throw new NotFoundError("User");
-
-        return this.userProfileMapper.toResponse({
-            ...user,
-            passwordChangedAt: null,
+    async execute(ctx: UserActionContext, persona: string | null): Promise<UserProfileResponseData> {
+        const user = await this.d.userRepository.findById(ctx.userId);
+        if (!user) throw userErrors.notFound();
+        return this.d.userProfileMapper.toResponse(user, {
+            schoolId: ctx.schoolId, persona, impersonating: !!ctx.impersonatedBy,
         });
     }
 }

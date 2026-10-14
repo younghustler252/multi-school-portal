@@ -1,42 +1,27 @@
 import { z } from "zod";
-
-/*
-|--------------------------------------------------------------------------
-| REGISTER DTO
-| School registration — creates school + admin user in one flow
-|--------------------------------------------------------------------------
-*/
+import { emailField, passwordField } from "./common";
 
 export const RegisterDto = z.object({
-    // ── School info ──────────────────────────────────────────────────────
-    schoolName:      z.string().min(2).max(100),
-    subdomain:       z
-                        .string()
-                        .min(3)
-                        .max(50)
+    // ── School ───────────────────────────────────────────────────────────
+    schoolName:      z.string().trim().min(2).max(100),
+    subdomain:       z.string().trim().toLowerCase().min(3).max(50)
                         .regex(
-                            /^[a-z0-9-]+$/,
-                            "Subdomain can only contain lowercase letters, numbers and hyphens",
+                            /^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/,
+                            "Subdomain can only contain lowercase letters, numbers and hyphens, and cannot start or end with a hyphen",
                         ),
-    schoolEmail:     z.string().email(),
-    schoolPhone:     z.string().optional(),
+    schoolEmail:     emailField,
+    schoolPhone:     z.string().trim().max(30).optional(),
     schoolCategory:  z.enum(["primary", "secondary", "primary_secondary"]),
     schoolOwnership: z.enum(["private", "public", "mission", "international"]),
-    state:           z.string().optional(),
-    city:            z.string().optional(),
+    state:           z.string().trim().max(100).optional(),
+    city:            z.string().trim().max(100).optional(),
 
-    // ── Admin info ───────────────────────────────────────────────────────
-    firstName:       z.string().min(1).max(50),
-    lastName:        z.string().min(1).max(50),
-    email:           z.string().email(),
-    password:        z
-                        .string()
-                        .min(8, "Password must be at least 8 characters")
-                        .regex(/[A-Z]/, "Must contain uppercase letter")
-                        .regex(/[a-z]/, "Must contain lowercase letter")
-                        .regex(/[0-9]/, "Must contain a number")
-                        .regex(/[^A-Za-z0-9]/, "Must contain a special character"),
-    phone:           z.string().optional(),
+    // ── Admin ────────────────────────────────────────────────────────────
+    firstName:       z.string().trim().min(1).max(50),
+    lastName:        z.string().trim().min(1).max(50),
+    email:           emailField,
+    password:        passwordField,
+    phone:           z.string().trim().max(30).optional(),
 });
 
 export type RegisterDtoType = z.infer<typeof RegisterDto>;

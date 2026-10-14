@@ -1,37 +1,27 @@
 import { Request, Response, NextFunction } from "express";
-import { RegisterUseCase } from "../usecases/register.usecases";
-import { VerifyEmailUseCase }              from "../usecases/verify-email.usecase";
-import { LoginUseCase }                    from "../usecases/login.usecase";
-import { RefreshTokenUseCase }             from "../usecases/refresh-token.usecase";
-import { LogoutUseCase }                   from "../usecases/logout.usecase";
-import { ForgotPasswordUseCase }            from "../usecases/forgot-password.usecase";
-import { ResetPasswordUseCase }             from "../usecases/reset-password.usecase";
-import { ResendOtpUseCase }                 from "../usecases/resend-otp.usecase";
-import { ValidateInviteUseCase }            from "../usecases/validate-invite.usecase";
-import { AcceptInviteUseCase }              from "../usecases/accept-invite.usecase";
-import { SendInviteUseCase }                from "../usecases/send-invite.usecase";
-import { ExchangeImpersonationTokenUseCase }  from "../usecases/exchange-impersonation-token.usecase";
-import { ValidateInviteDto, AcceptInviteDto } from "../dtos/invite.dto";
-import { Role } from "../../../generated/public";
-
-import {
-    setAuthCookies,
-    clearAuthCookies,
-}                                          from "../../../infrastructure/middleware/auth.middleware";
-import {
-    sendSuccess,
-    sendCreated,
-}                                          from "../../../shared/utils/api-response";
-
-/*
-|--------------------------------------------------------------------------
-| AUTH CONTROLLER
-| Parses request → calls use case → sends response
-| No business logic here — only HTTP concerns
-|--------------------------------------------------------------------------
-*/
+import { RegisterUseCase }       from "../../../../modules/auth/usecases/register.usecase";
+import { VerifyEmailUseCase }    from "../../../../modules/auth/usecases/verify-email.usecase";
+import { LoginUseCase }          from "../usecases/login.usecase";
+import { RefreshTokenUseCase }   from "../usecases/refresh-token.usecase";
+import { LogoutUseCase }         from "../usecases/logout.usecase";
+import { ForgotPasswordUseCase } from "../usecases/forgot-password.usecase";
+import { ResetPasswordUseCase }  from "../usecases/reset-password.usecase";
+import { ResendOtpUseCase }      from "../usecases/resend-otp.usecase";
+import { SwitchPersonaUseCase }  from "../usecases/switch-persona.usecase";
+import { ValidateInviteUseCase } from "../usecases/validate-invite.usecase";
+import { AcceptInviteUseCase }   from "../usecases/accept-invite.usecase";
+import { SendInviteUseCase }     from "../usecases/send-invite.usecase";
+import { ManageInvitesUseCase }  from "../usecases/manage-invites.usecase";
+import { ExchangeImpersonationTokenUseCase } from "../usecases/exchange-impersonation-token.usecase";
+import { setAuthCookies, clearAuthCookies }  from "../../../infrastructure/middleware/auth.middleware";
+import { getAccess }             from "../../../infrastructure/middleware/rbac.middleware";
+import { sendSuccess, sendCreated } from "../../../shared/utils/api-response";
+import { AuthMessage }           from "../domain/auth.enums";
+import { authErrors }            from "../../../../modules/auth/domain/auth.errors";
+import { InviteActor, RequestMeta, LoginResult } from "../types/auth.types";
 
 interface Dependencies {
+    registerUseCase:       RegisterUseCase;
     verifyEmailUseCase:    VerifyEmailUseCase;
     loginUseCase:          LoginUseCase;
     refreshTokenUseCase:   RefreshTokenUseCase;
@@ -39,266 +29,192 @@ interface Dependencies {
     forgotPasswordUseCase: ForgotPasswordUseCase;
     resetPasswordUseCase:  ResetPasswordUseCase;
     resendOtpUseCase:      ResendOtpUseCase;
-    registerUseCase: RegisterUseCase;
-
+    switchPersonaUseCase:  SwitchPersonaUseCase;
     validateInviteUseCase: ValidateInviteUseCase;
     acceptInviteUseCase:   AcceptInviteUseCase;
     sendInviteUseCase:     SendInviteUseCase;
+    manageInvitesUseCase:  ManageInvitesUseCase;
     exchangeImpersonationTokenUseCase: ExchangeImpersonationTokenUseCase;
-
 }
 
+/*
+|--------------------------------------------------------------------------
+| AUTH CONTROLLER — HTTP concerns only
+|--------------------------------------------------------------------------
+*/
+
+// The school the request host resolved to, or null on the platform host
+const hostSchoolId = (req: Request): string | null =>
+    req.schoolId && req.schoolId !== "PUBLIC" ? req.schoolId : null;
+
+const metaOf = (req: Request): RequestMeta => ({
+    ip:        req.ip ?? req.socket.remoteAddress ?? "unknown",
+    userAgent: req.get("user-agent") ?? null,
+});
+
+// authenticate() sets req.auth = { userId, schoolId, membershipId, mustChangePassword, impersonatedBy }
+const authOf = (req: Request) => {
+    if (!req.auth) throw authErrors.refreshInvalid();
+    return req.auth;
+};
+
+const requireSchoolHost = (req: Request): string => {
+    const id = hostSchoolId(req);
+    if (!id) throw authErrors.badRequest("This action must be done on a school's own address");
+    return id;
+};
+
+const refreshTokenOf = (req: Request): string | undefined =>
+    req.cookies?.refreshToken ?? req.body?.refreshToken;
+
 export class AuthController {
-    private readonly registerUseCase: RegisterUseCase;
-    private readonly verifyEmailUseCase:    VerifyEmailUseCase;
-    private readonly loginUseCase:          LoginUseCase;
-    private readonly refreshTokenUseCase:   RefreshTokenUseCase;
-    private readonly logoutUseCase:         LogoutUseCase;
-    private readonly forgotPasswordUseCase: ForgotPasswordUseCase;
-    private readonly resetPasswordUseCase:  ResetPasswordUseCase;
-    private readonly resendOtpUseCase:      ResendOtpUseCase;
-     private readonly exchangeImpersonationTokenUseCase:     ExchangeImpersonationTokenUseCase;
+    constructor(private readonly d: Dependencies) {}
 
-    private readonly validateInviteUseCase:      ValidateInviteUseCase;
-    private readonly acceptInviteUseCase:      AcceptInviteUseCase;
-    private readonly sendInviteUseCase:      SendInviteUseCase;
-
-
-    constructor({
-        registerUseCase,
-        verifyEmailUseCase,
-        loginUseCase,
-        refreshTokenUseCase,
-        logoutUseCase,
-        forgotPasswordUseCase,
-        resetPasswordUseCase,
-        resendOtpUseCase,
-        exchangeImpersonationTokenUseCase,
-
-        validateInviteUseCase,
-        sendInviteUseCase,
-        acceptInviteUseCase
-    }: Dependencies) {
-        this.registerUseCase       = registerUseCase;
-        this.verifyEmailUseCase    = verifyEmailUseCase;
-        this.loginUseCase          = loginUseCase;
-        this.refreshTokenUseCase   = refreshTokenUseCase;
-        this.logoutUseCase         = logoutUseCase;
-        this.forgotPasswordUseCase = forgotPasswordUseCase;
-        this.resetPasswordUseCase  = resetPasswordUseCase;
-        this.resendOtpUseCase      = resendOtpUseCase;
-        this.exchangeImpersonationTokenUseCase = exchangeImpersonationTokenUseCase;
-
-        this.validateInviteUseCase = validateInviteUseCase;
-        this.acceptInviteUseCase = acceptInviteUseCase;
-        this.sendInviteUseCase = sendInviteUseCase;
+    private actor(req: Request): InviteActor {
+        const access = getAccess(req);
+        const a      = authOf(req);
+        return {
+            userId:       a.userId,
+            membershipId: a.membershipId,
+            isAdmin:      access.hasRoleKey("school_admin"),
+            can:          (key: string) => access.can(key),
+        };
     }
 
-    register = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.registerUseCase.execute(req.body);
-            // console.log("REGISTER CONTROLLER RESULT:", result);
-
-            sendCreated(
-                res,
-                { subdomain: result.subdomain },
-                result.message,
-            );
-        } catch (err) {
-            next(err);
-        }
-    };
-    // ── Verify email ──────────────────────────────────────────────────────
-    verifyEmail = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.verifyEmailUseCase.execute(req.body);
-            sendSuccess(res, result, result.message);
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    // ── Login ─────────────────────────────────────────────────────────────
-    login = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const ip     = req.ip ?? req.socket.remoteAddress ?? "unknown";
-            const result = await this.loginUseCase.execute(req.body, ip);
-
-            // Set HttpOnly cookies for web clients
-            setAuthCookies(
-                res,
-                result.tokens.accessToken,
-                result.tokens.refreshToken,
-            );
-
-            sendSuccess(res, result, "Login successful");
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    // ── Refresh token ─────────────────────────────────────────────────────
-    refreshToken = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            // Token comes from cookie (web) or request body (mobile)
-            const refreshToken =
-                req.cookies?.refreshToken ?? req.body?.refreshToken;
-
-            const result = await this.refreshTokenUseCase.execute(refreshToken);
-
-            // Rotate cookies for web clients
-            setAuthCookies(
-                res,
-                result.tokens.accessToken,
-                result.tokens.refreshToken,
-            );
-
-            sendSuccess(res, result, "Token refreshed successfully");
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    // ── Logout ────────────────────────────────────────────────────────────
-    logout = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            // Token comes from cookie (web) or request body (mobile)
-            const refreshToken =
-                req.cookies?.refreshToken ?? req.body?.refreshToken;
-
-            await this.logoutUseCase.execute(refreshToken);
-
-            // Clear cookies for web clients
-            clearAuthCookies(res);
-
-            sendSuccess(res, null, "Logged out successfully");
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    // ── Forgot password ───────────────────────────────────────────────────
-    forgotPassword = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.forgotPasswordUseCase.execute(req.body);
-            sendSuccess(res, null, result.message);
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    // ── Reset password ────────────────────────────────────────────────────
-    resetPassword = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.resetPasswordUseCase.execute(req.body);
-            sendSuccess(res, null, result.message);
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    // ── Resend OTP ────────────────────────────────────────────────────────
-    resendOtp = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.resendOtpUseCase.execute(req.body);
-            sendSuccess(res, null, result.message);
-        } catch (err) {
-            next(err);
-        }
-    };
-
-
-    exchangeImpersonationToken = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const { ticket } = req.body;
-            const result = await this.exchangeImpersonationTokenUseCase.execute(
-                ticket,
-                req.schoolId as string,
-            );
-
+    private respondSession(res: Response, result: LoginResult, message: string, created = false): void {
+        if (result.status === "AUTHENTICATED") {
             setAuthCookies(res, result.tokens.accessToken, result.tokens.refreshToken);
-
-            sendSuccess(res, result, "Session established");
-        } catch (err) {
-            next(err);
         }
+        created ? sendCreated(res, result, message) : sendSuccess(res, result, message);
+    }
+
+    register = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const r = await this.d.registerUseCase.execute(req.body, metaOf(req));
+            sendCreated(res, { subdomain: r.subdomain }, r.message);
+        } catch (e) { next(e); }
     };
 
-        
-    validateInvite = async (
-        req: Request, res: Response, next: NextFunction,
-    ): Promise<void> => {
+    verifyEmail = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const result = await this.validateInviteUseCase.execute(req.body);
-            sendSuccess(res, result, "Invite is valid");
-        } catch (err) { next(err); }
+            const r = await this.d.verifyEmailUseCase.execute(req.body, metaOf(req));
+            sendSuccess(res, { workspace: r.workspace }, r.message);
+        } catch (e) { next(e); }
     };
 
-    acceptInvite = async (
-        req: Request, res: Response, next: NextFunction,
-    ): Promise<void> => {
+    login = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const result = await this.acceptInviteUseCase.execute(req.body);
+            const r = await this.d.loginUseCase.execute(req.body, metaOf(req), hostSchoolId(req));
+            this.respondSession(res, r, AuthMessage.LOGIN_OK);
+        } catch (e) { next(e); }
+    };
 
-            // Auto-login after accepting invite
-            setAuthCookies(
-                res,
-                result.tokens.accessToken,
-                result.tokens.refreshToken,
+    refreshToken = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const r = await this.d.refreshTokenUseCase.execute(refreshTokenOf(req), hostSchoolId(req), metaOf(req));
+            this.respondSession(res, r, "Token refreshed successfully");
+        } catch (e) { next(e); }
+    };
+
+    logout = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            await this.d.logoutUseCase.execute(refreshTokenOf(req), metaOf(req));
+            clearAuthCookies(res);
+            sendSuccess(res, null, AuthMessage.LOGGED_OUT);
+        } catch (e) { next(e); }
+    };
+
+    logoutAll = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            // An impersonating platform user must never sign the REAL user out everywhere:
+            // in that case only the current session ends.
+            if (authOf(req).impersonatedBy) await this.d.logoutUseCase.execute(refreshTokenOf(req), metaOf(req));
+            else await this.d.logoutUseCase.executeAll(authOf(req).userId, hostSchoolId(req), metaOf(req));
+            clearAuthCookies(res);
+            sendSuccess(res, null, AuthMessage.LOGGED_OUT);
+        } catch (e) { next(e); }
+    };
+
+    forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const r = await this.d.forgotPasswordUseCase.execute(req.body);
+            sendSuccess(res, null, r.message);
+        } catch (e) { next(e); }
+    };
+
+    resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const r = await this.d.resetPasswordUseCase.execute(req.body, metaOf(req), hostSchoolId(req) !== null);
+            clearAuthCookies(res);
+            sendSuccess(res, null, r.message);
+        } catch (e) { next(e); }
+    };
+
+    resendOtp = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const r = await this.d.resendOtpUseCase.execute(req.body);
+            sendSuccess(res, null, r.message);
+        } catch (e) { next(e); }
+    };
+
+    switchPersona = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const auth = authOf(req);
+            if (auth.impersonatedBy) throw authErrors.personaUnavailable(); // no profile switching while impersonating
+            const r = await this.d.switchPersonaUseCase.execute(
+                auth.userId, requireSchoolHost(req), req.body.persona, metaOf(req),
             );
-
-            sendCreated(res, result, "Account created successfully. Welcome!");
-        } catch (err) { next(err); }
+            this.respondSession(res, r, "Profile switched");
+        } catch (e) { next(e); }
     };
 
-    sendInvite = async (
-        req: Request, res: Response, next: NextFunction,
-    ): Promise<void> => {
+    exchangeImpersonationToken = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const result = await this.sendInviteUseCase.execute({
-                email:    req.body.email,
-                role:     req.body.role as Role,
-                schoolId: req.user!.schoolId!,
-                sentById: req.user!.id,
-            });
-            sendSuccess(res, null, result.message);
-        } catch (err) { next(err); }
+            const r = await this.d.exchangeImpersonationTokenUseCase.execute(
+                req.body.ticket, requireSchoolHost(req), metaOf(req),
+            );
+            this.respondSession(res, r, "Session established");
+        } catch (e) { next(e); }
     };
 
+    // ── Invites ──────────────────────────────────────────────────────────
+    validateInvite = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            sendSuccess(res, await this.d.validateInviteUseCase.execute(req.body, requireSchoolHost(req)), "Invite is valid");
+        } catch (e) { next(e); }
+    };
+
+    acceptInvite = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const r = await this.d.acceptInviteUseCase.execute(req.body, requireSchoolHost(req), metaOf(req));
+            this.respondSession(res, r, "Account ready. Welcome!", true);
+        } catch (e) { next(e); }
+    };
+
+    sendInvite = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const r = await this.d.sendInviteUseCase.execute(req.body, requireSchoolHost(req), this.actor(req), metaOf(req));
+            sendCreated(res, { inviteId: r.inviteId, expiresAt: r.expiresAt }, r.message);
+        } catch (e) { next(e); }
+    };
+
+    listInvites = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            sendSuccess(res, await this.d.manageInvitesUseCase.list(requireSchoolHost(req)), "Pending invitations");
+        } catch (e) { next(e); }
+    };
+
+    revokeInvite = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const r = await this.d.manageInvitesUseCase.revoke(String(req.params.id), requireSchoolHost(req), this.actor(req), metaOf(req));
+            sendSuccess(res, null, r.message);
+        } catch (e) { next(e); }
+    };
+
+    resendInvite = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const r = await this.d.manageInvitesUseCase.resend(String(req.params.id), requireSchoolHost(req), this.actor(req), metaOf(req));
+            sendSuccess(res, { expiresAt: r.expiresAt }, r.message);
+        } catch (e) { next(e); }
+    };
 }

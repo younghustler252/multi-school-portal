@@ -1,98 +1,38 @@
-import { IUserRepository }     from "../repositories/user.repository";
-import { IOtpRepository }      from "../repositories/otp.repository";
-import { MailService }         from "../../../infrastructure/mail/mail.service";
-import { TokenService }        from "../../../shared/services/token.service";
-import { OtpType } from "../../../generated/public";
-import {
-    OtpExpiryMinutes,
-}                              from "../domain/auth.enums";
+import { OtpType }          from "../../../generated/public/client";
+import { IUserRepository }  from "../repositories/user.repository";
+import { OtpService }       from "../services/otp.service";
+import { AuthMessageService } from "../services/auth-message.service";
+import { AuthMessage }      from "../domain/auth.enums";
 import { ForgotPasswordDtoType } from "../dtos/password.dto";
+
+interface Dependencies {
+    userRepository:     IUserRepository;
+    otpService:         OtpService;
+    authMessageService: AuthMessageService;
+}
 
 /*
 |--------------------------------------------------------------------------
-| FORGOT PASSWORD USE CASE
-| Flow:
-| 1. Find user by email
-| 2. If user not found — return generic message (don't reveal if email exists)
-| 3. Delete any existing password reset OTPs for this user
-| 4. Generate new OTP
-| 5. Save OTP to DB
-| 6. Send OTP via email
-| 7. Return generic success message
+| FORGOT PASSWORD
+| Always the same response. The email is sent without awaiting delivery so
+| response time does not depend on whether the account exists.
 |--------------------------------------------------------------------------
 */
-
-interface Dependencies {
-    userRepository: IUserRepository;
-    otpRepository:  IOtpRepository;
-    mailService:    MailService;
-    tokenService:   TokenService;
-}
-
 export class ForgotPasswordUseCase {
-    private readonly userRepository: IUserRepository;
-    private readonly otpRepository:  IOtpRepository;
-    private readonly mailService:    MailService;
-    private readonly tokenService:   TokenService;
+    constructor(private readonly d: Dependencies) {}
 
-    constructor({
-        userRepository,
-        otpRepository,
-        mailService,
-        tokenService,
-    }: Dependencies) {
-        this.userRepository = userRepository;
-        this.otpRepository  = otpRepository;
-        this.mailService    = mailService;
-        this.tokenService   = tokenService;
-    }
+    async execute(dto: ForgotPasswordDtoType): Promise<{ message: string }> {
+        const d    = this.d;
+        const user = await d.userRepository.findByEmail(dto.email);
 
-    async execute(
-        dto: ForgotPasswordDtoType,
-    ): Promise<{ message: string }> {
-
-        // ── 1. Find user by email ─────────────────────────────────────────
-        const user = await this.userRepository.findByEmail(dto.email);
-
-        // ── 2. Generic response if user not found ─────────────────────────
-        // Never reveal whether the email exists in the system
-        if (!user || !user.isActive) {
-            return {
-                message: "If an account exists with this email, you will receive a reset code shortly.",
-            };
+        if (user && user.isActive && await d.otpService.canIssue(user.id, OtpType.password_reset)) {
+            const code = await d.otpService.issue(user.id, OtpType.password_reset);
+            d.authMessageService.sendEmailSafely("auth.otp.password_reset", user.email, {
+                "recipient.firstName": user.firstName ?? undefined,
+                "otp.code":            code,
+                "otp.expiresIn":       `${d.otpService.expiryMinutes(OtpType.password_reset)} minutes`,
+            });
         }
-
-        // ── 3. Delete existing password reset OTPs ────────────────────────
-        await this.otpRepository.deleteByUserId(
-            user.id,
-            OtpType.password_reset,
-        );
-
-        // ── 4. Generate OTP ───────────────────────────────────────────────
-        const otp       = this.tokenService.generateOtp();
-        const expiresAt = this.tokenService.getOtpExpiry(
-            OtpExpiryMinutes.PASSWORD_RESET,
-        );
-
-        // ── 5. Save OTP to DB ─────────────────────────────────────────────
-        await this.otpRepository.create({
-            userId:    user.id,
-            code:      otp,
-            type:      OtpType.password_reset,
-            expiresAt,
-        });
-
-        // ── 6. Send OTP via email ─────────────────────────────────────────
-        await this.mailService.sendOtp(user.email, {
-            firstName: user.firstName ?? "User",
-            otp,
-            expiresIn: `${OtpExpiryMinutes.PASSWORD_RESET} minutes`,
-            type:      "password_reset",
-        });
-
-        // ── 7. Return generic message ─────────────────────────────────────
-        return {
-            message: "If an account exists with this email, you will receive a reset code shortly.",
-        };
+        return { message: AuthMessage.FORGOT_GENERIC };
     }
 }

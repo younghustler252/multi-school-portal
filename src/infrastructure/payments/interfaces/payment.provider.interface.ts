@@ -1,9 +1,20 @@
 /*
 |--------------------------------------------------------------------------
 | PAYMENT PROVIDER INTERFACE
-| Contract any payment provider (Paystack, Flutterwave) must implement
+| Contract any payment provider (Paystack, Flutterwave) must implement.
+| Changes in this version: verify results now carry what saving a card needs (authorization code,
+| signature, expiry), the currency and the provider's own message; status can be "pending"; charges and
+| initializations accept a currency; and failures are reported as PaymentProviderError so callers can tell
+| a DEFINITE failure from an unknown outcome (a timeout must never be treated as "not charged").
 |--------------------------------------------------------------------------
 */
+
+export class PaymentProviderError extends Error {
+    constructor(message: string, public readonly definitive: boolean, public readonly httpStatus?: number) {
+        super(message);
+        this.name = "PaymentProviderError";
+    }
+}
 
 export interface InitializeTransactionParams {
     email:        string;
@@ -11,6 +22,8 @@ export interface InitializeTransactionParams {
     reference?:   string;
     callbackUrl?: string;
     subaccount?:  string;       // school's paystack subaccount code
+    currency?:    string;       // default NGN
+    channels?:    string[];     // e.g. ["card"] to force a card payment
     metadata?:    Record<string, any>;
 }
 
@@ -19,18 +32,26 @@ export interface InitializeTransactionResult {
     accessCode:       string;
     reference:        string;
 }
+
 export interface VerifyTransactionResult {
-    status:            "success" | "failed" | "abandoned";
-    reference:         string;
-    amountKobo:        number;
-    paidAt:            Date | null;
-    channel:           string;
-    cardLast4?:        string;
-    cardBrand?:        string;
+    status:             "success" | "failed" | "abandoned" | "pending";
+    reference:          string;
+    amountKobo:         number;
+    currency?:          string;
+    paidAt:             Date | null;
+    channel:            string;
+    cardLast4?:         string;
+    cardBrand?:         string;
+    cardExpMonth?:      number;
+    cardExpYear?:       number;
+    cardBank?:          string;
     authorizationCode?: string;
+    authorizationSignature?: string;
     reusable?:          boolean;
-    customerEmail:     string;
-    metadata?:         Record<string, any>;
+    customerEmail:      string;
+    customerCode?:      string;
+    gatewayResponse?:   string;
+    metadata?:          Record<string, any>;
 }
 
 export interface CreateSubaccountParams {
@@ -46,10 +67,12 @@ export interface CreateSubaccountResult {
 }
 
 export interface CreateRecurringChargeParams {
-    customerEmail: string;
-    amountKobo:    number;
+    customerEmail:     string;      // MUST be the email used when the card was saved
+    amountKobo:        number;
     authorizationCode: string;
-    reference?:    string;
+    reference?:        string;      // pass a deterministic reference so a retry can never charge twice
+    currency?:         string;
+    metadata?:         Record<string, any>;
 }
 
 export interface IPaymentProvider {

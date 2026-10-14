@@ -119,6 +119,56 @@ export type FeeInvoiceItem = $Result.DefaultSelection<Prisma.$FeeInvoiceItemPayl
  */
 export type Payment = $Result.DefaultSelection<Prisma.$PaymentPayload>
 /**
+ * Model SchoolRole
+ * 
+ */
+export type SchoolRole = $Result.DefaultSelection<Prisma.$SchoolRolePayload>
+/**
+ * Model SchoolRolePermission
+ * 
+ */
+export type SchoolRolePermission = $Result.DefaultSelection<Prisma.$SchoolRolePermissionPayload>
+/**
+ * Model Membership
+ * 
+ */
+export type Membership = $Result.DefaultSelection<Prisma.$MembershipPayload>
+/**
+ * Model MembershipRole
+ * 
+ */
+export type MembershipRole = $Result.DefaultSelection<Prisma.$MembershipRolePayload>
+/**
+ * Model SchoolSettingValue
+ * 
+ */
+export type SchoolSettingValue = $Result.DefaultSelection<Prisma.$SchoolSettingValuePayload>
+/**
+ * Model AutomationRule
+ * 
+ */
+export type AutomationRule = $Result.DefaultSelection<Prisma.$AutomationRulePayload>
+/**
+ * Model AutomationRunLog
+ * 
+ */
+export type AutomationRunLog = $Result.DefaultSelection<Prisma.$AutomationRunLogPayload>
+/**
+ * Model SchoolMessageTemplate
+ * 
+ */
+export type SchoolMessageTemplate = $Result.DefaultSelection<Prisma.$SchoolMessageTemplatePayload>
+/**
+ * Model NumberSequence
+ * 
+ */
+export type NumberSequence = $Result.DefaultSelection<Prisma.$NumberSequencePayload>
+/**
+ * Model Attachment
+ * 
+ */
+export type Attachment = $Result.DefaultSelection<Prisma.$AttachmentPayload>
+/**
  * Model SchoolNotification
  * 
  */
@@ -133,7 +183,73 @@ export type SchoolNotificationRecipient = $Result.DefaultSelection<Prisma.$Schoo
  * Enums
  */
 export namespace $Enums {
-  export const StaffRole: {
+  export const Persona: {
+  STAFF: 'STAFF',
+  STUDENT: 'STUDENT',
+  GUARDIAN: 'GUARDIAN'
+};
+
+export type Persona = (typeof Persona)[keyof typeof Persona]
+
+
+export const PermissionScope: {
+  ALL: 'ALL',
+  ASSIGNED: 'ASSIGNED',
+  OWN: 'OWN'
+};
+
+export type PermissionScope = (typeof PermissionScope)[keyof typeof PermissionScope]
+
+
+export const RoleKind: {
+  SYSTEM_LOCKED: 'SYSTEM_LOCKED',
+  SYSTEM_EDITABLE: 'SYSTEM_EDITABLE',
+  CUSTOM: 'CUSTOM'
+};
+
+export type RoleKind = (typeof RoleKind)[keyof typeof RoleKind]
+
+
+export const MembershipStatus: {
+  active: 'active',
+  suspended: 'suspended',
+  removed: 'removed'
+};
+
+export type MembershipStatus = (typeof MembershipStatus)[keyof typeof MembershipStatus]
+
+
+export const StaffCategory: {
+  teaching: 'teaching',
+  non_teaching: 'non_teaching'
+};
+
+export type StaffCategory = (typeof StaffCategory)[keyof typeof StaffCategory]
+
+
+export const NotificationChannel: {
+  IN_APP: 'IN_APP',
+  EMAIL: 'EMAIL',
+  SMS: 'SMS'
+};
+
+export type NotificationChannel = (typeof NotificationChannel)[keyof typeof NotificationChannel]
+
+
+export const DeliveryStatus: {
+  PENDING: 'PENDING',
+  QUEUED: 'QUEUED',
+  SENT: 'SENT',
+  DELIVERED: 'DELIVERED',
+  READ: 'READ',
+  FAILED: 'FAILED',
+  CANCELLED: 'CANCELLED'
+};
+
+export type DeliveryStatus = (typeof DeliveryStatus)[keyof typeof DeliveryStatus]
+
+
+export const StaffRole: {
   school_admin: 'school_admin',
   principal: 'principal',
   teacher: 'teacher',
@@ -263,6 +379,16 @@ export const PaymentStatus: {
 export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus]
 
 
+export const AutomationRunStatus: {
+  SUCCESS: 'SUCCESS',
+  PARTIAL: 'PARTIAL',
+  FAILED: 'FAILED',
+  SKIPPED: 'SKIPPED'
+};
+
+export type AutomationRunStatus = (typeof AutomationRunStatus)[keyof typeof AutomationRunStatus]
+
+
 export const SchoolNotificationType: {
   fee_invoice: 'fee_invoice',
   fee_reminder: 'fee_reminder',
@@ -276,6 +402,15 @@ export const SchoolNotificationType: {
 };
 
 export type SchoolNotificationType = (typeof SchoolNotificationType)[keyof typeof SchoolNotificationType]
+
+
+export const RecipientType: {
+  STUDENT: 'STUDENT',
+  GUARDIAN: 'GUARDIAN',
+  STAFF: 'STAFF'
+};
+
+export type RecipientType = (typeof RecipientType)[keyof typeof RecipientType]
 
 
 export const NotificationPriority: {
@@ -300,29 +435,35 @@ export const TargetType: {
 
 export type TargetType = (typeof TargetType)[keyof typeof TargetType]
 
-
-export const NotificationChannel: {
-  IN_APP: 'IN_APP',
-  EMAIL: 'EMAIL',
-  SMS: 'SMS'
-};
-
-export type NotificationChannel = (typeof NotificationChannel)[keyof typeof NotificationChannel]
-
-
-export const DeliveryStatus: {
-  PENDING: 'PENDING',
-  QUEUED: 'QUEUED',
-  SENT: 'SENT',
-  DELIVERED: 'DELIVERED',
-  READ: 'READ',
-  FAILED: 'FAILED',
-  CANCELLED: 'CANCELLED'
-};
-
-export type DeliveryStatus = (typeof DeliveryStatus)[keyof typeof DeliveryStatus]
-
 }
+
+export type Persona = $Enums.Persona
+
+export const Persona: typeof $Enums.Persona
+
+export type PermissionScope = $Enums.PermissionScope
+
+export const PermissionScope: typeof $Enums.PermissionScope
+
+export type RoleKind = $Enums.RoleKind
+
+export const RoleKind: typeof $Enums.RoleKind
+
+export type MembershipStatus = $Enums.MembershipStatus
+
+export const MembershipStatus: typeof $Enums.MembershipStatus
+
+export type StaffCategory = $Enums.StaffCategory
+
+export const StaffCategory: typeof $Enums.StaffCategory
+
+export type NotificationChannel = $Enums.NotificationChannel
+
+export const NotificationChannel: typeof $Enums.NotificationChannel
+
+export type DeliveryStatus = $Enums.DeliveryStatus
+
+export const DeliveryStatus: typeof $Enums.DeliveryStatus
 
 export type StaffRole = $Enums.StaffRole
 
@@ -376,9 +517,17 @@ export type PaymentStatus = $Enums.PaymentStatus
 
 export const PaymentStatus: typeof $Enums.PaymentStatus
 
+export type AutomationRunStatus = $Enums.AutomationRunStatus
+
+export const AutomationRunStatus: typeof $Enums.AutomationRunStatus
+
 export type SchoolNotificationType = $Enums.SchoolNotificationType
 
 export const SchoolNotificationType: typeof $Enums.SchoolNotificationType
+
+export type RecipientType = $Enums.RecipientType
+
+export const RecipientType: typeof $Enums.RecipientType
 
 export type NotificationPriority = $Enums.NotificationPriority
 
@@ -387,14 +536,6 @@ export const NotificationPriority: typeof $Enums.NotificationPriority
 export type TargetType = $Enums.TargetType
 
 export const TargetType: typeof $Enums.TargetType
-
-export type NotificationChannel = $Enums.NotificationChannel
-
-export const NotificationChannel: typeof $Enums.NotificationChannel
-
-export type DeliveryStatus = $Enums.DeliveryStatus
-
-export const DeliveryStatus: typeof $Enums.DeliveryStatus
 
 /**
  * ##  Prisma Client ʲˢ
@@ -726,6 +867,106 @@ export class PrismaClient<
     * ```
     */
   get payment(): Prisma.PaymentDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.schoolRole`: Exposes CRUD operations for the **SchoolRole** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SchoolRoles
+    * const schoolRoles = await prisma.schoolRole.findMany()
+    * ```
+    */
+  get schoolRole(): Prisma.SchoolRoleDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.schoolRolePermission`: Exposes CRUD operations for the **SchoolRolePermission** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SchoolRolePermissions
+    * const schoolRolePermissions = await prisma.schoolRolePermission.findMany()
+    * ```
+    */
+  get schoolRolePermission(): Prisma.SchoolRolePermissionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.membership`: Exposes CRUD operations for the **Membership** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Memberships
+    * const memberships = await prisma.membership.findMany()
+    * ```
+    */
+  get membership(): Prisma.MembershipDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.membershipRole`: Exposes CRUD operations for the **MembershipRole** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more MembershipRoles
+    * const membershipRoles = await prisma.membershipRole.findMany()
+    * ```
+    */
+  get membershipRole(): Prisma.MembershipRoleDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.schoolSettingValue`: Exposes CRUD operations for the **SchoolSettingValue** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SchoolSettingValues
+    * const schoolSettingValues = await prisma.schoolSettingValue.findMany()
+    * ```
+    */
+  get schoolSettingValue(): Prisma.SchoolSettingValueDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.automationRule`: Exposes CRUD operations for the **AutomationRule** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AutomationRules
+    * const automationRules = await prisma.automationRule.findMany()
+    * ```
+    */
+  get automationRule(): Prisma.AutomationRuleDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.automationRunLog`: Exposes CRUD operations for the **AutomationRunLog** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AutomationRunLogs
+    * const automationRunLogs = await prisma.automationRunLog.findMany()
+    * ```
+    */
+  get automationRunLog(): Prisma.AutomationRunLogDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.schoolMessageTemplate`: Exposes CRUD operations for the **SchoolMessageTemplate** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SchoolMessageTemplates
+    * const schoolMessageTemplates = await prisma.schoolMessageTemplate.findMany()
+    * ```
+    */
+  get schoolMessageTemplate(): Prisma.SchoolMessageTemplateDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.numberSequence`: Exposes CRUD operations for the **NumberSequence** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more NumberSequences
+    * const numberSequences = await prisma.numberSequence.findMany()
+    * ```
+    */
+  get numberSequence(): Prisma.NumberSequenceDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.attachment`: Exposes CRUD operations for the **Attachment** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Attachments
+    * const attachments = await prisma.attachment.findMany()
+    * ```
+    */
+  get attachment(): Prisma.AttachmentDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.schoolNotification`: Exposes CRUD operations for the **SchoolNotification** model.
@@ -1214,6 +1455,16 @@ export namespace Prisma {
     FeeInvoice: 'FeeInvoice',
     FeeInvoiceItem: 'FeeInvoiceItem',
     Payment: 'Payment',
+    SchoolRole: 'SchoolRole',
+    SchoolRolePermission: 'SchoolRolePermission',
+    Membership: 'Membership',
+    MembershipRole: 'MembershipRole',
+    SchoolSettingValue: 'SchoolSettingValue',
+    AutomationRule: 'AutomationRule',
+    AutomationRunLog: 'AutomationRunLog',
+    SchoolMessageTemplate: 'SchoolMessageTemplate',
+    NumberSequence: 'NumberSequence',
+    Attachment: 'Attachment',
     SchoolNotification: 'SchoolNotification',
     SchoolNotificationRecipient: 'SchoolNotificationRecipient'
   };
@@ -1231,7 +1482,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "staff" | "student" | "guardian" | "studentGuardian" | "calendarEvent" | "session" | "term" | "class" | "subject" | "classSubject" | "enrolment" | "classProgression" | "schoolSettings" | "attendance" | "grade" | "gradingConfig" | "reportCard" | "feeType" | "feeInvoice" | "feeInvoiceItem" | "payment" | "schoolNotification" | "schoolNotificationRecipient"
+      modelProps: "staff" | "student" | "guardian" | "studentGuardian" | "calendarEvent" | "session" | "term" | "class" | "subject" | "classSubject" | "enrolment" | "classProgression" | "schoolSettings" | "attendance" | "grade" | "gradingConfig" | "reportCard" | "feeType" | "feeInvoice" | "feeInvoiceItem" | "payment" | "schoolRole" | "schoolRolePermission" | "membership" | "membershipRole" | "schoolSettingValue" | "automationRule" | "automationRunLog" | "schoolMessageTemplate" | "numberSequence" | "attachment" | "schoolNotification" | "schoolNotificationRecipient"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2789,6 +3040,746 @@ export namespace Prisma {
           }
         }
       }
+      SchoolRole: {
+        payload: Prisma.$SchoolRolePayload<ExtArgs>
+        fields: Prisma.SchoolRoleFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SchoolRoleFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolRolePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SchoolRoleFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolRolePayload>
+          }
+          findFirst: {
+            args: Prisma.SchoolRoleFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolRolePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SchoolRoleFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolRolePayload>
+          }
+          findMany: {
+            args: Prisma.SchoolRoleFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolRolePayload>[]
+          }
+          create: {
+            args: Prisma.SchoolRoleCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolRolePayload>
+          }
+          createMany: {
+            args: Prisma.SchoolRoleCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.SchoolRoleCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolRolePayload>[]
+          }
+          delete: {
+            args: Prisma.SchoolRoleDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolRolePayload>
+          }
+          update: {
+            args: Prisma.SchoolRoleUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolRolePayload>
+          }
+          deleteMany: {
+            args: Prisma.SchoolRoleDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SchoolRoleUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.SchoolRoleUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolRolePayload>[]
+          }
+          upsert: {
+            args: Prisma.SchoolRoleUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolRolePayload>
+          }
+          aggregate: {
+            args: Prisma.SchoolRoleAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSchoolRole>
+          }
+          groupBy: {
+            args: Prisma.SchoolRoleGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SchoolRoleGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SchoolRoleCountArgs<ExtArgs>
+            result: $Utils.Optional<SchoolRoleCountAggregateOutputType> | number
+          }
+        }
+      }
+      SchoolRolePermission: {
+        payload: Prisma.$SchoolRolePermissionPayload<ExtArgs>
+        fields: Prisma.SchoolRolePermissionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SchoolRolePermissionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolRolePermissionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SchoolRolePermissionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolRolePermissionPayload>
+          }
+          findFirst: {
+            args: Prisma.SchoolRolePermissionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolRolePermissionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SchoolRolePermissionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolRolePermissionPayload>
+          }
+          findMany: {
+            args: Prisma.SchoolRolePermissionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolRolePermissionPayload>[]
+          }
+          create: {
+            args: Prisma.SchoolRolePermissionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolRolePermissionPayload>
+          }
+          createMany: {
+            args: Prisma.SchoolRolePermissionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.SchoolRolePermissionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolRolePermissionPayload>[]
+          }
+          delete: {
+            args: Prisma.SchoolRolePermissionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolRolePermissionPayload>
+          }
+          update: {
+            args: Prisma.SchoolRolePermissionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolRolePermissionPayload>
+          }
+          deleteMany: {
+            args: Prisma.SchoolRolePermissionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SchoolRolePermissionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.SchoolRolePermissionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolRolePermissionPayload>[]
+          }
+          upsert: {
+            args: Prisma.SchoolRolePermissionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolRolePermissionPayload>
+          }
+          aggregate: {
+            args: Prisma.SchoolRolePermissionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSchoolRolePermission>
+          }
+          groupBy: {
+            args: Prisma.SchoolRolePermissionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SchoolRolePermissionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SchoolRolePermissionCountArgs<ExtArgs>
+            result: $Utils.Optional<SchoolRolePermissionCountAggregateOutputType> | number
+          }
+        }
+      }
+      Membership: {
+        payload: Prisma.$MembershipPayload<ExtArgs>
+        fields: Prisma.MembershipFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.MembershipFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MembershipPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.MembershipFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MembershipPayload>
+          }
+          findFirst: {
+            args: Prisma.MembershipFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MembershipPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.MembershipFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MembershipPayload>
+          }
+          findMany: {
+            args: Prisma.MembershipFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MembershipPayload>[]
+          }
+          create: {
+            args: Prisma.MembershipCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MembershipPayload>
+          }
+          createMany: {
+            args: Prisma.MembershipCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.MembershipCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MembershipPayload>[]
+          }
+          delete: {
+            args: Prisma.MembershipDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MembershipPayload>
+          }
+          update: {
+            args: Prisma.MembershipUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MembershipPayload>
+          }
+          deleteMany: {
+            args: Prisma.MembershipDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.MembershipUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.MembershipUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MembershipPayload>[]
+          }
+          upsert: {
+            args: Prisma.MembershipUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MembershipPayload>
+          }
+          aggregate: {
+            args: Prisma.MembershipAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateMembership>
+          }
+          groupBy: {
+            args: Prisma.MembershipGroupByArgs<ExtArgs>
+            result: $Utils.Optional<MembershipGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.MembershipCountArgs<ExtArgs>
+            result: $Utils.Optional<MembershipCountAggregateOutputType> | number
+          }
+        }
+      }
+      MembershipRole: {
+        payload: Prisma.$MembershipRolePayload<ExtArgs>
+        fields: Prisma.MembershipRoleFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.MembershipRoleFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MembershipRolePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.MembershipRoleFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MembershipRolePayload>
+          }
+          findFirst: {
+            args: Prisma.MembershipRoleFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MembershipRolePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.MembershipRoleFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MembershipRolePayload>
+          }
+          findMany: {
+            args: Prisma.MembershipRoleFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MembershipRolePayload>[]
+          }
+          create: {
+            args: Prisma.MembershipRoleCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MembershipRolePayload>
+          }
+          createMany: {
+            args: Prisma.MembershipRoleCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.MembershipRoleCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MembershipRolePayload>[]
+          }
+          delete: {
+            args: Prisma.MembershipRoleDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MembershipRolePayload>
+          }
+          update: {
+            args: Prisma.MembershipRoleUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MembershipRolePayload>
+          }
+          deleteMany: {
+            args: Prisma.MembershipRoleDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.MembershipRoleUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.MembershipRoleUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MembershipRolePayload>[]
+          }
+          upsert: {
+            args: Prisma.MembershipRoleUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MembershipRolePayload>
+          }
+          aggregate: {
+            args: Prisma.MembershipRoleAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateMembershipRole>
+          }
+          groupBy: {
+            args: Prisma.MembershipRoleGroupByArgs<ExtArgs>
+            result: $Utils.Optional<MembershipRoleGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.MembershipRoleCountArgs<ExtArgs>
+            result: $Utils.Optional<MembershipRoleCountAggregateOutputType> | number
+          }
+        }
+      }
+      SchoolSettingValue: {
+        payload: Prisma.$SchoolSettingValuePayload<ExtArgs>
+        fields: Prisma.SchoolSettingValueFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SchoolSettingValueFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolSettingValuePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SchoolSettingValueFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolSettingValuePayload>
+          }
+          findFirst: {
+            args: Prisma.SchoolSettingValueFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolSettingValuePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SchoolSettingValueFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolSettingValuePayload>
+          }
+          findMany: {
+            args: Prisma.SchoolSettingValueFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolSettingValuePayload>[]
+          }
+          create: {
+            args: Prisma.SchoolSettingValueCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolSettingValuePayload>
+          }
+          createMany: {
+            args: Prisma.SchoolSettingValueCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.SchoolSettingValueCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolSettingValuePayload>[]
+          }
+          delete: {
+            args: Prisma.SchoolSettingValueDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolSettingValuePayload>
+          }
+          update: {
+            args: Prisma.SchoolSettingValueUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolSettingValuePayload>
+          }
+          deleteMany: {
+            args: Prisma.SchoolSettingValueDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SchoolSettingValueUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.SchoolSettingValueUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolSettingValuePayload>[]
+          }
+          upsert: {
+            args: Prisma.SchoolSettingValueUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolSettingValuePayload>
+          }
+          aggregate: {
+            args: Prisma.SchoolSettingValueAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSchoolSettingValue>
+          }
+          groupBy: {
+            args: Prisma.SchoolSettingValueGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SchoolSettingValueGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SchoolSettingValueCountArgs<ExtArgs>
+            result: $Utils.Optional<SchoolSettingValueCountAggregateOutputType> | number
+          }
+        }
+      }
+      AutomationRule: {
+        payload: Prisma.$AutomationRulePayload<ExtArgs>
+        fields: Prisma.AutomationRuleFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AutomationRuleFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AutomationRulePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AutomationRuleFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AutomationRulePayload>
+          }
+          findFirst: {
+            args: Prisma.AutomationRuleFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AutomationRulePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AutomationRuleFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AutomationRulePayload>
+          }
+          findMany: {
+            args: Prisma.AutomationRuleFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AutomationRulePayload>[]
+          }
+          create: {
+            args: Prisma.AutomationRuleCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AutomationRulePayload>
+          }
+          createMany: {
+            args: Prisma.AutomationRuleCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AutomationRuleCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AutomationRulePayload>[]
+          }
+          delete: {
+            args: Prisma.AutomationRuleDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AutomationRulePayload>
+          }
+          update: {
+            args: Prisma.AutomationRuleUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AutomationRulePayload>
+          }
+          deleteMany: {
+            args: Prisma.AutomationRuleDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AutomationRuleUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AutomationRuleUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AutomationRulePayload>[]
+          }
+          upsert: {
+            args: Prisma.AutomationRuleUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AutomationRulePayload>
+          }
+          aggregate: {
+            args: Prisma.AutomationRuleAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAutomationRule>
+          }
+          groupBy: {
+            args: Prisma.AutomationRuleGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AutomationRuleGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AutomationRuleCountArgs<ExtArgs>
+            result: $Utils.Optional<AutomationRuleCountAggregateOutputType> | number
+          }
+        }
+      }
+      AutomationRunLog: {
+        payload: Prisma.$AutomationRunLogPayload<ExtArgs>
+        fields: Prisma.AutomationRunLogFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AutomationRunLogFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AutomationRunLogPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AutomationRunLogFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AutomationRunLogPayload>
+          }
+          findFirst: {
+            args: Prisma.AutomationRunLogFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AutomationRunLogPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AutomationRunLogFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AutomationRunLogPayload>
+          }
+          findMany: {
+            args: Prisma.AutomationRunLogFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AutomationRunLogPayload>[]
+          }
+          create: {
+            args: Prisma.AutomationRunLogCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AutomationRunLogPayload>
+          }
+          createMany: {
+            args: Prisma.AutomationRunLogCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AutomationRunLogCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AutomationRunLogPayload>[]
+          }
+          delete: {
+            args: Prisma.AutomationRunLogDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AutomationRunLogPayload>
+          }
+          update: {
+            args: Prisma.AutomationRunLogUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AutomationRunLogPayload>
+          }
+          deleteMany: {
+            args: Prisma.AutomationRunLogDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AutomationRunLogUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AutomationRunLogUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AutomationRunLogPayload>[]
+          }
+          upsert: {
+            args: Prisma.AutomationRunLogUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AutomationRunLogPayload>
+          }
+          aggregate: {
+            args: Prisma.AutomationRunLogAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAutomationRunLog>
+          }
+          groupBy: {
+            args: Prisma.AutomationRunLogGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AutomationRunLogGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AutomationRunLogCountArgs<ExtArgs>
+            result: $Utils.Optional<AutomationRunLogCountAggregateOutputType> | number
+          }
+        }
+      }
+      SchoolMessageTemplate: {
+        payload: Prisma.$SchoolMessageTemplatePayload<ExtArgs>
+        fields: Prisma.SchoolMessageTemplateFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SchoolMessageTemplateFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolMessageTemplatePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SchoolMessageTemplateFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolMessageTemplatePayload>
+          }
+          findFirst: {
+            args: Prisma.SchoolMessageTemplateFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolMessageTemplatePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SchoolMessageTemplateFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolMessageTemplatePayload>
+          }
+          findMany: {
+            args: Prisma.SchoolMessageTemplateFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolMessageTemplatePayload>[]
+          }
+          create: {
+            args: Prisma.SchoolMessageTemplateCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolMessageTemplatePayload>
+          }
+          createMany: {
+            args: Prisma.SchoolMessageTemplateCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.SchoolMessageTemplateCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolMessageTemplatePayload>[]
+          }
+          delete: {
+            args: Prisma.SchoolMessageTemplateDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolMessageTemplatePayload>
+          }
+          update: {
+            args: Prisma.SchoolMessageTemplateUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolMessageTemplatePayload>
+          }
+          deleteMany: {
+            args: Prisma.SchoolMessageTemplateDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SchoolMessageTemplateUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.SchoolMessageTemplateUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolMessageTemplatePayload>[]
+          }
+          upsert: {
+            args: Prisma.SchoolMessageTemplateUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SchoolMessageTemplatePayload>
+          }
+          aggregate: {
+            args: Prisma.SchoolMessageTemplateAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSchoolMessageTemplate>
+          }
+          groupBy: {
+            args: Prisma.SchoolMessageTemplateGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SchoolMessageTemplateGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SchoolMessageTemplateCountArgs<ExtArgs>
+            result: $Utils.Optional<SchoolMessageTemplateCountAggregateOutputType> | number
+          }
+        }
+      }
+      NumberSequence: {
+        payload: Prisma.$NumberSequencePayload<ExtArgs>
+        fields: Prisma.NumberSequenceFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.NumberSequenceFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NumberSequencePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.NumberSequenceFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NumberSequencePayload>
+          }
+          findFirst: {
+            args: Prisma.NumberSequenceFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NumberSequencePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.NumberSequenceFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NumberSequencePayload>
+          }
+          findMany: {
+            args: Prisma.NumberSequenceFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NumberSequencePayload>[]
+          }
+          create: {
+            args: Prisma.NumberSequenceCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NumberSequencePayload>
+          }
+          createMany: {
+            args: Prisma.NumberSequenceCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.NumberSequenceCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NumberSequencePayload>[]
+          }
+          delete: {
+            args: Prisma.NumberSequenceDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NumberSequencePayload>
+          }
+          update: {
+            args: Prisma.NumberSequenceUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NumberSequencePayload>
+          }
+          deleteMany: {
+            args: Prisma.NumberSequenceDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.NumberSequenceUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.NumberSequenceUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NumberSequencePayload>[]
+          }
+          upsert: {
+            args: Prisma.NumberSequenceUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NumberSequencePayload>
+          }
+          aggregate: {
+            args: Prisma.NumberSequenceAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateNumberSequence>
+          }
+          groupBy: {
+            args: Prisma.NumberSequenceGroupByArgs<ExtArgs>
+            result: $Utils.Optional<NumberSequenceGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.NumberSequenceCountArgs<ExtArgs>
+            result: $Utils.Optional<NumberSequenceCountAggregateOutputType> | number
+          }
+        }
+      }
+      Attachment: {
+        payload: Prisma.$AttachmentPayload<ExtArgs>
+        fields: Prisma.AttachmentFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AttachmentFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AttachmentPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AttachmentFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AttachmentPayload>
+          }
+          findFirst: {
+            args: Prisma.AttachmentFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AttachmentPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AttachmentFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AttachmentPayload>
+          }
+          findMany: {
+            args: Prisma.AttachmentFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AttachmentPayload>[]
+          }
+          create: {
+            args: Prisma.AttachmentCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AttachmentPayload>
+          }
+          createMany: {
+            args: Prisma.AttachmentCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AttachmentCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AttachmentPayload>[]
+          }
+          delete: {
+            args: Prisma.AttachmentDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AttachmentPayload>
+          }
+          update: {
+            args: Prisma.AttachmentUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AttachmentPayload>
+          }
+          deleteMany: {
+            args: Prisma.AttachmentDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AttachmentUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AttachmentUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AttachmentPayload>[]
+          }
+          upsert: {
+            args: Prisma.AttachmentUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AttachmentPayload>
+          }
+          aggregate: {
+            args: Prisma.AttachmentAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAttachment>
+          }
+          groupBy: {
+            args: Prisma.AttachmentGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AttachmentGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AttachmentCountArgs<ExtArgs>
+            result: $Utils.Optional<AttachmentCountAggregateOutputType> | number
+          }
+        }
+      }
       SchoolNotification: {
         payload: Prisma.$SchoolNotificationPayload<ExtArgs>
         fields: Prisma.SchoolNotificationFieldRefs
@@ -3081,6 +4072,16 @@ export namespace Prisma {
     feeInvoice?: FeeInvoiceOmit
     feeInvoiceItem?: FeeInvoiceItemOmit
     payment?: PaymentOmit
+    schoolRole?: SchoolRoleOmit
+    schoolRolePermission?: SchoolRolePermissionOmit
+    membership?: MembershipOmit
+    membershipRole?: MembershipRoleOmit
+    schoolSettingValue?: SchoolSettingValueOmit
+    automationRule?: AutomationRuleOmit
+    automationRunLog?: AutomationRunLogOmit
+    schoolMessageTemplate?: SchoolMessageTemplateOmit
+    numberSequence?: NumberSequenceOmit
+    attachment?: AttachmentOmit
     schoolNotification?: SchoolNotificationOmit
     schoolNotificationRecipient?: SchoolNotificationRecipientOmit
   }
@@ -3640,6 +4641,108 @@ export namespace Prisma {
 
 
   /**
+   * Count Type SchoolRoleCountOutputType
+   */
+
+  export type SchoolRoleCountOutputType = {
+    permissions: number
+    members: number
+  }
+
+  export type SchoolRoleCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    permissions?: boolean | SchoolRoleCountOutputTypeCountPermissionsArgs
+    members?: boolean | SchoolRoleCountOutputTypeCountMembersArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * SchoolRoleCountOutputType without action
+   */
+  export type SchoolRoleCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolRoleCountOutputType
+     */
+    select?: SchoolRoleCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * SchoolRoleCountOutputType without action
+   */
+  export type SchoolRoleCountOutputTypeCountPermissionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SchoolRolePermissionWhereInput
+  }
+
+  /**
+   * SchoolRoleCountOutputType without action
+   */
+  export type SchoolRoleCountOutputTypeCountMembersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MembershipRoleWhereInput
+  }
+
+
+  /**
+   * Count Type MembershipCountOutputType
+   */
+
+  export type MembershipCountOutputType = {
+    roles: number
+  }
+
+  export type MembershipCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    roles?: boolean | MembershipCountOutputTypeCountRolesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * MembershipCountOutputType without action
+   */
+  export type MembershipCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MembershipCountOutputType
+     */
+    select?: MembershipCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * MembershipCountOutputType without action
+   */
+  export type MembershipCountOutputTypeCountRolesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MembershipRoleWhereInput
+  }
+
+
+  /**
+   * Count Type AutomationRuleCountOutputType
+   */
+
+  export type AutomationRuleCountOutputType = {
+    runs: number
+  }
+
+  export type AutomationRuleCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    runs?: boolean | AutomationRuleCountOutputTypeCountRunsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * AutomationRuleCountOutputType without action
+   */
+  export type AutomationRuleCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutomationRuleCountOutputType
+     */
+    select?: AutomationRuleCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * AutomationRuleCountOutputType without action
+   */
+  export type AutomationRuleCountOutputTypeCountRunsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AutomationRunLogWhereInput
+  }
+
+
+  /**
    * Count Type SchoolNotificationCountOutputType
    */
 
@@ -3696,6 +4799,7 @@ export namespace Prisma {
     address: string | null
     joinDate: Date | null
     role: $Enums.StaffRole | null
+    category: $Enums.StaffCategory | null
     isActive: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -3713,6 +4817,7 @@ export namespace Prisma {
     address: string | null
     joinDate: Date | null
     role: $Enums.StaffRole | null
+    category: $Enums.StaffCategory | null
     isActive: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -3730,6 +4835,7 @@ export namespace Prisma {
     address: number
     joinDate: number
     role: number
+    category: number
     isActive: number
     createdAt: number
     updatedAt: number
@@ -3749,6 +4855,7 @@ export namespace Prisma {
     address?: true
     joinDate?: true
     role?: true
+    category?: true
     isActive?: true
     createdAt?: true
     updatedAt?: true
@@ -3766,6 +4873,7 @@ export namespace Prisma {
     address?: true
     joinDate?: true
     role?: true
+    category?: true
     isActive?: true
     createdAt?: true
     updatedAt?: true
@@ -3783,6 +4891,7 @@ export namespace Prisma {
     address?: true
     joinDate?: true
     role?: true
+    category?: true
     isActive?: true
     createdAt?: true
     updatedAt?: true
@@ -3873,6 +4982,7 @@ export namespace Prisma {
     address: string | null
     joinDate: Date | null
     role: $Enums.StaffRole
+    category: $Enums.StaffCategory
     isActive: boolean
     createdAt: Date
     updatedAt: Date
@@ -3907,6 +5017,7 @@ export namespace Prisma {
     address?: boolean
     joinDate?: boolean
     role?: boolean
+    category?: boolean
     isActive?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -3928,6 +5039,7 @@ export namespace Prisma {
     address?: boolean
     joinDate?: boolean
     role?: boolean
+    category?: boolean
     isActive?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -3945,6 +5057,7 @@ export namespace Prisma {
     address?: boolean
     joinDate?: boolean
     role?: boolean
+    category?: boolean
     isActive?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -3962,12 +5075,13 @@ export namespace Prisma {
     address?: boolean
     joinDate?: boolean
     role?: boolean
+    category?: boolean
     isActive?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type StaffOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "employeeId" | "department" | "designation" | "qualification" | "gender" | "dateOfBirth" | "address" | "joinDate" | "role" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["staff"]>
+  export type StaffOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "employeeId" | "department" | "designation" | "qualification" | "gender" | "dateOfBirth" | "address" | "joinDate" | "role" | "category" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["staff"]>
   export type StaffInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     classSubjects?: boolean | Staff$classSubjectsArgs<ExtArgs>
     classesAsClassTeacher?: boolean | Staff$classesAsClassTeacherArgs<ExtArgs>
@@ -3996,6 +5110,7 @@ export namespace Prisma {
       address: string | null
       joinDate: Date | null
       role: $Enums.StaffRole
+      category: $Enums.StaffCategory
       isActive: boolean
       createdAt: Date
       updatedAt: Date
@@ -4436,6 +5551,7 @@ export namespace Prisma {
     readonly address: FieldRef<"Staff", 'String'>
     readonly joinDate: FieldRef<"Staff", 'DateTime'>
     readonly role: FieldRef<"Staff", 'StaffRole'>
+    readonly category: FieldRef<"Staff", 'StaffCategory'>
     readonly isActive: FieldRef<"Staff", 'Boolean'>
     readonly createdAt: FieldRef<"Staff", 'DateTime'>
     readonly updatedAt: FieldRef<"Staff", 'DateTime'>
@@ -28508,6 +29624,11005 @@ export namespace Prisma {
 
 
   /**
+   * Model SchoolRole
+   */
+
+  export type AggregateSchoolRole = {
+    _count: SchoolRoleCountAggregateOutputType | null
+    _avg: SchoolRoleAvgAggregateOutputType | null
+    _sum: SchoolRoleSumAggregateOutputType | null
+    _min: SchoolRoleMinAggregateOutputType | null
+    _max: SchoolRoleMaxAggregateOutputType | null
+  }
+
+  export type SchoolRoleAvgAggregateOutputType = {
+    sourceTemplateVersion: number | null
+  }
+
+  export type SchoolRoleSumAggregateOutputType = {
+    sourceTemplateVersion: number | null
+  }
+
+  export type SchoolRoleMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    description: string | null
+    kind: $Enums.RoleKind | null
+    persona: $Enums.Persona | null
+    grantsAll: boolean | null
+    sourceTemplateKey: string | null
+    sourceTemplateVersion: number | null
+    isCustomized: boolean | null
+    createdById: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    deletedAt: Date | null
+  }
+
+  export type SchoolRoleMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    description: string | null
+    kind: $Enums.RoleKind | null
+    persona: $Enums.Persona | null
+    grantsAll: boolean | null
+    sourceTemplateKey: string | null
+    sourceTemplateVersion: number | null
+    isCustomized: boolean | null
+    createdById: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    deletedAt: Date | null
+  }
+
+  export type SchoolRoleCountAggregateOutputType = {
+    id: number
+    name: number
+    description: number
+    kind: number
+    persona: number
+    grantsAll: number
+    sourceTemplateKey: number
+    sourceTemplateVersion: number
+    isCustomized: number
+    createdById: number
+    createdAt: number
+    updatedAt: number
+    deletedAt: number
+    _all: number
+  }
+
+
+  export type SchoolRoleAvgAggregateInputType = {
+    sourceTemplateVersion?: true
+  }
+
+  export type SchoolRoleSumAggregateInputType = {
+    sourceTemplateVersion?: true
+  }
+
+  export type SchoolRoleMinAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    kind?: true
+    persona?: true
+    grantsAll?: true
+    sourceTemplateKey?: true
+    sourceTemplateVersion?: true
+    isCustomized?: true
+    createdById?: true
+    createdAt?: true
+    updatedAt?: true
+    deletedAt?: true
+  }
+
+  export type SchoolRoleMaxAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    kind?: true
+    persona?: true
+    grantsAll?: true
+    sourceTemplateKey?: true
+    sourceTemplateVersion?: true
+    isCustomized?: true
+    createdById?: true
+    createdAt?: true
+    updatedAt?: true
+    deletedAt?: true
+  }
+
+  export type SchoolRoleCountAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    kind?: true
+    persona?: true
+    grantsAll?: true
+    sourceTemplateKey?: true
+    sourceTemplateVersion?: true
+    isCustomized?: true
+    createdById?: true
+    createdAt?: true
+    updatedAt?: true
+    deletedAt?: true
+    _all?: true
+  }
+
+  export type SchoolRoleAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SchoolRole to aggregate.
+     */
+    where?: SchoolRoleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SchoolRoles to fetch.
+     */
+    orderBy?: SchoolRoleOrderByWithRelationInput | SchoolRoleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SchoolRoleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SchoolRoles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SchoolRoles.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SchoolRoles
+    **/
+    _count?: true | SchoolRoleCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: SchoolRoleAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: SchoolRoleSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SchoolRoleMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SchoolRoleMaxAggregateInputType
+  }
+
+  export type GetSchoolRoleAggregateType<T extends SchoolRoleAggregateArgs> = {
+        [P in keyof T & keyof AggregateSchoolRole]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSchoolRole[P]>
+      : GetScalarType<T[P], AggregateSchoolRole[P]>
+  }
+
+
+
+
+  export type SchoolRoleGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SchoolRoleWhereInput
+    orderBy?: SchoolRoleOrderByWithAggregationInput | SchoolRoleOrderByWithAggregationInput[]
+    by: SchoolRoleScalarFieldEnum[] | SchoolRoleScalarFieldEnum
+    having?: SchoolRoleScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SchoolRoleCountAggregateInputType | true
+    _avg?: SchoolRoleAvgAggregateInputType
+    _sum?: SchoolRoleSumAggregateInputType
+    _min?: SchoolRoleMinAggregateInputType
+    _max?: SchoolRoleMaxAggregateInputType
+  }
+
+  export type SchoolRoleGroupByOutputType = {
+    id: string
+    name: string
+    description: string | null
+    kind: $Enums.RoleKind
+    persona: $Enums.Persona
+    grantsAll: boolean
+    sourceTemplateKey: string | null
+    sourceTemplateVersion: number | null
+    isCustomized: boolean
+    createdById: string | null
+    createdAt: Date
+    updatedAt: Date
+    deletedAt: Date | null
+    _count: SchoolRoleCountAggregateOutputType | null
+    _avg: SchoolRoleAvgAggregateOutputType | null
+    _sum: SchoolRoleSumAggregateOutputType | null
+    _min: SchoolRoleMinAggregateOutputType | null
+    _max: SchoolRoleMaxAggregateOutputType | null
+  }
+
+  type GetSchoolRoleGroupByPayload<T extends SchoolRoleGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SchoolRoleGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SchoolRoleGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SchoolRoleGroupByOutputType[P]>
+            : GetScalarType<T[P], SchoolRoleGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SchoolRoleSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    kind?: boolean
+    persona?: boolean
+    grantsAll?: boolean
+    sourceTemplateKey?: boolean
+    sourceTemplateVersion?: boolean
+    isCustomized?: boolean
+    createdById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    deletedAt?: boolean
+    permissions?: boolean | SchoolRole$permissionsArgs<ExtArgs>
+    members?: boolean | SchoolRole$membersArgs<ExtArgs>
+    _count?: boolean | SchoolRoleCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["schoolRole"]>
+
+  export type SchoolRoleSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    kind?: boolean
+    persona?: boolean
+    grantsAll?: boolean
+    sourceTemplateKey?: boolean
+    sourceTemplateVersion?: boolean
+    isCustomized?: boolean
+    createdById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    deletedAt?: boolean
+  }, ExtArgs["result"]["schoolRole"]>
+
+  export type SchoolRoleSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    kind?: boolean
+    persona?: boolean
+    grantsAll?: boolean
+    sourceTemplateKey?: boolean
+    sourceTemplateVersion?: boolean
+    isCustomized?: boolean
+    createdById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    deletedAt?: boolean
+  }, ExtArgs["result"]["schoolRole"]>
+
+  export type SchoolRoleSelectScalar = {
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    kind?: boolean
+    persona?: boolean
+    grantsAll?: boolean
+    sourceTemplateKey?: boolean
+    sourceTemplateVersion?: boolean
+    isCustomized?: boolean
+    createdById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    deletedAt?: boolean
+  }
+
+  export type SchoolRoleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "kind" | "persona" | "grantsAll" | "sourceTemplateKey" | "sourceTemplateVersion" | "isCustomized" | "createdById" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["schoolRole"]>
+  export type SchoolRoleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    permissions?: boolean | SchoolRole$permissionsArgs<ExtArgs>
+    members?: boolean | SchoolRole$membersArgs<ExtArgs>
+    _count?: boolean | SchoolRoleCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type SchoolRoleIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type SchoolRoleIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $SchoolRolePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SchoolRole"
+    objects: {
+      permissions: Prisma.$SchoolRolePermissionPayload<ExtArgs>[]
+      members: Prisma.$MembershipRolePayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      description: string | null
+      kind: $Enums.RoleKind
+      persona: $Enums.Persona
+      grantsAll: boolean
+      sourceTemplateKey: string | null
+      sourceTemplateVersion: number | null
+      isCustomized: boolean
+      createdById: string | null
+      createdAt: Date
+      updatedAt: Date
+      deletedAt: Date | null
+    }, ExtArgs["result"]["schoolRole"]>
+    composites: {}
+  }
+
+  type SchoolRoleGetPayload<S extends boolean | null | undefined | SchoolRoleDefaultArgs> = $Result.GetResult<Prisma.$SchoolRolePayload, S>
+
+  type SchoolRoleCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SchoolRoleFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SchoolRoleCountAggregateInputType | true
+    }
+
+  export interface SchoolRoleDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SchoolRole'], meta: { name: 'SchoolRole' } }
+    /**
+     * Find zero or one SchoolRole that matches the filter.
+     * @param {SchoolRoleFindUniqueArgs} args - Arguments to find a SchoolRole
+     * @example
+     * // Get one SchoolRole
+     * const schoolRole = await prisma.schoolRole.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SchoolRoleFindUniqueArgs>(args: SelectSubset<T, SchoolRoleFindUniqueArgs<ExtArgs>>): Prisma__SchoolRoleClient<$Result.GetResult<Prisma.$SchoolRolePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SchoolRole that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SchoolRoleFindUniqueOrThrowArgs} args - Arguments to find a SchoolRole
+     * @example
+     * // Get one SchoolRole
+     * const schoolRole = await prisma.schoolRole.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SchoolRoleFindUniqueOrThrowArgs>(args: SelectSubset<T, SchoolRoleFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SchoolRoleClient<$Result.GetResult<Prisma.$SchoolRolePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SchoolRole that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SchoolRoleFindFirstArgs} args - Arguments to find a SchoolRole
+     * @example
+     * // Get one SchoolRole
+     * const schoolRole = await prisma.schoolRole.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SchoolRoleFindFirstArgs>(args?: SelectSubset<T, SchoolRoleFindFirstArgs<ExtArgs>>): Prisma__SchoolRoleClient<$Result.GetResult<Prisma.$SchoolRolePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SchoolRole that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SchoolRoleFindFirstOrThrowArgs} args - Arguments to find a SchoolRole
+     * @example
+     * // Get one SchoolRole
+     * const schoolRole = await prisma.schoolRole.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SchoolRoleFindFirstOrThrowArgs>(args?: SelectSubset<T, SchoolRoleFindFirstOrThrowArgs<ExtArgs>>): Prisma__SchoolRoleClient<$Result.GetResult<Prisma.$SchoolRolePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SchoolRoles that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SchoolRoleFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SchoolRoles
+     * const schoolRoles = await prisma.schoolRole.findMany()
+     * 
+     * // Get first 10 SchoolRoles
+     * const schoolRoles = await prisma.schoolRole.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const schoolRoleWithIdOnly = await prisma.schoolRole.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SchoolRoleFindManyArgs>(args?: SelectSubset<T, SchoolRoleFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SchoolRolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SchoolRole.
+     * @param {SchoolRoleCreateArgs} args - Arguments to create a SchoolRole.
+     * @example
+     * // Create one SchoolRole
+     * const SchoolRole = await prisma.schoolRole.create({
+     *   data: {
+     *     // ... data to create a SchoolRole
+     *   }
+     * })
+     * 
+     */
+    create<T extends SchoolRoleCreateArgs>(args: SelectSubset<T, SchoolRoleCreateArgs<ExtArgs>>): Prisma__SchoolRoleClient<$Result.GetResult<Prisma.$SchoolRolePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SchoolRoles.
+     * @param {SchoolRoleCreateManyArgs} args - Arguments to create many SchoolRoles.
+     * @example
+     * // Create many SchoolRoles
+     * const schoolRole = await prisma.schoolRole.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SchoolRoleCreateManyArgs>(args?: SelectSubset<T, SchoolRoleCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many SchoolRoles and returns the data saved in the database.
+     * @param {SchoolRoleCreateManyAndReturnArgs} args - Arguments to create many SchoolRoles.
+     * @example
+     * // Create many SchoolRoles
+     * const schoolRole = await prisma.schoolRole.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many SchoolRoles and only return the `id`
+     * const schoolRoleWithIdOnly = await prisma.schoolRole.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends SchoolRoleCreateManyAndReturnArgs>(args?: SelectSubset<T, SchoolRoleCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SchoolRolePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a SchoolRole.
+     * @param {SchoolRoleDeleteArgs} args - Arguments to delete one SchoolRole.
+     * @example
+     * // Delete one SchoolRole
+     * const SchoolRole = await prisma.schoolRole.delete({
+     *   where: {
+     *     // ... filter to delete one SchoolRole
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SchoolRoleDeleteArgs>(args: SelectSubset<T, SchoolRoleDeleteArgs<ExtArgs>>): Prisma__SchoolRoleClient<$Result.GetResult<Prisma.$SchoolRolePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SchoolRole.
+     * @param {SchoolRoleUpdateArgs} args - Arguments to update one SchoolRole.
+     * @example
+     * // Update one SchoolRole
+     * const schoolRole = await prisma.schoolRole.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SchoolRoleUpdateArgs>(args: SelectSubset<T, SchoolRoleUpdateArgs<ExtArgs>>): Prisma__SchoolRoleClient<$Result.GetResult<Prisma.$SchoolRolePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SchoolRoles.
+     * @param {SchoolRoleDeleteManyArgs} args - Arguments to filter SchoolRoles to delete.
+     * @example
+     * // Delete a few SchoolRoles
+     * const { count } = await prisma.schoolRole.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SchoolRoleDeleteManyArgs>(args?: SelectSubset<T, SchoolRoleDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SchoolRoles.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SchoolRoleUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SchoolRoles
+     * const schoolRole = await prisma.schoolRole.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SchoolRoleUpdateManyArgs>(args: SelectSubset<T, SchoolRoleUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SchoolRoles and returns the data updated in the database.
+     * @param {SchoolRoleUpdateManyAndReturnArgs} args - Arguments to update many SchoolRoles.
+     * @example
+     * // Update many SchoolRoles
+     * const schoolRole = await prisma.schoolRole.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more SchoolRoles and only return the `id`
+     * const schoolRoleWithIdOnly = await prisma.schoolRole.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends SchoolRoleUpdateManyAndReturnArgs>(args: SelectSubset<T, SchoolRoleUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SchoolRolePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one SchoolRole.
+     * @param {SchoolRoleUpsertArgs} args - Arguments to update or create a SchoolRole.
+     * @example
+     * // Update or create a SchoolRole
+     * const schoolRole = await prisma.schoolRole.upsert({
+     *   create: {
+     *     // ... data to create a SchoolRole
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SchoolRole we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SchoolRoleUpsertArgs>(args: SelectSubset<T, SchoolRoleUpsertArgs<ExtArgs>>): Prisma__SchoolRoleClient<$Result.GetResult<Prisma.$SchoolRolePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of SchoolRoles.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SchoolRoleCountArgs} args - Arguments to filter SchoolRoles to count.
+     * @example
+     * // Count the number of SchoolRoles
+     * const count = await prisma.schoolRole.count({
+     *   where: {
+     *     // ... the filter for the SchoolRoles we want to count
+     *   }
+     * })
+    **/
+    count<T extends SchoolRoleCountArgs>(
+      args?: Subset<T, SchoolRoleCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SchoolRoleCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SchoolRole.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SchoolRoleAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SchoolRoleAggregateArgs>(args: Subset<T, SchoolRoleAggregateArgs>): Prisma.PrismaPromise<GetSchoolRoleAggregateType<T>>
+
+    /**
+     * Group by SchoolRole.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SchoolRoleGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SchoolRoleGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SchoolRoleGroupByArgs['orderBy'] }
+        : { orderBy?: SchoolRoleGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SchoolRoleGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSchoolRoleGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SchoolRole model
+   */
+  readonly fields: SchoolRoleFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SchoolRole.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SchoolRoleClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    permissions<T extends SchoolRole$permissionsArgs<ExtArgs> = {}>(args?: Subset<T, SchoolRole$permissionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SchoolRolePermissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    members<T extends SchoolRole$membersArgs<ExtArgs> = {}>(args?: Subset<T, SchoolRole$membersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MembershipRolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SchoolRole model
+   */
+  interface SchoolRoleFieldRefs {
+    readonly id: FieldRef<"SchoolRole", 'String'>
+    readonly name: FieldRef<"SchoolRole", 'String'>
+    readonly description: FieldRef<"SchoolRole", 'String'>
+    readonly kind: FieldRef<"SchoolRole", 'RoleKind'>
+    readonly persona: FieldRef<"SchoolRole", 'Persona'>
+    readonly grantsAll: FieldRef<"SchoolRole", 'Boolean'>
+    readonly sourceTemplateKey: FieldRef<"SchoolRole", 'String'>
+    readonly sourceTemplateVersion: FieldRef<"SchoolRole", 'Int'>
+    readonly isCustomized: FieldRef<"SchoolRole", 'Boolean'>
+    readonly createdById: FieldRef<"SchoolRole", 'String'>
+    readonly createdAt: FieldRef<"SchoolRole", 'DateTime'>
+    readonly updatedAt: FieldRef<"SchoolRole", 'DateTime'>
+    readonly deletedAt: FieldRef<"SchoolRole", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SchoolRole findUnique
+   */
+  export type SchoolRoleFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolRole
+     */
+    select?: SchoolRoleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolRole
+     */
+    omit?: SchoolRoleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SchoolRoleInclude<ExtArgs> | null
+    /**
+     * Filter, which SchoolRole to fetch.
+     */
+    where: SchoolRoleWhereUniqueInput
+  }
+
+  /**
+   * SchoolRole findUniqueOrThrow
+   */
+  export type SchoolRoleFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolRole
+     */
+    select?: SchoolRoleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolRole
+     */
+    omit?: SchoolRoleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SchoolRoleInclude<ExtArgs> | null
+    /**
+     * Filter, which SchoolRole to fetch.
+     */
+    where: SchoolRoleWhereUniqueInput
+  }
+
+  /**
+   * SchoolRole findFirst
+   */
+  export type SchoolRoleFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolRole
+     */
+    select?: SchoolRoleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolRole
+     */
+    omit?: SchoolRoleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SchoolRoleInclude<ExtArgs> | null
+    /**
+     * Filter, which SchoolRole to fetch.
+     */
+    where?: SchoolRoleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SchoolRoles to fetch.
+     */
+    orderBy?: SchoolRoleOrderByWithRelationInput | SchoolRoleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SchoolRoles.
+     */
+    cursor?: SchoolRoleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SchoolRoles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SchoolRoles.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SchoolRoles.
+     */
+    distinct?: SchoolRoleScalarFieldEnum | SchoolRoleScalarFieldEnum[]
+  }
+
+  /**
+   * SchoolRole findFirstOrThrow
+   */
+  export type SchoolRoleFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolRole
+     */
+    select?: SchoolRoleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolRole
+     */
+    omit?: SchoolRoleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SchoolRoleInclude<ExtArgs> | null
+    /**
+     * Filter, which SchoolRole to fetch.
+     */
+    where?: SchoolRoleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SchoolRoles to fetch.
+     */
+    orderBy?: SchoolRoleOrderByWithRelationInput | SchoolRoleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SchoolRoles.
+     */
+    cursor?: SchoolRoleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SchoolRoles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SchoolRoles.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SchoolRoles.
+     */
+    distinct?: SchoolRoleScalarFieldEnum | SchoolRoleScalarFieldEnum[]
+  }
+
+  /**
+   * SchoolRole findMany
+   */
+  export type SchoolRoleFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolRole
+     */
+    select?: SchoolRoleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolRole
+     */
+    omit?: SchoolRoleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SchoolRoleInclude<ExtArgs> | null
+    /**
+     * Filter, which SchoolRoles to fetch.
+     */
+    where?: SchoolRoleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SchoolRoles to fetch.
+     */
+    orderBy?: SchoolRoleOrderByWithRelationInput | SchoolRoleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SchoolRoles.
+     */
+    cursor?: SchoolRoleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SchoolRoles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SchoolRoles.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SchoolRoles.
+     */
+    distinct?: SchoolRoleScalarFieldEnum | SchoolRoleScalarFieldEnum[]
+  }
+
+  /**
+   * SchoolRole create
+   */
+  export type SchoolRoleCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolRole
+     */
+    select?: SchoolRoleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolRole
+     */
+    omit?: SchoolRoleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SchoolRoleInclude<ExtArgs> | null
+    /**
+     * The data needed to create a SchoolRole.
+     */
+    data: XOR<SchoolRoleCreateInput, SchoolRoleUncheckedCreateInput>
+  }
+
+  /**
+   * SchoolRole createMany
+   */
+  export type SchoolRoleCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SchoolRoles.
+     */
+    data: SchoolRoleCreateManyInput | SchoolRoleCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SchoolRole createManyAndReturn
+   */
+  export type SchoolRoleCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolRole
+     */
+    select?: SchoolRoleSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolRole
+     */
+    omit?: SchoolRoleOmit<ExtArgs> | null
+    /**
+     * The data used to create many SchoolRoles.
+     */
+    data: SchoolRoleCreateManyInput | SchoolRoleCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SchoolRole update
+   */
+  export type SchoolRoleUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolRole
+     */
+    select?: SchoolRoleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolRole
+     */
+    omit?: SchoolRoleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SchoolRoleInclude<ExtArgs> | null
+    /**
+     * The data needed to update a SchoolRole.
+     */
+    data: XOR<SchoolRoleUpdateInput, SchoolRoleUncheckedUpdateInput>
+    /**
+     * Choose, which SchoolRole to update.
+     */
+    where: SchoolRoleWhereUniqueInput
+  }
+
+  /**
+   * SchoolRole updateMany
+   */
+  export type SchoolRoleUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SchoolRoles.
+     */
+    data: XOR<SchoolRoleUpdateManyMutationInput, SchoolRoleUncheckedUpdateManyInput>
+    /**
+     * Filter which SchoolRoles to update
+     */
+    where?: SchoolRoleWhereInput
+    /**
+     * Limit how many SchoolRoles to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SchoolRole updateManyAndReturn
+   */
+  export type SchoolRoleUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolRole
+     */
+    select?: SchoolRoleSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolRole
+     */
+    omit?: SchoolRoleOmit<ExtArgs> | null
+    /**
+     * The data used to update SchoolRoles.
+     */
+    data: XOR<SchoolRoleUpdateManyMutationInput, SchoolRoleUncheckedUpdateManyInput>
+    /**
+     * Filter which SchoolRoles to update
+     */
+    where?: SchoolRoleWhereInput
+    /**
+     * Limit how many SchoolRoles to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SchoolRole upsert
+   */
+  export type SchoolRoleUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolRole
+     */
+    select?: SchoolRoleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolRole
+     */
+    omit?: SchoolRoleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SchoolRoleInclude<ExtArgs> | null
+    /**
+     * The filter to search for the SchoolRole to update in case it exists.
+     */
+    where: SchoolRoleWhereUniqueInput
+    /**
+     * In case the SchoolRole found by the `where` argument doesn't exist, create a new SchoolRole with this data.
+     */
+    create: XOR<SchoolRoleCreateInput, SchoolRoleUncheckedCreateInput>
+    /**
+     * In case the SchoolRole was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SchoolRoleUpdateInput, SchoolRoleUncheckedUpdateInput>
+  }
+
+  /**
+   * SchoolRole delete
+   */
+  export type SchoolRoleDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolRole
+     */
+    select?: SchoolRoleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolRole
+     */
+    omit?: SchoolRoleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SchoolRoleInclude<ExtArgs> | null
+    /**
+     * Filter which SchoolRole to delete.
+     */
+    where: SchoolRoleWhereUniqueInput
+  }
+
+  /**
+   * SchoolRole deleteMany
+   */
+  export type SchoolRoleDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SchoolRoles to delete
+     */
+    where?: SchoolRoleWhereInput
+    /**
+     * Limit how many SchoolRoles to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * SchoolRole.permissions
+   */
+  export type SchoolRole$permissionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolRolePermission
+     */
+    select?: SchoolRolePermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolRolePermission
+     */
+    omit?: SchoolRolePermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SchoolRolePermissionInclude<ExtArgs> | null
+    where?: SchoolRolePermissionWhereInput
+    orderBy?: SchoolRolePermissionOrderByWithRelationInput | SchoolRolePermissionOrderByWithRelationInput[]
+    cursor?: SchoolRolePermissionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SchoolRolePermissionScalarFieldEnum | SchoolRolePermissionScalarFieldEnum[]
+  }
+
+  /**
+   * SchoolRole.members
+   */
+  export type SchoolRole$membersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MembershipRole
+     */
+    select?: MembershipRoleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MembershipRole
+     */
+    omit?: MembershipRoleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MembershipRoleInclude<ExtArgs> | null
+    where?: MembershipRoleWhereInput
+    orderBy?: MembershipRoleOrderByWithRelationInput | MembershipRoleOrderByWithRelationInput[]
+    cursor?: MembershipRoleWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: MembershipRoleScalarFieldEnum | MembershipRoleScalarFieldEnum[]
+  }
+
+  /**
+   * SchoolRole without action
+   */
+  export type SchoolRoleDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolRole
+     */
+    select?: SchoolRoleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolRole
+     */
+    omit?: SchoolRoleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SchoolRoleInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model SchoolRolePermission
+   */
+
+  export type AggregateSchoolRolePermission = {
+    _count: SchoolRolePermissionCountAggregateOutputType | null
+    _min: SchoolRolePermissionMinAggregateOutputType | null
+    _max: SchoolRolePermissionMaxAggregateOutputType | null
+  }
+
+  export type SchoolRolePermissionMinAggregateOutputType = {
+    roleId: string | null
+    permissionKey: string | null
+    scope: $Enums.PermissionScope | null
+  }
+
+  export type SchoolRolePermissionMaxAggregateOutputType = {
+    roleId: string | null
+    permissionKey: string | null
+    scope: $Enums.PermissionScope | null
+  }
+
+  export type SchoolRolePermissionCountAggregateOutputType = {
+    roleId: number
+    permissionKey: number
+    scope: number
+    _all: number
+  }
+
+
+  export type SchoolRolePermissionMinAggregateInputType = {
+    roleId?: true
+    permissionKey?: true
+    scope?: true
+  }
+
+  export type SchoolRolePermissionMaxAggregateInputType = {
+    roleId?: true
+    permissionKey?: true
+    scope?: true
+  }
+
+  export type SchoolRolePermissionCountAggregateInputType = {
+    roleId?: true
+    permissionKey?: true
+    scope?: true
+    _all?: true
+  }
+
+  export type SchoolRolePermissionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SchoolRolePermission to aggregate.
+     */
+    where?: SchoolRolePermissionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SchoolRolePermissions to fetch.
+     */
+    orderBy?: SchoolRolePermissionOrderByWithRelationInput | SchoolRolePermissionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SchoolRolePermissionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SchoolRolePermissions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SchoolRolePermissions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SchoolRolePermissions
+    **/
+    _count?: true | SchoolRolePermissionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SchoolRolePermissionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SchoolRolePermissionMaxAggregateInputType
+  }
+
+  export type GetSchoolRolePermissionAggregateType<T extends SchoolRolePermissionAggregateArgs> = {
+        [P in keyof T & keyof AggregateSchoolRolePermission]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSchoolRolePermission[P]>
+      : GetScalarType<T[P], AggregateSchoolRolePermission[P]>
+  }
+
+
+
+
+  export type SchoolRolePermissionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SchoolRolePermissionWhereInput
+    orderBy?: SchoolRolePermissionOrderByWithAggregationInput | SchoolRolePermissionOrderByWithAggregationInput[]
+    by: SchoolRolePermissionScalarFieldEnum[] | SchoolRolePermissionScalarFieldEnum
+    having?: SchoolRolePermissionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SchoolRolePermissionCountAggregateInputType | true
+    _min?: SchoolRolePermissionMinAggregateInputType
+    _max?: SchoolRolePermissionMaxAggregateInputType
+  }
+
+  export type SchoolRolePermissionGroupByOutputType = {
+    roleId: string
+    permissionKey: string
+    scope: $Enums.PermissionScope
+    _count: SchoolRolePermissionCountAggregateOutputType | null
+    _min: SchoolRolePermissionMinAggregateOutputType | null
+    _max: SchoolRolePermissionMaxAggregateOutputType | null
+  }
+
+  type GetSchoolRolePermissionGroupByPayload<T extends SchoolRolePermissionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SchoolRolePermissionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SchoolRolePermissionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SchoolRolePermissionGroupByOutputType[P]>
+            : GetScalarType<T[P], SchoolRolePermissionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SchoolRolePermissionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    roleId?: boolean
+    permissionKey?: boolean
+    scope?: boolean
+    role?: boolean | SchoolRoleDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["schoolRolePermission"]>
+
+  export type SchoolRolePermissionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    roleId?: boolean
+    permissionKey?: boolean
+    scope?: boolean
+    role?: boolean | SchoolRoleDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["schoolRolePermission"]>
+
+  export type SchoolRolePermissionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    roleId?: boolean
+    permissionKey?: boolean
+    scope?: boolean
+    role?: boolean | SchoolRoleDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["schoolRolePermission"]>
+
+  export type SchoolRolePermissionSelectScalar = {
+    roleId?: boolean
+    permissionKey?: boolean
+    scope?: boolean
+  }
+
+  export type SchoolRolePermissionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"roleId" | "permissionKey" | "scope", ExtArgs["result"]["schoolRolePermission"]>
+  export type SchoolRolePermissionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    role?: boolean | SchoolRoleDefaultArgs<ExtArgs>
+  }
+  export type SchoolRolePermissionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    role?: boolean | SchoolRoleDefaultArgs<ExtArgs>
+  }
+  export type SchoolRolePermissionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    role?: boolean | SchoolRoleDefaultArgs<ExtArgs>
+  }
+
+  export type $SchoolRolePermissionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SchoolRolePermission"
+    objects: {
+      role: Prisma.$SchoolRolePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      roleId: string
+      permissionKey: string
+      scope: $Enums.PermissionScope
+    }, ExtArgs["result"]["schoolRolePermission"]>
+    composites: {}
+  }
+
+  type SchoolRolePermissionGetPayload<S extends boolean | null | undefined | SchoolRolePermissionDefaultArgs> = $Result.GetResult<Prisma.$SchoolRolePermissionPayload, S>
+
+  type SchoolRolePermissionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SchoolRolePermissionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SchoolRolePermissionCountAggregateInputType | true
+    }
+
+  export interface SchoolRolePermissionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SchoolRolePermission'], meta: { name: 'SchoolRolePermission' } }
+    /**
+     * Find zero or one SchoolRolePermission that matches the filter.
+     * @param {SchoolRolePermissionFindUniqueArgs} args - Arguments to find a SchoolRolePermission
+     * @example
+     * // Get one SchoolRolePermission
+     * const schoolRolePermission = await prisma.schoolRolePermission.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SchoolRolePermissionFindUniqueArgs>(args: SelectSubset<T, SchoolRolePermissionFindUniqueArgs<ExtArgs>>): Prisma__SchoolRolePermissionClient<$Result.GetResult<Prisma.$SchoolRolePermissionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SchoolRolePermission that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SchoolRolePermissionFindUniqueOrThrowArgs} args - Arguments to find a SchoolRolePermission
+     * @example
+     * // Get one SchoolRolePermission
+     * const schoolRolePermission = await prisma.schoolRolePermission.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SchoolRolePermissionFindUniqueOrThrowArgs>(args: SelectSubset<T, SchoolRolePermissionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SchoolRolePermissionClient<$Result.GetResult<Prisma.$SchoolRolePermissionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SchoolRolePermission that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SchoolRolePermissionFindFirstArgs} args - Arguments to find a SchoolRolePermission
+     * @example
+     * // Get one SchoolRolePermission
+     * const schoolRolePermission = await prisma.schoolRolePermission.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SchoolRolePermissionFindFirstArgs>(args?: SelectSubset<T, SchoolRolePermissionFindFirstArgs<ExtArgs>>): Prisma__SchoolRolePermissionClient<$Result.GetResult<Prisma.$SchoolRolePermissionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SchoolRolePermission that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SchoolRolePermissionFindFirstOrThrowArgs} args - Arguments to find a SchoolRolePermission
+     * @example
+     * // Get one SchoolRolePermission
+     * const schoolRolePermission = await prisma.schoolRolePermission.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SchoolRolePermissionFindFirstOrThrowArgs>(args?: SelectSubset<T, SchoolRolePermissionFindFirstOrThrowArgs<ExtArgs>>): Prisma__SchoolRolePermissionClient<$Result.GetResult<Prisma.$SchoolRolePermissionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SchoolRolePermissions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SchoolRolePermissionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SchoolRolePermissions
+     * const schoolRolePermissions = await prisma.schoolRolePermission.findMany()
+     * 
+     * // Get first 10 SchoolRolePermissions
+     * const schoolRolePermissions = await prisma.schoolRolePermission.findMany({ take: 10 })
+     * 
+     * // Only select the `roleId`
+     * const schoolRolePermissionWithRoleIdOnly = await prisma.schoolRolePermission.findMany({ select: { roleId: true } })
+     * 
+     */
+    findMany<T extends SchoolRolePermissionFindManyArgs>(args?: SelectSubset<T, SchoolRolePermissionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SchoolRolePermissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SchoolRolePermission.
+     * @param {SchoolRolePermissionCreateArgs} args - Arguments to create a SchoolRolePermission.
+     * @example
+     * // Create one SchoolRolePermission
+     * const SchoolRolePermission = await prisma.schoolRolePermission.create({
+     *   data: {
+     *     // ... data to create a SchoolRolePermission
+     *   }
+     * })
+     * 
+     */
+    create<T extends SchoolRolePermissionCreateArgs>(args: SelectSubset<T, SchoolRolePermissionCreateArgs<ExtArgs>>): Prisma__SchoolRolePermissionClient<$Result.GetResult<Prisma.$SchoolRolePermissionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SchoolRolePermissions.
+     * @param {SchoolRolePermissionCreateManyArgs} args - Arguments to create many SchoolRolePermissions.
+     * @example
+     * // Create many SchoolRolePermissions
+     * const schoolRolePermission = await prisma.schoolRolePermission.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SchoolRolePermissionCreateManyArgs>(args?: SelectSubset<T, SchoolRolePermissionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many SchoolRolePermissions and returns the data saved in the database.
+     * @param {SchoolRolePermissionCreateManyAndReturnArgs} args - Arguments to create many SchoolRolePermissions.
+     * @example
+     * // Create many SchoolRolePermissions
+     * const schoolRolePermission = await prisma.schoolRolePermission.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many SchoolRolePermissions and only return the `roleId`
+     * const schoolRolePermissionWithRoleIdOnly = await prisma.schoolRolePermission.createManyAndReturn({
+     *   select: { roleId: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends SchoolRolePermissionCreateManyAndReturnArgs>(args?: SelectSubset<T, SchoolRolePermissionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SchoolRolePermissionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a SchoolRolePermission.
+     * @param {SchoolRolePermissionDeleteArgs} args - Arguments to delete one SchoolRolePermission.
+     * @example
+     * // Delete one SchoolRolePermission
+     * const SchoolRolePermission = await prisma.schoolRolePermission.delete({
+     *   where: {
+     *     // ... filter to delete one SchoolRolePermission
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SchoolRolePermissionDeleteArgs>(args: SelectSubset<T, SchoolRolePermissionDeleteArgs<ExtArgs>>): Prisma__SchoolRolePermissionClient<$Result.GetResult<Prisma.$SchoolRolePermissionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SchoolRolePermission.
+     * @param {SchoolRolePermissionUpdateArgs} args - Arguments to update one SchoolRolePermission.
+     * @example
+     * // Update one SchoolRolePermission
+     * const schoolRolePermission = await prisma.schoolRolePermission.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SchoolRolePermissionUpdateArgs>(args: SelectSubset<T, SchoolRolePermissionUpdateArgs<ExtArgs>>): Prisma__SchoolRolePermissionClient<$Result.GetResult<Prisma.$SchoolRolePermissionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SchoolRolePermissions.
+     * @param {SchoolRolePermissionDeleteManyArgs} args - Arguments to filter SchoolRolePermissions to delete.
+     * @example
+     * // Delete a few SchoolRolePermissions
+     * const { count } = await prisma.schoolRolePermission.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SchoolRolePermissionDeleteManyArgs>(args?: SelectSubset<T, SchoolRolePermissionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SchoolRolePermissions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SchoolRolePermissionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SchoolRolePermissions
+     * const schoolRolePermission = await prisma.schoolRolePermission.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SchoolRolePermissionUpdateManyArgs>(args: SelectSubset<T, SchoolRolePermissionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SchoolRolePermissions and returns the data updated in the database.
+     * @param {SchoolRolePermissionUpdateManyAndReturnArgs} args - Arguments to update many SchoolRolePermissions.
+     * @example
+     * // Update many SchoolRolePermissions
+     * const schoolRolePermission = await prisma.schoolRolePermission.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more SchoolRolePermissions and only return the `roleId`
+     * const schoolRolePermissionWithRoleIdOnly = await prisma.schoolRolePermission.updateManyAndReturn({
+     *   select: { roleId: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends SchoolRolePermissionUpdateManyAndReturnArgs>(args: SelectSubset<T, SchoolRolePermissionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SchoolRolePermissionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one SchoolRolePermission.
+     * @param {SchoolRolePermissionUpsertArgs} args - Arguments to update or create a SchoolRolePermission.
+     * @example
+     * // Update or create a SchoolRolePermission
+     * const schoolRolePermission = await prisma.schoolRolePermission.upsert({
+     *   create: {
+     *     // ... data to create a SchoolRolePermission
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SchoolRolePermission we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SchoolRolePermissionUpsertArgs>(args: SelectSubset<T, SchoolRolePermissionUpsertArgs<ExtArgs>>): Prisma__SchoolRolePermissionClient<$Result.GetResult<Prisma.$SchoolRolePermissionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of SchoolRolePermissions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SchoolRolePermissionCountArgs} args - Arguments to filter SchoolRolePermissions to count.
+     * @example
+     * // Count the number of SchoolRolePermissions
+     * const count = await prisma.schoolRolePermission.count({
+     *   where: {
+     *     // ... the filter for the SchoolRolePermissions we want to count
+     *   }
+     * })
+    **/
+    count<T extends SchoolRolePermissionCountArgs>(
+      args?: Subset<T, SchoolRolePermissionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SchoolRolePermissionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SchoolRolePermission.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SchoolRolePermissionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SchoolRolePermissionAggregateArgs>(args: Subset<T, SchoolRolePermissionAggregateArgs>): Prisma.PrismaPromise<GetSchoolRolePermissionAggregateType<T>>
+
+    /**
+     * Group by SchoolRolePermission.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SchoolRolePermissionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SchoolRolePermissionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SchoolRolePermissionGroupByArgs['orderBy'] }
+        : { orderBy?: SchoolRolePermissionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SchoolRolePermissionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSchoolRolePermissionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SchoolRolePermission model
+   */
+  readonly fields: SchoolRolePermissionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SchoolRolePermission.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SchoolRolePermissionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    role<T extends SchoolRoleDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SchoolRoleDefaultArgs<ExtArgs>>): Prisma__SchoolRoleClient<$Result.GetResult<Prisma.$SchoolRolePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SchoolRolePermission model
+   */
+  interface SchoolRolePermissionFieldRefs {
+    readonly roleId: FieldRef<"SchoolRolePermission", 'String'>
+    readonly permissionKey: FieldRef<"SchoolRolePermission", 'String'>
+    readonly scope: FieldRef<"SchoolRolePermission", 'PermissionScope'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SchoolRolePermission findUnique
+   */
+  export type SchoolRolePermissionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolRolePermission
+     */
+    select?: SchoolRolePermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolRolePermission
+     */
+    omit?: SchoolRolePermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SchoolRolePermissionInclude<ExtArgs> | null
+    /**
+     * Filter, which SchoolRolePermission to fetch.
+     */
+    where: SchoolRolePermissionWhereUniqueInput
+  }
+
+  /**
+   * SchoolRolePermission findUniqueOrThrow
+   */
+  export type SchoolRolePermissionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolRolePermission
+     */
+    select?: SchoolRolePermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolRolePermission
+     */
+    omit?: SchoolRolePermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SchoolRolePermissionInclude<ExtArgs> | null
+    /**
+     * Filter, which SchoolRolePermission to fetch.
+     */
+    where: SchoolRolePermissionWhereUniqueInput
+  }
+
+  /**
+   * SchoolRolePermission findFirst
+   */
+  export type SchoolRolePermissionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolRolePermission
+     */
+    select?: SchoolRolePermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolRolePermission
+     */
+    omit?: SchoolRolePermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SchoolRolePermissionInclude<ExtArgs> | null
+    /**
+     * Filter, which SchoolRolePermission to fetch.
+     */
+    where?: SchoolRolePermissionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SchoolRolePermissions to fetch.
+     */
+    orderBy?: SchoolRolePermissionOrderByWithRelationInput | SchoolRolePermissionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SchoolRolePermissions.
+     */
+    cursor?: SchoolRolePermissionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SchoolRolePermissions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SchoolRolePermissions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SchoolRolePermissions.
+     */
+    distinct?: SchoolRolePermissionScalarFieldEnum | SchoolRolePermissionScalarFieldEnum[]
+  }
+
+  /**
+   * SchoolRolePermission findFirstOrThrow
+   */
+  export type SchoolRolePermissionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolRolePermission
+     */
+    select?: SchoolRolePermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolRolePermission
+     */
+    omit?: SchoolRolePermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SchoolRolePermissionInclude<ExtArgs> | null
+    /**
+     * Filter, which SchoolRolePermission to fetch.
+     */
+    where?: SchoolRolePermissionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SchoolRolePermissions to fetch.
+     */
+    orderBy?: SchoolRolePermissionOrderByWithRelationInput | SchoolRolePermissionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SchoolRolePermissions.
+     */
+    cursor?: SchoolRolePermissionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SchoolRolePermissions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SchoolRolePermissions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SchoolRolePermissions.
+     */
+    distinct?: SchoolRolePermissionScalarFieldEnum | SchoolRolePermissionScalarFieldEnum[]
+  }
+
+  /**
+   * SchoolRolePermission findMany
+   */
+  export type SchoolRolePermissionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolRolePermission
+     */
+    select?: SchoolRolePermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolRolePermission
+     */
+    omit?: SchoolRolePermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SchoolRolePermissionInclude<ExtArgs> | null
+    /**
+     * Filter, which SchoolRolePermissions to fetch.
+     */
+    where?: SchoolRolePermissionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SchoolRolePermissions to fetch.
+     */
+    orderBy?: SchoolRolePermissionOrderByWithRelationInput | SchoolRolePermissionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SchoolRolePermissions.
+     */
+    cursor?: SchoolRolePermissionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SchoolRolePermissions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SchoolRolePermissions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SchoolRolePermissions.
+     */
+    distinct?: SchoolRolePermissionScalarFieldEnum | SchoolRolePermissionScalarFieldEnum[]
+  }
+
+  /**
+   * SchoolRolePermission create
+   */
+  export type SchoolRolePermissionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolRolePermission
+     */
+    select?: SchoolRolePermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolRolePermission
+     */
+    omit?: SchoolRolePermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SchoolRolePermissionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a SchoolRolePermission.
+     */
+    data: XOR<SchoolRolePermissionCreateInput, SchoolRolePermissionUncheckedCreateInput>
+  }
+
+  /**
+   * SchoolRolePermission createMany
+   */
+  export type SchoolRolePermissionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SchoolRolePermissions.
+     */
+    data: SchoolRolePermissionCreateManyInput | SchoolRolePermissionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SchoolRolePermission createManyAndReturn
+   */
+  export type SchoolRolePermissionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolRolePermission
+     */
+    select?: SchoolRolePermissionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolRolePermission
+     */
+    omit?: SchoolRolePermissionOmit<ExtArgs> | null
+    /**
+     * The data used to create many SchoolRolePermissions.
+     */
+    data: SchoolRolePermissionCreateManyInput | SchoolRolePermissionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SchoolRolePermissionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SchoolRolePermission update
+   */
+  export type SchoolRolePermissionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolRolePermission
+     */
+    select?: SchoolRolePermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolRolePermission
+     */
+    omit?: SchoolRolePermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SchoolRolePermissionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a SchoolRolePermission.
+     */
+    data: XOR<SchoolRolePermissionUpdateInput, SchoolRolePermissionUncheckedUpdateInput>
+    /**
+     * Choose, which SchoolRolePermission to update.
+     */
+    where: SchoolRolePermissionWhereUniqueInput
+  }
+
+  /**
+   * SchoolRolePermission updateMany
+   */
+  export type SchoolRolePermissionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SchoolRolePermissions.
+     */
+    data: XOR<SchoolRolePermissionUpdateManyMutationInput, SchoolRolePermissionUncheckedUpdateManyInput>
+    /**
+     * Filter which SchoolRolePermissions to update
+     */
+    where?: SchoolRolePermissionWhereInput
+    /**
+     * Limit how many SchoolRolePermissions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SchoolRolePermission updateManyAndReturn
+   */
+  export type SchoolRolePermissionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolRolePermission
+     */
+    select?: SchoolRolePermissionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolRolePermission
+     */
+    omit?: SchoolRolePermissionOmit<ExtArgs> | null
+    /**
+     * The data used to update SchoolRolePermissions.
+     */
+    data: XOR<SchoolRolePermissionUpdateManyMutationInput, SchoolRolePermissionUncheckedUpdateManyInput>
+    /**
+     * Filter which SchoolRolePermissions to update
+     */
+    where?: SchoolRolePermissionWhereInput
+    /**
+     * Limit how many SchoolRolePermissions to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SchoolRolePermissionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SchoolRolePermission upsert
+   */
+  export type SchoolRolePermissionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolRolePermission
+     */
+    select?: SchoolRolePermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolRolePermission
+     */
+    omit?: SchoolRolePermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SchoolRolePermissionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the SchoolRolePermission to update in case it exists.
+     */
+    where: SchoolRolePermissionWhereUniqueInput
+    /**
+     * In case the SchoolRolePermission found by the `where` argument doesn't exist, create a new SchoolRolePermission with this data.
+     */
+    create: XOR<SchoolRolePermissionCreateInput, SchoolRolePermissionUncheckedCreateInput>
+    /**
+     * In case the SchoolRolePermission was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SchoolRolePermissionUpdateInput, SchoolRolePermissionUncheckedUpdateInput>
+  }
+
+  /**
+   * SchoolRolePermission delete
+   */
+  export type SchoolRolePermissionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolRolePermission
+     */
+    select?: SchoolRolePermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolRolePermission
+     */
+    omit?: SchoolRolePermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SchoolRolePermissionInclude<ExtArgs> | null
+    /**
+     * Filter which SchoolRolePermission to delete.
+     */
+    where: SchoolRolePermissionWhereUniqueInput
+  }
+
+  /**
+   * SchoolRolePermission deleteMany
+   */
+  export type SchoolRolePermissionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SchoolRolePermissions to delete
+     */
+    where?: SchoolRolePermissionWhereInput
+    /**
+     * Limit how many SchoolRolePermissions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * SchoolRolePermission without action
+   */
+  export type SchoolRolePermissionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolRolePermission
+     */
+    select?: SchoolRolePermissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolRolePermission
+     */
+    omit?: SchoolRolePermissionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SchoolRolePermissionInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Membership
+   */
+
+  export type AggregateMembership = {
+    _count: MembershipCountAggregateOutputType | null
+    _min: MembershipMinAggregateOutputType | null
+    _max: MembershipMaxAggregateOutputType | null
+  }
+
+  export type MembershipMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    persona: $Enums.Persona | null
+    personaEntityId: string | null
+    status: $Enums.MembershipStatus | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type MembershipMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    persona: $Enums.Persona | null
+    personaEntityId: string | null
+    status: $Enums.MembershipStatus | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type MembershipCountAggregateOutputType = {
+    id: number
+    userId: number
+    persona: number
+    personaEntityId: number
+    status: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type MembershipMinAggregateInputType = {
+    id?: true
+    userId?: true
+    persona?: true
+    personaEntityId?: true
+    status?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type MembershipMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    persona?: true
+    personaEntityId?: true
+    status?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type MembershipCountAggregateInputType = {
+    id?: true
+    userId?: true
+    persona?: true
+    personaEntityId?: true
+    status?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type MembershipAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Membership to aggregate.
+     */
+    where?: MembershipWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Memberships to fetch.
+     */
+    orderBy?: MembershipOrderByWithRelationInput | MembershipOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: MembershipWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Memberships from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Memberships.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Memberships
+    **/
+    _count?: true | MembershipCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: MembershipMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: MembershipMaxAggregateInputType
+  }
+
+  export type GetMembershipAggregateType<T extends MembershipAggregateArgs> = {
+        [P in keyof T & keyof AggregateMembership]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateMembership[P]>
+      : GetScalarType<T[P], AggregateMembership[P]>
+  }
+
+
+
+
+  export type MembershipGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MembershipWhereInput
+    orderBy?: MembershipOrderByWithAggregationInput | MembershipOrderByWithAggregationInput[]
+    by: MembershipScalarFieldEnum[] | MembershipScalarFieldEnum
+    having?: MembershipScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: MembershipCountAggregateInputType | true
+    _min?: MembershipMinAggregateInputType
+    _max?: MembershipMaxAggregateInputType
+  }
+
+  export type MembershipGroupByOutputType = {
+    id: string
+    userId: string
+    persona: $Enums.Persona
+    personaEntityId: string
+    status: $Enums.MembershipStatus
+    createdAt: Date
+    updatedAt: Date
+    _count: MembershipCountAggregateOutputType | null
+    _min: MembershipMinAggregateOutputType | null
+    _max: MembershipMaxAggregateOutputType | null
+  }
+
+  type GetMembershipGroupByPayload<T extends MembershipGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<MembershipGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof MembershipGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], MembershipGroupByOutputType[P]>
+            : GetScalarType<T[P], MembershipGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type MembershipSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    persona?: boolean
+    personaEntityId?: boolean
+    status?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    roles?: boolean | Membership$rolesArgs<ExtArgs>
+    _count?: boolean | MembershipCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["membership"]>
+
+  export type MembershipSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    persona?: boolean
+    personaEntityId?: boolean
+    status?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["membership"]>
+
+  export type MembershipSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    persona?: boolean
+    personaEntityId?: boolean
+    status?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["membership"]>
+
+  export type MembershipSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    persona?: boolean
+    personaEntityId?: boolean
+    status?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type MembershipOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "persona" | "personaEntityId" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["membership"]>
+  export type MembershipInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    roles?: boolean | Membership$rolesArgs<ExtArgs>
+    _count?: boolean | MembershipCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type MembershipIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type MembershipIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $MembershipPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Membership"
+    objects: {
+      roles: Prisma.$MembershipRolePayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      persona: $Enums.Persona
+      personaEntityId: string
+      status: $Enums.MembershipStatus
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["membership"]>
+    composites: {}
+  }
+
+  type MembershipGetPayload<S extends boolean | null | undefined | MembershipDefaultArgs> = $Result.GetResult<Prisma.$MembershipPayload, S>
+
+  type MembershipCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<MembershipFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: MembershipCountAggregateInputType | true
+    }
+
+  export interface MembershipDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Membership'], meta: { name: 'Membership' } }
+    /**
+     * Find zero or one Membership that matches the filter.
+     * @param {MembershipFindUniqueArgs} args - Arguments to find a Membership
+     * @example
+     * // Get one Membership
+     * const membership = await prisma.membership.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends MembershipFindUniqueArgs>(args: SelectSubset<T, MembershipFindUniqueArgs<ExtArgs>>): Prisma__MembershipClient<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Membership that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {MembershipFindUniqueOrThrowArgs} args - Arguments to find a Membership
+     * @example
+     * // Get one Membership
+     * const membership = await prisma.membership.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends MembershipFindUniqueOrThrowArgs>(args: SelectSubset<T, MembershipFindUniqueOrThrowArgs<ExtArgs>>): Prisma__MembershipClient<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Membership that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MembershipFindFirstArgs} args - Arguments to find a Membership
+     * @example
+     * // Get one Membership
+     * const membership = await prisma.membership.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends MembershipFindFirstArgs>(args?: SelectSubset<T, MembershipFindFirstArgs<ExtArgs>>): Prisma__MembershipClient<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Membership that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MembershipFindFirstOrThrowArgs} args - Arguments to find a Membership
+     * @example
+     * // Get one Membership
+     * const membership = await prisma.membership.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends MembershipFindFirstOrThrowArgs>(args?: SelectSubset<T, MembershipFindFirstOrThrowArgs<ExtArgs>>): Prisma__MembershipClient<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Memberships that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MembershipFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Memberships
+     * const memberships = await prisma.membership.findMany()
+     * 
+     * // Get first 10 Memberships
+     * const memberships = await prisma.membership.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const membershipWithIdOnly = await prisma.membership.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends MembershipFindManyArgs>(args?: SelectSubset<T, MembershipFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Membership.
+     * @param {MembershipCreateArgs} args - Arguments to create a Membership.
+     * @example
+     * // Create one Membership
+     * const Membership = await prisma.membership.create({
+     *   data: {
+     *     // ... data to create a Membership
+     *   }
+     * })
+     * 
+     */
+    create<T extends MembershipCreateArgs>(args: SelectSubset<T, MembershipCreateArgs<ExtArgs>>): Prisma__MembershipClient<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Memberships.
+     * @param {MembershipCreateManyArgs} args - Arguments to create many Memberships.
+     * @example
+     * // Create many Memberships
+     * const membership = await prisma.membership.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends MembershipCreateManyArgs>(args?: SelectSubset<T, MembershipCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Memberships and returns the data saved in the database.
+     * @param {MembershipCreateManyAndReturnArgs} args - Arguments to create many Memberships.
+     * @example
+     * // Create many Memberships
+     * const membership = await prisma.membership.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Memberships and only return the `id`
+     * const membershipWithIdOnly = await prisma.membership.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends MembershipCreateManyAndReturnArgs>(args?: SelectSubset<T, MembershipCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Membership.
+     * @param {MembershipDeleteArgs} args - Arguments to delete one Membership.
+     * @example
+     * // Delete one Membership
+     * const Membership = await prisma.membership.delete({
+     *   where: {
+     *     // ... filter to delete one Membership
+     *   }
+     * })
+     * 
+     */
+    delete<T extends MembershipDeleteArgs>(args: SelectSubset<T, MembershipDeleteArgs<ExtArgs>>): Prisma__MembershipClient<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Membership.
+     * @param {MembershipUpdateArgs} args - Arguments to update one Membership.
+     * @example
+     * // Update one Membership
+     * const membership = await prisma.membership.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends MembershipUpdateArgs>(args: SelectSubset<T, MembershipUpdateArgs<ExtArgs>>): Prisma__MembershipClient<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Memberships.
+     * @param {MembershipDeleteManyArgs} args - Arguments to filter Memberships to delete.
+     * @example
+     * // Delete a few Memberships
+     * const { count } = await prisma.membership.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends MembershipDeleteManyArgs>(args?: SelectSubset<T, MembershipDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Memberships.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MembershipUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Memberships
+     * const membership = await prisma.membership.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends MembershipUpdateManyArgs>(args: SelectSubset<T, MembershipUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Memberships and returns the data updated in the database.
+     * @param {MembershipUpdateManyAndReturnArgs} args - Arguments to update many Memberships.
+     * @example
+     * // Update many Memberships
+     * const membership = await prisma.membership.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Memberships and only return the `id`
+     * const membershipWithIdOnly = await prisma.membership.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends MembershipUpdateManyAndReturnArgs>(args: SelectSubset<T, MembershipUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Membership.
+     * @param {MembershipUpsertArgs} args - Arguments to update or create a Membership.
+     * @example
+     * // Update or create a Membership
+     * const membership = await prisma.membership.upsert({
+     *   create: {
+     *     // ... data to create a Membership
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Membership we want to update
+     *   }
+     * })
+     */
+    upsert<T extends MembershipUpsertArgs>(args: SelectSubset<T, MembershipUpsertArgs<ExtArgs>>): Prisma__MembershipClient<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Memberships.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MembershipCountArgs} args - Arguments to filter Memberships to count.
+     * @example
+     * // Count the number of Memberships
+     * const count = await prisma.membership.count({
+     *   where: {
+     *     // ... the filter for the Memberships we want to count
+     *   }
+     * })
+    **/
+    count<T extends MembershipCountArgs>(
+      args?: Subset<T, MembershipCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], MembershipCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Membership.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MembershipAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends MembershipAggregateArgs>(args: Subset<T, MembershipAggregateArgs>): Prisma.PrismaPromise<GetMembershipAggregateType<T>>
+
+    /**
+     * Group by Membership.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MembershipGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends MembershipGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: MembershipGroupByArgs['orderBy'] }
+        : { orderBy?: MembershipGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, MembershipGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetMembershipGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Membership model
+   */
+  readonly fields: MembershipFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Membership.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__MembershipClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    roles<T extends Membership$rolesArgs<ExtArgs> = {}>(args?: Subset<T, Membership$rolesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MembershipRolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Membership model
+   */
+  interface MembershipFieldRefs {
+    readonly id: FieldRef<"Membership", 'String'>
+    readonly userId: FieldRef<"Membership", 'String'>
+    readonly persona: FieldRef<"Membership", 'Persona'>
+    readonly personaEntityId: FieldRef<"Membership", 'String'>
+    readonly status: FieldRef<"Membership", 'MembershipStatus'>
+    readonly createdAt: FieldRef<"Membership", 'DateTime'>
+    readonly updatedAt: FieldRef<"Membership", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Membership findUnique
+   */
+  export type MembershipFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Membership
+     */
+    select?: MembershipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Membership
+     */
+    omit?: MembershipOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MembershipInclude<ExtArgs> | null
+    /**
+     * Filter, which Membership to fetch.
+     */
+    where: MembershipWhereUniqueInput
+  }
+
+  /**
+   * Membership findUniqueOrThrow
+   */
+  export type MembershipFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Membership
+     */
+    select?: MembershipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Membership
+     */
+    omit?: MembershipOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MembershipInclude<ExtArgs> | null
+    /**
+     * Filter, which Membership to fetch.
+     */
+    where: MembershipWhereUniqueInput
+  }
+
+  /**
+   * Membership findFirst
+   */
+  export type MembershipFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Membership
+     */
+    select?: MembershipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Membership
+     */
+    omit?: MembershipOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MembershipInclude<ExtArgs> | null
+    /**
+     * Filter, which Membership to fetch.
+     */
+    where?: MembershipWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Memberships to fetch.
+     */
+    orderBy?: MembershipOrderByWithRelationInput | MembershipOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Memberships.
+     */
+    cursor?: MembershipWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Memberships from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Memberships.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Memberships.
+     */
+    distinct?: MembershipScalarFieldEnum | MembershipScalarFieldEnum[]
+  }
+
+  /**
+   * Membership findFirstOrThrow
+   */
+  export type MembershipFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Membership
+     */
+    select?: MembershipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Membership
+     */
+    omit?: MembershipOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MembershipInclude<ExtArgs> | null
+    /**
+     * Filter, which Membership to fetch.
+     */
+    where?: MembershipWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Memberships to fetch.
+     */
+    orderBy?: MembershipOrderByWithRelationInput | MembershipOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Memberships.
+     */
+    cursor?: MembershipWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Memberships from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Memberships.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Memberships.
+     */
+    distinct?: MembershipScalarFieldEnum | MembershipScalarFieldEnum[]
+  }
+
+  /**
+   * Membership findMany
+   */
+  export type MembershipFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Membership
+     */
+    select?: MembershipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Membership
+     */
+    omit?: MembershipOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MembershipInclude<ExtArgs> | null
+    /**
+     * Filter, which Memberships to fetch.
+     */
+    where?: MembershipWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Memberships to fetch.
+     */
+    orderBy?: MembershipOrderByWithRelationInput | MembershipOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Memberships.
+     */
+    cursor?: MembershipWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Memberships from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Memberships.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Memberships.
+     */
+    distinct?: MembershipScalarFieldEnum | MembershipScalarFieldEnum[]
+  }
+
+  /**
+   * Membership create
+   */
+  export type MembershipCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Membership
+     */
+    select?: MembershipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Membership
+     */
+    omit?: MembershipOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MembershipInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Membership.
+     */
+    data: XOR<MembershipCreateInput, MembershipUncheckedCreateInput>
+  }
+
+  /**
+   * Membership createMany
+   */
+  export type MembershipCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Memberships.
+     */
+    data: MembershipCreateManyInput | MembershipCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Membership createManyAndReturn
+   */
+  export type MembershipCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Membership
+     */
+    select?: MembershipSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Membership
+     */
+    omit?: MembershipOmit<ExtArgs> | null
+    /**
+     * The data used to create many Memberships.
+     */
+    data: MembershipCreateManyInput | MembershipCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Membership update
+   */
+  export type MembershipUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Membership
+     */
+    select?: MembershipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Membership
+     */
+    omit?: MembershipOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MembershipInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Membership.
+     */
+    data: XOR<MembershipUpdateInput, MembershipUncheckedUpdateInput>
+    /**
+     * Choose, which Membership to update.
+     */
+    where: MembershipWhereUniqueInput
+  }
+
+  /**
+   * Membership updateMany
+   */
+  export type MembershipUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Memberships.
+     */
+    data: XOR<MembershipUpdateManyMutationInput, MembershipUncheckedUpdateManyInput>
+    /**
+     * Filter which Memberships to update
+     */
+    where?: MembershipWhereInput
+    /**
+     * Limit how many Memberships to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Membership updateManyAndReturn
+   */
+  export type MembershipUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Membership
+     */
+    select?: MembershipSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Membership
+     */
+    omit?: MembershipOmit<ExtArgs> | null
+    /**
+     * The data used to update Memberships.
+     */
+    data: XOR<MembershipUpdateManyMutationInput, MembershipUncheckedUpdateManyInput>
+    /**
+     * Filter which Memberships to update
+     */
+    where?: MembershipWhereInput
+    /**
+     * Limit how many Memberships to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Membership upsert
+   */
+  export type MembershipUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Membership
+     */
+    select?: MembershipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Membership
+     */
+    omit?: MembershipOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MembershipInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Membership to update in case it exists.
+     */
+    where: MembershipWhereUniqueInput
+    /**
+     * In case the Membership found by the `where` argument doesn't exist, create a new Membership with this data.
+     */
+    create: XOR<MembershipCreateInput, MembershipUncheckedCreateInput>
+    /**
+     * In case the Membership was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<MembershipUpdateInput, MembershipUncheckedUpdateInput>
+  }
+
+  /**
+   * Membership delete
+   */
+  export type MembershipDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Membership
+     */
+    select?: MembershipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Membership
+     */
+    omit?: MembershipOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MembershipInclude<ExtArgs> | null
+    /**
+     * Filter which Membership to delete.
+     */
+    where: MembershipWhereUniqueInput
+  }
+
+  /**
+   * Membership deleteMany
+   */
+  export type MembershipDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Memberships to delete
+     */
+    where?: MembershipWhereInput
+    /**
+     * Limit how many Memberships to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Membership.roles
+   */
+  export type Membership$rolesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MembershipRole
+     */
+    select?: MembershipRoleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MembershipRole
+     */
+    omit?: MembershipRoleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MembershipRoleInclude<ExtArgs> | null
+    where?: MembershipRoleWhereInput
+    orderBy?: MembershipRoleOrderByWithRelationInput | MembershipRoleOrderByWithRelationInput[]
+    cursor?: MembershipRoleWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: MembershipRoleScalarFieldEnum | MembershipRoleScalarFieldEnum[]
+  }
+
+  /**
+   * Membership without action
+   */
+  export type MembershipDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Membership
+     */
+    select?: MembershipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Membership
+     */
+    omit?: MembershipOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MembershipInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model MembershipRole
+   */
+
+  export type AggregateMembershipRole = {
+    _count: MembershipRoleCountAggregateOutputType | null
+    _min: MembershipRoleMinAggregateOutputType | null
+    _max: MembershipRoleMaxAggregateOutputType | null
+  }
+
+  export type MembershipRoleMinAggregateOutputType = {
+    membershipId: string | null
+    roleId: string | null
+    assignedAt: Date | null
+    assignedById: string | null
+  }
+
+  export type MembershipRoleMaxAggregateOutputType = {
+    membershipId: string | null
+    roleId: string | null
+    assignedAt: Date | null
+    assignedById: string | null
+  }
+
+  export type MembershipRoleCountAggregateOutputType = {
+    membershipId: number
+    roleId: number
+    assignedAt: number
+    assignedById: number
+    _all: number
+  }
+
+
+  export type MembershipRoleMinAggregateInputType = {
+    membershipId?: true
+    roleId?: true
+    assignedAt?: true
+    assignedById?: true
+  }
+
+  export type MembershipRoleMaxAggregateInputType = {
+    membershipId?: true
+    roleId?: true
+    assignedAt?: true
+    assignedById?: true
+  }
+
+  export type MembershipRoleCountAggregateInputType = {
+    membershipId?: true
+    roleId?: true
+    assignedAt?: true
+    assignedById?: true
+    _all?: true
+  }
+
+  export type MembershipRoleAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MembershipRole to aggregate.
+     */
+    where?: MembershipRoleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MembershipRoles to fetch.
+     */
+    orderBy?: MembershipRoleOrderByWithRelationInput | MembershipRoleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: MembershipRoleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MembershipRoles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MembershipRoles.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned MembershipRoles
+    **/
+    _count?: true | MembershipRoleCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: MembershipRoleMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: MembershipRoleMaxAggregateInputType
+  }
+
+  export type GetMembershipRoleAggregateType<T extends MembershipRoleAggregateArgs> = {
+        [P in keyof T & keyof AggregateMembershipRole]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateMembershipRole[P]>
+      : GetScalarType<T[P], AggregateMembershipRole[P]>
+  }
+
+
+
+
+  export type MembershipRoleGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MembershipRoleWhereInput
+    orderBy?: MembershipRoleOrderByWithAggregationInput | MembershipRoleOrderByWithAggregationInput[]
+    by: MembershipRoleScalarFieldEnum[] | MembershipRoleScalarFieldEnum
+    having?: MembershipRoleScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: MembershipRoleCountAggregateInputType | true
+    _min?: MembershipRoleMinAggregateInputType
+    _max?: MembershipRoleMaxAggregateInputType
+  }
+
+  export type MembershipRoleGroupByOutputType = {
+    membershipId: string
+    roleId: string
+    assignedAt: Date
+    assignedById: string | null
+    _count: MembershipRoleCountAggregateOutputType | null
+    _min: MembershipRoleMinAggregateOutputType | null
+    _max: MembershipRoleMaxAggregateOutputType | null
+  }
+
+  type GetMembershipRoleGroupByPayload<T extends MembershipRoleGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<MembershipRoleGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof MembershipRoleGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], MembershipRoleGroupByOutputType[P]>
+            : GetScalarType<T[P], MembershipRoleGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type MembershipRoleSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    membershipId?: boolean
+    roleId?: boolean
+    assignedAt?: boolean
+    assignedById?: boolean
+    membership?: boolean | MembershipDefaultArgs<ExtArgs>
+    role?: boolean | SchoolRoleDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["membershipRole"]>
+
+  export type MembershipRoleSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    membershipId?: boolean
+    roleId?: boolean
+    assignedAt?: boolean
+    assignedById?: boolean
+    membership?: boolean | MembershipDefaultArgs<ExtArgs>
+    role?: boolean | SchoolRoleDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["membershipRole"]>
+
+  export type MembershipRoleSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    membershipId?: boolean
+    roleId?: boolean
+    assignedAt?: boolean
+    assignedById?: boolean
+    membership?: boolean | MembershipDefaultArgs<ExtArgs>
+    role?: boolean | SchoolRoleDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["membershipRole"]>
+
+  export type MembershipRoleSelectScalar = {
+    membershipId?: boolean
+    roleId?: boolean
+    assignedAt?: boolean
+    assignedById?: boolean
+  }
+
+  export type MembershipRoleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"membershipId" | "roleId" | "assignedAt" | "assignedById", ExtArgs["result"]["membershipRole"]>
+  export type MembershipRoleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    membership?: boolean | MembershipDefaultArgs<ExtArgs>
+    role?: boolean | SchoolRoleDefaultArgs<ExtArgs>
+  }
+  export type MembershipRoleIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    membership?: boolean | MembershipDefaultArgs<ExtArgs>
+    role?: boolean | SchoolRoleDefaultArgs<ExtArgs>
+  }
+  export type MembershipRoleIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    membership?: boolean | MembershipDefaultArgs<ExtArgs>
+    role?: boolean | SchoolRoleDefaultArgs<ExtArgs>
+  }
+
+  export type $MembershipRolePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "MembershipRole"
+    objects: {
+      membership: Prisma.$MembershipPayload<ExtArgs>
+      role: Prisma.$SchoolRolePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      membershipId: string
+      roleId: string
+      assignedAt: Date
+      assignedById: string | null
+    }, ExtArgs["result"]["membershipRole"]>
+    composites: {}
+  }
+
+  type MembershipRoleGetPayload<S extends boolean | null | undefined | MembershipRoleDefaultArgs> = $Result.GetResult<Prisma.$MembershipRolePayload, S>
+
+  type MembershipRoleCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<MembershipRoleFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: MembershipRoleCountAggregateInputType | true
+    }
+
+  export interface MembershipRoleDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['MembershipRole'], meta: { name: 'MembershipRole' } }
+    /**
+     * Find zero or one MembershipRole that matches the filter.
+     * @param {MembershipRoleFindUniqueArgs} args - Arguments to find a MembershipRole
+     * @example
+     * // Get one MembershipRole
+     * const membershipRole = await prisma.membershipRole.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends MembershipRoleFindUniqueArgs>(args: SelectSubset<T, MembershipRoleFindUniqueArgs<ExtArgs>>): Prisma__MembershipRoleClient<$Result.GetResult<Prisma.$MembershipRolePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one MembershipRole that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {MembershipRoleFindUniqueOrThrowArgs} args - Arguments to find a MembershipRole
+     * @example
+     * // Get one MembershipRole
+     * const membershipRole = await prisma.membershipRole.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends MembershipRoleFindUniqueOrThrowArgs>(args: SelectSubset<T, MembershipRoleFindUniqueOrThrowArgs<ExtArgs>>): Prisma__MembershipRoleClient<$Result.GetResult<Prisma.$MembershipRolePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MembershipRole that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MembershipRoleFindFirstArgs} args - Arguments to find a MembershipRole
+     * @example
+     * // Get one MembershipRole
+     * const membershipRole = await prisma.membershipRole.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends MembershipRoleFindFirstArgs>(args?: SelectSubset<T, MembershipRoleFindFirstArgs<ExtArgs>>): Prisma__MembershipRoleClient<$Result.GetResult<Prisma.$MembershipRolePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MembershipRole that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MembershipRoleFindFirstOrThrowArgs} args - Arguments to find a MembershipRole
+     * @example
+     * // Get one MembershipRole
+     * const membershipRole = await prisma.membershipRole.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends MembershipRoleFindFirstOrThrowArgs>(args?: SelectSubset<T, MembershipRoleFindFirstOrThrowArgs<ExtArgs>>): Prisma__MembershipRoleClient<$Result.GetResult<Prisma.$MembershipRolePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more MembershipRoles that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MembershipRoleFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all MembershipRoles
+     * const membershipRoles = await prisma.membershipRole.findMany()
+     * 
+     * // Get first 10 MembershipRoles
+     * const membershipRoles = await prisma.membershipRole.findMany({ take: 10 })
+     * 
+     * // Only select the `membershipId`
+     * const membershipRoleWithMembershipIdOnly = await prisma.membershipRole.findMany({ select: { membershipId: true } })
+     * 
+     */
+    findMany<T extends MembershipRoleFindManyArgs>(args?: SelectSubset<T, MembershipRoleFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MembershipRolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a MembershipRole.
+     * @param {MembershipRoleCreateArgs} args - Arguments to create a MembershipRole.
+     * @example
+     * // Create one MembershipRole
+     * const MembershipRole = await prisma.membershipRole.create({
+     *   data: {
+     *     // ... data to create a MembershipRole
+     *   }
+     * })
+     * 
+     */
+    create<T extends MembershipRoleCreateArgs>(args: SelectSubset<T, MembershipRoleCreateArgs<ExtArgs>>): Prisma__MembershipRoleClient<$Result.GetResult<Prisma.$MembershipRolePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many MembershipRoles.
+     * @param {MembershipRoleCreateManyArgs} args - Arguments to create many MembershipRoles.
+     * @example
+     * // Create many MembershipRoles
+     * const membershipRole = await prisma.membershipRole.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends MembershipRoleCreateManyArgs>(args?: SelectSubset<T, MembershipRoleCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many MembershipRoles and returns the data saved in the database.
+     * @param {MembershipRoleCreateManyAndReturnArgs} args - Arguments to create many MembershipRoles.
+     * @example
+     * // Create many MembershipRoles
+     * const membershipRole = await prisma.membershipRole.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many MembershipRoles and only return the `membershipId`
+     * const membershipRoleWithMembershipIdOnly = await prisma.membershipRole.createManyAndReturn({
+     *   select: { membershipId: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends MembershipRoleCreateManyAndReturnArgs>(args?: SelectSubset<T, MembershipRoleCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MembershipRolePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a MembershipRole.
+     * @param {MembershipRoleDeleteArgs} args - Arguments to delete one MembershipRole.
+     * @example
+     * // Delete one MembershipRole
+     * const MembershipRole = await prisma.membershipRole.delete({
+     *   where: {
+     *     // ... filter to delete one MembershipRole
+     *   }
+     * })
+     * 
+     */
+    delete<T extends MembershipRoleDeleteArgs>(args: SelectSubset<T, MembershipRoleDeleteArgs<ExtArgs>>): Prisma__MembershipRoleClient<$Result.GetResult<Prisma.$MembershipRolePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one MembershipRole.
+     * @param {MembershipRoleUpdateArgs} args - Arguments to update one MembershipRole.
+     * @example
+     * // Update one MembershipRole
+     * const membershipRole = await prisma.membershipRole.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends MembershipRoleUpdateArgs>(args: SelectSubset<T, MembershipRoleUpdateArgs<ExtArgs>>): Prisma__MembershipRoleClient<$Result.GetResult<Prisma.$MembershipRolePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more MembershipRoles.
+     * @param {MembershipRoleDeleteManyArgs} args - Arguments to filter MembershipRoles to delete.
+     * @example
+     * // Delete a few MembershipRoles
+     * const { count } = await prisma.membershipRole.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends MembershipRoleDeleteManyArgs>(args?: SelectSubset<T, MembershipRoleDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MembershipRoles.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MembershipRoleUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many MembershipRoles
+     * const membershipRole = await prisma.membershipRole.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends MembershipRoleUpdateManyArgs>(args: SelectSubset<T, MembershipRoleUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MembershipRoles and returns the data updated in the database.
+     * @param {MembershipRoleUpdateManyAndReturnArgs} args - Arguments to update many MembershipRoles.
+     * @example
+     * // Update many MembershipRoles
+     * const membershipRole = await prisma.membershipRole.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more MembershipRoles and only return the `membershipId`
+     * const membershipRoleWithMembershipIdOnly = await prisma.membershipRole.updateManyAndReturn({
+     *   select: { membershipId: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends MembershipRoleUpdateManyAndReturnArgs>(args: SelectSubset<T, MembershipRoleUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MembershipRolePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one MembershipRole.
+     * @param {MembershipRoleUpsertArgs} args - Arguments to update or create a MembershipRole.
+     * @example
+     * // Update or create a MembershipRole
+     * const membershipRole = await prisma.membershipRole.upsert({
+     *   create: {
+     *     // ... data to create a MembershipRole
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the MembershipRole we want to update
+     *   }
+     * })
+     */
+    upsert<T extends MembershipRoleUpsertArgs>(args: SelectSubset<T, MembershipRoleUpsertArgs<ExtArgs>>): Prisma__MembershipRoleClient<$Result.GetResult<Prisma.$MembershipRolePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of MembershipRoles.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MembershipRoleCountArgs} args - Arguments to filter MembershipRoles to count.
+     * @example
+     * // Count the number of MembershipRoles
+     * const count = await prisma.membershipRole.count({
+     *   where: {
+     *     // ... the filter for the MembershipRoles we want to count
+     *   }
+     * })
+    **/
+    count<T extends MembershipRoleCountArgs>(
+      args?: Subset<T, MembershipRoleCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], MembershipRoleCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a MembershipRole.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MembershipRoleAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends MembershipRoleAggregateArgs>(args: Subset<T, MembershipRoleAggregateArgs>): Prisma.PrismaPromise<GetMembershipRoleAggregateType<T>>
+
+    /**
+     * Group by MembershipRole.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MembershipRoleGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends MembershipRoleGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: MembershipRoleGroupByArgs['orderBy'] }
+        : { orderBy?: MembershipRoleGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, MembershipRoleGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetMembershipRoleGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the MembershipRole model
+   */
+  readonly fields: MembershipRoleFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for MembershipRole.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__MembershipRoleClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    membership<T extends MembershipDefaultArgs<ExtArgs> = {}>(args?: Subset<T, MembershipDefaultArgs<ExtArgs>>): Prisma__MembershipClient<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    role<T extends SchoolRoleDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SchoolRoleDefaultArgs<ExtArgs>>): Prisma__SchoolRoleClient<$Result.GetResult<Prisma.$SchoolRolePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the MembershipRole model
+   */
+  interface MembershipRoleFieldRefs {
+    readonly membershipId: FieldRef<"MembershipRole", 'String'>
+    readonly roleId: FieldRef<"MembershipRole", 'String'>
+    readonly assignedAt: FieldRef<"MembershipRole", 'DateTime'>
+    readonly assignedById: FieldRef<"MembershipRole", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * MembershipRole findUnique
+   */
+  export type MembershipRoleFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MembershipRole
+     */
+    select?: MembershipRoleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MembershipRole
+     */
+    omit?: MembershipRoleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MembershipRoleInclude<ExtArgs> | null
+    /**
+     * Filter, which MembershipRole to fetch.
+     */
+    where: MembershipRoleWhereUniqueInput
+  }
+
+  /**
+   * MembershipRole findUniqueOrThrow
+   */
+  export type MembershipRoleFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MembershipRole
+     */
+    select?: MembershipRoleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MembershipRole
+     */
+    omit?: MembershipRoleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MembershipRoleInclude<ExtArgs> | null
+    /**
+     * Filter, which MembershipRole to fetch.
+     */
+    where: MembershipRoleWhereUniqueInput
+  }
+
+  /**
+   * MembershipRole findFirst
+   */
+  export type MembershipRoleFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MembershipRole
+     */
+    select?: MembershipRoleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MembershipRole
+     */
+    omit?: MembershipRoleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MembershipRoleInclude<ExtArgs> | null
+    /**
+     * Filter, which MembershipRole to fetch.
+     */
+    where?: MembershipRoleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MembershipRoles to fetch.
+     */
+    orderBy?: MembershipRoleOrderByWithRelationInput | MembershipRoleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MembershipRoles.
+     */
+    cursor?: MembershipRoleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MembershipRoles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MembershipRoles.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MembershipRoles.
+     */
+    distinct?: MembershipRoleScalarFieldEnum | MembershipRoleScalarFieldEnum[]
+  }
+
+  /**
+   * MembershipRole findFirstOrThrow
+   */
+  export type MembershipRoleFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MembershipRole
+     */
+    select?: MembershipRoleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MembershipRole
+     */
+    omit?: MembershipRoleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MembershipRoleInclude<ExtArgs> | null
+    /**
+     * Filter, which MembershipRole to fetch.
+     */
+    where?: MembershipRoleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MembershipRoles to fetch.
+     */
+    orderBy?: MembershipRoleOrderByWithRelationInput | MembershipRoleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MembershipRoles.
+     */
+    cursor?: MembershipRoleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MembershipRoles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MembershipRoles.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MembershipRoles.
+     */
+    distinct?: MembershipRoleScalarFieldEnum | MembershipRoleScalarFieldEnum[]
+  }
+
+  /**
+   * MembershipRole findMany
+   */
+  export type MembershipRoleFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MembershipRole
+     */
+    select?: MembershipRoleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MembershipRole
+     */
+    omit?: MembershipRoleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MembershipRoleInclude<ExtArgs> | null
+    /**
+     * Filter, which MembershipRoles to fetch.
+     */
+    where?: MembershipRoleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MembershipRoles to fetch.
+     */
+    orderBy?: MembershipRoleOrderByWithRelationInput | MembershipRoleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing MembershipRoles.
+     */
+    cursor?: MembershipRoleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MembershipRoles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MembershipRoles.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MembershipRoles.
+     */
+    distinct?: MembershipRoleScalarFieldEnum | MembershipRoleScalarFieldEnum[]
+  }
+
+  /**
+   * MembershipRole create
+   */
+  export type MembershipRoleCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MembershipRole
+     */
+    select?: MembershipRoleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MembershipRole
+     */
+    omit?: MembershipRoleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MembershipRoleInclude<ExtArgs> | null
+    /**
+     * The data needed to create a MembershipRole.
+     */
+    data: XOR<MembershipRoleCreateInput, MembershipRoleUncheckedCreateInput>
+  }
+
+  /**
+   * MembershipRole createMany
+   */
+  export type MembershipRoleCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many MembershipRoles.
+     */
+    data: MembershipRoleCreateManyInput | MembershipRoleCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * MembershipRole createManyAndReturn
+   */
+  export type MembershipRoleCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MembershipRole
+     */
+    select?: MembershipRoleSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the MembershipRole
+     */
+    omit?: MembershipRoleOmit<ExtArgs> | null
+    /**
+     * The data used to create many MembershipRoles.
+     */
+    data: MembershipRoleCreateManyInput | MembershipRoleCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MembershipRoleIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * MembershipRole update
+   */
+  export type MembershipRoleUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MembershipRole
+     */
+    select?: MembershipRoleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MembershipRole
+     */
+    omit?: MembershipRoleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MembershipRoleInclude<ExtArgs> | null
+    /**
+     * The data needed to update a MembershipRole.
+     */
+    data: XOR<MembershipRoleUpdateInput, MembershipRoleUncheckedUpdateInput>
+    /**
+     * Choose, which MembershipRole to update.
+     */
+    where: MembershipRoleWhereUniqueInput
+  }
+
+  /**
+   * MembershipRole updateMany
+   */
+  export type MembershipRoleUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update MembershipRoles.
+     */
+    data: XOR<MembershipRoleUpdateManyMutationInput, MembershipRoleUncheckedUpdateManyInput>
+    /**
+     * Filter which MembershipRoles to update
+     */
+    where?: MembershipRoleWhereInput
+    /**
+     * Limit how many MembershipRoles to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * MembershipRole updateManyAndReturn
+   */
+  export type MembershipRoleUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MembershipRole
+     */
+    select?: MembershipRoleSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the MembershipRole
+     */
+    omit?: MembershipRoleOmit<ExtArgs> | null
+    /**
+     * The data used to update MembershipRoles.
+     */
+    data: XOR<MembershipRoleUpdateManyMutationInput, MembershipRoleUncheckedUpdateManyInput>
+    /**
+     * Filter which MembershipRoles to update
+     */
+    where?: MembershipRoleWhereInput
+    /**
+     * Limit how many MembershipRoles to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MembershipRoleIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * MembershipRole upsert
+   */
+  export type MembershipRoleUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MembershipRole
+     */
+    select?: MembershipRoleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MembershipRole
+     */
+    omit?: MembershipRoleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MembershipRoleInclude<ExtArgs> | null
+    /**
+     * The filter to search for the MembershipRole to update in case it exists.
+     */
+    where: MembershipRoleWhereUniqueInput
+    /**
+     * In case the MembershipRole found by the `where` argument doesn't exist, create a new MembershipRole with this data.
+     */
+    create: XOR<MembershipRoleCreateInput, MembershipRoleUncheckedCreateInput>
+    /**
+     * In case the MembershipRole was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<MembershipRoleUpdateInput, MembershipRoleUncheckedUpdateInput>
+  }
+
+  /**
+   * MembershipRole delete
+   */
+  export type MembershipRoleDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MembershipRole
+     */
+    select?: MembershipRoleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MembershipRole
+     */
+    omit?: MembershipRoleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MembershipRoleInclude<ExtArgs> | null
+    /**
+     * Filter which MembershipRole to delete.
+     */
+    where: MembershipRoleWhereUniqueInput
+  }
+
+  /**
+   * MembershipRole deleteMany
+   */
+  export type MembershipRoleDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MembershipRoles to delete
+     */
+    where?: MembershipRoleWhereInput
+    /**
+     * Limit how many MembershipRoles to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * MembershipRole without action
+   */
+  export type MembershipRoleDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MembershipRole
+     */
+    select?: MembershipRoleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MembershipRole
+     */
+    omit?: MembershipRoleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MembershipRoleInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model SchoolSettingValue
+   */
+
+  export type AggregateSchoolSettingValue = {
+    _count: SchoolSettingValueCountAggregateOutputType | null
+    _min: SchoolSettingValueMinAggregateOutputType | null
+    _max: SchoolSettingValueMaxAggregateOutputType | null
+  }
+
+  export type SchoolSettingValueMinAggregateOutputType = {
+    key: string | null
+    updatedById: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SchoolSettingValueMaxAggregateOutputType = {
+    key: string | null
+    updatedById: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SchoolSettingValueCountAggregateOutputType = {
+    key: number
+    value: number
+    updatedById: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type SchoolSettingValueMinAggregateInputType = {
+    key?: true
+    updatedById?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type SchoolSettingValueMaxAggregateInputType = {
+    key?: true
+    updatedById?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type SchoolSettingValueCountAggregateInputType = {
+    key?: true
+    value?: true
+    updatedById?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type SchoolSettingValueAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SchoolSettingValue to aggregate.
+     */
+    where?: SchoolSettingValueWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SchoolSettingValues to fetch.
+     */
+    orderBy?: SchoolSettingValueOrderByWithRelationInput | SchoolSettingValueOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SchoolSettingValueWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SchoolSettingValues from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SchoolSettingValues.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SchoolSettingValues
+    **/
+    _count?: true | SchoolSettingValueCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SchoolSettingValueMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SchoolSettingValueMaxAggregateInputType
+  }
+
+  export type GetSchoolSettingValueAggregateType<T extends SchoolSettingValueAggregateArgs> = {
+        [P in keyof T & keyof AggregateSchoolSettingValue]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSchoolSettingValue[P]>
+      : GetScalarType<T[P], AggregateSchoolSettingValue[P]>
+  }
+
+
+
+
+  export type SchoolSettingValueGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SchoolSettingValueWhereInput
+    orderBy?: SchoolSettingValueOrderByWithAggregationInput | SchoolSettingValueOrderByWithAggregationInput[]
+    by: SchoolSettingValueScalarFieldEnum[] | SchoolSettingValueScalarFieldEnum
+    having?: SchoolSettingValueScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SchoolSettingValueCountAggregateInputType | true
+    _min?: SchoolSettingValueMinAggregateInputType
+    _max?: SchoolSettingValueMaxAggregateInputType
+  }
+
+  export type SchoolSettingValueGroupByOutputType = {
+    key: string
+    value: JsonValue
+    updatedById: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: SchoolSettingValueCountAggregateOutputType | null
+    _min: SchoolSettingValueMinAggregateOutputType | null
+    _max: SchoolSettingValueMaxAggregateOutputType | null
+  }
+
+  type GetSchoolSettingValueGroupByPayload<T extends SchoolSettingValueGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SchoolSettingValueGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SchoolSettingValueGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SchoolSettingValueGroupByOutputType[P]>
+            : GetScalarType<T[P], SchoolSettingValueGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SchoolSettingValueSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    key?: boolean
+    value?: boolean
+    updatedById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["schoolSettingValue"]>
+
+  export type SchoolSettingValueSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    key?: boolean
+    value?: boolean
+    updatedById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["schoolSettingValue"]>
+
+  export type SchoolSettingValueSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    key?: boolean
+    value?: boolean
+    updatedById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["schoolSettingValue"]>
+
+  export type SchoolSettingValueSelectScalar = {
+    key?: boolean
+    value?: boolean
+    updatedById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type SchoolSettingValueOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"key" | "value" | "updatedById" | "createdAt" | "updatedAt", ExtArgs["result"]["schoolSettingValue"]>
+
+  export type $SchoolSettingValuePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SchoolSettingValue"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      key: string
+      value: Prisma.JsonValue
+      updatedById: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["schoolSettingValue"]>
+    composites: {}
+  }
+
+  type SchoolSettingValueGetPayload<S extends boolean | null | undefined | SchoolSettingValueDefaultArgs> = $Result.GetResult<Prisma.$SchoolSettingValuePayload, S>
+
+  type SchoolSettingValueCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SchoolSettingValueFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SchoolSettingValueCountAggregateInputType | true
+    }
+
+  export interface SchoolSettingValueDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SchoolSettingValue'], meta: { name: 'SchoolSettingValue' } }
+    /**
+     * Find zero or one SchoolSettingValue that matches the filter.
+     * @param {SchoolSettingValueFindUniqueArgs} args - Arguments to find a SchoolSettingValue
+     * @example
+     * // Get one SchoolSettingValue
+     * const schoolSettingValue = await prisma.schoolSettingValue.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SchoolSettingValueFindUniqueArgs>(args: SelectSubset<T, SchoolSettingValueFindUniqueArgs<ExtArgs>>): Prisma__SchoolSettingValueClient<$Result.GetResult<Prisma.$SchoolSettingValuePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SchoolSettingValue that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SchoolSettingValueFindUniqueOrThrowArgs} args - Arguments to find a SchoolSettingValue
+     * @example
+     * // Get one SchoolSettingValue
+     * const schoolSettingValue = await prisma.schoolSettingValue.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SchoolSettingValueFindUniqueOrThrowArgs>(args: SelectSubset<T, SchoolSettingValueFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SchoolSettingValueClient<$Result.GetResult<Prisma.$SchoolSettingValuePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SchoolSettingValue that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SchoolSettingValueFindFirstArgs} args - Arguments to find a SchoolSettingValue
+     * @example
+     * // Get one SchoolSettingValue
+     * const schoolSettingValue = await prisma.schoolSettingValue.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SchoolSettingValueFindFirstArgs>(args?: SelectSubset<T, SchoolSettingValueFindFirstArgs<ExtArgs>>): Prisma__SchoolSettingValueClient<$Result.GetResult<Prisma.$SchoolSettingValuePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SchoolSettingValue that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SchoolSettingValueFindFirstOrThrowArgs} args - Arguments to find a SchoolSettingValue
+     * @example
+     * // Get one SchoolSettingValue
+     * const schoolSettingValue = await prisma.schoolSettingValue.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SchoolSettingValueFindFirstOrThrowArgs>(args?: SelectSubset<T, SchoolSettingValueFindFirstOrThrowArgs<ExtArgs>>): Prisma__SchoolSettingValueClient<$Result.GetResult<Prisma.$SchoolSettingValuePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SchoolSettingValues that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SchoolSettingValueFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SchoolSettingValues
+     * const schoolSettingValues = await prisma.schoolSettingValue.findMany()
+     * 
+     * // Get first 10 SchoolSettingValues
+     * const schoolSettingValues = await prisma.schoolSettingValue.findMany({ take: 10 })
+     * 
+     * // Only select the `key`
+     * const schoolSettingValueWithKeyOnly = await prisma.schoolSettingValue.findMany({ select: { key: true } })
+     * 
+     */
+    findMany<T extends SchoolSettingValueFindManyArgs>(args?: SelectSubset<T, SchoolSettingValueFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SchoolSettingValuePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SchoolSettingValue.
+     * @param {SchoolSettingValueCreateArgs} args - Arguments to create a SchoolSettingValue.
+     * @example
+     * // Create one SchoolSettingValue
+     * const SchoolSettingValue = await prisma.schoolSettingValue.create({
+     *   data: {
+     *     // ... data to create a SchoolSettingValue
+     *   }
+     * })
+     * 
+     */
+    create<T extends SchoolSettingValueCreateArgs>(args: SelectSubset<T, SchoolSettingValueCreateArgs<ExtArgs>>): Prisma__SchoolSettingValueClient<$Result.GetResult<Prisma.$SchoolSettingValuePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SchoolSettingValues.
+     * @param {SchoolSettingValueCreateManyArgs} args - Arguments to create many SchoolSettingValues.
+     * @example
+     * // Create many SchoolSettingValues
+     * const schoolSettingValue = await prisma.schoolSettingValue.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SchoolSettingValueCreateManyArgs>(args?: SelectSubset<T, SchoolSettingValueCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many SchoolSettingValues and returns the data saved in the database.
+     * @param {SchoolSettingValueCreateManyAndReturnArgs} args - Arguments to create many SchoolSettingValues.
+     * @example
+     * // Create many SchoolSettingValues
+     * const schoolSettingValue = await prisma.schoolSettingValue.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many SchoolSettingValues and only return the `key`
+     * const schoolSettingValueWithKeyOnly = await prisma.schoolSettingValue.createManyAndReturn({
+     *   select: { key: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends SchoolSettingValueCreateManyAndReturnArgs>(args?: SelectSubset<T, SchoolSettingValueCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SchoolSettingValuePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a SchoolSettingValue.
+     * @param {SchoolSettingValueDeleteArgs} args - Arguments to delete one SchoolSettingValue.
+     * @example
+     * // Delete one SchoolSettingValue
+     * const SchoolSettingValue = await prisma.schoolSettingValue.delete({
+     *   where: {
+     *     // ... filter to delete one SchoolSettingValue
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SchoolSettingValueDeleteArgs>(args: SelectSubset<T, SchoolSettingValueDeleteArgs<ExtArgs>>): Prisma__SchoolSettingValueClient<$Result.GetResult<Prisma.$SchoolSettingValuePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SchoolSettingValue.
+     * @param {SchoolSettingValueUpdateArgs} args - Arguments to update one SchoolSettingValue.
+     * @example
+     * // Update one SchoolSettingValue
+     * const schoolSettingValue = await prisma.schoolSettingValue.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SchoolSettingValueUpdateArgs>(args: SelectSubset<T, SchoolSettingValueUpdateArgs<ExtArgs>>): Prisma__SchoolSettingValueClient<$Result.GetResult<Prisma.$SchoolSettingValuePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SchoolSettingValues.
+     * @param {SchoolSettingValueDeleteManyArgs} args - Arguments to filter SchoolSettingValues to delete.
+     * @example
+     * // Delete a few SchoolSettingValues
+     * const { count } = await prisma.schoolSettingValue.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SchoolSettingValueDeleteManyArgs>(args?: SelectSubset<T, SchoolSettingValueDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SchoolSettingValues.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SchoolSettingValueUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SchoolSettingValues
+     * const schoolSettingValue = await prisma.schoolSettingValue.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SchoolSettingValueUpdateManyArgs>(args: SelectSubset<T, SchoolSettingValueUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SchoolSettingValues and returns the data updated in the database.
+     * @param {SchoolSettingValueUpdateManyAndReturnArgs} args - Arguments to update many SchoolSettingValues.
+     * @example
+     * // Update many SchoolSettingValues
+     * const schoolSettingValue = await prisma.schoolSettingValue.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more SchoolSettingValues and only return the `key`
+     * const schoolSettingValueWithKeyOnly = await prisma.schoolSettingValue.updateManyAndReturn({
+     *   select: { key: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends SchoolSettingValueUpdateManyAndReturnArgs>(args: SelectSubset<T, SchoolSettingValueUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SchoolSettingValuePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one SchoolSettingValue.
+     * @param {SchoolSettingValueUpsertArgs} args - Arguments to update or create a SchoolSettingValue.
+     * @example
+     * // Update or create a SchoolSettingValue
+     * const schoolSettingValue = await prisma.schoolSettingValue.upsert({
+     *   create: {
+     *     // ... data to create a SchoolSettingValue
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SchoolSettingValue we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SchoolSettingValueUpsertArgs>(args: SelectSubset<T, SchoolSettingValueUpsertArgs<ExtArgs>>): Prisma__SchoolSettingValueClient<$Result.GetResult<Prisma.$SchoolSettingValuePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of SchoolSettingValues.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SchoolSettingValueCountArgs} args - Arguments to filter SchoolSettingValues to count.
+     * @example
+     * // Count the number of SchoolSettingValues
+     * const count = await prisma.schoolSettingValue.count({
+     *   where: {
+     *     // ... the filter for the SchoolSettingValues we want to count
+     *   }
+     * })
+    **/
+    count<T extends SchoolSettingValueCountArgs>(
+      args?: Subset<T, SchoolSettingValueCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SchoolSettingValueCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SchoolSettingValue.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SchoolSettingValueAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SchoolSettingValueAggregateArgs>(args: Subset<T, SchoolSettingValueAggregateArgs>): Prisma.PrismaPromise<GetSchoolSettingValueAggregateType<T>>
+
+    /**
+     * Group by SchoolSettingValue.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SchoolSettingValueGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SchoolSettingValueGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SchoolSettingValueGroupByArgs['orderBy'] }
+        : { orderBy?: SchoolSettingValueGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SchoolSettingValueGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSchoolSettingValueGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SchoolSettingValue model
+   */
+  readonly fields: SchoolSettingValueFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SchoolSettingValue.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SchoolSettingValueClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SchoolSettingValue model
+   */
+  interface SchoolSettingValueFieldRefs {
+    readonly key: FieldRef<"SchoolSettingValue", 'String'>
+    readonly value: FieldRef<"SchoolSettingValue", 'Json'>
+    readonly updatedById: FieldRef<"SchoolSettingValue", 'String'>
+    readonly createdAt: FieldRef<"SchoolSettingValue", 'DateTime'>
+    readonly updatedAt: FieldRef<"SchoolSettingValue", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SchoolSettingValue findUnique
+   */
+  export type SchoolSettingValueFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolSettingValue
+     */
+    select?: SchoolSettingValueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolSettingValue
+     */
+    omit?: SchoolSettingValueOmit<ExtArgs> | null
+    /**
+     * Filter, which SchoolSettingValue to fetch.
+     */
+    where: SchoolSettingValueWhereUniqueInput
+  }
+
+  /**
+   * SchoolSettingValue findUniqueOrThrow
+   */
+  export type SchoolSettingValueFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolSettingValue
+     */
+    select?: SchoolSettingValueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolSettingValue
+     */
+    omit?: SchoolSettingValueOmit<ExtArgs> | null
+    /**
+     * Filter, which SchoolSettingValue to fetch.
+     */
+    where: SchoolSettingValueWhereUniqueInput
+  }
+
+  /**
+   * SchoolSettingValue findFirst
+   */
+  export type SchoolSettingValueFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolSettingValue
+     */
+    select?: SchoolSettingValueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolSettingValue
+     */
+    omit?: SchoolSettingValueOmit<ExtArgs> | null
+    /**
+     * Filter, which SchoolSettingValue to fetch.
+     */
+    where?: SchoolSettingValueWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SchoolSettingValues to fetch.
+     */
+    orderBy?: SchoolSettingValueOrderByWithRelationInput | SchoolSettingValueOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SchoolSettingValues.
+     */
+    cursor?: SchoolSettingValueWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SchoolSettingValues from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SchoolSettingValues.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SchoolSettingValues.
+     */
+    distinct?: SchoolSettingValueScalarFieldEnum | SchoolSettingValueScalarFieldEnum[]
+  }
+
+  /**
+   * SchoolSettingValue findFirstOrThrow
+   */
+  export type SchoolSettingValueFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolSettingValue
+     */
+    select?: SchoolSettingValueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolSettingValue
+     */
+    omit?: SchoolSettingValueOmit<ExtArgs> | null
+    /**
+     * Filter, which SchoolSettingValue to fetch.
+     */
+    where?: SchoolSettingValueWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SchoolSettingValues to fetch.
+     */
+    orderBy?: SchoolSettingValueOrderByWithRelationInput | SchoolSettingValueOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SchoolSettingValues.
+     */
+    cursor?: SchoolSettingValueWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SchoolSettingValues from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SchoolSettingValues.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SchoolSettingValues.
+     */
+    distinct?: SchoolSettingValueScalarFieldEnum | SchoolSettingValueScalarFieldEnum[]
+  }
+
+  /**
+   * SchoolSettingValue findMany
+   */
+  export type SchoolSettingValueFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolSettingValue
+     */
+    select?: SchoolSettingValueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolSettingValue
+     */
+    omit?: SchoolSettingValueOmit<ExtArgs> | null
+    /**
+     * Filter, which SchoolSettingValues to fetch.
+     */
+    where?: SchoolSettingValueWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SchoolSettingValues to fetch.
+     */
+    orderBy?: SchoolSettingValueOrderByWithRelationInput | SchoolSettingValueOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SchoolSettingValues.
+     */
+    cursor?: SchoolSettingValueWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SchoolSettingValues from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SchoolSettingValues.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SchoolSettingValues.
+     */
+    distinct?: SchoolSettingValueScalarFieldEnum | SchoolSettingValueScalarFieldEnum[]
+  }
+
+  /**
+   * SchoolSettingValue create
+   */
+  export type SchoolSettingValueCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolSettingValue
+     */
+    select?: SchoolSettingValueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolSettingValue
+     */
+    omit?: SchoolSettingValueOmit<ExtArgs> | null
+    /**
+     * The data needed to create a SchoolSettingValue.
+     */
+    data: XOR<SchoolSettingValueCreateInput, SchoolSettingValueUncheckedCreateInput>
+  }
+
+  /**
+   * SchoolSettingValue createMany
+   */
+  export type SchoolSettingValueCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SchoolSettingValues.
+     */
+    data: SchoolSettingValueCreateManyInput | SchoolSettingValueCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SchoolSettingValue createManyAndReturn
+   */
+  export type SchoolSettingValueCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolSettingValue
+     */
+    select?: SchoolSettingValueSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolSettingValue
+     */
+    omit?: SchoolSettingValueOmit<ExtArgs> | null
+    /**
+     * The data used to create many SchoolSettingValues.
+     */
+    data: SchoolSettingValueCreateManyInput | SchoolSettingValueCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SchoolSettingValue update
+   */
+  export type SchoolSettingValueUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolSettingValue
+     */
+    select?: SchoolSettingValueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolSettingValue
+     */
+    omit?: SchoolSettingValueOmit<ExtArgs> | null
+    /**
+     * The data needed to update a SchoolSettingValue.
+     */
+    data: XOR<SchoolSettingValueUpdateInput, SchoolSettingValueUncheckedUpdateInput>
+    /**
+     * Choose, which SchoolSettingValue to update.
+     */
+    where: SchoolSettingValueWhereUniqueInput
+  }
+
+  /**
+   * SchoolSettingValue updateMany
+   */
+  export type SchoolSettingValueUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SchoolSettingValues.
+     */
+    data: XOR<SchoolSettingValueUpdateManyMutationInput, SchoolSettingValueUncheckedUpdateManyInput>
+    /**
+     * Filter which SchoolSettingValues to update
+     */
+    where?: SchoolSettingValueWhereInput
+    /**
+     * Limit how many SchoolSettingValues to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SchoolSettingValue updateManyAndReturn
+   */
+  export type SchoolSettingValueUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolSettingValue
+     */
+    select?: SchoolSettingValueSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolSettingValue
+     */
+    omit?: SchoolSettingValueOmit<ExtArgs> | null
+    /**
+     * The data used to update SchoolSettingValues.
+     */
+    data: XOR<SchoolSettingValueUpdateManyMutationInput, SchoolSettingValueUncheckedUpdateManyInput>
+    /**
+     * Filter which SchoolSettingValues to update
+     */
+    where?: SchoolSettingValueWhereInput
+    /**
+     * Limit how many SchoolSettingValues to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SchoolSettingValue upsert
+   */
+  export type SchoolSettingValueUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolSettingValue
+     */
+    select?: SchoolSettingValueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolSettingValue
+     */
+    omit?: SchoolSettingValueOmit<ExtArgs> | null
+    /**
+     * The filter to search for the SchoolSettingValue to update in case it exists.
+     */
+    where: SchoolSettingValueWhereUniqueInput
+    /**
+     * In case the SchoolSettingValue found by the `where` argument doesn't exist, create a new SchoolSettingValue with this data.
+     */
+    create: XOR<SchoolSettingValueCreateInput, SchoolSettingValueUncheckedCreateInput>
+    /**
+     * In case the SchoolSettingValue was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SchoolSettingValueUpdateInput, SchoolSettingValueUncheckedUpdateInput>
+  }
+
+  /**
+   * SchoolSettingValue delete
+   */
+  export type SchoolSettingValueDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolSettingValue
+     */
+    select?: SchoolSettingValueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolSettingValue
+     */
+    omit?: SchoolSettingValueOmit<ExtArgs> | null
+    /**
+     * Filter which SchoolSettingValue to delete.
+     */
+    where: SchoolSettingValueWhereUniqueInput
+  }
+
+  /**
+   * SchoolSettingValue deleteMany
+   */
+  export type SchoolSettingValueDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SchoolSettingValues to delete
+     */
+    where?: SchoolSettingValueWhereInput
+    /**
+     * Limit how many SchoolSettingValues to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * SchoolSettingValue without action
+   */
+  export type SchoolSettingValueDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolSettingValue
+     */
+    select?: SchoolSettingValueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolSettingValue
+     */
+    omit?: SchoolSettingValueOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AutomationRule
+   */
+
+  export type AggregateAutomationRule = {
+    _count: AutomationRuleCountAggregateOutputType | null
+    _min: AutomationRuleMinAggregateOutputType | null
+    _max: AutomationRuleMaxAggregateOutputType | null
+  }
+
+  export type AutomationRuleMinAggregateOutputType = {
+    id: string | null
+    definitionKey: string | null
+    name: string | null
+    enabled: boolean | null
+    templateKey: string | null
+    lastRunAt: Date | null
+    nextRunAt: Date | null
+    createdById: string | null
+    updatedById: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    deletedAt: Date | null
+  }
+
+  export type AutomationRuleMaxAggregateOutputType = {
+    id: string | null
+    definitionKey: string | null
+    name: string | null
+    enabled: boolean | null
+    templateKey: string | null
+    lastRunAt: Date | null
+    nextRunAt: Date | null
+    createdById: string | null
+    updatedById: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    deletedAt: Date | null
+  }
+
+  export type AutomationRuleCountAggregateOutputType = {
+    id: number
+    definitionKey: number
+    name: number
+    enabled: number
+    params: number
+    channels: number
+    audience: number
+    templateKey: number
+    schedule: number
+    lastRunAt: number
+    nextRunAt: number
+    createdById: number
+    updatedById: number
+    createdAt: number
+    updatedAt: number
+    deletedAt: number
+    _all: number
+  }
+
+
+  export type AutomationRuleMinAggregateInputType = {
+    id?: true
+    definitionKey?: true
+    name?: true
+    enabled?: true
+    templateKey?: true
+    lastRunAt?: true
+    nextRunAt?: true
+    createdById?: true
+    updatedById?: true
+    createdAt?: true
+    updatedAt?: true
+    deletedAt?: true
+  }
+
+  export type AutomationRuleMaxAggregateInputType = {
+    id?: true
+    definitionKey?: true
+    name?: true
+    enabled?: true
+    templateKey?: true
+    lastRunAt?: true
+    nextRunAt?: true
+    createdById?: true
+    updatedById?: true
+    createdAt?: true
+    updatedAt?: true
+    deletedAt?: true
+  }
+
+  export type AutomationRuleCountAggregateInputType = {
+    id?: true
+    definitionKey?: true
+    name?: true
+    enabled?: true
+    params?: true
+    channels?: true
+    audience?: true
+    templateKey?: true
+    schedule?: true
+    lastRunAt?: true
+    nextRunAt?: true
+    createdById?: true
+    updatedById?: true
+    createdAt?: true
+    updatedAt?: true
+    deletedAt?: true
+    _all?: true
+  }
+
+  export type AutomationRuleAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AutomationRule to aggregate.
+     */
+    where?: AutomationRuleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AutomationRules to fetch.
+     */
+    orderBy?: AutomationRuleOrderByWithRelationInput | AutomationRuleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AutomationRuleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AutomationRules from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AutomationRules.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AutomationRules
+    **/
+    _count?: true | AutomationRuleCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AutomationRuleMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AutomationRuleMaxAggregateInputType
+  }
+
+  export type GetAutomationRuleAggregateType<T extends AutomationRuleAggregateArgs> = {
+        [P in keyof T & keyof AggregateAutomationRule]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAutomationRule[P]>
+      : GetScalarType<T[P], AggregateAutomationRule[P]>
+  }
+
+
+
+
+  export type AutomationRuleGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AutomationRuleWhereInput
+    orderBy?: AutomationRuleOrderByWithAggregationInput | AutomationRuleOrderByWithAggregationInput[]
+    by: AutomationRuleScalarFieldEnum[] | AutomationRuleScalarFieldEnum
+    having?: AutomationRuleScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AutomationRuleCountAggregateInputType | true
+    _min?: AutomationRuleMinAggregateInputType
+    _max?: AutomationRuleMaxAggregateInputType
+  }
+
+  export type AutomationRuleGroupByOutputType = {
+    id: string
+    definitionKey: string
+    name: string
+    enabled: boolean
+    params: JsonValue
+    channels: $Enums.NotificationChannel[]
+    audience: JsonValue | null
+    templateKey: string | null
+    schedule: JsonValue | null
+    lastRunAt: Date | null
+    nextRunAt: Date | null
+    createdById: string | null
+    updatedById: string | null
+    createdAt: Date
+    updatedAt: Date
+    deletedAt: Date | null
+    _count: AutomationRuleCountAggregateOutputType | null
+    _min: AutomationRuleMinAggregateOutputType | null
+    _max: AutomationRuleMaxAggregateOutputType | null
+  }
+
+  type GetAutomationRuleGroupByPayload<T extends AutomationRuleGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AutomationRuleGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AutomationRuleGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AutomationRuleGroupByOutputType[P]>
+            : GetScalarType<T[P], AutomationRuleGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AutomationRuleSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    definitionKey?: boolean
+    name?: boolean
+    enabled?: boolean
+    params?: boolean
+    channels?: boolean
+    audience?: boolean
+    templateKey?: boolean
+    schedule?: boolean
+    lastRunAt?: boolean
+    nextRunAt?: boolean
+    createdById?: boolean
+    updatedById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    deletedAt?: boolean
+    runs?: boolean | AutomationRule$runsArgs<ExtArgs>
+    _count?: boolean | AutomationRuleCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["automationRule"]>
+
+  export type AutomationRuleSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    definitionKey?: boolean
+    name?: boolean
+    enabled?: boolean
+    params?: boolean
+    channels?: boolean
+    audience?: boolean
+    templateKey?: boolean
+    schedule?: boolean
+    lastRunAt?: boolean
+    nextRunAt?: boolean
+    createdById?: boolean
+    updatedById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    deletedAt?: boolean
+  }, ExtArgs["result"]["automationRule"]>
+
+  export type AutomationRuleSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    definitionKey?: boolean
+    name?: boolean
+    enabled?: boolean
+    params?: boolean
+    channels?: boolean
+    audience?: boolean
+    templateKey?: boolean
+    schedule?: boolean
+    lastRunAt?: boolean
+    nextRunAt?: boolean
+    createdById?: boolean
+    updatedById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    deletedAt?: boolean
+  }, ExtArgs["result"]["automationRule"]>
+
+  export type AutomationRuleSelectScalar = {
+    id?: boolean
+    definitionKey?: boolean
+    name?: boolean
+    enabled?: boolean
+    params?: boolean
+    channels?: boolean
+    audience?: boolean
+    templateKey?: boolean
+    schedule?: boolean
+    lastRunAt?: boolean
+    nextRunAt?: boolean
+    createdById?: boolean
+    updatedById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    deletedAt?: boolean
+  }
+
+  export type AutomationRuleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "definitionKey" | "name" | "enabled" | "params" | "channels" | "audience" | "templateKey" | "schedule" | "lastRunAt" | "nextRunAt" | "createdById" | "updatedById" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["automationRule"]>
+  export type AutomationRuleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    runs?: boolean | AutomationRule$runsArgs<ExtArgs>
+    _count?: boolean | AutomationRuleCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type AutomationRuleIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type AutomationRuleIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $AutomationRulePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AutomationRule"
+    objects: {
+      runs: Prisma.$AutomationRunLogPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      definitionKey: string
+      name: string
+      enabled: boolean
+      params: Prisma.JsonValue
+      channels: $Enums.NotificationChannel[]
+      audience: Prisma.JsonValue | null
+      templateKey: string | null
+      schedule: Prisma.JsonValue | null
+      lastRunAt: Date | null
+      nextRunAt: Date | null
+      createdById: string | null
+      updatedById: string | null
+      createdAt: Date
+      updatedAt: Date
+      deletedAt: Date | null
+    }, ExtArgs["result"]["automationRule"]>
+    composites: {}
+  }
+
+  type AutomationRuleGetPayload<S extends boolean | null | undefined | AutomationRuleDefaultArgs> = $Result.GetResult<Prisma.$AutomationRulePayload, S>
+
+  type AutomationRuleCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AutomationRuleFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AutomationRuleCountAggregateInputType | true
+    }
+
+  export interface AutomationRuleDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AutomationRule'], meta: { name: 'AutomationRule' } }
+    /**
+     * Find zero or one AutomationRule that matches the filter.
+     * @param {AutomationRuleFindUniqueArgs} args - Arguments to find a AutomationRule
+     * @example
+     * // Get one AutomationRule
+     * const automationRule = await prisma.automationRule.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AutomationRuleFindUniqueArgs>(args: SelectSubset<T, AutomationRuleFindUniqueArgs<ExtArgs>>): Prisma__AutomationRuleClient<$Result.GetResult<Prisma.$AutomationRulePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AutomationRule that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AutomationRuleFindUniqueOrThrowArgs} args - Arguments to find a AutomationRule
+     * @example
+     * // Get one AutomationRule
+     * const automationRule = await prisma.automationRule.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AutomationRuleFindUniqueOrThrowArgs>(args: SelectSubset<T, AutomationRuleFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AutomationRuleClient<$Result.GetResult<Prisma.$AutomationRulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AutomationRule that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AutomationRuleFindFirstArgs} args - Arguments to find a AutomationRule
+     * @example
+     * // Get one AutomationRule
+     * const automationRule = await prisma.automationRule.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AutomationRuleFindFirstArgs>(args?: SelectSubset<T, AutomationRuleFindFirstArgs<ExtArgs>>): Prisma__AutomationRuleClient<$Result.GetResult<Prisma.$AutomationRulePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AutomationRule that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AutomationRuleFindFirstOrThrowArgs} args - Arguments to find a AutomationRule
+     * @example
+     * // Get one AutomationRule
+     * const automationRule = await prisma.automationRule.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AutomationRuleFindFirstOrThrowArgs>(args?: SelectSubset<T, AutomationRuleFindFirstOrThrowArgs<ExtArgs>>): Prisma__AutomationRuleClient<$Result.GetResult<Prisma.$AutomationRulePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AutomationRules that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AutomationRuleFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AutomationRules
+     * const automationRules = await prisma.automationRule.findMany()
+     * 
+     * // Get first 10 AutomationRules
+     * const automationRules = await prisma.automationRule.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const automationRuleWithIdOnly = await prisma.automationRule.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AutomationRuleFindManyArgs>(args?: SelectSubset<T, AutomationRuleFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AutomationRulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AutomationRule.
+     * @param {AutomationRuleCreateArgs} args - Arguments to create a AutomationRule.
+     * @example
+     * // Create one AutomationRule
+     * const AutomationRule = await prisma.automationRule.create({
+     *   data: {
+     *     // ... data to create a AutomationRule
+     *   }
+     * })
+     * 
+     */
+    create<T extends AutomationRuleCreateArgs>(args: SelectSubset<T, AutomationRuleCreateArgs<ExtArgs>>): Prisma__AutomationRuleClient<$Result.GetResult<Prisma.$AutomationRulePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AutomationRules.
+     * @param {AutomationRuleCreateManyArgs} args - Arguments to create many AutomationRules.
+     * @example
+     * // Create many AutomationRules
+     * const automationRule = await prisma.automationRule.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AutomationRuleCreateManyArgs>(args?: SelectSubset<T, AutomationRuleCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AutomationRules and returns the data saved in the database.
+     * @param {AutomationRuleCreateManyAndReturnArgs} args - Arguments to create many AutomationRules.
+     * @example
+     * // Create many AutomationRules
+     * const automationRule = await prisma.automationRule.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AutomationRules and only return the `id`
+     * const automationRuleWithIdOnly = await prisma.automationRule.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AutomationRuleCreateManyAndReturnArgs>(args?: SelectSubset<T, AutomationRuleCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AutomationRulePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AutomationRule.
+     * @param {AutomationRuleDeleteArgs} args - Arguments to delete one AutomationRule.
+     * @example
+     * // Delete one AutomationRule
+     * const AutomationRule = await prisma.automationRule.delete({
+     *   where: {
+     *     // ... filter to delete one AutomationRule
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AutomationRuleDeleteArgs>(args: SelectSubset<T, AutomationRuleDeleteArgs<ExtArgs>>): Prisma__AutomationRuleClient<$Result.GetResult<Prisma.$AutomationRulePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AutomationRule.
+     * @param {AutomationRuleUpdateArgs} args - Arguments to update one AutomationRule.
+     * @example
+     * // Update one AutomationRule
+     * const automationRule = await prisma.automationRule.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AutomationRuleUpdateArgs>(args: SelectSubset<T, AutomationRuleUpdateArgs<ExtArgs>>): Prisma__AutomationRuleClient<$Result.GetResult<Prisma.$AutomationRulePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AutomationRules.
+     * @param {AutomationRuleDeleteManyArgs} args - Arguments to filter AutomationRules to delete.
+     * @example
+     * // Delete a few AutomationRules
+     * const { count } = await prisma.automationRule.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AutomationRuleDeleteManyArgs>(args?: SelectSubset<T, AutomationRuleDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AutomationRules.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AutomationRuleUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AutomationRules
+     * const automationRule = await prisma.automationRule.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AutomationRuleUpdateManyArgs>(args: SelectSubset<T, AutomationRuleUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AutomationRules and returns the data updated in the database.
+     * @param {AutomationRuleUpdateManyAndReturnArgs} args - Arguments to update many AutomationRules.
+     * @example
+     * // Update many AutomationRules
+     * const automationRule = await prisma.automationRule.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AutomationRules and only return the `id`
+     * const automationRuleWithIdOnly = await prisma.automationRule.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AutomationRuleUpdateManyAndReturnArgs>(args: SelectSubset<T, AutomationRuleUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AutomationRulePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AutomationRule.
+     * @param {AutomationRuleUpsertArgs} args - Arguments to update or create a AutomationRule.
+     * @example
+     * // Update or create a AutomationRule
+     * const automationRule = await prisma.automationRule.upsert({
+     *   create: {
+     *     // ... data to create a AutomationRule
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AutomationRule we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AutomationRuleUpsertArgs>(args: SelectSubset<T, AutomationRuleUpsertArgs<ExtArgs>>): Prisma__AutomationRuleClient<$Result.GetResult<Prisma.$AutomationRulePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AutomationRules.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AutomationRuleCountArgs} args - Arguments to filter AutomationRules to count.
+     * @example
+     * // Count the number of AutomationRules
+     * const count = await prisma.automationRule.count({
+     *   where: {
+     *     // ... the filter for the AutomationRules we want to count
+     *   }
+     * })
+    **/
+    count<T extends AutomationRuleCountArgs>(
+      args?: Subset<T, AutomationRuleCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AutomationRuleCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AutomationRule.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AutomationRuleAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AutomationRuleAggregateArgs>(args: Subset<T, AutomationRuleAggregateArgs>): Prisma.PrismaPromise<GetAutomationRuleAggregateType<T>>
+
+    /**
+     * Group by AutomationRule.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AutomationRuleGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AutomationRuleGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AutomationRuleGroupByArgs['orderBy'] }
+        : { orderBy?: AutomationRuleGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AutomationRuleGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAutomationRuleGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AutomationRule model
+   */
+  readonly fields: AutomationRuleFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AutomationRule.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AutomationRuleClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    runs<T extends AutomationRule$runsArgs<ExtArgs> = {}>(args?: Subset<T, AutomationRule$runsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AutomationRunLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AutomationRule model
+   */
+  interface AutomationRuleFieldRefs {
+    readonly id: FieldRef<"AutomationRule", 'String'>
+    readonly definitionKey: FieldRef<"AutomationRule", 'String'>
+    readonly name: FieldRef<"AutomationRule", 'String'>
+    readonly enabled: FieldRef<"AutomationRule", 'Boolean'>
+    readonly params: FieldRef<"AutomationRule", 'Json'>
+    readonly channels: FieldRef<"AutomationRule", 'NotificationChannel[]'>
+    readonly audience: FieldRef<"AutomationRule", 'Json'>
+    readonly templateKey: FieldRef<"AutomationRule", 'String'>
+    readonly schedule: FieldRef<"AutomationRule", 'Json'>
+    readonly lastRunAt: FieldRef<"AutomationRule", 'DateTime'>
+    readonly nextRunAt: FieldRef<"AutomationRule", 'DateTime'>
+    readonly createdById: FieldRef<"AutomationRule", 'String'>
+    readonly updatedById: FieldRef<"AutomationRule", 'String'>
+    readonly createdAt: FieldRef<"AutomationRule", 'DateTime'>
+    readonly updatedAt: FieldRef<"AutomationRule", 'DateTime'>
+    readonly deletedAt: FieldRef<"AutomationRule", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AutomationRule findUnique
+   */
+  export type AutomationRuleFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutomationRule
+     */
+    select?: AutomationRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutomationRule
+     */
+    omit?: AutomationRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutomationRuleInclude<ExtArgs> | null
+    /**
+     * Filter, which AutomationRule to fetch.
+     */
+    where: AutomationRuleWhereUniqueInput
+  }
+
+  /**
+   * AutomationRule findUniqueOrThrow
+   */
+  export type AutomationRuleFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutomationRule
+     */
+    select?: AutomationRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutomationRule
+     */
+    omit?: AutomationRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutomationRuleInclude<ExtArgs> | null
+    /**
+     * Filter, which AutomationRule to fetch.
+     */
+    where: AutomationRuleWhereUniqueInput
+  }
+
+  /**
+   * AutomationRule findFirst
+   */
+  export type AutomationRuleFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutomationRule
+     */
+    select?: AutomationRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutomationRule
+     */
+    omit?: AutomationRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutomationRuleInclude<ExtArgs> | null
+    /**
+     * Filter, which AutomationRule to fetch.
+     */
+    where?: AutomationRuleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AutomationRules to fetch.
+     */
+    orderBy?: AutomationRuleOrderByWithRelationInput | AutomationRuleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AutomationRules.
+     */
+    cursor?: AutomationRuleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AutomationRules from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AutomationRules.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AutomationRules.
+     */
+    distinct?: AutomationRuleScalarFieldEnum | AutomationRuleScalarFieldEnum[]
+  }
+
+  /**
+   * AutomationRule findFirstOrThrow
+   */
+  export type AutomationRuleFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutomationRule
+     */
+    select?: AutomationRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutomationRule
+     */
+    omit?: AutomationRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutomationRuleInclude<ExtArgs> | null
+    /**
+     * Filter, which AutomationRule to fetch.
+     */
+    where?: AutomationRuleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AutomationRules to fetch.
+     */
+    orderBy?: AutomationRuleOrderByWithRelationInput | AutomationRuleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AutomationRules.
+     */
+    cursor?: AutomationRuleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AutomationRules from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AutomationRules.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AutomationRules.
+     */
+    distinct?: AutomationRuleScalarFieldEnum | AutomationRuleScalarFieldEnum[]
+  }
+
+  /**
+   * AutomationRule findMany
+   */
+  export type AutomationRuleFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutomationRule
+     */
+    select?: AutomationRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutomationRule
+     */
+    omit?: AutomationRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutomationRuleInclude<ExtArgs> | null
+    /**
+     * Filter, which AutomationRules to fetch.
+     */
+    where?: AutomationRuleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AutomationRules to fetch.
+     */
+    orderBy?: AutomationRuleOrderByWithRelationInput | AutomationRuleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AutomationRules.
+     */
+    cursor?: AutomationRuleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AutomationRules from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AutomationRules.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AutomationRules.
+     */
+    distinct?: AutomationRuleScalarFieldEnum | AutomationRuleScalarFieldEnum[]
+  }
+
+  /**
+   * AutomationRule create
+   */
+  export type AutomationRuleCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutomationRule
+     */
+    select?: AutomationRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutomationRule
+     */
+    omit?: AutomationRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutomationRuleInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AutomationRule.
+     */
+    data: XOR<AutomationRuleCreateInput, AutomationRuleUncheckedCreateInput>
+  }
+
+  /**
+   * AutomationRule createMany
+   */
+  export type AutomationRuleCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AutomationRules.
+     */
+    data: AutomationRuleCreateManyInput | AutomationRuleCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AutomationRule createManyAndReturn
+   */
+  export type AutomationRuleCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutomationRule
+     */
+    select?: AutomationRuleSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutomationRule
+     */
+    omit?: AutomationRuleOmit<ExtArgs> | null
+    /**
+     * The data used to create many AutomationRules.
+     */
+    data: AutomationRuleCreateManyInput | AutomationRuleCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AutomationRule update
+   */
+  export type AutomationRuleUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutomationRule
+     */
+    select?: AutomationRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutomationRule
+     */
+    omit?: AutomationRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutomationRuleInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AutomationRule.
+     */
+    data: XOR<AutomationRuleUpdateInput, AutomationRuleUncheckedUpdateInput>
+    /**
+     * Choose, which AutomationRule to update.
+     */
+    where: AutomationRuleWhereUniqueInput
+  }
+
+  /**
+   * AutomationRule updateMany
+   */
+  export type AutomationRuleUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AutomationRules.
+     */
+    data: XOR<AutomationRuleUpdateManyMutationInput, AutomationRuleUncheckedUpdateManyInput>
+    /**
+     * Filter which AutomationRules to update
+     */
+    where?: AutomationRuleWhereInput
+    /**
+     * Limit how many AutomationRules to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AutomationRule updateManyAndReturn
+   */
+  export type AutomationRuleUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutomationRule
+     */
+    select?: AutomationRuleSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutomationRule
+     */
+    omit?: AutomationRuleOmit<ExtArgs> | null
+    /**
+     * The data used to update AutomationRules.
+     */
+    data: XOR<AutomationRuleUpdateManyMutationInput, AutomationRuleUncheckedUpdateManyInput>
+    /**
+     * Filter which AutomationRules to update
+     */
+    where?: AutomationRuleWhereInput
+    /**
+     * Limit how many AutomationRules to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AutomationRule upsert
+   */
+  export type AutomationRuleUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutomationRule
+     */
+    select?: AutomationRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutomationRule
+     */
+    omit?: AutomationRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutomationRuleInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AutomationRule to update in case it exists.
+     */
+    where: AutomationRuleWhereUniqueInput
+    /**
+     * In case the AutomationRule found by the `where` argument doesn't exist, create a new AutomationRule with this data.
+     */
+    create: XOR<AutomationRuleCreateInput, AutomationRuleUncheckedCreateInput>
+    /**
+     * In case the AutomationRule was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AutomationRuleUpdateInput, AutomationRuleUncheckedUpdateInput>
+  }
+
+  /**
+   * AutomationRule delete
+   */
+  export type AutomationRuleDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutomationRule
+     */
+    select?: AutomationRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutomationRule
+     */
+    omit?: AutomationRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutomationRuleInclude<ExtArgs> | null
+    /**
+     * Filter which AutomationRule to delete.
+     */
+    where: AutomationRuleWhereUniqueInput
+  }
+
+  /**
+   * AutomationRule deleteMany
+   */
+  export type AutomationRuleDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AutomationRules to delete
+     */
+    where?: AutomationRuleWhereInput
+    /**
+     * Limit how many AutomationRules to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AutomationRule.runs
+   */
+  export type AutomationRule$runsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutomationRunLog
+     */
+    select?: AutomationRunLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutomationRunLog
+     */
+    omit?: AutomationRunLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutomationRunLogInclude<ExtArgs> | null
+    where?: AutomationRunLogWhereInput
+    orderBy?: AutomationRunLogOrderByWithRelationInput | AutomationRunLogOrderByWithRelationInput[]
+    cursor?: AutomationRunLogWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AutomationRunLogScalarFieldEnum | AutomationRunLogScalarFieldEnum[]
+  }
+
+  /**
+   * AutomationRule without action
+   */
+  export type AutomationRuleDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutomationRule
+     */
+    select?: AutomationRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutomationRule
+     */
+    omit?: AutomationRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutomationRuleInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AutomationRunLog
+   */
+
+  export type AggregateAutomationRunLog = {
+    _count: AutomationRunLogCountAggregateOutputType | null
+    _avg: AutomationRunLogAvgAggregateOutputType | null
+    _sum: AutomationRunLogSumAggregateOutputType | null
+    _min: AutomationRunLogMinAggregateOutputType | null
+    _max: AutomationRunLogMaxAggregateOutputType | null
+  }
+
+  export type AutomationRunLogAvgAggregateOutputType = {
+    matched: number | null
+    notified: number | null
+  }
+
+  export type AutomationRunLogSumAggregateOutputType = {
+    matched: number | null
+    notified: number | null
+  }
+
+  export type AutomationRunLogMinAggregateOutputType = {
+    id: string | null
+    ruleId: string | null
+    triggeredAt: Date | null
+    trigger: string | null
+    status: $Enums.AutomationRunStatus | null
+    matched: number | null
+    notified: number | null
+    skippedReason: string | null
+    error: string | null
+    notificationId: string | null
+  }
+
+  export type AutomationRunLogMaxAggregateOutputType = {
+    id: string | null
+    ruleId: string | null
+    triggeredAt: Date | null
+    trigger: string | null
+    status: $Enums.AutomationRunStatus | null
+    matched: number | null
+    notified: number | null
+    skippedReason: string | null
+    error: string | null
+    notificationId: string | null
+  }
+
+  export type AutomationRunLogCountAggregateOutputType = {
+    id: number
+    ruleId: number
+    triggeredAt: number
+    trigger: number
+    status: number
+    matched: number
+    notified: number
+    skippedReason: number
+    error: number
+    notificationId: number
+    _all: number
+  }
+
+
+  export type AutomationRunLogAvgAggregateInputType = {
+    matched?: true
+    notified?: true
+  }
+
+  export type AutomationRunLogSumAggregateInputType = {
+    matched?: true
+    notified?: true
+  }
+
+  export type AutomationRunLogMinAggregateInputType = {
+    id?: true
+    ruleId?: true
+    triggeredAt?: true
+    trigger?: true
+    status?: true
+    matched?: true
+    notified?: true
+    skippedReason?: true
+    error?: true
+    notificationId?: true
+  }
+
+  export type AutomationRunLogMaxAggregateInputType = {
+    id?: true
+    ruleId?: true
+    triggeredAt?: true
+    trigger?: true
+    status?: true
+    matched?: true
+    notified?: true
+    skippedReason?: true
+    error?: true
+    notificationId?: true
+  }
+
+  export type AutomationRunLogCountAggregateInputType = {
+    id?: true
+    ruleId?: true
+    triggeredAt?: true
+    trigger?: true
+    status?: true
+    matched?: true
+    notified?: true
+    skippedReason?: true
+    error?: true
+    notificationId?: true
+    _all?: true
+  }
+
+  export type AutomationRunLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AutomationRunLog to aggregate.
+     */
+    where?: AutomationRunLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AutomationRunLogs to fetch.
+     */
+    orderBy?: AutomationRunLogOrderByWithRelationInput | AutomationRunLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AutomationRunLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AutomationRunLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AutomationRunLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AutomationRunLogs
+    **/
+    _count?: true | AutomationRunLogCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AutomationRunLogAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AutomationRunLogSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AutomationRunLogMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AutomationRunLogMaxAggregateInputType
+  }
+
+  export type GetAutomationRunLogAggregateType<T extends AutomationRunLogAggregateArgs> = {
+        [P in keyof T & keyof AggregateAutomationRunLog]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAutomationRunLog[P]>
+      : GetScalarType<T[P], AggregateAutomationRunLog[P]>
+  }
+
+
+
+
+  export type AutomationRunLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AutomationRunLogWhereInput
+    orderBy?: AutomationRunLogOrderByWithAggregationInput | AutomationRunLogOrderByWithAggregationInput[]
+    by: AutomationRunLogScalarFieldEnum[] | AutomationRunLogScalarFieldEnum
+    having?: AutomationRunLogScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AutomationRunLogCountAggregateInputType | true
+    _avg?: AutomationRunLogAvgAggregateInputType
+    _sum?: AutomationRunLogSumAggregateInputType
+    _min?: AutomationRunLogMinAggregateInputType
+    _max?: AutomationRunLogMaxAggregateInputType
+  }
+
+  export type AutomationRunLogGroupByOutputType = {
+    id: string
+    ruleId: string
+    triggeredAt: Date
+    trigger: string
+    status: $Enums.AutomationRunStatus
+    matched: number
+    notified: number
+    skippedReason: string | null
+    error: string | null
+    notificationId: string | null
+    _count: AutomationRunLogCountAggregateOutputType | null
+    _avg: AutomationRunLogAvgAggregateOutputType | null
+    _sum: AutomationRunLogSumAggregateOutputType | null
+    _min: AutomationRunLogMinAggregateOutputType | null
+    _max: AutomationRunLogMaxAggregateOutputType | null
+  }
+
+  type GetAutomationRunLogGroupByPayload<T extends AutomationRunLogGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AutomationRunLogGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AutomationRunLogGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AutomationRunLogGroupByOutputType[P]>
+            : GetScalarType<T[P], AutomationRunLogGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AutomationRunLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    ruleId?: boolean
+    triggeredAt?: boolean
+    trigger?: boolean
+    status?: boolean
+    matched?: boolean
+    notified?: boolean
+    skippedReason?: boolean
+    error?: boolean
+    notificationId?: boolean
+    rule?: boolean | AutomationRuleDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["automationRunLog"]>
+
+  export type AutomationRunLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    ruleId?: boolean
+    triggeredAt?: boolean
+    trigger?: boolean
+    status?: boolean
+    matched?: boolean
+    notified?: boolean
+    skippedReason?: boolean
+    error?: boolean
+    notificationId?: boolean
+    rule?: boolean | AutomationRuleDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["automationRunLog"]>
+
+  export type AutomationRunLogSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    ruleId?: boolean
+    triggeredAt?: boolean
+    trigger?: boolean
+    status?: boolean
+    matched?: boolean
+    notified?: boolean
+    skippedReason?: boolean
+    error?: boolean
+    notificationId?: boolean
+    rule?: boolean | AutomationRuleDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["automationRunLog"]>
+
+  export type AutomationRunLogSelectScalar = {
+    id?: boolean
+    ruleId?: boolean
+    triggeredAt?: boolean
+    trigger?: boolean
+    status?: boolean
+    matched?: boolean
+    notified?: boolean
+    skippedReason?: boolean
+    error?: boolean
+    notificationId?: boolean
+  }
+
+  export type AutomationRunLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "ruleId" | "triggeredAt" | "trigger" | "status" | "matched" | "notified" | "skippedReason" | "error" | "notificationId", ExtArgs["result"]["automationRunLog"]>
+  export type AutomationRunLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    rule?: boolean | AutomationRuleDefaultArgs<ExtArgs>
+  }
+  export type AutomationRunLogIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    rule?: boolean | AutomationRuleDefaultArgs<ExtArgs>
+  }
+  export type AutomationRunLogIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    rule?: boolean | AutomationRuleDefaultArgs<ExtArgs>
+  }
+
+  export type $AutomationRunLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AutomationRunLog"
+    objects: {
+      rule: Prisma.$AutomationRulePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      ruleId: string
+      triggeredAt: Date
+      trigger: string
+      status: $Enums.AutomationRunStatus
+      matched: number
+      notified: number
+      skippedReason: string | null
+      error: string | null
+      notificationId: string | null
+    }, ExtArgs["result"]["automationRunLog"]>
+    composites: {}
+  }
+
+  type AutomationRunLogGetPayload<S extends boolean | null | undefined | AutomationRunLogDefaultArgs> = $Result.GetResult<Prisma.$AutomationRunLogPayload, S>
+
+  type AutomationRunLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AutomationRunLogFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AutomationRunLogCountAggregateInputType | true
+    }
+
+  export interface AutomationRunLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AutomationRunLog'], meta: { name: 'AutomationRunLog' } }
+    /**
+     * Find zero or one AutomationRunLog that matches the filter.
+     * @param {AutomationRunLogFindUniqueArgs} args - Arguments to find a AutomationRunLog
+     * @example
+     * // Get one AutomationRunLog
+     * const automationRunLog = await prisma.automationRunLog.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AutomationRunLogFindUniqueArgs>(args: SelectSubset<T, AutomationRunLogFindUniqueArgs<ExtArgs>>): Prisma__AutomationRunLogClient<$Result.GetResult<Prisma.$AutomationRunLogPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AutomationRunLog that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AutomationRunLogFindUniqueOrThrowArgs} args - Arguments to find a AutomationRunLog
+     * @example
+     * // Get one AutomationRunLog
+     * const automationRunLog = await prisma.automationRunLog.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AutomationRunLogFindUniqueOrThrowArgs>(args: SelectSubset<T, AutomationRunLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AutomationRunLogClient<$Result.GetResult<Prisma.$AutomationRunLogPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AutomationRunLog that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AutomationRunLogFindFirstArgs} args - Arguments to find a AutomationRunLog
+     * @example
+     * // Get one AutomationRunLog
+     * const automationRunLog = await prisma.automationRunLog.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AutomationRunLogFindFirstArgs>(args?: SelectSubset<T, AutomationRunLogFindFirstArgs<ExtArgs>>): Prisma__AutomationRunLogClient<$Result.GetResult<Prisma.$AutomationRunLogPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AutomationRunLog that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AutomationRunLogFindFirstOrThrowArgs} args - Arguments to find a AutomationRunLog
+     * @example
+     * // Get one AutomationRunLog
+     * const automationRunLog = await prisma.automationRunLog.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AutomationRunLogFindFirstOrThrowArgs>(args?: SelectSubset<T, AutomationRunLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__AutomationRunLogClient<$Result.GetResult<Prisma.$AutomationRunLogPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AutomationRunLogs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AutomationRunLogFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AutomationRunLogs
+     * const automationRunLogs = await prisma.automationRunLog.findMany()
+     * 
+     * // Get first 10 AutomationRunLogs
+     * const automationRunLogs = await prisma.automationRunLog.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const automationRunLogWithIdOnly = await prisma.automationRunLog.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AutomationRunLogFindManyArgs>(args?: SelectSubset<T, AutomationRunLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AutomationRunLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AutomationRunLog.
+     * @param {AutomationRunLogCreateArgs} args - Arguments to create a AutomationRunLog.
+     * @example
+     * // Create one AutomationRunLog
+     * const AutomationRunLog = await prisma.automationRunLog.create({
+     *   data: {
+     *     // ... data to create a AutomationRunLog
+     *   }
+     * })
+     * 
+     */
+    create<T extends AutomationRunLogCreateArgs>(args: SelectSubset<T, AutomationRunLogCreateArgs<ExtArgs>>): Prisma__AutomationRunLogClient<$Result.GetResult<Prisma.$AutomationRunLogPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AutomationRunLogs.
+     * @param {AutomationRunLogCreateManyArgs} args - Arguments to create many AutomationRunLogs.
+     * @example
+     * // Create many AutomationRunLogs
+     * const automationRunLog = await prisma.automationRunLog.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AutomationRunLogCreateManyArgs>(args?: SelectSubset<T, AutomationRunLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AutomationRunLogs and returns the data saved in the database.
+     * @param {AutomationRunLogCreateManyAndReturnArgs} args - Arguments to create many AutomationRunLogs.
+     * @example
+     * // Create many AutomationRunLogs
+     * const automationRunLog = await prisma.automationRunLog.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AutomationRunLogs and only return the `id`
+     * const automationRunLogWithIdOnly = await prisma.automationRunLog.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AutomationRunLogCreateManyAndReturnArgs>(args?: SelectSubset<T, AutomationRunLogCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AutomationRunLogPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AutomationRunLog.
+     * @param {AutomationRunLogDeleteArgs} args - Arguments to delete one AutomationRunLog.
+     * @example
+     * // Delete one AutomationRunLog
+     * const AutomationRunLog = await prisma.automationRunLog.delete({
+     *   where: {
+     *     // ... filter to delete one AutomationRunLog
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AutomationRunLogDeleteArgs>(args: SelectSubset<T, AutomationRunLogDeleteArgs<ExtArgs>>): Prisma__AutomationRunLogClient<$Result.GetResult<Prisma.$AutomationRunLogPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AutomationRunLog.
+     * @param {AutomationRunLogUpdateArgs} args - Arguments to update one AutomationRunLog.
+     * @example
+     * // Update one AutomationRunLog
+     * const automationRunLog = await prisma.automationRunLog.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AutomationRunLogUpdateArgs>(args: SelectSubset<T, AutomationRunLogUpdateArgs<ExtArgs>>): Prisma__AutomationRunLogClient<$Result.GetResult<Prisma.$AutomationRunLogPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AutomationRunLogs.
+     * @param {AutomationRunLogDeleteManyArgs} args - Arguments to filter AutomationRunLogs to delete.
+     * @example
+     * // Delete a few AutomationRunLogs
+     * const { count } = await prisma.automationRunLog.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AutomationRunLogDeleteManyArgs>(args?: SelectSubset<T, AutomationRunLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AutomationRunLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AutomationRunLogUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AutomationRunLogs
+     * const automationRunLog = await prisma.automationRunLog.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AutomationRunLogUpdateManyArgs>(args: SelectSubset<T, AutomationRunLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AutomationRunLogs and returns the data updated in the database.
+     * @param {AutomationRunLogUpdateManyAndReturnArgs} args - Arguments to update many AutomationRunLogs.
+     * @example
+     * // Update many AutomationRunLogs
+     * const automationRunLog = await prisma.automationRunLog.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AutomationRunLogs and only return the `id`
+     * const automationRunLogWithIdOnly = await prisma.automationRunLog.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AutomationRunLogUpdateManyAndReturnArgs>(args: SelectSubset<T, AutomationRunLogUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AutomationRunLogPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AutomationRunLog.
+     * @param {AutomationRunLogUpsertArgs} args - Arguments to update or create a AutomationRunLog.
+     * @example
+     * // Update or create a AutomationRunLog
+     * const automationRunLog = await prisma.automationRunLog.upsert({
+     *   create: {
+     *     // ... data to create a AutomationRunLog
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AutomationRunLog we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AutomationRunLogUpsertArgs>(args: SelectSubset<T, AutomationRunLogUpsertArgs<ExtArgs>>): Prisma__AutomationRunLogClient<$Result.GetResult<Prisma.$AutomationRunLogPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AutomationRunLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AutomationRunLogCountArgs} args - Arguments to filter AutomationRunLogs to count.
+     * @example
+     * // Count the number of AutomationRunLogs
+     * const count = await prisma.automationRunLog.count({
+     *   where: {
+     *     // ... the filter for the AutomationRunLogs we want to count
+     *   }
+     * })
+    **/
+    count<T extends AutomationRunLogCountArgs>(
+      args?: Subset<T, AutomationRunLogCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AutomationRunLogCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AutomationRunLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AutomationRunLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AutomationRunLogAggregateArgs>(args: Subset<T, AutomationRunLogAggregateArgs>): Prisma.PrismaPromise<GetAutomationRunLogAggregateType<T>>
+
+    /**
+     * Group by AutomationRunLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AutomationRunLogGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AutomationRunLogGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AutomationRunLogGroupByArgs['orderBy'] }
+        : { orderBy?: AutomationRunLogGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AutomationRunLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAutomationRunLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AutomationRunLog model
+   */
+  readonly fields: AutomationRunLogFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AutomationRunLog.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AutomationRunLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    rule<T extends AutomationRuleDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AutomationRuleDefaultArgs<ExtArgs>>): Prisma__AutomationRuleClient<$Result.GetResult<Prisma.$AutomationRulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AutomationRunLog model
+   */
+  interface AutomationRunLogFieldRefs {
+    readonly id: FieldRef<"AutomationRunLog", 'String'>
+    readonly ruleId: FieldRef<"AutomationRunLog", 'String'>
+    readonly triggeredAt: FieldRef<"AutomationRunLog", 'DateTime'>
+    readonly trigger: FieldRef<"AutomationRunLog", 'String'>
+    readonly status: FieldRef<"AutomationRunLog", 'AutomationRunStatus'>
+    readonly matched: FieldRef<"AutomationRunLog", 'Int'>
+    readonly notified: FieldRef<"AutomationRunLog", 'Int'>
+    readonly skippedReason: FieldRef<"AutomationRunLog", 'String'>
+    readonly error: FieldRef<"AutomationRunLog", 'String'>
+    readonly notificationId: FieldRef<"AutomationRunLog", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AutomationRunLog findUnique
+   */
+  export type AutomationRunLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutomationRunLog
+     */
+    select?: AutomationRunLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutomationRunLog
+     */
+    omit?: AutomationRunLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutomationRunLogInclude<ExtArgs> | null
+    /**
+     * Filter, which AutomationRunLog to fetch.
+     */
+    where: AutomationRunLogWhereUniqueInput
+  }
+
+  /**
+   * AutomationRunLog findUniqueOrThrow
+   */
+  export type AutomationRunLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutomationRunLog
+     */
+    select?: AutomationRunLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutomationRunLog
+     */
+    omit?: AutomationRunLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutomationRunLogInclude<ExtArgs> | null
+    /**
+     * Filter, which AutomationRunLog to fetch.
+     */
+    where: AutomationRunLogWhereUniqueInput
+  }
+
+  /**
+   * AutomationRunLog findFirst
+   */
+  export type AutomationRunLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutomationRunLog
+     */
+    select?: AutomationRunLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutomationRunLog
+     */
+    omit?: AutomationRunLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutomationRunLogInclude<ExtArgs> | null
+    /**
+     * Filter, which AutomationRunLog to fetch.
+     */
+    where?: AutomationRunLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AutomationRunLogs to fetch.
+     */
+    orderBy?: AutomationRunLogOrderByWithRelationInput | AutomationRunLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AutomationRunLogs.
+     */
+    cursor?: AutomationRunLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AutomationRunLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AutomationRunLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AutomationRunLogs.
+     */
+    distinct?: AutomationRunLogScalarFieldEnum | AutomationRunLogScalarFieldEnum[]
+  }
+
+  /**
+   * AutomationRunLog findFirstOrThrow
+   */
+  export type AutomationRunLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutomationRunLog
+     */
+    select?: AutomationRunLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutomationRunLog
+     */
+    omit?: AutomationRunLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutomationRunLogInclude<ExtArgs> | null
+    /**
+     * Filter, which AutomationRunLog to fetch.
+     */
+    where?: AutomationRunLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AutomationRunLogs to fetch.
+     */
+    orderBy?: AutomationRunLogOrderByWithRelationInput | AutomationRunLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AutomationRunLogs.
+     */
+    cursor?: AutomationRunLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AutomationRunLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AutomationRunLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AutomationRunLogs.
+     */
+    distinct?: AutomationRunLogScalarFieldEnum | AutomationRunLogScalarFieldEnum[]
+  }
+
+  /**
+   * AutomationRunLog findMany
+   */
+  export type AutomationRunLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutomationRunLog
+     */
+    select?: AutomationRunLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutomationRunLog
+     */
+    omit?: AutomationRunLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutomationRunLogInclude<ExtArgs> | null
+    /**
+     * Filter, which AutomationRunLogs to fetch.
+     */
+    where?: AutomationRunLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AutomationRunLogs to fetch.
+     */
+    orderBy?: AutomationRunLogOrderByWithRelationInput | AutomationRunLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AutomationRunLogs.
+     */
+    cursor?: AutomationRunLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AutomationRunLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AutomationRunLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AutomationRunLogs.
+     */
+    distinct?: AutomationRunLogScalarFieldEnum | AutomationRunLogScalarFieldEnum[]
+  }
+
+  /**
+   * AutomationRunLog create
+   */
+  export type AutomationRunLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutomationRunLog
+     */
+    select?: AutomationRunLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutomationRunLog
+     */
+    omit?: AutomationRunLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutomationRunLogInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AutomationRunLog.
+     */
+    data: XOR<AutomationRunLogCreateInput, AutomationRunLogUncheckedCreateInput>
+  }
+
+  /**
+   * AutomationRunLog createMany
+   */
+  export type AutomationRunLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AutomationRunLogs.
+     */
+    data: AutomationRunLogCreateManyInput | AutomationRunLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AutomationRunLog createManyAndReturn
+   */
+  export type AutomationRunLogCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutomationRunLog
+     */
+    select?: AutomationRunLogSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutomationRunLog
+     */
+    omit?: AutomationRunLogOmit<ExtArgs> | null
+    /**
+     * The data used to create many AutomationRunLogs.
+     */
+    data: AutomationRunLogCreateManyInput | AutomationRunLogCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutomationRunLogIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AutomationRunLog update
+   */
+  export type AutomationRunLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutomationRunLog
+     */
+    select?: AutomationRunLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutomationRunLog
+     */
+    omit?: AutomationRunLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutomationRunLogInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AutomationRunLog.
+     */
+    data: XOR<AutomationRunLogUpdateInput, AutomationRunLogUncheckedUpdateInput>
+    /**
+     * Choose, which AutomationRunLog to update.
+     */
+    where: AutomationRunLogWhereUniqueInput
+  }
+
+  /**
+   * AutomationRunLog updateMany
+   */
+  export type AutomationRunLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AutomationRunLogs.
+     */
+    data: XOR<AutomationRunLogUpdateManyMutationInput, AutomationRunLogUncheckedUpdateManyInput>
+    /**
+     * Filter which AutomationRunLogs to update
+     */
+    where?: AutomationRunLogWhereInput
+    /**
+     * Limit how many AutomationRunLogs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AutomationRunLog updateManyAndReturn
+   */
+  export type AutomationRunLogUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutomationRunLog
+     */
+    select?: AutomationRunLogSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutomationRunLog
+     */
+    omit?: AutomationRunLogOmit<ExtArgs> | null
+    /**
+     * The data used to update AutomationRunLogs.
+     */
+    data: XOR<AutomationRunLogUpdateManyMutationInput, AutomationRunLogUncheckedUpdateManyInput>
+    /**
+     * Filter which AutomationRunLogs to update
+     */
+    where?: AutomationRunLogWhereInput
+    /**
+     * Limit how many AutomationRunLogs to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutomationRunLogIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AutomationRunLog upsert
+   */
+  export type AutomationRunLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutomationRunLog
+     */
+    select?: AutomationRunLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutomationRunLog
+     */
+    omit?: AutomationRunLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutomationRunLogInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AutomationRunLog to update in case it exists.
+     */
+    where: AutomationRunLogWhereUniqueInput
+    /**
+     * In case the AutomationRunLog found by the `where` argument doesn't exist, create a new AutomationRunLog with this data.
+     */
+    create: XOR<AutomationRunLogCreateInput, AutomationRunLogUncheckedCreateInput>
+    /**
+     * In case the AutomationRunLog was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AutomationRunLogUpdateInput, AutomationRunLogUncheckedUpdateInput>
+  }
+
+  /**
+   * AutomationRunLog delete
+   */
+  export type AutomationRunLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutomationRunLog
+     */
+    select?: AutomationRunLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutomationRunLog
+     */
+    omit?: AutomationRunLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutomationRunLogInclude<ExtArgs> | null
+    /**
+     * Filter which AutomationRunLog to delete.
+     */
+    where: AutomationRunLogWhereUniqueInput
+  }
+
+  /**
+   * AutomationRunLog deleteMany
+   */
+  export type AutomationRunLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AutomationRunLogs to delete
+     */
+    where?: AutomationRunLogWhereInput
+    /**
+     * Limit how many AutomationRunLogs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AutomationRunLog without action
+   */
+  export type AutomationRunLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AutomationRunLog
+     */
+    select?: AutomationRunLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AutomationRunLog
+     */
+    omit?: AutomationRunLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AutomationRunLogInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model SchoolMessageTemplate
+   */
+
+  export type AggregateSchoolMessageTemplate = {
+    _count: SchoolMessageTemplateCountAggregateOutputType | null
+    _min: SchoolMessageTemplateMinAggregateOutputType | null
+    _max: SchoolMessageTemplateMaxAggregateOutputType | null
+  }
+
+  export type SchoolMessageTemplateMinAggregateOutputType = {
+    id: string | null
+    key: string | null
+    channel: $Enums.NotificationChannel | null
+    locale: string | null
+    subject: string | null
+    body: string | null
+    isActive: boolean | null
+    updatedById: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SchoolMessageTemplateMaxAggregateOutputType = {
+    id: string | null
+    key: string | null
+    channel: $Enums.NotificationChannel | null
+    locale: string | null
+    subject: string | null
+    body: string | null
+    isActive: boolean | null
+    updatedById: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SchoolMessageTemplateCountAggregateOutputType = {
+    id: number
+    key: number
+    channel: number
+    locale: number
+    subject: number
+    body: number
+    isActive: number
+    updatedById: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type SchoolMessageTemplateMinAggregateInputType = {
+    id?: true
+    key?: true
+    channel?: true
+    locale?: true
+    subject?: true
+    body?: true
+    isActive?: true
+    updatedById?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type SchoolMessageTemplateMaxAggregateInputType = {
+    id?: true
+    key?: true
+    channel?: true
+    locale?: true
+    subject?: true
+    body?: true
+    isActive?: true
+    updatedById?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type SchoolMessageTemplateCountAggregateInputType = {
+    id?: true
+    key?: true
+    channel?: true
+    locale?: true
+    subject?: true
+    body?: true
+    isActive?: true
+    updatedById?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type SchoolMessageTemplateAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SchoolMessageTemplate to aggregate.
+     */
+    where?: SchoolMessageTemplateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SchoolMessageTemplates to fetch.
+     */
+    orderBy?: SchoolMessageTemplateOrderByWithRelationInput | SchoolMessageTemplateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SchoolMessageTemplateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SchoolMessageTemplates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SchoolMessageTemplates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SchoolMessageTemplates
+    **/
+    _count?: true | SchoolMessageTemplateCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SchoolMessageTemplateMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SchoolMessageTemplateMaxAggregateInputType
+  }
+
+  export type GetSchoolMessageTemplateAggregateType<T extends SchoolMessageTemplateAggregateArgs> = {
+        [P in keyof T & keyof AggregateSchoolMessageTemplate]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSchoolMessageTemplate[P]>
+      : GetScalarType<T[P], AggregateSchoolMessageTemplate[P]>
+  }
+
+
+
+
+  export type SchoolMessageTemplateGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SchoolMessageTemplateWhereInput
+    orderBy?: SchoolMessageTemplateOrderByWithAggregationInput | SchoolMessageTemplateOrderByWithAggregationInput[]
+    by: SchoolMessageTemplateScalarFieldEnum[] | SchoolMessageTemplateScalarFieldEnum
+    having?: SchoolMessageTemplateScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SchoolMessageTemplateCountAggregateInputType | true
+    _min?: SchoolMessageTemplateMinAggregateInputType
+    _max?: SchoolMessageTemplateMaxAggregateInputType
+  }
+
+  export type SchoolMessageTemplateGroupByOutputType = {
+    id: string
+    key: string
+    channel: $Enums.NotificationChannel
+    locale: string
+    subject: string | null
+    body: string
+    isActive: boolean
+    updatedById: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: SchoolMessageTemplateCountAggregateOutputType | null
+    _min: SchoolMessageTemplateMinAggregateOutputType | null
+    _max: SchoolMessageTemplateMaxAggregateOutputType | null
+  }
+
+  type GetSchoolMessageTemplateGroupByPayload<T extends SchoolMessageTemplateGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SchoolMessageTemplateGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SchoolMessageTemplateGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SchoolMessageTemplateGroupByOutputType[P]>
+            : GetScalarType<T[P], SchoolMessageTemplateGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SchoolMessageTemplateSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    key?: boolean
+    channel?: boolean
+    locale?: boolean
+    subject?: boolean
+    body?: boolean
+    isActive?: boolean
+    updatedById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["schoolMessageTemplate"]>
+
+  export type SchoolMessageTemplateSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    key?: boolean
+    channel?: boolean
+    locale?: boolean
+    subject?: boolean
+    body?: boolean
+    isActive?: boolean
+    updatedById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["schoolMessageTemplate"]>
+
+  export type SchoolMessageTemplateSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    key?: boolean
+    channel?: boolean
+    locale?: boolean
+    subject?: boolean
+    body?: boolean
+    isActive?: boolean
+    updatedById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["schoolMessageTemplate"]>
+
+  export type SchoolMessageTemplateSelectScalar = {
+    id?: boolean
+    key?: boolean
+    channel?: boolean
+    locale?: boolean
+    subject?: boolean
+    body?: boolean
+    isActive?: boolean
+    updatedById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type SchoolMessageTemplateOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "key" | "channel" | "locale" | "subject" | "body" | "isActive" | "updatedById" | "createdAt" | "updatedAt", ExtArgs["result"]["schoolMessageTemplate"]>
+
+  export type $SchoolMessageTemplatePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SchoolMessageTemplate"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      key: string
+      channel: $Enums.NotificationChannel
+      locale: string
+      subject: string | null
+      body: string
+      isActive: boolean
+      updatedById: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["schoolMessageTemplate"]>
+    composites: {}
+  }
+
+  type SchoolMessageTemplateGetPayload<S extends boolean | null | undefined | SchoolMessageTemplateDefaultArgs> = $Result.GetResult<Prisma.$SchoolMessageTemplatePayload, S>
+
+  type SchoolMessageTemplateCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SchoolMessageTemplateFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SchoolMessageTemplateCountAggregateInputType | true
+    }
+
+  export interface SchoolMessageTemplateDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SchoolMessageTemplate'], meta: { name: 'SchoolMessageTemplate' } }
+    /**
+     * Find zero or one SchoolMessageTemplate that matches the filter.
+     * @param {SchoolMessageTemplateFindUniqueArgs} args - Arguments to find a SchoolMessageTemplate
+     * @example
+     * // Get one SchoolMessageTemplate
+     * const schoolMessageTemplate = await prisma.schoolMessageTemplate.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SchoolMessageTemplateFindUniqueArgs>(args: SelectSubset<T, SchoolMessageTemplateFindUniqueArgs<ExtArgs>>): Prisma__SchoolMessageTemplateClient<$Result.GetResult<Prisma.$SchoolMessageTemplatePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SchoolMessageTemplate that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SchoolMessageTemplateFindUniqueOrThrowArgs} args - Arguments to find a SchoolMessageTemplate
+     * @example
+     * // Get one SchoolMessageTemplate
+     * const schoolMessageTemplate = await prisma.schoolMessageTemplate.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SchoolMessageTemplateFindUniqueOrThrowArgs>(args: SelectSubset<T, SchoolMessageTemplateFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SchoolMessageTemplateClient<$Result.GetResult<Prisma.$SchoolMessageTemplatePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SchoolMessageTemplate that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SchoolMessageTemplateFindFirstArgs} args - Arguments to find a SchoolMessageTemplate
+     * @example
+     * // Get one SchoolMessageTemplate
+     * const schoolMessageTemplate = await prisma.schoolMessageTemplate.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SchoolMessageTemplateFindFirstArgs>(args?: SelectSubset<T, SchoolMessageTemplateFindFirstArgs<ExtArgs>>): Prisma__SchoolMessageTemplateClient<$Result.GetResult<Prisma.$SchoolMessageTemplatePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SchoolMessageTemplate that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SchoolMessageTemplateFindFirstOrThrowArgs} args - Arguments to find a SchoolMessageTemplate
+     * @example
+     * // Get one SchoolMessageTemplate
+     * const schoolMessageTemplate = await prisma.schoolMessageTemplate.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SchoolMessageTemplateFindFirstOrThrowArgs>(args?: SelectSubset<T, SchoolMessageTemplateFindFirstOrThrowArgs<ExtArgs>>): Prisma__SchoolMessageTemplateClient<$Result.GetResult<Prisma.$SchoolMessageTemplatePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SchoolMessageTemplates that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SchoolMessageTemplateFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SchoolMessageTemplates
+     * const schoolMessageTemplates = await prisma.schoolMessageTemplate.findMany()
+     * 
+     * // Get first 10 SchoolMessageTemplates
+     * const schoolMessageTemplates = await prisma.schoolMessageTemplate.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const schoolMessageTemplateWithIdOnly = await prisma.schoolMessageTemplate.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SchoolMessageTemplateFindManyArgs>(args?: SelectSubset<T, SchoolMessageTemplateFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SchoolMessageTemplatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SchoolMessageTemplate.
+     * @param {SchoolMessageTemplateCreateArgs} args - Arguments to create a SchoolMessageTemplate.
+     * @example
+     * // Create one SchoolMessageTemplate
+     * const SchoolMessageTemplate = await prisma.schoolMessageTemplate.create({
+     *   data: {
+     *     // ... data to create a SchoolMessageTemplate
+     *   }
+     * })
+     * 
+     */
+    create<T extends SchoolMessageTemplateCreateArgs>(args: SelectSubset<T, SchoolMessageTemplateCreateArgs<ExtArgs>>): Prisma__SchoolMessageTemplateClient<$Result.GetResult<Prisma.$SchoolMessageTemplatePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SchoolMessageTemplates.
+     * @param {SchoolMessageTemplateCreateManyArgs} args - Arguments to create many SchoolMessageTemplates.
+     * @example
+     * // Create many SchoolMessageTemplates
+     * const schoolMessageTemplate = await prisma.schoolMessageTemplate.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SchoolMessageTemplateCreateManyArgs>(args?: SelectSubset<T, SchoolMessageTemplateCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many SchoolMessageTemplates and returns the data saved in the database.
+     * @param {SchoolMessageTemplateCreateManyAndReturnArgs} args - Arguments to create many SchoolMessageTemplates.
+     * @example
+     * // Create many SchoolMessageTemplates
+     * const schoolMessageTemplate = await prisma.schoolMessageTemplate.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many SchoolMessageTemplates and only return the `id`
+     * const schoolMessageTemplateWithIdOnly = await prisma.schoolMessageTemplate.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends SchoolMessageTemplateCreateManyAndReturnArgs>(args?: SelectSubset<T, SchoolMessageTemplateCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SchoolMessageTemplatePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a SchoolMessageTemplate.
+     * @param {SchoolMessageTemplateDeleteArgs} args - Arguments to delete one SchoolMessageTemplate.
+     * @example
+     * // Delete one SchoolMessageTemplate
+     * const SchoolMessageTemplate = await prisma.schoolMessageTemplate.delete({
+     *   where: {
+     *     // ... filter to delete one SchoolMessageTemplate
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SchoolMessageTemplateDeleteArgs>(args: SelectSubset<T, SchoolMessageTemplateDeleteArgs<ExtArgs>>): Prisma__SchoolMessageTemplateClient<$Result.GetResult<Prisma.$SchoolMessageTemplatePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SchoolMessageTemplate.
+     * @param {SchoolMessageTemplateUpdateArgs} args - Arguments to update one SchoolMessageTemplate.
+     * @example
+     * // Update one SchoolMessageTemplate
+     * const schoolMessageTemplate = await prisma.schoolMessageTemplate.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SchoolMessageTemplateUpdateArgs>(args: SelectSubset<T, SchoolMessageTemplateUpdateArgs<ExtArgs>>): Prisma__SchoolMessageTemplateClient<$Result.GetResult<Prisma.$SchoolMessageTemplatePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SchoolMessageTemplates.
+     * @param {SchoolMessageTemplateDeleteManyArgs} args - Arguments to filter SchoolMessageTemplates to delete.
+     * @example
+     * // Delete a few SchoolMessageTemplates
+     * const { count } = await prisma.schoolMessageTemplate.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SchoolMessageTemplateDeleteManyArgs>(args?: SelectSubset<T, SchoolMessageTemplateDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SchoolMessageTemplates.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SchoolMessageTemplateUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SchoolMessageTemplates
+     * const schoolMessageTemplate = await prisma.schoolMessageTemplate.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SchoolMessageTemplateUpdateManyArgs>(args: SelectSubset<T, SchoolMessageTemplateUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SchoolMessageTemplates and returns the data updated in the database.
+     * @param {SchoolMessageTemplateUpdateManyAndReturnArgs} args - Arguments to update many SchoolMessageTemplates.
+     * @example
+     * // Update many SchoolMessageTemplates
+     * const schoolMessageTemplate = await prisma.schoolMessageTemplate.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more SchoolMessageTemplates and only return the `id`
+     * const schoolMessageTemplateWithIdOnly = await prisma.schoolMessageTemplate.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends SchoolMessageTemplateUpdateManyAndReturnArgs>(args: SelectSubset<T, SchoolMessageTemplateUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SchoolMessageTemplatePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one SchoolMessageTemplate.
+     * @param {SchoolMessageTemplateUpsertArgs} args - Arguments to update or create a SchoolMessageTemplate.
+     * @example
+     * // Update or create a SchoolMessageTemplate
+     * const schoolMessageTemplate = await prisma.schoolMessageTemplate.upsert({
+     *   create: {
+     *     // ... data to create a SchoolMessageTemplate
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SchoolMessageTemplate we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SchoolMessageTemplateUpsertArgs>(args: SelectSubset<T, SchoolMessageTemplateUpsertArgs<ExtArgs>>): Prisma__SchoolMessageTemplateClient<$Result.GetResult<Prisma.$SchoolMessageTemplatePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of SchoolMessageTemplates.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SchoolMessageTemplateCountArgs} args - Arguments to filter SchoolMessageTemplates to count.
+     * @example
+     * // Count the number of SchoolMessageTemplates
+     * const count = await prisma.schoolMessageTemplate.count({
+     *   where: {
+     *     // ... the filter for the SchoolMessageTemplates we want to count
+     *   }
+     * })
+    **/
+    count<T extends SchoolMessageTemplateCountArgs>(
+      args?: Subset<T, SchoolMessageTemplateCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SchoolMessageTemplateCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SchoolMessageTemplate.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SchoolMessageTemplateAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SchoolMessageTemplateAggregateArgs>(args: Subset<T, SchoolMessageTemplateAggregateArgs>): Prisma.PrismaPromise<GetSchoolMessageTemplateAggregateType<T>>
+
+    /**
+     * Group by SchoolMessageTemplate.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SchoolMessageTemplateGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SchoolMessageTemplateGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SchoolMessageTemplateGroupByArgs['orderBy'] }
+        : { orderBy?: SchoolMessageTemplateGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SchoolMessageTemplateGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSchoolMessageTemplateGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SchoolMessageTemplate model
+   */
+  readonly fields: SchoolMessageTemplateFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SchoolMessageTemplate.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SchoolMessageTemplateClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SchoolMessageTemplate model
+   */
+  interface SchoolMessageTemplateFieldRefs {
+    readonly id: FieldRef<"SchoolMessageTemplate", 'String'>
+    readonly key: FieldRef<"SchoolMessageTemplate", 'String'>
+    readonly channel: FieldRef<"SchoolMessageTemplate", 'NotificationChannel'>
+    readonly locale: FieldRef<"SchoolMessageTemplate", 'String'>
+    readonly subject: FieldRef<"SchoolMessageTemplate", 'String'>
+    readonly body: FieldRef<"SchoolMessageTemplate", 'String'>
+    readonly isActive: FieldRef<"SchoolMessageTemplate", 'Boolean'>
+    readonly updatedById: FieldRef<"SchoolMessageTemplate", 'String'>
+    readonly createdAt: FieldRef<"SchoolMessageTemplate", 'DateTime'>
+    readonly updatedAt: FieldRef<"SchoolMessageTemplate", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SchoolMessageTemplate findUnique
+   */
+  export type SchoolMessageTemplateFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolMessageTemplate
+     */
+    select?: SchoolMessageTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolMessageTemplate
+     */
+    omit?: SchoolMessageTemplateOmit<ExtArgs> | null
+    /**
+     * Filter, which SchoolMessageTemplate to fetch.
+     */
+    where: SchoolMessageTemplateWhereUniqueInput
+  }
+
+  /**
+   * SchoolMessageTemplate findUniqueOrThrow
+   */
+  export type SchoolMessageTemplateFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolMessageTemplate
+     */
+    select?: SchoolMessageTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolMessageTemplate
+     */
+    omit?: SchoolMessageTemplateOmit<ExtArgs> | null
+    /**
+     * Filter, which SchoolMessageTemplate to fetch.
+     */
+    where: SchoolMessageTemplateWhereUniqueInput
+  }
+
+  /**
+   * SchoolMessageTemplate findFirst
+   */
+  export type SchoolMessageTemplateFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolMessageTemplate
+     */
+    select?: SchoolMessageTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolMessageTemplate
+     */
+    omit?: SchoolMessageTemplateOmit<ExtArgs> | null
+    /**
+     * Filter, which SchoolMessageTemplate to fetch.
+     */
+    where?: SchoolMessageTemplateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SchoolMessageTemplates to fetch.
+     */
+    orderBy?: SchoolMessageTemplateOrderByWithRelationInput | SchoolMessageTemplateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SchoolMessageTemplates.
+     */
+    cursor?: SchoolMessageTemplateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SchoolMessageTemplates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SchoolMessageTemplates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SchoolMessageTemplates.
+     */
+    distinct?: SchoolMessageTemplateScalarFieldEnum | SchoolMessageTemplateScalarFieldEnum[]
+  }
+
+  /**
+   * SchoolMessageTemplate findFirstOrThrow
+   */
+  export type SchoolMessageTemplateFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolMessageTemplate
+     */
+    select?: SchoolMessageTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolMessageTemplate
+     */
+    omit?: SchoolMessageTemplateOmit<ExtArgs> | null
+    /**
+     * Filter, which SchoolMessageTemplate to fetch.
+     */
+    where?: SchoolMessageTemplateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SchoolMessageTemplates to fetch.
+     */
+    orderBy?: SchoolMessageTemplateOrderByWithRelationInput | SchoolMessageTemplateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SchoolMessageTemplates.
+     */
+    cursor?: SchoolMessageTemplateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SchoolMessageTemplates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SchoolMessageTemplates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SchoolMessageTemplates.
+     */
+    distinct?: SchoolMessageTemplateScalarFieldEnum | SchoolMessageTemplateScalarFieldEnum[]
+  }
+
+  /**
+   * SchoolMessageTemplate findMany
+   */
+  export type SchoolMessageTemplateFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolMessageTemplate
+     */
+    select?: SchoolMessageTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolMessageTemplate
+     */
+    omit?: SchoolMessageTemplateOmit<ExtArgs> | null
+    /**
+     * Filter, which SchoolMessageTemplates to fetch.
+     */
+    where?: SchoolMessageTemplateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SchoolMessageTemplates to fetch.
+     */
+    orderBy?: SchoolMessageTemplateOrderByWithRelationInput | SchoolMessageTemplateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SchoolMessageTemplates.
+     */
+    cursor?: SchoolMessageTemplateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SchoolMessageTemplates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SchoolMessageTemplates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SchoolMessageTemplates.
+     */
+    distinct?: SchoolMessageTemplateScalarFieldEnum | SchoolMessageTemplateScalarFieldEnum[]
+  }
+
+  /**
+   * SchoolMessageTemplate create
+   */
+  export type SchoolMessageTemplateCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolMessageTemplate
+     */
+    select?: SchoolMessageTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolMessageTemplate
+     */
+    omit?: SchoolMessageTemplateOmit<ExtArgs> | null
+    /**
+     * The data needed to create a SchoolMessageTemplate.
+     */
+    data: XOR<SchoolMessageTemplateCreateInput, SchoolMessageTemplateUncheckedCreateInput>
+  }
+
+  /**
+   * SchoolMessageTemplate createMany
+   */
+  export type SchoolMessageTemplateCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SchoolMessageTemplates.
+     */
+    data: SchoolMessageTemplateCreateManyInput | SchoolMessageTemplateCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SchoolMessageTemplate createManyAndReturn
+   */
+  export type SchoolMessageTemplateCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolMessageTemplate
+     */
+    select?: SchoolMessageTemplateSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolMessageTemplate
+     */
+    omit?: SchoolMessageTemplateOmit<ExtArgs> | null
+    /**
+     * The data used to create many SchoolMessageTemplates.
+     */
+    data: SchoolMessageTemplateCreateManyInput | SchoolMessageTemplateCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SchoolMessageTemplate update
+   */
+  export type SchoolMessageTemplateUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolMessageTemplate
+     */
+    select?: SchoolMessageTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolMessageTemplate
+     */
+    omit?: SchoolMessageTemplateOmit<ExtArgs> | null
+    /**
+     * The data needed to update a SchoolMessageTemplate.
+     */
+    data: XOR<SchoolMessageTemplateUpdateInput, SchoolMessageTemplateUncheckedUpdateInput>
+    /**
+     * Choose, which SchoolMessageTemplate to update.
+     */
+    where: SchoolMessageTemplateWhereUniqueInput
+  }
+
+  /**
+   * SchoolMessageTemplate updateMany
+   */
+  export type SchoolMessageTemplateUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SchoolMessageTemplates.
+     */
+    data: XOR<SchoolMessageTemplateUpdateManyMutationInput, SchoolMessageTemplateUncheckedUpdateManyInput>
+    /**
+     * Filter which SchoolMessageTemplates to update
+     */
+    where?: SchoolMessageTemplateWhereInput
+    /**
+     * Limit how many SchoolMessageTemplates to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SchoolMessageTemplate updateManyAndReturn
+   */
+  export type SchoolMessageTemplateUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolMessageTemplate
+     */
+    select?: SchoolMessageTemplateSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolMessageTemplate
+     */
+    omit?: SchoolMessageTemplateOmit<ExtArgs> | null
+    /**
+     * The data used to update SchoolMessageTemplates.
+     */
+    data: XOR<SchoolMessageTemplateUpdateManyMutationInput, SchoolMessageTemplateUncheckedUpdateManyInput>
+    /**
+     * Filter which SchoolMessageTemplates to update
+     */
+    where?: SchoolMessageTemplateWhereInput
+    /**
+     * Limit how many SchoolMessageTemplates to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SchoolMessageTemplate upsert
+   */
+  export type SchoolMessageTemplateUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolMessageTemplate
+     */
+    select?: SchoolMessageTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolMessageTemplate
+     */
+    omit?: SchoolMessageTemplateOmit<ExtArgs> | null
+    /**
+     * The filter to search for the SchoolMessageTemplate to update in case it exists.
+     */
+    where: SchoolMessageTemplateWhereUniqueInput
+    /**
+     * In case the SchoolMessageTemplate found by the `where` argument doesn't exist, create a new SchoolMessageTemplate with this data.
+     */
+    create: XOR<SchoolMessageTemplateCreateInput, SchoolMessageTemplateUncheckedCreateInput>
+    /**
+     * In case the SchoolMessageTemplate was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SchoolMessageTemplateUpdateInput, SchoolMessageTemplateUncheckedUpdateInput>
+  }
+
+  /**
+   * SchoolMessageTemplate delete
+   */
+  export type SchoolMessageTemplateDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolMessageTemplate
+     */
+    select?: SchoolMessageTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolMessageTemplate
+     */
+    omit?: SchoolMessageTemplateOmit<ExtArgs> | null
+    /**
+     * Filter which SchoolMessageTemplate to delete.
+     */
+    where: SchoolMessageTemplateWhereUniqueInput
+  }
+
+  /**
+   * SchoolMessageTemplate deleteMany
+   */
+  export type SchoolMessageTemplateDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SchoolMessageTemplates to delete
+     */
+    where?: SchoolMessageTemplateWhereInput
+    /**
+     * Limit how many SchoolMessageTemplates to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * SchoolMessageTemplate without action
+   */
+  export type SchoolMessageTemplateDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SchoolMessageTemplate
+     */
+    select?: SchoolMessageTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SchoolMessageTemplate
+     */
+    omit?: SchoolMessageTemplateOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model NumberSequence
+   */
+
+  export type AggregateNumberSequence = {
+    _count: NumberSequenceCountAggregateOutputType | null
+    _avg: NumberSequenceAvgAggregateOutputType | null
+    _sum: NumberSequenceSumAggregateOutputType | null
+    _min: NumberSequenceMinAggregateOutputType | null
+    _max: NumberSequenceMaxAggregateOutputType | null
+  }
+
+  export type NumberSequenceAvgAggregateOutputType = {
+    nextValue: number | null
+  }
+
+  export type NumberSequenceSumAggregateOutputType = {
+    nextValue: number | null
+  }
+
+  export type NumberSequenceMinAggregateOutputType = {
+    key: string | null
+    period: string | null
+    nextValue: number | null
+    updatedAt: Date | null
+  }
+
+  export type NumberSequenceMaxAggregateOutputType = {
+    key: string | null
+    period: string | null
+    nextValue: number | null
+    updatedAt: Date | null
+  }
+
+  export type NumberSequenceCountAggregateOutputType = {
+    key: number
+    period: number
+    nextValue: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type NumberSequenceAvgAggregateInputType = {
+    nextValue?: true
+  }
+
+  export type NumberSequenceSumAggregateInputType = {
+    nextValue?: true
+  }
+
+  export type NumberSequenceMinAggregateInputType = {
+    key?: true
+    period?: true
+    nextValue?: true
+    updatedAt?: true
+  }
+
+  export type NumberSequenceMaxAggregateInputType = {
+    key?: true
+    period?: true
+    nextValue?: true
+    updatedAt?: true
+  }
+
+  export type NumberSequenceCountAggregateInputType = {
+    key?: true
+    period?: true
+    nextValue?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type NumberSequenceAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which NumberSequence to aggregate.
+     */
+    where?: NumberSequenceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NumberSequences to fetch.
+     */
+    orderBy?: NumberSequenceOrderByWithRelationInput | NumberSequenceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: NumberSequenceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NumberSequences from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NumberSequences.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned NumberSequences
+    **/
+    _count?: true | NumberSequenceCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: NumberSequenceAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: NumberSequenceSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: NumberSequenceMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: NumberSequenceMaxAggregateInputType
+  }
+
+  export type GetNumberSequenceAggregateType<T extends NumberSequenceAggregateArgs> = {
+        [P in keyof T & keyof AggregateNumberSequence]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateNumberSequence[P]>
+      : GetScalarType<T[P], AggregateNumberSequence[P]>
+  }
+
+
+
+
+  export type NumberSequenceGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: NumberSequenceWhereInput
+    orderBy?: NumberSequenceOrderByWithAggregationInput | NumberSequenceOrderByWithAggregationInput[]
+    by: NumberSequenceScalarFieldEnum[] | NumberSequenceScalarFieldEnum
+    having?: NumberSequenceScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: NumberSequenceCountAggregateInputType | true
+    _avg?: NumberSequenceAvgAggregateInputType
+    _sum?: NumberSequenceSumAggregateInputType
+    _min?: NumberSequenceMinAggregateInputType
+    _max?: NumberSequenceMaxAggregateInputType
+  }
+
+  export type NumberSequenceGroupByOutputType = {
+    key: string
+    period: string
+    nextValue: number
+    updatedAt: Date
+    _count: NumberSequenceCountAggregateOutputType | null
+    _avg: NumberSequenceAvgAggregateOutputType | null
+    _sum: NumberSequenceSumAggregateOutputType | null
+    _min: NumberSequenceMinAggregateOutputType | null
+    _max: NumberSequenceMaxAggregateOutputType | null
+  }
+
+  type GetNumberSequenceGroupByPayload<T extends NumberSequenceGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<NumberSequenceGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof NumberSequenceGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], NumberSequenceGroupByOutputType[P]>
+            : GetScalarType<T[P], NumberSequenceGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type NumberSequenceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    key?: boolean
+    period?: boolean
+    nextValue?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["numberSequence"]>
+
+  export type NumberSequenceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    key?: boolean
+    period?: boolean
+    nextValue?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["numberSequence"]>
+
+  export type NumberSequenceSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    key?: boolean
+    period?: boolean
+    nextValue?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["numberSequence"]>
+
+  export type NumberSequenceSelectScalar = {
+    key?: boolean
+    period?: boolean
+    nextValue?: boolean
+    updatedAt?: boolean
+  }
+
+  export type NumberSequenceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"key" | "period" | "nextValue" | "updatedAt", ExtArgs["result"]["numberSequence"]>
+
+  export type $NumberSequencePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "NumberSequence"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      key: string
+      period: string
+      nextValue: number
+      updatedAt: Date
+    }, ExtArgs["result"]["numberSequence"]>
+    composites: {}
+  }
+
+  type NumberSequenceGetPayload<S extends boolean | null | undefined | NumberSequenceDefaultArgs> = $Result.GetResult<Prisma.$NumberSequencePayload, S>
+
+  type NumberSequenceCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<NumberSequenceFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: NumberSequenceCountAggregateInputType | true
+    }
+
+  export interface NumberSequenceDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['NumberSequence'], meta: { name: 'NumberSequence' } }
+    /**
+     * Find zero or one NumberSequence that matches the filter.
+     * @param {NumberSequenceFindUniqueArgs} args - Arguments to find a NumberSequence
+     * @example
+     * // Get one NumberSequence
+     * const numberSequence = await prisma.numberSequence.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends NumberSequenceFindUniqueArgs>(args: SelectSubset<T, NumberSequenceFindUniqueArgs<ExtArgs>>): Prisma__NumberSequenceClient<$Result.GetResult<Prisma.$NumberSequencePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one NumberSequence that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {NumberSequenceFindUniqueOrThrowArgs} args - Arguments to find a NumberSequence
+     * @example
+     * // Get one NumberSequence
+     * const numberSequence = await prisma.numberSequence.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends NumberSequenceFindUniqueOrThrowArgs>(args: SelectSubset<T, NumberSequenceFindUniqueOrThrowArgs<ExtArgs>>): Prisma__NumberSequenceClient<$Result.GetResult<Prisma.$NumberSequencePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first NumberSequence that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NumberSequenceFindFirstArgs} args - Arguments to find a NumberSequence
+     * @example
+     * // Get one NumberSequence
+     * const numberSequence = await prisma.numberSequence.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends NumberSequenceFindFirstArgs>(args?: SelectSubset<T, NumberSequenceFindFirstArgs<ExtArgs>>): Prisma__NumberSequenceClient<$Result.GetResult<Prisma.$NumberSequencePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first NumberSequence that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NumberSequenceFindFirstOrThrowArgs} args - Arguments to find a NumberSequence
+     * @example
+     * // Get one NumberSequence
+     * const numberSequence = await prisma.numberSequence.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends NumberSequenceFindFirstOrThrowArgs>(args?: SelectSubset<T, NumberSequenceFindFirstOrThrowArgs<ExtArgs>>): Prisma__NumberSequenceClient<$Result.GetResult<Prisma.$NumberSequencePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more NumberSequences that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NumberSequenceFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all NumberSequences
+     * const numberSequences = await prisma.numberSequence.findMany()
+     * 
+     * // Get first 10 NumberSequences
+     * const numberSequences = await prisma.numberSequence.findMany({ take: 10 })
+     * 
+     * // Only select the `key`
+     * const numberSequenceWithKeyOnly = await prisma.numberSequence.findMany({ select: { key: true } })
+     * 
+     */
+    findMany<T extends NumberSequenceFindManyArgs>(args?: SelectSubset<T, NumberSequenceFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NumberSequencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a NumberSequence.
+     * @param {NumberSequenceCreateArgs} args - Arguments to create a NumberSequence.
+     * @example
+     * // Create one NumberSequence
+     * const NumberSequence = await prisma.numberSequence.create({
+     *   data: {
+     *     // ... data to create a NumberSequence
+     *   }
+     * })
+     * 
+     */
+    create<T extends NumberSequenceCreateArgs>(args: SelectSubset<T, NumberSequenceCreateArgs<ExtArgs>>): Prisma__NumberSequenceClient<$Result.GetResult<Prisma.$NumberSequencePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many NumberSequences.
+     * @param {NumberSequenceCreateManyArgs} args - Arguments to create many NumberSequences.
+     * @example
+     * // Create many NumberSequences
+     * const numberSequence = await prisma.numberSequence.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends NumberSequenceCreateManyArgs>(args?: SelectSubset<T, NumberSequenceCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many NumberSequences and returns the data saved in the database.
+     * @param {NumberSequenceCreateManyAndReturnArgs} args - Arguments to create many NumberSequences.
+     * @example
+     * // Create many NumberSequences
+     * const numberSequence = await prisma.numberSequence.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many NumberSequences and only return the `key`
+     * const numberSequenceWithKeyOnly = await prisma.numberSequence.createManyAndReturn({
+     *   select: { key: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends NumberSequenceCreateManyAndReturnArgs>(args?: SelectSubset<T, NumberSequenceCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NumberSequencePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a NumberSequence.
+     * @param {NumberSequenceDeleteArgs} args - Arguments to delete one NumberSequence.
+     * @example
+     * // Delete one NumberSequence
+     * const NumberSequence = await prisma.numberSequence.delete({
+     *   where: {
+     *     // ... filter to delete one NumberSequence
+     *   }
+     * })
+     * 
+     */
+    delete<T extends NumberSequenceDeleteArgs>(args: SelectSubset<T, NumberSequenceDeleteArgs<ExtArgs>>): Prisma__NumberSequenceClient<$Result.GetResult<Prisma.$NumberSequencePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one NumberSequence.
+     * @param {NumberSequenceUpdateArgs} args - Arguments to update one NumberSequence.
+     * @example
+     * // Update one NumberSequence
+     * const numberSequence = await prisma.numberSequence.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends NumberSequenceUpdateArgs>(args: SelectSubset<T, NumberSequenceUpdateArgs<ExtArgs>>): Prisma__NumberSequenceClient<$Result.GetResult<Prisma.$NumberSequencePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more NumberSequences.
+     * @param {NumberSequenceDeleteManyArgs} args - Arguments to filter NumberSequences to delete.
+     * @example
+     * // Delete a few NumberSequences
+     * const { count } = await prisma.numberSequence.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends NumberSequenceDeleteManyArgs>(args?: SelectSubset<T, NumberSequenceDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more NumberSequences.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NumberSequenceUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many NumberSequences
+     * const numberSequence = await prisma.numberSequence.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends NumberSequenceUpdateManyArgs>(args: SelectSubset<T, NumberSequenceUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more NumberSequences and returns the data updated in the database.
+     * @param {NumberSequenceUpdateManyAndReturnArgs} args - Arguments to update many NumberSequences.
+     * @example
+     * // Update many NumberSequences
+     * const numberSequence = await prisma.numberSequence.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more NumberSequences and only return the `key`
+     * const numberSequenceWithKeyOnly = await prisma.numberSequence.updateManyAndReturn({
+     *   select: { key: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends NumberSequenceUpdateManyAndReturnArgs>(args: SelectSubset<T, NumberSequenceUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NumberSequencePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one NumberSequence.
+     * @param {NumberSequenceUpsertArgs} args - Arguments to update or create a NumberSequence.
+     * @example
+     * // Update or create a NumberSequence
+     * const numberSequence = await prisma.numberSequence.upsert({
+     *   create: {
+     *     // ... data to create a NumberSequence
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the NumberSequence we want to update
+     *   }
+     * })
+     */
+    upsert<T extends NumberSequenceUpsertArgs>(args: SelectSubset<T, NumberSequenceUpsertArgs<ExtArgs>>): Prisma__NumberSequenceClient<$Result.GetResult<Prisma.$NumberSequencePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of NumberSequences.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NumberSequenceCountArgs} args - Arguments to filter NumberSequences to count.
+     * @example
+     * // Count the number of NumberSequences
+     * const count = await prisma.numberSequence.count({
+     *   where: {
+     *     // ... the filter for the NumberSequences we want to count
+     *   }
+     * })
+    **/
+    count<T extends NumberSequenceCountArgs>(
+      args?: Subset<T, NumberSequenceCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], NumberSequenceCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a NumberSequence.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NumberSequenceAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends NumberSequenceAggregateArgs>(args: Subset<T, NumberSequenceAggregateArgs>): Prisma.PrismaPromise<GetNumberSequenceAggregateType<T>>
+
+    /**
+     * Group by NumberSequence.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NumberSequenceGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends NumberSequenceGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: NumberSequenceGroupByArgs['orderBy'] }
+        : { orderBy?: NumberSequenceGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, NumberSequenceGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetNumberSequenceGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the NumberSequence model
+   */
+  readonly fields: NumberSequenceFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for NumberSequence.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__NumberSequenceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the NumberSequence model
+   */
+  interface NumberSequenceFieldRefs {
+    readonly key: FieldRef<"NumberSequence", 'String'>
+    readonly period: FieldRef<"NumberSequence", 'String'>
+    readonly nextValue: FieldRef<"NumberSequence", 'Int'>
+    readonly updatedAt: FieldRef<"NumberSequence", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * NumberSequence findUnique
+   */
+  export type NumberSequenceFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NumberSequence
+     */
+    select?: NumberSequenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NumberSequence
+     */
+    omit?: NumberSequenceOmit<ExtArgs> | null
+    /**
+     * Filter, which NumberSequence to fetch.
+     */
+    where: NumberSequenceWhereUniqueInput
+  }
+
+  /**
+   * NumberSequence findUniqueOrThrow
+   */
+  export type NumberSequenceFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NumberSequence
+     */
+    select?: NumberSequenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NumberSequence
+     */
+    omit?: NumberSequenceOmit<ExtArgs> | null
+    /**
+     * Filter, which NumberSequence to fetch.
+     */
+    where: NumberSequenceWhereUniqueInput
+  }
+
+  /**
+   * NumberSequence findFirst
+   */
+  export type NumberSequenceFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NumberSequence
+     */
+    select?: NumberSequenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NumberSequence
+     */
+    omit?: NumberSequenceOmit<ExtArgs> | null
+    /**
+     * Filter, which NumberSequence to fetch.
+     */
+    where?: NumberSequenceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NumberSequences to fetch.
+     */
+    orderBy?: NumberSequenceOrderByWithRelationInput | NumberSequenceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for NumberSequences.
+     */
+    cursor?: NumberSequenceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NumberSequences from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NumberSequences.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of NumberSequences.
+     */
+    distinct?: NumberSequenceScalarFieldEnum | NumberSequenceScalarFieldEnum[]
+  }
+
+  /**
+   * NumberSequence findFirstOrThrow
+   */
+  export type NumberSequenceFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NumberSequence
+     */
+    select?: NumberSequenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NumberSequence
+     */
+    omit?: NumberSequenceOmit<ExtArgs> | null
+    /**
+     * Filter, which NumberSequence to fetch.
+     */
+    where?: NumberSequenceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NumberSequences to fetch.
+     */
+    orderBy?: NumberSequenceOrderByWithRelationInput | NumberSequenceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for NumberSequences.
+     */
+    cursor?: NumberSequenceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NumberSequences from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NumberSequences.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of NumberSequences.
+     */
+    distinct?: NumberSequenceScalarFieldEnum | NumberSequenceScalarFieldEnum[]
+  }
+
+  /**
+   * NumberSequence findMany
+   */
+  export type NumberSequenceFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NumberSequence
+     */
+    select?: NumberSequenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NumberSequence
+     */
+    omit?: NumberSequenceOmit<ExtArgs> | null
+    /**
+     * Filter, which NumberSequences to fetch.
+     */
+    where?: NumberSequenceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NumberSequences to fetch.
+     */
+    orderBy?: NumberSequenceOrderByWithRelationInput | NumberSequenceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing NumberSequences.
+     */
+    cursor?: NumberSequenceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NumberSequences from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NumberSequences.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of NumberSequences.
+     */
+    distinct?: NumberSequenceScalarFieldEnum | NumberSequenceScalarFieldEnum[]
+  }
+
+  /**
+   * NumberSequence create
+   */
+  export type NumberSequenceCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NumberSequence
+     */
+    select?: NumberSequenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NumberSequence
+     */
+    omit?: NumberSequenceOmit<ExtArgs> | null
+    /**
+     * The data needed to create a NumberSequence.
+     */
+    data: XOR<NumberSequenceCreateInput, NumberSequenceUncheckedCreateInput>
+  }
+
+  /**
+   * NumberSequence createMany
+   */
+  export type NumberSequenceCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many NumberSequences.
+     */
+    data: NumberSequenceCreateManyInput | NumberSequenceCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * NumberSequence createManyAndReturn
+   */
+  export type NumberSequenceCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NumberSequence
+     */
+    select?: NumberSequenceSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the NumberSequence
+     */
+    omit?: NumberSequenceOmit<ExtArgs> | null
+    /**
+     * The data used to create many NumberSequences.
+     */
+    data: NumberSequenceCreateManyInput | NumberSequenceCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * NumberSequence update
+   */
+  export type NumberSequenceUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NumberSequence
+     */
+    select?: NumberSequenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NumberSequence
+     */
+    omit?: NumberSequenceOmit<ExtArgs> | null
+    /**
+     * The data needed to update a NumberSequence.
+     */
+    data: XOR<NumberSequenceUpdateInput, NumberSequenceUncheckedUpdateInput>
+    /**
+     * Choose, which NumberSequence to update.
+     */
+    where: NumberSequenceWhereUniqueInput
+  }
+
+  /**
+   * NumberSequence updateMany
+   */
+  export type NumberSequenceUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update NumberSequences.
+     */
+    data: XOR<NumberSequenceUpdateManyMutationInput, NumberSequenceUncheckedUpdateManyInput>
+    /**
+     * Filter which NumberSequences to update
+     */
+    where?: NumberSequenceWhereInput
+    /**
+     * Limit how many NumberSequences to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * NumberSequence updateManyAndReturn
+   */
+  export type NumberSequenceUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NumberSequence
+     */
+    select?: NumberSequenceSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the NumberSequence
+     */
+    omit?: NumberSequenceOmit<ExtArgs> | null
+    /**
+     * The data used to update NumberSequences.
+     */
+    data: XOR<NumberSequenceUpdateManyMutationInput, NumberSequenceUncheckedUpdateManyInput>
+    /**
+     * Filter which NumberSequences to update
+     */
+    where?: NumberSequenceWhereInput
+    /**
+     * Limit how many NumberSequences to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * NumberSequence upsert
+   */
+  export type NumberSequenceUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NumberSequence
+     */
+    select?: NumberSequenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NumberSequence
+     */
+    omit?: NumberSequenceOmit<ExtArgs> | null
+    /**
+     * The filter to search for the NumberSequence to update in case it exists.
+     */
+    where: NumberSequenceWhereUniqueInput
+    /**
+     * In case the NumberSequence found by the `where` argument doesn't exist, create a new NumberSequence with this data.
+     */
+    create: XOR<NumberSequenceCreateInput, NumberSequenceUncheckedCreateInput>
+    /**
+     * In case the NumberSequence was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<NumberSequenceUpdateInput, NumberSequenceUncheckedUpdateInput>
+  }
+
+  /**
+   * NumberSequence delete
+   */
+  export type NumberSequenceDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NumberSequence
+     */
+    select?: NumberSequenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NumberSequence
+     */
+    omit?: NumberSequenceOmit<ExtArgs> | null
+    /**
+     * Filter which NumberSequence to delete.
+     */
+    where: NumberSequenceWhereUniqueInput
+  }
+
+  /**
+   * NumberSequence deleteMany
+   */
+  export type NumberSequenceDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which NumberSequences to delete
+     */
+    where?: NumberSequenceWhereInput
+    /**
+     * Limit how many NumberSequences to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * NumberSequence without action
+   */
+  export type NumberSequenceDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NumberSequence
+     */
+    select?: NumberSequenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NumberSequence
+     */
+    omit?: NumberSequenceOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Attachment
+   */
+
+  export type AggregateAttachment = {
+    _count: AttachmentCountAggregateOutputType | null
+    _avg: AttachmentAvgAggregateOutputType | null
+    _sum: AttachmentSumAggregateOutputType | null
+    _min: AttachmentMinAggregateOutputType | null
+    _max: AttachmentMaxAggregateOutputType | null
+  }
+
+  export type AttachmentAvgAggregateOutputType = {
+    sizeBytes: number | null
+  }
+
+  export type AttachmentSumAggregateOutputType = {
+    sizeBytes: number | null
+  }
+
+  export type AttachmentMinAggregateOutputType = {
+    id: string | null
+    ownerType: string | null
+    ownerId: string | null
+    kind: string | null
+    fileName: string | null
+    fileUrl: string | null
+    mimeType: string | null
+    sizeBytes: number | null
+    uploadedById: string | null
+    createdAt: Date | null
+    deletedAt: Date | null
+  }
+
+  export type AttachmentMaxAggregateOutputType = {
+    id: string | null
+    ownerType: string | null
+    ownerId: string | null
+    kind: string | null
+    fileName: string | null
+    fileUrl: string | null
+    mimeType: string | null
+    sizeBytes: number | null
+    uploadedById: string | null
+    createdAt: Date | null
+    deletedAt: Date | null
+  }
+
+  export type AttachmentCountAggregateOutputType = {
+    id: number
+    ownerType: number
+    ownerId: number
+    kind: number
+    fileName: number
+    fileUrl: number
+    mimeType: number
+    sizeBytes: number
+    uploadedById: number
+    createdAt: number
+    deletedAt: number
+    _all: number
+  }
+
+
+  export type AttachmentAvgAggregateInputType = {
+    sizeBytes?: true
+  }
+
+  export type AttachmentSumAggregateInputType = {
+    sizeBytes?: true
+  }
+
+  export type AttachmentMinAggregateInputType = {
+    id?: true
+    ownerType?: true
+    ownerId?: true
+    kind?: true
+    fileName?: true
+    fileUrl?: true
+    mimeType?: true
+    sizeBytes?: true
+    uploadedById?: true
+    createdAt?: true
+    deletedAt?: true
+  }
+
+  export type AttachmentMaxAggregateInputType = {
+    id?: true
+    ownerType?: true
+    ownerId?: true
+    kind?: true
+    fileName?: true
+    fileUrl?: true
+    mimeType?: true
+    sizeBytes?: true
+    uploadedById?: true
+    createdAt?: true
+    deletedAt?: true
+  }
+
+  export type AttachmentCountAggregateInputType = {
+    id?: true
+    ownerType?: true
+    ownerId?: true
+    kind?: true
+    fileName?: true
+    fileUrl?: true
+    mimeType?: true
+    sizeBytes?: true
+    uploadedById?: true
+    createdAt?: true
+    deletedAt?: true
+    _all?: true
+  }
+
+  export type AttachmentAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Attachment to aggregate.
+     */
+    where?: AttachmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Attachments to fetch.
+     */
+    orderBy?: AttachmentOrderByWithRelationInput | AttachmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AttachmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Attachments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Attachments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Attachments
+    **/
+    _count?: true | AttachmentCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AttachmentAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AttachmentSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AttachmentMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AttachmentMaxAggregateInputType
+  }
+
+  export type GetAttachmentAggregateType<T extends AttachmentAggregateArgs> = {
+        [P in keyof T & keyof AggregateAttachment]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAttachment[P]>
+      : GetScalarType<T[P], AggregateAttachment[P]>
+  }
+
+
+
+
+  export type AttachmentGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AttachmentWhereInput
+    orderBy?: AttachmentOrderByWithAggregationInput | AttachmentOrderByWithAggregationInput[]
+    by: AttachmentScalarFieldEnum[] | AttachmentScalarFieldEnum
+    having?: AttachmentScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AttachmentCountAggregateInputType | true
+    _avg?: AttachmentAvgAggregateInputType
+    _sum?: AttachmentSumAggregateInputType
+    _min?: AttachmentMinAggregateInputType
+    _max?: AttachmentMaxAggregateInputType
+  }
+
+  export type AttachmentGroupByOutputType = {
+    id: string
+    ownerType: string
+    ownerId: string
+    kind: string
+    fileName: string
+    fileUrl: string
+    mimeType: string | null
+    sizeBytes: number
+    uploadedById: string | null
+    createdAt: Date
+    deletedAt: Date | null
+    _count: AttachmentCountAggregateOutputType | null
+    _avg: AttachmentAvgAggregateOutputType | null
+    _sum: AttachmentSumAggregateOutputType | null
+    _min: AttachmentMinAggregateOutputType | null
+    _max: AttachmentMaxAggregateOutputType | null
+  }
+
+  type GetAttachmentGroupByPayload<T extends AttachmentGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AttachmentGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AttachmentGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AttachmentGroupByOutputType[P]>
+            : GetScalarType<T[P], AttachmentGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AttachmentSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    ownerType?: boolean
+    ownerId?: boolean
+    kind?: boolean
+    fileName?: boolean
+    fileUrl?: boolean
+    mimeType?: boolean
+    sizeBytes?: boolean
+    uploadedById?: boolean
+    createdAt?: boolean
+    deletedAt?: boolean
+  }, ExtArgs["result"]["attachment"]>
+
+  export type AttachmentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    ownerType?: boolean
+    ownerId?: boolean
+    kind?: boolean
+    fileName?: boolean
+    fileUrl?: boolean
+    mimeType?: boolean
+    sizeBytes?: boolean
+    uploadedById?: boolean
+    createdAt?: boolean
+    deletedAt?: boolean
+  }, ExtArgs["result"]["attachment"]>
+
+  export type AttachmentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    ownerType?: boolean
+    ownerId?: boolean
+    kind?: boolean
+    fileName?: boolean
+    fileUrl?: boolean
+    mimeType?: boolean
+    sizeBytes?: boolean
+    uploadedById?: boolean
+    createdAt?: boolean
+    deletedAt?: boolean
+  }, ExtArgs["result"]["attachment"]>
+
+  export type AttachmentSelectScalar = {
+    id?: boolean
+    ownerType?: boolean
+    ownerId?: boolean
+    kind?: boolean
+    fileName?: boolean
+    fileUrl?: boolean
+    mimeType?: boolean
+    sizeBytes?: boolean
+    uploadedById?: boolean
+    createdAt?: boolean
+    deletedAt?: boolean
+  }
+
+  export type AttachmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "ownerType" | "ownerId" | "kind" | "fileName" | "fileUrl" | "mimeType" | "sizeBytes" | "uploadedById" | "createdAt" | "deletedAt", ExtArgs["result"]["attachment"]>
+
+  export type $AttachmentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Attachment"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      ownerType: string
+      ownerId: string
+      kind: string
+      fileName: string
+      fileUrl: string
+      mimeType: string | null
+      sizeBytes: number
+      uploadedById: string | null
+      createdAt: Date
+      deletedAt: Date | null
+    }, ExtArgs["result"]["attachment"]>
+    composites: {}
+  }
+
+  type AttachmentGetPayload<S extends boolean | null | undefined | AttachmentDefaultArgs> = $Result.GetResult<Prisma.$AttachmentPayload, S>
+
+  type AttachmentCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AttachmentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AttachmentCountAggregateInputType | true
+    }
+
+  export interface AttachmentDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Attachment'], meta: { name: 'Attachment' } }
+    /**
+     * Find zero or one Attachment that matches the filter.
+     * @param {AttachmentFindUniqueArgs} args - Arguments to find a Attachment
+     * @example
+     * // Get one Attachment
+     * const attachment = await prisma.attachment.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AttachmentFindUniqueArgs>(args: SelectSubset<T, AttachmentFindUniqueArgs<ExtArgs>>): Prisma__AttachmentClient<$Result.GetResult<Prisma.$AttachmentPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Attachment that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AttachmentFindUniqueOrThrowArgs} args - Arguments to find a Attachment
+     * @example
+     * // Get one Attachment
+     * const attachment = await prisma.attachment.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AttachmentFindUniqueOrThrowArgs>(args: SelectSubset<T, AttachmentFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AttachmentClient<$Result.GetResult<Prisma.$AttachmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Attachment that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AttachmentFindFirstArgs} args - Arguments to find a Attachment
+     * @example
+     * // Get one Attachment
+     * const attachment = await prisma.attachment.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AttachmentFindFirstArgs>(args?: SelectSubset<T, AttachmentFindFirstArgs<ExtArgs>>): Prisma__AttachmentClient<$Result.GetResult<Prisma.$AttachmentPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Attachment that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AttachmentFindFirstOrThrowArgs} args - Arguments to find a Attachment
+     * @example
+     * // Get one Attachment
+     * const attachment = await prisma.attachment.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AttachmentFindFirstOrThrowArgs>(args?: SelectSubset<T, AttachmentFindFirstOrThrowArgs<ExtArgs>>): Prisma__AttachmentClient<$Result.GetResult<Prisma.$AttachmentPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Attachments that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AttachmentFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Attachments
+     * const attachments = await prisma.attachment.findMany()
+     * 
+     * // Get first 10 Attachments
+     * const attachments = await prisma.attachment.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const attachmentWithIdOnly = await prisma.attachment.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AttachmentFindManyArgs>(args?: SelectSubset<T, AttachmentFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AttachmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Attachment.
+     * @param {AttachmentCreateArgs} args - Arguments to create a Attachment.
+     * @example
+     * // Create one Attachment
+     * const Attachment = await prisma.attachment.create({
+     *   data: {
+     *     // ... data to create a Attachment
+     *   }
+     * })
+     * 
+     */
+    create<T extends AttachmentCreateArgs>(args: SelectSubset<T, AttachmentCreateArgs<ExtArgs>>): Prisma__AttachmentClient<$Result.GetResult<Prisma.$AttachmentPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Attachments.
+     * @param {AttachmentCreateManyArgs} args - Arguments to create many Attachments.
+     * @example
+     * // Create many Attachments
+     * const attachment = await prisma.attachment.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AttachmentCreateManyArgs>(args?: SelectSubset<T, AttachmentCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Attachments and returns the data saved in the database.
+     * @param {AttachmentCreateManyAndReturnArgs} args - Arguments to create many Attachments.
+     * @example
+     * // Create many Attachments
+     * const attachment = await prisma.attachment.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Attachments and only return the `id`
+     * const attachmentWithIdOnly = await prisma.attachment.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AttachmentCreateManyAndReturnArgs>(args?: SelectSubset<T, AttachmentCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AttachmentPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Attachment.
+     * @param {AttachmentDeleteArgs} args - Arguments to delete one Attachment.
+     * @example
+     * // Delete one Attachment
+     * const Attachment = await prisma.attachment.delete({
+     *   where: {
+     *     // ... filter to delete one Attachment
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AttachmentDeleteArgs>(args: SelectSubset<T, AttachmentDeleteArgs<ExtArgs>>): Prisma__AttachmentClient<$Result.GetResult<Prisma.$AttachmentPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Attachment.
+     * @param {AttachmentUpdateArgs} args - Arguments to update one Attachment.
+     * @example
+     * // Update one Attachment
+     * const attachment = await prisma.attachment.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AttachmentUpdateArgs>(args: SelectSubset<T, AttachmentUpdateArgs<ExtArgs>>): Prisma__AttachmentClient<$Result.GetResult<Prisma.$AttachmentPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Attachments.
+     * @param {AttachmentDeleteManyArgs} args - Arguments to filter Attachments to delete.
+     * @example
+     * // Delete a few Attachments
+     * const { count } = await prisma.attachment.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AttachmentDeleteManyArgs>(args?: SelectSubset<T, AttachmentDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Attachments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AttachmentUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Attachments
+     * const attachment = await prisma.attachment.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AttachmentUpdateManyArgs>(args: SelectSubset<T, AttachmentUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Attachments and returns the data updated in the database.
+     * @param {AttachmentUpdateManyAndReturnArgs} args - Arguments to update many Attachments.
+     * @example
+     * // Update many Attachments
+     * const attachment = await prisma.attachment.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Attachments and only return the `id`
+     * const attachmentWithIdOnly = await prisma.attachment.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AttachmentUpdateManyAndReturnArgs>(args: SelectSubset<T, AttachmentUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AttachmentPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Attachment.
+     * @param {AttachmentUpsertArgs} args - Arguments to update or create a Attachment.
+     * @example
+     * // Update or create a Attachment
+     * const attachment = await prisma.attachment.upsert({
+     *   create: {
+     *     // ... data to create a Attachment
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Attachment we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AttachmentUpsertArgs>(args: SelectSubset<T, AttachmentUpsertArgs<ExtArgs>>): Prisma__AttachmentClient<$Result.GetResult<Prisma.$AttachmentPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Attachments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AttachmentCountArgs} args - Arguments to filter Attachments to count.
+     * @example
+     * // Count the number of Attachments
+     * const count = await prisma.attachment.count({
+     *   where: {
+     *     // ... the filter for the Attachments we want to count
+     *   }
+     * })
+    **/
+    count<T extends AttachmentCountArgs>(
+      args?: Subset<T, AttachmentCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AttachmentCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Attachment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AttachmentAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AttachmentAggregateArgs>(args: Subset<T, AttachmentAggregateArgs>): Prisma.PrismaPromise<GetAttachmentAggregateType<T>>
+
+    /**
+     * Group by Attachment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AttachmentGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AttachmentGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AttachmentGroupByArgs['orderBy'] }
+        : { orderBy?: AttachmentGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AttachmentGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAttachmentGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Attachment model
+   */
+  readonly fields: AttachmentFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Attachment.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AttachmentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Attachment model
+   */
+  interface AttachmentFieldRefs {
+    readonly id: FieldRef<"Attachment", 'String'>
+    readonly ownerType: FieldRef<"Attachment", 'String'>
+    readonly ownerId: FieldRef<"Attachment", 'String'>
+    readonly kind: FieldRef<"Attachment", 'String'>
+    readonly fileName: FieldRef<"Attachment", 'String'>
+    readonly fileUrl: FieldRef<"Attachment", 'String'>
+    readonly mimeType: FieldRef<"Attachment", 'String'>
+    readonly sizeBytes: FieldRef<"Attachment", 'Int'>
+    readonly uploadedById: FieldRef<"Attachment", 'String'>
+    readonly createdAt: FieldRef<"Attachment", 'DateTime'>
+    readonly deletedAt: FieldRef<"Attachment", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Attachment findUnique
+   */
+  export type AttachmentFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Attachment
+     */
+    select?: AttachmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Attachment
+     */
+    omit?: AttachmentOmit<ExtArgs> | null
+    /**
+     * Filter, which Attachment to fetch.
+     */
+    where: AttachmentWhereUniqueInput
+  }
+
+  /**
+   * Attachment findUniqueOrThrow
+   */
+  export type AttachmentFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Attachment
+     */
+    select?: AttachmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Attachment
+     */
+    omit?: AttachmentOmit<ExtArgs> | null
+    /**
+     * Filter, which Attachment to fetch.
+     */
+    where: AttachmentWhereUniqueInput
+  }
+
+  /**
+   * Attachment findFirst
+   */
+  export type AttachmentFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Attachment
+     */
+    select?: AttachmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Attachment
+     */
+    omit?: AttachmentOmit<ExtArgs> | null
+    /**
+     * Filter, which Attachment to fetch.
+     */
+    where?: AttachmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Attachments to fetch.
+     */
+    orderBy?: AttachmentOrderByWithRelationInput | AttachmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Attachments.
+     */
+    cursor?: AttachmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Attachments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Attachments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Attachments.
+     */
+    distinct?: AttachmentScalarFieldEnum | AttachmentScalarFieldEnum[]
+  }
+
+  /**
+   * Attachment findFirstOrThrow
+   */
+  export type AttachmentFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Attachment
+     */
+    select?: AttachmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Attachment
+     */
+    omit?: AttachmentOmit<ExtArgs> | null
+    /**
+     * Filter, which Attachment to fetch.
+     */
+    where?: AttachmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Attachments to fetch.
+     */
+    orderBy?: AttachmentOrderByWithRelationInput | AttachmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Attachments.
+     */
+    cursor?: AttachmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Attachments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Attachments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Attachments.
+     */
+    distinct?: AttachmentScalarFieldEnum | AttachmentScalarFieldEnum[]
+  }
+
+  /**
+   * Attachment findMany
+   */
+  export type AttachmentFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Attachment
+     */
+    select?: AttachmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Attachment
+     */
+    omit?: AttachmentOmit<ExtArgs> | null
+    /**
+     * Filter, which Attachments to fetch.
+     */
+    where?: AttachmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Attachments to fetch.
+     */
+    orderBy?: AttachmentOrderByWithRelationInput | AttachmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Attachments.
+     */
+    cursor?: AttachmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Attachments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Attachments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Attachments.
+     */
+    distinct?: AttachmentScalarFieldEnum | AttachmentScalarFieldEnum[]
+  }
+
+  /**
+   * Attachment create
+   */
+  export type AttachmentCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Attachment
+     */
+    select?: AttachmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Attachment
+     */
+    omit?: AttachmentOmit<ExtArgs> | null
+    /**
+     * The data needed to create a Attachment.
+     */
+    data: XOR<AttachmentCreateInput, AttachmentUncheckedCreateInput>
+  }
+
+  /**
+   * Attachment createMany
+   */
+  export type AttachmentCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Attachments.
+     */
+    data: AttachmentCreateManyInput | AttachmentCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Attachment createManyAndReturn
+   */
+  export type AttachmentCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Attachment
+     */
+    select?: AttachmentSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Attachment
+     */
+    omit?: AttachmentOmit<ExtArgs> | null
+    /**
+     * The data used to create many Attachments.
+     */
+    data: AttachmentCreateManyInput | AttachmentCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Attachment update
+   */
+  export type AttachmentUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Attachment
+     */
+    select?: AttachmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Attachment
+     */
+    omit?: AttachmentOmit<ExtArgs> | null
+    /**
+     * The data needed to update a Attachment.
+     */
+    data: XOR<AttachmentUpdateInput, AttachmentUncheckedUpdateInput>
+    /**
+     * Choose, which Attachment to update.
+     */
+    where: AttachmentWhereUniqueInput
+  }
+
+  /**
+   * Attachment updateMany
+   */
+  export type AttachmentUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Attachments.
+     */
+    data: XOR<AttachmentUpdateManyMutationInput, AttachmentUncheckedUpdateManyInput>
+    /**
+     * Filter which Attachments to update
+     */
+    where?: AttachmentWhereInput
+    /**
+     * Limit how many Attachments to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Attachment updateManyAndReturn
+   */
+  export type AttachmentUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Attachment
+     */
+    select?: AttachmentSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Attachment
+     */
+    omit?: AttachmentOmit<ExtArgs> | null
+    /**
+     * The data used to update Attachments.
+     */
+    data: XOR<AttachmentUpdateManyMutationInput, AttachmentUncheckedUpdateManyInput>
+    /**
+     * Filter which Attachments to update
+     */
+    where?: AttachmentWhereInput
+    /**
+     * Limit how many Attachments to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Attachment upsert
+   */
+  export type AttachmentUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Attachment
+     */
+    select?: AttachmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Attachment
+     */
+    omit?: AttachmentOmit<ExtArgs> | null
+    /**
+     * The filter to search for the Attachment to update in case it exists.
+     */
+    where: AttachmentWhereUniqueInput
+    /**
+     * In case the Attachment found by the `where` argument doesn't exist, create a new Attachment with this data.
+     */
+    create: XOR<AttachmentCreateInput, AttachmentUncheckedCreateInput>
+    /**
+     * In case the Attachment was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AttachmentUpdateInput, AttachmentUncheckedUpdateInput>
+  }
+
+  /**
+   * Attachment delete
+   */
+  export type AttachmentDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Attachment
+     */
+    select?: AttachmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Attachment
+     */
+    omit?: AttachmentOmit<ExtArgs> | null
+    /**
+     * Filter which Attachment to delete.
+     */
+    where: AttachmentWhereUniqueInput
+  }
+
+  /**
+   * Attachment deleteMany
+   */
+  export type AttachmentDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Attachments to delete
+     */
+    where?: AttachmentWhereInput
+    /**
+     * Limit how many Attachments to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Attachment without action
+   */
+  export type AttachmentDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Attachment
+     */
+    select?: AttachmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Attachment
+     */
+    omit?: AttachmentOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Model SchoolNotification
    */
 
@@ -29666,15 +41781,21 @@ export namespace Prisma {
   export type SchoolNotificationRecipientMinAggregateOutputType = {
     id: string | null
     notificationId: string | null
-    studentId: string | null
-    guardianId: string | null
-    staffId: string | null
+    recipientType: $Enums.RecipientType | null
+    recipientEntityId: string | null
+    userId: string | null
     channel: $Enums.NotificationChannel | null
     status: $Enums.DeliveryStatus | null
     priority: $Enums.NotificationPriority | null
     retryCount: number | null
     failedReason: string | null
     providerMsgId: string | null
+    idempotencyKey: string | null
+    queuedAt: Date | null
+    sentAt: Date | null
+    failedAt: Date | null
+    cancelledAt: Date | null
+    nextRetryAt: Date | null
     readAt: Date | null
     deliveredAt: Date | null
     createdAt: Date | null
@@ -29684,15 +41805,21 @@ export namespace Prisma {
   export type SchoolNotificationRecipientMaxAggregateOutputType = {
     id: string | null
     notificationId: string | null
-    studentId: string | null
-    guardianId: string | null
-    staffId: string | null
+    recipientType: $Enums.RecipientType | null
+    recipientEntityId: string | null
+    userId: string | null
     channel: $Enums.NotificationChannel | null
     status: $Enums.DeliveryStatus | null
     priority: $Enums.NotificationPriority | null
     retryCount: number | null
     failedReason: string | null
     providerMsgId: string | null
+    idempotencyKey: string | null
+    queuedAt: Date | null
+    sentAt: Date | null
+    failedAt: Date | null
+    cancelledAt: Date | null
+    nextRetryAt: Date | null
     readAt: Date | null
     deliveredAt: Date | null
     createdAt: Date | null
@@ -29702,15 +41829,21 @@ export namespace Prisma {
   export type SchoolNotificationRecipientCountAggregateOutputType = {
     id: number
     notificationId: number
-    studentId: number
-    guardianId: number
-    staffId: number
+    recipientType: number
+    recipientEntityId: number
+    userId: number
     channel: number
     status: number
     priority: number
     retryCount: number
     failedReason: number
     providerMsgId: number
+    idempotencyKey: number
+    queuedAt: number
+    sentAt: number
+    failedAt: number
+    cancelledAt: number
+    nextRetryAt: number
     readAt: number
     deliveredAt: number
     createdAt: number
@@ -29730,15 +41863,21 @@ export namespace Prisma {
   export type SchoolNotificationRecipientMinAggregateInputType = {
     id?: true
     notificationId?: true
-    studentId?: true
-    guardianId?: true
-    staffId?: true
+    recipientType?: true
+    recipientEntityId?: true
+    userId?: true
     channel?: true
     status?: true
     priority?: true
     retryCount?: true
     failedReason?: true
     providerMsgId?: true
+    idempotencyKey?: true
+    queuedAt?: true
+    sentAt?: true
+    failedAt?: true
+    cancelledAt?: true
+    nextRetryAt?: true
     readAt?: true
     deliveredAt?: true
     createdAt?: true
@@ -29748,15 +41887,21 @@ export namespace Prisma {
   export type SchoolNotificationRecipientMaxAggregateInputType = {
     id?: true
     notificationId?: true
-    studentId?: true
-    guardianId?: true
-    staffId?: true
+    recipientType?: true
+    recipientEntityId?: true
+    userId?: true
     channel?: true
     status?: true
     priority?: true
     retryCount?: true
     failedReason?: true
     providerMsgId?: true
+    idempotencyKey?: true
+    queuedAt?: true
+    sentAt?: true
+    failedAt?: true
+    cancelledAt?: true
+    nextRetryAt?: true
     readAt?: true
     deliveredAt?: true
     createdAt?: true
@@ -29766,15 +41911,21 @@ export namespace Prisma {
   export type SchoolNotificationRecipientCountAggregateInputType = {
     id?: true
     notificationId?: true
-    studentId?: true
-    guardianId?: true
-    staffId?: true
+    recipientType?: true
+    recipientEntityId?: true
+    userId?: true
     channel?: true
     status?: true
     priority?: true
     retryCount?: true
     failedReason?: true
     providerMsgId?: true
+    idempotencyKey?: true
+    queuedAt?: true
+    sentAt?: true
+    failedAt?: true
+    cancelledAt?: true
+    nextRetryAt?: true
     readAt?: true
     deliveredAt?: true
     createdAt?: true
@@ -29871,15 +42022,21 @@ export namespace Prisma {
   export type SchoolNotificationRecipientGroupByOutputType = {
     id: string
     notificationId: string
-    studentId: string | null
-    guardianId: string | null
-    staffId: string | null
+    recipientType: $Enums.RecipientType
+    recipientEntityId: string
+    userId: string | null
     channel: $Enums.NotificationChannel
     status: $Enums.DeliveryStatus
     priority: $Enums.NotificationPriority
     retryCount: number
     failedReason: string | null
     providerMsgId: string | null
+    idempotencyKey: string | null
+    queuedAt: Date | null
+    sentAt: Date | null
+    failedAt: Date | null
+    cancelledAt: Date | null
+    nextRetryAt: Date | null
     readAt: Date | null
     deliveredAt: Date | null
     createdAt: Date
@@ -29908,15 +42065,21 @@ export namespace Prisma {
   export type SchoolNotificationRecipientSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     notificationId?: boolean
-    studentId?: boolean
-    guardianId?: boolean
-    staffId?: boolean
+    recipientType?: boolean
+    recipientEntityId?: boolean
+    userId?: boolean
     channel?: boolean
     status?: boolean
     priority?: boolean
     retryCount?: boolean
     failedReason?: boolean
     providerMsgId?: boolean
+    idempotencyKey?: boolean
+    queuedAt?: boolean
+    sentAt?: boolean
+    failedAt?: boolean
+    cancelledAt?: boolean
+    nextRetryAt?: boolean
     readAt?: boolean
     deliveredAt?: boolean
     createdAt?: boolean
@@ -29927,15 +42090,21 @@ export namespace Prisma {
   export type SchoolNotificationRecipientSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     notificationId?: boolean
-    studentId?: boolean
-    guardianId?: boolean
-    staffId?: boolean
+    recipientType?: boolean
+    recipientEntityId?: boolean
+    userId?: boolean
     channel?: boolean
     status?: boolean
     priority?: boolean
     retryCount?: boolean
     failedReason?: boolean
     providerMsgId?: boolean
+    idempotencyKey?: boolean
+    queuedAt?: boolean
+    sentAt?: boolean
+    failedAt?: boolean
+    cancelledAt?: boolean
+    nextRetryAt?: boolean
     readAt?: boolean
     deliveredAt?: boolean
     createdAt?: boolean
@@ -29946,15 +42115,21 @@ export namespace Prisma {
   export type SchoolNotificationRecipientSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     notificationId?: boolean
-    studentId?: boolean
-    guardianId?: boolean
-    staffId?: boolean
+    recipientType?: boolean
+    recipientEntityId?: boolean
+    userId?: boolean
     channel?: boolean
     status?: boolean
     priority?: boolean
     retryCount?: boolean
     failedReason?: boolean
     providerMsgId?: boolean
+    idempotencyKey?: boolean
+    queuedAt?: boolean
+    sentAt?: boolean
+    failedAt?: boolean
+    cancelledAt?: boolean
+    nextRetryAt?: boolean
     readAt?: boolean
     deliveredAt?: boolean
     createdAt?: boolean
@@ -29965,22 +42140,28 @@ export namespace Prisma {
   export type SchoolNotificationRecipientSelectScalar = {
     id?: boolean
     notificationId?: boolean
-    studentId?: boolean
-    guardianId?: boolean
-    staffId?: boolean
+    recipientType?: boolean
+    recipientEntityId?: boolean
+    userId?: boolean
     channel?: boolean
     status?: boolean
     priority?: boolean
     retryCount?: boolean
     failedReason?: boolean
     providerMsgId?: boolean
+    idempotencyKey?: boolean
+    queuedAt?: boolean
+    sentAt?: boolean
+    failedAt?: boolean
+    cancelledAt?: boolean
+    nextRetryAt?: boolean
     readAt?: boolean
     deliveredAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type SchoolNotificationRecipientOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "notificationId" | "studentId" | "guardianId" | "staffId" | "channel" | "status" | "priority" | "retryCount" | "failedReason" | "providerMsgId" | "readAt" | "deliveredAt" | "createdAt" | "updatedAt", ExtArgs["result"]["schoolNotificationRecipient"]>
+  export type SchoolNotificationRecipientOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "notificationId" | "recipientType" | "recipientEntityId" | "userId" | "channel" | "status" | "priority" | "retryCount" | "failedReason" | "providerMsgId" | "idempotencyKey" | "queuedAt" | "sentAt" | "failedAt" | "cancelledAt" | "nextRetryAt" | "readAt" | "deliveredAt" | "createdAt" | "updatedAt", ExtArgs["result"]["schoolNotificationRecipient"]>
   export type SchoolNotificationRecipientInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     notification?: boolean | SchoolNotificationDefaultArgs<ExtArgs>
   }
@@ -29999,15 +42180,21 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       notificationId: string
-      studentId: string | null
-      guardianId: string | null
-      staffId: string | null
+      recipientType: $Enums.RecipientType
+      recipientEntityId: string
+      userId: string | null
       channel: $Enums.NotificationChannel
       status: $Enums.DeliveryStatus
       priority: $Enums.NotificationPriority
       retryCount: number
       failedReason: string | null
       providerMsgId: string | null
+      idempotencyKey: string | null
+      queuedAt: Date | null
+      sentAt: Date | null
+      failedAt: Date | null
+      cancelledAt: Date | null
+      nextRetryAt: Date | null
       readAt: Date | null
       deliveredAt: Date | null
       createdAt: Date
@@ -30438,15 +42625,21 @@ export namespace Prisma {
   interface SchoolNotificationRecipientFieldRefs {
     readonly id: FieldRef<"SchoolNotificationRecipient", 'String'>
     readonly notificationId: FieldRef<"SchoolNotificationRecipient", 'String'>
-    readonly studentId: FieldRef<"SchoolNotificationRecipient", 'String'>
-    readonly guardianId: FieldRef<"SchoolNotificationRecipient", 'String'>
-    readonly staffId: FieldRef<"SchoolNotificationRecipient", 'String'>
+    readonly recipientType: FieldRef<"SchoolNotificationRecipient", 'RecipientType'>
+    readonly recipientEntityId: FieldRef<"SchoolNotificationRecipient", 'String'>
+    readonly userId: FieldRef<"SchoolNotificationRecipient", 'String'>
     readonly channel: FieldRef<"SchoolNotificationRecipient", 'NotificationChannel'>
     readonly status: FieldRef<"SchoolNotificationRecipient", 'DeliveryStatus'>
     readonly priority: FieldRef<"SchoolNotificationRecipient", 'NotificationPriority'>
     readonly retryCount: FieldRef<"SchoolNotificationRecipient", 'Int'>
     readonly failedReason: FieldRef<"SchoolNotificationRecipient", 'String'>
     readonly providerMsgId: FieldRef<"SchoolNotificationRecipient", 'String'>
+    readonly idempotencyKey: FieldRef<"SchoolNotificationRecipient", 'String'>
+    readonly queuedAt: FieldRef<"SchoolNotificationRecipient", 'DateTime'>
+    readonly sentAt: FieldRef<"SchoolNotificationRecipient", 'DateTime'>
+    readonly failedAt: FieldRef<"SchoolNotificationRecipient", 'DateTime'>
+    readonly cancelledAt: FieldRef<"SchoolNotificationRecipient", 'DateTime'>
+    readonly nextRetryAt: FieldRef<"SchoolNotificationRecipient", 'DateTime'>
     readonly readAt: FieldRef<"SchoolNotificationRecipient", 'DateTime'>
     readonly deliveredAt: FieldRef<"SchoolNotificationRecipient", 'DateTime'>
     readonly createdAt: FieldRef<"SchoolNotificationRecipient", 'DateTime'>
@@ -30896,6 +43089,7 @@ export namespace Prisma {
     address: 'address',
     joinDate: 'joinDate',
     role: 'role',
+    category: 'category',
     isActive: 'isActive',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -31219,6 +43413,149 @@ export namespace Prisma {
   export type PaymentScalarFieldEnum = (typeof PaymentScalarFieldEnum)[keyof typeof PaymentScalarFieldEnum]
 
 
+  export const SchoolRoleScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    description: 'description',
+    kind: 'kind',
+    persona: 'persona',
+    grantsAll: 'grantsAll',
+    sourceTemplateKey: 'sourceTemplateKey',
+    sourceTemplateVersion: 'sourceTemplateVersion',
+    isCustomized: 'isCustomized',
+    createdById: 'createdById',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+    deletedAt: 'deletedAt'
+  };
+
+  export type SchoolRoleScalarFieldEnum = (typeof SchoolRoleScalarFieldEnum)[keyof typeof SchoolRoleScalarFieldEnum]
+
+
+  export const SchoolRolePermissionScalarFieldEnum: {
+    roleId: 'roleId',
+    permissionKey: 'permissionKey',
+    scope: 'scope'
+  };
+
+  export type SchoolRolePermissionScalarFieldEnum = (typeof SchoolRolePermissionScalarFieldEnum)[keyof typeof SchoolRolePermissionScalarFieldEnum]
+
+
+  export const MembershipScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    persona: 'persona',
+    personaEntityId: 'personaEntityId',
+    status: 'status',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type MembershipScalarFieldEnum = (typeof MembershipScalarFieldEnum)[keyof typeof MembershipScalarFieldEnum]
+
+
+  export const MembershipRoleScalarFieldEnum: {
+    membershipId: 'membershipId',
+    roleId: 'roleId',
+    assignedAt: 'assignedAt',
+    assignedById: 'assignedById'
+  };
+
+  export type MembershipRoleScalarFieldEnum = (typeof MembershipRoleScalarFieldEnum)[keyof typeof MembershipRoleScalarFieldEnum]
+
+
+  export const SchoolSettingValueScalarFieldEnum: {
+    key: 'key',
+    value: 'value',
+    updatedById: 'updatedById',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type SchoolSettingValueScalarFieldEnum = (typeof SchoolSettingValueScalarFieldEnum)[keyof typeof SchoolSettingValueScalarFieldEnum]
+
+
+  export const AutomationRuleScalarFieldEnum: {
+    id: 'id',
+    definitionKey: 'definitionKey',
+    name: 'name',
+    enabled: 'enabled',
+    params: 'params',
+    channels: 'channels',
+    audience: 'audience',
+    templateKey: 'templateKey',
+    schedule: 'schedule',
+    lastRunAt: 'lastRunAt',
+    nextRunAt: 'nextRunAt',
+    createdById: 'createdById',
+    updatedById: 'updatedById',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+    deletedAt: 'deletedAt'
+  };
+
+  export type AutomationRuleScalarFieldEnum = (typeof AutomationRuleScalarFieldEnum)[keyof typeof AutomationRuleScalarFieldEnum]
+
+
+  export const AutomationRunLogScalarFieldEnum: {
+    id: 'id',
+    ruleId: 'ruleId',
+    triggeredAt: 'triggeredAt',
+    trigger: 'trigger',
+    status: 'status',
+    matched: 'matched',
+    notified: 'notified',
+    skippedReason: 'skippedReason',
+    error: 'error',
+    notificationId: 'notificationId'
+  };
+
+  export type AutomationRunLogScalarFieldEnum = (typeof AutomationRunLogScalarFieldEnum)[keyof typeof AutomationRunLogScalarFieldEnum]
+
+
+  export const SchoolMessageTemplateScalarFieldEnum: {
+    id: 'id',
+    key: 'key',
+    channel: 'channel',
+    locale: 'locale',
+    subject: 'subject',
+    body: 'body',
+    isActive: 'isActive',
+    updatedById: 'updatedById',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type SchoolMessageTemplateScalarFieldEnum = (typeof SchoolMessageTemplateScalarFieldEnum)[keyof typeof SchoolMessageTemplateScalarFieldEnum]
+
+
+  export const NumberSequenceScalarFieldEnum: {
+    key: 'key',
+    period: 'period',
+    nextValue: 'nextValue',
+    updatedAt: 'updatedAt'
+  };
+
+  export type NumberSequenceScalarFieldEnum = (typeof NumberSequenceScalarFieldEnum)[keyof typeof NumberSequenceScalarFieldEnum]
+
+
+  export const AttachmentScalarFieldEnum: {
+    id: 'id',
+    ownerType: 'ownerType',
+    ownerId: 'ownerId',
+    kind: 'kind',
+    fileName: 'fileName',
+    fileUrl: 'fileUrl',
+    mimeType: 'mimeType',
+    sizeBytes: 'sizeBytes',
+    uploadedById: 'uploadedById',
+    createdAt: 'createdAt',
+    deletedAt: 'deletedAt'
+  };
+
+  export type AttachmentScalarFieldEnum = (typeof AttachmentScalarFieldEnum)[keyof typeof AttachmentScalarFieldEnum]
+
+
   export const SchoolNotificationScalarFieldEnum: {
     id: 'id',
     title: 'title',
@@ -31238,15 +43575,21 @@ export namespace Prisma {
   export const SchoolNotificationRecipientScalarFieldEnum: {
     id: 'id',
     notificationId: 'notificationId',
-    studentId: 'studentId',
-    guardianId: 'guardianId',
-    staffId: 'staffId',
+    recipientType: 'recipientType',
+    recipientEntityId: 'recipientEntityId',
+    userId: 'userId',
     channel: 'channel',
     status: 'status',
     priority: 'priority',
     retryCount: 'retryCount',
     failedReason: 'failedReason',
     providerMsgId: 'providerMsgId',
+    idempotencyKey: 'idempotencyKey',
+    queuedAt: 'queuedAt',
+    sentAt: 'sentAt',
+    failedAt: 'failedAt',
+    cancelledAt: 'cancelledAt',
+    nextRetryAt: 'nextRetryAt',
     readAt: 'readAt',
     deliveredAt: 'deliveredAt',
     createdAt: 'createdAt',
@@ -31270,6 +43613,13 @@ export namespace Prisma {
   };
 
   export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+  export const JsonNullValueInput: {
+    JsonNull: typeof JsonNull
+  };
+
+  export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
   export const QueryMode: {
@@ -31355,6 +43705,20 @@ export namespace Prisma {
    * Reference to a field of type 'StaffRole[]'
    */
   export type ListEnumStaffRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StaffRole[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'StaffCategory'
+   */
+  export type EnumStaffCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StaffCategory'>
+    
+
+
+  /**
+   * Reference to a field of type 'StaffCategory[]'
+   */
+  export type ListEnumStaffCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StaffCategory[]'>
     
 
 
@@ -31562,6 +43926,90 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'RoleKind'
+   */
+  export type EnumRoleKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RoleKind'>
+    
+
+
+  /**
+   * Reference to a field of type 'RoleKind[]'
+   */
+  export type ListEnumRoleKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RoleKind[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Persona'
+   */
+  export type EnumPersonaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Persona'>
+    
+
+
+  /**
+   * Reference to a field of type 'Persona[]'
+   */
+  export type ListEnumPersonaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Persona[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'PermissionScope'
+   */
+  export type EnumPermissionScopeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PermissionScope'>
+    
+
+
+  /**
+   * Reference to a field of type 'PermissionScope[]'
+   */
+  export type ListEnumPermissionScopeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PermissionScope[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'MembershipStatus'
+   */
+  export type EnumMembershipStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MembershipStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'MembershipStatus[]'
+   */
+  export type ListEnumMembershipStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MembershipStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'NotificationChannel[]'
+   */
+  export type ListEnumNotificationChannelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotificationChannel[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'NotificationChannel'
+   */
+  export type EnumNotificationChannelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotificationChannel'>
+    
+
+
+  /**
+   * Reference to a field of type 'AutomationRunStatus'
+   */
+  export type EnumAutomationRunStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AutomationRunStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'AutomationRunStatus[]'
+   */
+  export type ListEnumAutomationRunStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AutomationRunStatus[]'>
+    
+
+
+  /**
    * Reference to a field of type 'SchoolNotificationType'
    */
   export type EnumSchoolNotificationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SchoolNotificationType'>
@@ -31590,16 +44038,16 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'NotificationChannel'
+   * Reference to a field of type 'RecipientType'
    */
-  export type EnumNotificationChannelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotificationChannel'>
+  export type EnumRecipientTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RecipientType'>
     
 
 
   /**
-   * Reference to a field of type 'NotificationChannel[]'
+   * Reference to a field of type 'RecipientType[]'
    */
-  export type ListEnumNotificationChannelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotificationChannel[]'>
+  export type ListEnumRecipientTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RecipientType[]'>
     
 
 
@@ -31649,6 +44097,7 @@ export namespace Prisma {
     address?: StringNullableFilter<"Staff"> | string | null
     joinDate?: DateTimeNullableFilter<"Staff"> | Date | string | null
     role?: EnumStaffRoleFilter<"Staff"> | $Enums.StaffRole
+    category?: EnumStaffCategoryFilter<"Staff"> | $Enums.StaffCategory
     isActive?: BoolFilter<"Staff"> | boolean
     createdAt?: DateTimeFilter<"Staff"> | Date | string
     updatedAt?: DateTimeFilter<"Staff"> | Date | string
@@ -31669,6 +44118,7 @@ export namespace Prisma {
     address?: SortOrderInput | SortOrder
     joinDate?: SortOrderInput | SortOrder
     role?: SortOrder
+    category?: SortOrder
     isActive?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -31692,6 +44142,7 @@ export namespace Prisma {
     address?: StringNullableFilter<"Staff"> | string | null
     joinDate?: DateTimeNullableFilter<"Staff"> | Date | string | null
     role?: EnumStaffRoleFilter<"Staff"> | $Enums.StaffRole
+    category?: EnumStaffCategoryFilter<"Staff"> | $Enums.StaffCategory
     isActive?: BoolFilter<"Staff"> | boolean
     createdAt?: DateTimeFilter<"Staff"> | Date | string
     updatedAt?: DateTimeFilter<"Staff"> | Date | string
@@ -31712,6 +44163,7 @@ export namespace Prisma {
     address?: SortOrderInput | SortOrder
     joinDate?: SortOrderInput | SortOrder
     role?: SortOrder
+    category?: SortOrder
     isActive?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -31735,6 +44187,7 @@ export namespace Prisma {
     address?: StringNullableWithAggregatesFilter<"Staff"> | string | null
     joinDate?: DateTimeNullableWithAggregatesFilter<"Staff"> | Date | string | null
     role?: EnumStaffRoleWithAggregatesFilter<"Staff"> | $Enums.StaffRole
+    category?: EnumStaffCategoryWithAggregatesFilter<"Staff"> | $Enums.StaffCategory
     isActive?: BoolWithAggregatesFilter<"Staff"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Staff"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Staff"> | Date | string
@@ -33443,6 +45896,729 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"Payment"> | Date | string
   }
 
+  export type SchoolRoleWhereInput = {
+    AND?: SchoolRoleWhereInput | SchoolRoleWhereInput[]
+    OR?: SchoolRoleWhereInput[]
+    NOT?: SchoolRoleWhereInput | SchoolRoleWhereInput[]
+    id?: StringFilter<"SchoolRole"> | string
+    name?: StringFilter<"SchoolRole"> | string
+    description?: StringNullableFilter<"SchoolRole"> | string | null
+    kind?: EnumRoleKindFilter<"SchoolRole"> | $Enums.RoleKind
+    persona?: EnumPersonaFilter<"SchoolRole"> | $Enums.Persona
+    grantsAll?: BoolFilter<"SchoolRole"> | boolean
+    sourceTemplateKey?: StringNullableFilter<"SchoolRole"> | string | null
+    sourceTemplateVersion?: IntNullableFilter<"SchoolRole"> | number | null
+    isCustomized?: BoolFilter<"SchoolRole"> | boolean
+    createdById?: StringNullableFilter<"SchoolRole"> | string | null
+    createdAt?: DateTimeFilter<"SchoolRole"> | Date | string
+    updatedAt?: DateTimeFilter<"SchoolRole"> | Date | string
+    deletedAt?: DateTimeNullableFilter<"SchoolRole"> | Date | string | null
+    permissions?: SchoolRolePermissionListRelationFilter
+    members?: MembershipRoleListRelationFilter
+  }
+
+  export type SchoolRoleOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrderInput | SortOrder
+    kind?: SortOrder
+    persona?: SortOrder
+    grantsAll?: SortOrder
+    sourceTemplateKey?: SortOrderInput | SortOrder
+    sourceTemplateVersion?: SortOrderInput | SortOrder
+    isCustomized?: SortOrder
+    createdById?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    deletedAt?: SortOrderInput | SortOrder
+    permissions?: SchoolRolePermissionOrderByRelationAggregateInput
+    members?: MembershipRoleOrderByRelationAggregateInput
+  }
+
+  export type SchoolRoleWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: SchoolRoleWhereInput | SchoolRoleWhereInput[]
+    OR?: SchoolRoleWhereInput[]
+    NOT?: SchoolRoleWhereInput | SchoolRoleWhereInput[]
+    name?: StringFilter<"SchoolRole"> | string
+    description?: StringNullableFilter<"SchoolRole"> | string | null
+    kind?: EnumRoleKindFilter<"SchoolRole"> | $Enums.RoleKind
+    persona?: EnumPersonaFilter<"SchoolRole"> | $Enums.Persona
+    grantsAll?: BoolFilter<"SchoolRole"> | boolean
+    sourceTemplateKey?: StringNullableFilter<"SchoolRole"> | string | null
+    sourceTemplateVersion?: IntNullableFilter<"SchoolRole"> | number | null
+    isCustomized?: BoolFilter<"SchoolRole"> | boolean
+    createdById?: StringNullableFilter<"SchoolRole"> | string | null
+    createdAt?: DateTimeFilter<"SchoolRole"> | Date | string
+    updatedAt?: DateTimeFilter<"SchoolRole"> | Date | string
+    deletedAt?: DateTimeNullableFilter<"SchoolRole"> | Date | string | null
+    permissions?: SchoolRolePermissionListRelationFilter
+    members?: MembershipRoleListRelationFilter
+  }, "id">
+
+  export type SchoolRoleOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrderInput | SortOrder
+    kind?: SortOrder
+    persona?: SortOrder
+    grantsAll?: SortOrder
+    sourceTemplateKey?: SortOrderInput | SortOrder
+    sourceTemplateVersion?: SortOrderInput | SortOrder
+    isCustomized?: SortOrder
+    createdById?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    deletedAt?: SortOrderInput | SortOrder
+    _count?: SchoolRoleCountOrderByAggregateInput
+    _avg?: SchoolRoleAvgOrderByAggregateInput
+    _max?: SchoolRoleMaxOrderByAggregateInput
+    _min?: SchoolRoleMinOrderByAggregateInput
+    _sum?: SchoolRoleSumOrderByAggregateInput
+  }
+
+  export type SchoolRoleScalarWhereWithAggregatesInput = {
+    AND?: SchoolRoleScalarWhereWithAggregatesInput | SchoolRoleScalarWhereWithAggregatesInput[]
+    OR?: SchoolRoleScalarWhereWithAggregatesInput[]
+    NOT?: SchoolRoleScalarWhereWithAggregatesInput | SchoolRoleScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"SchoolRole"> | string
+    name?: StringWithAggregatesFilter<"SchoolRole"> | string
+    description?: StringNullableWithAggregatesFilter<"SchoolRole"> | string | null
+    kind?: EnumRoleKindWithAggregatesFilter<"SchoolRole"> | $Enums.RoleKind
+    persona?: EnumPersonaWithAggregatesFilter<"SchoolRole"> | $Enums.Persona
+    grantsAll?: BoolWithAggregatesFilter<"SchoolRole"> | boolean
+    sourceTemplateKey?: StringNullableWithAggregatesFilter<"SchoolRole"> | string | null
+    sourceTemplateVersion?: IntNullableWithAggregatesFilter<"SchoolRole"> | number | null
+    isCustomized?: BoolWithAggregatesFilter<"SchoolRole"> | boolean
+    createdById?: StringNullableWithAggregatesFilter<"SchoolRole"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"SchoolRole"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"SchoolRole"> | Date | string
+    deletedAt?: DateTimeNullableWithAggregatesFilter<"SchoolRole"> | Date | string | null
+  }
+
+  export type SchoolRolePermissionWhereInput = {
+    AND?: SchoolRolePermissionWhereInput | SchoolRolePermissionWhereInput[]
+    OR?: SchoolRolePermissionWhereInput[]
+    NOT?: SchoolRolePermissionWhereInput | SchoolRolePermissionWhereInput[]
+    roleId?: StringFilter<"SchoolRolePermission"> | string
+    permissionKey?: StringFilter<"SchoolRolePermission"> | string
+    scope?: EnumPermissionScopeFilter<"SchoolRolePermission"> | $Enums.PermissionScope
+    role?: XOR<SchoolRoleScalarRelationFilter, SchoolRoleWhereInput>
+  }
+
+  export type SchoolRolePermissionOrderByWithRelationInput = {
+    roleId?: SortOrder
+    permissionKey?: SortOrder
+    scope?: SortOrder
+    role?: SchoolRoleOrderByWithRelationInput
+  }
+
+  export type SchoolRolePermissionWhereUniqueInput = Prisma.AtLeast<{
+    roleId_permissionKey?: SchoolRolePermissionRoleIdPermissionKeyCompoundUniqueInput
+    AND?: SchoolRolePermissionWhereInput | SchoolRolePermissionWhereInput[]
+    OR?: SchoolRolePermissionWhereInput[]
+    NOT?: SchoolRolePermissionWhereInput | SchoolRolePermissionWhereInput[]
+    roleId?: StringFilter<"SchoolRolePermission"> | string
+    permissionKey?: StringFilter<"SchoolRolePermission"> | string
+    scope?: EnumPermissionScopeFilter<"SchoolRolePermission"> | $Enums.PermissionScope
+    role?: XOR<SchoolRoleScalarRelationFilter, SchoolRoleWhereInput>
+  }, "roleId_permissionKey">
+
+  export type SchoolRolePermissionOrderByWithAggregationInput = {
+    roleId?: SortOrder
+    permissionKey?: SortOrder
+    scope?: SortOrder
+    _count?: SchoolRolePermissionCountOrderByAggregateInput
+    _max?: SchoolRolePermissionMaxOrderByAggregateInput
+    _min?: SchoolRolePermissionMinOrderByAggregateInput
+  }
+
+  export type SchoolRolePermissionScalarWhereWithAggregatesInput = {
+    AND?: SchoolRolePermissionScalarWhereWithAggregatesInput | SchoolRolePermissionScalarWhereWithAggregatesInput[]
+    OR?: SchoolRolePermissionScalarWhereWithAggregatesInput[]
+    NOT?: SchoolRolePermissionScalarWhereWithAggregatesInput | SchoolRolePermissionScalarWhereWithAggregatesInput[]
+    roleId?: StringWithAggregatesFilter<"SchoolRolePermission"> | string
+    permissionKey?: StringWithAggregatesFilter<"SchoolRolePermission"> | string
+    scope?: EnumPermissionScopeWithAggregatesFilter<"SchoolRolePermission"> | $Enums.PermissionScope
+  }
+
+  export type MembershipWhereInput = {
+    AND?: MembershipWhereInput | MembershipWhereInput[]
+    OR?: MembershipWhereInput[]
+    NOT?: MembershipWhereInput | MembershipWhereInput[]
+    id?: StringFilter<"Membership"> | string
+    userId?: StringFilter<"Membership"> | string
+    persona?: EnumPersonaFilter<"Membership"> | $Enums.Persona
+    personaEntityId?: StringFilter<"Membership"> | string
+    status?: EnumMembershipStatusFilter<"Membership"> | $Enums.MembershipStatus
+    createdAt?: DateTimeFilter<"Membership"> | Date | string
+    updatedAt?: DateTimeFilter<"Membership"> | Date | string
+    roles?: MembershipRoleListRelationFilter
+  }
+
+  export type MembershipOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    persona?: SortOrder
+    personaEntityId?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    roles?: MembershipRoleOrderByRelationAggregateInput
+  }
+
+  export type MembershipWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    userId_persona?: MembershipUserIdPersonaCompoundUniqueInput
+    persona_personaEntityId?: MembershipPersonaPersonaEntityIdCompoundUniqueInput
+    AND?: MembershipWhereInput | MembershipWhereInput[]
+    OR?: MembershipWhereInput[]
+    NOT?: MembershipWhereInput | MembershipWhereInput[]
+    userId?: StringFilter<"Membership"> | string
+    persona?: EnumPersonaFilter<"Membership"> | $Enums.Persona
+    personaEntityId?: StringFilter<"Membership"> | string
+    status?: EnumMembershipStatusFilter<"Membership"> | $Enums.MembershipStatus
+    createdAt?: DateTimeFilter<"Membership"> | Date | string
+    updatedAt?: DateTimeFilter<"Membership"> | Date | string
+    roles?: MembershipRoleListRelationFilter
+  }, "id" | "userId_persona" | "persona_personaEntityId">
+
+  export type MembershipOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    persona?: SortOrder
+    personaEntityId?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: MembershipCountOrderByAggregateInput
+    _max?: MembershipMaxOrderByAggregateInput
+    _min?: MembershipMinOrderByAggregateInput
+  }
+
+  export type MembershipScalarWhereWithAggregatesInput = {
+    AND?: MembershipScalarWhereWithAggregatesInput | MembershipScalarWhereWithAggregatesInput[]
+    OR?: MembershipScalarWhereWithAggregatesInput[]
+    NOT?: MembershipScalarWhereWithAggregatesInput | MembershipScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Membership"> | string
+    userId?: StringWithAggregatesFilter<"Membership"> | string
+    persona?: EnumPersonaWithAggregatesFilter<"Membership"> | $Enums.Persona
+    personaEntityId?: StringWithAggregatesFilter<"Membership"> | string
+    status?: EnumMembershipStatusWithAggregatesFilter<"Membership"> | $Enums.MembershipStatus
+    createdAt?: DateTimeWithAggregatesFilter<"Membership"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Membership"> | Date | string
+  }
+
+  export type MembershipRoleWhereInput = {
+    AND?: MembershipRoleWhereInput | MembershipRoleWhereInput[]
+    OR?: MembershipRoleWhereInput[]
+    NOT?: MembershipRoleWhereInput | MembershipRoleWhereInput[]
+    membershipId?: StringFilter<"MembershipRole"> | string
+    roleId?: StringFilter<"MembershipRole"> | string
+    assignedAt?: DateTimeFilter<"MembershipRole"> | Date | string
+    assignedById?: StringNullableFilter<"MembershipRole"> | string | null
+    membership?: XOR<MembershipScalarRelationFilter, MembershipWhereInput>
+    role?: XOR<SchoolRoleScalarRelationFilter, SchoolRoleWhereInput>
+  }
+
+  export type MembershipRoleOrderByWithRelationInput = {
+    membershipId?: SortOrder
+    roleId?: SortOrder
+    assignedAt?: SortOrder
+    assignedById?: SortOrderInput | SortOrder
+    membership?: MembershipOrderByWithRelationInput
+    role?: SchoolRoleOrderByWithRelationInput
+  }
+
+  export type MembershipRoleWhereUniqueInput = Prisma.AtLeast<{
+    membershipId_roleId?: MembershipRoleMembershipIdRoleIdCompoundUniqueInput
+    AND?: MembershipRoleWhereInput | MembershipRoleWhereInput[]
+    OR?: MembershipRoleWhereInput[]
+    NOT?: MembershipRoleWhereInput | MembershipRoleWhereInput[]
+    membershipId?: StringFilter<"MembershipRole"> | string
+    roleId?: StringFilter<"MembershipRole"> | string
+    assignedAt?: DateTimeFilter<"MembershipRole"> | Date | string
+    assignedById?: StringNullableFilter<"MembershipRole"> | string | null
+    membership?: XOR<MembershipScalarRelationFilter, MembershipWhereInput>
+    role?: XOR<SchoolRoleScalarRelationFilter, SchoolRoleWhereInput>
+  }, "membershipId_roleId">
+
+  export type MembershipRoleOrderByWithAggregationInput = {
+    membershipId?: SortOrder
+    roleId?: SortOrder
+    assignedAt?: SortOrder
+    assignedById?: SortOrderInput | SortOrder
+    _count?: MembershipRoleCountOrderByAggregateInput
+    _max?: MembershipRoleMaxOrderByAggregateInput
+    _min?: MembershipRoleMinOrderByAggregateInput
+  }
+
+  export type MembershipRoleScalarWhereWithAggregatesInput = {
+    AND?: MembershipRoleScalarWhereWithAggregatesInput | MembershipRoleScalarWhereWithAggregatesInput[]
+    OR?: MembershipRoleScalarWhereWithAggregatesInput[]
+    NOT?: MembershipRoleScalarWhereWithAggregatesInput | MembershipRoleScalarWhereWithAggregatesInput[]
+    membershipId?: StringWithAggregatesFilter<"MembershipRole"> | string
+    roleId?: StringWithAggregatesFilter<"MembershipRole"> | string
+    assignedAt?: DateTimeWithAggregatesFilter<"MembershipRole"> | Date | string
+    assignedById?: StringNullableWithAggregatesFilter<"MembershipRole"> | string | null
+  }
+
+  export type SchoolSettingValueWhereInput = {
+    AND?: SchoolSettingValueWhereInput | SchoolSettingValueWhereInput[]
+    OR?: SchoolSettingValueWhereInput[]
+    NOT?: SchoolSettingValueWhereInput | SchoolSettingValueWhereInput[]
+    key?: StringFilter<"SchoolSettingValue"> | string
+    value?: JsonFilter<"SchoolSettingValue">
+    updatedById?: StringNullableFilter<"SchoolSettingValue"> | string | null
+    createdAt?: DateTimeFilter<"SchoolSettingValue"> | Date | string
+    updatedAt?: DateTimeFilter<"SchoolSettingValue"> | Date | string
+  }
+
+  export type SchoolSettingValueOrderByWithRelationInput = {
+    key?: SortOrder
+    value?: SortOrder
+    updatedById?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SchoolSettingValueWhereUniqueInput = Prisma.AtLeast<{
+    key?: string
+    AND?: SchoolSettingValueWhereInput | SchoolSettingValueWhereInput[]
+    OR?: SchoolSettingValueWhereInput[]
+    NOT?: SchoolSettingValueWhereInput | SchoolSettingValueWhereInput[]
+    value?: JsonFilter<"SchoolSettingValue">
+    updatedById?: StringNullableFilter<"SchoolSettingValue"> | string | null
+    createdAt?: DateTimeFilter<"SchoolSettingValue"> | Date | string
+    updatedAt?: DateTimeFilter<"SchoolSettingValue"> | Date | string
+  }, "key">
+
+  export type SchoolSettingValueOrderByWithAggregationInput = {
+    key?: SortOrder
+    value?: SortOrder
+    updatedById?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: SchoolSettingValueCountOrderByAggregateInput
+    _max?: SchoolSettingValueMaxOrderByAggregateInput
+    _min?: SchoolSettingValueMinOrderByAggregateInput
+  }
+
+  export type SchoolSettingValueScalarWhereWithAggregatesInput = {
+    AND?: SchoolSettingValueScalarWhereWithAggregatesInput | SchoolSettingValueScalarWhereWithAggregatesInput[]
+    OR?: SchoolSettingValueScalarWhereWithAggregatesInput[]
+    NOT?: SchoolSettingValueScalarWhereWithAggregatesInput | SchoolSettingValueScalarWhereWithAggregatesInput[]
+    key?: StringWithAggregatesFilter<"SchoolSettingValue"> | string
+    value?: JsonWithAggregatesFilter<"SchoolSettingValue">
+    updatedById?: StringNullableWithAggregatesFilter<"SchoolSettingValue"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"SchoolSettingValue"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"SchoolSettingValue"> | Date | string
+  }
+
+  export type AutomationRuleWhereInput = {
+    AND?: AutomationRuleWhereInput | AutomationRuleWhereInput[]
+    OR?: AutomationRuleWhereInput[]
+    NOT?: AutomationRuleWhereInput | AutomationRuleWhereInput[]
+    id?: StringFilter<"AutomationRule"> | string
+    definitionKey?: StringFilter<"AutomationRule"> | string
+    name?: StringFilter<"AutomationRule"> | string
+    enabled?: BoolFilter<"AutomationRule"> | boolean
+    params?: JsonFilter<"AutomationRule">
+    channels?: EnumNotificationChannelNullableListFilter<"AutomationRule">
+    audience?: JsonNullableFilter<"AutomationRule">
+    templateKey?: StringNullableFilter<"AutomationRule"> | string | null
+    schedule?: JsonNullableFilter<"AutomationRule">
+    lastRunAt?: DateTimeNullableFilter<"AutomationRule"> | Date | string | null
+    nextRunAt?: DateTimeNullableFilter<"AutomationRule"> | Date | string | null
+    createdById?: StringNullableFilter<"AutomationRule"> | string | null
+    updatedById?: StringNullableFilter<"AutomationRule"> | string | null
+    createdAt?: DateTimeFilter<"AutomationRule"> | Date | string
+    updatedAt?: DateTimeFilter<"AutomationRule"> | Date | string
+    deletedAt?: DateTimeNullableFilter<"AutomationRule"> | Date | string | null
+    runs?: AutomationRunLogListRelationFilter
+  }
+
+  export type AutomationRuleOrderByWithRelationInput = {
+    id?: SortOrder
+    definitionKey?: SortOrder
+    name?: SortOrder
+    enabled?: SortOrder
+    params?: SortOrder
+    channels?: SortOrder
+    audience?: SortOrderInput | SortOrder
+    templateKey?: SortOrderInput | SortOrder
+    schedule?: SortOrderInput | SortOrder
+    lastRunAt?: SortOrderInput | SortOrder
+    nextRunAt?: SortOrderInput | SortOrder
+    createdById?: SortOrderInput | SortOrder
+    updatedById?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    deletedAt?: SortOrderInput | SortOrder
+    runs?: AutomationRunLogOrderByRelationAggregateInput
+  }
+
+  export type AutomationRuleWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AutomationRuleWhereInput | AutomationRuleWhereInput[]
+    OR?: AutomationRuleWhereInput[]
+    NOT?: AutomationRuleWhereInput | AutomationRuleWhereInput[]
+    definitionKey?: StringFilter<"AutomationRule"> | string
+    name?: StringFilter<"AutomationRule"> | string
+    enabled?: BoolFilter<"AutomationRule"> | boolean
+    params?: JsonFilter<"AutomationRule">
+    channels?: EnumNotificationChannelNullableListFilter<"AutomationRule">
+    audience?: JsonNullableFilter<"AutomationRule">
+    templateKey?: StringNullableFilter<"AutomationRule"> | string | null
+    schedule?: JsonNullableFilter<"AutomationRule">
+    lastRunAt?: DateTimeNullableFilter<"AutomationRule"> | Date | string | null
+    nextRunAt?: DateTimeNullableFilter<"AutomationRule"> | Date | string | null
+    createdById?: StringNullableFilter<"AutomationRule"> | string | null
+    updatedById?: StringNullableFilter<"AutomationRule"> | string | null
+    createdAt?: DateTimeFilter<"AutomationRule"> | Date | string
+    updatedAt?: DateTimeFilter<"AutomationRule"> | Date | string
+    deletedAt?: DateTimeNullableFilter<"AutomationRule"> | Date | string | null
+    runs?: AutomationRunLogListRelationFilter
+  }, "id">
+
+  export type AutomationRuleOrderByWithAggregationInput = {
+    id?: SortOrder
+    definitionKey?: SortOrder
+    name?: SortOrder
+    enabled?: SortOrder
+    params?: SortOrder
+    channels?: SortOrder
+    audience?: SortOrderInput | SortOrder
+    templateKey?: SortOrderInput | SortOrder
+    schedule?: SortOrderInput | SortOrder
+    lastRunAt?: SortOrderInput | SortOrder
+    nextRunAt?: SortOrderInput | SortOrder
+    createdById?: SortOrderInput | SortOrder
+    updatedById?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    deletedAt?: SortOrderInput | SortOrder
+    _count?: AutomationRuleCountOrderByAggregateInput
+    _max?: AutomationRuleMaxOrderByAggregateInput
+    _min?: AutomationRuleMinOrderByAggregateInput
+  }
+
+  export type AutomationRuleScalarWhereWithAggregatesInput = {
+    AND?: AutomationRuleScalarWhereWithAggregatesInput | AutomationRuleScalarWhereWithAggregatesInput[]
+    OR?: AutomationRuleScalarWhereWithAggregatesInput[]
+    NOT?: AutomationRuleScalarWhereWithAggregatesInput | AutomationRuleScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AutomationRule"> | string
+    definitionKey?: StringWithAggregatesFilter<"AutomationRule"> | string
+    name?: StringWithAggregatesFilter<"AutomationRule"> | string
+    enabled?: BoolWithAggregatesFilter<"AutomationRule"> | boolean
+    params?: JsonWithAggregatesFilter<"AutomationRule">
+    channels?: EnumNotificationChannelNullableListFilter<"AutomationRule">
+    audience?: JsonNullableWithAggregatesFilter<"AutomationRule">
+    templateKey?: StringNullableWithAggregatesFilter<"AutomationRule"> | string | null
+    schedule?: JsonNullableWithAggregatesFilter<"AutomationRule">
+    lastRunAt?: DateTimeNullableWithAggregatesFilter<"AutomationRule"> | Date | string | null
+    nextRunAt?: DateTimeNullableWithAggregatesFilter<"AutomationRule"> | Date | string | null
+    createdById?: StringNullableWithAggregatesFilter<"AutomationRule"> | string | null
+    updatedById?: StringNullableWithAggregatesFilter<"AutomationRule"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"AutomationRule"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"AutomationRule"> | Date | string
+    deletedAt?: DateTimeNullableWithAggregatesFilter<"AutomationRule"> | Date | string | null
+  }
+
+  export type AutomationRunLogWhereInput = {
+    AND?: AutomationRunLogWhereInput | AutomationRunLogWhereInput[]
+    OR?: AutomationRunLogWhereInput[]
+    NOT?: AutomationRunLogWhereInput | AutomationRunLogWhereInput[]
+    id?: StringFilter<"AutomationRunLog"> | string
+    ruleId?: StringFilter<"AutomationRunLog"> | string
+    triggeredAt?: DateTimeFilter<"AutomationRunLog"> | Date | string
+    trigger?: StringFilter<"AutomationRunLog"> | string
+    status?: EnumAutomationRunStatusFilter<"AutomationRunLog"> | $Enums.AutomationRunStatus
+    matched?: IntFilter<"AutomationRunLog"> | number
+    notified?: IntFilter<"AutomationRunLog"> | number
+    skippedReason?: StringNullableFilter<"AutomationRunLog"> | string | null
+    error?: StringNullableFilter<"AutomationRunLog"> | string | null
+    notificationId?: StringNullableFilter<"AutomationRunLog"> | string | null
+    rule?: XOR<AutomationRuleScalarRelationFilter, AutomationRuleWhereInput>
+  }
+
+  export type AutomationRunLogOrderByWithRelationInput = {
+    id?: SortOrder
+    ruleId?: SortOrder
+    triggeredAt?: SortOrder
+    trigger?: SortOrder
+    status?: SortOrder
+    matched?: SortOrder
+    notified?: SortOrder
+    skippedReason?: SortOrderInput | SortOrder
+    error?: SortOrderInput | SortOrder
+    notificationId?: SortOrderInput | SortOrder
+    rule?: AutomationRuleOrderByWithRelationInput
+  }
+
+  export type AutomationRunLogWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AutomationRunLogWhereInput | AutomationRunLogWhereInput[]
+    OR?: AutomationRunLogWhereInput[]
+    NOT?: AutomationRunLogWhereInput | AutomationRunLogWhereInput[]
+    ruleId?: StringFilter<"AutomationRunLog"> | string
+    triggeredAt?: DateTimeFilter<"AutomationRunLog"> | Date | string
+    trigger?: StringFilter<"AutomationRunLog"> | string
+    status?: EnumAutomationRunStatusFilter<"AutomationRunLog"> | $Enums.AutomationRunStatus
+    matched?: IntFilter<"AutomationRunLog"> | number
+    notified?: IntFilter<"AutomationRunLog"> | number
+    skippedReason?: StringNullableFilter<"AutomationRunLog"> | string | null
+    error?: StringNullableFilter<"AutomationRunLog"> | string | null
+    notificationId?: StringNullableFilter<"AutomationRunLog"> | string | null
+    rule?: XOR<AutomationRuleScalarRelationFilter, AutomationRuleWhereInput>
+  }, "id">
+
+  export type AutomationRunLogOrderByWithAggregationInput = {
+    id?: SortOrder
+    ruleId?: SortOrder
+    triggeredAt?: SortOrder
+    trigger?: SortOrder
+    status?: SortOrder
+    matched?: SortOrder
+    notified?: SortOrder
+    skippedReason?: SortOrderInput | SortOrder
+    error?: SortOrderInput | SortOrder
+    notificationId?: SortOrderInput | SortOrder
+    _count?: AutomationRunLogCountOrderByAggregateInput
+    _avg?: AutomationRunLogAvgOrderByAggregateInput
+    _max?: AutomationRunLogMaxOrderByAggregateInput
+    _min?: AutomationRunLogMinOrderByAggregateInput
+    _sum?: AutomationRunLogSumOrderByAggregateInput
+  }
+
+  export type AutomationRunLogScalarWhereWithAggregatesInput = {
+    AND?: AutomationRunLogScalarWhereWithAggregatesInput | AutomationRunLogScalarWhereWithAggregatesInput[]
+    OR?: AutomationRunLogScalarWhereWithAggregatesInput[]
+    NOT?: AutomationRunLogScalarWhereWithAggregatesInput | AutomationRunLogScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AutomationRunLog"> | string
+    ruleId?: StringWithAggregatesFilter<"AutomationRunLog"> | string
+    triggeredAt?: DateTimeWithAggregatesFilter<"AutomationRunLog"> | Date | string
+    trigger?: StringWithAggregatesFilter<"AutomationRunLog"> | string
+    status?: EnumAutomationRunStatusWithAggregatesFilter<"AutomationRunLog"> | $Enums.AutomationRunStatus
+    matched?: IntWithAggregatesFilter<"AutomationRunLog"> | number
+    notified?: IntWithAggregatesFilter<"AutomationRunLog"> | number
+    skippedReason?: StringNullableWithAggregatesFilter<"AutomationRunLog"> | string | null
+    error?: StringNullableWithAggregatesFilter<"AutomationRunLog"> | string | null
+    notificationId?: StringNullableWithAggregatesFilter<"AutomationRunLog"> | string | null
+  }
+
+  export type SchoolMessageTemplateWhereInput = {
+    AND?: SchoolMessageTemplateWhereInput | SchoolMessageTemplateWhereInput[]
+    OR?: SchoolMessageTemplateWhereInput[]
+    NOT?: SchoolMessageTemplateWhereInput | SchoolMessageTemplateWhereInput[]
+    id?: StringFilter<"SchoolMessageTemplate"> | string
+    key?: StringFilter<"SchoolMessageTemplate"> | string
+    channel?: EnumNotificationChannelFilter<"SchoolMessageTemplate"> | $Enums.NotificationChannel
+    locale?: StringFilter<"SchoolMessageTemplate"> | string
+    subject?: StringNullableFilter<"SchoolMessageTemplate"> | string | null
+    body?: StringFilter<"SchoolMessageTemplate"> | string
+    isActive?: BoolFilter<"SchoolMessageTemplate"> | boolean
+    updatedById?: StringNullableFilter<"SchoolMessageTemplate"> | string | null
+    createdAt?: DateTimeFilter<"SchoolMessageTemplate"> | Date | string
+    updatedAt?: DateTimeFilter<"SchoolMessageTemplate"> | Date | string
+  }
+
+  export type SchoolMessageTemplateOrderByWithRelationInput = {
+    id?: SortOrder
+    key?: SortOrder
+    channel?: SortOrder
+    locale?: SortOrder
+    subject?: SortOrderInput | SortOrder
+    body?: SortOrder
+    isActive?: SortOrder
+    updatedById?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SchoolMessageTemplateWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    key_channel_locale?: SchoolMessageTemplateKeyChannelLocaleCompoundUniqueInput
+    AND?: SchoolMessageTemplateWhereInput | SchoolMessageTemplateWhereInput[]
+    OR?: SchoolMessageTemplateWhereInput[]
+    NOT?: SchoolMessageTemplateWhereInput | SchoolMessageTemplateWhereInput[]
+    key?: StringFilter<"SchoolMessageTemplate"> | string
+    channel?: EnumNotificationChannelFilter<"SchoolMessageTemplate"> | $Enums.NotificationChannel
+    locale?: StringFilter<"SchoolMessageTemplate"> | string
+    subject?: StringNullableFilter<"SchoolMessageTemplate"> | string | null
+    body?: StringFilter<"SchoolMessageTemplate"> | string
+    isActive?: BoolFilter<"SchoolMessageTemplate"> | boolean
+    updatedById?: StringNullableFilter<"SchoolMessageTemplate"> | string | null
+    createdAt?: DateTimeFilter<"SchoolMessageTemplate"> | Date | string
+    updatedAt?: DateTimeFilter<"SchoolMessageTemplate"> | Date | string
+  }, "id" | "key_channel_locale">
+
+  export type SchoolMessageTemplateOrderByWithAggregationInput = {
+    id?: SortOrder
+    key?: SortOrder
+    channel?: SortOrder
+    locale?: SortOrder
+    subject?: SortOrderInput | SortOrder
+    body?: SortOrder
+    isActive?: SortOrder
+    updatedById?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: SchoolMessageTemplateCountOrderByAggregateInput
+    _max?: SchoolMessageTemplateMaxOrderByAggregateInput
+    _min?: SchoolMessageTemplateMinOrderByAggregateInput
+  }
+
+  export type SchoolMessageTemplateScalarWhereWithAggregatesInput = {
+    AND?: SchoolMessageTemplateScalarWhereWithAggregatesInput | SchoolMessageTemplateScalarWhereWithAggregatesInput[]
+    OR?: SchoolMessageTemplateScalarWhereWithAggregatesInput[]
+    NOT?: SchoolMessageTemplateScalarWhereWithAggregatesInput | SchoolMessageTemplateScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"SchoolMessageTemplate"> | string
+    key?: StringWithAggregatesFilter<"SchoolMessageTemplate"> | string
+    channel?: EnumNotificationChannelWithAggregatesFilter<"SchoolMessageTemplate"> | $Enums.NotificationChannel
+    locale?: StringWithAggregatesFilter<"SchoolMessageTemplate"> | string
+    subject?: StringNullableWithAggregatesFilter<"SchoolMessageTemplate"> | string | null
+    body?: StringWithAggregatesFilter<"SchoolMessageTemplate"> | string
+    isActive?: BoolWithAggregatesFilter<"SchoolMessageTemplate"> | boolean
+    updatedById?: StringNullableWithAggregatesFilter<"SchoolMessageTemplate"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"SchoolMessageTemplate"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"SchoolMessageTemplate"> | Date | string
+  }
+
+  export type NumberSequenceWhereInput = {
+    AND?: NumberSequenceWhereInput | NumberSequenceWhereInput[]
+    OR?: NumberSequenceWhereInput[]
+    NOT?: NumberSequenceWhereInput | NumberSequenceWhereInput[]
+    key?: StringFilter<"NumberSequence"> | string
+    period?: StringFilter<"NumberSequence"> | string
+    nextValue?: IntFilter<"NumberSequence"> | number
+    updatedAt?: DateTimeFilter<"NumberSequence"> | Date | string
+  }
+
+  export type NumberSequenceOrderByWithRelationInput = {
+    key?: SortOrder
+    period?: SortOrder
+    nextValue?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type NumberSequenceWhereUniqueInput = Prisma.AtLeast<{
+    key_period?: NumberSequenceKeyPeriodCompoundUniqueInput
+    AND?: NumberSequenceWhereInput | NumberSequenceWhereInput[]
+    OR?: NumberSequenceWhereInput[]
+    NOT?: NumberSequenceWhereInput | NumberSequenceWhereInput[]
+    key?: StringFilter<"NumberSequence"> | string
+    period?: StringFilter<"NumberSequence"> | string
+    nextValue?: IntFilter<"NumberSequence"> | number
+    updatedAt?: DateTimeFilter<"NumberSequence"> | Date | string
+  }, "key_period">
+
+  export type NumberSequenceOrderByWithAggregationInput = {
+    key?: SortOrder
+    period?: SortOrder
+    nextValue?: SortOrder
+    updatedAt?: SortOrder
+    _count?: NumberSequenceCountOrderByAggregateInput
+    _avg?: NumberSequenceAvgOrderByAggregateInput
+    _max?: NumberSequenceMaxOrderByAggregateInput
+    _min?: NumberSequenceMinOrderByAggregateInput
+    _sum?: NumberSequenceSumOrderByAggregateInput
+  }
+
+  export type NumberSequenceScalarWhereWithAggregatesInput = {
+    AND?: NumberSequenceScalarWhereWithAggregatesInput | NumberSequenceScalarWhereWithAggregatesInput[]
+    OR?: NumberSequenceScalarWhereWithAggregatesInput[]
+    NOT?: NumberSequenceScalarWhereWithAggregatesInput | NumberSequenceScalarWhereWithAggregatesInput[]
+    key?: StringWithAggregatesFilter<"NumberSequence"> | string
+    period?: StringWithAggregatesFilter<"NumberSequence"> | string
+    nextValue?: IntWithAggregatesFilter<"NumberSequence"> | number
+    updatedAt?: DateTimeWithAggregatesFilter<"NumberSequence"> | Date | string
+  }
+
+  export type AttachmentWhereInput = {
+    AND?: AttachmentWhereInput | AttachmentWhereInput[]
+    OR?: AttachmentWhereInput[]
+    NOT?: AttachmentWhereInput | AttachmentWhereInput[]
+    id?: StringFilter<"Attachment"> | string
+    ownerType?: StringFilter<"Attachment"> | string
+    ownerId?: StringFilter<"Attachment"> | string
+    kind?: StringFilter<"Attachment"> | string
+    fileName?: StringFilter<"Attachment"> | string
+    fileUrl?: StringFilter<"Attachment"> | string
+    mimeType?: StringNullableFilter<"Attachment"> | string | null
+    sizeBytes?: IntFilter<"Attachment"> | number
+    uploadedById?: StringNullableFilter<"Attachment"> | string | null
+    createdAt?: DateTimeFilter<"Attachment"> | Date | string
+    deletedAt?: DateTimeNullableFilter<"Attachment"> | Date | string | null
+  }
+
+  export type AttachmentOrderByWithRelationInput = {
+    id?: SortOrder
+    ownerType?: SortOrder
+    ownerId?: SortOrder
+    kind?: SortOrder
+    fileName?: SortOrder
+    fileUrl?: SortOrder
+    mimeType?: SortOrderInput | SortOrder
+    sizeBytes?: SortOrder
+    uploadedById?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    deletedAt?: SortOrderInput | SortOrder
+  }
+
+  export type AttachmentWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AttachmentWhereInput | AttachmentWhereInput[]
+    OR?: AttachmentWhereInput[]
+    NOT?: AttachmentWhereInput | AttachmentWhereInput[]
+    ownerType?: StringFilter<"Attachment"> | string
+    ownerId?: StringFilter<"Attachment"> | string
+    kind?: StringFilter<"Attachment"> | string
+    fileName?: StringFilter<"Attachment"> | string
+    fileUrl?: StringFilter<"Attachment"> | string
+    mimeType?: StringNullableFilter<"Attachment"> | string | null
+    sizeBytes?: IntFilter<"Attachment"> | number
+    uploadedById?: StringNullableFilter<"Attachment"> | string | null
+    createdAt?: DateTimeFilter<"Attachment"> | Date | string
+    deletedAt?: DateTimeNullableFilter<"Attachment"> | Date | string | null
+  }, "id">
+
+  export type AttachmentOrderByWithAggregationInput = {
+    id?: SortOrder
+    ownerType?: SortOrder
+    ownerId?: SortOrder
+    kind?: SortOrder
+    fileName?: SortOrder
+    fileUrl?: SortOrder
+    mimeType?: SortOrderInput | SortOrder
+    sizeBytes?: SortOrder
+    uploadedById?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    deletedAt?: SortOrderInput | SortOrder
+    _count?: AttachmentCountOrderByAggregateInput
+    _avg?: AttachmentAvgOrderByAggregateInput
+    _max?: AttachmentMaxOrderByAggregateInput
+    _min?: AttachmentMinOrderByAggregateInput
+    _sum?: AttachmentSumOrderByAggregateInput
+  }
+
+  export type AttachmentScalarWhereWithAggregatesInput = {
+    AND?: AttachmentScalarWhereWithAggregatesInput | AttachmentScalarWhereWithAggregatesInput[]
+    OR?: AttachmentScalarWhereWithAggregatesInput[]
+    NOT?: AttachmentScalarWhereWithAggregatesInput | AttachmentScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Attachment"> | string
+    ownerType?: StringWithAggregatesFilter<"Attachment"> | string
+    ownerId?: StringWithAggregatesFilter<"Attachment"> | string
+    kind?: StringWithAggregatesFilter<"Attachment"> | string
+    fileName?: StringWithAggregatesFilter<"Attachment"> | string
+    fileUrl?: StringWithAggregatesFilter<"Attachment"> | string
+    mimeType?: StringNullableWithAggregatesFilter<"Attachment"> | string | null
+    sizeBytes?: IntWithAggregatesFilter<"Attachment"> | number
+    uploadedById?: StringNullableWithAggregatesFilter<"Attachment"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"Attachment"> | Date | string
+    deletedAt?: DateTimeNullableWithAggregatesFilter<"Attachment"> | Date | string | null
+  }
+
   export type SchoolNotificationWhereInput = {
     AND?: SchoolNotificationWhereInput | SchoolNotificationWhereInput[]
     OR?: SchoolNotificationWhereInput[]
@@ -33529,15 +46705,21 @@ export namespace Prisma {
     NOT?: SchoolNotificationRecipientWhereInput | SchoolNotificationRecipientWhereInput[]
     id?: StringFilter<"SchoolNotificationRecipient"> | string
     notificationId?: StringFilter<"SchoolNotificationRecipient"> | string
-    studentId?: StringNullableFilter<"SchoolNotificationRecipient"> | string | null
-    guardianId?: StringNullableFilter<"SchoolNotificationRecipient"> | string | null
-    staffId?: StringNullableFilter<"SchoolNotificationRecipient"> | string | null
+    recipientType?: EnumRecipientTypeFilter<"SchoolNotificationRecipient"> | $Enums.RecipientType
+    recipientEntityId?: StringFilter<"SchoolNotificationRecipient"> | string
+    userId?: StringNullableFilter<"SchoolNotificationRecipient"> | string | null
     channel?: EnumNotificationChannelFilter<"SchoolNotificationRecipient"> | $Enums.NotificationChannel
     status?: EnumDeliveryStatusFilter<"SchoolNotificationRecipient"> | $Enums.DeliveryStatus
     priority?: EnumNotificationPriorityFilter<"SchoolNotificationRecipient"> | $Enums.NotificationPriority
     retryCount?: IntFilter<"SchoolNotificationRecipient"> | number
     failedReason?: StringNullableFilter<"SchoolNotificationRecipient"> | string | null
     providerMsgId?: StringNullableFilter<"SchoolNotificationRecipient"> | string | null
+    idempotencyKey?: StringNullableFilter<"SchoolNotificationRecipient"> | string | null
+    queuedAt?: DateTimeNullableFilter<"SchoolNotificationRecipient"> | Date | string | null
+    sentAt?: DateTimeNullableFilter<"SchoolNotificationRecipient"> | Date | string | null
+    failedAt?: DateTimeNullableFilter<"SchoolNotificationRecipient"> | Date | string | null
+    cancelledAt?: DateTimeNullableFilter<"SchoolNotificationRecipient"> | Date | string | null
+    nextRetryAt?: DateTimeNullableFilter<"SchoolNotificationRecipient"> | Date | string | null
     readAt?: DateTimeNullableFilter<"SchoolNotificationRecipient"> | Date | string | null
     deliveredAt?: DateTimeNullableFilter<"SchoolNotificationRecipient"> | Date | string | null
     createdAt?: DateTimeFilter<"SchoolNotificationRecipient"> | Date | string
@@ -33548,15 +46730,21 @@ export namespace Prisma {
   export type SchoolNotificationRecipientOrderByWithRelationInput = {
     id?: SortOrder
     notificationId?: SortOrder
-    studentId?: SortOrderInput | SortOrder
-    guardianId?: SortOrderInput | SortOrder
-    staffId?: SortOrderInput | SortOrder
+    recipientType?: SortOrder
+    recipientEntityId?: SortOrder
+    userId?: SortOrderInput | SortOrder
     channel?: SortOrder
     status?: SortOrder
     priority?: SortOrder
     retryCount?: SortOrder
     failedReason?: SortOrderInput | SortOrder
     providerMsgId?: SortOrderInput | SortOrder
+    idempotencyKey?: SortOrderInput | SortOrder
+    queuedAt?: SortOrderInput | SortOrder
+    sentAt?: SortOrderInput | SortOrder
+    failedAt?: SortOrderInput | SortOrder
+    cancelledAt?: SortOrderInput | SortOrder
+    nextRetryAt?: SortOrderInput | SortOrder
     readAt?: SortOrderInput | SortOrder
     deliveredAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -33566,39 +46754,51 @@ export namespace Prisma {
 
   export type SchoolNotificationRecipientWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    notificationId_channel_studentId_guardianId_staffId?: SchoolNotificationRecipientNotificationIdChannelStudentIdGuardianIdStaffIdCompoundUniqueInput
+    idempotencyKey?: string
+    notificationId_channel_recipientType_recipientEntityId?: SchoolNotificationRecipientNotificationIdChannelRecipientTypeRecipientEntityIdCompoundUniqueInput
     AND?: SchoolNotificationRecipientWhereInput | SchoolNotificationRecipientWhereInput[]
     OR?: SchoolNotificationRecipientWhereInput[]
     NOT?: SchoolNotificationRecipientWhereInput | SchoolNotificationRecipientWhereInput[]
     notificationId?: StringFilter<"SchoolNotificationRecipient"> | string
-    studentId?: StringNullableFilter<"SchoolNotificationRecipient"> | string | null
-    guardianId?: StringNullableFilter<"SchoolNotificationRecipient"> | string | null
-    staffId?: StringNullableFilter<"SchoolNotificationRecipient"> | string | null
+    recipientType?: EnumRecipientTypeFilter<"SchoolNotificationRecipient"> | $Enums.RecipientType
+    recipientEntityId?: StringFilter<"SchoolNotificationRecipient"> | string
+    userId?: StringNullableFilter<"SchoolNotificationRecipient"> | string | null
     channel?: EnumNotificationChannelFilter<"SchoolNotificationRecipient"> | $Enums.NotificationChannel
     status?: EnumDeliveryStatusFilter<"SchoolNotificationRecipient"> | $Enums.DeliveryStatus
     priority?: EnumNotificationPriorityFilter<"SchoolNotificationRecipient"> | $Enums.NotificationPriority
     retryCount?: IntFilter<"SchoolNotificationRecipient"> | number
     failedReason?: StringNullableFilter<"SchoolNotificationRecipient"> | string | null
     providerMsgId?: StringNullableFilter<"SchoolNotificationRecipient"> | string | null
+    queuedAt?: DateTimeNullableFilter<"SchoolNotificationRecipient"> | Date | string | null
+    sentAt?: DateTimeNullableFilter<"SchoolNotificationRecipient"> | Date | string | null
+    failedAt?: DateTimeNullableFilter<"SchoolNotificationRecipient"> | Date | string | null
+    cancelledAt?: DateTimeNullableFilter<"SchoolNotificationRecipient"> | Date | string | null
+    nextRetryAt?: DateTimeNullableFilter<"SchoolNotificationRecipient"> | Date | string | null
     readAt?: DateTimeNullableFilter<"SchoolNotificationRecipient"> | Date | string | null
     deliveredAt?: DateTimeNullableFilter<"SchoolNotificationRecipient"> | Date | string | null
     createdAt?: DateTimeFilter<"SchoolNotificationRecipient"> | Date | string
     updatedAt?: DateTimeFilter<"SchoolNotificationRecipient"> | Date | string
     notification?: XOR<SchoolNotificationScalarRelationFilter, SchoolNotificationWhereInput>
-  }, "id" | "notificationId_channel_studentId_guardianId_staffId">
+  }, "id" | "idempotencyKey" | "notificationId_channel_recipientType_recipientEntityId">
 
   export type SchoolNotificationRecipientOrderByWithAggregationInput = {
     id?: SortOrder
     notificationId?: SortOrder
-    studentId?: SortOrderInput | SortOrder
-    guardianId?: SortOrderInput | SortOrder
-    staffId?: SortOrderInput | SortOrder
+    recipientType?: SortOrder
+    recipientEntityId?: SortOrder
+    userId?: SortOrderInput | SortOrder
     channel?: SortOrder
     status?: SortOrder
     priority?: SortOrder
     retryCount?: SortOrder
     failedReason?: SortOrderInput | SortOrder
     providerMsgId?: SortOrderInput | SortOrder
+    idempotencyKey?: SortOrderInput | SortOrder
+    queuedAt?: SortOrderInput | SortOrder
+    sentAt?: SortOrderInput | SortOrder
+    failedAt?: SortOrderInput | SortOrder
+    cancelledAt?: SortOrderInput | SortOrder
+    nextRetryAt?: SortOrderInput | SortOrder
     readAt?: SortOrderInput | SortOrder
     deliveredAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -33616,15 +46816,21 @@ export namespace Prisma {
     NOT?: SchoolNotificationRecipientScalarWhereWithAggregatesInput | SchoolNotificationRecipientScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"SchoolNotificationRecipient"> | string
     notificationId?: StringWithAggregatesFilter<"SchoolNotificationRecipient"> | string
-    studentId?: StringNullableWithAggregatesFilter<"SchoolNotificationRecipient"> | string | null
-    guardianId?: StringNullableWithAggregatesFilter<"SchoolNotificationRecipient"> | string | null
-    staffId?: StringNullableWithAggregatesFilter<"SchoolNotificationRecipient"> | string | null
+    recipientType?: EnumRecipientTypeWithAggregatesFilter<"SchoolNotificationRecipient"> | $Enums.RecipientType
+    recipientEntityId?: StringWithAggregatesFilter<"SchoolNotificationRecipient"> | string
+    userId?: StringNullableWithAggregatesFilter<"SchoolNotificationRecipient"> | string | null
     channel?: EnumNotificationChannelWithAggregatesFilter<"SchoolNotificationRecipient"> | $Enums.NotificationChannel
     status?: EnumDeliveryStatusWithAggregatesFilter<"SchoolNotificationRecipient"> | $Enums.DeliveryStatus
     priority?: EnumNotificationPriorityWithAggregatesFilter<"SchoolNotificationRecipient"> | $Enums.NotificationPriority
     retryCount?: IntWithAggregatesFilter<"SchoolNotificationRecipient"> | number
     failedReason?: StringNullableWithAggregatesFilter<"SchoolNotificationRecipient"> | string | null
     providerMsgId?: StringNullableWithAggregatesFilter<"SchoolNotificationRecipient"> | string | null
+    idempotencyKey?: StringNullableWithAggregatesFilter<"SchoolNotificationRecipient"> | string | null
+    queuedAt?: DateTimeNullableWithAggregatesFilter<"SchoolNotificationRecipient"> | Date | string | null
+    sentAt?: DateTimeNullableWithAggregatesFilter<"SchoolNotificationRecipient"> | Date | string | null
+    failedAt?: DateTimeNullableWithAggregatesFilter<"SchoolNotificationRecipient"> | Date | string | null
+    cancelledAt?: DateTimeNullableWithAggregatesFilter<"SchoolNotificationRecipient"> | Date | string | null
+    nextRetryAt?: DateTimeNullableWithAggregatesFilter<"SchoolNotificationRecipient"> | Date | string | null
     readAt?: DateTimeNullableWithAggregatesFilter<"SchoolNotificationRecipient"> | Date | string | null
     deliveredAt?: DateTimeNullableWithAggregatesFilter<"SchoolNotificationRecipient"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"SchoolNotificationRecipient"> | Date | string
@@ -33643,6 +46849,7 @@ export namespace Prisma {
     address?: string | null
     joinDate?: Date | string | null
     role: $Enums.StaffRole
+    category?: $Enums.StaffCategory
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -33663,6 +46870,7 @@ export namespace Prisma {
     address?: string | null
     joinDate?: Date | string | null
     role: $Enums.StaffRole
+    category?: $Enums.StaffCategory
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -33683,6 +46891,7 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
+    category?: EnumStaffCategoryFieldUpdateOperationsInput | $Enums.StaffCategory
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -33703,6 +46912,7 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
+    category?: EnumStaffCategoryFieldUpdateOperationsInput | $Enums.StaffCategory
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -33723,6 +46933,7 @@ export namespace Prisma {
     address?: string | null
     joinDate?: Date | string | null
     role: $Enums.StaffRole
+    category?: $Enums.StaffCategory
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -33740,6 +46951,7 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
+    category?: EnumStaffCategoryFieldUpdateOperationsInput | $Enums.StaffCategory
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -33757,6 +46969,7 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
+    category?: EnumStaffCategoryFieldUpdateOperationsInput | $Enums.StaffCategory
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35622,6 +48835,809 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type SchoolRoleCreateInput = {
+    id?: string
+    name: string
+    description?: string | null
+    kind: $Enums.RoleKind
+    persona?: $Enums.Persona
+    grantsAll?: boolean
+    sourceTemplateKey?: string | null
+    sourceTemplateVersion?: number | null
+    isCustomized?: boolean
+    createdById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    permissions?: SchoolRolePermissionCreateNestedManyWithoutRoleInput
+    members?: MembershipRoleCreateNestedManyWithoutRoleInput
+  }
+
+  export type SchoolRoleUncheckedCreateInput = {
+    id?: string
+    name: string
+    description?: string | null
+    kind: $Enums.RoleKind
+    persona?: $Enums.Persona
+    grantsAll?: boolean
+    sourceTemplateKey?: string | null
+    sourceTemplateVersion?: number | null
+    isCustomized?: boolean
+    createdById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    permissions?: SchoolRolePermissionUncheckedCreateNestedManyWithoutRoleInput
+    members?: MembershipRoleUncheckedCreateNestedManyWithoutRoleInput
+  }
+
+  export type SchoolRoleUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    kind?: EnumRoleKindFieldUpdateOperationsInput | $Enums.RoleKind
+    persona?: EnumPersonaFieldUpdateOperationsInput | $Enums.Persona
+    grantsAll?: BoolFieldUpdateOperationsInput | boolean
+    sourceTemplateKey?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceTemplateVersion?: NullableIntFieldUpdateOperationsInput | number | null
+    isCustomized?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    permissions?: SchoolRolePermissionUpdateManyWithoutRoleNestedInput
+    members?: MembershipRoleUpdateManyWithoutRoleNestedInput
+  }
+
+  export type SchoolRoleUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    kind?: EnumRoleKindFieldUpdateOperationsInput | $Enums.RoleKind
+    persona?: EnumPersonaFieldUpdateOperationsInput | $Enums.Persona
+    grantsAll?: BoolFieldUpdateOperationsInput | boolean
+    sourceTemplateKey?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceTemplateVersion?: NullableIntFieldUpdateOperationsInput | number | null
+    isCustomized?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    permissions?: SchoolRolePermissionUncheckedUpdateManyWithoutRoleNestedInput
+    members?: MembershipRoleUncheckedUpdateManyWithoutRoleNestedInput
+  }
+
+  export type SchoolRoleCreateManyInput = {
+    id?: string
+    name: string
+    description?: string | null
+    kind: $Enums.RoleKind
+    persona?: $Enums.Persona
+    grantsAll?: boolean
+    sourceTemplateKey?: string | null
+    sourceTemplateVersion?: number | null
+    isCustomized?: boolean
+    createdById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+  }
+
+  export type SchoolRoleUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    kind?: EnumRoleKindFieldUpdateOperationsInput | $Enums.RoleKind
+    persona?: EnumPersonaFieldUpdateOperationsInput | $Enums.Persona
+    grantsAll?: BoolFieldUpdateOperationsInput | boolean
+    sourceTemplateKey?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceTemplateVersion?: NullableIntFieldUpdateOperationsInput | number | null
+    isCustomized?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type SchoolRoleUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    kind?: EnumRoleKindFieldUpdateOperationsInput | $Enums.RoleKind
+    persona?: EnumPersonaFieldUpdateOperationsInput | $Enums.Persona
+    grantsAll?: BoolFieldUpdateOperationsInput | boolean
+    sourceTemplateKey?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceTemplateVersion?: NullableIntFieldUpdateOperationsInput | number | null
+    isCustomized?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type SchoolRolePermissionCreateInput = {
+    permissionKey: string
+    scope?: $Enums.PermissionScope
+    role: SchoolRoleCreateNestedOneWithoutPermissionsInput
+  }
+
+  export type SchoolRolePermissionUncheckedCreateInput = {
+    roleId: string
+    permissionKey: string
+    scope?: $Enums.PermissionScope
+  }
+
+  export type SchoolRolePermissionUpdateInput = {
+    permissionKey?: StringFieldUpdateOperationsInput | string
+    scope?: EnumPermissionScopeFieldUpdateOperationsInput | $Enums.PermissionScope
+    role?: SchoolRoleUpdateOneRequiredWithoutPermissionsNestedInput
+  }
+
+  export type SchoolRolePermissionUncheckedUpdateInput = {
+    roleId?: StringFieldUpdateOperationsInput | string
+    permissionKey?: StringFieldUpdateOperationsInput | string
+    scope?: EnumPermissionScopeFieldUpdateOperationsInput | $Enums.PermissionScope
+  }
+
+  export type SchoolRolePermissionCreateManyInput = {
+    roleId: string
+    permissionKey: string
+    scope?: $Enums.PermissionScope
+  }
+
+  export type SchoolRolePermissionUpdateManyMutationInput = {
+    permissionKey?: StringFieldUpdateOperationsInput | string
+    scope?: EnumPermissionScopeFieldUpdateOperationsInput | $Enums.PermissionScope
+  }
+
+  export type SchoolRolePermissionUncheckedUpdateManyInput = {
+    roleId?: StringFieldUpdateOperationsInput | string
+    permissionKey?: StringFieldUpdateOperationsInput | string
+    scope?: EnumPermissionScopeFieldUpdateOperationsInput | $Enums.PermissionScope
+  }
+
+  export type MembershipCreateInput = {
+    id?: string
+    userId: string
+    persona: $Enums.Persona
+    personaEntityId: string
+    status?: $Enums.MembershipStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    roles?: MembershipRoleCreateNestedManyWithoutMembershipInput
+  }
+
+  export type MembershipUncheckedCreateInput = {
+    id?: string
+    userId: string
+    persona: $Enums.Persona
+    personaEntityId: string
+    status?: $Enums.MembershipStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    roles?: MembershipRoleUncheckedCreateNestedManyWithoutMembershipInput
+  }
+
+  export type MembershipUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    persona?: EnumPersonaFieldUpdateOperationsInput | $Enums.Persona
+    personaEntityId?: StringFieldUpdateOperationsInput | string
+    status?: EnumMembershipStatusFieldUpdateOperationsInput | $Enums.MembershipStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    roles?: MembershipRoleUpdateManyWithoutMembershipNestedInput
+  }
+
+  export type MembershipUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    persona?: EnumPersonaFieldUpdateOperationsInput | $Enums.Persona
+    personaEntityId?: StringFieldUpdateOperationsInput | string
+    status?: EnumMembershipStatusFieldUpdateOperationsInput | $Enums.MembershipStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    roles?: MembershipRoleUncheckedUpdateManyWithoutMembershipNestedInput
+  }
+
+  export type MembershipCreateManyInput = {
+    id?: string
+    userId: string
+    persona: $Enums.Persona
+    personaEntityId: string
+    status?: $Enums.MembershipStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MembershipUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    persona?: EnumPersonaFieldUpdateOperationsInput | $Enums.Persona
+    personaEntityId?: StringFieldUpdateOperationsInput | string
+    status?: EnumMembershipStatusFieldUpdateOperationsInput | $Enums.MembershipStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MembershipUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    persona?: EnumPersonaFieldUpdateOperationsInput | $Enums.Persona
+    personaEntityId?: StringFieldUpdateOperationsInput | string
+    status?: EnumMembershipStatusFieldUpdateOperationsInput | $Enums.MembershipStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MembershipRoleCreateInput = {
+    assignedAt?: Date | string
+    assignedById?: string | null
+    membership: MembershipCreateNestedOneWithoutRolesInput
+    role: SchoolRoleCreateNestedOneWithoutMembersInput
+  }
+
+  export type MembershipRoleUncheckedCreateInput = {
+    membershipId: string
+    roleId: string
+    assignedAt?: Date | string
+    assignedById?: string | null
+  }
+
+  export type MembershipRoleUpdateInput = {
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    assignedById?: NullableStringFieldUpdateOperationsInput | string | null
+    membership?: MembershipUpdateOneRequiredWithoutRolesNestedInput
+    role?: SchoolRoleUpdateOneRequiredWithoutMembersNestedInput
+  }
+
+  export type MembershipRoleUncheckedUpdateInput = {
+    membershipId?: StringFieldUpdateOperationsInput | string
+    roleId?: StringFieldUpdateOperationsInput | string
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    assignedById?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type MembershipRoleCreateManyInput = {
+    membershipId: string
+    roleId: string
+    assignedAt?: Date | string
+    assignedById?: string | null
+  }
+
+  export type MembershipRoleUpdateManyMutationInput = {
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    assignedById?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type MembershipRoleUncheckedUpdateManyInput = {
+    membershipId?: StringFieldUpdateOperationsInput | string
+    roleId?: StringFieldUpdateOperationsInput | string
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    assignedById?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type SchoolSettingValueCreateInput = {
+    key: string
+    value: JsonNullValueInput | InputJsonValue
+    updatedById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SchoolSettingValueUncheckedCreateInput = {
+    key: string
+    value: JsonNullValueInput | InputJsonValue
+    updatedById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SchoolSettingValueUpdateInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    value?: JsonNullValueInput | InputJsonValue
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SchoolSettingValueUncheckedUpdateInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    value?: JsonNullValueInput | InputJsonValue
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SchoolSettingValueCreateManyInput = {
+    key: string
+    value: JsonNullValueInput | InputJsonValue
+    updatedById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SchoolSettingValueUpdateManyMutationInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    value?: JsonNullValueInput | InputJsonValue
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SchoolSettingValueUncheckedUpdateManyInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    value?: JsonNullValueInput | InputJsonValue
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AutomationRuleCreateInput = {
+    id?: string
+    definitionKey: string
+    name: string
+    enabled?: boolean
+    params: JsonNullValueInput | InputJsonValue
+    channels?: AutomationRuleCreatechannelsInput | $Enums.NotificationChannel[]
+    audience?: NullableJsonNullValueInput | InputJsonValue
+    templateKey?: string | null
+    schedule?: NullableJsonNullValueInput | InputJsonValue
+    lastRunAt?: Date | string | null
+    nextRunAt?: Date | string | null
+    createdById?: string | null
+    updatedById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    runs?: AutomationRunLogCreateNestedManyWithoutRuleInput
+  }
+
+  export type AutomationRuleUncheckedCreateInput = {
+    id?: string
+    definitionKey: string
+    name: string
+    enabled?: boolean
+    params: JsonNullValueInput | InputJsonValue
+    channels?: AutomationRuleCreatechannelsInput | $Enums.NotificationChannel[]
+    audience?: NullableJsonNullValueInput | InputJsonValue
+    templateKey?: string | null
+    schedule?: NullableJsonNullValueInput | InputJsonValue
+    lastRunAt?: Date | string | null
+    nextRunAt?: Date | string | null
+    createdById?: string | null
+    updatedById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    runs?: AutomationRunLogUncheckedCreateNestedManyWithoutRuleInput
+  }
+
+  export type AutomationRuleUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    definitionKey?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    params?: JsonNullValueInput | InputJsonValue
+    channels?: AutomationRuleUpdatechannelsInput | $Enums.NotificationChannel[]
+    audience?: NullableJsonNullValueInput | InputJsonValue
+    templateKey?: NullableStringFieldUpdateOperationsInput | string | null
+    schedule?: NullableJsonNullValueInput | InputJsonValue
+    lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    runs?: AutomationRunLogUpdateManyWithoutRuleNestedInput
+  }
+
+  export type AutomationRuleUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    definitionKey?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    params?: JsonNullValueInput | InputJsonValue
+    channels?: AutomationRuleUpdatechannelsInput | $Enums.NotificationChannel[]
+    audience?: NullableJsonNullValueInput | InputJsonValue
+    templateKey?: NullableStringFieldUpdateOperationsInput | string | null
+    schedule?: NullableJsonNullValueInput | InputJsonValue
+    lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    runs?: AutomationRunLogUncheckedUpdateManyWithoutRuleNestedInput
+  }
+
+  export type AutomationRuleCreateManyInput = {
+    id?: string
+    definitionKey: string
+    name: string
+    enabled?: boolean
+    params: JsonNullValueInput | InputJsonValue
+    channels?: AutomationRuleCreatechannelsInput | $Enums.NotificationChannel[]
+    audience?: NullableJsonNullValueInput | InputJsonValue
+    templateKey?: string | null
+    schedule?: NullableJsonNullValueInput | InputJsonValue
+    lastRunAt?: Date | string | null
+    nextRunAt?: Date | string | null
+    createdById?: string | null
+    updatedById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+  }
+
+  export type AutomationRuleUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    definitionKey?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    params?: JsonNullValueInput | InputJsonValue
+    channels?: AutomationRuleUpdatechannelsInput | $Enums.NotificationChannel[]
+    audience?: NullableJsonNullValueInput | InputJsonValue
+    templateKey?: NullableStringFieldUpdateOperationsInput | string | null
+    schedule?: NullableJsonNullValueInput | InputJsonValue
+    lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type AutomationRuleUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    definitionKey?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    params?: JsonNullValueInput | InputJsonValue
+    channels?: AutomationRuleUpdatechannelsInput | $Enums.NotificationChannel[]
+    audience?: NullableJsonNullValueInput | InputJsonValue
+    templateKey?: NullableStringFieldUpdateOperationsInput | string | null
+    schedule?: NullableJsonNullValueInput | InputJsonValue
+    lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type AutomationRunLogCreateInput = {
+    id?: string
+    triggeredAt?: Date | string
+    trigger: string
+    status: $Enums.AutomationRunStatus
+    matched?: number
+    notified?: number
+    skippedReason?: string | null
+    error?: string | null
+    notificationId?: string | null
+    rule: AutomationRuleCreateNestedOneWithoutRunsInput
+  }
+
+  export type AutomationRunLogUncheckedCreateInput = {
+    id?: string
+    ruleId: string
+    triggeredAt?: Date | string
+    trigger: string
+    status: $Enums.AutomationRunStatus
+    matched?: number
+    notified?: number
+    skippedReason?: string | null
+    error?: string | null
+    notificationId?: string | null
+  }
+
+  export type AutomationRunLogUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    triggeredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    trigger?: StringFieldUpdateOperationsInput | string
+    status?: EnumAutomationRunStatusFieldUpdateOperationsInput | $Enums.AutomationRunStatus
+    matched?: IntFieldUpdateOperationsInput | number
+    notified?: IntFieldUpdateOperationsInput | number
+    skippedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    notificationId?: NullableStringFieldUpdateOperationsInput | string | null
+    rule?: AutomationRuleUpdateOneRequiredWithoutRunsNestedInput
+  }
+
+  export type AutomationRunLogUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ruleId?: StringFieldUpdateOperationsInput | string
+    triggeredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    trigger?: StringFieldUpdateOperationsInput | string
+    status?: EnumAutomationRunStatusFieldUpdateOperationsInput | $Enums.AutomationRunStatus
+    matched?: IntFieldUpdateOperationsInput | number
+    notified?: IntFieldUpdateOperationsInput | number
+    skippedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    notificationId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type AutomationRunLogCreateManyInput = {
+    id?: string
+    ruleId: string
+    triggeredAt?: Date | string
+    trigger: string
+    status: $Enums.AutomationRunStatus
+    matched?: number
+    notified?: number
+    skippedReason?: string | null
+    error?: string | null
+    notificationId?: string | null
+  }
+
+  export type AutomationRunLogUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    triggeredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    trigger?: StringFieldUpdateOperationsInput | string
+    status?: EnumAutomationRunStatusFieldUpdateOperationsInput | $Enums.AutomationRunStatus
+    matched?: IntFieldUpdateOperationsInput | number
+    notified?: IntFieldUpdateOperationsInput | number
+    skippedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    notificationId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type AutomationRunLogUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ruleId?: StringFieldUpdateOperationsInput | string
+    triggeredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    trigger?: StringFieldUpdateOperationsInput | string
+    status?: EnumAutomationRunStatusFieldUpdateOperationsInput | $Enums.AutomationRunStatus
+    matched?: IntFieldUpdateOperationsInput | number
+    notified?: IntFieldUpdateOperationsInput | number
+    skippedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    notificationId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type SchoolMessageTemplateCreateInput = {
+    id?: string
+    key: string
+    channel: $Enums.NotificationChannel
+    locale?: string
+    subject?: string | null
+    body: string
+    isActive?: boolean
+    updatedById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SchoolMessageTemplateUncheckedCreateInput = {
+    id?: string
+    key: string
+    channel: $Enums.NotificationChannel
+    locale?: string
+    subject?: string | null
+    body: string
+    isActive?: boolean
+    updatedById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SchoolMessageTemplateUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    key?: StringFieldUpdateOperationsInput | string
+    channel?: EnumNotificationChannelFieldUpdateOperationsInput | $Enums.NotificationChannel
+    locale?: StringFieldUpdateOperationsInput | string
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    body?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SchoolMessageTemplateUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    key?: StringFieldUpdateOperationsInput | string
+    channel?: EnumNotificationChannelFieldUpdateOperationsInput | $Enums.NotificationChannel
+    locale?: StringFieldUpdateOperationsInput | string
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    body?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SchoolMessageTemplateCreateManyInput = {
+    id?: string
+    key: string
+    channel: $Enums.NotificationChannel
+    locale?: string
+    subject?: string | null
+    body: string
+    isActive?: boolean
+    updatedById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SchoolMessageTemplateUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    key?: StringFieldUpdateOperationsInput | string
+    channel?: EnumNotificationChannelFieldUpdateOperationsInput | $Enums.NotificationChannel
+    locale?: StringFieldUpdateOperationsInput | string
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    body?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SchoolMessageTemplateUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    key?: StringFieldUpdateOperationsInput | string
+    channel?: EnumNotificationChannelFieldUpdateOperationsInput | $Enums.NotificationChannel
+    locale?: StringFieldUpdateOperationsInput | string
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    body?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NumberSequenceCreateInput = {
+    key: string
+    period?: string
+    nextValue?: number
+    updatedAt?: Date | string
+  }
+
+  export type NumberSequenceUncheckedCreateInput = {
+    key: string
+    period?: string
+    nextValue?: number
+    updatedAt?: Date | string
+  }
+
+  export type NumberSequenceUpdateInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    period?: StringFieldUpdateOperationsInput | string
+    nextValue?: IntFieldUpdateOperationsInput | number
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NumberSequenceUncheckedUpdateInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    period?: StringFieldUpdateOperationsInput | string
+    nextValue?: IntFieldUpdateOperationsInput | number
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NumberSequenceCreateManyInput = {
+    key: string
+    period?: string
+    nextValue?: number
+    updatedAt?: Date | string
+  }
+
+  export type NumberSequenceUpdateManyMutationInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    period?: StringFieldUpdateOperationsInput | string
+    nextValue?: IntFieldUpdateOperationsInput | number
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NumberSequenceUncheckedUpdateManyInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    period?: StringFieldUpdateOperationsInput | string
+    nextValue?: IntFieldUpdateOperationsInput | number
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AttachmentCreateInput = {
+    id?: string
+    ownerType: string
+    ownerId: string
+    kind: string
+    fileName: string
+    fileUrl: string
+    mimeType?: string | null
+    sizeBytes?: number
+    uploadedById?: string | null
+    createdAt?: Date | string
+    deletedAt?: Date | string | null
+  }
+
+  export type AttachmentUncheckedCreateInput = {
+    id?: string
+    ownerType: string
+    ownerId: string
+    kind: string
+    fileName: string
+    fileUrl: string
+    mimeType?: string | null
+    sizeBytes?: number
+    uploadedById?: string | null
+    createdAt?: Date | string
+    deletedAt?: Date | string | null
+  }
+
+  export type AttachmentUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ownerType?: StringFieldUpdateOperationsInput | string
+    ownerId?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    fileUrl?: StringFieldUpdateOperationsInput | string
+    mimeType?: NullableStringFieldUpdateOperationsInput | string | null
+    sizeBytes?: IntFieldUpdateOperationsInput | number
+    uploadedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type AttachmentUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ownerType?: StringFieldUpdateOperationsInput | string
+    ownerId?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    fileUrl?: StringFieldUpdateOperationsInput | string
+    mimeType?: NullableStringFieldUpdateOperationsInput | string | null
+    sizeBytes?: IntFieldUpdateOperationsInput | number
+    uploadedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type AttachmentCreateManyInput = {
+    id?: string
+    ownerType: string
+    ownerId: string
+    kind: string
+    fileName: string
+    fileUrl: string
+    mimeType?: string | null
+    sizeBytes?: number
+    uploadedById?: string | null
+    createdAt?: Date | string
+    deletedAt?: Date | string | null
+  }
+
+  export type AttachmentUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ownerType?: StringFieldUpdateOperationsInput | string
+    ownerId?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    fileUrl?: StringFieldUpdateOperationsInput | string
+    mimeType?: NullableStringFieldUpdateOperationsInput | string | null
+    sizeBytes?: IntFieldUpdateOperationsInput | number
+    uploadedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type AttachmentUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ownerType?: StringFieldUpdateOperationsInput | string
+    ownerId?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    fileUrl?: StringFieldUpdateOperationsInput | string
+    mimeType?: NullableStringFieldUpdateOperationsInput | string | null
+    sizeBytes?: IntFieldUpdateOperationsInput | number
+    uploadedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
   export type SchoolNotificationCreateInput = {
     id?: string
     title: string
@@ -35719,15 +49735,21 @@ export namespace Prisma {
 
   export type SchoolNotificationRecipientCreateInput = {
     id?: string
-    studentId?: string | null
-    guardianId?: string | null
-    staffId?: string | null
+    recipientType: $Enums.RecipientType
+    recipientEntityId: string
+    userId?: string | null
     channel: $Enums.NotificationChannel
     status?: $Enums.DeliveryStatus
     priority?: $Enums.NotificationPriority
     retryCount?: number
     failedReason?: string | null
     providerMsgId?: string | null
+    idempotencyKey?: string | null
+    queuedAt?: Date | string | null
+    sentAt?: Date | string | null
+    failedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+    nextRetryAt?: Date | string | null
     readAt?: Date | string | null
     deliveredAt?: Date | string | null
     createdAt?: Date | string
@@ -35738,15 +49760,21 @@ export namespace Prisma {
   export type SchoolNotificationRecipientUncheckedCreateInput = {
     id?: string
     notificationId: string
-    studentId?: string | null
-    guardianId?: string | null
-    staffId?: string | null
+    recipientType: $Enums.RecipientType
+    recipientEntityId: string
+    userId?: string | null
     channel: $Enums.NotificationChannel
     status?: $Enums.DeliveryStatus
     priority?: $Enums.NotificationPriority
     retryCount?: number
     failedReason?: string | null
     providerMsgId?: string | null
+    idempotencyKey?: string | null
+    queuedAt?: Date | string | null
+    sentAt?: Date | string | null
+    failedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+    nextRetryAt?: Date | string | null
     readAt?: Date | string | null
     deliveredAt?: Date | string | null
     createdAt?: Date | string
@@ -35755,15 +49783,21 @@ export namespace Prisma {
 
   export type SchoolNotificationRecipientUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    studentId?: NullableStringFieldUpdateOperationsInput | string | null
-    guardianId?: NullableStringFieldUpdateOperationsInput | string | null
-    staffId?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientType?: EnumRecipientTypeFieldUpdateOperationsInput | $Enums.RecipientType
+    recipientEntityId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     channel?: EnumNotificationChannelFieldUpdateOperationsInput | $Enums.NotificationChannel
     status?: EnumDeliveryStatusFieldUpdateOperationsInput | $Enums.DeliveryStatus
     priority?: EnumNotificationPriorityFieldUpdateOperationsInput | $Enums.NotificationPriority
     retryCount?: IntFieldUpdateOperationsInput | number
     failedReason?: NullableStringFieldUpdateOperationsInput | string | null
     providerMsgId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    queuedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextRetryAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35774,15 +49808,21 @@ export namespace Prisma {
   export type SchoolNotificationRecipientUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     notificationId?: StringFieldUpdateOperationsInput | string
-    studentId?: NullableStringFieldUpdateOperationsInput | string | null
-    guardianId?: NullableStringFieldUpdateOperationsInput | string | null
-    staffId?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientType?: EnumRecipientTypeFieldUpdateOperationsInput | $Enums.RecipientType
+    recipientEntityId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     channel?: EnumNotificationChannelFieldUpdateOperationsInput | $Enums.NotificationChannel
     status?: EnumDeliveryStatusFieldUpdateOperationsInput | $Enums.DeliveryStatus
     priority?: EnumNotificationPriorityFieldUpdateOperationsInput | $Enums.NotificationPriority
     retryCount?: IntFieldUpdateOperationsInput | number
     failedReason?: NullableStringFieldUpdateOperationsInput | string | null
     providerMsgId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    queuedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextRetryAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35792,15 +49832,21 @@ export namespace Prisma {
   export type SchoolNotificationRecipientCreateManyInput = {
     id?: string
     notificationId: string
-    studentId?: string | null
-    guardianId?: string | null
-    staffId?: string | null
+    recipientType: $Enums.RecipientType
+    recipientEntityId: string
+    userId?: string | null
     channel: $Enums.NotificationChannel
     status?: $Enums.DeliveryStatus
     priority?: $Enums.NotificationPriority
     retryCount?: number
     failedReason?: string | null
     providerMsgId?: string | null
+    idempotencyKey?: string | null
+    queuedAt?: Date | string | null
+    sentAt?: Date | string | null
+    failedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+    nextRetryAt?: Date | string | null
     readAt?: Date | string | null
     deliveredAt?: Date | string | null
     createdAt?: Date | string
@@ -35809,15 +49855,21 @@ export namespace Prisma {
 
   export type SchoolNotificationRecipientUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    studentId?: NullableStringFieldUpdateOperationsInput | string | null
-    guardianId?: NullableStringFieldUpdateOperationsInput | string | null
-    staffId?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientType?: EnumRecipientTypeFieldUpdateOperationsInput | $Enums.RecipientType
+    recipientEntityId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     channel?: EnumNotificationChannelFieldUpdateOperationsInput | $Enums.NotificationChannel
     status?: EnumDeliveryStatusFieldUpdateOperationsInput | $Enums.DeliveryStatus
     priority?: EnumNotificationPriorityFieldUpdateOperationsInput | $Enums.NotificationPriority
     retryCount?: IntFieldUpdateOperationsInput | number
     failedReason?: NullableStringFieldUpdateOperationsInput | string | null
     providerMsgId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    queuedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextRetryAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35827,15 +49879,21 @@ export namespace Prisma {
   export type SchoolNotificationRecipientUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     notificationId?: StringFieldUpdateOperationsInput | string
-    studentId?: NullableStringFieldUpdateOperationsInput | string | null
-    guardianId?: NullableStringFieldUpdateOperationsInput | string | null
-    staffId?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientType?: EnumRecipientTypeFieldUpdateOperationsInput | $Enums.RecipientType
+    recipientEntityId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     channel?: EnumNotificationChannelFieldUpdateOperationsInput | $Enums.NotificationChannel
     status?: EnumDeliveryStatusFieldUpdateOperationsInput | $Enums.DeliveryStatus
     priority?: EnumNotificationPriorityFieldUpdateOperationsInput | $Enums.NotificationPriority
     retryCount?: IntFieldUpdateOperationsInput | number
     failedReason?: NullableStringFieldUpdateOperationsInput | string | null
     providerMsgId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    queuedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextRetryAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35895,6 +49953,13 @@ export namespace Prisma {
     in?: $Enums.StaffRole[] | ListEnumStaffRoleFieldRefInput<$PrismaModel>
     notIn?: $Enums.StaffRole[] | ListEnumStaffRoleFieldRefInput<$PrismaModel>
     not?: NestedEnumStaffRoleFilter<$PrismaModel> | $Enums.StaffRole
+  }
+
+  export type EnumStaffCategoryFilter<$PrismaModel = never> = {
+    equals?: $Enums.StaffCategory | EnumStaffCategoryFieldRefInput<$PrismaModel>
+    in?: $Enums.StaffCategory[] | ListEnumStaffCategoryFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StaffCategory[] | ListEnumStaffCategoryFieldRefInput<$PrismaModel>
+    not?: NestedEnumStaffCategoryFilter<$PrismaModel> | $Enums.StaffCategory
   }
 
   export type BoolFilter<$PrismaModel = never> = {
@@ -35960,6 +50025,7 @@ export namespace Prisma {
     address?: SortOrder
     joinDate?: SortOrder
     role?: SortOrder
+    category?: SortOrder
     isActive?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -35977,6 +50043,7 @@ export namespace Prisma {
     address?: SortOrder
     joinDate?: SortOrder
     role?: SortOrder
+    category?: SortOrder
     isActive?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -35994,6 +50061,7 @@ export namespace Prisma {
     address?: SortOrder
     joinDate?: SortOrder
     role?: SortOrder
+    category?: SortOrder
     isActive?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -36067,6 +50135,16 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumStaffRoleFilter<$PrismaModel>
     _max?: NestedEnumStaffRoleFilter<$PrismaModel>
+  }
+
+  export type EnumStaffCategoryWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.StaffCategory | EnumStaffCategoryFieldRefInput<$PrismaModel>
+    in?: $Enums.StaffCategory[] | ListEnumStaffCategoryFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StaffCategory[] | ListEnumStaffCategoryFieldRefInput<$PrismaModel>
+    not?: NestedEnumStaffCategoryWithAggregatesFilter<$PrismaModel> | $Enums.StaffCategory
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumStaffCategoryFilter<$PrismaModel>
+    _max?: NestedEnumStaffCategoryFilter<$PrismaModel>
   }
 
   export type BoolWithAggregatesFilter<$PrismaModel = never> = {
@@ -37504,6 +51582,604 @@ export namespace Prisma {
     _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
+  export type EnumRoleKindFilter<$PrismaModel = never> = {
+    equals?: $Enums.RoleKind | EnumRoleKindFieldRefInput<$PrismaModel>
+    in?: $Enums.RoleKind[] | ListEnumRoleKindFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RoleKind[] | ListEnumRoleKindFieldRefInput<$PrismaModel>
+    not?: NestedEnumRoleKindFilter<$PrismaModel> | $Enums.RoleKind
+  }
+
+  export type EnumPersonaFilter<$PrismaModel = never> = {
+    equals?: $Enums.Persona | EnumPersonaFieldRefInput<$PrismaModel>
+    in?: $Enums.Persona[] | ListEnumPersonaFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Persona[] | ListEnumPersonaFieldRefInput<$PrismaModel>
+    not?: NestedEnumPersonaFilter<$PrismaModel> | $Enums.Persona
+  }
+
+  export type SchoolRolePermissionListRelationFilter = {
+    every?: SchoolRolePermissionWhereInput
+    some?: SchoolRolePermissionWhereInput
+    none?: SchoolRolePermissionWhereInput
+  }
+
+  export type MembershipRoleListRelationFilter = {
+    every?: MembershipRoleWhereInput
+    some?: MembershipRoleWhereInput
+    none?: MembershipRoleWhereInput
+  }
+
+  export type SchoolRolePermissionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type MembershipRoleOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type SchoolRoleCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    kind?: SortOrder
+    persona?: SortOrder
+    grantsAll?: SortOrder
+    sourceTemplateKey?: SortOrder
+    sourceTemplateVersion?: SortOrder
+    isCustomized?: SortOrder
+    createdById?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    deletedAt?: SortOrder
+  }
+
+  export type SchoolRoleAvgOrderByAggregateInput = {
+    sourceTemplateVersion?: SortOrder
+  }
+
+  export type SchoolRoleMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    kind?: SortOrder
+    persona?: SortOrder
+    grantsAll?: SortOrder
+    sourceTemplateKey?: SortOrder
+    sourceTemplateVersion?: SortOrder
+    isCustomized?: SortOrder
+    createdById?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    deletedAt?: SortOrder
+  }
+
+  export type SchoolRoleMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    kind?: SortOrder
+    persona?: SortOrder
+    grantsAll?: SortOrder
+    sourceTemplateKey?: SortOrder
+    sourceTemplateVersion?: SortOrder
+    isCustomized?: SortOrder
+    createdById?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    deletedAt?: SortOrder
+  }
+
+  export type SchoolRoleSumOrderByAggregateInput = {
+    sourceTemplateVersion?: SortOrder
+  }
+
+  export type EnumRoleKindWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.RoleKind | EnumRoleKindFieldRefInput<$PrismaModel>
+    in?: $Enums.RoleKind[] | ListEnumRoleKindFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RoleKind[] | ListEnumRoleKindFieldRefInput<$PrismaModel>
+    not?: NestedEnumRoleKindWithAggregatesFilter<$PrismaModel> | $Enums.RoleKind
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumRoleKindFilter<$PrismaModel>
+    _max?: NestedEnumRoleKindFilter<$PrismaModel>
+  }
+
+  export type EnumPersonaWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.Persona | EnumPersonaFieldRefInput<$PrismaModel>
+    in?: $Enums.Persona[] | ListEnumPersonaFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Persona[] | ListEnumPersonaFieldRefInput<$PrismaModel>
+    not?: NestedEnumPersonaWithAggregatesFilter<$PrismaModel> | $Enums.Persona
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumPersonaFilter<$PrismaModel>
+    _max?: NestedEnumPersonaFilter<$PrismaModel>
+  }
+
+  export type EnumPermissionScopeFilter<$PrismaModel = never> = {
+    equals?: $Enums.PermissionScope | EnumPermissionScopeFieldRefInput<$PrismaModel>
+    in?: $Enums.PermissionScope[] | ListEnumPermissionScopeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.PermissionScope[] | ListEnumPermissionScopeFieldRefInput<$PrismaModel>
+    not?: NestedEnumPermissionScopeFilter<$PrismaModel> | $Enums.PermissionScope
+  }
+
+  export type SchoolRoleScalarRelationFilter = {
+    is?: SchoolRoleWhereInput
+    isNot?: SchoolRoleWhereInput
+  }
+
+  export type SchoolRolePermissionRoleIdPermissionKeyCompoundUniqueInput = {
+    roleId: string
+    permissionKey: string
+  }
+
+  export type SchoolRolePermissionCountOrderByAggregateInput = {
+    roleId?: SortOrder
+    permissionKey?: SortOrder
+    scope?: SortOrder
+  }
+
+  export type SchoolRolePermissionMaxOrderByAggregateInput = {
+    roleId?: SortOrder
+    permissionKey?: SortOrder
+    scope?: SortOrder
+  }
+
+  export type SchoolRolePermissionMinOrderByAggregateInput = {
+    roleId?: SortOrder
+    permissionKey?: SortOrder
+    scope?: SortOrder
+  }
+
+  export type EnumPermissionScopeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.PermissionScope | EnumPermissionScopeFieldRefInput<$PrismaModel>
+    in?: $Enums.PermissionScope[] | ListEnumPermissionScopeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.PermissionScope[] | ListEnumPermissionScopeFieldRefInput<$PrismaModel>
+    not?: NestedEnumPermissionScopeWithAggregatesFilter<$PrismaModel> | $Enums.PermissionScope
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumPermissionScopeFilter<$PrismaModel>
+    _max?: NestedEnumPermissionScopeFilter<$PrismaModel>
+  }
+
+  export type EnumMembershipStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.MembershipStatus | EnumMembershipStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.MembershipStatus[] | ListEnumMembershipStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.MembershipStatus[] | ListEnumMembershipStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumMembershipStatusFilter<$PrismaModel> | $Enums.MembershipStatus
+  }
+
+  export type MembershipUserIdPersonaCompoundUniqueInput = {
+    userId: string
+    persona: $Enums.Persona
+  }
+
+  export type MembershipPersonaPersonaEntityIdCompoundUniqueInput = {
+    persona: $Enums.Persona
+    personaEntityId: string
+  }
+
+  export type MembershipCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    persona?: SortOrder
+    personaEntityId?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MembershipMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    persona?: SortOrder
+    personaEntityId?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MembershipMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    persona?: SortOrder
+    personaEntityId?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EnumMembershipStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.MembershipStatus | EnumMembershipStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.MembershipStatus[] | ListEnumMembershipStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.MembershipStatus[] | ListEnumMembershipStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumMembershipStatusWithAggregatesFilter<$PrismaModel> | $Enums.MembershipStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumMembershipStatusFilter<$PrismaModel>
+    _max?: NestedEnumMembershipStatusFilter<$PrismaModel>
+  }
+
+  export type MembershipScalarRelationFilter = {
+    is?: MembershipWhereInput
+    isNot?: MembershipWhereInput
+  }
+
+  export type MembershipRoleMembershipIdRoleIdCompoundUniqueInput = {
+    membershipId: string
+    roleId: string
+  }
+
+  export type MembershipRoleCountOrderByAggregateInput = {
+    membershipId?: SortOrder
+    roleId?: SortOrder
+    assignedAt?: SortOrder
+    assignedById?: SortOrder
+  }
+
+  export type MembershipRoleMaxOrderByAggregateInput = {
+    membershipId?: SortOrder
+    roleId?: SortOrder
+    assignedAt?: SortOrder
+    assignedById?: SortOrder
+  }
+
+  export type MembershipRoleMinOrderByAggregateInput = {
+    membershipId?: SortOrder
+    roleId?: SortOrder
+    assignedAt?: SortOrder
+    assignedById?: SortOrder
+  }
+  export type JsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type SchoolSettingValueCountOrderByAggregateInput = {
+    key?: SortOrder
+    value?: SortOrder
+    updatedById?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SchoolSettingValueMaxOrderByAggregateInput = {
+    key?: SortOrder
+    updatedById?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SchoolSettingValueMinOrderByAggregateInput = {
+    key?: SortOrder
+    updatedById?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+  export type JsonWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedJsonFilter<$PrismaModel>
+    _max?: NestedJsonFilter<$PrismaModel>
+  }
+
+  export type EnumNotificationChannelNullableListFilter<$PrismaModel = never> = {
+    equals?: $Enums.NotificationChannel[] | ListEnumNotificationChannelFieldRefInput<$PrismaModel> | null
+    has?: $Enums.NotificationChannel | EnumNotificationChannelFieldRefInput<$PrismaModel> | null
+    hasEvery?: $Enums.NotificationChannel[] | ListEnumNotificationChannelFieldRefInput<$PrismaModel>
+    hasSome?: $Enums.NotificationChannel[] | ListEnumNotificationChannelFieldRefInput<$PrismaModel>
+    isEmpty?: boolean
+  }
+
+  export type AutomationRunLogListRelationFilter = {
+    every?: AutomationRunLogWhereInput
+    some?: AutomationRunLogWhereInput
+    none?: AutomationRunLogWhereInput
+  }
+
+  export type AutomationRunLogOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AutomationRuleCountOrderByAggregateInput = {
+    id?: SortOrder
+    definitionKey?: SortOrder
+    name?: SortOrder
+    enabled?: SortOrder
+    params?: SortOrder
+    channels?: SortOrder
+    audience?: SortOrder
+    templateKey?: SortOrder
+    schedule?: SortOrder
+    lastRunAt?: SortOrder
+    nextRunAt?: SortOrder
+    createdById?: SortOrder
+    updatedById?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    deletedAt?: SortOrder
+  }
+
+  export type AutomationRuleMaxOrderByAggregateInput = {
+    id?: SortOrder
+    definitionKey?: SortOrder
+    name?: SortOrder
+    enabled?: SortOrder
+    templateKey?: SortOrder
+    lastRunAt?: SortOrder
+    nextRunAt?: SortOrder
+    createdById?: SortOrder
+    updatedById?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    deletedAt?: SortOrder
+  }
+
+  export type AutomationRuleMinOrderByAggregateInput = {
+    id?: SortOrder
+    definitionKey?: SortOrder
+    name?: SortOrder
+    enabled?: SortOrder
+    templateKey?: SortOrder
+    lastRunAt?: SortOrder
+    nextRunAt?: SortOrder
+    createdById?: SortOrder
+    updatedById?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    deletedAt?: SortOrder
+  }
+
+  export type EnumAutomationRunStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.AutomationRunStatus | EnumAutomationRunStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AutomationRunStatus[] | ListEnumAutomationRunStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AutomationRunStatus[] | ListEnumAutomationRunStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumAutomationRunStatusFilter<$PrismaModel> | $Enums.AutomationRunStatus
+  }
+
+  export type AutomationRuleScalarRelationFilter = {
+    is?: AutomationRuleWhereInput
+    isNot?: AutomationRuleWhereInput
+  }
+
+  export type AutomationRunLogCountOrderByAggregateInput = {
+    id?: SortOrder
+    ruleId?: SortOrder
+    triggeredAt?: SortOrder
+    trigger?: SortOrder
+    status?: SortOrder
+    matched?: SortOrder
+    notified?: SortOrder
+    skippedReason?: SortOrder
+    error?: SortOrder
+    notificationId?: SortOrder
+  }
+
+  export type AutomationRunLogAvgOrderByAggregateInput = {
+    matched?: SortOrder
+    notified?: SortOrder
+  }
+
+  export type AutomationRunLogMaxOrderByAggregateInput = {
+    id?: SortOrder
+    ruleId?: SortOrder
+    triggeredAt?: SortOrder
+    trigger?: SortOrder
+    status?: SortOrder
+    matched?: SortOrder
+    notified?: SortOrder
+    skippedReason?: SortOrder
+    error?: SortOrder
+    notificationId?: SortOrder
+  }
+
+  export type AutomationRunLogMinOrderByAggregateInput = {
+    id?: SortOrder
+    ruleId?: SortOrder
+    triggeredAt?: SortOrder
+    trigger?: SortOrder
+    status?: SortOrder
+    matched?: SortOrder
+    notified?: SortOrder
+    skippedReason?: SortOrder
+    error?: SortOrder
+    notificationId?: SortOrder
+  }
+
+  export type AutomationRunLogSumOrderByAggregateInput = {
+    matched?: SortOrder
+    notified?: SortOrder
+  }
+
+  export type EnumAutomationRunStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AutomationRunStatus | EnumAutomationRunStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AutomationRunStatus[] | ListEnumAutomationRunStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AutomationRunStatus[] | ListEnumAutomationRunStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumAutomationRunStatusWithAggregatesFilter<$PrismaModel> | $Enums.AutomationRunStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAutomationRunStatusFilter<$PrismaModel>
+    _max?: NestedEnumAutomationRunStatusFilter<$PrismaModel>
+  }
+
+  export type EnumNotificationChannelFilter<$PrismaModel = never> = {
+    equals?: $Enums.NotificationChannel | EnumNotificationChannelFieldRefInput<$PrismaModel>
+    in?: $Enums.NotificationChannel[] | ListEnumNotificationChannelFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NotificationChannel[] | ListEnumNotificationChannelFieldRefInput<$PrismaModel>
+    not?: NestedEnumNotificationChannelFilter<$PrismaModel> | $Enums.NotificationChannel
+  }
+
+  export type SchoolMessageTemplateKeyChannelLocaleCompoundUniqueInput = {
+    key: string
+    channel: $Enums.NotificationChannel
+    locale: string
+  }
+
+  export type SchoolMessageTemplateCountOrderByAggregateInput = {
+    id?: SortOrder
+    key?: SortOrder
+    channel?: SortOrder
+    locale?: SortOrder
+    subject?: SortOrder
+    body?: SortOrder
+    isActive?: SortOrder
+    updatedById?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SchoolMessageTemplateMaxOrderByAggregateInput = {
+    id?: SortOrder
+    key?: SortOrder
+    channel?: SortOrder
+    locale?: SortOrder
+    subject?: SortOrder
+    body?: SortOrder
+    isActive?: SortOrder
+    updatedById?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SchoolMessageTemplateMinOrderByAggregateInput = {
+    id?: SortOrder
+    key?: SortOrder
+    channel?: SortOrder
+    locale?: SortOrder
+    subject?: SortOrder
+    body?: SortOrder
+    isActive?: SortOrder
+    updatedById?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EnumNotificationChannelWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.NotificationChannel | EnumNotificationChannelFieldRefInput<$PrismaModel>
+    in?: $Enums.NotificationChannel[] | ListEnumNotificationChannelFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NotificationChannel[] | ListEnumNotificationChannelFieldRefInput<$PrismaModel>
+    not?: NestedEnumNotificationChannelWithAggregatesFilter<$PrismaModel> | $Enums.NotificationChannel
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumNotificationChannelFilter<$PrismaModel>
+    _max?: NestedEnumNotificationChannelFilter<$PrismaModel>
+  }
+
+  export type NumberSequenceKeyPeriodCompoundUniqueInput = {
+    key: string
+    period: string
+  }
+
+  export type NumberSequenceCountOrderByAggregateInput = {
+    key?: SortOrder
+    period?: SortOrder
+    nextValue?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type NumberSequenceAvgOrderByAggregateInput = {
+    nextValue?: SortOrder
+  }
+
+  export type NumberSequenceMaxOrderByAggregateInput = {
+    key?: SortOrder
+    period?: SortOrder
+    nextValue?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type NumberSequenceMinOrderByAggregateInput = {
+    key?: SortOrder
+    period?: SortOrder
+    nextValue?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type NumberSequenceSumOrderByAggregateInput = {
+    nextValue?: SortOrder
+  }
+
+  export type AttachmentCountOrderByAggregateInput = {
+    id?: SortOrder
+    ownerType?: SortOrder
+    ownerId?: SortOrder
+    kind?: SortOrder
+    fileName?: SortOrder
+    fileUrl?: SortOrder
+    mimeType?: SortOrder
+    sizeBytes?: SortOrder
+    uploadedById?: SortOrder
+    createdAt?: SortOrder
+    deletedAt?: SortOrder
+  }
+
+  export type AttachmentAvgOrderByAggregateInput = {
+    sizeBytes?: SortOrder
+  }
+
+  export type AttachmentMaxOrderByAggregateInput = {
+    id?: SortOrder
+    ownerType?: SortOrder
+    ownerId?: SortOrder
+    kind?: SortOrder
+    fileName?: SortOrder
+    fileUrl?: SortOrder
+    mimeType?: SortOrder
+    sizeBytes?: SortOrder
+    uploadedById?: SortOrder
+    createdAt?: SortOrder
+    deletedAt?: SortOrder
+  }
+
+  export type AttachmentMinOrderByAggregateInput = {
+    id?: SortOrder
+    ownerType?: SortOrder
+    ownerId?: SortOrder
+    kind?: SortOrder
+    fileName?: SortOrder
+    fileUrl?: SortOrder
+    mimeType?: SortOrder
+    sizeBytes?: SortOrder
+    uploadedById?: SortOrder
+    createdAt?: SortOrder
+    deletedAt?: SortOrder
+  }
+
+  export type AttachmentSumOrderByAggregateInput = {
+    sizeBytes?: SortOrder
+  }
+
   export type EnumSchoolNotificationTypeFilter<$PrismaModel = never> = {
     equals?: $Enums.SchoolNotificationType | EnumSchoolNotificationTypeFieldRefInput<$PrismaModel>
     in?: $Enums.SchoolNotificationType[] | ListEnumSchoolNotificationTypeFieldRefInput<$PrismaModel>
@@ -37585,11 +52261,11 @@ export namespace Prisma {
     _max?: NestedEnumTargetTypeFilter<$PrismaModel>
   }
 
-  export type EnumNotificationChannelFilter<$PrismaModel = never> = {
-    equals?: $Enums.NotificationChannel | EnumNotificationChannelFieldRefInput<$PrismaModel>
-    in?: $Enums.NotificationChannel[] | ListEnumNotificationChannelFieldRefInput<$PrismaModel>
-    notIn?: $Enums.NotificationChannel[] | ListEnumNotificationChannelFieldRefInput<$PrismaModel>
-    not?: NestedEnumNotificationChannelFilter<$PrismaModel> | $Enums.NotificationChannel
+  export type EnumRecipientTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.RecipientType | EnumRecipientTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.RecipientType[] | ListEnumRecipientTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RecipientType[] | ListEnumRecipientTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumRecipientTypeFilter<$PrismaModel> | $Enums.RecipientType
   }
 
   export type EnumDeliveryStatusFilter<$PrismaModel = never> = {
@@ -37611,26 +52287,31 @@ export namespace Prisma {
     isNot?: SchoolNotificationWhereInput
   }
 
-  export type SchoolNotificationRecipientNotificationIdChannelStudentIdGuardianIdStaffIdCompoundUniqueInput = {
+  export type SchoolNotificationRecipientNotificationIdChannelRecipientTypeRecipientEntityIdCompoundUniqueInput = {
     notificationId: string
     channel: $Enums.NotificationChannel
-    studentId: string
-    guardianId: string
-    staffId: string
+    recipientType: $Enums.RecipientType
+    recipientEntityId: string
   }
 
   export type SchoolNotificationRecipientCountOrderByAggregateInput = {
     id?: SortOrder
     notificationId?: SortOrder
-    studentId?: SortOrder
-    guardianId?: SortOrder
-    staffId?: SortOrder
+    recipientType?: SortOrder
+    recipientEntityId?: SortOrder
+    userId?: SortOrder
     channel?: SortOrder
     status?: SortOrder
     priority?: SortOrder
     retryCount?: SortOrder
     failedReason?: SortOrder
     providerMsgId?: SortOrder
+    idempotencyKey?: SortOrder
+    queuedAt?: SortOrder
+    sentAt?: SortOrder
+    failedAt?: SortOrder
+    cancelledAt?: SortOrder
+    nextRetryAt?: SortOrder
     readAt?: SortOrder
     deliveredAt?: SortOrder
     createdAt?: SortOrder
@@ -37644,15 +52325,21 @@ export namespace Prisma {
   export type SchoolNotificationRecipientMaxOrderByAggregateInput = {
     id?: SortOrder
     notificationId?: SortOrder
-    studentId?: SortOrder
-    guardianId?: SortOrder
-    staffId?: SortOrder
+    recipientType?: SortOrder
+    recipientEntityId?: SortOrder
+    userId?: SortOrder
     channel?: SortOrder
     status?: SortOrder
     priority?: SortOrder
     retryCount?: SortOrder
     failedReason?: SortOrder
     providerMsgId?: SortOrder
+    idempotencyKey?: SortOrder
+    queuedAt?: SortOrder
+    sentAt?: SortOrder
+    failedAt?: SortOrder
+    cancelledAt?: SortOrder
+    nextRetryAt?: SortOrder
     readAt?: SortOrder
     deliveredAt?: SortOrder
     createdAt?: SortOrder
@@ -37662,15 +52349,21 @@ export namespace Prisma {
   export type SchoolNotificationRecipientMinOrderByAggregateInput = {
     id?: SortOrder
     notificationId?: SortOrder
-    studentId?: SortOrder
-    guardianId?: SortOrder
-    staffId?: SortOrder
+    recipientType?: SortOrder
+    recipientEntityId?: SortOrder
+    userId?: SortOrder
     channel?: SortOrder
     status?: SortOrder
     priority?: SortOrder
     retryCount?: SortOrder
     failedReason?: SortOrder
     providerMsgId?: SortOrder
+    idempotencyKey?: SortOrder
+    queuedAt?: SortOrder
+    sentAt?: SortOrder
+    failedAt?: SortOrder
+    cancelledAt?: SortOrder
+    nextRetryAt?: SortOrder
     readAt?: SortOrder
     deliveredAt?: SortOrder
     createdAt?: SortOrder
@@ -37681,14 +52374,14 @@ export namespace Prisma {
     retryCount?: SortOrder
   }
 
-  export type EnumNotificationChannelWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.NotificationChannel | EnumNotificationChannelFieldRefInput<$PrismaModel>
-    in?: $Enums.NotificationChannel[] | ListEnumNotificationChannelFieldRefInput<$PrismaModel>
-    notIn?: $Enums.NotificationChannel[] | ListEnumNotificationChannelFieldRefInput<$PrismaModel>
-    not?: NestedEnumNotificationChannelWithAggregatesFilter<$PrismaModel> | $Enums.NotificationChannel
+  export type EnumRecipientTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.RecipientType | EnumRecipientTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.RecipientType[] | ListEnumRecipientTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RecipientType[] | ListEnumRecipientTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumRecipientTypeWithAggregatesFilter<$PrismaModel> | $Enums.RecipientType
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumNotificationChannelFilter<$PrismaModel>
-    _max?: NestedEnumNotificationChannelFilter<$PrismaModel>
+    _min?: NestedEnumRecipientTypeFilter<$PrismaModel>
+    _max?: NestedEnumRecipientTypeFilter<$PrismaModel>
   }
 
   export type EnumDeliveryStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -37771,6 +52464,10 @@ export namespace Prisma {
 
   export type EnumStaffRoleFieldUpdateOperationsInput = {
     set?: $Enums.StaffRole
+  }
+
+  export type EnumStaffCategoryFieldUpdateOperationsInput = {
+    set?: $Enums.StaffCategory
   }
 
   export type BoolFieldUpdateOperationsInput = {
@@ -39451,6 +54148,263 @@ export namespace Prisma {
     update?: XOR<XOR<GuardianUpdateToOneWithWhereWithoutPaymentsInput, GuardianUpdateWithoutPaymentsInput>, GuardianUncheckedUpdateWithoutPaymentsInput>
   }
 
+  export type SchoolRolePermissionCreateNestedManyWithoutRoleInput = {
+    create?: XOR<SchoolRolePermissionCreateWithoutRoleInput, SchoolRolePermissionUncheckedCreateWithoutRoleInput> | SchoolRolePermissionCreateWithoutRoleInput[] | SchoolRolePermissionUncheckedCreateWithoutRoleInput[]
+    connectOrCreate?: SchoolRolePermissionCreateOrConnectWithoutRoleInput | SchoolRolePermissionCreateOrConnectWithoutRoleInput[]
+    createMany?: SchoolRolePermissionCreateManyRoleInputEnvelope
+    connect?: SchoolRolePermissionWhereUniqueInput | SchoolRolePermissionWhereUniqueInput[]
+  }
+
+  export type MembershipRoleCreateNestedManyWithoutRoleInput = {
+    create?: XOR<MembershipRoleCreateWithoutRoleInput, MembershipRoleUncheckedCreateWithoutRoleInput> | MembershipRoleCreateWithoutRoleInput[] | MembershipRoleUncheckedCreateWithoutRoleInput[]
+    connectOrCreate?: MembershipRoleCreateOrConnectWithoutRoleInput | MembershipRoleCreateOrConnectWithoutRoleInput[]
+    createMany?: MembershipRoleCreateManyRoleInputEnvelope
+    connect?: MembershipRoleWhereUniqueInput | MembershipRoleWhereUniqueInput[]
+  }
+
+  export type SchoolRolePermissionUncheckedCreateNestedManyWithoutRoleInput = {
+    create?: XOR<SchoolRolePermissionCreateWithoutRoleInput, SchoolRolePermissionUncheckedCreateWithoutRoleInput> | SchoolRolePermissionCreateWithoutRoleInput[] | SchoolRolePermissionUncheckedCreateWithoutRoleInput[]
+    connectOrCreate?: SchoolRolePermissionCreateOrConnectWithoutRoleInput | SchoolRolePermissionCreateOrConnectWithoutRoleInput[]
+    createMany?: SchoolRolePermissionCreateManyRoleInputEnvelope
+    connect?: SchoolRolePermissionWhereUniqueInput | SchoolRolePermissionWhereUniqueInput[]
+  }
+
+  export type MembershipRoleUncheckedCreateNestedManyWithoutRoleInput = {
+    create?: XOR<MembershipRoleCreateWithoutRoleInput, MembershipRoleUncheckedCreateWithoutRoleInput> | MembershipRoleCreateWithoutRoleInput[] | MembershipRoleUncheckedCreateWithoutRoleInput[]
+    connectOrCreate?: MembershipRoleCreateOrConnectWithoutRoleInput | MembershipRoleCreateOrConnectWithoutRoleInput[]
+    createMany?: MembershipRoleCreateManyRoleInputEnvelope
+    connect?: MembershipRoleWhereUniqueInput | MembershipRoleWhereUniqueInput[]
+  }
+
+  export type EnumRoleKindFieldUpdateOperationsInput = {
+    set?: $Enums.RoleKind
+  }
+
+  export type EnumPersonaFieldUpdateOperationsInput = {
+    set?: $Enums.Persona
+  }
+
+  export type SchoolRolePermissionUpdateManyWithoutRoleNestedInput = {
+    create?: XOR<SchoolRolePermissionCreateWithoutRoleInput, SchoolRolePermissionUncheckedCreateWithoutRoleInput> | SchoolRolePermissionCreateWithoutRoleInput[] | SchoolRolePermissionUncheckedCreateWithoutRoleInput[]
+    connectOrCreate?: SchoolRolePermissionCreateOrConnectWithoutRoleInput | SchoolRolePermissionCreateOrConnectWithoutRoleInput[]
+    upsert?: SchoolRolePermissionUpsertWithWhereUniqueWithoutRoleInput | SchoolRolePermissionUpsertWithWhereUniqueWithoutRoleInput[]
+    createMany?: SchoolRolePermissionCreateManyRoleInputEnvelope
+    set?: SchoolRolePermissionWhereUniqueInput | SchoolRolePermissionWhereUniqueInput[]
+    disconnect?: SchoolRolePermissionWhereUniqueInput | SchoolRolePermissionWhereUniqueInput[]
+    delete?: SchoolRolePermissionWhereUniqueInput | SchoolRolePermissionWhereUniqueInput[]
+    connect?: SchoolRolePermissionWhereUniqueInput | SchoolRolePermissionWhereUniqueInput[]
+    update?: SchoolRolePermissionUpdateWithWhereUniqueWithoutRoleInput | SchoolRolePermissionUpdateWithWhereUniqueWithoutRoleInput[]
+    updateMany?: SchoolRolePermissionUpdateManyWithWhereWithoutRoleInput | SchoolRolePermissionUpdateManyWithWhereWithoutRoleInput[]
+    deleteMany?: SchoolRolePermissionScalarWhereInput | SchoolRolePermissionScalarWhereInput[]
+  }
+
+  export type MembershipRoleUpdateManyWithoutRoleNestedInput = {
+    create?: XOR<MembershipRoleCreateWithoutRoleInput, MembershipRoleUncheckedCreateWithoutRoleInput> | MembershipRoleCreateWithoutRoleInput[] | MembershipRoleUncheckedCreateWithoutRoleInput[]
+    connectOrCreate?: MembershipRoleCreateOrConnectWithoutRoleInput | MembershipRoleCreateOrConnectWithoutRoleInput[]
+    upsert?: MembershipRoleUpsertWithWhereUniqueWithoutRoleInput | MembershipRoleUpsertWithWhereUniqueWithoutRoleInput[]
+    createMany?: MembershipRoleCreateManyRoleInputEnvelope
+    set?: MembershipRoleWhereUniqueInput | MembershipRoleWhereUniqueInput[]
+    disconnect?: MembershipRoleWhereUniqueInput | MembershipRoleWhereUniqueInput[]
+    delete?: MembershipRoleWhereUniqueInput | MembershipRoleWhereUniqueInput[]
+    connect?: MembershipRoleWhereUniqueInput | MembershipRoleWhereUniqueInput[]
+    update?: MembershipRoleUpdateWithWhereUniqueWithoutRoleInput | MembershipRoleUpdateWithWhereUniqueWithoutRoleInput[]
+    updateMany?: MembershipRoleUpdateManyWithWhereWithoutRoleInput | MembershipRoleUpdateManyWithWhereWithoutRoleInput[]
+    deleteMany?: MembershipRoleScalarWhereInput | MembershipRoleScalarWhereInput[]
+  }
+
+  export type SchoolRolePermissionUncheckedUpdateManyWithoutRoleNestedInput = {
+    create?: XOR<SchoolRolePermissionCreateWithoutRoleInput, SchoolRolePermissionUncheckedCreateWithoutRoleInput> | SchoolRolePermissionCreateWithoutRoleInput[] | SchoolRolePermissionUncheckedCreateWithoutRoleInput[]
+    connectOrCreate?: SchoolRolePermissionCreateOrConnectWithoutRoleInput | SchoolRolePermissionCreateOrConnectWithoutRoleInput[]
+    upsert?: SchoolRolePermissionUpsertWithWhereUniqueWithoutRoleInput | SchoolRolePermissionUpsertWithWhereUniqueWithoutRoleInput[]
+    createMany?: SchoolRolePermissionCreateManyRoleInputEnvelope
+    set?: SchoolRolePermissionWhereUniqueInput | SchoolRolePermissionWhereUniqueInput[]
+    disconnect?: SchoolRolePermissionWhereUniqueInput | SchoolRolePermissionWhereUniqueInput[]
+    delete?: SchoolRolePermissionWhereUniqueInput | SchoolRolePermissionWhereUniqueInput[]
+    connect?: SchoolRolePermissionWhereUniqueInput | SchoolRolePermissionWhereUniqueInput[]
+    update?: SchoolRolePermissionUpdateWithWhereUniqueWithoutRoleInput | SchoolRolePermissionUpdateWithWhereUniqueWithoutRoleInput[]
+    updateMany?: SchoolRolePermissionUpdateManyWithWhereWithoutRoleInput | SchoolRolePermissionUpdateManyWithWhereWithoutRoleInput[]
+    deleteMany?: SchoolRolePermissionScalarWhereInput | SchoolRolePermissionScalarWhereInput[]
+  }
+
+  export type MembershipRoleUncheckedUpdateManyWithoutRoleNestedInput = {
+    create?: XOR<MembershipRoleCreateWithoutRoleInput, MembershipRoleUncheckedCreateWithoutRoleInput> | MembershipRoleCreateWithoutRoleInput[] | MembershipRoleUncheckedCreateWithoutRoleInput[]
+    connectOrCreate?: MembershipRoleCreateOrConnectWithoutRoleInput | MembershipRoleCreateOrConnectWithoutRoleInput[]
+    upsert?: MembershipRoleUpsertWithWhereUniqueWithoutRoleInput | MembershipRoleUpsertWithWhereUniqueWithoutRoleInput[]
+    createMany?: MembershipRoleCreateManyRoleInputEnvelope
+    set?: MembershipRoleWhereUniqueInput | MembershipRoleWhereUniqueInput[]
+    disconnect?: MembershipRoleWhereUniqueInput | MembershipRoleWhereUniqueInput[]
+    delete?: MembershipRoleWhereUniqueInput | MembershipRoleWhereUniqueInput[]
+    connect?: MembershipRoleWhereUniqueInput | MembershipRoleWhereUniqueInput[]
+    update?: MembershipRoleUpdateWithWhereUniqueWithoutRoleInput | MembershipRoleUpdateWithWhereUniqueWithoutRoleInput[]
+    updateMany?: MembershipRoleUpdateManyWithWhereWithoutRoleInput | MembershipRoleUpdateManyWithWhereWithoutRoleInput[]
+    deleteMany?: MembershipRoleScalarWhereInput | MembershipRoleScalarWhereInput[]
+  }
+
+  export type SchoolRoleCreateNestedOneWithoutPermissionsInput = {
+    create?: XOR<SchoolRoleCreateWithoutPermissionsInput, SchoolRoleUncheckedCreateWithoutPermissionsInput>
+    connectOrCreate?: SchoolRoleCreateOrConnectWithoutPermissionsInput
+    connect?: SchoolRoleWhereUniqueInput
+  }
+
+  export type EnumPermissionScopeFieldUpdateOperationsInput = {
+    set?: $Enums.PermissionScope
+  }
+
+  export type SchoolRoleUpdateOneRequiredWithoutPermissionsNestedInput = {
+    create?: XOR<SchoolRoleCreateWithoutPermissionsInput, SchoolRoleUncheckedCreateWithoutPermissionsInput>
+    connectOrCreate?: SchoolRoleCreateOrConnectWithoutPermissionsInput
+    upsert?: SchoolRoleUpsertWithoutPermissionsInput
+    connect?: SchoolRoleWhereUniqueInput
+    update?: XOR<XOR<SchoolRoleUpdateToOneWithWhereWithoutPermissionsInput, SchoolRoleUpdateWithoutPermissionsInput>, SchoolRoleUncheckedUpdateWithoutPermissionsInput>
+  }
+
+  export type MembershipRoleCreateNestedManyWithoutMembershipInput = {
+    create?: XOR<MembershipRoleCreateWithoutMembershipInput, MembershipRoleUncheckedCreateWithoutMembershipInput> | MembershipRoleCreateWithoutMembershipInput[] | MembershipRoleUncheckedCreateWithoutMembershipInput[]
+    connectOrCreate?: MembershipRoleCreateOrConnectWithoutMembershipInput | MembershipRoleCreateOrConnectWithoutMembershipInput[]
+    createMany?: MembershipRoleCreateManyMembershipInputEnvelope
+    connect?: MembershipRoleWhereUniqueInput | MembershipRoleWhereUniqueInput[]
+  }
+
+  export type MembershipRoleUncheckedCreateNestedManyWithoutMembershipInput = {
+    create?: XOR<MembershipRoleCreateWithoutMembershipInput, MembershipRoleUncheckedCreateWithoutMembershipInput> | MembershipRoleCreateWithoutMembershipInput[] | MembershipRoleUncheckedCreateWithoutMembershipInput[]
+    connectOrCreate?: MembershipRoleCreateOrConnectWithoutMembershipInput | MembershipRoleCreateOrConnectWithoutMembershipInput[]
+    createMany?: MembershipRoleCreateManyMembershipInputEnvelope
+    connect?: MembershipRoleWhereUniqueInput | MembershipRoleWhereUniqueInput[]
+  }
+
+  export type EnumMembershipStatusFieldUpdateOperationsInput = {
+    set?: $Enums.MembershipStatus
+  }
+
+  export type MembershipRoleUpdateManyWithoutMembershipNestedInput = {
+    create?: XOR<MembershipRoleCreateWithoutMembershipInput, MembershipRoleUncheckedCreateWithoutMembershipInput> | MembershipRoleCreateWithoutMembershipInput[] | MembershipRoleUncheckedCreateWithoutMembershipInput[]
+    connectOrCreate?: MembershipRoleCreateOrConnectWithoutMembershipInput | MembershipRoleCreateOrConnectWithoutMembershipInput[]
+    upsert?: MembershipRoleUpsertWithWhereUniqueWithoutMembershipInput | MembershipRoleUpsertWithWhereUniqueWithoutMembershipInput[]
+    createMany?: MembershipRoleCreateManyMembershipInputEnvelope
+    set?: MembershipRoleWhereUniqueInput | MembershipRoleWhereUniqueInput[]
+    disconnect?: MembershipRoleWhereUniqueInput | MembershipRoleWhereUniqueInput[]
+    delete?: MembershipRoleWhereUniqueInput | MembershipRoleWhereUniqueInput[]
+    connect?: MembershipRoleWhereUniqueInput | MembershipRoleWhereUniqueInput[]
+    update?: MembershipRoleUpdateWithWhereUniqueWithoutMembershipInput | MembershipRoleUpdateWithWhereUniqueWithoutMembershipInput[]
+    updateMany?: MembershipRoleUpdateManyWithWhereWithoutMembershipInput | MembershipRoleUpdateManyWithWhereWithoutMembershipInput[]
+    deleteMany?: MembershipRoleScalarWhereInput | MembershipRoleScalarWhereInput[]
+  }
+
+  export type MembershipRoleUncheckedUpdateManyWithoutMembershipNestedInput = {
+    create?: XOR<MembershipRoleCreateWithoutMembershipInput, MembershipRoleUncheckedCreateWithoutMembershipInput> | MembershipRoleCreateWithoutMembershipInput[] | MembershipRoleUncheckedCreateWithoutMembershipInput[]
+    connectOrCreate?: MembershipRoleCreateOrConnectWithoutMembershipInput | MembershipRoleCreateOrConnectWithoutMembershipInput[]
+    upsert?: MembershipRoleUpsertWithWhereUniqueWithoutMembershipInput | MembershipRoleUpsertWithWhereUniqueWithoutMembershipInput[]
+    createMany?: MembershipRoleCreateManyMembershipInputEnvelope
+    set?: MembershipRoleWhereUniqueInput | MembershipRoleWhereUniqueInput[]
+    disconnect?: MembershipRoleWhereUniqueInput | MembershipRoleWhereUniqueInput[]
+    delete?: MembershipRoleWhereUniqueInput | MembershipRoleWhereUniqueInput[]
+    connect?: MembershipRoleWhereUniqueInput | MembershipRoleWhereUniqueInput[]
+    update?: MembershipRoleUpdateWithWhereUniqueWithoutMembershipInput | MembershipRoleUpdateWithWhereUniqueWithoutMembershipInput[]
+    updateMany?: MembershipRoleUpdateManyWithWhereWithoutMembershipInput | MembershipRoleUpdateManyWithWhereWithoutMembershipInput[]
+    deleteMany?: MembershipRoleScalarWhereInput | MembershipRoleScalarWhereInput[]
+  }
+
+  export type MembershipCreateNestedOneWithoutRolesInput = {
+    create?: XOR<MembershipCreateWithoutRolesInput, MembershipUncheckedCreateWithoutRolesInput>
+    connectOrCreate?: MembershipCreateOrConnectWithoutRolesInput
+    connect?: MembershipWhereUniqueInput
+  }
+
+  export type SchoolRoleCreateNestedOneWithoutMembersInput = {
+    create?: XOR<SchoolRoleCreateWithoutMembersInput, SchoolRoleUncheckedCreateWithoutMembersInput>
+    connectOrCreate?: SchoolRoleCreateOrConnectWithoutMembersInput
+    connect?: SchoolRoleWhereUniqueInput
+  }
+
+  export type MembershipUpdateOneRequiredWithoutRolesNestedInput = {
+    create?: XOR<MembershipCreateWithoutRolesInput, MembershipUncheckedCreateWithoutRolesInput>
+    connectOrCreate?: MembershipCreateOrConnectWithoutRolesInput
+    upsert?: MembershipUpsertWithoutRolesInput
+    connect?: MembershipWhereUniqueInput
+    update?: XOR<XOR<MembershipUpdateToOneWithWhereWithoutRolesInput, MembershipUpdateWithoutRolesInput>, MembershipUncheckedUpdateWithoutRolesInput>
+  }
+
+  export type SchoolRoleUpdateOneRequiredWithoutMembersNestedInput = {
+    create?: XOR<SchoolRoleCreateWithoutMembersInput, SchoolRoleUncheckedCreateWithoutMembersInput>
+    connectOrCreate?: SchoolRoleCreateOrConnectWithoutMembersInput
+    upsert?: SchoolRoleUpsertWithoutMembersInput
+    connect?: SchoolRoleWhereUniqueInput
+    update?: XOR<XOR<SchoolRoleUpdateToOneWithWhereWithoutMembersInput, SchoolRoleUpdateWithoutMembersInput>, SchoolRoleUncheckedUpdateWithoutMembersInput>
+  }
+
+  export type AutomationRuleCreatechannelsInput = {
+    set: $Enums.NotificationChannel[]
+  }
+
+  export type AutomationRunLogCreateNestedManyWithoutRuleInput = {
+    create?: XOR<AutomationRunLogCreateWithoutRuleInput, AutomationRunLogUncheckedCreateWithoutRuleInput> | AutomationRunLogCreateWithoutRuleInput[] | AutomationRunLogUncheckedCreateWithoutRuleInput[]
+    connectOrCreate?: AutomationRunLogCreateOrConnectWithoutRuleInput | AutomationRunLogCreateOrConnectWithoutRuleInput[]
+    createMany?: AutomationRunLogCreateManyRuleInputEnvelope
+    connect?: AutomationRunLogWhereUniqueInput | AutomationRunLogWhereUniqueInput[]
+  }
+
+  export type AutomationRunLogUncheckedCreateNestedManyWithoutRuleInput = {
+    create?: XOR<AutomationRunLogCreateWithoutRuleInput, AutomationRunLogUncheckedCreateWithoutRuleInput> | AutomationRunLogCreateWithoutRuleInput[] | AutomationRunLogUncheckedCreateWithoutRuleInput[]
+    connectOrCreate?: AutomationRunLogCreateOrConnectWithoutRuleInput | AutomationRunLogCreateOrConnectWithoutRuleInput[]
+    createMany?: AutomationRunLogCreateManyRuleInputEnvelope
+    connect?: AutomationRunLogWhereUniqueInput | AutomationRunLogWhereUniqueInput[]
+  }
+
+  export type AutomationRuleUpdatechannelsInput = {
+    set?: $Enums.NotificationChannel[]
+    push?: $Enums.NotificationChannel | $Enums.NotificationChannel[]
+  }
+
+  export type AutomationRunLogUpdateManyWithoutRuleNestedInput = {
+    create?: XOR<AutomationRunLogCreateWithoutRuleInput, AutomationRunLogUncheckedCreateWithoutRuleInput> | AutomationRunLogCreateWithoutRuleInput[] | AutomationRunLogUncheckedCreateWithoutRuleInput[]
+    connectOrCreate?: AutomationRunLogCreateOrConnectWithoutRuleInput | AutomationRunLogCreateOrConnectWithoutRuleInput[]
+    upsert?: AutomationRunLogUpsertWithWhereUniqueWithoutRuleInput | AutomationRunLogUpsertWithWhereUniqueWithoutRuleInput[]
+    createMany?: AutomationRunLogCreateManyRuleInputEnvelope
+    set?: AutomationRunLogWhereUniqueInput | AutomationRunLogWhereUniqueInput[]
+    disconnect?: AutomationRunLogWhereUniqueInput | AutomationRunLogWhereUniqueInput[]
+    delete?: AutomationRunLogWhereUniqueInput | AutomationRunLogWhereUniqueInput[]
+    connect?: AutomationRunLogWhereUniqueInput | AutomationRunLogWhereUniqueInput[]
+    update?: AutomationRunLogUpdateWithWhereUniqueWithoutRuleInput | AutomationRunLogUpdateWithWhereUniqueWithoutRuleInput[]
+    updateMany?: AutomationRunLogUpdateManyWithWhereWithoutRuleInput | AutomationRunLogUpdateManyWithWhereWithoutRuleInput[]
+    deleteMany?: AutomationRunLogScalarWhereInput | AutomationRunLogScalarWhereInput[]
+  }
+
+  export type AutomationRunLogUncheckedUpdateManyWithoutRuleNestedInput = {
+    create?: XOR<AutomationRunLogCreateWithoutRuleInput, AutomationRunLogUncheckedCreateWithoutRuleInput> | AutomationRunLogCreateWithoutRuleInput[] | AutomationRunLogUncheckedCreateWithoutRuleInput[]
+    connectOrCreate?: AutomationRunLogCreateOrConnectWithoutRuleInput | AutomationRunLogCreateOrConnectWithoutRuleInput[]
+    upsert?: AutomationRunLogUpsertWithWhereUniqueWithoutRuleInput | AutomationRunLogUpsertWithWhereUniqueWithoutRuleInput[]
+    createMany?: AutomationRunLogCreateManyRuleInputEnvelope
+    set?: AutomationRunLogWhereUniqueInput | AutomationRunLogWhereUniqueInput[]
+    disconnect?: AutomationRunLogWhereUniqueInput | AutomationRunLogWhereUniqueInput[]
+    delete?: AutomationRunLogWhereUniqueInput | AutomationRunLogWhereUniqueInput[]
+    connect?: AutomationRunLogWhereUniqueInput | AutomationRunLogWhereUniqueInput[]
+    update?: AutomationRunLogUpdateWithWhereUniqueWithoutRuleInput | AutomationRunLogUpdateWithWhereUniqueWithoutRuleInput[]
+    updateMany?: AutomationRunLogUpdateManyWithWhereWithoutRuleInput | AutomationRunLogUpdateManyWithWhereWithoutRuleInput[]
+    deleteMany?: AutomationRunLogScalarWhereInput | AutomationRunLogScalarWhereInput[]
+  }
+
+  export type AutomationRuleCreateNestedOneWithoutRunsInput = {
+    create?: XOR<AutomationRuleCreateWithoutRunsInput, AutomationRuleUncheckedCreateWithoutRunsInput>
+    connectOrCreate?: AutomationRuleCreateOrConnectWithoutRunsInput
+    connect?: AutomationRuleWhereUniqueInput
+  }
+
+  export type EnumAutomationRunStatusFieldUpdateOperationsInput = {
+    set?: $Enums.AutomationRunStatus
+  }
+
+  export type AutomationRuleUpdateOneRequiredWithoutRunsNestedInput = {
+    create?: XOR<AutomationRuleCreateWithoutRunsInput, AutomationRuleUncheckedCreateWithoutRunsInput>
+    connectOrCreate?: AutomationRuleCreateOrConnectWithoutRunsInput
+    upsert?: AutomationRuleUpsertWithoutRunsInput
+    connect?: AutomationRuleWhereUniqueInput
+    update?: XOR<XOR<AutomationRuleUpdateToOneWithWhereWithoutRunsInput, AutomationRuleUpdateWithoutRunsInput>, AutomationRuleUncheckedUpdateWithoutRunsInput>
+  }
+
+  export type EnumNotificationChannelFieldUpdateOperationsInput = {
+    set?: $Enums.NotificationChannel
+  }
+
   export type SchoolNotificationRecipientCreateNestedManyWithoutNotificationInput = {
     create?: XOR<SchoolNotificationRecipientCreateWithoutNotificationInput, SchoolNotificationRecipientUncheckedCreateWithoutNotificationInput> | SchoolNotificationRecipientCreateWithoutNotificationInput[] | SchoolNotificationRecipientUncheckedCreateWithoutNotificationInput[]
     connectOrCreate?: SchoolNotificationRecipientCreateOrConnectWithoutNotificationInput | SchoolNotificationRecipientCreateOrConnectWithoutNotificationInput[]
@@ -39507,8 +54461,8 @@ export namespace Prisma {
     connect?: SchoolNotificationWhereUniqueInput
   }
 
-  export type EnumNotificationChannelFieldUpdateOperationsInput = {
-    set?: $Enums.NotificationChannel
+  export type EnumRecipientTypeFieldUpdateOperationsInput = {
+    set?: $Enums.RecipientType
   }
 
   export type EnumDeliveryStatusFieldUpdateOperationsInput = {
@@ -39578,6 +54532,13 @@ export namespace Prisma {
     in?: $Enums.StaffRole[] | ListEnumStaffRoleFieldRefInput<$PrismaModel>
     notIn?: $Enums.StaffRole[] | ListEnumStaffRoleFieldRefInput<$PrismaModel>
     not?: NestedEnumStaffRoleFilter<$PrismaModel> | $Enums.StaffRole
+  }
+
+  export type NestedEnumStaffCategoryFilter<$PrismaModel = never> = {
+    equals?: $Enums.StaffCategory | EnumStaffCategoryFieldRefInput<$PrismaModel>
+    in?: $Enums.StaffCategory[] | ListEnumStaffCategoryFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StaffCategory[] | ListEnumStaffCategoryFieldRefInput<$PrismaModel>
+    not?: NestedEnumStaffCategoryFilter<$PrismaModel> | $Enums.StaffCategory
   }
 
   export type NestedBoolFilter<$PrismaModel = never> = {
@@ -39684,6 +54645,16 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumStaffRoleFilter<$PrismaModel>
     _max?: NestedEnumStaffRoleFilter<$PrismaModel>
+  }
+
+  export type NestedEnumStaffCategoryWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.StaffCategory | EnumStaffCategoryFieldRefInput<$PrismaModel>
+    in?: $Enums.StaffCategory[] | ListEnumStaffCategoryFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StaffCategory[] | ListEnumStaffCategoryFieldRefInput<$PrismaModel>
+    not?: NestedEnumStaffCategoryWithAggregatesFilter<$PrismaModel> | $Enums.StaffCategory
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumStaffCategoryFilter<$PrismaModel>
+    _max?: NestedEnumStaffCategoryFilter<$PrismaModel>
   }
 
   export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
@@ -40004,6 +54975,131 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
+  export type NestedEnumRoleKindFilter<$PrismaModel = never> = {
+    equals?: $Enums.RoleKind | EnumRoleKindFieldRefInput<$PrismaModel>
+    in?: $Enums.RoleKind[] | ListEnumRoleKindFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RoleKind[] | ListEnumRoleKindFieldRefInput<$PrismaModel>
+    not?: NestedEnumRoleKindFilter<$PrismaModel> | $Enums.RoleKind
+  }
+
+  export type NestedEnumPersonaFilter<$PrismaModel = never> = {
+    equals?: $Enums.Persona | EnumPersonaFieldRefInput<$PrismaModel>
+    in?: $Enums.Persona[] | ListEnumPersonaFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Persona[] | ListEnumPersonaFieldRefInput<$PrismaModel>
+    not?: NestedEnumPersonaFilter<$PrismaModel> | $Enums.Persona
+  }
+
+  export type NestedEnumRoleKindWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.RoleKind | EnumRoleKindFieldRefInput<$PrismaModel>
+    in?: $Enums.RoleKind[] | ListEnumRoleKindFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RoleKind[] | ListEnumRoleKindFieldRefInput<$PrismaModel>
+    not?: NestedEnumRoleKindWithAggregatesFilter<$PrismaModel> | $Enums.RoleKind
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumRoleKindFilter<$PrismaModel>
+    _max?: NestedEnumRoleKindFilter<$PrismaModel>
+  }
+
+  export type NestedEnumPersonaWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.Persona | EnumPersonaFieldRefInput<$PrismaModel>
+    in?: $Enums.Persona[] | ListEnumPersonaFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Persona[] | ListEnumPersonaFieldRefInput<$PrismaModel>
+    not?: NestedEnumPersonaWithAggregatesFilter<$PrismaModel> | $Enums.Persona
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumPersonaFilter<$PrismaModel>
+    _max?: NestedEnumPersonaFilter<$PrismaModel>
+  }
+
+  export type NestedEnumPermissionScopeFilter<$PrismaModel = never> = {
+    equals?: $Enums.PermissionScope | EnumPermissionScopeFieldRefInput<$PrismaModel>
+    in?: $Enums.PermissionScope[] | ListEnumPermissionScopeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.PermissionScope[] | ListEnumPermissionScopeFieldRefInput<$PrismaModel>
+    not?: NestedEnumPermissionScopeFilter<$PrismaModel> | $Enums.PermissionScope
+  }
+
+  export type NestedEnumPermissionScopeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.PermissionScope | EnumPermissionScopeFieldRefInput<$PrismaModel>
+    in?: $Enums.PermissionScope[] | ListEnumPermissionScopeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.PermissionScope[] | ListEnumPermissionScopeFieldRefInput<$PrismaModel>
+    not?: NestedEnumPermissionScopeWithAggregatesFilter<$PrismaModel> | $Enums.PermissionScope
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumPermissionScopeFilter<$PrismaModel>
+    _max?: NestedEnumPermissionScopeFilter<$PrismaModel>
+  }
+
+  export type NestedEnumMembershipStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.MembershipStatus | EnumMembershipStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.MembershipStatus[] | ListEnumMembershipStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.MembershipStatus[] | ListEnumMembershipStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumMembershipStatusFilter<$PrismaModel> | $Enums.MembershipStatus
+  }
+
+  export type NestedEnumMembershipStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.MembershipStatus | EnumMembershipStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.MembershipStatus[] | ListEnumMembershipStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.MembershipStatus[] | ListEnumMembershipStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumMembershipStatusWithAggregatesFilter<$PrismaModel> | $Enums.MembershipStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumMembershipStatusFilter<$PrismaModel>
+    _max?: NestedEnumMembershipStatusFilter<$PrismaModel>
+  }
+  export type NestedJsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type NestedEnumAutomationRunStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.AutomationRunStatus | EnumAutomationRunStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AutomationRunStatus[] | ListEnumAutomationRunStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AutomationRunStatus[] | ListEnumAutomationRunStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumAutomationRunStatusFilter<$PrismaModel> | $Enums.AutomationRunStatus
+  }
+
+  export type NestedEnumAutomationRunStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AutomationRunStatus | EnumAutomationRunStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AutomationRunStatus[] | ListEnumAutomationRunStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AutomationRunStatus[] | ListEnumAutomationRunStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumAutomationRunStatusWithAggregatesFilter<$PrismaModel> | $Enums.AutomationRunStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAutomationRunStatusFilter<$PrismaModel>
+    _max?: NestedEnumAutomationRunStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumNotificationChannelFilter<$PrismaModel = never> = {
+    equals?: $Enums.NotificationChannel | EnumNotificationChannelFieldRefInput<$PrismaModel>
+    in?: $Enums.NotificationChannel[] | ListEnumNotificationChannelFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NotificationChannel[] | ListEnumNotificationChannelFieldRefInput<$PrismaModel>
+    not?: NestedEnumNotificationChannelFilter<$PrismaModel> | $Enums.NotificationChannel
+  }
+
+  export type NestedEnumNotificationChannelWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.NotificationChannel | EnumNotificationChannelFieldRefInput<$PrismaModel>
+    in?: $Enums.NotificationChannel[] | ListEnumNotificationChannelFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NotificationChannel[] | ListEnumNotificationChannelFieldRefInput<$PrismaModel>
+    not?: NestedEnumNotificationChannelWithAggregatesFilter<$PrismaModel> | $Enums.NotificationChannel
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumNotificationChannelFilter<$PrismaModel>
+    _max?: NestedEnumNotificationChannelFilter<$PrismaModel>
+  }
+
   export type NestedEnumSchoolNotificationTypeFilter<$PrismaModel = never> = {
     equals?: $Enums.SchoolNotificationType | EnumSchoolNotificationTypeFieldRefInput<$PrismaModel>
     in?: $Enums.SchoolNotificationType[] | ListEnumSchoolNotificationTypeFieldRefInput<$PrismaModel>
@@ -40038,11 +55134,11 @@ export namespace Prisma {
     _max?: NestedEnumTargetTypeFilter<$PrismaModel>
   }
 
-  export type NestedEnumNotificationChannelFilter<$PrismaModel = never> = {
-    equals?: $Enums.NotificationChannel | EnumNotificationChannelFieldRefInput<$PrismaModel>
-    in?: $Enums.NotificationChannel[] | ListEnumNotificationChannelFieldRefInput<$PrismaModel>
-    notIn?: $Enums.NotificationChannel[] | ListEnumNotificationChannelFieldRefInput<$PrismaModel>
-    not?: NestedEnumNotificationChannelFilter<$PrismaModel> | $Enums.NotificationChannel
+  export type NestedEnumRecipientTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.RecipientType | EnumRecipientTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.RecipientType[] | ListEnumRecipientTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RecipientType[] | ListEnumRecipientTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumRecipientTypeFilter<$PrismaModel> | $Enums.RecipientType
   }
 
   export type NestedEnumDeliveryStatusFilter<$PrismaModel = never> = {
@@ -40059,14 +55155,14 @@ export namespace Prisma {
     not?: NestedEnumNotificationPriorityFilter<$PrismaModel> | $Enums.NotificationPriority
   }
 
-  export type NestedEnumNotificationChannelWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.NotificationChannel | EnumNotificationChannelFieldRefInput<$PrismaModel>
-    in?: $Enums.NotificationChannel[] | ListEnumNotificationChannelFieldRefInput<$PrismaModel>
-    notIn?: $Enums.NotificationChannel[] | ListEnumNotificationChannelFieldRefInput<$PrismaModel>
-    not?: NestedEnumNotificationChannelWithAggregatesFilter<$PrismaModel> | $Enums.NotificationChannel
+  export type NestedEnumRecipientTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.RecipientType | EnumRecipientTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.RecipientType[] | ListEnumRecipientTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RecipientType[] | ListEnumRecipientTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumRecipientTypeWithAggregatesFilter<$PrismaModel> | $Enums.RecipientType
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumNotificationChannelFilter<$PrismaModel>
-    _max?: NestedEnumNotificationChannelFilter<$PrismaModel>
+    _min?: NestedEnumRecipientTypeFilter<$PrismaModel>
+    _max?: NestedEnumRecipientTypeFilter<$PrismaModel>
   }
 
   export type NestedEnumDeliveryStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -41715,6 +56811,7 @@ export namespace Prisma {
     address?: string | null
     joinDate?: Date | string | null
     role: $Enums.StaffRole
+    category?: $Enums.StaffCategory
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -41734,6 +56831,7 @@ export namespace Prisma {
     address?: string | null
     joinDate?: Date | string | null
     role: $Enums.StaffRole
+    category?: $Enums.StaffCategory
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -41877,6 +56975,7 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
+    category?: EnumStaffCategoryFieldUpdateOperationsInput | $Enums.StaffCategory
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -41896,6 +56995,7 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
+    category?: EnumStaffCategoryFieldUpdateOperationsInput | $Enums.StaffCategory
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -41990,6 +57090,7 @@ export namespace Prisma {
     address?: string | null
     joinDate?: Date | string | null
     role: $Enums.StaffRole
+    category?: $Enums.StaffCategory
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -42009,6 +57110,7 @@ export namespace Prisma {
     address?: string | null
     joinDate?: Date | string | null
     role: $Enums.StaffRole
+    category?: $Enums.StaffCategory
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -42076,6 +57178,7 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
+    category?: EnumStaffCategoryFieldUpdateOperationsInput | $Enums.StaffCategory
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -42095,6 +57198,7 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
+    category?: EnumStaffCategoryFieldUpdateOperationsInput | $Enums.StaffCategory
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -42186,6 +57290,7 @@ export namespace Prisma {
     address?: string | null
     joinDate?: Date | string | null
     role: $Enums.StaffRole
+    category?: $Enums.StaffCategory
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -42205,6 +57310,7 @@ export namespace Prisma {
     address?: string | null
     joinDate?: Date | string | null
     role: $Enums.StaffRole
+    category?: $Enums.StaffCategory
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -42389,6 +57495,7 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
+    category?: EnumStaffCategoryFieldUpdateOperationsInput | $Enums.StaffCategory
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -42408,6 +57515,7 @@ export namespace Prisma {
     address?: NullableStringFieldUpdateOperationsInput | string | null
     joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
+    category?: EnumStaffCategoryFieldUpdateOperationsInput | $Enums.StaffCategory
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -44175,17 +59283,536 @@ export namespace Prisma {
     studentLinks?: StudentGuardianUncheckedUpdateManyWithoutGuardianNestedInput
   }
 
+  export type SchoolRolePermissionCreateWithoutRoleInput = {
+    permissionKey: string
+    scope?: $Enums.PermissionScope
+  }
+
+  export type SchoolRolePermissionUncheckedCreateWithoutRoleInput = {
+    permissionKey: string
+    scope?: $Enums.PermissionScope
+  }
+
+  export type SchoolRolePermissionCreateOrConnectWithoutRoleInput = {
+    where: SchoolRolePermissionWhereUniqueInput
+    create: XOR<SchoolRolePermissionCreateWithoutRoleInput, SchoolRolePermissionUncheckedCreateWithoutRoleInput>
+  }
+
+  export type SchoolRolePermissionCreateManyRoleInputEnvelope = {
+    data: SchoolRolePermissionCreateManyRoleInput | SchoolRolePermissionCreateManyRoleInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type MembershipRoleCreateWithoutRoleInput = {
+    assignedAt?: Date | string
+    assignedById?: string | null
+    membership: MembershipCreateNestedOneWithoutRolesInput
+  }
+
+  export type MembershipRoleUncheckedCreateWithoutRoleInput = {
+    membershipId: string
+    assignedAt?: Date | string
+    assignedById?: string | null
+  }
+
+  export type MembershipRoleCreateOrConnectWithoutRoleInput = {
+    where: MembershipRoleWhereUniqueInput
+    create: XOR<MembershipRoleCreateWithoutRoleInput, MembershipRoleUncheckedCreateWithoutRoleInput>
+  }
+
+  export type MembershipRoleCreateManyRoleInputEnvelope = {
+    data: MembershipRoleCreateManyRoleInput | MembershipRoleCreateManyRoleInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type SchoolRolePermissionUpsertWithWhereUniqueWithoutRoleInput = {
+    where: SchoolRolePermissionWhereUniqueInput
+    update: XOR<SchoolRolePermissionUpdateWithoutRoleInput, SchoolRolePermissionUncheckedUpdateWithoutRoleInput>
+    create: XOR<SchoolRolePermissionCreateWithoutRoleInput, SchoolRolePermissionUncheckedCreateWithoutRoleInput>
+  }
+
+  export type SchoolRolePermissionUpdateWithWhereUniqueWithoutRoleInput = {
+    where: SchoolRolePermissionWhereUniqueInput
+    data: XOR<SchoolRolePermissionUpdateWithoutRoleInput, SchoolRolePermissionUncheckedUpdateWithoutRoleInput>
+  }
+
+  export type SchoolRolePermissionUpdateManyWithWhereWithoutRoleInput = {
+    where: SchoolRolePermissionScalarWhereInput
+    data: XOR<SchoolRolePermissionUpdateManyMutationInput, SchoolRolePermissionUncheckedUpdateManyWithoutRoleInput>
+  }
+
+  export type SchoolRolePermissionScalarWhereInput = {
+    AND?: SchoolRolePermissionScalarWhereInput | SchoolRolePermissionScalarWhereInput[]
+    OR?: SchoolRolePermissionScalarWhereInput[]
+    NOT?: SchoolRolePermissionScalarWhereInput | SchoolRolePermissionScalarWhereInput[]
+    roleId?: StringFilter<"SchoolRolePermission"> | string
+    permissionKey?: StringFilter<"SchoolRolePermission"> | string
+    scope?: EnumPermissionScopeFilter<"SchoolRolePermission"> | $Enums.PermissionScope
+  }
+
+  export type MembershipRoleUpsertWithWhereUniqueWithoutRoleInput = {
+    where: MembershipRoleWhereUniqueInput
+    update: XOR<MembershipRoleUpdateWithoutRoleInput, MembershipRoleUncheckedUpdateWithoutRoleInput>
+    create: XOR<MembershipRoleCreateWithoutRoleInput, MembershipRoleUncheckedCreateWithoutRoleInput>
+  }
+
+  export type MembershipRoleUpdateWithWhereUniqueWithoutRoleInput = {
+    where: MembershipRoleWhereUniqueInput
+    data: XOR<MembershipRoleUpdateWithoutRoleInput, MembershipRoleUncheckedUpdateWithoutRoleInput>
+  }
+
+  export type MembershipRoleUpdateManyWithWhereWithoutRoleInput = {
+    where: MembershipRoleScalarWhereInput
+    data: XOR<MembershipRoleUpdateManyMutationInput, MembershipRoleUncheckedUpdateManyWithoutRoleInput>
+  }
+
+  export type MembershipRoleScalarWhereInput = {
+    AND?: MembershipRoleScalarWhereInput | MembershipRoleScalarWhereInput[]
+    OR?: MembershipRoleScalarWhereInput[]
+    NOT?: MembershipRoleScalarWhereInput | MembershipRoleScalarWhereInput[]
+    membershipId?: StringFilter<"MembershipRole"> | string
+    roleId?: StringFilter<"MembershipRole"> | string
+    assignedAt?: DateTimeFilter<"MembershipRole"> | Date | string
+    assignedById?: StringNullableFilter<"MembershipRole"> | string | null
+  }
+
+  export type SchoolRoleCreateWithoutPermissionsInput = {
+    id?: string
+    name: string
+    description?: string | null
+    kind: $Enums.RoleKind
+    persona?: $Enums.Persona
+    grantsAll?: boolean
+    sourceTemplateKey?: string | null
+    sourceTemplateVersion?: number | null
+    isCustomized?: boolean
+    createdById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    members?: MembershipRoleCreateNestedManyWithoutRoleInput
+  }
+
+  export type SchoolRoleUncheckedCreateWithoutPermissionsInput = {
+    id?: string
+    name: string
+    description?: string | null
+    kind: $Enums.RoleKind
+    persona?: $Enums.Persona
+    grantsAll?: boolean
+    sourceTemplateKey?: string | null
+    sourceTemplateVersion?: number | null
+    isCustomized?: boolean
+    createdById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    members?: MembershipRoleUncheckedCreateNestedManyWithoutRoleInput
+  }
+
+  export type SchoolRoleCreateOrConnectWithoutPermissionsInput = {
+    where: SchoolRoleWhereUniqueInput
+    create: XOR<SchoolRoleCreateWithoutPermissionsInput, SchoolRoleUncheckedCreateWithoutPermissionsInput>
+  }
+
+  export type SchoolRoleUpsertWithoutPermissionsInput = {
+    update: XOR<SchoolRoleUpdateWithoutPermissionsInput, SchoolRoleUncheckedUpdateWithoutPermissionsInput>
+    create: XOR<SchoolRoleCreateWithoutPermissionsInput, SchoolRoleUncheckedCreateWithoutPermissionsInput>
+    where?: SchoolRoleWhereInput
+  }
+
+  export type SchoolRoleUpdateToOneWithWhereWithoutPermissionsInput = {
+    where?: SchoolRoleWhereInput
+    data: XOR<SchoolRoleUpdateWithoutPermissionsInput, SchoolRoleUncheckedUpdateWithoutPermissionsInput>
+  }
+
+  export type SchoolRoleUpdateWithoutPermissionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    kind?: EnumRoleKindFieldUpdateOperationsInput | $Enums.RoleKind
+    persona?: EnumPersonaFieldUpdateOperationsInput | $Enums.Persona
+    grantsAll?: BoolFieldUpdateOperationsInput | boolean
+    sourceTemplateKey?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceTemplateVersion?: NullableIntFieldUpdateOperationsInput | number | null
+    isCustomized?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    members?: MembershipRoleUpdateManyWithoutRoleNestedInput
+  }
+
+  export type SchoolRoleUncheckedUpdateWithoutPermissionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    kind?: EnumRoleKindFieldUpdateOperationsInput | $Enums.RoleKind
+    persona?: EnumPersonaFieldUpdateOperationsInput | $Enums.Persona
+    grantsAll?: BoolFieldUpdateOperationsInput | boolean
+    sourceTemplateKey?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceTemplateVersion?: NullableIntFieldUpdateOperationsInput | number | null
+    isCustomized?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    members?: MembershipRoleUncheckedUpdateManyWithoutRoleNestedInput
+  }
+
+  export type MembershipRoleCreateWithoutMembershipInput = {
+    assignedAt?: Date | string
+    assignedById?: string | null
+    role: SchoolRoleCreateNestedOneWithoutMembersInput
+  }
+
+  export type MembershipRoleUncheckedCreateWithoutMembershipInput = {
+    roleId: string
+    assignedAt?: Date | string
+    assignedById?: string | null
+  }
+
+  export type MembershipRoleCreateOrConnectWithoutMembershipInput = {
+    where: MembershipRoleWhereUniqueInput
+    create: XOR<MembershipRoleCreateWithoutMembershipInput, MembershipRoleUncheckedCreateWithoutMembershipInput>
+  }
+
+  export type MembershipRoleCreateManyMembershipInputEnvelope = {
+    data: MembershipRoleCreateManyMembershipInput | MembershipRoleCreateManyMembershipInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type MembershipRoleUpsertWithWhereUniqueWithoutMembershipInput = {
+    where: MembershipRoleWhereUniqueInput
+    update: XOR<MembershipRoleUpdateWithoutMembershipInput, MembershipRoleUncheckedUpdateWithoutMembershipInput>
+    create: XOR<MembershipRoleCreateWithoutMembershipInput, MembershipRoleUncheckedCreateWithoutMembershipInput>
+  }
+
+  export type MembershipRoleUpdateWithWhereUniqueWithoutMembershipInput = {
+    where: MembershipRoleWhereUniqueInput
+    data: XOR<MembershipRoleUpdateWithoutMembershipInput, MembershipRoleUncheckedUpdateWithoutMembershipInput>
+  }
+
+  export type MembershipRoleUpdateManyWithWhereWithoutMembershipInput = {
+    where: MembershipRoleScalarWhereInput
+    data: XOR<MembershipRoleUpdateManyMutationInput, MembershipRoleUncheckedUpdateManyWithoutMembershipInput>
+  }
+
+  export type MembershipCreateWithoutRolesInput = {
+    id?: string
+    userId: string
+    persona: $Enums.Persona
+    personaEntityId: string
+    status?: $Enums.MembershipStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MembershipUncheckedCreateWithoutRolesInput = {
+    id?: string
+    userId: string
+    persona: $Enums.Persona
+    personaEntityId: string
+    status?: $Enums.MembershipStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MembershipCreateOrConnectWithoutRolesInput = {
+    where: MembershipWhereUniqueInput
+    create: XOR<MembershipCreateWithoutRolesInput, MembershipUncheckedCreateWithoutRolesInput>
+  }
+
+  export type SchoolRoleCreateWithoutMembersInput = {
+    id?: string
+    name: string
+    description?: string | null
+    kind: $Enums.RoleKind
+    persona?: $Enums.Persona
+    grantsAll?: boolean
+    sourceTemplateKey?: string | null
+    sourceTemplateVersion?: number | null
+    isCustomized?: boolean
+    createdById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    permissions?: SchoolRolePermissionCreateNestedManyWithoutRoleInput
+  }
+
+  export type SchoolRoleUncheckedCreateWithoutMembersInput = {
+    id?: string
+    name: string
+    description?: string | null
+    kind: $Enums.RoleKind
+    persona?: $Enums.Persona
+    grantsAll?: boolean
+    sourceTemplateKey?: string | null
+    sourceTemplateVersion?: number | null
+    isCustomized?: boolean
+    createdById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    permissions?: SchoolRolePermissionUncheckedCreateNestedManyWithoutRoleInput
+  }
+
+  export type SchoolRoleCreateOrConnectWithoutMembersInput = {
+    where: SchoolRoleWhereUniqueInput
+    create: XOR<SchoolRoleCreateWithoutMembersInput, SchoolRoleUncheckedCreateWithoutMembersInput>
+  }
+
+  export type MembershipUpsertWithoutRolesInput = {
+    update: XOR<MembershipUpdateWithoutRolesInput, MembershipUncheckedUpdateWithoutRolesInput>
+    create: XOR<MembershipCreateWithoutRolesInput, MembershipUncheckedCreateWithoutRolesInput>
+    where?: MembershipWhereInput
+  }
+
+  export type MembershipUpdateToOneWithWhereWithoutRolesInput = {
+    where?: MembershipWhereInput
+    data: XOR<MembershipUpdateWithoutRolesInput, MembershipUncheckedUpdateWithoutRolesInput>
+  }
+
+  export type MembershipUpdateWithoutRolesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    persona?: EnumPersonaFieldUpdateOperationsInput | $Enums.Persona
+    personaEntityId?: StringFieldUpdateOperationsInput | string
+    status?: EnumMembershipStatusFieldUpdateOperationsInput | $Enums.MembershipStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MembershipUncheckedUpdateWithoutRolesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    persona?: EnumPersonaFieldUpdateOperationsInput | $Enums.Persona
+    personaEntityId?: StringFieldUpdateOperationsInput | string
+    status?: EnumMembershipStatusFieldUpdateOperationsInput | $Enums.MembershipStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SchoolRoleUpsertWithoutMembersInput = {
+    update: XOR<SchoolRoleUpdateWithoutMembersInput, SchoolRoleUncheckedUpdateWithoutMembersInput>
+    create: XOR<SchoolRoleCreateWithoutMembersInput, SchoolRoleUncheckedCreateWithoutMembersInput>
+    where?: SchoolRoleWhereInput
+  }
+
+  export type SchoolRoleUpdateToOneWithWhereWithoutMembersInput = {
+    where?: SchoolRoleWhereInput
+    data: XOR<SchoolRoleUpdateWithoutMembersInput, SchoolRoleUncheckedUpdateWithoutMembersInput>
+  }
+
+  export type SchoolRoleUpdateWithoutMembersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    kind?: EnumRoleKindFieldUpdateOperationsInput | $Enums.RoleKind
+    persona?: EnumPersonaFieldUpdateOperationsInput | $Enums.Persona
+    grantsAll?: BoolFieldUpdateOperationsInput | boolean
+    sourceTemplateKey?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceTemplateVersion?: NullableIntFieldUpdateOperationsInput | number | null
+    isCustomized?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    permissions?: SchoolRolePermissionUpdateManyWithoutRoleNestedInput
+  }
+
+  export type SchoolRoleUncheckedUpdateWithoutMembersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    kind?: EnumRoleKindFieldUpdateOperationsInput | $Enums.RoleKind
+    persona?: EnumPersonaFieldUpdateOperationsInput | $Enums.Persona
+    grantsAll?: BoolFieldUpdateOperationsInput | boolean
+    sourceTemplateKey?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceTemplateVersion?: NullableIntFieldUpdateOperationsInput | number | null
+    isCustomized?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    permissions?: SchoolRolePermissionUncheckedUpdateManyWithoutRoleNestedInput
+  }
+
+  export type AutomationRunLogCreateWithoutRuleInput = {
+    id?: string
+    triggeredAt?: Date | string
+    trigger: string
+    status: $Enums.AutomationRunStatus
+    matched?: number
+    notified?: number
+    skippedReason?: string | null
+    error?: string | null
+    notificationId?: string | null
+  }
+
+  export type AutomationRunLogUncheckedCreateWithoutRuleInput = {
+    id?: string
+    triggeredAt?: Date | string
+    trigger: string
+    status: $Enums.AutomationRunStatus
+    matched?: number
+    notified?: number
+    skippedReason?: string | null
+    error?: string | null
+    notificationId?: string | null
+  }
+
+  export type AutomationRunLogCreateOrConnectWithoutRuleInput = {
+    where: AutomationRunLogWhereUniqueInput
+    create: XOR<AutomationRunLogCreateWithoutRuleInput, AutomationRunLogUncheckedCreateWithoutRuleInput>
+  }
+
+  export type AutomationRunLogCreateManyRuleInputEnvelope = {
+    data: AutomationRunLogCreateManyRuleInput | AutomationRunLogCreateManyRuleInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AutomationRunLogUpsertWithWhereUniqueWithoutRuleInput = {
+    where: AutomationRunLogWhereUniqueInput
+    update: XOR<AutomationRunLogUpdateWithoutRuleInput, AutomationRunLogUncheckedUpdateWithoutRuleInput>
+    create: XOR<AutomationRunLogCreateWithoutRuleInput, AutomationRunLogUncheckedCreateWithoutRuleInput>
+  }
+
+  export type AutomationRunLogUpdateWithWhereUniqueWithoutRuleInput = {
+    where: AutomationRunLogWhereUniqueInput
+    data: XOR<AutomationRunLogUpdateWithoutRuleInput, AutomationRunLogUncheckedUpdateWithoutRuleInput>
+  }
+
+  export type AutomationRunLogUpdateManyWithWhereWithoutRuleInput = {
+    where: AutomationRunLogScalarWhereInput
+    data: XOR<AutomationRunLogUpdateManyMutationInput, AutomationRunLogUncheckedUpdateManyWithoutRuleInput>
+  }
+
+  export type AutomationRunLogScalarWhereInput = {
+    AND?: AutomationRunLogScalarWhereInput | AutomationRunLogScalarWhereInput[]
+    OR?: AutomationRunLogScalarWhereInput[]
+    NOT?: AutomationRunLogScalarWhereInput | AutomationRunLogScalarWhereInput[]
+    id?: StringFilter<"AutomationRunLog"> | string
+    ruleId?: StringFilter<"AutomationRunLog"> | string
+    triggeredAt?: DateTimeFilter<"AutomationRunLog"> | Date | string
+    trigger?: StringFilter<"AutomationRunLog"> | string
+    status?: EnumAutomationRunStatusFilter<"AutomationRunLog"> | $Enums.AutomationRunStatus
+    matched?: IntFilter<"AutomationRunLog"> | number
+    notified?: IntFilter<"AutomationRunLog"> | number
+    skippedReason?: StringNullableFilter<"AutomationRunLog"> | string | null
+    error?: StringNullableFilter<"AutomationRunLog"> | string | null
+    notificationId?: StringNullableFilter<"AutomationRunLog"> | string | null
+  }
+
+  export type AutomationRuleCreateWithoutRunsInput = {
+    id?: string
+    definitionKey: string
+    name: string
+    enabled?: boolean
+    params: JsonNullValueInput | InputJsonValue
+    channels?: AutomationRuleCreatechannelsInput | $Enums.NotificationChannel[]
+    audience?: NullableJsonNullValueInput | InputJsonValue
+    templateKey?: string | null
+    schedule?: NullableJsonNullValueInput | InputJsonValue
+    lastRunAt?: Date | string | null
+    nextRunAt?: Date | string | null
+    createdById?: string | null
+    updatedById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+  }
+
+  export type AutomationRuleUncheckedCreateWithoutRunsInput = {
+    id?: string
+    definitionKey: string
+    name: string
+    enabled?: boolean
+    params: JsonNullValueInput | InputJsonValue
+    channels?: AutomationRuleCreatechannelsInput | $Enums.NotificationChannel[]
+    audience?: NullableJsonNullValueInput | InputJsonValue
+    templateKey?: string | null
+    schedule?: NullableJsonNullValueInput | InputJsonValue
+    lastRunAt?: Date | string | null
+    nextRunAt?: Date | string | null
+    createdById?: string | null
+    updatedById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+  }
+
+  export type AutomationRuleCreateOrConnectWithoutRunsInput = {
+    where: AutomationRuleWhereUniqueInput
+    create: XOR<AutomationRuleCreateWithoutRunsInput, AutomationRuleUncheckedCreateWithoutRunsInput>
+  }
+
+  export type AutomationRuleUpsertWithoutRunsInput = {
+    update: XOR<AutomationRuleUpdateWithoutRunsInput, AutomationRuleUncheckedUpdateWithoutRunsInput>
+    create: XOR<AutomationRuleCreateWithoutRunsInput, AutomationRuleUncheckedCreateWithoutRunsInput>
+    where?: AutomationRuleWhereInput
+  }
+
+  export type AutomationRuleUpdateToOneWithWhereWithoutRunsInput = {
+    where?: AutomationRuleWhereInput
+    data: XOR<AutomationRuleUpdateWithoutRunsInput, AutomationRuleUncheckedUpdateWithoutRunsInput>
+  }
+
+  export type AutomationRuleUpdateWithoutRunsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    definitionKey?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    params?: JsonNullValueInput | InputJsonValue
+    channels?: AutomationRuleUpdatechannelsInput | $Enums.NotificationChannel[]
+    audience?: NullableJsonNullValueInput | InputJsonValue
+    templateKey?: NullableStringFieldUpdateOperationsInput | string | null
+    schedule?: NullableJsonNullValueInput | InputJsonValue
+    lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type AutomationRuleUncheckedUpdateWithoutRunsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    definitionKey?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    params?: JsonNullValueInput | InputJsonValue
+    channels?: AutomationRuleUpdatechannelsInput | $Enums.NotificationChannel[]
+    audience?: NullableJsonNullValueInput | InputJsonValue
+    templateKey?: NullableStringFieldUpdateOperationsInput | string | null
+    schedule?: NullableJsonNullValueInput | InputJsonValue
+    lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
   export type SchoolNotificationRecipientCreateWithoutNotificationInput = {
     id?: string
-    studentId?: string | null
-    guardianId?: string | null
-    staffId?: string | null
+    recipientType: $Enums.RecipientType
+    recipientEntityId: string
+    userId?: string | null
     channel: $Enums.NotificationChannel
     status?: $Enums.DeliveryStatus
     priority?: $Enums.NotificationPriority
     retryCount?: number
     failedReason?: string | null
     providerMsgId?: string | null
+    idempotencyKey?: string | null
+    queuedAt?: Date | string | null
+    sentAt?: Date | string | null
+    failedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+    nextRetryAt?: Date | string | null
     readAt?: Date | string | null
     deliveredAt?: Date | string | null
     createdAt?: Date | string
@@ -44194,15 +59821,21 @@ export namespace Prisma {
 
   export type SchoolNotificationRecipientUncheckedCreateWithoutNotificationInput = {
     id?: string
-    studentId?: string | null
-    guardianId?: string | null
-    staffId?: string | null
+    recipientType: $Enums.RecipientType
+    recipientEntityId: string
+    userId?: string | null
     channel: $Enums.NotificationChannel
     status?: $Enums.DeliveryStatus
     priority?: $Enums.NotificationPriority
     retryCount?: number
     failedReason?: string | null
     providerMsgId?: string | null
+    idempotencyKey?: string | null
+    queuedAt?: Date | string | null
+    sentAt?: Date | string | null
+    failedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+    nextRetryAt?: Date | string | null
     readAt?: Date | string | null
     deliveredAt?: Date | string | null
     createdAt?: Date | string
@@ -44241,15 +59874,21 @@ export namespace Prisma {
     NOT?: SchoolNotificationRecipientScalarWhereInput | SchoolNotificationRecipientScalarWhereInput[]
     id?: StringFilter<"SchoolNotificationRecipient"> | string
     notificationId?: StringFilter<"SchoolNotificationRecipient"> | string
-    studentId?: StringNullableFilter<"SchoolNotificationRecipient"> | string | null
-    guardianId?: StringNullableFilter<"SchoolNotificationRecipient"> | string | null
-    staffId?: StringNullableFilter<"SchoolNotificationRecipient"> | string | null
+    recipientType?: EnumRecipientTypeFilter<"SchoolNotificationRecipient"> | $Enums.RecipientType
+    recipientEntityId?: StringFilter<"SchoolNotificationRecipient"> | string
+    userId?: StringNullableFilter<"SchoolNotificationRecipient"> | string | null
     channel?: EnumNotificationChannelFilter<"SchoolNotificationRecipient"> | $Enums.NotificationChannel
     status?: EnumDeliveryStatusFilter<"SchoolNotificationRecipient"> | $Enums.DeliveryStatus
     priority?: EnumNotificationPriorityFilter<"SchoolNotificationRecipient"> | $Enums.NotificationPriority
     retryCount?: IntFilter<"SchoolNotificationRecipient"> | number
     failedReason?: StringNullableFilter<"SchoolNotificationRecipient"> | string | null
     providerMsgId?: StringNullableFilter<"SchoolNotificationRecipient"> | string | null
+    idempotencyKey?: StringNullableFilter<"SchoolNotificationRecipient"> | string | null
+    queuedAt?: DateTimeNullableFilter<"SchoolNotificationRecipient"> | Date | string | null
+    sentAt?: DateTimeNullableFilter<"SchoolNotificationRecipient"> | Date | string | null
+    failedAt?: DateTimeNullableFilter<"SchoolNotificationRecipient"> | Date | string | null
+    cancelledAt?: DateTimeNullableFilter<"SchoolNotificationRecipient"> | Date | string | null
+    nextRetryAt?: DateTimeNullableFilter<"SchoolNotificationRecipient"> | Date | string | null
     readAt?: DateTimeNullableFilter<"SchoolNotificationRecipient"> | Date | string | null
     deliveredAt?: DateTimeNullableFilter<"SchoolNotificationRecipient"> | Date | string | null
     createdAt?: DateTimeFilter<"SchoolNotificationRecipient"> | Date | string
@@ -45664,17 +61303,139 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type SchoolRolePermissionCreateManyRoleInput = {
+    permissionKey: string
+    scope?: $Enums.PermissionScope
+  }
+
+  export type MembershipRoleCreateManyRoleInput = {
+    membershipId: string
+    assignedAt?: Date | string
+    assignedById?: string | null
+  }
+
+  export type SchoolRolePermissionUpdateWithoutRoleInput = {
+    permissionKey?: StringFieldUpdateOperationsInput | string
+    scope?: EnumPermissionScopeFieldUpdateOperationsInput | $Enums.PermissionScope
+  }
+
+  export type SchoolRolePermissionUncheckedUpdateWithoutRoleInput = {
+    permissionKey?: StringFieldUpdateOperationsInput | string
+    scope?: EnumPermissionScopeFieldUpdateOperationsInput | $Enums.PermissionScope
+  }
+
+  export type SchoolRolePermissionUncheckedUpdateManyWithoutRoleInput = {
+    permissionKey?: StringFieldUpdateOperationsInput | string
+    scope?: EnumPermissionScopeFieldUpdateOperationsInput | $Enums.PermissionScope
+  }
+
+  export type MembershipRoleUpdateWithoutRoleInput = {
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    assignedById?: NullableStringFieldUpdateOperationsInput | string | null
+    membership?: MembershipUpdateOneRequiredWithoutRolesNestedInput
+  }
+
+  export type MembershipRoleUncheckedUpdateWithoutRoleInput = {
+    membershipId?: StringFieldUpdateOperationsInput | string
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    assignedById?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type MembershipRoleUncheckedUpdateManyWithoutRoleInput = {
+    membershipId?: StringFieldUpdateOperationsInput | string
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    assignedById?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type MembershipRoleCreateManyMembershipInput = {
+    roleId: string
+    assignedAt?: Date | string
+    assignedById?: string | null
+  }
+
+  export type MembershipRoleUpdateWithoutMembershipInput = {
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    assignedById?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: SchoolRoleUpdateOneRequiredWithoutMembersNestedInput
+  }
+
+  export type MembershipRoleUncheckedUpdateWithoutMembershipInput = {
+    roleId?: StringFieldUpdateOperationsInput | string
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    assignedById?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type MembershipRoleUncheckedUpdateManyWithoutMembershipInput = {
+    roleId?: StringFieldUpdateOperationsInput | string
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    assignedById?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type AutomationRunLogCreateManyRuleInput = {
+    id?: string
+    triggeredAt?: Date | string
+    trigger: string
+    status: $Enums.AutomationRunStatus
+    matched?: number
+    notified?: number
+    skippedReason?: string | null
+    error?: string | null
+    notificationId?: string | null
+  }
+
+  export type AutomationRunLogUpdateWithoutRuleInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    triggeredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    trigger?: StringFieldUpdateOperationsInput | string
+    status?: EnumAutomationRunStatusFieldUpdateOperationsInput | $Enums.AutomationRunStatus
+    matched?: IntFieldUpdateOperationsInput | number
+    notified?: IntFieldUpdateOperationsInput | number
+    skippedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    notificationId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type AutomationRunLogUncheckedUpdateWithoutRuleInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    triggeredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    trigger?: StringFieldUpdateOperationsInput | string
+    status?: EnumAutomationRunStatusFieldUpdateOperationsInput | $Enums.AutomationRunStatus
+    matched?: IntFieldUpdateOperationsInput | number
+    notified?: IntFieldUpdateOperationsInput | number
+    skippedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    notificationId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type AutomationRunLogUncheckedUpdateManyWithoutRuleInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    triggeredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    trigger?: StringFieldUpdateOperationsInput | string
+    status?: EnumAutomationRunStatusFieldUpdateOperationsInput | $Enums.AutomationRunStatus
+    matched?: IntFieldUpdateOperationsInput | number
+    notified?: IntFieldUpdateOperationsInput | number
+    skippedReason?: NullableStringFieldUpdateOperationsInput | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    notificationId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
   export type SchoolNotificationRecipientCreateManyNotificationInput = {
     id?: string
-    studentId?: string | null
-    guardianId?: string | null
-    staffId?: string | null
+    recipientType: $Enums.RecipientType
+    recipientEntityId: string
+    userId?: string | null
     channel: $Enums.NotificationChannel
     status?: $Enums.DeliveryStatus
     priority?: $Enums.NotificationPriority
     retryCount?: number
     failedReason?: string | null
     providerMsgId?: string | null
+    idempotencyKey?: string | null
+    queuedAt?: Date | string | null
+    sentAt?: Date | string | null
+    failedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+    nextRetryAt?: Date | string | null
     readAt?: Date | string | null
     deliveredAt?: Date | string | null
     createdAt?: Date | string
@@ -45683,15 +61444,21 @@ export namespace Prisma {
 
   export type SchoolNotificationRecipientUpdateWithoutNotificationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    studentId?: NullableStringFieldUpdateOperationsInput | string | null
-    guardianId?: NullableStringFieldUpdateOperationsInput | string | null
-    staffId?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientType?: EnumRecipientTypeFieldUpdateOperationsInput | $Enums.RecipientType
+    recipientEntityId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     channel?: EnumNotificationChannelFieldUpdateOperationsInput | $Enums.NotificationChannel
     status?: EnumDeliveryStatusFieldUpdateOperationsInput | $Enums.DeliveryStatus
     priority?: EnumNotificationPriorityFieldUpdateOperationsInput | $Enums.NotificationPriority
     retryCount?: IntFieldUpdateOperationsInput | number
     failedReason?: NullableStringFieldUpdateOperationsInput | string | null
     providerMsgId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    queuedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextRetryAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -45700,15 +61467,21 @@ export namespace Prisma {
 
   export type SchoolNotificationRecipientUncheckedUpdateWithoutNotificationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    studentId?: NullableStringFieldUpdateOperationsInput | string | null
-    guardianId?: NullableStringFieldUpdateOperationsInput | string | null
-    staffId?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientType?: EnumRecipientTypeFieldUpdateOperationsInput | $Enums.RecipientType
+    recipientEntityId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     channel?: EnumNotificationChannelFieldUpdateOperationsInput | $Enums.NotificationChannel
     status?: EnumDeliveryStatusFieldUpdateOperationsInput | $Enums.DeliveryStatus
     priority?: EnumNotificationPriorityFieldUpdateOperationsInput | $Enums.NotificationPriority
     retryCount?: IntFieldUpdateOperationsInput | number
     failedReason?: NullableStringFieldUpdateOperationsInput | string | null
     providerMsgId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    queuedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextRetryAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -45717,15 +61490,21 @@ export namespace Prisma {
 
   export type SchoolNotificationRecipientUncheckedUpdateManyWithoutNotificationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    studentId?: NullableStringFieldUpdateOperationsInput | string | null
-    guardianId?: NullableStringFieldUpdateOperationsInput | string | null
-    staffId?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientType?: EnumRecipientTypeFieldUpdateOperationsInput | $Enums.RecipientType
+    recipientEntityId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     channel?: EnumNotificationChannelFieldUpdateOperationsInput | $Enums.NotificationChannel
     status?: EnumDeliveryStatusFieldUpdateOperationsInput | $Enums.DeliveryStatus
     priority?: EnumNotificationPriorityFieldUpdateOperationsInput | $Enums.NotificationPriority
     retryCount?: IntFieldUpdateOperationsInput | number
     failedReason?: NullableStringFieldUpdateOperationsInput | string | null
     providerMsgId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    queuedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextRetryAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string

@@ -1,60 +1,35 @@
-import { IInviteRepository }     from "../repositories/invite.repository";
-import {
-    BadRequestError,
-    NotFoundError,
-}                                from "../../../shared/errors/domain.errors";
-import { AuthErrorMessage }      from "../domain/auth.enums";
+import { IUserRepository } from "../repositories/user.repository";
+import { InviteService }   from "../services/invite.service";
 import { ValidateInviteDtoType } from "../dtos/invite.dto";
+
+interface Dependencies {
+    userRepository: IUserRepository;
+    inviteService:  InviteService;
+}
 
 /*
 |--------------------------------------------------------------------------
-| VALIDATE INVITE USE CASE
-| Called before showing the accept invite form
-| Returns invite details so frontend can pre-fill the form
+| VALIDATE INVITE
+| Called by the accept page before showing the form. `accountExists` tells the
+| frontend which form to show: existing people only confirm their password;
+| new people enter name and choose a password.
 |--------------------------------------------------------------------------
 */
-
-interface Dependencies {
-    inviteRepository: IInviteRepository;
-}
-
 export class ValidateInviteUseCase {
-    private readonly inviteRepository: IInviteRepository;
+    constructor(private readonly d: Dependencies) {}
 
-    constructor({ inviteRepository }: Dependencies) {
-        this.inviteRepository = inviteRepository;
-    }
-
-    async execute(dto: ValidateInviteDtoType): Promise<{
-        email:      string;
-        role:       string;
-        schoolId:   string;
-        expiresAt:  Date;
-    }> {
-        // ── Find invite ───────────────────────────────────────────────────
-        const invite = await this.inviteRepository.findByToken(dto.token);
-
-        if (!invite) {
-            throw new NotFoundError(AuthErrorMessage.INVITE_NOT_FOUND);
-        }
-
-        // ── Check not already accepted ────────────────────────────────────
-        if (invite.accepted) {
-            throw new BadRequestError(AuthErrorMessage.INVITE_ALREADY_USED);
-        }
-
-        // ── Check not expired ─────────────────────────────────────────────
-        if (invite.expiresAt < new Date()) {
-            throw new BadRequestError(
-                "This invite has expired. Please ask your school admin to send a new one.",
-            );
-        }
+    async execute(dto: ValidateInviteDtoType, hostSchoolId: string) {
+        const invite  = await this.d.inviteService.loadUsable(dto.token, hostSchoolId);
+        const school  = await this.d.inviteService.getSchool(invite.schoolId);
+        const account = await this.d.userRepository.findByEmail(invite.email);
 
         return {
-            email:     invite.email,
-            role:      invite.role,
-            schoolId:  invite.schoolId,
-            expiresAt: invite.expiresAt,
+            email:         invite.email,
+            persona:       invite.persona,
+            roleName:      await this.d.inviteService.roleLabel(invite),
+            schoolName:    school.name,
+            accountExists: !!account,
+            expiresAt:     invite.expiresAt,
         };
     }
 }

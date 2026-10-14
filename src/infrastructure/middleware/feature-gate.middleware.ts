@@ -1,40 +1,48 @@
 import { Request, Response, NextFunction } from "express";
-import { prisma } from "../database/prisma/prisma.client";
-import { getTenantClient } from "../database/prisma/prisma.client";
+import { container } from "../../container";
 import { FeatureNotAvailableError, PlanLimitError } from "../../shared/errors/domain.errors";
-import { PlanFeatures } from "../../modules/plans/domain/plan-features.interface";
+import { EntitlementsService } from "../../foundation/entitlements.service";
+import { FEATURE_BY_LEGACY_FLAG, LegacyFlag } from "../../foundation/features.registry";
 
-type PlanFeatureKey = keyof PlanFeatures;
+/*
+|--------------------------------------------------------------------------
+| FEATURE GATE
+| Same signatures as before, now backed by entitlements (plan + school override).
+|
+|   requireFeature("smsNotifications")   old flag names still work (mapped to notifications.sms)
+|   requireFeature("notifications.sms")  new keys work too
+|   requirePlanLimit("student")          one more record is about to be created
+|   assertWithinPlanLimit(...)           for bulk use cases that add many at once
+|--------------------------------------------------------------------------
+*/
 
-export const requireFeature = (feature: PlanFeatureKey) => {
+export type FeatureArg = LegacyFlag | (string & {});
+
+const LIMIT_KEYS = { student: "students.max", staff: "staff.max" } as const;
+export type LimitType = keyof typeof LIMIT_KEYS;
+
+const entitlements = () => container.resolve<EntitlementsService>("entitlementsService");
+const toKey = (feature: FeatureArg): string => FEATURE_BY_LEGACY_FLAG.get(feature)?.key ?? feature;
+
+// The resolved tenant wins; the token's school is only a fallback.
+const schoolIdOf = (req: Request): string | null =>
+    req.schoolId && req.schoolId !== "PUBLIC" ? req.schoolId : (req.user?.schoolId ?? null);
+
+const warn = (res: Response, key: string): void => {
+    res.locals.entitlementWarnings = [...(res.locals.entitlementWarnings ?? []), key];
+};
+
+export const requireFeature = (feature: FeatureArg) => {
     return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            if (!req.user?.schoolId) {
-                next(new FeatureNotAvailableError(feature));
-                return;
-            }
+            const schoolId = schoolIdOf(req);
+            if (!schoolId) { next(new FeatureNotAvailableError(feature)); return; }
 
-            const subscription = await prisma.subscription.findFirst({
-                where: {
-                    schoolId: req.user.schoolId,
-                    status:   { in: ["active", "trialing"] },
-                },
-                include: { plan: true },
-            });
+            const key      = toKey(feature);
+            const decision = await entitlements().checkFeature(schoolId, key);
 
-            if (!subscription) {
-                next(new FeatureNotAvailableError(feature));
-                return;
-            }
-
-            const features = subscription.plan.features as unknown as PlanFeatures;
-            const hasFeature = features[feature];
-
-            if (!hasFeature) {
-                next(new FeatureNotAvailableError(feature));
-                return;
-            }
-
+            if (!decision.allowed) { next(new FeatureNotAvailableError(feature)); return; }
+            if (decision.warn) warn(res, key);
             next();
         } catch (err) {
             next(err);
@@ -42,40 +50,29 @@ export const requireFeature = (feature: PlanFeatureKey) => {
     };
 };
 
-type LimitType = "student" | "staff";
+export const assertWithinPlanLimit = async (schoolId: string, type: LimitType, adding = 1): Promise<{ warn: boolean }> => {
+    const decision = await entitlements().checkLimit(schoolId, LIMIT_KEYS[type], adding);
+    if (!decision.allowed) {
+        const key = LIMIT_KEYS[type];
+        if (decision.reason === "limit_reached") {
+            throw new PlanLimitError(
+                `You have reached your plan limit of ${decision.limit} ${type}s. Please upgrade your plan.`,
+                { key, limit: decision.limit, current: decision.current },
+            );
+        }
+        throw new PlanLimitError(`Your plan does not allow adding ${type}s right now. Please check your subscription.`, { key });
+    }
+    return { warn: decision.warn === true };
+};
 
-export const requirePlanLimit = (type: LimitType) => {
+export const requirePlanLimit = (type: LimitType, adding = 1) => {
     return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            if (!req.user?.schoolId) return next();
+            const schoolId = schoolIdOf(req);
+            if (!schoolId) { next(); return; }                    // platform-level requests have no school to limit
 
-            const subscription = await prisma.subscription.findFirst({
-                where: {
-                    schoolId: req.user.schoolId,
-                    status:   { in: ["active", "trialing"] },
-                },
-                include: { plan: true },
-            });
-
-            if (!subscription) return next();
-
-            const limit = type === "student"
-                ? subscription.plan.studentLimit
-                : subscription.plan.staffLimit;
-
-            if (limit === -1) return next();
-
-            const tenantDb = getTenantClient();
-            const currentCount = type === "student"
-                ? await tenantDb.student.count({ where: { isActive: true } })
-                : await tenantDb.staff.count({ where: { isActive: true } });
-
-           if (currentCount >= limit) {
-                throw new PlanLimitError(
-                    `You have reached your plan limit of ${limit} ${type}s. Please upgrade your plan.`,
-                );
-            }
-
+            const { warn: warned } = await assertWithinPlanLimit(schoolId, type, adding);
+            if (warned) warn(res, LIMIT_KEYS[type]);
             next();
         } catch (err) {
             next(err);

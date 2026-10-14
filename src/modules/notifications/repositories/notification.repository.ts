@@ -4,6 +4,7 @@ import {
 	PlatformNotificationEntity,
 	PlatformNotificationRecipientEntity,
 	SchoolNotificationEntity,
+	SchoolNotificationRecipientEntity,
 } from "../domain/notification.entity";
 import {
 	PaginatedResult,
@@ -86,4 +87,15 @@ export interface INotificationRepository {
 	markPlatformRecipientRead(
 		recipientId: string,
 	): Promise<void>;
+
+	createSchoolRecipientsBatch(
+    data: Prisma.SchoolNotificationRecipientUncheckedCreateInput[],
+): Promise<SchoolNotificationRecipientEntity[]>;
+
+findSchoolRecipientById(id: string): Promise<SchoolNotificationRecipientEntity | null>;
+findSchoolNotificationById(id: string): Promise<SchoolNotificationEntity | null>;
+findPlatformRecipientById(id: string): Promise<PlatformNotificationRecipientEntity | null>;
+
+markSchoolRecipientSent(id: string, providerMsgId?: string): Promise<void>;
+markSchoolRecipientFailed(id: string, reason: string): Promise<void>;
 }

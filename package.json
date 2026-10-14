@@ -11,6 +11,7 @@
     "start:worker": "node dist/worker.js",
     "db:backup": "ts-node scripts/backup-database.ts",
     "db:restore": "ts-node scripts/restore-database.ts",
+    "sync:registries": "tsx src/foundation/sync-registries.ts",
     "prisma:generate:public": "prisma generate --config=prisma.public.config.ts",
     "prisma:generate:tenant": "prisma generate --config=prisma.tenant.config.ts",
     "prisma:generate": "npm run prisma:generate:public && npm run prisma:generate:tenant",
@@ -79,6 +80,7 @@
     "nodemon": "^3.1.11",
     "prisma": "^7.8.0",
     "ts-node": "^10.9.2",
+    "tsx": "^4.23.15",
     "typescript": "^5.9.3"
   },
   "allowScripts": {

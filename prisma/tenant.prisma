@@ -1,23 +1,66 @@
-// NOTE: this schema exists ONLY to drive `prisma migrate dev`/`migrate diff`
-// for the tenant-migrations/ folder. The app's actual Prisma Client still
-// comes from the merged prisma/schema.prisma (via merge.ts) — do not import
-// anything from this generator's output in application code.
+
 generator client {
   provider = "prisma-client-js"
   output   = "../src/generated/tenant"
 }
 
-
 datasource db {
   provider = "postgresql"
 }
 
-// ===== PEOPLE (tenant schema) =====
+// ===== SHARED AUTHORIZATION ENUMS =====
+
+enum Persona {
+  STAFF
+  STUDENT
+  GUARDIAN
+}
+
+enum PermissionScope {
+  ALL
+  ASSIGNED
+  OWN
+}
+
+enum RoleKind {
+  SYSTEM_LOCKED
+  SYSTEM_EDITABLE
+  CUSTOM
+}
+
+enum MembershipStatus {
+  active
+  suspended
+  removed
+}
+
+enum StaffCategory {
+  teaching
+  non_teaching
+}
+
+enum NotificationChannel {
+  IN_APP
+  EMAIL
+  SMS
+}
+
+enum DeliveryStatus {
+  PENDING
+  QUEUED
+  SENT
+  DELIVERED
+  READ
+  FAILED
+  CANCELLED
+}
+
+// ===== PEOPLE =====
 
 model Staff {
-  id            String    @id @default(uuid())
-  userId        String    @unique
-  employeeId    String?   @unique
+  id            String        @id @default(uuid())
+  userId        String        @unique
+  employeeId    String?       @unique
   department    String?
   designation   String?
   qualification String?
@@ -26,12 +69,14 @@ model Staff {
   address       String?
   joinDate      DateTime?
   role          StaffRole
-  isActive      Boolean   @default(true)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  classSubjects ClassSubject[]
+  category      StaffCategory @default(non_teaching)
+  isActive      Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  classSubjects         ClassSubject[]
   classesAsClassTeacher Class[]
-  subjectDefaults Subject[] @relation("SubjectDefaultTeacher")
+  subjectDefaults       Subject[] @relation("SubjectDefaultTeacher")
 }
 
 enum StaffRole {
@@ -66,39 +111,42 @@ model Student {
   admittedAt      DateTime?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
-  enrolments      Enrolment[]
-  guardianLinks   StudentGuardian[]
-  attendances     Attendance[]
-  grades          Grade[]
-  feeInvoices     FeeInvoice[]
-  reportCards     ReportCard[]
+
+  enrolments    Enrolment[]
+  guardianLinks StudentGuardian[]
+  attendances   Attendance[]
+  grades        Grade[]
+  feeInvoices   FeeInvoice[]
+  reportCards   ReportCard[]
 }
 
 model Guardian {
-  id          String    @id @default(uuid())
-  userId      String?   @unique
-  firstName   String
-  lastName    String
-  email       String
-  phone       String?
-  occupation  String?
-  address     String?
-  isActive    Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id           String   @id @default(uuid())
+  userId       String?  @unique
+  firstName    String
+  lastName     String
+  email        String
+  phone        String?
+  occupation   String?
+  address      String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
   studentLinks StudentGuardian[]
-  payments    Payment[]
+  payments     Payment[]
 }
 
 model StudentGuardian {
-  id           String          @id @default(uuid())
-  studentId    String
-  guardianId   String
-  relation     GuardianRelation
-  isPrimary    Boolean         @default(false)
-  createdAt    DateTime        @default(now())
-  student      Student         @relation(fields: [studentId], references: [id])
-  guardian     Guardian        @relation(fields: [guardianId], references: [id])
+  id         String          @id @default(uuid())
+  studentId  String
+  guardianId String
+  relation   GuardianRelation
+  isPrimary  Boolean         @default(false)
+  createdAt  DateTime        @default(now())
+
+  student  Student  @relation(fields: [studentId], references: [id])
+  guardian Guardian @relation(fields: [guardianId], references: [id])
 
   @@unique([studentId, guardianId])
 }
@@ -114,7 +162,8 @@ enum GuardianRelation {
   other
 }
 
-// ===== ACADEMIC (tenant schema) =====
+// ===== ACADEMIC =====
+
 model CalendarEvent {
   id          String    @id @default(uuid())
   termId      String?
@@ -129,9 +178,8 @@ model CalendarEvent {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  term    Term?    @relation(fields: [termId],    references: [id])
+  term    Term?    @relation(fields: [termId], references: [id])
   session Session? @relation(fields: [sessionId], references: [id])
-
 
   @@index([startDate])
   @@index([termId])
@@ -146,35 +194,36 @@ enum EventType {
 }
 
 model Session {
+  id            String   @id @default(uuid())
+  name          String
+  startDate     DateTime
+  endDate       DateTime
+  isCurrent     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  terms          Term[]
+  calendarEvents CalendarEvent[]
+}
+
+model Term {
   id        String   @id @default(uuid())
-  name      String
+  sessionId String
+  name      TermName
   startDate DateTime
   endDate   DateTime
   isCurrent Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  terms     Term[]
-  calendarEvents CalendarEvent[]
-}
 
-model Term {
-  id          String   @id @default(uuid())
-  sessionId   String
-  name        TermName
-  startDate   DateTime
-  endDate     DateTime
-  isCurrent   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  session     Session      @relation(fields: [sessionId], references: [id])
-  classSubjects ClassSubject[]
-  attendances  Attendance[]
+  session        Session         @relation(fields: [sessionId], references: [id])
+  classSubjects  ClassSubject[]
+  attendances    Attendance[]
   calendarEvents CalendarEvent[]
-
-  grades       Grade[]
-  feeInvoices  FeeInvoice[]
-  enrolments   Enrolment[]
-  reportCards  ReportCard[]
+  grades         Grade[]
+  feeInvoices    FeeInvoice[]
+  enrolments     Enrolment[]
+  reportCards    ReportCard[]
 }
 
 enum TermName {
@@ -182,6 +231,7 @@ enum TermName {
   second
   third
 }
+
 model Class {
   id             String   @id @default(uuid())
   name           String
@@ -191,12 +241,13 @@ model Class {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  classTeacher   Staff?          @relation(fields: [classTeacherId], references: [id])
-  enrolments     Enrolment[]
-  classSubjects  ClassSubject[]
+  classTeacher     Staff?             @relation(fields: [classTeacherId], references: [id])
+  enrolments       Enrolment[]
+  classSubjects    ClassSubject[]
   progressionsFrom ClassProgression[] @relation("ProgressionFrom")
   progressionsTo   ClassProgression[] @relation("ProgressionTo")
 }
+
 model Subject {
   id               String   @id @default(uuid())
   name             String
@@ -206,19 +257,19 @@ model Subject {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  defaultTeacher Staff?          @relation("SubjectDefaultTeacher", fields: [defaultTeacherId], references: [id])
+  defaultTeacher Staff?         @relation("SubjectDefaultTeacher", fields: [defaultTeacherId], references: [id])
   classSubjects  ClassSubject[]
 }
 
 model ClassSubject {
-  id          String                        @id @default(uuid())
+  id          String                       @id @default(uuid())
   classId     String
   subjectId   String
   staffId     String
   termId      String
-  assignedVia ClassSubjectAssignmentSource  @default(manual)
-  createdAt   DateTime                      @default(now())
-  updatedAt   DateTime                      @updatedAt
+  assignedVia ClassSubjectAssignmentSource @default(manual)
+  createdAt   DateTime                     @default(now())
+  updatedAt   DateTime                     @updatedAt
 
   class   Class   @relation(fields: [classId], references: [id])
   subject Subject @relation(fields: [subjectId], references: [id])
@@ -234,6 +285,7 @@ enum ClassSubjectAssignmentSource {
   auto_subject_default
   auto_homeroom
 }
+
 model Enrolment {
   id        String          @id @default(uuid())
   studentId String
@@ -242,9 +294,10 @@ model Enrolment {
   status    EnrolmentStatus @default(active)
   createdAt DateTime        @default(now())
   updatedAt DateTime        @updatedAt
-  student   Student         @relation(fields: [studentId], references: [id])
-  class     Class           @relation(fields: [classId], references: [id])
-  term      Term            @relation(fields: [termId], references: [id])
+
+  student Student @relation(fields: [studentId], references: [id])
+  class   Class   @relation(fields: [classId], references: [id])
+  term    Term    @relation(fields: [termId], references: [id])
 
   @@unique([studentId, termId])
 }
@@ -257,13 +310,13 @@ enum EnrolmentStatus {
 }
 
 model ClassProgression {
-  id            String  @id @default(uuid())
-  fromClassId   String  @unique
-  toClassId     String? // null = terminal (graduates from here)
-  fromClass     Class   @relation("ProgressionFrom", fields: [fromClassId], references: [id])
-  toClass       Class?  @relation("ProgressionTo", fields: [toClassId], references: [id])
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id          String   @id @default(uuid())
+  fromClassId String   @unique
+  toClassId   String?
+  fromClass   Class    @relation("ProgressionFrom", fields: [fromClassId], references: [id])
+  toClass     Class?   @relation("ProgressionTo", fields: [toClassId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 enum TeachingModel {
@@ -271,29 +324,32 @@ enum TeachingModel {
   subject_specialist
 }
 
+
+// ===== SCHOOL SETTINGS =====
+
 model SchoolSettings {
-  id              String   @id @default(uuid())
-  logoUrl         String?
-  primaryColor    String?  @default("#1a1a2e")
-  secondaryColor  String?
-  motto           String?
-  address         String?
-  website         String?
-  foundedYear     Int?
-  principalName   String?
-  stamp           String?
-  reportCardTemplate      String   @default("classic") // "classic" | "modern" | "minimal" | "custom_letterhead"
-  reportCardLetterheadUrl String?
-  letterheadContentTopMm    Int?    @default(50)
-  letterheadContentBottomMm Int?    @default(30)
-  allowStudentLogin Boolean @default(false)
-  signature       String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  teachingModel   TeachingModel?
+  id                        String        @id @default(uuid())
+  logoUrl                   String?
+  primaryColor              String?       @default("#1a1a2e")
+  secondaryColor            String?
+  motto                     String?
+  address                   String?
+  website                   String?
+  foundedYear               Int?
+  principalName             String?
+  stamp                     String?
+  reportCardTemplate        String        @default("classic")
+  reportCardLetterheadUrl   String?
+  letterheadContentTopMm    Int?          @default(50)
+  letterheadContentBottomMm Int?          @default(30)
+  allowStudentLogin         Boolean       @default(false)
+  signature                 String?
+  createdAt                 DateTime      @default(now())
+  updatedAt                 DateTime      @updatedAt
+  teachingModel             TeachingModel?
 }
 
-// ===== ATTENDANCE (tenant schema) =====
+// ===== ATTENDANCE =====
 
 model Attendance {
   id        String           @id @default(uuid())
@@ -303,8 +359,9 @@ model Attendance {
   status    AttendanceStatus
   note      String?
   createdAt DateTime         @default(now())
-  student   Student          @relation(fields: [studentId], references: [id])
-  term      Term             @relation(fields: [termId], references: [id])
+
+  student Student @relation(fields: [studentId], references: [id])
+  term    Term    @relation(fields: [termId], references: [id])
 
   @@unique([studentId, date])
 }
@@ -316,7 +373,7 @@ enum AttendanceStatus {
   excused
 }
 
-// ===== GRADES + REPORT CARDS (tenant schema) =====
+// ===== GRADES AND REPORT CARDS =====
 
 model Grade {
   id             String       @id @default(uuid())
@@ -333,9 +390,10 @@ model Grade {
   isPublished    Boolean      @default(false)
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
-  student        Student      @relation(fields: [studentId], references: [id])
-  term           Term         @relation(fields: [termId], references: [id])
-  classSubject   ClassSubject @relation(fields: [classSubjectId], references: [id])
+
+  student      Student      @relation(fields: [studentId], references: [id])
+  term         Term         @relation(fields: [termId], references: [id])
+  classSubject ClassSubject @relation(fields: [classSubjectId], references: [id])
 
   @@unique([studentId, termId, classSubjectId])
 }
@@ -368,8 +426,9 @@ model ReportCard {
   generatedAt     DateTime?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
-  student         Student          @relation(fields: [studentId], references: [id])
-  term            Term             @relation(fields: [termId], references: [id])
+
+  student Student @relation(fields: [studentId], references: [id])
+  term    Term    @relation(fields: [termId], references: [id])
 
   @@unique([studentId, termId])
 }
@@ -381,15 +440,17 @@ enum ReportCardStatus {
   sent
 }
 
+// ===== FEES AND PAYMENTS =====
+
 model FeeType {
-  id          String @id @default(uuid())
+  id          String   @id @default(uuid())
   name        String
   description String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  isActive    Boolean  @default(true)
 
   invoiceItems FeeInvoiceItem[]
-  isActive Boolean @default(true)
 }
 
 model FeeInvoice {
@@ -445,8 +506,9 @@ model Payment {
   paidAt           DateTime?
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
-  feeInvoice       FeeInvoice    @relation(fields: [feeInvoiceId], references: [id])
-  guardian         Guardian?     @relation(fields: [guardianId], references: [id])
+
+  feeInvoice FeeInvoice @relation(fields: [feeInvoiceId], references: [id])
+  guardian   Guardian?  @relation(fields: [guardianId], references: [id])
 }
 
 enum PaymentMethod {
@@ -463,45 +525,239 @@ enum PaymentStatus {
   refunded
 }
 
-model SchoolNotification {
-    id         String                       @id @default(uuid())
-    title      String
-    message    String
-    type       SchoolNotificationType
-    targetType TargetType
-    sentById   String
-    metadata   Json?
-    sentAt     DateTime?
-    createdAt  DateTime                     @default(now())
-    updatedAt  DateTime                     @updatedAt
-    recipients SchoolNotificationRecipient[]
 
-    @@index([type])
-    @@index([createdAt(sort: Desc)])
+// ===== SCHOOL ROLE MANAGEMENT =====
+
+model SchoolRole {
+  id                    String   @id @default(uuid())
+  name                  String
+  description           String?
+  kind                  RoleKind
+  persona               Persona  @default(STAFF)
+  grantsAll             Boolean  @default(false)
+  sourceTemplateKey     String?
+  sourceTemplateVersion Int?
+  isCustomized          Boolean  @default(false)
+  createdById           String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  deletedAt             DateTime?
+
+  permissions SchoolRolePermission[]
+  members     MembershipRole[]
+
+  @@index([sourceTemplateKey])
+}
+
+model SchoolRolePermission {
+  roleId        String
+  permissionKey String
+  scope         PermissionScope @default(ALL)
+
+  role SchoolRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionKey])
+  @@index([permissionKey])
+}
+
+// One row per portal account per persona. Contact-only guardians and students
+// without logins do not need a membership.
+
+model Membership {
+  id              String           @id @default(uuid())
+  userId          String
+  persona         Persona
+  personaEntityId String
+  status          MembershipStatus @default(active)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  roles MembershipRole[]
+
+  @@unique([userId, persona])
+  @@unique([persona, personaEntityId])
+  @@index([userId])
+  @@index([status])
+}
+
+model MembershipRole {
+  membershipId String
+  roleId       String
+  assignedAt   DateTime @default(now())
+  assignedById String?
+
+  membership Membership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+  role       SchoolRole @relation(fields: [roleId], references: [id])
+
+  @@id([membershipId, roleId])
+  @@index([roleId])
+}
+
+// ===== SCHOOL SETTINGS OVERRIDES =====
+
+// One row per overridden key. Deleting the row restores the platform default.
+
+model SchoolSettingValue {
+  key         String   @id
+  value       Json
+  updatedById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ===== AUTOMATION =====
+
+model AutomationRule {
+  id            String   @id @default(uuid())
+  definitionKey String
+  name          String
+  enabled       Boolean  @default(false)
+  params        Json
+  channels      NotificationChannel[]
+  audience      Json?
+  templateKey   String?
+  schedule      Json?
+  lastRunAt     DateTime?
+  nextRunAt     DateTime?
+  createdById   String?
+  updatedById   String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  deletedAt     DateTime?
+
+  runs AutomationRunLog[]
+
+  @@index([definitionKey])
+  @@index([enabled, nextRunAt])
+}
+
+model AutomationRunLog {
+  id             String              @id @default(uuid())
+  ruleId         String
+  triggeredAt    DateTime            @default(now())
+  trigger        String
+  status         AutomationRunStatus
+  matched        Int                 @default(0)
+  notified       Int                 @default(0)
+  skippedReason  String?
+  error          String?
+  notificationId String?
+
+  rule AutomationRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+
+  @@index([ruleId, triggeredAt])
+}
+
+enum AutomationRunStatus {
+  SUCCESS
+  PARTIAL
+  FAILED
+  SKIPPED
+}
+
+// ===== SCHOOL MESSAGE TEMPLATES =====
+
+model SchoolMessageTemplate {
+  id          String             @id @default(uuid())
+  key         String
+  channel     NotificationChannel
+  locale      String             @default("en")
+  subject     String?
+  body        String
+  isActive    Boolean            @default(true)
+  updatedById String?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  @@unique([key, channel, locale])
+  @@index([isActive])
+}
+
+// ===== NUMBER SEQUENCES =====
+
+// Gapless per-school counters for admission numbers, invoices, receipts, and payslips.
+// The period resets a counter; an empty string means the counter never resets.
+
+model NumberSequence {
+  key       String
+  period    String   @default("")
+  nextValue Int      @default(1)
+  updatedAt DateTime @updatedAt
+
+  @@id([key, period])
+}
+
+// ===== ATTACHMENTS =====
+
+// Shared file metadata for student and staff documents, receipts, payslips, and letters.
+// sizeBytes can be used as the storage entitlement meter source.
+
+model Attachment {
+  id           String    @id @default(uuid())
+  ownerType    String
+  ownerId      String
+  kind         String
+  fileName     String
+  fileUrl      String
+  mimeType     String?
+  sizeBytes    Int       @default(0)
+  uploadedById String?
+  createdAt    DateTime  @default(now())
+  deletedAt    DateTime?
+
+  @@index([ownerType, ownerId])
+  @@index([deletedAt])
+}
+
+// ===== SCHOOL NOTIFICATIONS =====
+
+model SchoolNotification {
+  id        String                  @id @default(uuid())
+  title     String
+  message   String
+  type      SchoolNotificationType
+  targetType TargetType
+  sentById  String
+  metadata  Json?
+  sentAt    DateTime?
+  createdAt DateTime                @default(now())
+  updatedAt DateTime                @updatedAt
+
+  recipients SchoolNotificationRecipient[]
+
+  @@index([type])
+  @@index([createdAt(sort: Desc)])
 }
 
 model SchoolNotificationRecipient {
-    id             String               @id @default(uuid())
-    notificationId String
-    studentId      String?
-    guardianId     String?
-    staffId        String?
-    channel        NotificationChannel
-    status         DeliveryStatus       @default(PENDING)
-    priority       NotificationPriority @default(NORMAL)
-    retryCount     Int                  @default(0)
-    failedReason   String?
-    providerMsgId  String?
-    readAt         DateTime?
-    deliveredAt    DateTime?
-    createdAt      DateTime             @default(now())
-    updatedAt      DateTime             @updatedAt
+  id                String               @id @default(uuid())
+  notificationId    String
+  recipientType     RecipientType
+  recipientEntityId String
+  userId            String?
+  channel           NotificationChannel
+  status            DeliveryStatus       @default(PENDING)
+  priority          NotificationPriority  @default(NORMAL)
+  retryCount        Int                  @default(0)
+  failedReason      String?
+  providerMsgId     String?
+  idempotencyKey    String?              @unique
+  queuedAt          DateTime?
+  sentAt            DateTime?
+  failedAt          DateTime?
+  cancelledAt       DateTime?
+  nextRetryAt       DateTime?
+  readAt            DateTime?
+  deliveredAt       DateTime?
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
 
-    notification   SchoolNotification   @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  notification SchoolNotification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
 
-    @@unique([notificationId, channel, studentId, guardianId, staffId])
-    @@index([status])
-    @@index([status, priority, createdAt])
+  @@unique([notificationId, channel, recipientType, recipientEntityId])
+  @@index([status])
+  @@index([status, priority, createdAt])
+  @@index([recipientType, recipientEntityId])
 }
 
 enum SchoolNotificationType {
@@ -514,6 +770,12 @@ enum SchoolNotificationType {
   holiday
   broadcast
   custom
+}
+
+enum RecipientType {
+  STUDENT
+  GUARDIAN
+  STAFF
 }
 
 enum NotificationPriority {
@@ -532,27 +794,3 @@ enum TargetType {
   ALL_STAFF
   EVERYONE
 }
-
-// Note: NotificationChannel enum lives in the public schema notifications.prisma
-// but is reused here on SchoolNotificationRecipient.channel. Since tenant.prisma
-// is a fully separate Prisma project (own datasource, own migration history),
-// it must declare its own copy of any shared enum it uses on a tenant table —
-// Postgres enums are schema-scoped and each tenant schema needs its own type.
-enum NotificationChannel {
-  IN_APP
-  EMAIL
-  SMS
-}
-
-// Same reasoning as above: DeliveryStatus is also used publicly (PlatformNotificationRecipient)
-// but tenant tables need their own enum type declared in this schema.
-enum DeliveryStatus {
-  PENDING
-  QUEUED
-  SENT
-  DELIVERED
-  READ
-  FAILED
-  CANCELLED
-}
-

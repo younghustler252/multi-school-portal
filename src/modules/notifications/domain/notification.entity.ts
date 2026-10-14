@@ -33,6 +33,38 @@ export interface PlatformNotificationRecipientEntity {
     status:         string;
     retryCount:     number;
     failedReason:   string | null;
+    providerMsgId:  string | null;
+    idempotencyKey: string | null;
+    queuedAt:       Date | null;
+    sentAt:         Date | null;
+    failedAt:       Date | null;
+    cancelledAt:    Date | null;
+    nextRetryAt:    Date | null;
+    readAt:         Date | null;
+    deliveredAt:    Date | null;
+    createdAt:      Date;
+    updatedAt:      Date;
+}
+
+// NEW — was missing entirely; createRecipient() had no typed return because of this gap
+export interface SchoolNotificationRecipientEntity {
+    id:             string;
+    notificationId: string;
+    studentId:      string | null;
+    guardianId:     string | null;
+    staffId:        string | null;
+    channel:        string;
+    status:         string;
+    priority:       string;
+    retryCount:     number;
+    failedReason:   string | null;
+    providerMsgId:  string | null;
+    idempotencyKey: string | null;
+    queuedAt:       Date | null;
+    sentAt:         Date | null;
+    failedAt:       Date | null;
+    cancelledAt:    Date | null;
+    nextRetryAt:    Date | null;
     readAt:         Date | null;
     deliveredAt:    Date | null;
     createdAt:      Date;

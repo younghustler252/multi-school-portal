@@ -1,10 +1,4 @@
-import { SubscriptionStatus, BillingCycle } from "../../../generated/public";
-
-/*
-|--------------------------------------------------------------------------
-| SUBSCRIPTION DOMAIN ENTITIES
-|--------------------------------------------------------------------------
-*/
+import { SubscriptionStatus, BillingCycle } from "../../../generated/public/client";
 
 export interface SubscriptionEntity {
     id:                       string;
@@ -17,35 +11,58 @@ export interface SubscriptionEntity {
     trialEndsAt:              Date | null;
     cancelAtPeriodEnd:        boolean;
     cancelledAt:              Date | null;
-
     couponId:                 string | null;
-    discountedPriceKobo:      number | null;
-
-    setupFeePaid:             boolean;
-    setupFeePaidAt:           Date | null;
-
     autoRenew:                boolean;
-
-    paystackCustomerCode:     string | null;
-    paystackSubscriptionCode: string | null;
-    paystackAuthorizationCode: string | null;
-
+    paymentMethodId:          string | null;
+    billingAnchorDay:         number;
+    scheduledDowngradePlanId: string | null;
+    lapsedPlanId:             string | null;
     nextBillingDate:          Date | null;
-    lastBillingAttemptAt:     Date | null;
     failedBillingCount:       number;
-
     createdAt:                Date;
     updatedAt:                Date;
 }
 
-export interface BillingHistoryEntity {
+export interface InvoiceItemEntity {
+    id: string; kind: string; description: string; amountKobo: number;
+}
+
+export interface InvoiceEntity {
     id:                string;
+    number:            string;
     subscriptionId:    string;
-    amountKobo:        number;
-    status:            string;
+    schoolId:          string;
+    planId:            string;
     billingCycle:      BillingCycle;
-    paystackReference: string | null;
-    paidAt:             Date | null;
-    failureReason:     string | null;
-    createdAt:          Date;
+    reason:            "upgrade" | "renewal" | "adjustment";
+    status:            "open" | "paid" | "void" | "uncollectible";
+    periodStart:       Date;
+    periodEnd:         Date;
+    subtotalKobo:      number;
+    discountKobo:      number;
+    totalKobo:         number;
+    amountPaidKobo:    number;
+    couponId:          string | null;
+    dueDate:           Date;
+    issuedAt:          Date;
+    paidAt:            Date | null;
+    voidedAt:          Date | null;
+    attemptCount:      number;
+    nextAttemptAt:     Date | null;
+    lastFailureReason: string | null;
+    note:              string | null;
+    createdAt:         Date;
+    items?:            InvoiceItemEntity[];
+}
+
+export interface PaymentMethodEntity {
+    id:        string;
+    schoolId:  string;
+    brand:     string | null;
+    last4:     string | null;
+    expMonth:  number | null;
+    expYear:   number | null;
+    bank:      string | null;
+    isDefault: boolean;
+    createdAt: Date;
 }

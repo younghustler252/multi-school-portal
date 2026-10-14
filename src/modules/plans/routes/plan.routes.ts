@@ -1,67 +1,15 @@
-import { Router }          from "express";
-import { container }       from "../../../container";
-import { PlanController }  from "../controllers/plan.controller";
-import { validate }        from "../../../infrastructure/middleware/validate.middleware";
-import { authenticate }    from "../../../infrastructure/middleware/auth.middleware";
-import { requireSuperAdmin } from "../../../infrastructure/middleware/rbac.middleware";
-import { optionalAuthenticate } from "../../../infrastructure/middleware/auth.middleware";
-import {
-    CreatePlanDto,
-    UpdatePlanDto,
-}                          from "../dtos/plan.dto";
+import { Router } from "express";
+import { container } from "../../../container";
+import { PlanController } from "../controllers/plan.controller";
 
 /*
-|--------------------------------------------------------------------------
-| PLAN ROUTES
-|--------------------------------------------------------------------------
+| PUBLIC PLAN ROUTES (mounted at /plans): the pricing page. No login.
+| Everything that edits plans is in plan.platform.routes.ts under /platform/plans.
 */
-
 const router = Router();
 const ctrl   = () => container.resolve<PlanController>("planController");
 
-// ── Public — anyone can view plans (for signup page) ─────────────────────
-router.get(
-    "/",
-    optionalAuthenticate,
-    (req, res, next) => ctrl().getPlans(req, res, next),
-);
-
-// ── Super admin only ──────────────────────────────────────────────────────
-router.post(
-    "/",
-    authenticate,
-    requireSuperAdmin,
-    validate(CreatePlanDto),
-    (req, res, next) => ctrl().createPlan(req, res, next),
-);
-
-router.put(
-    "/:id",
-    authenticate,
-    requireSuperAdmin,
-    validate(UpdatePlanDto),
-    (req, res, next) => ctrl().updatePlan(req, res, next),
-);
-// Get plan by ID — public
-router.get(
-    "/:id",
-    optionalAuthenticate,
-    (req, res, next) => ctrl().getPlanById(req, res, next),
-);
-
-// Delete plan — super admin
-router.delete(
-    "/:id",
-    authenticate,
-    requireSuperAdmin,
-    (req, res, next) => ctrl().deletePlan(req, res, next),
-);
-
-router.post(
-    "/seed",
-    authenticate,
-    requireSuperAdmin,
-    (req, res, next) => ctrl().seedPlans(req, res, next),
-);
+router.get("/",    (q, s, n) => ctrl().getPlans(q, s, n));
+router.get("/:id", (q, s, n) => ctrl().getPlanById(q, s, n));
 
 export default router;

@@ -1,186 +1,149 @@
-import { IUserRepository }          from "../repositories/user.repository";
-import { IRefreshTokenRepository }  from "../repositories/refresh-token.repository";
-import { TokenService }             from "../../../shared/services/token.service";
-import { PasswordService }          from "../../../shared/services/password.service";
-import { AuditService } from "../../audit/services/audit.service";
-import {
-    AuthErrorMessage,
-    MAX_FAILED_LOGIN_ATTEMPTS,
-    LOCK_DURATION_MINUTES,
-}                                   from "../domain/auth.enums";
-import {
-    UnauthorizedError,
-    ForbiddenError,
-}                                   from "../../../shared/errors/domain.errors";
-import { LoginDtoType }             from "../dtos/login.dto";
-import { AuthResponse }             from "../types/auth.types";
-import { UserMapper }               from "../mappers/user.mapper";
+import { IUserRepository }       from "../repositories/user.repository";
+import { PasswordService }       from "../../../shared/services/password.service";
+import { UserMapper }            from "../mappers/user.mapper";
+import { AuthSessionService }    from "../services/auth-session.service";
+import { LoginAttemptService }   from "../services/login-attempt.service";
+import { MembershipService }     from "../services/membership.service";
+import { AuthAuditService }      from "../services/auth-audit.service";
+import { authErrors }            from "../domain/auth.errors";
+import { ACCOUNT_LOCK_THRESHOLD, ACCOUNT_LOCK_MINUTES } from "../domain/auth.enums";
+import { LoginDtoType }          from "../dtos/login.dto";
+import { LoginResult, RequestMeta, PersonaType } from "../types/auth.types";
+import { randomBytes }           from "crypto";
+
+interface Dependencies {
+    userRepository:     IUserRepository;
+    passwordService:    PasswordService;
+    userMapper:         UserMapper;
+    authSessionService: AuthSessionService;
+    loginAttemptService: LoginAttemptService;
+    membershipService:  MembershipService;
+    authAuditService:   AuthAuditService;
+}
 
 /*
 |--------------------------------------------------------------------------
-| LOGIN USE CASE
-| Flow:
-| 1. Find user by email (with password hash)
-| 2. Check account is active
-| 3. Check account is not locked
-| 4. Verify password
-| 5. Check email is verified
-| 6. Handle failed login — increment or lock account
-| 7. Reset failed login count on success
-| 8. Generate token pair
-| 9. Store refresh token in DB
-| 10. Update last login timestamp + IP
-| 11. Audit successful login
-| 12. Return tokens + user
+| LOGIN
+| Order matters and is deliberate:
+|  1. per (email + IP) limiter, applies to unknown emails too
+|  2. look up the user and ALWAYS run one bcrypt comparison (dummy hash when
+|     the email is unknown) so timing does not reveal which emails exist
+|  3. wrong password -> one generic error, whatever the account state
+|  4. only AFTER the password is proven: locked / inactive / unverified messages
+|  5. resolve the session from the host:
+|       school host   -> tenant Membership (persona selection when several)
+|       platform host -> PlatformMember, else the list of the user's schools
 |--------------------------------------------------------------------------
 */
 
-interface Dependencies {
-    userRepository:         IUserRepository;
-    refreshTokenRepository: IRefreshTokenRepository;
-    tokenService:           TokenService;
-    passwordService:        PasswordService;
-    userMapper:             UserMapper;
-    auditService:            AuditService;
-}
-
 export class LoginUseCase {
-    private readonly userRepository:         IUserRepository;
-    private readonly refreshTokenRepository: IRefreshTokenRepository;
-    private readonly tokenService:           TokenService;
-    private readonly passwordService:        PasswordService;
-    private readonly userMapper:             UserMapper;
-    private readonly auditService:            AuditService;
+    private dummyHash: Promise<string> | null = null;
 
-    constructor({
-        userRepository,
-        refreshTokenRepository,
-        tokenService,
-        passwordService,
-        userMapper,
-        auditService,
-    }: Dependencies) {
-        this.userRepository         = userRepository;
-        this.refreshTokenRepository = refreshTokenRepository;
-        this.tokenService           = tokenService;
-        this.passwordService        = passwordService;
-        this.userMapper             = userMapper;
-        this.auditService            = auditService;
+    constructor(private readonly d: Dependencies) {}
+
+    private getDummyHash(): Promise<string> {
+        this.dummyHash ??= this.d.passwordService.hash(randomBytes(16).toString("hex"));
+        return this.dummyHash;
     }
 
-    async execute(
-        dto: LoginDtoType,
-        ip:  string,
-    ): Promise<AuthResponse> {
+    async execute(dto: LoginDtoType, meta: RequestMeta, schoolId: string | null): Promise<LoginResult> {
+        const d     = this.d;
+        const email = dto.email.trim().toLowerCase();
 
-        // ── 1. Find user with password ────────────────────────────────────
-        const userWithPassword = await this.userRepository
-            .findByEmailWithPassword(dto.email);
+        await d.loginAttemptService.assertNotBlocked(email, meta.ip);
 
-        if (!userWithPassword) {
-            // Generic message — don't reveal if email exists
-            throw new UnauthorizedError(AuthErrorMessage.INVALID_CREDENTIALS);
+        const user = await d.userRepository.findByEmailWithPassword(email);
+        const ok   = await d.passwordService.compare(dto.password, user?.passwordHash ?? await this.getDummyHash());
+
+        if (!user || !ok) {
+            await d.loginAttemptService.recordFailure(email, meta.ip);
+            if (user) await this.recordAccountFailure(user.id, schoolId, meta);
+            else await d.authAuditService.record({
+                action: "auth.login_failed", schoolId, ip: meta.ip, userAgent: meta.userAgent,
+                metadata: { reason: "unknown_email" },
+            });
+            throw authErrors.invalidCredentials();
         }
 
-        // ── 2. Check account is active ────────────────────────────────────
-        if (!userWithPassword.isActive) {
-            throw new ForbiddenError(AuthErrorMessage.ACCOUNT_INACTIVE);
-        }
+        // ── Password proven ──────────────────────────────────────────────
+        if (user.lockedUntil && user.lockedUntil > new Date()) throw authErrors.accountLocked();
+        if (!user.isActive)        throw authErrors.accountInactive();
+        if (!user.isEmailVerified) throw authErrors.emailNotVerified();
 
-        const now = new Date();
+        await d.loginAttemptService.clear(email, meta.ip);
 
-        if (
-            userWithPassword.lockedUntil &&
-            userWithPassword.lockedUntil <= now
-        ) {
-            await this.userRepository.resetFailedLogin(userWithPassword.id);
+        const resolved = schoolId
+            ? await this.resolveSchoolSession(user.id, schoolId, dto.persona)
+            : await this.resolvePlatformSession(user.id);
 
-            userWithPassword.failedLoginCount = 0;
-            userWithPassword.lockedUntil = null;
-        }
-
-
-        // ── 3. Check account is not locked ────────────────────────────────
-        if (
-            userWithPassword.lockedUntil &&
-            userWithPassword.lockedUntil > new Date()
-        ) {
-            throw new ForbiddenError(AuthErrorMessage.ACCOUNT_LOCKED);
-        }
-
-        // ── 4. Verify password ────────────────────────────────────────────
-        const passwordValid = await this.passwordService.compare(
-            dto.password,
-            userWithPassword.passwordHash,
-        );
-
-        if (!passwordValid) {
-            // Increment failed login count
-            await this.userRepository.incrementFailedLogin(userWithPassword.id);
-
-            // Lock account if max attempts reached
-            const newFailedCount = userWithPassword.failedLoginCount + 1;
-
-            if (newFailedCount >= MAX_FAILED_LOGIN_ATTEMPTS) {
-                const lockUntil = new Date(
-                    Date.now() + LOCK_DURATION_MINUTES * 60 * 1000,
-                );
-                await this.userRepository.lockAccount(
-                    userWithPassword.id,
-                    lockUntil,
-                );
-                throw new ForbiddenError(AuthErrorMessage.ACCOUNT_LOCKED);
+        if ("status" in resolved) {            // selection responses carry no tokens
+            if (resolved.status === "DENIED") {
+                await d.authAuditService.record({
+                    action: "auth.login_failed", userId: user.id, schoolId, ip: meta.ip, userAgent: meta.userAgent,
+                    metadata: { reason: "no_access" },
+                });
+                throw authErrors.invalidCredentials();   // do not reveal school membership
             }
-
-            throw new UnauthorizedError(AuthErrorMessage.INVALID_CREDENTIALS);
+            return resolved;
         }
 
-        // ── 5. Check email verified ───────────────────────────────────────
-        if (!userWithPassword.isEmailVerified) {
-            throw new ForbiddenError(AuthErrorMessage.EMAIL_NOT_VERIFIED);
-        }
+        if (user.failedLoginCount > 0 || user.lockedUntil) await d.userRepository.resetFailedLogin(user.id);
+        await d.userRepository.updateLastLogin(user.id, meta.ip);
 
-        // ── 6. Reset failed login count ───────────────────────────────────
-        if (userWithPassword.failedLoginCount > 0) {
-            await this.userRepository.resetFailedLogin(userWithPassword.id);
-        }
-
-        // ── 7. Generate token pair ────────────────────────────────────────
-        const tokenId = crypto.randomUUID();
-
-        const tokens = this.tokenService.generateTokenPair(
-            {
-                id:                 userWithPassword.id,
-                email:              userWithPassword.email,
-                role:               userWithPassword.role,
-                schoolId:           userWithPassword.schoolId,
-                mustChangePassword: userWithPassword.mustChangePassword,
-            },
-            tokenId,
-        );
-
-        // ── 8. Store refresh token ────────────────────────────────────────
-        await this.refreshTokenRepository.create({
-            id:        tokenId,
-            userId:    userWithPassword.id,
-            token:     tokens.refreshToken,
-            expiresAt: this.tokenService.getRefreshTokenExpiry(),
+        const tokens = await d.authSessionService.issue({
+            userId: user.id, schoolId: resolved.schoolId, membershipId: resolved.membershipId,
+            mustChangePassword: user.mustChangePassword, ip: meta.ip, userAgent: meta.userAgent,
         });
 
-        // ── 9. Update last login ──────────────────────────────────────────
-        await this.userRepository.updateLastLogin(userWithPassword.id, ip);
-
-        // ── 10. Audit successful login ────────────────────────────────────
-        await this.auditService.logLogin({
-            userId:    userWithPassword.id,
-            schoolId:  userWithPassword.schoolId,
-            ipAddress: ip,
+        await d.authAuditService.record({
+            action: "auth.login", userId: user.id, schoolId: resolved.schoolId,
+            actorMembershipId: resolved.membershipId, ip: meta.ip, userAgent: meta.userAgent,
+            metadata: { persona: resolved.persona, kind: resolved.kind },
         });
 
-        // ── 11. Return response ───────────────────────────────────────────
         return {
-            user:   this.userMapper.toResponse(userWithPassword),
+            status: "AUTHENTICATED",
+            user:   d.userMapper.toResponse(user),
+            session: resolved,
             tokens,
         };
+    }
+
+    // ── Failure bookkeeping ──────────────────────────────────────────────
+    private async recordAccountFailure(userId: string, schoolId: string | null, meta: RequestMeta): Promise<void> {
+        const count = await this.d.userRepository.incrementFailedLogin(userId);
+        const locked = count >= ACCOUNT_LOCK_THRESHOLD;
+        if (locked) {
+            await this.d.userRepository.lockAccount(userId, new Date(Date.now() + ACCOUNT_LOCK_MINUTES * 60_000));
+        }
+        await this.d.authAuditService.record({
+            action: locked ? "auth.account_locked" : "auth.login_failed",
+            userId, schoolId, ip: meta.ip, userAgent: meta.userAgent,
+            metadata: { reason: "bad_password", failedCount: count },
+        });
+    }
+
+    // ── Session resolution ───────────────────────────────────────────────
+    private async resolveSchoolSession(userId: string, schoolId: string, requested?: PersonaType) {
+        const memberships = await this.d.membershipService.listActive(userId);
+        const pool = requested ? memberships.filter(m => m.persona === requested) : memberships;
+
+        if (pool.length === 0) return { status: "DENIED" as const };
+        if (pool.length > 1) {
+            return {
+                status:   "PERSONA_SELECTION_REQUIRED" as const,
+                personas: pool.map(m => m.persona),
+            };
+        }
+        return { kind: "school" as const, schoolId, membershipId: pool[0].id, persona: pool[0].persona };
+    }
+
+    private async resolvePlatformSession(userId: string) {
+        const member = await this.d.membershipService.getActivePlatformMember(userId);
+        if (member) return { kind: "platform" as const, schoolId: null, membershipId: member.id, persona: null };
+
+        const schools = await this.d.membershipService.listUserSchools(userId);
+        if (schools.length === 0) return { status: "DENIED" as const };
+        return { status: "SCHOOL_SELECTION_REQUIRED" as const, schools };
     }
 }

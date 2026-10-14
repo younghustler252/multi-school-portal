@@ -1,11 +1,12 @@
 // infrastructure/database/prisma/prisma.client.ts
+import { env } from "../../../config/env";
 import { PrismaClient as PublicPrismaClient } from "../../../generated/public/client";
 import { PrismaClient as TenantPrismaClient } from "../../../generated/tenant/client";
 import { PrismaPg }      from "@prisma/adapter-pg";
 import { TenantContext } from "./tenant.context";
 import pg                from "pg";
 
-const databaseUrl = process.env.DATABASE_URL;
+const databaseUrl = env.DATABASE_URL;
 if (!databaseUrl) {
     throw new Error("🚨 FATAL: DATABASE_URL environment variable is missing inside your .env configuration file.");
 }

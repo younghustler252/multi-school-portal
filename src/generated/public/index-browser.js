@@ -134,6 +134,7 @@ exports.Prisma.SchoolScalarFieldEnum = {
   country: 'country',
   timezone: 'timezone',
   logoUrl: 'logoUrl',
+  website: 'website',
   schoolCategory: 'schoolCategory',
   schoolOwnership: 'schoolOwnership',
   status: 'status',
@@ -143,6 +144,7 @@ exports.Prisma.SchoolScalarFieldEnum = {
   suspendedAt: 'suspendedAt',
   suspensionReason: 'suspensionReason',
   isActive: 'isActive',
+  deletedAt: 'deletedAt',
   schemaName: 'schemaName',
   schemaProvisionedAt: 'schemaProvisionedAt',
   paystackSubaccountCode: 'paystackSubaccountCode',
@@ -178,6 +180,7 @@ exports.Prisma.UserScalarFieldEnum = {
   email: 'email',
   passwordHash: 'passwordHash',
   role: 'role',
+  platformRole: 'platformRole',
   firstName: 'firstName',
   lastName: 'lastName',
   phone: 'phone',
@@ -193,6 +196,12 @@ exports.Prisma.UserScalarFieldEnum = {
   mustChangePassword: 'mustChangePassword',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.UserSchoolScalarFieldEnum = {
+  userId: 'userId',
+  schoolId: 'schoolId',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.OtpScalarFieldEnum = {
@@ -218,10 +227,15 @@ exports.Prisma.InviteScalarFieldEnum = {
   id: 'id',
   email: 'email',
   role: 'role',
+  persona: 'persona',
+  roleId: 'roleId',
+  roleKey: 'roleKey',
   token: 'token',
   schoolId: 'schoolId',
   sentById: 'sentById',
   accepted: 'accepted',
+  acceptedAt: 'acceptedAt',
+  revokedAt: 'revokedAt',
   expiresAt: 'expiresAt',
   createdAt: 'createdAt'
 };
@@ -297,14 +311,185 @@ exports.Prisma.BillingHistoryScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.PlatformRoleScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  systemKey: 'systemKey',
+  kind: 'kind',
+  grantsAll: 'grantsAll',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PlatformRolePermissionScalarFieldEnum = {
+  roleId: 'roleId',
+  permissionKey: 'permissionKey'
+};
+
+exports.Prisma.PlatformMemberScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PlatformMemberRoleScalarFieldEnum = {
+  memberId: 'memberId',
+  roleId: 'roleId',
+  assignedAt: 'assignedAt',
+  assignedById: 'assignedById'
+};
+
+exports.Prisma.PermissionDefinitionScalarFieldEnum = {
+  key: 'key',
+  realm: 'realm',
+  module: 'module',
+  scopes: 'scopes',
+  personas: 'personas',
+  requiresFeature: 'requiresFeature',
+  introducedInVersion: 'introducedInVersion',
+  label: 'label',
+  description: 'description',
+  isSensitive: 'isSensitive',
+  isDeprecated: 'isDeprecated',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.RoleTemplateScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  name: 'name',
+  description: 'description',
+  persona: 'persona',
+  isLocked: 'isLocked',
+  grantsAll: 'grantsAll',
+  autoProvision: 'autoProvision',
+  defaultForPersona: 'defaultForPersona',
+  version: 'version',
+  isActive: 'isActive',
+  sortOrder: 'sortOrder',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.RoleTemplatePermissionScalarFieldEnum = {
+  templateId: 'templateId',
+  permissionKey: 'permissionKey',
+  scope: 'scope'
+};
+
+exports.Prisma.FeatureDefinitionScalarFieldEnum = {
+  key: 'key',
+  origin: 'origin',
+  kind: 'kind',
+  module: 'module',
+  meterKey: 'meterKey',
+  unit: 'unit',
+  name: 'name',
+  description: 'description',
+  enforcement: 'enforcement',
+  upsellMessage: 'upsellMessage',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PlanEntitlementScalarFieldEnum = {
+  planId: 'planId',
+  featureKey: 'featureKey',
+  boolValue: 'boolValue',
+  limitValue: 'limitValue',
+  enumValue: 'enumValue'
+};
+
+exports.Prisma.SchoolEntitlementOverrideScalarFieldEnum = {
+  schoolId: 'schoolId',
+  featureKey: 'featureKey',
+  boolValue: 'boolValue',
+  limitValue: 'limitValue',
+  enumValue: 'enumValue',
+  reason: 'reason',
+  expiresAt: 'expiresAt',
+  createdById: 'createdById',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.SettingDefinitionScalarFieldEnum = {
+  key: 'key',
+  area: 'area',
+  type: 'type',
+  constraints: 'constraints',
+  dependsOn: 'dependsOn',
+  requiresFeature: 'requiresFeature',
+  isSecret: 'isSecret',
+  group: 'group',
+  label: 'label',
+  description: 'description',
+  defaultValue: 'defaultValue',
+  isSchoolEditable: 'isSchoolEditable',
+  sortOrder: 'sortOrder',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AutomationRuleDefinitionScalarFieldEnum = {
+  key: 'key',
+  module: 'module',
+  trigger: 'trigger',
+  eventKey: 'eventKey',
+  anchor: 'anchor',
+  paramsSchema: 'paramsSchema',
+  allowedChannels: 'allowedChannels',
+  allowedAudiences: 'allowedAudiences',
+  templateKey: 'templateKey',
+  allowMultiple: 'allowMultiple',
+  requiresFeature: 'requiresFeature',
+  name: 'name',
+  description: 'description',
+  defaultEnabled: 'defaultEnabled',
+  defaultParams: 'defaultParams',
+  defaultChannels: 'defaultChannels',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.MessageTemplateScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  channel: 'channel',
+  locale: 'locale',
+  category: 'category',
+  variables: 'variables',
+  isSchoolOverridable: 'isSchoolOverridable',
+  subject: 'subject',
+  body: 'body',
+  isActive: 'isActive',
+  version: 'version',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.AuditLogScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   schoolId: 'schoolId',
+  actorMembershipId: 'actorMembershipId',
+  actorName: 'actorName',
   actorType: 'actorType',
   action: 'action',
   entity: 'entity',
   entityId: 'entityId',
+  module: 'module',
+  requestId: 'requestId',
   oldValue: 'oldValue',
   newValue: 'newValue',
   ipAddress: 'ipAddress',
@@ -335,6 +520,13 @@ exports.Prisma.PlatformNotificationRecipientScalarFieldEnum = {
   status: 'status',
   retryCount: 'retryCount',
   failedReason: 'failedReason',
+  providerMsgId: 'providerMsgId',
+  idempotencyKey: 'idempotencyKey',
+  queuedAt: 'queuedAt',
+  sentAt: 'sentAt',
+  failedAt: 'failedAt',
+  cancelledAt: 'cancelledAt',
+  nextRetryAt: 'nextRetryAt',
   readAt: 'readAt',
   deliveredAt: 'deliveredAt',
   createdAt: 'createdAt',
@@ -344,11 +536,31 @@ exports.Prisma.PlatformNotificationRecipientScalarFieldEnum = {
 exports.Prisma.PlatformSettingsScalarFieldEnum = {
   id: 'id',
   platformName: 'platformName',
+  legalName: 'legalName',
+  shortName: 'shortName',
+  tagline: 'tagline',
   supportEmail: 'supportEmail',
   supportPhone: 'supportPhone',
   logoUrl: 'logoUrl',
+  faviconUrl: 'faviconUrl',
+  primaryColor: 'primaryColor',
+  secondaryColor: 'secondaryColor',
+  companyAddress: 'companyAddress',
   termsUrl: 'termsUrl',
   privacyPolicyUrl: 'privacyPolicyUrl',
+  smsSenderId: 'smsSenderId',
+  emailFromName: 'emailFromName',
+  emailFromAddress: 'emailFromAddress',
+  emailReplyTo: 'emailReplyTo',
+  supportWhatsapp: 'supportWhatsapp',
+  marketingSiteUrl: 'marketingSiteUrl',
+  helpCenterUrl: 'helpCenterUrl',
+  statusPageUrl: 'statusPageUrl',
+  socialLinks: 'socialLinks',
+  defaultTimezone: 'defaultTimezone',
+  defaultCountry: 'defaultCountry',
+  defaultCurrency: 'defaultCurrency',
+  defaultLocale: 'defaultLocale',
   subscriptionGracePeriodDays: 'subscriptionGracePeriodDays',
   reminderDaysBeforeExpiry: 'reminderDaysBeforeExpiry',
   termEndingReminderDays: 'termEndingReminderDays',
@@ -357,6 +569,7 @@ exports.Prisma.PlatformSettingsScalarFieldEnum = {
   maintenanceMode: 'maintenanceMode',
   maintenanceMessage: 'maintenanceMessage',
   announcementBanner: 'announcementBanner',
+  updatedById: 'updatedById',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -463,10 +676,20 @@ exports.Role = exports.$Enums.Role = {
   guardian: 'guardian'
 };
 
+exports.LegacyPlatformRole = exports.$Enums.LegacyPlatformRole = {
+  super_admin: 'super_admin'
+};
+
 exports.OtpType = exports.$Enums.OtpType = {
   email_verification: 'email_verification',
   password_reset: 'password_reset',
   two_factor: 'two_factor'
+};
+
+exports.Persona = exports.$Enums.Persona = {
+  STAFF: 'STAFF',
+  STUDENT: 'STUDENT',
+  GUARDIAN: 'GUARDIAN'
 };
 
 exports.SubscriptionStatus = exports.$Enums.SubscriptionStatus = {
@@ -493,6 +716,80 @@ exports.PaymentStatus = exports.$Enums.PaymentStatus = {
   success: 'success',
   failed: 'failed',
   refunded: 'refunded'
+};
+
+exports.PlatformRoleKind = exports.$Enums.PlatformRoleKind = {
+  LOCKED: 'LOCKED',
+  CUSTOM: 'CUSTOM'
+};
+
+exports.MemberStatus = exports.$Enums.MemberStatus = {
+  active: 'active',
+  suspended: 'suspended',
+  removed: 'removed'
+};
+
+exports.PermissionRealm = exports.$Enums.PermissionRealm = {
+  PLATFORM: 'PLATFORM',
+  SCHOOL: 'SCHOOL'
+};
+
+exports.PermissionScope = exports.$Enums.PermissionScope = {
+  ALL: 'ALL',
+  ASSIGNED: 'ASSIGNED',
+  OWN: 'OWN'
+};
+
+exports.DefinitionOrigin = exports.$Enums.DefinitionOrigin = {
+  CODE: 'CODE',
+  PLATFORM: 'PLATFORM'
+};
+
+exports.FeatureKind = exports.$Enums.FeatureKind = {
+  BOOLEAN: 'BOOLEAN',
+  LIMIT: 'LIMIT',
+  QUOTA: 'QUOTA',
+  ENUM: 'ENUM'
+};
+
+exports.Enforcement = exports.$Enums.Enforcement = {
+  BLOCK: 'BLOCK',
+  WARN: 'WARN'
+};
+
+exports.SettingType = exports.$Enums.SettingType = {
+  BOOLEAN: 'BOOLEAN',
+  INTEGER: 'INTEGER',
+  DECIMAL: 'DECIMAL',
+  STRING: 'STRING',
+  ENUM: 'ENUM',
+  TIME: 'TIME',
+  STRING_LIST: 'STRING_LIST',
+  INTEGER_LIST: 'INTEGER_LIST',
+  ENTITY_REF: 'ENTITY_REF'
+};
+
+exports.AutomationTrigger = exports.$Enums.AutomationTrigger = {
+  EVENT: 'EVENT',
+  SCHEDULE: 'SCHEDULE',
+  OFFSET_BEFORE: 'OFFSET_BEFORE',
+  OFFSET_AFTER: 'OFFSET_AFTER'
+};
+
+exports.NotificationChannel = exports.$Enums.NotificationChannel = {
+  IN_APP: 'IN_APP',
+  EMAIL: 'EMAIL',
+  SMS: 'SMS'
+};
+
+exports.TemplateCategory = exports.$Enums.TemplateCategory = {
+  AUTH: 'AUTH',
+  BILLING: 'BILLING',
+  SYSTEM: 'SYSTEM',
+  FEES: 'FEES',
+  ACADEMIC: 'ACADEMIC',
+  ATTENDANCE: 'ATTENDANCE',
+  GENERAL: 'GENERAL'
 };
 
 exports.ActorType = exports.$Enums.ActorType = {
@@ -522,12 +819,6 @@ exports.NotificationState = exports.$Enums.NotificationState = {
   CANCELLED: 'CANCELLED'
 };
 
-exports.NotificationChannel = exports.$Enums.NotificationChannel = {
-  IN_APP: 'IN_APP',
-  EMAIL: 'EMAIL',
-  SMS: 'SMS'
-};
-
 exports.DeliveryStatus = exports.$Enums.DeliveryStatus = {
   PENDING: 'PENDING',
   QUEUED: 'QUEUED',
@@ -555,6 +846,7 @@ exports.Prisma.ModelName = {
   School: 'School',
   SchoolDocument: 'SchoolDocument',
   User: 'User',
+  UserSchool: 'UserSchool',
   Otp: 'Otp',
   RefreshToken: 'RefreshToken',
   Invite: 'Invite',
@@ -562,6 +854,19 @@ exports.Prisma.ModelName = {
   Subscription: 'Subscription',
   Coupon: 'Coupon',
   BillingHistory: 'BillingHistory',
+  PlatformRole: 'PlatformRole',
+  PlatformRolePermission: 'PlatformRolePermission',
+  PlatformMember: 'PlatformMember',
+  PlatformMemberRole: 'PlatformMemberRole',
+  PermissionDefinition: 'PermissionDefinition',
+  RoleTemplate: 'RoleTemplate',
+  RoleTemplatePermission: 'RoleTemplatePermission',
+  FeatureDefinition: 'FeatureDefinition',
+  PlanEntitlement: 'PlanEntitlement',
+  SchoolEntitlementOverride: 'SchoolEntitlementOverride',
+  SettingDefinition: 'SettingDefinition',
+  AutomationRuleDefinition: 'AutomationRuleDefinition',
+  MessageTemplate: 'MessageTemplate',
   AuditLog: 'AuditLog',
   PlatformNotification: 'PlatformNotification',
   PlatformNotificationRecipient: 'PlatformNotificationRecipient',

@@ -1,47 +1,55 @@
 import { UserEntity } from "../domain/auth.entity";
 
-/*
-|--------------------------------------------------------------------------
-| AUTH MODULE TYPES
-| Internal types used across the auth module
-|--------------------------------------------------------------------------
-*/
+export type PersonaType = "STAFF" | "STUDENT" | "GUARDIAN";
 
-// ── Token pair returned after login/register ─────────────────────────────
+export interface RequestMeta {
+    ip:        string;
+    userAgent: string | null;
+}
+
 export interface AuthTokens {
     accessToken:  string;
     refreshToken: string;
 }
 
-// ── Full auth response returned to client ────────────────────────────────
-export interface AuthResponse {
-    user:   UserResponseData;
-    tokens: AuthTokens;
+export interface SessionInfo {
+    kind:         "school" | "platform";
+    schoolId:     string | null;
+    membershipId: string | null;
+    persona:      PersonaType | null;
 }
 
-// ── Safe user data returned to client (no sensitive fields) ──────────────
 export interface UserResponseData {
-    id:             string;
-    email:          string;
-    role:           string;
-    firstName:      string | null;
-    lastName:       string | null;
-    phone:          string | null;
-    photoUrl:       string | null;
-    schoolId:       string | null;
-    isEmailVerified: boolean;
-    mustChangePAssword: boolean;
+    id:                 string;
+    email:              string;
+    firstName:          string | null;
+    lastName:           string | null;
+    phone:              string | null;
+    photoUrl:           string | null;
+    isEmailVerified:    boolean;
+    mustChangePassword: boolean;
 }
 
-// ── JWT payload shape ────────────────────────────────────────────────────
-export interface JwtPayload {
-    id:       string;
-    email:    string;
-    role:     string;
-    schoolId: string | null;
+export interface AuthenticatedResult {
+    status:  "AUTHENTICATED";
+    user:    UserResponseData;
+    session: SessionInfo;
+    tokens:  AuthTokens;
 }
 
-// ── Internal use — user with password hash for auth checks ───────────────
+export type LoginResult =
+    | AuthenticatedResult
+    | { status: "PERSONA_SELECTION_REQUIRED"; personas: PersonaType[] }
+    | { status: "SCHOOL_SELECTION_REQUIRED";  schools: { id: string; name: string; url: string }[] };
+
 export interface UserWithPassword extends UserEntity {
     passwordHash: string;
+}
+
+// The acting staff member on invite routes
+export interface InviteActor {
+    userId:       string;
+    membershipId: string | null;
+    isAdmin:      boolean;
+    can:          (permissionKey: string) => boolean;
 }
