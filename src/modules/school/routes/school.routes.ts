@@ -8,7 +8,7 @@ import { authenticate } from "../../../infrastructure/middleware/auth.middleware
 import { requireTenant } from "../../../infrastructure/middleware/tenant-resolver.middleware";
 import { loadAccess, requirePermission } from "../../../infrastructure/middleware/rbac.middleware";
 import { requireVerifiedSchool } from "../../../infrastructure/middleware/require-verified-school.middleware";
-import { reestablishTenantContext } from "../../../infrastructure/middleware/reestablish-tenant-context.middleware";
+import { reestablishTenantContext } from "../../../infrastructure/middleware/reestablish-tenant-context";
 import { AppError } from "../../../shared/errors/domain.errors";
 import { UpdateSchoolDto, UploadDocumentDto, SetupPaymentDto } from "../dtos/school.dto";
 

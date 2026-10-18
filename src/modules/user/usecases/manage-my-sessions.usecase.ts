@@ -1,4 +1,4 @@
-import { IRefreshTokenRepository } from "../../../usernew/user-module-v1/modules/auth/repositories/refresh-token.repository";
+import { IRefreshTokenRepository } from "../../auth/repositories/refresh-token.repository";
 import { TokenService }            from "../../../shared/services/token.service";
 import { TokenHashService }        from "../../auth/services/token-hash.service";
 import { AuthAuditService }        from "../../auth/services/auth-audit.service";

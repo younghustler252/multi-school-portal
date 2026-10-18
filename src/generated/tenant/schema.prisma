@@ -17,6 +17,7 @@ enum Persona {
 
 enum PermissionScope {
   ALL
+  BRANCH
   ASSIGNED
   OWN
 }
@@ -569,7 +570,8 @@ model Membership {
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
-  roles MembershipRole[]
+  roles    MembershipRole[]
+  branches MembershipBranch[]
 
   @@unique([userId, persona])
   @@unique([persona, personaEntityId])
@@ -588,6 +590,46 @@ model MembershipRole {
 
   @@id([membershipId, roleId])
   @@index([roleId])
+}
+
+// ===== BRANCH MANAGEMENT =====
+
+model Branch {
+  id               String    @id @default(uuid())
+  name             String
+  code             String    @unique
+  isMain           Boolean   @default(false)
+  address          String?
+  city             String?
+  state            String?
+  phone            String?
+  email            String?
+  principalStaffId String?
+  isActive         Boolean   @default(true)
+  createdById      String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+
+  members MembershipBranch[]
+
+  @@index([isActive])
+  @@index([deletedAt])
+}
+
+// Which branches a staff member works in. A role held at BRANCH scope only works inside these.
+
+model MembershipBranch {
+  membershipId String
+  branchId     String
+  assignedAt   DateTime @default(now())
+  assignedById String?
+
+  membership Membership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+  branch     Branch     @relation(fields: [branchId], references: [id])
+
+  @@id([membershipId, branchId])
+  @@index([branchId])
 }
 
 // ===== SCHOOL SETTINGS OVERRIDES =====

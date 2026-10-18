@@ -2,7 +2,7 @@
 
 ## Apply
 1. Copy `modules/user/*` over the old module. **Delete**: `domain/user.enums.ts`, `domain/user.entity.ts`, `usecases/reser-school-admin-password.usecase.ts` (replaced by `reset-school-admin-password.usecase.ts`).
-2. Copy the 5 changed auth files in `modules/auth/` (they extend the auth pass; nothing else in auth changes):
+2. Copy the 5 changed auth files in `modules/auth/` (they extend the auth pass; nothing else in auth changes)pris:
    `services/auth-audit.service.ts` (optional `module`, `oldValue`, `newValue`), `repositories/refresh-token.repository(.impl).ts` (`listActiveForUser`), `services/membership.service.ts` (`listActiveUserIdsByRoleKey`), `auth.templates.ts` (new template `auth.password_reset_by_support`, reworded `auth.password_changed`). Re-run `syncAuthTemplates`; existing rows keep their old wording (wording is data), so edit `auth.password_changed` in the console if you want the new text.
 3. `registerUser` must come after `registerAuth` in the container list.
 4. Register permission key `platform.users.manage` (see `user.permissions.ts`) and give it to the platform roles that may reset passwords.

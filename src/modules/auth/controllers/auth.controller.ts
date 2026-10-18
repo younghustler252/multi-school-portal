@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { RegisterUseCase }       from "../../../../modules/auth/usecases/register.usecase";
-import { VerifyEmailUseCase }    from "../../../../modules/auth/usecases/verify-email.usecase";
+import { RegisterUseCase } from "../usecases/register.usecase";
+import { VerifyEmailUseCase } from "../usecases/verify-email.usecase";
 import { LoginUseCase }          from "../usecases/login.usecase";
 import { RefreshTokenUseCase }   from "../usecases/refresh-token.usecase";
 import { LogoutUseCase }         from "../usecases/logout.usecase";
@@ -17,7 +17,7 @@ import { setAuthCookies, clearAuthCookies }  from "../../../infrastructure/middl
 import { getAccess }             from "../../../infrastructure/middleware/rbac.middleware";
 import { sendSuccess, sendCreated } from "../../../shared/utils/api-response";
 import { AuthMessage }           from "../domain/auth.enums";
-import { authErrors }            from "../../../../modules/auth/domain/auth.errors";
+import { authErrors } from "../domain/auth.errors";
 import { InviteActor, RequestMeta, LoginResult } from "../types/auth.types";
 
 interface Dependencies {

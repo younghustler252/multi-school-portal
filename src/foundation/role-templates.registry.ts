@@ -39,6 +39,16 @@ export const ROLE_TEMPLATES: RoleTemplateDef[] = [
             { key: "school.view", scope: "ALL" }, { key: "school.update", scope: "ALL" }, { key: "school.dashboard.view", scope: "ALL" },
             { key: "students.view", scope: "ALL" }, { key: "attendance.view", scope: "ALL" },
             { key: "fees.view", scope: "ALL" }, { key: "users.view", scope: "ALL" },
+            { key: "branches.view", scope: "ALL" },
+        ],
+    },
+    {
+        key: "branch_principal", name: "Branch Principal", persona: "STAFF", locked: false, grantsAll: false, sortOrder: 15,
+        description: "Runs one campus: sees only the branches they are assigned to.",
+        permissions: [
+            { key: "school.view", scope: "ALL" }, { key: "branches.view", scope: "BRANCH" },
+            { key: "students.view", scope: "BRANCH" }, { key: "attendance.view", scope: "BRANCH" },
+            { key: "fees.view", scope: "BRANCH" }, { key: "users.view", scope: "BRANCH" },
         ],
     },
     {

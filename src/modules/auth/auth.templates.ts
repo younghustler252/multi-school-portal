@@ -1,5 +1,4 @@
-import { PrismaClient } from "../../../generated/public/client";
-
+import { PrismaClient } from "../../generated/public";
 /*
 |--------------------------------------------------------------------------
 | AUTH MESSAGE TEMPLATES (code registry)

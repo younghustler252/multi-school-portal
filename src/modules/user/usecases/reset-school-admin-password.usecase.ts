@@ -1,7 +1,7 @@
 import { PrismaClient }            from "../../../generated/public/client";
 import { TenantContext }           from "../../../infrastructure/database/prisma/tenant.context";
 import { IUserRepository }         from "../../auth/repositories/user.repository";
-import { IRefreshTokenRepository } from "../../../usernew/user-module-v1/modules/auth/repositories/refresh-token.repository";
+import { IRefreshTokenRepository } from "../../auth/repositories/refresh-token.repository";
 import { PasswordService }         from "../../../shared/services/password.service";
 import { MembershipService }       from "../../auth/services/membership.service";
 import { AuthMessageService }      from "../../auth/services/auth-message.service";

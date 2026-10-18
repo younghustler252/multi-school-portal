@@ -26,23 +26,24 @@ import { registerSchool }        from "../modules/school/school.container";
 import { registerUser }          from "../modules/user/user.container";
 import { registerPlans }         from "../modules/plans/plans.container";
 import { registerSubscriptions } from "../modules/subscriptions/subscription.container";
+import { registerBranches } from "../modules/branches/branches.container";
 import { registerStaff }         from "../modules/staff/staff.container";
 import { registerStudents }      from "../modules/students/students.container";
-import { registerGuardians }     from "../modules/guardians/guardians.container";
-import { registerClasses }       from "../modules/classes/classes.container";
-import { registerSessions } from "../modules/sessions/sessions.container";
-import { registerEnrolment }     from "../modules/enrolment/enrolment.container";
-import { registerAttendance }    from "../modules/attendance/attendance.container";
-import { registerGrades }        from "../modules/grades/grades.container";
-import { registerReportCards }   from "../modules/report-cards/report-cards.container";
-import { registerFees }          from "../modules/fees/fees.container";
-import { registerPayments }      from "../modules/payments/payments.container";
-import { registerAudit } from "../modules/audit/audit.container";
-import { registerNotifications } from "../modules/notifications/notifications.container";
-import { registerSuperAdmin }    from "../modules/super-admin/super-admin.container";
-import { registerSchoolSettings } from "../modules/school-settings/school-settings.container";
-import { registerPlatformSettings } from "../modules/platform-settings/platform-settings.container";
-import { registerFeedback } from "../modules/feedback/feedback.container";
+// import { registerGuardians }     from "../modules/guardians/guardians.container";
+// import { registerClasses }       from "../modules/classes/classes.container";
+// import { registerSessions } from "../modules/sessions/sessions.container";
+// import { registerEnrolment }     from "../modules/enrolment/enrolment.container";
+// import { registerAttendance }    from "../modules/attendance/attendance.container";
+// import { registerGrades }        from "../modules/grades/grades.container";
+// import { registerReportCards }   from "../modules/report-cards/report-cards.container";
+// import { registerFees }          from "../modules/fees/fees.container";
+// import { registerPayments }      from "../modules/payments/payments.container";
+// import { registerAudit } from "../modules/audit/audit.container";
+// import { registerNotifications } from "../modules/notifications/notifications.container";
+// import { registerSuperAdmin }    from "../modules/super-admin/super-admin.container";
+// import { registerSchoolSettings } from "../modules/school-settings/school-settings.container";
+// import { registerPlatformSettings } from "../modules/platform-settings/platform-settings.container";
+// import { registerFeedback } from "../modules/feedback/feedback.container";
 
 const modules: Array<(c: AwilixContainer) => void> = [
     registerShared,
@@ -52,23 +53,24 @@ const modules: Array<(c: AwilixContainer) => void> = [
     registerUser,
     registerPlans,
     registerSubscriptions,
-    registerStaff,
-    registerStudents,
-    registerGuardians,
-    registerClasses,
-    registerSessions,
-    registerEnrolment,
-    registerAttendance,
-    registerGrades,
-    registerReportCards,
-    registerFees,
-    registerPayments,
-    registerAudit,
-    registerNotifications,
-    registerSuperAdmin, 
-    registerSchoolSettings,
-    registerPlatformSettings,
-    registerFeedback
+    registerBranches,
+    // registerStaff,
+    // registerStudents,
+    // registerGuardians,
+    // registerClasses,
+    // registerSessions,
+    // registerEnrolment,
+    // registerAttendance,
+    // registerGrades,
+    // registerReportCards,
+    // registerFees,
+    // registerPayments,
+    // registerAudit,
+    // registerNotifications,
+    // registerSuperAdmin, 
+    // registerSchoolSettings,
+    // registerPlatformSettings,
+    // registerFeedback
 ];
 
 /*

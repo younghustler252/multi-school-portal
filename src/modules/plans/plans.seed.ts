@@ -26,6 +26,7 @@ const FREE: Grants = {
     "students.max": 50, "staff.max": 5,
     "notifications.email": true, "modules.attendance": true, "modules.grades": true,
     "portal.guardian": true,        // parents seeing results and fees is core value on every plan
+    "branches.max": 1,              // the main branch
 };
 const STARTER: Grants = {
     ...FREE, "students.max": 200, "staff.max": 20,
@@ -39,6 +40,7 @@ const STANDARD: Grants = {
 const PREMIUM: Grants = {
     ...STANDARD, "students.max": null, "staff.max": null,
     "domain.custom": true, "support.priority": true,
+    "branches.max": 3,              // multiple branches: the headline Premium feature (change in the console; extra branches can become an add-on)
 };
 
 export const DEFAULT_PLANS: DefaultPlan[] = [

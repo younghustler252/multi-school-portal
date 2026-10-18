@@ -25,7 +25,9 @@ const envSchema = z.object({
     // ── App ──────────────────────────────────────────────────────────────
     NODE_ENV:         z.enum(["development", "production", "test"]).default("development"),
     PORT:             z.string().default("5000"),
-    APP_BASE_DOMAIN:  z.string(),
+    BASE_DOMAIN:     z.string().min(3),          
+    COOKIE_DOMAIN:   z.string().optional(),     
+    PUBLIC_URL_PORT: z.string().optional(),  
     ADMIN_SUBDOMAIN:  z.string().default("admin"),
 
     // ── Database ─────────────────────────────────────────────────────────
@@ -96,7 +98,9 @@ export const env = {
     // ── App ──────────────────────────────────────────────────────────────
     NODE_ENV:        parsed.data.NODE_ENV,
     PORT:            parsed.data.PORT,
-    APP_BASE_DOMAIN: parsed.data.APP_BASE_DOMAIN,
+    BASE_DOMAIN: parsed.data.BASE_DOMAIN,
+    COOKIE_DOMAIN:   parsed.data.COOKIE_DOMAIN,
+    PUBLIC_URL_PORT: parsed.data.PUBLIC_URL_PORT,
     ADMIN_SUBDOMAIN: parsed.data.ADMIN_SUBDOMAIN,
 
     // ── Database ─────────────────────────────────────────────────────────

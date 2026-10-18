@@ -21,9 +21,23 @@ export interface PaginatedResult<T> {
     meta: PaginationMeta;
 }
 
+/*
+|--------------------------------------------------------------------------
+| BASE REPOSITORY
+| NEW: SOFT DELETE. A repository whose table has a `deletedAt` column sets
+|        protected readonly softDelete = true;
+| and then, automatically:
+|   - every read (findById, findOne, findMany, paginate, count, exists) hides deleted rows
+|   - delete(id) does NOT erase the row: it sets deletedAt (history and links stay intact)
+|   - restore(id) brings it back; hardDelete(id) really erases (rarely correct; avoid)
+| Repositories that do not set it behave exactly as before.
+| Caveat: upsert() and the `where` of update() are not filtered (they address a row by key on purpose).
+|--------------------------------------------------------------------------
+*/
 abstract class AbstractBaseRepository<T, DM = any> {
     protected readonly mapper: IMapper<DM, T>;
     protected abstract readonly modelName: string;
+    protected readonly softDelete: boolean = false;
 
     constructor(mapper: IMapper<DM, T>) {
         this.mapper = mapper;
@@ -41,17 +55,21 @@ abstract class AbstractBaseRepository<T, DM = any> {
         return raws.map(raw => this.mapper.toDomain(raw));
     }
 
+    // Adds "not deleted" to a filter when this repository uses soft delete
+    protected live(where: Record<string, any> = {}): Record<string, any> {
+        return this.softDelete ? { ...where, deletedAt: null } : where;
+    }
+
     async findById(id: string, include?: Record<string, any>): Promise<T | null> {
-        const raw = await this.model().findUnique({
-            where: { id },
-            ...(include && { include }),
-        });
+        const raw = this.softDelete
+            ? await this.model().findFirst({ where: { id, deletedAt: null }, ...(include && { include }) })
+            : await this.model().findUnique({ where: { id }, ...(include && { include }) });
         return this.mapOne(raw);
     }
 
     async findOne(where: Record<string, any>, include?: Record<string, any>): Promise<T | null> {
         const raw = await this.model().findFirst({
-            where,
+            where: this.live(where),
             ...(include && { include }),
         });
         return this.mapOne(raw);
@@ -59,7 +77,7 @@ abstract class AbstractBaseRepository<T, DM = any> {
 
     async findMany(where: Record<string, any> = {}, include?: Record<string, any>, orderBy?: Record<string, any>): Promise<T[]> {
         const raws = await this.model().findMany({
-            where,
+            where: this.live(where),
             ...(include && { include }),
             ...(orderBy && { orderBy }),
         });
@@ -72,7 +90,7 @@ abstract class AbstractBaseRepository<T, DM = any> {
             limit: params.limit,
         });
 
-        const where   = params.where   ?? {};
+        const where   = this.live(params.where ?? {});
         const orderBy = params.orderBy ?? { createdAt: "desc" };
 
         const [raws, total] = await Promise.all([
@@ -109,18 +127,34 @@ abstract class AbstractBaseRepository<T, DM = any> {
         return this.mapper.toDomain(raw);
     }
 
+    /** Soft-delete repositories only mark the row as deleted; others erase it as before. */
     async delete(id: string): Promise<T> {
+        const raw = this.softDelete
+            ? await this.model().update({ where: { id }, data: { deletedAt: new Date() } })
+            : await this.model().delete({ where: { id } });
+        return this.mapper.toDomain(raw);
+    }
+
+    /** Brings a soft-deleted row back. Only for soft-delete repositories. */
+    async restore(id: string): Promise<T> {
+        if (!this.softDelete) throw new Error(`${this.modelName}: restore() needs softDelete = true`);
+        const raw = await this.model().update({ where: { id }, data: { deletedAt: null } });
+        return this.mapper.toDomain(raw);
+    }
+
+    /** Really erases the row. Almost never what you want: prefer delete(). */
+    async hardDelete(id: string): Promise<T> {
         const raw = await this.model().delete({ where: { id } });
         return this.mapper.toDomain(raw);
     }
 
     async exists(where: Record<string, any>): Promise<boolean> {
-        const count = await this.model().count({ where });
+        const count = await this.model().count({ where: this.live(where) });
         return count > 0;
     }
 
     async count(where: Record<string, any> = {}): Promise<number> {
-        return this.model().count({ where });
+        return this.model().count({ where: this.live(where) });
     }
 
     async upsert(where: Record<string, any>, create: Record<string, any>, update: Record<string, any>): Promise<T> {

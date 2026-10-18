@@ -7,7 +7,7 @@ import { authenticate }                from "../../../infrastructure/middleware/
 import { requireSchoolAdmin }          from "../../../infrastructure/middleware/rbac.middleware";
 import { UpdateSchoolSettingsDto }     from "../dtos/school-settings.dto";
 import { requireTenant } from "../../../infrastructure/middleware/tenant-resolver.middleware";
-import { reestablishTenantContext } from "../../../infrastructure/middleware/restablish-tenant-context";
+import { reestablishTenantContext } from "../../../infrastructure/middleware/reestablish-tenant-context";
 
 const router = Router();
 const upload = multer({

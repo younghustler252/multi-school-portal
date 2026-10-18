@@ -1,25 +1,31 @@
-import { ForbiddenError, UnauthorizedError } from "../cc/foundation-drop-in/src/shared/errors/domain.errors";
+import { ForbiddenError, UnauthorizedError } from "../shared/errors/domain.errors"
 
 /*
 |--------------------------------------------------------------------------
 | ACCESS SERVICE
 | Loads "who is this, and what may they do" for a session:
-|   school session   -> tenant Membership + SchoolRole(s) + SchoolRolePermission
+|   school session   -> tenant Membership + SchoolRole(s) + SchoolRolePermission + the branches they work in
 |   platform session -> PlatformMember + PlatformRole(s) + PlatformRolePermission
 |
 | Permissions are the union over the member's roles; for each key the widest
-| scope wins (ALL > ASSIGNED > OWN). A role with grantsAll holds every
+| scope wins (ALL > BRANCH > ASSIGNED > OWN). A role with grantsAll holds every
 | permission of its realm. Keys starting with "platform." belong to the
 | platform realm only; all other keys belong to the school realm only.
-| Cached for a short TTL; call invalidate() after any role/membership change.
+| Cached for a short TTL; call invalidate() after any role/membership/branch change.
+|
+| SCOPES, in plain words
+|   ALL       the whole school (every branch)
+|   BRANCH    only the branches the person is assigned to
+|   ASSIGNED  only the classes/subjects/students assigned to them
+|   OWN       only their own record (or, for a guardian, their own children)
 |--------------------------------------------------------------------------
 */
 
-export type Scope   = "ALL" | "ASSIGNED" | "OWN";
+export type Scope   = "ALL" | "BRANCH" | "ASSIGNED" | "OWN";
 export type Persona = "STAFF" | "STUDENT" | "GUARDIAN";
 export type Realm   = "school" | "platform";
 
-const RANK: Record<Scope, number> = { OWN: 1, ASSIGNED: 2, ALL: 3 };
+const RANK: Record<Scope, number> = { OWN: 1, ASSIGNED: 2, BRANCH: 3, ALL: 4 };
 const LEGACY_ROLE_PRIORITY = ["school_admin", "principal", "bursar", "teacher", "student", "guardian"] as const;
 
 export class Access {
@@ -32,6 +38,8 @@ export class Access {
         readonly roleKeys:        ReadonlySet<string>,
         private readonly grantsAll:    boolean,
         private readonly permissions:  ReadonlyMap<string, Scope>,
+        /** The branches this person is assigned to (school sessions). Only meaningful for BRANCH-scoped permissions. */
+        readonly branchIds:       ReadonlySet<string> = new Set(),
     ) {}
 
     private applies(key: string): boolean {
@@ -42,11 +50,30 @@ export class Access {
         return this.applies(key) && (this.grantsAll || this.permissions.has(key));
     }
 
-    /** ALL / ASSIGNED / OWN, or null when the permission is not held. Use cases apply the scope to their queries. */
+    /** ALL / BRANCH / ASSIGNED / OWN, or null when the permission is not held. Use cases apply the scope to their queries. */
     scopeOf(key: string): Scope | null {
         if (!this.applies(key)) return null;
         if (this.grantsAll) return "ALL";
         return this.permissions.get(key) ?? null;
+    }
+
+    /**
+     * Which branches may this permission act on?
+     *   "ALL"        every branch: add no branch filter
+     *   string[]     only these branches: filter with  branchId IN (...)
+     *   null         the permission is not branch-wide (held at ASSIGNED / OWN scope, or not held): use that scope instead
+     */
+    branchScope(key: string): "ALL" | string[] | null {
+        const scope = this.scopeOf(key);
+        if (scope === "ALL") return "ALL";
+        if (scope === "BRANCH") return [...this.branchIds];
+        return null;
+    }
+
+    /** May this permission act on this particular branch? */
+    canActInBranch(key: string, branchId: string): boolean {
+        const s = this.branchScope(key);
+        return s === "ALL" || (Array.isArray(s) && s.includes(branchId));
     }
 
     hasRoleKey(key: string): boolean {
@@ -75,6 +102,7 @@ export interface MembershipRow {
             permissions: Array<{ permissionKey: string; scope: Scope }>;
         };
     }>;
+    branches: Array<{ branchId: string }>;
 }
 
 export interface PlatformMemberRow {
@@ -138,7 +166,7 @@ export class AccessService {
     private async loadSchool(membershipId: string): Promise<Access> {
         const m = await this.db.tenant().membership.findUnique({
             where:   { id: membershipId },
-            include: { roles: { include: { role: { include: { permissions: true } } } } },
+            include: { roles: { include: { role: { include: { permissions: true } } } }, branches: true },
         });
         if (!m) throw new UnauthorizedError("Session is no longer valid", "SESSION_INVALID");
         if (m.status !== "active") throw new ForbiddenError("Your account is not active in this school.", "MEMBERSHIP_INACTIVE");
@@ -157,7 +185,8 @@ export class AccessService {
             }
         }
 
-        return new Access("school", m.userId, m.id, m.persona, m.personaEntityId, roleKeys, grantsAll, permissions);
+        const branchIds = new Set((m.branches ?? []).map(b => b.branchId));
+        return new Access("school", m.userId, m.id, m.persona, m.personaEntityId, roleKeys, grantsAll, permissions, branchIds);
     }
 
     private async loadPlatform(memberId: string): Promise<Access> {

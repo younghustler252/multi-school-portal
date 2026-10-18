@@ -186,6 +186,12 @@ export class MembershipService {
             await db.membershipRole.create({
                 data: { membershipId: m.id, roleId: p.roleId, assignedById: p.assignedById ?? null },
             });
+            // Staff start in the main branch (an admin can move them: PUT /branches/assignments/:membershipId).
+            // Schools provisioned before branches existed have no main branch yet: nothing is assigned then.
+            if (p.persona === "STAFF") {
+                const main = await db.branch.findFirst({ where: { isMain: true, deletedAt: null }, select: { id: true } });
+                if (main) await db.membershipBranch.create({ data: { membershipId: m.id, branchId: main.id, assignedById: p.assignedById ?? null } });
+            }
         } catch (err) {
             await db.membership.delete({ where: { id: m.id } }).catch(() => undefined);
             throw err;

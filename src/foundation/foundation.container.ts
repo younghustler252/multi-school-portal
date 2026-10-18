@@ -34,6 +34,7 @@ export const registerFoundation = (container: AwilixContainer): void => {
                 meters: {
                     "students.active": () => getTenantClient().student.count({ where: { isActive: true } }),
                     "staff.active":    () => getTenantClient().staff.count({ where: { isActive: true } }),
+                    "branches.active": () => getTenantClient().branch.count({ where: { isActive: true, deletedAt: null } }),
                 },
             }),
         ).singleton(),

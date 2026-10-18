@@ -8,8 +8,14 @@ import { AuthAuditService }      from "../services/auth-audit.service";
 import { authErrors }            from "../domain/auth.errors";
 import { ACCOUNT_LOCK_THRESHOLD, ACCOUNT_LOCK_MINUTES } from "../domain/auth.enums";
 import { LoginDtoType }          from "../dtos/login.dto";
-import { LoginResult, RequestMeta, PersonaType } from "../types/auth.types";
+import { LoginResult, RequestMeta, PersonaType, SessionInfo } from "../types/auth.types";
 import { randomBytes }           from "crypto";
+
+// What "resolve the session" can answer. A plain `outcome` field makes TypeScript (and a reader) sure which case it is.
+type Resolution =
+    | { outcome: "denied" }                                                         // no access here: answered as invalid credentials
+    | { outcome: "selection"; result: Exclude<LoginResult, { status: "AUTHENTICATED" }> }   // the person must choose a profile or a school
+    | { outcome: "session"; session: SessionInfo };                                 // one clear session: sign in
 
 interface Dependencies {
     userRepository:     IUserRepository;
@@ -72,39 +78,39 @@ export class LoginUseCase {
 
         await d.loginAttemptService.clear(email, meta.ip);
 
-        const resolved = schoolId
+        const resolved: Resolution = schoolId
             ? await this.resolveSchoolSession(user.id, schoolId, dto.persona)
             : await this.resolvePlatformSession(user.id);
 
-        if ("status" in resolved) {            // selection responses carry no tokens
-            if (resolved.status === "DENIED") {
-                await d.authAuditService.record({
-                    action: "auth.login_failed", userId: user.id, schoolId, ip: meta.ip, userAgent: meta.userAgent,
-                    metadata: { reason: "no_access" },
-                });
-                throw authErrors.invalidCredentials();   // do not reveal school membership
-            }
-            return resolved;
+        if (resolved.outcome === "denied") {
+            await d.authAuditService.record({
+                action: "auth.login_failed", userId: user.id, schoolId, ip: meta.ip, userAgent: meta.userAgent,
+                metadata: { reason: "no_access" },
+            });
+            throw authErrors.invalidCredentials();   // do not reveal school membership
         }
+        if (resolved.outcome === "selection") return resolved.result;     // selection answers carry no tokens
+
+        const session = resolved.session;
 
         if (user.failedLoginCount > 0 || user.lockedUntil) await d.userRepository.resetFailedLogin(user.id);
         await d.userRepository.updateLastLogin(user.id, meta.ip);
 
         const tokens = await d.authSessionService.issue({
-            userId: user.id, schoolId: resolved.schoolId, membershipId: resolved.membershipId,
+            userId: user.id, schoolId: session.schoolId, membershipId: session.membershipId,
             mustChangePassword: user.mustChangePassword, ip: meta.ip, userAgent: meta.userAgent,
         });
 
         await d.authAuditService.record({
-            action: "auth.login", userId: user.id, schoolId: resolved.schoolId,
-            actorMembershipId: resolved.membershipId, ip: meta.ip, userAgent: meta.userAgent,
-            metadata: { persona: resolved.persona, kind: resolved.kind },
+            action: "auth.login", userId: user.id, schoolId: session.schoolId,
+            actorMembershipId: session.membershipId, ip: meta.ip, userAgent: meta.userAgent,
+            metadata: { persona: session.persona, kind: session.kind },
         });
 
         return {
             status: "AUTHENTICATED",
             user:   d.userMapper.toResponse(user),
-            session: resolved,
+            session,
             tokens,
         };
     }
@@ -124,26 +130,23 @@ export class LoginUseCase {
     }
 
     // ── Session resolution ───────────────────────────────────────────────
-    private async resolveSchoolSession(userId: string, schoolId: string, requested?: PersonaType) {
+    private async resolveSchoolSession(userId: string, schoolId: string, requested?: PersonaType): Promise<Resolution> {
         const memberships = await this.d.membershipService.listActive(userId);
         const pool = requested ? memberships.filter(m => m.persona === requested) : memberships;
 
-        if (pool.length === 0) return { status: "DENIED" as const };
+        if (pool.length === 0) return { outcome: "denied" };
         if (pool.length > 1) {
-            return {
-                status:   "PERSONA_SELECTION_REQUIRED" as const,
-                personas: pool.map(m => m.persona),
-            };
+            return { outcome: "selection", result: { status: "PERSONA_SELECTION_REQUIRED", personas: pool.map(m => m.persona) } };
         }
-        return { kind: "school" as const, schoolId, membershipId: pool[0].id, persona: pool[0].persona };
+        return { outcome: "session", session: { kind: "school", schoolId, membershipId: pool[0].id, persona: pool[0].persona } };
     }
 
-    private async resolvePlatformSession(userId: string) {
+    private async resolvePlatformSession(userId: string): Promise<Resolution> {
         const member = await this.d.membershipService.getActivePlatformMember(userId);
-        if (member) return { kind: "platform" as const, schoolId: null, membershipId: member.id, persona: null };
+        if (member) return { outcome: "session", session: { kind: "platform", schoolId: null, membershipId: member.id, persona: null } };
 
         const schools = await this.d.membershipService.listUserSchools(userId);
-        if (schools.length === 0) return { status: "DENIED" as const };
-        return { status: "SCHOOL_SELECTION_REQUIRED" as const, schools };
+        if (schools.length === 0) return { outcome: "denied" };
+        return { outcome: "selection", result: { status: "SCHOOL_SELECTION_REQUIRED", schools } };
     }
 }

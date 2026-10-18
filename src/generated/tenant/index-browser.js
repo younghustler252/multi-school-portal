@@ -432,6 +432,31 @@ exports.Prisma.MembershipRoleScalarFieldEnum = {
   assignedById: 'assignedById'
 };
 
+exports.Prisma.BranchScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  code: 'code',
+  isMain: 'isMain',
+  address: 'address',
+  city: 'city',
+  state: 'state',
+  phone: 'phone',
+  email: 'email',
+  principalStaffId: 'principalStaffId',
+  isActive: 'isActive',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt'
+};
+
+exports.Prisma.MembershipBranchScalarFieldEnum = {
+  membershipId: 'membershipId',
+  branchId: 'branchId',
+  assignedAt: 'assignedAt',
+  assignedById: 'assignedById'
+};
+
 exports.Prisma.SchoolSettingValueScalarFieldEnum = {
   key: 'key',
   value: 'value',
@@ -682,6 +707,7 @@ exports.Persona = exports.$Enums.Persona = {
 
 exports.PermissionScope = exports.$Enums.PermissionScope = {
   ALL: 'ALL',
+  BRANCH: 'BRANCH',
   ASSIGNED: 'ASSIGNED',
   OWN: 'OWN'
 };
@@ -776,6 +802,8 @@ exports.Prisma.ModelName = {
   SchoolRolePermission: 'SchoolRolePermission',
   Membership: 'Membership',
   MembershipRole: 'MembershipRole',
+  Branch: 'Branch',
+  MembershipBranch: 'MembershipBranch',
   SchoolSettingValue: 'SchoolSettingValue',
   AutomationRule: 'AutomationRule',
   AutomationRunLog: 'AutomationRunLog',

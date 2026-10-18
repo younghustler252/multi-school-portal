@@ -190,6 +190,13 @@ export const provisionSchemaWorker = new Worker<ProvisionSchemaJobData>(
 
 					console.log(`✅ Default fee types seeded: ${schemaName}`);
 
+					// Every school has one main branch from day one (the app hides branch pickers while there is only one)
+					await client.query(
+						`INSERT INTO "Branch" (id, name, code, "isMain", "isActive", "createdAt", "updatedAt")
+						 VALUES (gen_random_uuid(), 'Main Campus', 'MAIN', true, true, now(), now())`,
+					);
+					console.log(`✅ Main branch created: ${schemaName}`);
+
 					// ── School roles: copied from the platform's role templates ──
 					// Templates are data the platform team edits; each school gets its own copy
 					// and remembers which template (and version) it came from.

@@ -12,13 +12,16 @@ import { FEATURE_BY_LEGACY_FLAG, LegacyFlag } from "../../foundation/features.re
 |   requireFeature("smsNotifications")   old flag names still work (mapped to notifications.sms)
 |   requireFeature("notifications.sms")  new keys work too
 |   requirePlanLimit("student")          one more record is about to be created
-|   assertWithinPlanLimit(...)           for bulk use cases that add many at once
+|   assertWithinPlanLimit(...)           for use cases that add records (bulk imports pass the batch size)
+|
+| Change: a "branch" limit (branches.max), and correct plural wording in the limit message.
 |--------------------------------------------------------------------------
 */
 
 export type FeatureArg = LegacyFlag | (string & {});
 
-const LIMIT_KEYS = { student: "students.max", staff: "staff.max" } as const;
+const LIMIT_KEYS = { student: "students.max", staff: "staff.max", branch: "branches.max" } as const;
+const LIMIT_LABEL = { student: "students", staff: "staff members", branch: "branches" } as const;
 export type LimitType = keyof typeof LIMIT_KEYS;
 
 const entitlements = () => container.resolve<EntitlementsService>("entitlementsService");
@@ -56,11 +59,11 @@ export const assertWithinPlanLimit = async (schoolId: string, type: LimitType, a
         const key = LIMIT_KEYS[type];
         if (decision.reason === "limit_reached") {
             throw new PlanLimitError(
-                `You have reached your plan limit of ${decision.limit} ${type}s. Please upgrade your plan.`,
+                `You have reached your plan limit of ${decision.limit} ${LIMIT_LABEL[type]}. Please upgrade your plan.`,
                 { key, limit: decision.limit, current: decision.current },
             );
         }
-        throw new PlanLimitError(`Your plan does not allow adding ${type}s right now. Please check your subscription.`, { key });
+        throw new PlanLimitError(`Your plan does not allow adding ${LIMIT_LABEL[type]} right now. Please check your subscription.`, { key });
     }
     return { warn: decision.warn === true };
 };

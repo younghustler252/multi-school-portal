@@ -1,5 +1,5 @@
 import { IUserRepository }         from "../../auth/repositories/user.repository";
-import { IRefreshTokenRepository } from "../../../usernew/user-module-v1/modules/auth/repositories/refresh-token.repository";
+import { IRefreshTokenRepository } from "../../auth/repositories/refresh-token.repository";
 import { PasswordService }         from "../../../shared/services/password.service";
 import { UserMapper }              from "../../auth/mappers/user.mapper";
 import { AuthPolicyService }       from "../../auth/services/auth-policy.service";

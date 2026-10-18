@@ -42,10 +42,10 @@ enum PlatformRoleKind {
 
 enum PermissionScope {
   ALL
+  BRANCH
   ASSIGNED
   OWN
 }
-
 enum PermissionRealm {
   PLATFORM
   SCHOOL
@@ -131,6 +131,47 @@ enum PaymentStatus {
   success
   failed
   refunded
+}
+
+enum BillingInvoiceStatus {
+  open
+  paid
+  void
+  uncollectible
+}
+
+enum BillingInvoiceReason {
+  upgrade
+  renewal
+  adjustment
+}
+
+enum BillingItemKind {
+  plan
+  setup_fee
+  proration_credit
+  discount
+  adjustment
+}
+
+enum PaymentAttemptStatus {
+  pending
+  success
+  failed
+  abandoned
+}
+
+enum PaymentAttemptMethod {
+  checkout
+  saved_card
+  manual
+}
+
+enum WebhookEventStatus {
+  received
+  processed
+  ignored
+  failed
 }
 
 enum FeatureKind {
@@ -238,42 +279,61 @@ enum FeedbackStatus {
 // ===== SCHOOL =====
 
 model School {
-  id                     String             @id @default(uuid())
-  name                   String
-  subdomain              String             @unique
+  // Primary identifier
+  id   String @id @default(uuid())
+  name String
+
+  // Domain and contact information
+  subdomain              String   @unique
   customDomain           String?
   customDomainVerifiedAt DateTime?
-  email                  String             @unique
+  email                  String   @unique
   phone                  String?
-  address                String?
-  city                   String?
-  state                  String?
-  country                String             @default("Nigeria")
-  timezone               String             @default("Africa/Lagos")
-  logoUrl                String?
   website                String?
-  schoolCategory         SchoolCategory     @default(primary)
-  schoolOwnership        SchoolOwnership    @default(private)
-  status                 SchoolStatus       @default(pending)
-  verificationStatus     VerificationStatus @default(unverified)
-  verifiedAt             DateTime?
-  verifiedById           String?
-  suspendedAt            DateTime?
-  suspensionReason       String?
-  isActive               Boolean            @default(false)
-  deletedAt              DateTime?
+  logoUrl                String?
 
+  // Address information
+  address  String?
+  city     String?
+  state    String?
+  country  String   @default("Nigeria")
+  timezone String   @default("Africa/Lagos")
+
+  // School classification
+  schoolCategory   SchoolCategory   @default(primary)
+  schoolOwnership  SchoolOwnership  @default(private)
+
+  // Status and verification
+  status             SchoolStatus       @default(pending)
+  verificationStatus VerificationStatus @default(unverified)
+  verificationNote   String?
+  verifiedAt         DateTime?
+  verifiedById       String?
+  activatedAt        DateTime?
+  isActive           Boolean            @default(false)
+
+  // Suspension and deletion
+  suspendedAt      DateTime?
+  suspensionReason String?
+  deletedAt        DateTime?
+
+  // Multi-tenant schema provisioning
   schemaName          String?   @unique
   schemaProvisionedAt DateTime?
 
+  // Paystack settlement information
   paystackSubaccountCode  String?
   paystackSubaccountId    String?
   settlementBankCode      String?
   settlementAccountNumber String?
+  settlementAccountName   String?
+  settlementAccountLast4  String?
 
+  // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Relationships
   users                          User[]
   userSchools                    UserSchool[]
   subscriptions                  Subscription[]
@@ -282,8 +342,12 @@ model School {
   platformNotificationRecipients PlatformNotificationRecipient[]
   entitlementOverrides           SchoolEntitlementOverride[]
   feedback                       Feedback[]
+  subscriptionInvoices SubscriptionInvoice[]
+  paymentMethods       PaymentMethod[]
 
+  // Indexes
   @@index([status])
+  @@index([status, activatedAt])
   @@index([deletedAt])
 }
 
@@ -304,6 +368,7 @@ model SchoolDocument {
   apiResponse           Json?
   createdAt             DateTime       @default(now())
   updatedAt             DateTime       @updatedAt
+  
 
   school School @relation(fields: [schoolId], references: [id])
 
@@ -444,27 +509,30 @@ model Plan {
   systemKey   String? @unique
   description String?
 
-  // Legacy limits and features retained until final cleanup.
-  // Legacy -1 limits are migrated to null limitValue during backfill.
-  studentLimit Int    @default(0)
-  staffLimit   Int    @default(0)
-  features     Json   @default("{}")
+  // Legacy fields retained until final cleanup
+  studentLimit Int  @default(0)
+  staffLimit   Int  @default(0)
+  features     Json @default("{}")
 
+  // Pricing
   monthlyPriceKobo Int @default(0)
   yearlyPriceKobo  Int @default(0)
   setupFeeKobo     Int @default(0)
 
+  // Availability and plan type
   isPublic Boolean @default(true)
   isActive Boolean @default(true)
   isCustom Boolean @default(false)
 
+  // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Relationships
   subscriptions Subscription[]
   entitlements  PlanEntitlement[]
+  invoices      SubscriptionInvoice[]
 }
-
 
 model Subscription {
   id                       String             @id @default(uuid())
@@ -480,22 +548,32 @@ model Subscription {
   couponId                 String?
   discountedPriceKobo      Int?
   autoRenew                Boolean            @default(false)
+
+  // Legacy Paystack and billing fields retained during migration
   paystackAuthorizationCode String?
-  scheduledDowngradePlanId String?
-  setupFeePaid             Boolean            @default(false)
-  setupFeePaidAt           DateTime?
-  paystackCustomerCode     String?
-  paystackSubscriptionCode String?
-  nextBillingDate          DateTime?
-  lastBillingAttemptAt     DateTime?
-  failedBillingCount       Int                @default(0)
-  createdAt                DateTime           @default(now())
-  updatedAt                DateTime           @updatedAt
+  paystackCustomerCode      String?
+  paystackSubscriptionCode  String?
+  scheduledDowngradePlanId  String?
+  setupFeePaid              Boolean            @default(false)
+  setupFeePaidAt            DateTime?
+  nextBillingDate           DateTime?
+  lastBillingAttemptAt      DateTime?
+  failedBillingCount        Int                @default(0)
+
+  // New billing-engine fields
+  paymentMethodId String?
+  billingAnchorDay Int @default(1)
+  lapsedPlanId     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   school         School           @relation(fields: [schoolId], references: [id])
   plan           Plan             @relation(fields: [planId], references: [id])
   coupon         Coupon?          @relation(fields: [couponId], references: [id])
   billingHistory BillingHistory[]
+
+  invoices SubscriptionInvoice[]
 
   @@index([schoolId, status])
   @@index([planId])
@@ -545,6 +623,144 @@ model BillingHistory {
 
   @@index([subscriptionId, createdAt])
   @@index([status])
+}
+
+// ===== BILLING ENGINE =====
+
+// One invoice per charge.
+// Subscription state follows invoice state, never the other way round.
+model SubscriptionInvoice {
+  id                String               @id @default(uuid())
+  number            String               @unique
+  idempotencyKey    String?              @unique
+  subscriptionId    String
+  schoolId          String
+  planId            String
+  billingCycle      BillingCycle
+  reason            BillingInvoiceReason
+  status            BillingInvoiceStatus @default(open)
+  periodStart       DateTime
+  periodEnd         DateTime
+  subtotalKobo      Int
+  discountKobo      Int                  @default(0)
+  totalKobo         Int
+  amountPaidKobo    Int                  @default(0)
+  couponId          String?
+  dueDate           DateTime
+  issuedAt          DateTime             @default(now())
+  paidAt            DateTime?
+  voidedAt          DateTime?
+  attemptCount      Int                  @default(0)
+  nextAttemptAt     DateTime?
+  lastFailureReason String?
+  note              String?
+  createdById       String?
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id])
+  school       School       @relation(fields: [schoolId], references: [id])
+  plan         Plan         @relation(fields: [planId], references: [id])
+
+  items    SubscriptionInvoiceItem[]
+  attempts PaymentAttempt[]
+
+  @@index([schoolId, createdAt])
+  @@index([subscriptionId, status])
+  @@index([status, dueDate])
+  @@index([status, nextAttemptAt])
+}
+
+model SubscriptionInvoiceItem {
+  id          String         @id @default(uuid())
+  invoiceId   String
+  kind        BillingItemKind
+  description String
+  amountKobo  Int
+  createdAt   DateTime       @default(now())
+
+  invoice SubscriptionInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+}
+
+model PaymentAttempt {
+  id              String               @id @default(uuid())
+  invoiceId       String
+  reference       String               @unique
+  amountKobo      Int
+  status          PaymentAttemptStatus @default(pending)
+  method          PaymentAttemptMethod
+  paymentMethodId String?
+  providerStatus  String?
+  failureReason   String?
+  createdAt       DateTime             @default(now())
+  completedAt     DateTime?
+
+  invoice SubscriptionInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@index([status, createdAt])
+}
+
+// Saved payment methods.
+// authorizationCode must be encrypted by the application.
+model PaymentMethod {
+  id                String    @id @default(uuid())
+  schoolId          String
+  provider          String    @default("paystack")
+  authorizationCode String
+  signature         String?
+  brand             String?
+  last4             String?
+  expMonth          Int?
+  expYear           Int?
+  bank              String?
+  checkoutEmail     String
+  isDefault         Boolean   @default(true)
+  createdAt         DateTime  @default(now())
+  removedAt         DateTime?
+
+  school School @relation(fields: [schoolId], references: [id])
+
+  @@unique([schoolId, signature])
+  @@index([schoolId, removedAt])
+}
+
+// Idempotent provider webhook-event log.
+model WebhookEvent {
+  id          String             @id @default(uuid())
+  provider    String
+  eventKey    String
+  eventType   String
+  reference   String?
+  status      WebhookEventStatus @default(received)
+  error       String?
+  receivedAt  DateTime           @default(now())
+  processedAt DateTime?
+
+  @@unique([provider, eventKey])
+  @@index([status, receivedAt])
+}
+
+// Prevents duplicate billing reminders.
+model BillingNotice {
+  subscriptionId String
+  periodEnd      DateTime
+  key            String
+  sentAt         DateTime @default(now())
+
+  @@id([subscriptionId, periodEnd, key])
+}
+
+// Invoice-number sequence counters.
+model PlatformSequence {
+  key       String
+  period    String   @default("")
+  nextValue Int      @default(1)
+  updatedAt DateTime @updatedAt
+
+  @@id([key, period])
 }
 
 // ===== PLATFORM RBAC =====
@@ -874,46 +1090,71 @@ model PlatformNotificationRecipient {
 // ===== PLATFORM SETTINGS =====
 
 model PlatformSettings {
-  id                          String   @id @default(uuid())
-  platformName                String   @default("SchoolPortal")
-  legalName                   String?
-  shortName                   String?
-  tagline                     String?
-  supportEmail                String   @default("support@schoolportal.com")
-  supportPhone                String?
-  logoUrl                     String?
-  faviconUrl                  String?
-  primaryColor                String?
-  secondaryColor              String?
-  companyAddress              String?
-  termsUrl                    String?
-  privacyPolicyUrl            String?
-  smsSenderId                 String?
-  emailFromName               String?
-  emailFromAddress            String?
-  emailReplyTo                String?
-  supportWhatsapp             String?
-  marketingSiteUrl            String?
-  helpCenterUrl               String?
-  statusPageUrl               String?
-  socialLinks                 Json?
-  defaultTimezone             String   @default("Africa/Lagos")
-  defaultCountry              String   @default("Nigeria")
-  defaultCurrency             String   @default("NGN")
-  defaultLocale               String   @default("en-NG")
-  subscriptionGracePeriodDays Int      @default(7)
-  reminderDaysBeforeExpiry    Int      @default(7)
-  termEndingReminderDays      Int      @default(7)
-  defaultTrialDays            Int      @default(0)
-  allowNewRegistrations       Boolean  @default(true)
-  maintenanceMode             Boolean  @default(false)
-  maintenanceMessage          String?
-  announcementBanner          String?
-  updatedById                 String?
-  createdAt                   DateTime @default(now())
-  updatedAt                   DateTime @updatedAt
-}
+  // Primary identifier
+  id String @id @default(uuid())
 
+  // Platform branding
+  platformName   String  @default("SchoolPortal")
+  legalName      String?
+  shortName      String?
+  tagline        String?
+  logoUrl        String?
+  faviconUrl     String?
+  primaryColor   String?
+  secondaryColor String?
+
+  // Support and contact information
+  supportEmail    String  @default("support@schoolportal.com")
+  supportPhone    String?
+  supportWhatsapp String?
+  companyAddress  String?
+
+  // Legal pages
+  termsUrl        String?
+  privacyPolicyUrl String?
+
+  // Email configuration
+  emailFromName    String?
+  emailFromAddress String?
+  emailReplyTo     String?
+
+  // SMS configuration
+  smsSenderId String?
+
+  // Website and support links
+  marketingSiteUrl String?
+  helpCenterUrl    String?
+  statusPageUrl    String?
+  socialLinks      Json?
+
+  // Default regional settings
+  defaultTimezone String @default("Africa/Lagos")
+  defaultCountry  String @default("Nigeria")
+  defaultCurrency String @default("NGN")
+  defaultLocale   String @default("en-NG")
+
+  // Subscription and reminder settings
+  subscriptionGracePeriodDays Int @default(7)
+  reminderDaysBeforeExpiry    Int @default(7)
+  termEndingReminderDays      Int @default(7)
+  defaultTrialDays             Int @default(0)
+
+  // Registration and school lifecycle settings
+  unconfirmedRegistrationHours Int @default(72)
+  unverifiedSchoolTrialDays    Int @default(30)
+  unverifiedSchoolRetentionDays Int @default(60)
+
+  // Platform access and maintenance
+  allowNewRegistrations Boolean @default(true)
+  maintenanceMode       Boolean @default(false)
+  maintenanceMessage    String?
+  announcementBanner   String?
+
+  // Audit information
+  updatedById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
 // ===== FEEDBACK =====
 
 model Feedback {

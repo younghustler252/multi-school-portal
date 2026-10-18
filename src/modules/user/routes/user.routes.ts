@@ -6,7 +6,7 @@ import { validate }            from "../../../infrastructure/middleware/validate
 import { authenticate }        from "../../../infrastructure/middleware/auth.middleware";
 import { loadAccess, requirePermission } from "../../../infrastructure/middleware/rbac.middleware";
 import { validateTenantOwnership } from "../../../infrastructure/middleware/tenant-resolver.middleware";
-import { reestablishTenantContext } from "../../../infrastructure/middleware/reestablish-tenant-context.middleware";
+import { reestablishTenantContext } from "../../../infrastructure/middleware/reestablish-tenant-context";
 import { AppError }            from "../../../shared/errors/domain.errors";
 import { UpdateProfileDto, ChangePasswordDto, ResetAdminPasswordDto } from "../dtos/user.dto";
 

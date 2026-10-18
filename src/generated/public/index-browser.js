@@ -128,22 +128,24 @@ exports.Prisma.SchoolScalarFieldEnum = {
   customDomainVerifiedAt: 'customDomainVerifiedAt',
   email: 'email',
   phone: 'phone',
+  website: 'website',
+  logoUrl: 'logoUrl',
   address: 'address',
   city: 'city',
   state: 'state',
   country: 'country',
   timezone: 'timezone',
-  logoUrl: 'logoUrl',
-  website: 'website',
   schoolCategory: 'schoolCategory',
   schoolOwnership: 'schoolOwnership',
   status: 'status',
   verificationStatus: 'verificationStatus',
+  verificationNote: 'verificationNote',
   verifiedAt: 'verifiedAt',
   verifiedById: 'verifiedById',
+  activatedAt: 'activatedAt',
+  isActive: 'isActive',
   suspendedAt: 'suspendedAt',
   suspensionReason: 'suspensionReason',
-  isActive: 'isActive',
   deletedAt: 'deletedAt',
   schemaName: 'schemaName',
   schemaProvisionedAt: 'schemaProvisionedAt',
@@ -151,6 +153,8 @@ exports.Prisma.SchoolScalarFieldEnum = {
   paystackSubaccountId: 'paystackSubaccountId',
   settlementBankCode: 'settlementBankCode',
   settlementAccountNumber: 'settlementAccountNumber',
+  settlementAccountName: 'settlementAccountName',
+  settlementAccountLast4: 'settlementAccountLast4',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -219,6 +223,15 @@ exports.Prisma.RefreshTokenScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   token: 'token',
+  familyId: 'familyId',
+  schoolId: 'schoolId',
+  membershipId: 'membershipId',
+  impersonatorId: 'impersonatorId',
+  userAgent: 'userAgent',
+  ipAddress: 'ipAddress',
+  lastUsedAt: 'lastUsedAt',
+  revokedAt: 'revokedAt',
+  replacedById: 'replacedById',
   expiresAt: 'expiresAt',
   createdAt: 'createdAt'
 };
@@ -228,6 +241,7 @@ exports.Prisma.InviteScalarFieldEnum = {
   email: 'email',
   role: 'role',
   persona: 'persona',
+  personaEntityId: 'personaEntityId',
   roleId: 'roleId',
   roleKey: 'roleKey',
   token: 'token',
@@ -243,6 +257,7 @@ exports.Prisma.InviteScalarFieldEnum = {
 exports.Prisma.PlanScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  systemKey: 'systemKey',
   description: 'description',
   studentLimit: 'studentLimit',
   staffLimit: 'staffLimit',
@@ -272,14 +287,17 @@ exports.Prisma.SubscriptionScalarFieldEnum = {
   discountedPriceKobo: 'discountedPriceKobo',
   autoRenew: 'autoRenew',
   paystackAuthorizationCode: 'paystackAuthorizationCode',
+  paystackCustomerCode: 'paystackCustomerCode',
+  paystackSubscriptionCode: 'paystackSubscriptionCode',
   scheduledDowngradePlanId: 'scheduledDowngradePlanId',
   setupFeePaid: 'setupFeePaid',
   setupFeePaidAt: 'setupFeePaidAt',
-  paystackCustomerCode: 'paystackCustomerCode',
-  paystackSubscriptionCode: 'paystackSubscriptionCode',
   nextBillingDate: 'nextBillingDate',
   lastBillingAttemptAt: 'lastBillingAttemptAt',
   failedBillingCount: 'failedBillingCount',
+  paymentMethodId: 'paymentMethodId',
+  billingAnchorDay: 'billingAnchorDay',
+  lapsedPlanId: 'lapsedPlanId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -309,6 +327,102 @@ exports.Prisma.BillingHistoryScalarFieldEnum = {
   paidAt: 'paidAt',
   failureReason: 'failureReason',
   createdAt: 'createdAt'
+};
+
+exports.Prisma.SubscriptionInvoiceScalarFieldEnum = {
+  id: 'id',
+  number: 'number',
+  idempotencyKey: 'idempotencyKey',
+  subscriptionId: 'subscriptionId',
+  schoolId: 'schoolId',
+  planId: 'planId',
+  billingCycle: 'billingCycle',
+  reason: 'reason',
+  status: 'status',
+  periodStart: 'periodStart',
+  periodEnd: 'periodEnd',
+  subtotalKobo: 'subtotalKobo',
+  discountKobo: 'discountKobo',
+  totalKobo: 'totalKobo',
+  amountPaidKobo: 'amountPaidKobo',
+  couponId: 'couponId',
+  dueDate: 'dueDate',
+  issuedAt: 'issuedAt',
+  paidAt: 'paidAt',
+  voidedAt: 'voidedAt',
+  attemptCount: 'attemptCount',
+  nextAttemptAt: 'nextAttemptAt',
+  lastFailureReason: 'lastFailureReason',
+  note: 'note',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SubscriptionInvoiceItemScalarFieldEnum = {
+  id: 'id',
+  invoiceId: 'invoiceId',
+  kind: 'kind',
+  description: 'description',
+  amountKobo: 'amountKobo',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.PaymentAttemptScalarFieldEnum = {
+  id: 'id',
+  invoiceId: 'invoiceId',
+  reference: 'reference',
+  amountKobo: 'amountKobo',
+  status: 'status',
+  method: 'method',
+  paymentMethodId: 'paymentMethodId',
+  providerStatus: 'providerStatus',
+  failureReason: 'failureReason',
+  createdAt: 'createdAt',
+  completedAt: 'completedAt'
+};
+
+exports.Prisma.PaymentMethodScalarFieldEnum = {
+  id: 'id',
+  schoolId: 'schoolId',
+  provider: 'provider',
+  authorizationCode: 'authorizationCode',
+  signature: 'signature',
+  brand: 'brand',
+  last4: 'last4',
+  expMonth: 'expMonth',
+  expYear: 'expYear',
+  bank: 'bank',
+  checkoutEmail: 'checkoutEmail',
+  isDefault: 'isDefault',
+  createdAt: 'createdAt',
+  removedAt: 'removedAt'
+};
+
+exports.Prisma.WebhookEventScalarFieldEnum = {
+  id: 'id',
+  provider: 'provider',
+  eventKey: 'eventKey',
+  eventType: 'eventType',
+  reference: 'reference',
+  status: 'status',
+  error: 'error',
+  receivedAt: 'receivedAt',
+  processedAt: 'processedAt'
+};
+
+exports.Prisma.BillingNoticeScalarFieldEnum = {
+  subscriptionId: 'subscriptionId',
+  periodEnd: 'periodEnd',
+  key: 'key',
+  sentAt: 'sentAt'
+};
+
+exports.Prisma.PlatformSequenceScalarFieldEnum = {
+  key: 'key',
+  period: 'period',
+  nextValue: 'nextValue',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.PlatformRoleScalarFieldEnum = {
@@ -539,20 +653,20 @@ exports.Prisma.PlatformSettingsScalarFieldEnum = {
   legalName: 'legalName',
   shortName: 'shortName',
   tagline: 'tagline',
-  supportEmail: 'supportEmail',
-  supportPhone: 'supportPhone',
   logoUrl: 'logoUrl',
   faviconUrl: 'faviconUrl',
   primaryColor: 'primaryColor',
   secondaryColor: 'secondaryColor',
+  supportEmail: 'supportEmail',
+  supportPhone: 'supportPhone',
+  supportWhatsapp: 'supportWhatsapp',
   companyAddress: 'companyAddress',
   termsUrl: 'termsUrl',
   privacyPolicyUrl: 'privacyPolicyUrl',
-  smsSenderId: 'smsSenderId',
   emailFromName: 'emailFromName',
   emailFromAddress: 'emailFromAddress',
   emailReplyTo: 'emailReplyTo',
-  supportWhatsapp: 'supportWhatsapp',
+  smsSenderId: 'smsSenderId',
   marketingSiteUrl: 'marketingSiteUrl',
   helpCenterUrl: 'helpCenterUrl',
   statusPageUrl: 'statusPageUrl',
@@ -565,6 +679,9 @@ exports.Prisma.PlatformSettingsScalarFieldEnum = {
   reminderDaysBeforeExpiry: 'reminderDaysBeforeExpiry',
   termEndingReminderDays: 'termEndingReminderDays',
   defaultTrialDays: 'defaultTrialDays',
+  unconfirmedRegistrationHours: 'unconfirmedRegistrationHours',
+  unverifiedSchoolTrialDays: 'unverifiedSchoolTrialDays',
+  unverifiedSchoolRetentionDays: 'unverifiedSchoolRetentionDays',
   allowNewRegistrations: 'allowNewRegistrations',
   maintenanceMode: 'maintenanceMode',
   maintenanceMessage: 'maintenanceMessage',
@@ -718,6 +835,47 @@ exports.PaymentStatus = exports.$Enums.PaymentStatus = {
   refunded: 'refunded'
 };
 
+exports.BillingInvoiceReason = exports.$Enums.BillingInvoiceReason = {
+  upgrade: 'upgrade',
+  renewal: 'renewal',
+  adjustment: 'adjustment'
+};
+
+exports.BillingInvoiceStatus = exports.$Enums.BillingInvoiceStatus = {
+  open: 'open',
+  paid: 'paid',
+  void: 'void',
+  uncollectible: 'uncollectible'
+};
+
+exports.BillingItemKind = exports.$Enums.BillingItemKind = {
+  plan: 'plan',
+  setup_fee: 'setup_fee',
+  proration_credit: 'proration_credit',
+  discount: 'discount',
+  adjustment: 'adjustment'
+};
+
+exports.PaymentAttemptStatus = exports.$Enums.PaymentAttemptStatus = {
+  pending: 'pending',
+  success: 'success',
+  failed: 'failed',
+  abandoned: 'abandoned'
+};
+
+exports.PaymentAttemptMethod = exports.$Enums.PaymentAttemptMethod = {
+  checkout: 'checkout',
+  saved_card: 'saved_card',
+  manual: 'manual'
+};
+
+exports.WebhookEventStatus = exports.$Enums.WebhookEventStatus = {
+  received: 'received',
+  processed: 'processed',
+  ignored: 'ignored',
+  failed: 'failed'
+};
+
 exports.PlatformRoleKind = exports.$Enums.PlatformRoleKind = {
   LOCKED: 'LOCKED',
   CUSTOM: 'CUSTOM'
@@ -736,6 +894,7 @@ exports.PermissionRealm = exports.$Enums.PermissionRealm = {
 
 exports.PermissionScope = exports.$Enums.PermissionScope = {
   ALL: 'ALL',
+  BRANCH: 'BRANCH',
   ASSIGNED: 'ASSIGNED',
   OWN: 'OWN'
 };
@@ -854,6 +1013,13 @@ exports.Prisma.ModelName = {
   Subscription: 'Subscription',
   Coupon: 'Coupon',
   BillingHistory: 'BillingHistory',
+  SubscriptionInvoice: 'SubscriptionInvoice',
+  SubscriptionInvoiceItem: 'SubscriptionInvoiceItem',
+  PaymentAttempt: 'PaymentAttempt',
+  PaymentMethod: 'PaymentMethod',
+  WebhookEvent: 'WebhookEvent',
+  BillingNotice: 'BillingNotice',
+  PlatformSequence: 'PlatformSequence',
   PlatformRole: 'PlatformRole',
   PlatformRolePermission: 'PlatformRolePermission',
   PlatformMember: 'PlatformMember',

@@ -2,7 +2,8 @@ import { AUTH_PERMISSIONS }   from "../modules/auth/auth.permissions";
 import { USER_PERMISSIONS }   from "../modules/user/user.permissions";
 import { SCHOOL_PERMISSIONS } from "../modules/school/school.permissions";
 import { PLANS_PERMISSIONS }  from "../modules/plans/plans.permissions";
-import { SUBSCRIPTION_PERMISSIONS } from "../../billing-module-v1 (1)/modules/subscriptions/subscriptions.permissions";
+import { SUBSCRIPTION_PERMISSIONS } from "../modules/subscriptions/subscriptions.permissions";
+import { BRANCH_PERMISSIONS } from "../modules/branches/branches.permissions";
 
 /*
 |--------------------------------------------------------------------------
@@ -19,7 +20,7 @@ import { SUBSCRIPTION_PERMISSIONS } from "../../billing-module-v1 (1)/modules/su
 |--------------------------------------------------------------------------
 */
 
-export type Scope   = "ALL" | "ASSIGNED" | "OWN";
+export type Scope   = "ALL" | "BRANCH" | "ASSIGNED" | "OWN";
 export type Persona = "STAFF" | "STUDENT" | "GUARDIAN";
 
 export interface PermissionDef {
@@ -38,10 +39,10 @@ export interface PermissionDef {
 // Keys that other modules already check (dashboard sections). The records modules
 // (students, attendance, fees, users) take ownership of them in their own passes and add their other keys.
 const CORE_PERMISSIONS: PermissionDef[] = [
-    { key: "students.view",   realm: "SCHOOL", module: "students",   scopes: ["ALL", "ASSIGNED", "OWN"], personas: ["STAFF", "STUDENT", "GUARDIAN"], label: "View students" },
-    { key: "attendance.view", realm: "SCHOOL", module: "attendance", scopes: ["ALL", "ASSIGNED", "OWN"], personas: ["STAFF", "STUDENT", "GUARDIAN"], label: "View attendance" },
-    { key: "fees.view",       realm: "SCHOOL", module: "fees",       scopes: ["ALL", "OWN"],             personas: ["STAFF", "STUDENT", "GUARDIAN"], label: "View fees and invoices" },
-    { key: "users.view",      realm: "SCHOOL", module: "users",      scopes: ["ALL"],                    personas: ["STAFF"],                        label: "View staff and accounts" },
+    { key: "students.view",   realm: "SCHOOL", module: "students",   scopes: ["ALL", "BRANCH", "ASSIGNED", "OWN"], personas: ["STAFF", "STUDENT", "GUARDIAN"], label: "View students" },
+    { key: "attendance.view", realm: "SCHOOL", module: "attendance", scopes: ["ALL", "BRANCH", "ASSIGNED", "OWN"], personas: ["STAFF", "STUDENT", "GUARDIAN"], label: "View attendance" },
+    { key: "fees.view",       realm: "SCHOOL", module: "fees",       scopes: ["ALL", "BRANCH", "OWN"],  personas: ["STAFF", "STUDENT", "GUARDIAN"], label: "View fees and invoices" },
+    { key: "users.view",      realm: "SCHOOL", module: "users",      scopes: ["ALL", "BRANCH"],         personas: ["STAFF"],                        label: "View staff and accounts" },
 ];
 
 const ALL: readonly PermissionDef[] = [
@@ -50,6 +51,7 @@ const ALL: readonly PermissionDef[] = [
     ...SCHOOL_PERMISSIONS,
     ...PLANS_PERMISSIONS,
     ...SUBSCRIPTION_PERMISSIONS,
+    ...BRANCH_PERMISSIONS,
     ...CORE_PERMISSIONS,
 ];
 
