@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "tsx --import ./tests/setup/env.ts --test --test-reporter=spec \"tests/**/*.test.ts\"",
     "dev": "nodemon",
     "build": "tsc",
     "start": "node dist/server.js",
