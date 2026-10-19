@@ -229,6 +229,7 @@ model Session {
 
   terms          Term[]
   calendarEvents CalendarEvent[]
+  journalEntries JournalEntry[]
 }
 
 model Term {
@@ -249,6 +250,7 @@ model Term {
   feeInvoices    FeeInvoice[]
   enrolments     Enrolment[]
   reportCards    ReportCard[]
+  journalEntries JournalEntry[]
 }
 
 enum TermName {
@@ -635,7 +637,8 @@ model Branch {
   updatedAt        DateTime  @updatedAt
   deletedAt        DateTime?
 
-  staff StaffBranch[]
+  staff          StaffBranch[]
+  journalEntries JournalEntry[]
 
   @@index([isActive])
   @@index([deletedAt])
@@ -858,4 +861,168 @@ enum TargetType {
   ALL_STUDENTS
   ALL_STAFF
   EVERYONE
+}
+
+// ===========================================================================
+// FINANCE: THE BOOKS  (owned by the Finance workspace; see FINANCE_MODULE_BRIEF.md)
+// Money is whole kobo in BigInt. Accounting dates are calendar dates (DATE), so a Nigerian
+// midnight never slips to the day before. A posted journal can never be edited or deleted
+// (database triggers in the finance_books migration); a mistake is fixed by a reversal.
+// Only the finance workspace edits this block. The back-relation lines this block needs
+// (journalEntries on Branch, Term and Session) are the only edits outside it.
+// ===========================================================================
+
+enum LedgerAccountType {
+  ASSET
+  LIABILITY
+  EQUITY
+  INCOME
+  EXPENSE
+}
+
+enum JournalStatus {
+  POSTED
+  REVERSED
+}
+
+enum PeriodStatus {
+  OPEN
+  CLOSED
+}
+
+enum JournalSourceType {
+  FEE_INVOICE
+  PAYMENT
+  REFUND
+  ADJUSTMENT
+  EXPENSE_BILL
+  EXPENSE_PAYMENT
+  PAYROLL_ACCRUAL
+  PAYROLL_PAYMENT
+  PAYROLL_REMITTANCE
+  TRANSFER
+  OPENING_BALANCE
+  MANUAL
+  REVERSAL
+}
+
+// Who a journal line is about, so reports can show who owes what
+enum LedgerPartyType {
+  STUDENT
+  GUARDIAN
+  VENDOR
+  STAFF
+}
+
+// A labeled bucket in the school's books: Cash, Tuition Income, Salaries ...
+// One chart of accounts per school (branches share it; a journal records its branch).
+model LedgerAccount {
+  id                 String            @id @default(uuid())
+  code               String            @unique
+  name               String
+  type               LedgerAccountType
+  subtype            String            @default("GENERAL")
+  systemKey          String?           @unique
+  parentId           String?
+  description        String?
+  isMoneyAccount     Boolean           @default(false)
+  bankName           String?
+  accountName        String?
+  accountNumberLast4 String?
+  isActive           Boolean           @default(true)
+  isLocked           Boolean           @default(false)
+  sortOrder          Int               @default(0)
+  createdById        String?
+  updatedById        String?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  deletedAt          DateTime?
+
+  parent   LedgerAccount?  @relation("LedgerAccountTree", fields: [parentId], references: [id], onDelete: Restrict)
+  children LedgerAccount[] @relation("LedgerAccountTree")
+  lines    JournalLine[]
+
+  @@index([type])
+  @@index([parentId])
+  @@index([isActive])
+  @@index([deletedAt])
+}
+
+// An accounting month. A closed period cannot receive postings.
+model FinancePeriod {
+  id           String       @id @default(uuid())
+  name         String       @unique
+  startDate    DateTime     @unique @db.Date
+  endDate      DateTime     @db.Date
+  status       PeriodStatus @default(OPEN)
+  closedAt     DateTime?
+  closedById   String?
+  reopenedAt   DateTime?
+  reopenedById String?
+  reopenReason String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  journals JournalEntry[]
+}
+
+// One money event. Immutable once posted; only status may change (POSTED to REVERSED).
+// idempotencyKey is built by the posting service from source type, source id and purpose,
+// so the same event can never post twice. A reversal points back at the journal it undoes.
+model JournalEntry {
+  id             String            @id @default(uuid())
+  number         String            @unique
+  entryDate      DateTime          @db.Date
+  periodId       String
+  termId         String?
+  sessionId      String?
+  branchId       String?
+  description    String
+  sourceType     JournalSourceType
+  sourceId       String?
+  purpose        String
+  idempotencyKey String            @unique
+  status         JournalStatus     @default(POSTED)
+  reversalOfId   String?           @unique
+  reversalReason String?
+  totalKobo      BigInt
+  createdById    String?
+  isSystemActor  Boolean           @default(false)
+  postedAt       DateTime          @default(now())
+  createdAt      DateTime          @default(now())
+
+  period     FinancePeriod @relation(fields: [periodId], references: [id], onDelete: Restrict)
+  term       Term?         @relation(fields: [termId], references: [id], onDelete: Restrict)
+  session    Session?      @relation(fields: [sessionId], references: [id], onDelete: Restrict)
+  branch     Branch?       @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  reversalOf JournalEntry? @relation("JournalReversal", fields: [reversalOfId], references: [id], onDelete: Restrict)
+  reversedBy JournalEntry? @relation("JournalReversal")
+  lines      JournalLine[]
+
+  @@index([periodId])
+  @@index([entryDate])
+  @@index([sourceType, sourceId])
+  @@index([termId])
+  @@index([branchId])
+}
+
+// One account moved by a journal, on the debit side or the credit side (never both).
+// The database enforces: exactly one side above zero, and debits equal credits per journal.
+model JournalLine {
+  id              String           @id @default(uuid())
+  journalId       String
+  lineNumber      Int
+  ledgerAccountId String
+  debitKobo       BigInt           @default(0)
+  creditKobo      BigInt           @default(0)
+  memo            String?
+  partyType       LedgerPartyType?
+  partyId         String?
+
+  journal       JournalEntry  @relation(fields: [journalId], references: [id], onDelete: Restrict)
+  ledgerAccount LedgerAccount @relation(fields: [ledgerAccountId], references: [id], onDelete: Restrict)
+
+  @@unique([journalId, lineNumber])
+  @@index([ledgerAccountId, journalId])
+  @@index([partyType, partyId])
 }
