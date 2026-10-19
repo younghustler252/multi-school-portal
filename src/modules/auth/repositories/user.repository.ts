@@ -5,6 +5,7 @@ import { UserWithPassword }            from "../types/auth.types";
 export interface IUserRepository {
     findById(id: string): Promise<UserEntity | null>;
     findByEmail(email: string): Promise<UserEntity | null>;
+    findByIds(ids: string[]): Promise<UserEntity[]>;
     findByEmailWithPassword(email: string): Promise<UserWithPassword | null>;
     create(data: Prisma.UserUncheckedCreateInput): Promise<UserEntity>;
     update(id: string, data: Prisma.UserUncheckedUpdateInput): Promise<UserEntity>;

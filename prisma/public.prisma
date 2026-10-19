@@ -13,6 +13,7 @@ enum LegacyPlatformRole {
   super_admin
 }
 
+
 enum Role {
   super_admin
   school_admin
@@ -670,6 +671,7 @@ model SubscriptionInvoice {
   @@index([status, dueDate])
   @@index([status, nextAttemptAt])
 }
+
 
 model SubscriptionInvoiceItem {
   id          String         @id @default(uuid())

@@ -68,7 +68,7 @@ export class GetDashboardUseCase {
         const term = await db.term.findFirst({ where: { isCurrent: true }, include: { session: true } });
         const termLabel = term ? `${term.session.name} ${term.name}` : null;
 
-        const showPeople = can("students.view") || can("users.view");
+        const showPeople = can("students.view") || can("staff.view");
         const people = showPeople ? await (async () => {
             const [totalStaff, activeStaff, totalStudents, activeStudents, totalGuardians] = await Promise.all([
                 db.staff.count(), db.staff.count({ where: { isActive: true } }),

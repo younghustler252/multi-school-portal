@@ -1,206 +1,73 @@
 import { Request, Response, NextFunction } from "express";
-import { CreateStaffUseCase }    from "../usecases/create-staff.usecase";
-import { GetStaffUseCase }       from "../usecases/get-staff.usecase";
-import { ListStaffUseCase }      from "../usecases/list-staff.usecase";
-import { UpdateStaffUseCase }    from "../usecases/update-staff.usecase";
-import { DeactivateStaffUseCase } from "../usecases/deactivate-staff.usecase";
-import { ReactivateStaffUseCase } from "../usecases/reactivate-staff.usecase";
-import { GetMyClassesUseCase } from "../usecases/get-my-class.usecase";
-import { GetStaffAssignmentsUseCase } from "../usecases/get-staff-assignments";
-import {
-    sendSuccess,
-    sendCreated,
-    sendPaginated,
-}                                from "../../../shared/utils/api-response";
-
-/*
-|--------------------------------------------------------------------------
-| STAFF CONTROLLER
-|--------------------------------------------------------------------------
-*/
+import { ListStaffUseCase, GetStaffUseCase, GetMyStaffProfileUseCase, ExportStaffUseCase } from "../usecases/staff-queries.usecases";
+import { CreateStaffUseCase } from "../usecases/create-staff.usecase";
+import { UpdateStaffUseCase } from "../usecases/update-staff.usecase";
+import { SetStaffBranchesUseCase } from "../usecases/staff-branches.usecase";
+import { DeactivateStaffUseCase, ReactivateStaffUseCase } from "../usecases/staff-status.usecases";
+import { InviteStaffUseCase, ChangeStaffRolesUseCase } from "../usecases/staff-portal.usecases";
+import { GetMyClassesUseCase, GetStaffAssignmentsUseCase } from "../usecases/staff-assignments.usecases";
+import { sendSuccess, sendCreated } from "../../../shared/utils/api-response";
+import { getAccess } from "../../../infrastructure/middleware/rbac.middleware";
+import { ListStaffQuery } from "../dtos/staff.dto";
+import { staffErrors } from "../domain/staff.errors";
+import { StaffActor } from "../domain/staff.types";
 
 interface Dependencies {
-    createStaffUseCase:     CreateStaffUseCase;
-    getStaffUseCase:        GetStaffUseCase;
-    listStaffUseCase:       ListStaffUseCase;
-    updateStaffUseCase:     UpdateStaffUseCase;
-    deactivateStaffUseCase: DeactivateStaffUseCase;
-    reactivateStaffUseCase:  ReactivateStaffUseCase;
-    getMyClassesUseCase: GetMyClassesUseCase;
-    getStaffAssignmentsUseCase: GetStaffAssignmentsUseCase;
+    listStaffUseCase: ListStaffUseCase; getStaffUseCase: GetStaffUseCase; getMyStaffProfileUseCase: GetMyStaffProfileUseCase;
+    exportStaffUseCase: ExportStaffUseCase; createStaffUseCase: CreateStaffUseCase; updateStaffUseCase: UpdateStaffUseCase;
+    setStaffBranchesUseCase: SetStaffBranchesUseCase; deactivateStaffUseCase: DeactivateStaffUseCase; reactivateStaffUseCase: ReactivateStaffUseCase;
+    inviteStaffUseCase: InviteStaffUseCase; changeStaffRolesUseCase: ChangeStaffRolesUseCase;
+    getMyClassesUseCase: GetMyClassesUseCase; getStaffAssignmentsUseCase: GetStaffAssignmentsUseCase;
 }
 
+/*
+| STAFF CONTROLLER (school realm, /staff). The school is the host's school; the acting person comes ONLY from the
+| verified session (req.auth + loaded access), never from the body or URL. The old routes took staff ids and
+| user ids from the request without tying them to the caller.
+*/
+const schoolIdOf = (req: Request): string => req.schoolId as string;
+
+const actorOf = (req: Request): StaffActor => {
+    if (!req.auth) throw staffErrors.notFound();
+    const access = getAccess(req);
+    return {
+        userId: req.auth.userId, membershipId: req.auth.membershipId, access,
+        ip: req.ip ?? req.socket.remoteAddress ?? "unknown", userAgent: req.get("user-agent") ?? null,
+        isAdmin: access.hasRoleKey("school_admin"),
+    };
+};
+const idOf = (req: Request): string => String(req.params.id);
+
 export class StaffController {
-    private readonly createStaffUseCase:     CreateStaffUseCase;
-    private readonly getStaffUseCase:        GetStaffUseCase;
-    private readonly listStaffUseCase:       ListStaffUseCase;
-    private readonly updateStaffUseCase:     UpdateStaffUseCase;
-    private readonly deactivateStaffUseCase: DeactivateStaffUseCase;
-    private readonly reactivateStaffUseCase:  ReactivateStaffUseCase;
-    private readonly getMyClassesUseCase: GetMyClassesUseCase;
-    private readonly getStaffAssignmentsUseCase: GetStaffAssignmentsUseCase;
-    
+    constructor(private readonly d: Dependencies) {}
 
-    constructor({
-        createStaffUseCase,
-        getStaffUseCase,
-        listStaffUseCase,
-        updateStaffUseCase,
-        deactivateStaffUseCase,
-        reactivateStaffUseCase,
-        getMyClassesUseCase,
-        getStaffAssignmentsUseCase
-
-    }: Dependencies) {
-        this.createStaffUseCase     = createStaffUseCase;
-        this.getStaffUseCase        = getStaffUseCase;
-        this.listStaffUseCase       = listStaffUseCase;
-        this.updateStaffUseCase     = updateStaffUseCase;
-        this.deactivateStaffUseCase = deactivateStaffUseCase;
-        this.reactivateStaffUseCase  = reactivateStaffUseCase;
-        this.getMyClassesUseCase = getMyClassesUseCase;
-        this.getStaffAssignmentsUseCase = getStaffAssignmentsUseCase;
-    }
-
-    // ── List all staff ────────────────────────────────────────────────────
-    listStaff = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
+    list = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const result = await this.listStaffUseCase.execute(
-                req.query as any,
-            );
-            sendPaginated(res, result.data, result.meta);
-        } catch (err) {
-            next(err);
-        }
+            // The validate middleware does not write query values back, so the query is parsed here
+            const r = await this.d.listStaffUseCase.execute(schoolIdOf(req), ListStaffQuery.parse(req.query), getAccess(req));
+            res.status(200).json({ success: true, message: "Staff retrieved successfully", data: r.data, meta: r.meta });
+        } catch (e) { next(e); }
     };
 
-    // ── Get single staff ──────────────────────────────────────────────────
-    getStaff = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
+    export = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const result = await this.getStaffUseCase.execute(
-                req.params.id as string,
-            );
-            sendSuccess(res, result, "Staff member retrieved successfully");
-        } catch (err) {
-            next(err);
-        }
+            const { page: _p, limit: _l, ...filters } = ListStaffQuery.parse(req.query);
+            const csv = await this.d.exportStaffUseCase.execute(filters, getAccess(req));
+            res.setHeader("Content-Type", "text/csv; charset=utf-8");
+            res.setHeader("Content-Disposition", 'attachment; filename="staff.csv"');
+            res.status(200).send(`\uFEFF${csv}`);       // BOM so Excel reads names with accents correctly
+        } catch (e) { next(e); }
     };
 
-    // ── Create staff ──────────────────────────────────────────────────────
-    createStaff = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.createStaffUseCase.execute(
-                req.body,
-                req.user!.schoolId!,
-                req.user?.id as string,
-            );
-            sendCreated(res, result, "Staff member created successfully");
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    // ── Update staff ──────────────────────────────────────────────────────
-    updateStaff = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.updateStaffUseCase.execute(
-                req.params.id as string,
-                req.body,
-            );
-            sendSuccess(res, result, "Staff member updated successfully");
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    // ── Deactivate staff ──────────────────────────────────────────────────
-    deactivateStaff = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.deactivateStaffUseCase.execute(
-                req.params.id as string,
-                req.user!.id,
-            );
-            sendSuccess(res, result, "Staff member deactivated successfully");
-        } catch (err) {
-            next(err);
-        }
-    };
-
-
-    // ── Reactivate staff ────────────────────────────────────────────────
-    reactivateStaff = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.reactivateStaffUseCase.execute(
-                req.params.id as string,
-                req.user?.id as string,
-            );
-
-            sendSuccess(
-                res,
-                result,
-                "Staff member reactivated successfully",
-            );
-        } catch (err) {
-            next(err);
-        }
-    };
-
-        // ── Get my classes ────────────────────────────────────────────────────
-    getMyClasses = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.getMyClassesUseCase.execute(
-                req.user!.id,
-            );
-            sendSuccess(res, result, "Classes retrieved successfully");
-        } catch (err) {
-            next(err);
-        }
-    };
-
-
-        // ── Get staff assignments ─────────────────────────────────────────────
-    getStaffAssignments = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.getStaffAssignmentsUseCase.execute(
-                req.params.id as string,
-            );
-            sendSuccess(res, result, "Staff assignments retrieved successfully");
-        } catch (err) {
-            next(err);
-        }
-    };
-
-
+    get  = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.getStaffUseCase.execute(schoolIdOf(req), idOf(req), getAccess(req)), "Staff member retrieved successfully"); } catch (e) { next(e); } };
+    me   = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.getMyStaffProfileUseCase.execute(schoolIdOf(req), getAccess(req)), "Profile retrieved successfully"); } catch (e) { next(e); } };
+    create = async (req: Request, res: Response, next: NextFunction) => { try { sendCreated(res, await this.d.createStaffUseCase.execute(schoolIdOf(req), req.body, actorOf(req)), "Staff member created successfully"); } catch (e) { next(e); } };
+    update = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.updateStaffUseCase.execute(schoolIdOf(req), idOf(req), req.body, actorOf(req)), "Staff member updated successfully"); } catch (e) { next(e); } };
+    setBranches = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.setStaffBranchesUseCase.execute(schoolIdOf(req), idOf(req), req.body, actorOf(req)), "Branches updated successfully"); } catch (e) { next(e); } };
+    deactivate = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.deactivateStaffUseCase.execute(schoolIdOf(req), idOf(req), req.body ?? {}, actorOf(req)), "Staff member deactivated successfully"); } catch (e) { next(e); } };
+    reactivate = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.reactivateStaffUseCase.execute(schoolIdOf(req), idOf(req), actorOf(req)), "Staff member reactivated successfully"); } catch (e) { next(e); } };
+    invite = async (req: Request, res: Response, next: NextFunction) => { try { sendCreated(res, await this.d.inviteStaffUseCase.execute(schoolIdOf(req), idOf(req), req.body, actorOf(req)), "Invitation sent"); } catch (e) { next(e); } };
+    changeRoles = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.changeStaffRolesUseCase.execute(schoolIdOf(req), idOf(req), req.body, actorOf(req)), "Roles updated successfully"); } catch (e) { next(e); } };
+    myClasses = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.getMyClassesUseCase.execute(getAccess(req)), "Classes retrieved successfully"); } catch (e) { next(e); } };
+    assignments = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.getStaffAssignmentsUseCase.execute(idOf(req), getAccess(req)), "Assignments retrieved successfully"); } catch (e) { next(e); } };
 }

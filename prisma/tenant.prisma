@@ -39,6 +39,13 @@ enum StaffCategory {
   non_teaching
 }
 
+enum EmploymentType {
+  full_time
+  part_time
+  contract
+  volunteer
+}
+
 enum NotificationChannel {
   IN_APP
   EMAIL
@@ -58,25 +65,43 @@ enum DeliveryStatus {
 // ===== PEOPLE =====
 
 model Staff {
-  id            String        @id @default(uuid())
-  userId        String        @unique
-  employeeId    String?       @unique
-  department    String?
-  designation   String?
-  qualification String?
-  gender        Gender?
-  dateOfBirth   DateTime?
-  address       String?
-  joinDate      DateTime?
-  role          StaffRole
-  category      StaffCategory @default(non_teaching)
-  isActive      Boolean       @default(true)
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  id             String         @id @default(uuid())
+  userId         String?        @unique
+  employeeId     String?        @unique
+  firstName      String
+  lastName       String
+  middleName     String?
+  email          String?
+  phone          String?
+  photoUrl       String?
+  gender         Gender?
+  dateOfBirth    DateTime?
+  address        String?
+  department     String?
+  designation    String?
+  qualification  String?
+  category       StaffCategory  @default(non_teaching)
+  employmentType EmploymentType @default(full_time)
+  joinDate       DateTime?
+  exitDate       DateTime?
+  exitReason     String?
+  role           StaffRole      @default(other)
+  isActive       Boolean        @default(true)
+  createdById    String?
+  updatedById    String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  deletedAt      DateTime?
 
   classSubjects         ClassSubject[]
   classesAsClassTeacher Class[]
   subjectDefaults       Subject[] @relation("SubjectDefaultTeacher")
+  branches              StaffBranch[]
+
+  @@index([isActive])
+  @@index([category])
+  @@index([email])
+  @@index([deletedAt])
 }
 
 enum StaffRole {
@@ -330,7 +355,7 @@ model SchoolSettings {
   id                        String        @id @default(uuid())
   logoUrl                   String?
   primaryColor              String?       @default("#1a1a2e")
-  secondaryColor             String?
+  secondaryColor            String?
   motto                     String?
   address                   String?
   website                   String?
@@ -532,7 +557,7 @@ model SchoolRole {
   description           String?
   kind                  RoleKind
   persona               Persona  @default(STAFF)
-  grantsAll              Boolean  @default(false)
+  grantsAll             Boolean  @default(false)
   sourceTemplateKey     String?
   sourceTemplateVersion Int?
   isCustomized          Boolean  @default(false)
@@ -570,8 +595,7 @@ model Membership {
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
-  roles    MembershipRole[]
-  branches MembershipBranch[]
+  roles MembershipRole[]
 
   @@unique([userId, persona])
   @@unique([persona, personaEntityId])
@@ -611,24 +635,26 @@ model Branch {
   updatedAt        DateTime  @updatedAt
   deletedAt        DateTime?
 
-  members MembershipBranch[]
+  staff StaffBranch[]
 
   @@index([isActive])
   @@index([deletedAt])
 }
 
-// Which branches a staff member works in. A role held at BRANCH scope only works inside these.
+// Where a staff member works. This table also determines which branches
+// their BRANCH-scoped roles may access.
 
-model MembershipBranch {
-  membershipId String
+model StaffBranch {
+  staffId      String
   branchId     String
+  isPrimary    Boolean  @default(false)
   assignedAt   DateTime @default(now())
   assignedById String?
 
-  membership Membership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
-  branch     Branch     @relation(fields: [branchId], references: [id])
+  staff  Staff  @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  branch Branch @relation(fields: [branchId], references: [id])
 
-  @@id([membershipId, branchId])
+  @@id([staffId, branchId])
   @@index([branchId])
 }
 
@@ -769,18 +795,18 @@ model SchoolNotification {
 }
 
 model SchoolNotificationRecipient {
-  id                String              @id @default(uuid())
+  id                String               @id @default(uuid())
   notificationId    String
   recipientType     RecipientType
   recipientEntityId String
   userId            String?
   channel           NotificationChannel
-  status            DeliveryStatus      @default(PENDING)
+  status            DeliveryStatus       @default(PENDING)
   priority          NotificationPriority @default(NORMAL)
-  retryCount        Int                 @default(0)
+  retryCount        Int                  @default(0)
   failedReason      String?
   providerMsgId     String?
-  idempotencyKey    String?             @unique
+  idempotencyKey    String?              @unique
   queuedAt          DateTime?
   sentAt            DateTime?
   failedAt          DateTime?
@@ -788,8 +814,8 @@ model SchoolNotificationRecipient {
   nextRetryAt       DateTime?
   readAt            DateTime?
   deliveredAt       DateTime?
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
 
   notification SchoolNotification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
 

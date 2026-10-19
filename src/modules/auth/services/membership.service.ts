@@ -4,6 +4,7 @@ import { UrlService } from "../../../shared/services/url.service";
 import { PersonaType } from "../types/auth.types";
 import { legacyStaffRole } from "./legacy-role";
 import { authErrors } from "../domain/auth.errors";
+import { EMPLOYEE_ID_SEQUENCE, formatEmployeeId } from "../../staff/domain/staff.policy";
 
 export interface MembershipRecord {
     id:              string;
@@ -134,20 +135,39 @@ export class MembershipService {
         const db = getTenantClient();
 
         if (persona === "STAFF") {
+            // A staff record that already exists (created by the school, then invited): link the new login to it
             if (entityId) {
-                const s = await db.staff.findUnique({ where: { id: entityId } });
-                if (!s || s.userId !== userId) throw authErrors.inviteInvalid();
+                const s = await db.staff.findFirst({ where: { id: entityId, deletedAt: null } });
+                if (!s) throw authErrors.inviteInvalid();
+                if (s.userId && s.userId !== userId) throw authErrors.inviteInvalid();
+                if (!s.userId) {
+                    const other = await db.staff.findUnique({ where: { userId } });      // one login = one staff record per school
+                    if (other && other.id !== s.id) throw authErrors.alreadyMember();
+                    await db.staff.update({ where: { id: s.id }, data: { userId } });
+                }
                 return s.id;
             }
+
             const existing = await db.staff.findUnique({ where: { userId } });
             if (existing) return existing.id;
-            const created = await db.staff.create({
-                data: {
-                    userId,
-                    isActive: true,
-                    category: templateKey === "teacher" ? "teaching" : "non_teaching",
-                    role:     legacyStaffRole(templateKey),
-                },
+
+            // No record yet (the founding administrator): make one from the account's own details, in the main branch
+            const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { firstName: true, lastName: true, email: true, phone: true } });
+            const created = await db.$transaction(async tx => {
+                const seq = await tx.numberSequence.upsert({
+                    where: { key_period: { key: EMPLOYEE_ID_SEQUENCE, period: "" } }, update: { nextValue: { increment: 1 } },
+                    create: { key: EMPLOYEE_ID_SEQUENCE, period: "", nextValue: 2 }, select: { nextValue: true },
+                });
+                const s = await tx.staff.create({
+                    data: {
+                        userId, employeeId: formatEmployeeId(seq.nextValue - 1),
+                        firstName: user?.firstName ?? "Staff", lastName: user?.lastName ?? "Member", email: user?.email, phone: user?.phone,
+                        isActive: true, category: templateKey === "teacher" ? "teaching" : "non_teaching", role: legacyStaffRole(templateKey),
+                    },
+                });
+                const main = await tx.branch.findFirst({ where: { isMain: true, deletedAt: null }, select: { id: true } });
+                if (main) await tx.staffBranch.create({ data: { staffId: s.id, branchId: main.id, isPrimary: true } });
+                return s;
             });
             return created.id;
         }
@@ -186,17 +206,37 @@ export class MembershipService {
             await db.membershipRole.create({
                 data: { membershipId: m.id, roleId: p.roleId, assignedById: p.assignedById ?? null },
             });
-            // Staff start in the main branch (an admin can move them: PUT /branches/assignments/:membershipId).
-            // Schools provisioned before branches existed have no main branch yet: nothing is assigned then.
-            if (p.persona === "STAFF") {
-                const main = await db.branch.findFirst({ where: { isMain: true, deletedAt: null }, select: { id: true } });
-                if (main) await db.membershipBranch.create({ data: { membershipId: m.id, branchId: main.id, assignedById: p.assignedById ?? null } });
-            }
         } catch (err) {
             await db.membership.delete({ where: { id: m.id } }).catch(() => undefined);
             throw err;
         }
         return this.toRecord(m);
+    }
+
+    // ── Staff-module helpers (membership is owned here; the staff module asks through these) ──
+    async findByEntity(persona: PersonaType, personaEntityId: string): Promise<MembershipRecord | null> {
+        const m = await getTenantClient().membership.findUnique({ where: { persona_personaEntityId: { persona, personaEntityId } } });
+        return m ? this.toRecord(m) : null;
+    }
+
+    async setStatus(membershipId: string, status: "active" | "suspended" | "removed"): Promise<void> {
+        await getTenantClient().membership.update({ where: { id: membershipId }, data: { status } });
+    }
+
+    /** Replaces a membership's roles. Returns the role ids it had before (for the audit entry). */
+    async replaceRoles(membershipId: string, roleIds: string[], assignedById: string | null): Promise<string[]> {
+        const db = getTenantClient();
+        const before = (await db.membershipRole.findMany({ where: { membershipId }, select: { roleId: true } })).map(r => r.roleId);
+        await db.$transaction([
+            db.membershipRole.deleteMany({ where: { membershipId } }),
+            db.membershipRole.createMany({ data: roleIds.map(roleId => ({ membershipId, roleId, assignedById })) }),
+        ]);
+        return before;
+    }
+
+    /** Contact details on a staff record (used to check an invitation goes to the staff member's own email). */
+    async getStaffContact(staffId: string): Promise<{ firstName: string; lastName: string; email: string | null; phone: string | null } | null> {
+        return getTenantClient().staff.findFirst({ where: { id: staffId, deletedAt: null }, select: { firstName: true, lastName: true, email: true, phone: true } });
     }
 
     /**

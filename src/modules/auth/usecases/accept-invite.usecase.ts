@@ -69,6 +69,11 @@ export class AcceptInviteUseCase {
             if (!existing.isActive) throw authErrors.accountInactive();
             if (await d.membershipService.findByUserPersona(existing.id, invite.persona)) throw authErrors.alreadyMember();
         } else {
+            // A staff member invited from an existing staff record can skip typing their name: it comes from that record
+            if ((!dto.firstName || !dto.lastName) && invite.persona === "STAFF" && invite.personaEntityId) {
+                const c = await d.membershipService.getStaffContact(invite.personaEntityId);
+                if (c) { dto = { ...dto, firstName: dto.firstName || c.firstName, lastName: dto.lastName || c.lastName, phone: dto.phone || c.phone || undefined }; }
+            }
             if (!dto.firstName || !dto.lastName) throw authErrors.badRequest("First name and last name are required");
             if (dto.password !== dto.confirmPassword) throw authErrors.badRequest("Passwords do not match");
             await d.authPolicyService.assertPasswordAllowed(dto.password, true);

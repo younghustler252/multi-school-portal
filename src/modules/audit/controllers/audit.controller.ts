@@ -1,44 +1,22 @@
 import { Request, Response, NextFunction } from "express";
-import { GetAuditLogsUseCase }  from "../usecases/get-audit-logs.usecase";
-import { GetMyOrgActivityUseCase } from "../usecases/get-my-org-activity.usecase";
-import { sendPaginated }        from "../../../shared/utils/api-response";
+import { ListPlatformAuditLogsUseCase, ListSchoolAuditLogsUseCase } from "../usecases/list-audit-logs.usecases";
+import { ListPlatformAuditQuery, ListSchoolAuditQuery } from "../dtos/audit.dto";
 
-interface Dependencies {
-    getAuditLogsUseCase:        GetAuditLogsUseCase;
-    getMyOrgActivityUseCase:    GetMyOrgActivityUseCase;
-}
+interface Dependencies { listPlatformAuditLogsUseCase: ListPlatformAuditLogsUseCase; listSchoolAuditLogsUseCase: ListSchoolAuditLogsUseCase }
+
+const send = (res: Response, r: { data: unknown; meta: unknown }) =>
+    res.status(200).json({ success: true, message: "Audit logs retrieved successfully", data: r.data, meta: r.meta });
 
 export class AuditController {
-    private readonly getAuditLogsUseCase: GetAuditLogsUseCase;
-    private readonly getMyOrgActivityUseCase: GetMyOrgActivityUseCase;
+    constructor(private readonly d: Dependencies) {}
 
-    constructor({ getAuditLogsUseCase, getMyOrgActivityUseCase }: Dependencies) {
-        this.getAuditLogsUseCase     = getAuditLogsUseCase;
-        this.getMyOrgActivityUseCase = getMyOrgActivityUseCase;
-    }
-
-    getAuditLogs = async (
-        req: Request, res: Response, next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.getAuditLogsUseCase.execute(
-                req.query as any,
-            );
-            sendPaginated(res, result.data, result.meta);
-        } catch (err) { next(err); }
+    // Platform realm (/platform/audit)
+    listPlatform = async (req: Request, res: Response, next: NextFunction) => {
+        try { send(res, await this.d.listPlatformAuditLogsUseCase.execute(ListPlatformAuditQuery.parse(req.query))); } catch (e) { next(e); }
     };
 
-        // ── Get my organization activity ─────────────────────────────────────
-    getMyOrgActivity = async (
-        req: Request, res: Response, next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.getMyOrgActivityUseCase.execute(
-                req.user!.schoolId!,
-                req.query as any,
-            );
-            sendPaginated(res, result.data, result.meta);
-        } catch (err) { next(err); }
+    // School realm (/audit): the school is the one the host resolved to
+    listSchool = async (req: Request, res: Response, next: NextFunction) => {
+        try { send(res, await this.d.listSchoolAuditLogsUseCase.execute(req.schoolId as string, ListSchoolAuditQuery.parse(req.query))); } catch (e) { next(e); }
     };
-
 }

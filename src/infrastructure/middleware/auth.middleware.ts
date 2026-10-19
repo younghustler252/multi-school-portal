@@ -3,7 +3,7 @@ import jwt                                 from "jsonwebtoken";
 import { env }                             from "../../config/env";
 import { ForbiddenError, UnauthorizedError } from "../../shared/errors/domain.errors";
 import { AccessTokenPayload, TokenService } from "../../shared/services/token.service";
-
+import { RequestContext } from "../../shared/context/request-context";
 /*
 |--------------------------------------------------------------------------
 | AUTH MIDDLEWARE
@@ -11,6 +11,8 @@ import { AccessTokenPayload, TokenService } from "../../shared/services/token.se
 | Roles and permissions are loaded afterwards by loadAccess / requirePermission
 | (rbac.middleware.ts), after the tenant is resolved.
 | Authorization header first (mobile), then cookie (web).
+| CHANGE: also records who is signed in (and who is impersonating) in the request context,
+| so the audit log can attach it to every entry automatically.
 |--------------------------------------------------------------------------
 */
 
@@ -41,6 +43,7 @@ const attach = (req: Request, claims: AccessTokenPayload): void => {
     };
     // Transitional: controllers still read req.user. `role` is filled in by loadAccess.
     req.user = { id: claims.sub, schoolId: claims.tid, mustChangePassword: claims.mcp, role: null };
+    RequestContext.setActor({ userId: claims.sub, membershipId: claims.mid, impersonatedBy: claims.imp });
 };
 
 export const authenticate = (req: Request, _res: Response, next: NextFunction): void => {

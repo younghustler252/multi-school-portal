@@ -17,7 +17,7 @@
     "types": [
       "node" 
     ],
-    "include":  ["src/**/*", "src/worker.ts"],
+    "include":  ["src/**/*", "src/worker.ts", "staff-module-v1/shared/context"],
     "exclude": ["node_modules", "dist"],
     "ts-node": {
         "files": true

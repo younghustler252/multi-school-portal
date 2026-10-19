@@ -144,10 +144,10 @@ export type MembershipRole = $Result.DefaultSelection<Prisma.$MembershipRolePayl
  */
 export type Branch = $Result.DefaultSelection<Prisma.$BranchPayload>
 /**
- * Model MembershipBranch
+ * Model StaffBranch
  * 
  */
-export type MembershipBranch = $Result.DefaultSelection<Prisma.$MembershipBranchPayload>
+export type StaffBranch = $Result.DefaultSelection<Prisma.$StaffBranchPayload>
 /**
  * Model SchoolSettingValue
  * 
@@ -236,6 +236,16 @@ export const StaffCategory: {
 };
 
 export type StaffCategory = (typeof StaffCategory)[keyof typeof StaffCategory]
+
+
+export const EmploymentType: {
+  full_time: 'full_time',
+  part_time: 'part_time',
+  contract: 'contract',
+  volunteer: 'volunteer'
+};
+
+export type EmploymentType = (typeof EmploymentType)[keyof typeof EmploymentType]
 
 
 export const NotificationChannel: {
@@ -467,6 +477,10 @@ export const MembershipStatus: typeof $Enums.MembershipStatus
 export type StaffCategory = $Enums.StaffCategory
 
 export const StaffCategory: typeof $Enums.StaffCategory
+
+export type EmploymentType = $Enums.EmploymentType
+
+export const EmploymentType: typeof $Enums.EmploymentType
 
 export type NotificationChannel = $Enums.NotificationChannel
 
@@ -930,14 +944,14 @@ export class PrismaClient<
   get branch(): Prisma.BranchDelegate<ExtArgs, ClientOptions>;
 
   /**
-   * `prisma.membershipBranch`: Exposes CRUD operations for the **MembershipBranch** model.
+   * `prisma.staffBranch`: Exposes CRUD operations for the **StaffBranch** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more MembershipBranches
-    * const membershipBranches = await prisma.membershipBranch.findMany()
+    * // Fetch zero or more StaffBranches
+    * const staffBranches = await prisma.staffBranch.findMany()
     * ```
     */
-  get membershipBranch(): Prisma.MembershipBranchDelegate<ExtArgs, ClientOptions>;
+  get staffBranch(): Prisma.StaffBranchDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.schoolSettingValue`: Exposes CRUD operations for the **SchoolSettingValue** model.
@@ -1491,7 +1505,7 @@ export namespace Prisma {
     Membership: 'Membership',
     MembershipRole: 'MembershipRole',
     Branch: 'Branch',
-    MembershipBranch: 'MembershipBranch',
+    StaffBranch: 'StaffBranch',
     SchoolSettingValue: 'SchoolSettingValue',
     AutomationRule: 'AutomationRule',
     AutomationRunLog: 'AutomationRunLog',
@@ -1515,7 +1529,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "staff" | "student" | "guardian" | "studentGuardian" | "calendarEvent" | "session" | "term" | "class" | "subject" | "classSubject" | "enrolment" | "classProgression" | "schoolSettings" | "attendance" | "grade" | "gradingConfig" | "reportCard" | "feeType" | "feeInvoice" | "feeInvoiceItem" | "payment" | "schoolRole" | "schoolRolePermission" | "membership" | "membershipRole" | "branch" | "membershipBranch" | "schoolSettingValue" | "automationRule" | "automationRunLog" | "schoolMessageTemplate" | "numberSequence" | "attachment" | "schoolNotification" | "schoolNotificationRecipient"
+      modelProps: "staff" | "student" | "guardian" | "studentGuardian" | "calendarEvent" | "session" | "term" | "class" | "subject" | "classSubject" | "enrolment" | "classProgression" | "schoolSettings" | "attendance" | "grade" | "gradingConfig" | "reportCard" | "feeType" | "feeInvoice" | "feeInvoiceItem" | "payment" | "schoolRole" | "schoolRolePermission" | "membership" | "membershipRole" | "branch" | "staffBranch" | "schoolSettingValue" | "automationRule" | "automationRunLog" | "schoolMessageTemplate" | "numberSequence" | "attachment" | "schoolNotification" | "schoolNotificationRecipient"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3443,77 +3457,77 @@ export namespace Prisma {
           }
         }
       }
-      MembershipBranch: {
-        payload: Prisma.$MembershipBranchPayload<ExtArgs>
-        fields: Prisma.MembershipBranchFieldRefs
+      StaffBranch: {
+        payload: Prisma.$StaffBranchPayload<ExtArgs>
+        fields: Prisma.StaffBranchFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.MembershipBranchFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MembershipBranchPayload> | null
+            args: Prisma.StaffBranchFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StaffBranchPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.MembershipBranchFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MembershipBranchPayload>
+            args: Prisma.StaffBranchFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StaffBranchPayload>
           }
           findFirst: {
-            args: Prisma.MembershipBranchFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MembershipBranchPayload> | null
+            args: Prisma.StaffBranchFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StaffBranchPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.MembershipBranchFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MembershipBranchPayload>
+            args: Prisma.StaffBranchFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StaffBranchPayload>
           }
           findMany: {
-            args: Prisma.MembershipBranchFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MembershipBranchPayload>[]
+            args: Prisma.StaffBranchFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StaffBranchPayload>[]
           }
           create: {
-            args: Prisma.MembershipBranchCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MembershipBranchPayload>
+            args: Prisma.StaffBranchCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StaffBranchPayload>
           }
           createMany: {
-            args: Prisma.MembershipBranchCreateManyArgs<ExtArgs>
+            args: Prisma.StaffBranchCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.MembershipBranchCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MembershipBranchPayload>[]
+            args: Prisma.StaffBranchCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StaffBranchPayload>[]
           }
           delete: {
-            args: Prisma.MembershipBranchDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MembershipBranchPayload>
+            args: Prisma.StaffBranchDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StaffBranchPayload>
           }
           update: {
-            args: Prisma.MembershipBranchUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MembershipBranchPayload>
+            args: Prisma.StaffBranchUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StaffBranchPayload>
           }
           deleteMany: {
-            args: Prisma.MembershipBranchDeleteManyArgs<ExtArgs>
+            args: Prisma.StaffBranchDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.MembershipBranchUpdateManyArgs<ExtArgs>
+            args: Prisma.StaffBranchUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateManyAndReturn: {
-            args: Prisma.MembershipBranchUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MembershipBranchPayload>[]
+            args: Prisma.StaffBranchUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StaffBranchPayload>[]
           }
           upsert: {
-            args: Prisma.MembershipBranchUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MembershipBranchPayload>
+            args: Prisma.StaffBranchUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StaffBranchPayload>
           }
           aggregate: {
-            args: Prisma.MembershipBranchAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateMembershipBranch>
+            args: Prisma.StaffBranchAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateStaffBranch>
           }
           groupBy: {
-            args: Prisma.MembershipBranchGroupByArgs<ExtArgs>
-            result: $Utils.Optional<MembershipBranchGroupByOutputType>[]
+            args: Prisma.StaffBranchGroupByArgs<ExtArgs>
+            result: $Utils.Optional<StaffBranchGroupByOutputType>[]
           }
           count: {
-            args: Prisma.MembershipBranchCountArgs<ExtArgs>
-            result: $Utils.Optional<MembershipBranchCountAggregateOutputType> | number
+            args: Prisma.StaffBranchCountArgs<ExtArgs>
+            result: $Utils.Optional<StaffBranchCountAggregateOutputType> | number
           }
         }
       }
@@ -4258,7 +4272,7 @@ export namespace Prisma {
     membership?: MembershipOmit
     membershipRole?: MembershipRoleOmit
     branch?: BranchOmit
-    membershipBranch?: MembershipBranchOmit
+    staffBranch?: StaffBranchOmit
     schoolSettingValue?: SchoolSettingValueOmit
     automationRule?: AutomationRuleOmit
     automationRunLog?: AutomationRunLogOmit
@@ -4350,12 +4364,14 @@ export namespace Prisma {
     classSubjects: number
     classesAsClassTeacher: number
     subjectDefaults: number
+    branches: number
   }
 
   export type StaffCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     classSubjects?: boolean | StaffCountOutputTypeCountClassSubjectsArgs
     classesAsClassTeacher?: boolean | StaffCountOutputTypeCountClassesAsClassTeacherArgs
     subjectDefaults?: boolean | StaffCountOutputTypeCountSubjectDefaultsArgs
+    branches?: boolean | StaffCountOutputTypeCountBranchesArgs
   }
 
   // Custom InputTypes
@@ -4388,6 +4404,13 @@ export namespace Prisma {
    */
   export type StaffCountOutputTypeCountSubjectDefaultsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: SubjectWhereInput
+  }
+
+  /**
+   * StaffCountOutputType without action
+   */
+  export type StaffCountOutputTypeCountBranchesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: StaffBranchWhereInput
   }
 
 
@@ -4869,12 +4892,10 @@ export namespace Prisma {
 
   export type MembershipCountOutputType = {
     roles: number
-    branches: number
   }
 
   export type MembershipCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     roles?: boolean | MembershipCountOutputTypeCountRolesArgs
-    branches?: boolean | MembershipCountOutputTypeCountBranchesArgs
   }
 
   // Custom InputTypes
@@ -4895,24 +4916,17 @@ export namespace Prisma {
     where?: MembershipRoleWhereInput
   }
 
-  /**
-   * MembershipCountOutputType without action
-   */
-  export type MembershipCountOutputTypeCountBranchesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: MembershipBranchWhereInput
-  }
-
 
   /**
    * Count Type BranchCountOutputType
    */
 
   export type BranchCountOutputType = {
-    members: number
+    staff: number
   }
 
   export type BranchCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    members?: boolean | BranchCountOutputTypeCountMembersArgs
+    staff?: boolean | BranchCountOutputTypeCountStaffArgs
   }
 
   // Custom InputTypes
@@ -4929,8 +4943,8 @@ export namespace Prisma {
   /**
    * BranchCountOutputType without action
    */
-  export type BranchCountOutputTypeCountMembersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: MembershipBranchWhereInput
+  export type BranchCountOutputTypeCountStaffArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: StaffBranchWhereInput
   }
 
 
@@ -5014,54 +5028,90 @@ export namespace Prisma {
     id: string | null
     userId: string | null
     employeeId: string | null
-    department: string | null
-    designation: string | null
-    qualification: string | null
+    firstName: string | null
+    lastName: string | null
+    middleName: string | null
+    email: string | null
+    phone: string | null
+    photoUrl: string | null
     gender: $Enums.Gender | null
     dateOfBirth: Date | null
     address: string | null
-    joinDate: Date | null
-    role: $Enums.StaffRole | null
+    department: string | null
+    designation: string | null
+    qualification: string | null
     category: $Enums.StaffCategory | null
+    employmentType: $Enums.EmploymentType | null
+    joinDate: Date | null
+    exitDate: Date | null
+    exitReason: string | null
+    role: $Enums.StaffRole | null
     isActive: boolean | null
+    createdById: string | null
+    updatedById: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    deletedAt: Date | null
   }
 
   export type StaffMaxAggregateOutputType = {
     id: string | null
     userId: string | null
     employeeId: string | null
-    department: string | null
-    designation: string | null
-    qualification: string | null
+    firstName: string | null
+    lastName: string | null
+    middleName: string | null
+    email: string | null
+    phone: string | null
+    photoUrl: string | null
     gender: $Enums.Gender | null
     dateOfBirth: Date | null
     address: string | null
-    joinDate: Date | null
-    role: $Enums.StaffRole | null
+    department: string | null
+    designation: string | null
+    qualification: string | null
     category: $Enums.StaffCategory | null
+    employmentType: $Enums.EmploymentType | null
+    joinDate: Date | null
+    exitDate: Date | null
+    exitReason: string | null
+    role: $Enums.StaffRole | null
     isActive: boolean | null
+    createdById: string | null
+    updatedById: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    deletedAt: Date | null
   }
 
   export type StaffCountAggregateOutputType = {
     id: number
     userId: number
     employeeId: number
-    department: number
-    designation: number
-    qualification: number
+    firstName: number
+    lastName: number
+    middleName: number
+    email: number
+    phone: number
+    photoUrl: number
     gender: number
     dateOfBirth: number
     address: number
-    joinDate: number
-    role: number
+    department: number
+    designation: number
+    qualification: number
     category: number
+    employmentType: number
+    joinDate: number
+    exitDate: number
+    exitReason: number
+    role: number
     isActive: number
+    createdById: number
+    updatedById: number
     createdAt: number
     updatedAt: number
+    deletedAt: number
     _all: number
   }
 
@@ -5070,54 +5120,90 @@ export namespace Prisma {
     id?: true
     userId?: true
     employeeId?: true
-    department?: true
-    designation?: true
-    qualification?: true
+    firstName?: true
+    lastName?: true
+    middleName?: true
+    email?: true
+    phone?: true
+    photoUrl?: true
     gender?: true
     dateOfBirth?: true
     address?: true
-    joinDate?: true
-    role?: true
+    department?: true
+    designation?: true
+    qualification?: true
     category?: true
+    employmentType?: true
+    joinDate?: true
+    exitDate?: true
+    exitReason?: true
+    role?: true
     isActive?: true
+    createdById?: true
+    updatedById?: true
     createdAt?: true
     updatedAt?: true
+    deletedAt?: true
   }
 
   export type StaffMaxAggregateInputType = {
     id?: true
     userId?: true
     employeeId?: true
-    department?: true
-    designation?: true
-    qualification?: true
+    firstName?: true
+    lastName?: true
+    middleName?: true
+    email?: true
+    phone?: true
+    photoUrl?: true
     gender?: true
     dateOfBirth?: true
     address?: true
-    joinDate?: true
-    role?: true
+    department?: true
+    designation?: true
+    qualification?: true
     category?: true
+    employmentType?: true
+    joinDate?: true
+    exitDate?: true
+    exitReason?: true
+    role?: true
     isActive?: true
+    createdById?: true
+    updatedById?: true
     createdAt?: true
     updatedAt?: true
+    deletedAt?: true
   }
 
   export type StaffCountAggregateInputType = {
     id?: true
     userId?: true
     employeeId?: true
-    department?: true
-    designation?: true
-    qualification?: true
+    firstName?: true
+    lastName?: true
+    middleName?: true
+    email?: true
+    phone?: true
+    photoUrl?: true
     gender?: true
     dateOfBirth?: true
     address?: true
-    joinDate?: true
-    role?: true
+    department?: true
+    designation?: true
+    qualification?: true
     category?: true
+    employmentType?: true
+    joinDate?: true
+    exitDate?: true
+    exitReason?: true
+    role?: true
     isActive?: true
+    createdById?: true
+    updatedById?: true
     createdAt?: true
     updatedAt?: true
+    deletedAt?: true
     _all?: true
   }
 
@@ -5195,20 +5281,32 @@ export namespace Prisma {
 
   export type StaffGroupByOutputType = {
     id: string
-    userId: string
+    userId: string | null
     employeeId: string | null
-    department: string | null
-    designation: string | null
-    qualification: string | null
+    firstName: string
+    lastName: string
+    middleName: string | null
+    email: string | null
+    phone: string | null
+    photoUrl: string | null
     gender: $Enums.Gender | null
     dateOfBirth: Date | null
     address: string | null
-    joinDate: Date | null
-    role: $Enums.StaffRole
+    department: string | null
+    designation: string | null
+    qualification: string | null
     category: $Enums.StaffCategory
+    employmentType: $Enums.EmploymentType
+    joinDate: Date | null
+    exitDate: Date | null
+    exitReason: string | null
+    role: $Enums.StaffRole
     isActive: boolean
+    createdById: string | null
+    updatedById: string | null
     createdAt: Date
     updatedAt: Date
+    deletedAt: Date | null
     _count: StaffCountAggregateOutputType | null
     _min: StaffMinAggregateOutputType | null
     _max: StaffMaxAggregateOutputType | null
@@ -5232,21 +5330,34 @@ export namespace Prisma {
     id?: boolean
     userId?: boolean
     employeeId?: boolean
-    department?: boolean
-    designation?: boolean
-    qualification?: boolean
+    firstName?: boolean
+    lastName?: boolean
+    middleName?: boolean
+    email?: boolean
+    phone?: boolean
+    photoUrl?: boolean
     gender?: boolean
     dateOfBirth?: boolean
     address?: boolean
-    joinDate?: boolean
-    role?: boolean
+    department?: boolean
+    designation?: boolean
+    qualification?: boolean
     category?: boolean
+    employmentType?: boolean
+    joinDate?: boolean
+    exitDate?: boolean
+    exitReason?: boolean
+    role?: boolean
     isActive?: boolean
+    createdById?: boolean
+    updatedById?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    deletedAt?: boolean
     classSubjects?: boolean | Staff$classSubjectsArgs<ExtArgs>
     classesAsClassTeacher?: boolean | Staff$classesAsClassTeacherArgs<ExtArgs>
     subjectDefaults?: boolean | Staff$subjectDefaultsArgs<ExtArgs>
+    branches?: boolean | Staff$branchesArgs<ExtArgs>
     _count?: boolean | StaffCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["staff"]>
 
@@ -5254,61 +5365,98 @@ export namespace Prisma {
     id?: boolean
     userId?: boolean
     employeeId?: boolean
-    department?: boolean
-    designation?: boolean
-    qualification?: boolean
+    firstName?: boolean
+    lastName?: boolean
+    middleName?: boolean
+    email?: boolean
+    phone?: boolean
+    photoUrl?: boolean
     gender?: boolean
     dateOfBirth?: boolean
     address?: boolean
-    joinDate?: boolean
-    role?: boolean
+    department?: boolean
+    designation?: boolean
+    qualification?: boolean
     category?: boolean
+    employmentType?: boolean
+    joinDate?: boolean
+    exitDate?: boolean
+    exitReason?: boolean
+    role?: boolean
     isActive?: boolean
+    createdById?: boolean
+    updatedById?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    deletedAt?: boolean
   }, ExtArgs["result"]["staff"]>
 
   export type StaffSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     userId?: boolean
     employeeId?: boolean
-    department?: boolean
-    designation?: boolean
-    qualification?: boolean
+    firstName?: boolean
+    lastName?: boolean
+    middleName?: boolean
+    email?: boolean
+    phone?: boolean
+    photoUrl?: boolean
     gender?: boolean
     dateOfBirth?: boolean
     address?: boolean
-    joinDate?: boolean
-    role?: boolean
+    department?: boolean
+    designation?: boolean
+    qualification?: boolean
     category?: boolean
+    employmentType?: boolean
+    joinDate?: boolean
+    exitDate?: boolean
+    exitReason?: boolean
+    role?: boolean
     isActive?: boolean
+    createdById?: boolean
+    updatedById?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    deletedAt?: boolean
   }, ExtArgs["result"]["staff"]>
 
   export type StaffSelectScalar = {
     id?: boolean
     userId?: boolean
     employeeId?: boolean
-    department?: boolean
-    designation?: boolean
-    qualification?: boolean
+    firstName?: boolean
+    lastName?: boolean
+    middleName?: boolean
+    email?: boolean
+    phone?: boolean
+    photoUrl?: boolean
     gender?: boolean
     dateOfBirth?: boolean
     address?: boolean
-    joinDate?: boolean
-    role?: boolean
+    department?: boolean
+    designation?: boolean
+    qualification?: boolean
     category?: boolean
+    employmentType?: boolean
+    joinDate?: boolean
+    exitDate?: boolean
+    exitReason?: boolean
+    role?: boolean
     isActive?: boolean
+    createdById?: boolean
+    updatedById?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    deletedAt?: boolean
   }
 
-  export type StaffOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "employeeId" | "department" | "designation" | "qualification" | "gender" | "dateOfBirth" | "address" | "joinDate" | "role" | "category" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["staff"]>
+  export type StaffOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "employeeId" | "firstName" | "lastName" | "middleName" | "email" | "phone" | "photoUrl" | "gender" | "dateOfBirth" | "address" | "department" | "designation" | "qualification" | "category" | "employmentType" | "joinDate" | "exitDate" | "exitReason" | "role" | "isActive" | "createdById" | "updatedById" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["staff"]>
   export type StaffInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     classSubjects?: boolean | Staff$classSubjectsArgs<ExtArgs>
     classesAsClassTeacher?: boolean | Staff$classesAsClassTeacherArgs<ExtArgs>
     subjectDefaults?: boolean | Staff$subjectDefaultsArgs<ExtArgs>
+    branches?: boolean | Staff$branchesArgs<ExtArgs>
     _count?: boolean | StaffCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type StaffIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -5320,23 +5468,36 @@ export namespace Prisma {
       classSubjects: Prisma.$ClassSubjectPayload<ExtArgs>[]
       classesAsClassTeacher: Prisma.$ClassPayload<ExtArgs>[]
       subjectDefaults: Prisma.$SubjectPayload<ExtArgs>[]
+      branches: Prisma.$StaffBranchPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      userId: string
+      userId: string | null
       employeeId: string | null
-      department: string | null
-      designation: string | null
-      qualification: string | null
+      firstName: string
+      lastName: string
+      middleName: string | null
+      email: string | null
+      phone: string | null
+      photoUrl: string | null
       gender: $Enums.Gender | null
       dateOfBirth: Date | null
       address: string | null
-      joinDate: Date | null
-      role: $Enums.StaffRole
+      department: string | null
+      designation: string | null
+      qualification: string | null
       category: $Enums.StaffCategory
+      employmentType: $Enums.EmploymentType
+      joinDate: Date | null
+      exitDate: Date | null
+      exitReason: string | null
+      role: $Enums.StaffRole
       isActive: boolean
+      createdById: string | null
+      updatedById: string | null
       createdAt: Date
       updatedAt: Date
+      deletedAt: Date | null
     }, ExtArgs["result"]["staff"]>
     composites: {}
   }
@@ -5734,6 +5895,7 @@ export namespace Prisma {
     classSubjects<T extends Staff$classSubjectsArgs<ExtArgs> = {}>(args?: Subset<T, Staff$classSubjectsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClassSubjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     classesAsClassTeacher<T extends Staff$classesAsClassTeacherArgs<ExtArgs> = {}>(args?: Subset<T, Staff$classesAsClassTeacherArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClassPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     subjectDefaults<T extends Staff$subjectDefaultsArgs<ExtArgs> = {}>(args?: Subset<T, Staff$subjectDefaultsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    branches<T extends Staff$branchesArgs<ExtArgs> = {}>(args?: Subset<T, Staff$branchesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StaffBranchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5766,18 +5928,30 @@ export namespace Prisma {
     readonly id: FieldRef<"Staff", 'String'>
     readonly userId: FieldRef<"Staff", 'String'>
     readonly employeeId: FieldRef<"Staff", 'String'>
-    readonly department: FieldRef<"Staff", 'String'>
-    readonly designation: FieldRef<"Staff", 'String'>
-    readonly qualification: FieldRef<"Staff", 'String'>
+    readonly firstName: FieldRef<"Staff", 'String'>
+    readonly lastName: FieldRef<"Staff", 'String'>
+    readonly middleName: FieldRef<"Staff", 'String'>
+    readonly email: FieldRef<"Staff", 'String'>
+    readonly phone: FieldRef<"Staff", 'String'>
+    readonly photoUrl: FieldRef<"Staff", 'String'>
     readonly gender: FieldRef<"Staff", 'Gender'>
     readonly dateOfBirth: FieldRef<"Staff", 'DateTime'>
     readonly address: FieldRef<"Staff", 'String'>
-    readonly joinDate: FieldRef<"Staff", 'DateTime'>
-    readonly role: FieldRef<"Staff", 'StaffRole'>
+    readonly department: FieldRef<"Staff", 'String'>
+    readonly designation: FieldRef<"Staff", 'String'>
+    readonly qualification: FieldRef<"Staff", 'String'>
     readonly category: FieldRef<"Staff", 'StaffCategory'>
+    readonly employmentType: FieldRef<"Staff", 'EmploymentType'>
+    readonly joinDate: FieldRef<"Staff", 'DateTime'>
+    readonly exitDate: FieldRef<"Staff", 'DateTime'>
+    readonly exitReason: FieldRef<"Staff", 'String'>
+    readonly role: FieldRef<"Staff", 'StaffRole'>
     readonly isActive: FieldRef<"Staff", 'Boolean'>
+    readonly createdById: FieldRef<"Staff", 'String'>
+    readonly updatedById: FieldRef<"Staff", 'String'>
     readonly createdAt: FieldRef<"Staff", 'DateTime'>
     readonly updatedAt: FieldRef<"Staff", 'DateTime'>
+    readonly deletedAt: FieldRef<"Staff", 'DateTime'>
   }
     
 
@@ -6240,6 +6414,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: SubjectScalarFieldEnum | SubjectScalarFieldEnum[]
+  }
+
+  /**
+   * Staff.branches
+   */
+  export type Staff$branchesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StaffBranch
+     */
+    select?: StaffBranchSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StaffBranch
+     */
+    omit?: StaffBranchOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StaffBranchInclude<ExtArgs> | null
+    where?: StaffBranchWhereInput
+    orderBy?: StaffBranchOrderByWithRelationInput | StaffBranchOrderByWithRelationInput[]
+    cursor?: StaffBranchWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: StaffBranchScalarFieldEnum | StaffBranchScalarFieldEnum[]
   }
 
   /**
@@ -32305,7 +32503,6 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     roles?: boolean | Membership$rolesArgs<ExtArgs>
-    branches?: boolean | Membership$branchesArgs<ExtArgs>
     _count?: boolean | MembershipCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["membership"]>
 
@@ -32342,7 +32539,6 @@ export namespace Prisma {
   export type MembershipOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "persona" | "personaEntityId" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["membership"]>
   export type MembershipInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     roles?: boolean | Membership$rolesArgs<ExtArgs>
-    branches?: boolean | Membership$branchesArgs<ExtArgs>
     _count?: boolean | MembershipCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type MembershipIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -32352,7 +32548,6 @@ export namespace Prisma {
     name: "Membership"
     objects: {
       roles: Prisma.$MembershipRolePayload<ExtArgs>[]
-      branches: Prisma.$MembershipBranchPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -32757,7 +32952,6 @@ export namespace Prisma {
   export interface Prisma__MembershipClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     roles<T extends Membership$rolesArgs<ExtArgs> = {}>(args?: Subset<T, Membership$rolesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MembershipRolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    branches<T extends Membership$branchesArgs<ExtArgs> = {}>(args?: Subset<T, Membership$branchesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MembershipBranchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -33208,30 +33402,6 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: MembershipRoleScalarFieldEnum | MembershipRoleScalarFieldEnum[]
-  }
-
-  /**
-   * Membership.branches
-   */
-  export type Membership$branchesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the MembershipBranch
-     */
-    select?: MembershipBranchSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the MembershipBranch
-     */
-    omit?: MembershipBranchOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: MembershipBranchInclude<ExtArgs> | null
-    where?: MembershipBranchWhereInput
-    orderBy?: MembershipBranchOrderByWithRelationInput | MembershipBranchOrderByWithRelationInput[]
-    cursor?: MembershipBranchWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: MembershipBranchScalarFieldEnum | MembershipBranchScalarFieldEnum[]
   }
 
   /**
@@ -34555,7 +34725,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     deletedAt?: boolean
-    members?: boolean | Branch$membersArgs<ExtArgs>
+    staff?: boolean | Branch$staffArgs<ExtArgs>
     _count?: boolean | BranchCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["branch"]>
 
@@ -34615,7 +34785,7 @@ export namespace Prisma {
 
   export type BranchOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "code" | "isMain" | "address" | "city" | "state" | "phone" | "email" | "principalStaffId" | "isActive" | "createdById" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["branch"]>
   export type BranchInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    members?: boolean | Branch$membersArgs<ExtArgs>
+    staff?: boolean | Branch$staffArgs<ExtArgs>
     _count?: boolean | BranchCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type BranchIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -34624,7 +34794,7 @@ export namespace Prisma {
   export type $BranchPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Branch"
     objects: {
-      members: Prisma.$MembershipBranchPayload<ExtArgs>[]
+      staff: Prisma.$StaffBranchPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -35036,7 +35206,7 @@ export namespace Prisma {
    */
   export interface Prisma__BranchClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    members<T extends Branch$membersArgs<ExtArgs> = {}>(args?: Subset<T, Branch$membersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MembershipBranchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    staff<T extends Branch$staffArgs<ExtArgs> = {}>(args?: Subset<T, Branch$staffArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StaffBranchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -35474,27 +35644,27 @@ export namespace Prisma {
   }
 
   /**
-   * Branch.members
+   * Branch.staff
    */
-  export type Branch$membersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type Branch$staffArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MembershipBranch
+     * Select specific fields to fetch from the StaffBranch
      */
-    select?: MembershipBranchSelect<ExtArgs> | null
+    select?: StaffBranchSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the MembershipBranch
+     * Omit specific fields from the StaffBranch
      */
-    omit?: MembershipBranchOmit<ExtArgs> | null
+    omit?: StaffBranchOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: MembershipBranchInclude<ExtArgs> | null
-    where?: MembershipBranchWhereInput
-    orderBy?: MembershipBranchOrderByWithRelationInput | MembershipBranchOrderByWithRelationInput[]
-    cursor?: MembershipBranchWhereUniqueInput
+    include?: StaffBranchInclude<ExtArgs> | null
+    where?: StaffBranchWhereInput
+    orderBy?: StaffBranchOrderByWithRelationInput | StaffBranchOrderByWithRelationInput[]
+    cursor?: StaffBranchWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: MembershipBranchScalarFieldEnum | MembershipBranchScalarFieldEnum[]
+    distinct?: StaffBranchScalarFieldEnum | StaffBranchScalarFieldEnum[]
   }
 
   /**
@@ -35517,346 +35687,358 @@ export namespace Prisma {
 
 
   /**
-   * Model MembershipBranch
+   * Model StaffBranch
    */
 
-  export type AggregateMembershipBranch = {
-    _count: MembershipBranchCountAggregateOutputType | null
-    _min: MembershipBranchMinAggregateOutputType | null
-    _max: MembershipBranchMaxAggregateOutputType | null
+  export type AggregateStaffBranch = {
+    _count: StaffBranchCountAggregateOutputType | null
+    _min: StaffBranchMinAggregateOutputType | null
+    _max: StaffBranchMaxAggregateOutputType | null
   }
 
-  export type MembershipBranchMinAggregateOutputType = {
-    membershipId: string | null
+  export type StaffBranchMinAggregateOutputType = {
+    staffId: string | null
     branchId: string | null
+    isPrimary: boolean | null
     assignedAt: Date | null
     assignedById: string | null
   }
 
-  export type MembershipBranchMaxAggregateOutputType = {
-    membershipId: string | null
+  export type StaffBranchMaxAggregateOutputType = {
+    staffId: string | null
     branchId: string | null
+    isPrimary: boolean | null
     assignedAt: Date | null
     assignedById: string | null
   }
 
-  export type MembershipBranchCountAggregateOutputType = {
-    membershipId: number
+  export type StaffBranchCountAggregateOutputType = {
+    staffId: number
     branchId: number
+    isPrimary: number
     assignedAt: number
     assignedById: number
     _all: number
   }
 
 
-  export type MembershipBranchMinAggregateInputType = {
-    membershipId?: true
+  export type StaffBranchMinAggregateInputType = {
+    staffId?: true
     branchId?: true
+    isPrimary?: true
     assignedAt?: true
     assignedById?: true
   }
 
-  export type MembershipBranchMaxAggregateInputType = {
-    membershipId?: true
+  export type StaffBranchMaxAggregateInputType = {
+    staffId?: true
     branchId?: true
+    isPrimary?: true
     assignedAt?: true
     assignedById?: true
   }
 
-  export type MembershipBranchCountAggregateInputType = {
-    membershipId?: true
+  export type StaffBranchCountAggregateInputType = {
+    staffId?: true
     branchId?: true
+    isPrimary?: true
     assignedAt?: true
     assignedById?: true
     _all?: true
   }
 
-  export type MembershipBranchAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type StaffBranchAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which MembershipBranch to aggregate.
+     * Filter which StaffBranch to aggregate.
      */
-    where?: MembershipBranchWhereInput
+    where?: StaffBranchWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of MembershipBranches to fetch.
+     * Determine the order of StaffBranches to fetch.
      */
-    orderBy?: MembershipBranchOrderByWithRelationInput | MembershipBranchOrderByWithRelationInput[]
+    orderBy?: StaffBranchOrderByWithRelationInput | StaffBranchOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: MembershipBranchWhereUniqueInput
+    cursor?: StaffBranchWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` MembershipBranches from the position of the cursor.
+     * Take `±n` StaffBranches from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` MembershipBranches.
+     * Skip the first `n` StaffBranches.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned MembershipBranches
+     * Count returned StaffBranches
     **/
-    _count?: true | MembershipBranchCountAggregateInputType
+    _count?: true | StaffBranchCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: MembershipBranchMinAggregateInputType
+    _min?: StaffBranchMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: MembershipBranchMaxAggregateInputType
+    _max?: StaffBranchMaxAggregateInputType
   }
 
-  export type GetMembershipBranchAggregateType<T extends MembershipBranchAggregateArgs> = {
-        [P in keyof T & keyof AggregateMembershipBranch]: P extends '_count' | 'count'
+  export type GetStaffBranchAggregateType<T extends StaffBranchAggregateArgs> = {
+        [P in keyof T & keyof AggregateStaffBranch]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateMembershipBranch[P]>
-      : GetScalarType<T[P], AggregateMembershipBranch[P]>
+        : GetScalarType<T[P], AggregateStaffBranch[P]>
+      : GetScalarType<T[P], AggregateStaffBranch[P]>
   }
 
 
 
 
-  export type MembershipBranchGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: MembershipBranchWhereInput
-    orderBy?: MembershipBranchOrderByWithAggregationInput | MembershipBranchOrderByWithAggregationInput[]
-    by: MembershipBranchScalarFieldEnum[] | MembershipBranchScalarFieldEnum
-    having?: MembershipBranchScalarWhereWithAggregatesInput
+  export type StaffBranchGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: StaffBranchWhereInput
+    orderBy?: StaffBranchOrderByWithAggregationInput | StaffBranchOrderByWithAggregationInput[]
+    by: StaffBranchScalarFieldEnum[] | StaffBranchScalarFieldEnum
+    having?: StaffBranchScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: MembershipBranchCountAggregateInputType | true
-    _min?: MembershipBranchMinAggregateInputType
-    _max?: MembershipBranchMaxAggregateInputType
+    _count?: StaffBranchCountAggregateInputType | true
+    _min?: StaffBranchMinAggregateInputType
+    _max?: StaffBranchMaxAggregateInputType
   }
 
-  export type MembershipBranchGroupByOutputType = {
-    membershipId: string
+  export type StaffBranchGroupByOutputType = {
+    staffId: string
     branchId: string
+    isPrimary: boolean
     assignedAt: Date
     assignedById: string | null
-    _count: MembershipBranchCountAggregateOutputType | null
-    _min: MembershipBranchMinAggregateOutputType | null
-    _max: MembershipBranchMaxAggregateOutputType | null
+    _count: StaffBranchCountAggregateOutputType | null
+    _min: StaffBranchMinAggregateOutputType | null
+    _max: StaffBranchMaxAggregateOutputType | null
   }
 
-  type GetMembershipBranchGroupByPayload<T extends MembershipBranchGroupByArgs> = Prisma.PrismaPromise<
+  type GetStaffBranchGroupByPayload<T extends StaffBranchGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<MembershipBranchGroupByOutputType, T['by']> &
+      PickEnumerable<StaffBranchGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof MembershipBranchGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof StaffBranchGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], MembershipBranchGroupByOutputType[P]>
-            : GetScalarType<T[P], MembershipBranchGroupByOutputType[P]>
+              : GetScalarType<T[P], StaffBranchGroupByOutputType[P]>
+            : GetScalarType<T[P], StaffBranchGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type MembershipBranchSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    membershipId?: boolean
+  export type StaffBranchSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    staffId?: boolean
     branchId?: boolean
+    isPrimary?: boolean
     assignedAt?: boolean
     assignedById?: boolean
-    membership?: boolean | MembershipDefaultArgs<ExtArgs>
+    staff?: boolean | StaffDefaultArgs<ExtArgs>
     branch?: boolean | BranchDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["membershipBranch"]>
+  }, ExtArgs["result"]["staffBranch"]>
 
-  export type MembershipBranchSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    membershipId?: boolean
+  export type StaffBranchSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    staffId?: boolean
     branchId?: boolean
+    isPrimary?: boolean
     assignedAt?: boolean
     assignedById?: boolean
-    membership?: boolean | MembershipDefaultArgs<ExtArgs>
+    staff?: boolean | StaffDefaultArgs<ExtArgs>
     branch?: boolean | BranchDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["membershipBranch"]>
+  }, ExtArgs["result"]["staffBranch"]>
 
-  export type MembershipBranchSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    membershipId?: boolean
+  export type StaffBranchSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    staffId?: boolean
     branchId?: boolean
+    isPrimary?: boolean
     assignedAt?: boolean
     assignedById?: boolean
-    membership?: boolean | MembershipDefaultArgs<ExtArgs>
+    staff?: boolean | StaffDefaultArgs<ExtArgs>
     branch?: boolean | BranchDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["membershipBranch"]>
+  }, ExtArgs["result"]["staffBranch"]>
 
-  export type MembershipBranchSelectScalar = {
-    membershipId?: boolean
+  export type StaffBranchSelectScalar = {
+    staffId?: boolean
     branchId?: boolean
+    isPrimary?: boolean
     assignedAt?: boolean
     assignedById?: boolean
   }
 
-  export type MembershipBranchOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"membershipId" | "branchId" | "assignedAt" | "assignedById", ExtArgs["result"]["membershipBranch"]>
-  export type MembershipBranchInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    membership?: boolean | MembershipDefaultArgs<ExtArgs>
+  export type StaffBranchOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"staffId" | "branchId" | "isPrimary" | "assignedAt" | "assignedById", ExtArgs["result"]["staffBranch"]>
+  export type StaffBranchInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    staff?: boolean | StaffDefaultArgs<ExtArgs>
     branch?: boolean | BranchDefaultArgs<ExtArgs>
   }
-  export type MembershipBranchIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    membership?: boolean | MembershipDefaultArgs<ExtArgs>
+  export type StaffBranchIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    staff?: boolean | StaffDefaultArgs<ExtArgs>
     branch?: boolean | BranchDefaultArgs<ExtArgs>
   }
-  export type MembershipBranchIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    membership?: boolean | MembershipDefaultArgs<ExtArgs>
+  export type StaffBranchIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    staff?: boolean | StaffDefaultArgs<ExtArgs>
     branch?: boolean | BranchDefaultArgs<ExtArgs>
   }
 
-  export type $MembershipBranchPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "MembershipBranch"
+  export type $StaffBranchPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "StaffBranch"
     objects: {
-      membership: Prisma.$MembershipPayload<ExtArgs>
+      staff: Prisma.$StaffPayload<ExtArgs>
       branch: Prisma.$BranchPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
-      membershipId: string
+      staffId: string
       branchId: string
+      isPrimary: boolean
       assignedAt: Date
       assignedById: string | null
-    }, ExtArgs["result"]["membershipBranch"]>
+    }, ExtArgs["result"]["staffBranch"]>
     composites: {}
   }
 
-  type MembershipBranchGetPayload<S extends boolean | null | undefined | MembershipBranchDefaultArgs> = $Result.GetResult<Prisma.$MembershipBranchPayload, S>
+  type StaffBranchGetPayload<S extends boolean | null | undefined | StaffBranchDefaultArgs> = $Result.GetResult<Prisma.$StaffBranchPayload, S>
 
-  type MembershipBranchCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<MembershipBranchFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: MembershipBranchCountAggregateInputType | true
+  type StaffBranchCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<StaffBranchFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: StaffBranchCountAggregateInputType | true
     }
 
-  export interface MembershipBranchDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['MembershipBranch'], meta: { name: 'MembershipBranch' } }
+  export interface StaffBranchDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['StaffBranch'], meta: { name: 'StaffBranch' } }
     /**
-     * Find zero or one MembershipBranch that matches the filter.
-     * @param {MembershipBranchFindUniqueArgs} args - Arguments to find a MembershipBranch
+     * Find zero or one StaffBranch that matches the filter.
+     * @param {StaffBranchFindUniqueArgs} args - Arguments to find a StaffBranch
      * @example
-     * // Get one MembershipBranch
-     * const membershipBranch = await prisma.membershipBranch.findUnique({
+     * // Get one StaffBranch
+     * const staffBranch = await prisma.staffBranch.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends MembershipBranchFindUniqueArgs>(args: SelectSubset<T, MembershipBranchFindUniqueArgs<ExtArgs>>): Prisma__MembershipBranchClient<$Result.GetResult<Prisma.$MembershipBranchPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends StaffBranchFindUniqueArgs>(args: SelectSubset<T, StaffBranchFindUniqueArgs<ExtArgs>>): Prisma__StaffBranchClient<$Result.GetResult<Prisma.$StaffBranchPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find one MembershipBranch that matches the filter or throw an error with `error.code='P2025'`
+     * Find one StaffBranch that matches the filter or throw an error with `error.code='P2025'`
      * if no matches were found.
-     * @param {MembershipBranchFindUniqueOrThrowArgs} args - Arguments to find a MembershipBranch
+     * @param {StaffBranchFindUniqueOrThrowArgs} args - Arguments to find a StaffBranch
      * @example
-     * // Get one MembershipBranch
-     * const membershipBranch = await prisma.membershipBranch.findUniqueOrThrow({
+     * // Get one StaffBranch
+     * const staffBranch = await prisma.staffBranch.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends MembershipBranchFindUniqueOrThrowArgs>(args: SelectSubset<T, MembershipBranchFindUniqueOrThrowArgs<ExtArgs>>): Prisma__MembershipBranchClient<$Result.GetResult<Prisma.$MembershipBranchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends StaffBranchFindUniqueOrThrowArgs>(args: SelectSubset<T, StaffBranchFindUniqueOrThrowArgs<ExtArgs>>): Prisma__StaffBranchClient<$Result.GetResult<Prisma.$StaffBranchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first MembershipBranch that matches the filter.
+     * Find the first StaffBranch that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {MembershipBranchFindFirstArgs} args - Arguments to find a MembershipBranch
+     * @param {StaffBranchFindFirstArgs} args - Arguments to find a StaffBranch
      * @example
-     * // Get one MembershipBranch
-     * const membershipBranch = await prisma.membershipBranch.findFirst({
+     * // Get one StaffBranch
+     * const staffBranch = await prisma.staffBranch.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends MembershipBranchFindFirstArgs>(args?: SelectSubset<T, MembershipBranchFindFirstArgs<ExtArgs>>): Prisma__MembershipBranchClient<$Result.GetResult<Prisma.$MembershipBranchPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends StaffBranchFindFirstArgs>(args?: SelectSubset<T, StaffBranchFindFirstArgs<ExtArgs>>): Prisma__StaffBranchClient<$Result.GetResult<Prisma.$StaffBranchPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first MembershipBranch that matches the filter or
+     * Find the first StaffBranch that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {MembershipBranchFindFirstOrThrowArgs} args - Arguments to find a MembershipBranch
+     * @param {StaffBranchFindFirstOrThrowArgs} args - Arguments to find a StaffBranch
      * @example
-     * // Get one MembershipBranch
-     * const membershipBranch = await prisma.membershipBranch.findFirstOrThrow({
+     * // Get one StaffBranch
+     * const staffBranch = await prisma.staffBranch.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends MembershipBranchFindFirstOrThrowArgs>(args?: SelectSubset<T, MembershipBranchFindFirstOrThrowArgs<ExtArgs>>): Prisma__MembershipBranchClient<$Result.GetResult<Prisma.$MembershipBranchPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends StaffBranchFindFirstOrThrowArgs>(args?: SelectSubset<T, StaffBranchFindFirstOrThrowArgs<ExtArgs>>): Prisma__StaffBranchClient<$Result.GetResult<Prisma.$StaffBranchPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find zero or more MembershipBranches that matches the filter.
+     * Find zero or more StaffBranches that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {MembershipBranchFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {StaffBranchFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all MembershipBranches
-     * const membershipBranches = await prisma.membershipBranch.findMany()
+     * // Get all StaffBranches
+     * const staffBranches = await prisma.staffBranch.findMany()
      * 
-     * // Get first 10 MembershipBranches
-     * const membershipBranches = await prisma.membershipBranch.findMany({ take: 10 })
+     * // Get first 10 StaffBranches
+     * const staffBranches = await prisma.staffBranch.findMany({ take: 10 })
      * 
-     * // Only select the `membershipId`
-     * const membershipBranchWithMembershipIdOnly = await prisma.membershipBranch.findMany({ select: { membershipId: true } })
+     * // Only select the `staffId`
+     * const staffBranchWithStaffIdOnly = await prisma.staffBranch.findMany({ select: { staffId: true } })
      * 
      */
-    findMany<T extends MembershipBranchFindManyArgs>(args?: SelectSubset<T, MembershipBranchFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MembershipBranchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends StaffBranchFindManyArgs>(args?: SelectSubset<T, StaffBranchFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StaffBranchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
     /**
-     * Create a MembershipBranch.
-     * @param {MembershipBranchCreateArgs} args - Arguments to create a MembershipBranch.
+     * Create a StaffBranch.
+     * @param {StaffBranchCreateArgs} args - Arguments to create a StaffBranch.
      * @example
-     * // Create one MembershipBranch
-     * const MembershipBranch = await prisma.membershipBranch.create({
+     * // Create one StaffBranch
+     * const StaffBranch = await prisma.staffBranch.create({
      *   data: {
-     *     // ... data to create a MembershipBranch
+     *     // ... data to create a StaffBranch
      *   }
      * })
      * 
      */
-    create<T extends MembershipBranchCreateArgs>(args: SelectSubset<T, MembershipBranchCreateArgs<ExtArgs>>): Prisma__MembershipBranchClient<$Result.GetResult<Prisma.$MembershipBranchPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends StaffBranchCreateArgs>(args: SelectSubset<T, StaffBranchCreateArgs<ExtArgs>>): Prisma__StaffBranchClient<$Result.GetResult<Prisma.$StaffBranchPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Create many MembershipBranches.
-     * @param {MembershipBranchCreateManyArgs} args - Arguments to create many MembershipBranches.
+     * Create many StaffBranches.
+     * @param {StaffBranchCreateManyArgs} args - Arguments to create many StaffBranches.
      * @example
-     * // Create many MembershipBranches
-     * const membershipBranch = await prisma.membershipBranch.createMany({
+     * // Create many StaffBranches
+     * const staffBranch = await prisma.staffBranch.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends MembershipBranchCreateManyArgs>(args?: SelectSubset<T, MembershipBranchCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends StaffBranchCreateManyArgs>(args?: SelectSubset<T, StaffBranchCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many MembershipBranches and returns the data saved in the database.
-     * @param {MembershipBranchCreateManyAndReturnArgs} args - Arguments to create many MembershipBranches.
+     * Create many StaffBranches and returns the data saved in the database.
+     * @param {StaffBranchCreateManyAndReturnArgs} args - Arguments to create many StaffBranches.
      * @example
-     * // Create many MembershipBranches
-     * const membershipBranch = await prisma.membershipBranch.createManyAndReturn({
+     * // Create many StaffBranches
+     * const staffBranch = await prisma.staffBranch.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many MembershipBranches and only return the `membershipId`
-     * const membershipBranchWithMembershipIdOnly = await prisma.membershipBranch.createManyAndReturn({
-     *   select: { membershipId: true },
+     * // Create many StaffBranches and only return the `staffId`
+     * const staffBranchWithStaffIdOnly = await prisma.staffBranch.createManyAndReturn({
+     *   select: { staffId: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -35865,28 +36047,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends MembershipBranchCreateManyAndReturnArgs>(args?: SelectSubset<T, MembershipBranchCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MembershipBranchPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+    createManyAndReturn<T extends StaffBranchCreateManyAndReturnArgs>(args?: SelectSubset<T, StaffBranchCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StaffBranchPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
     /**
-     * Delete a MembershipBranch.
-     * @param {MembershipBranchDeleteArgs} args - Arguments to delete one MembershipBranch.
+     * Delete a StaffBranch.
+     * @param {StaffBranchDeleteArgs} args - Arguments to delete one StaffBranch.
      * @example
-     * // Delete one MembershipBranch
-     * const MembershipBranch = await prisma.membershipBranch.delete({
+     * // Delete one StaffBranch
+     * const StaffBranch = await prisma.staffBranch.delete({
      *   where: {
-     *     // ... filter to delete one MembershipBranch
+     *     // ... filter to delete one StaffBranch
      *   }
      * })
      * 
      */
-    delete<T extends MembershipBranchDeleteArgs>(args: SelectSubset<T, MembershipBranchDeleteArgs<ExtArgs>>): Prisma__MembershipBranchClient<$Result.GetResult<Prisma.$MembershipBranchPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends StaffBranchDeleteArgs>(args: SelectSubset<T, StaffBranchDeleteArgs<ExtArgs>>): Prisma__StaffBranchClient<$Result.GetResult<Prisma.$StaffBranchPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Update one MembershipBranch.
-     * @param {MembershipBranchUpdateArgs} args - Arguments to update one MembershipBranch.
+     * Update one StaffBranch.
+     * @param {StaffBranchUpdateArgs} args - Arguments to update one StaffBranch.
      * @example
-     * // Update one MembershipBranch
-     * const membershipBranch = await prisma.membershipBranch.update({
+     * // Update one StaffBranch
+     * const staffBranch = await prisma.staffBranch.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -35896,30 +36078,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends MembershipBranchUpdateArgs>(args: SelectSubset<T, MembershipBranchUpdateArgs<ExtArgs>>): Prisma__MembershipBranchClient<$Result.GetResult<Prisma.$MembershipBranchPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends StaffBranchUpdateArgs>(args: SelectSubset<T, StaffBranchUpdateArgs<ExtArgs>>): Prisma__StaffBranchClient<$Result.GetResult<Prisma.$StaffBranchPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Delete zero or more MembershipBranches.
-     * @param {MembershipBranchDeleteManyArgs} args - Arguments to filter MembershipBranches to delete.
+     * Delete zero or more StaffBranches.
+     * @param {StaffBranchDeleteManyArgs} args - Arguments to filter StaffBranches to delete.
      * @example
-     * // Delete a few MembershipBranches
-     * const { count } = await prisma.membershipBranch.deleteMany({
+     * // Delete a few StaffBranches
+     * const { count } = await prisma.staffBranch.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends MembershipBranchDeleteManyArgs>(args?: SelectSubset<T, MembershipBranchDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends StaffBranchDeleteManyArgs>(args?: SelectSubset<T, StaffBranchDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more MembershipBranches.
+     * Update zero or more StaffBranches.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {MembershipBranchUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {StaffBranchUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many MembershipBranches
-     * const membershipBranch = await prisma.membershipBranch.updateMany({
+     * // Update many StaffBranches
+     * const staffBranch = await prisma.staffBranch.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -35929,14 +36111,14 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends MembershipBranchUpdateManyArgs>(args: SelectSubset<T, MembershipBranchUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends StaffBranchUpdateManyArgs>(args: SelectSubset<T, StaffBranchUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more MembershipBranches and returns the data updated in the database.
-     * @param {MembershipBranchUpdateManyAndReturnArgs} args - Arguments to update many MembershipBranches.
+     * Update zero or more StaffBranches and returns the data updated in the database.
+     * @param {StaffBranchUpdateManyAndReturnArgs} args - Arguments to update many StaffBranches.
      * @example
-     * // Update many MembershipBranches
-     * const membershipBranch = await prisma.membershipBranch.updateManyAndReturn({
+     * // Update many StaffBranches
+     * const staffBranch = await prisma.staffBranch.updateManyAndReturn({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -35945,9 +36127,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Update zero or more MembershipBranches and only return the `membershipId`
-     * const membershipBranchWithMembershipIdOnly = await prisma.membershipBranch.updateManyAndReturn({
-     *   select: { membershipId: true },
+     * // Update zero or more StaffBranches and only return the `staffId`
+     * const staffBranchWithStaffIdOnly = await prisma.staffBranch.updateManyAndReturn({
+     *   select: { staffId: true },
      *   where: {
      *     // ... provide filter here
      *   },
@@ -35959,56 +36141,56 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    updateManyAndReturn<T extends MembershipBranchUpdateManyAndReturnArgs>(args: SelectSubset<T, MembershipBranchUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MembershipBranchPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+    updateManyAndReturn<T extends StaffBranchUpdateManyAndReturnArgs>(args: SelectSubset<T, StaffBranchUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StaffBranchPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
     /**
-     * Create or update one MembershipBranch.
-     * @param {MembershipBranchUpsertArgs} args - Arguments to update or create a MembershipBranch.
+     * Create or update one StaffBranch.
+     * @param {StaffBranchUpsertArgs} args - Arguments to update or create a StaffBranch.
      * @example
-     * // Update or create a MembershipBranch
-     * const membershipBranch = await prisma.membershipBranch.upsert({
+     * // Update or create a StaffBranch
+     * const staffBranch = await prisma.staffBranch.upsert({
      *   create: {
-     *     // ... data to create a MembershipBranch
+     *     // ... data to create a StaffBranch
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the MembershipBranch we want to update
+     *     // ... the filter for the StaffBranch we want to update
      *   }
      * })
      */
-    upsert<T extends MembershipBranchUpsertArgs>(args: SelectSubset<T, MembershipBranchUpsertArgs<ExtArgs>>): Prisma__MembershipBranchClient<$Result.GetResult<Prisma.$MembershipBranchPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends StaffBranchUpsertArgs>(args: SelectSubset<T, StaffBranchUpsertArgs<ExtArgs>>): Prisma__StaffBranchClient<$Result.GetResult<Prisma.$StaffBranchPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
     /**
-     * Count the number of MembershipBranches.
+     * Count the number of StaffBranches.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {MembershipBranchCountArgs} args - Arguments to filter MembershipBranches to count.
+     * @param {StaffBranchCountArgs} args - Arguments to filter StaffBranches to count.
      * @example
-     * // Count the number of MembershipBranches
-     * const count = await prisma.membershipBranch.count({
+     * // Count the number of StaffBranches
+     * const count = await prisma.staffBranch.count({
      *   where: {
-     *     // ... the filter for the MembershipBranches we want to count
+     *     // ... the filter for the StaffBranches we want to count
      *   }
      * })
     **/
-    count<T extends MembershipBranchCountArgs>(
-      args?: Subset<T, MembershipBranchCountArgs>,
+    count<T extends StaffBranchCountArgs>(
+      args?: Subset<T, StaffBranchCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], MembershipBranchCountAggregateOutputType>
+          : GetScalarType<T['select'], StaffBranchCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a MembershipBranch.
+     * Allows you to perform aggregations operations on a StaffBranch.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {MembershipBranchAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {StaffBranchAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -36028,13 +36210,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends MembershipBranchAggregateArgs>(args: Subset<T, MembershipBranchAggregateArgs>): Prisma.PrismaPromise<GetMembershipBranchAggregateType<T>>
+    aggregate<T extends StaffBranchAggregateArgs>(args: Subset<T, StaffBranchAggregateArgs>): Prisma.PrismaPromise<GetStaffBranchAggregateType<T>>
 
     /**
-     * Group by MembershipBranch.
+     * Group by StaffBranch.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {MembershipBranchGroupByArgs} args - Group by arguments.
+     * @param {StaffBranchGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -36049,14 +36231,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends MembershipBranchGroupByArgs,
+      T extends StaffBranchGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: MembershipBranchGroupByArgs['orderBy'] }
-        : { orderBy?: MembershipBranchGroupByArgs['orderBy'] },
+        ? { orderBy: StaffBranchGroupByArgs['orderBy'] }
+        : { orderBy?: StaffBranchGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -36105,22 +36287,22 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, MembershipBranchGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetMembershipBranchGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, StaffBranchGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetStaffBranchGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the MembershipBranch model
+   * Fields of the StaffBranch model
    */
-  readonly fields: MembershipBranchFieldRefs;
+  readonly fields: StaffBranchFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for MembershipBranch.
+   * The delegate class that acts as a "Promise-like" for StaffBranch.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__MembershipBranchClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__StaffBranchClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    membership<T extends MembershipDefaultArgs<ExtArgs> = {}>(args?: Subset<T, MembershipDefaultArgs<ExtArgs>>): Prisma__MembershipClient<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    staff<T extends StaffDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StaffDefaultArgs<ExtArgs>>): Prisma__StaffClient<$Result.GetResult<Prisma.$StaffPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     branch<T extends BranchDefaultArgs<ExtArgs> = {}>(args?: Subset<T, BranchDefaultArgs<ExtArgs>>): Prisma__BranchClient<$Result.GetResult<Prisma.$BranchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -36148,429 +36330,430 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the MembershipBranch model
+   * Fields of the StaffBranch model
    */
-  interface MembershipBranchFieldRefs {
-    readonly membershipId: FieldRef<"MembershipBranch", 'String'>
-    readonly branchId: FieldRef<"MembershipBranch", 'String'>
-    readonly assignedAt: FieldRef<"MembershipBranch", 'DateTime'>
-    readonly assignedById: FieldRef<"MembershipBranch", 'String'>
+  interface StaffBranchFieldRefs {
+    readonly staffId: FieldRef<"StaffBranch", 'String'>
+    readonly branchId: FieldRef<"StaffBranch", 'String'>
+    readonly isPrimary: FieldRef<"StaffBranch", 'Boolean'>
+    readonly assignedAt: FieldRef<"StaffBranch", 'DateTime'>
+    readonly assignedById: FieldRef<"StaffBranch", 'String'>
   }
     
 
   // Custom InputTypes
   /**
-   * MembershipBranch findUnique
+   * StaffBranch findUnique
    */
-  export type MembershipBranchFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type StaffBranchFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MembershipBranch
+     * Select specific fields to fetch from the StaffBranch
      */
-    select?: MembershipBranchSelect<ExtArgs> | null
+    select?: StaffBranchSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the MembershipBranch
+     * Omit specific fields from the StaffBranch
      */
-    omit?: MembershipBranchOmit<ExtArgs> | null
+    omit?: StaffBranchOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: MembershipBranchInclude<ExtArgs> | null
+    include?: StaffBranchInclude<ExtArgs> | null
     /**
-     * Filter, which MembershipBranch to fetch.
+     * Filter, which StaffBranch to fetch.
      */
-    where: MembershipBranchWhereUniqueInput
+    where: StaffBranchWhereUniqueInput
   }
 
   /**
-   * MembershipBranch findUniqueOrThrow
+   * StaffBranch findUniqueOrThrow
    */
-  export type MembershipBranchFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type StaffBranchFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MembershipBranch
+     * Select specific fields to fetch from the StaffBranch
      */
-    select?: MembershipBranchSelect<ExtArgs> | null
+    select?: StaffBranchSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the MembershipBranch
+     * Omit specific fields from the StaffBranch
      */
-    omit?: MembershipBranchOmit<ExtArgs> | null
+    omit?: StaffBranchOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: MembershipBranchInclude<ExtArgs> | null
+    include?: StaffBranchInclude<ExtArgs> | null
     /**
-     * Filter, which MembershipBranch to fetch.
+     * Filter, which StaffBranch to fetch.
      */
-    where: MembershipBranchWhereUniqueInput
+    where: StaffBranchWhereUniqueInput
   }
 
   /**
-   * MembershipBranch findFirst
+   * StaffBranch findFirst
    */
-  export type MembershipBranchFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type StaffBranchFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MembershipBranch
+     * Select specific fields to fetch from the StaffBranch
      */
-    select?: MembershipBranchSelect<ExtArgs> | null
+    select?: StaffBranchSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the MembershipBranch
+     * Omit specific fields from the StaffBranch
      */
-    omit?: MembershipBranchOmit<ExtArgs> | null
+    omit?: StaffBranchOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: MembershipBranchInclude<ExtArgs> | null
+    include?: StaffBranchInclude<ExtArgs> | null
     /**
-     * Filter, which MembershipBranch to fetch.
+     * Filter, which StaffBranch to fetch.
      */
-    where?: MembershipBranchWhereInput
+    where?: StaffBranchWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of MembershipBranches to fetch.
+     * Determine the order of StaffBranches to fetch.
      */
-    orderBy?: MembershipBranchOrderByWithRelationInput | MembershipBranchOrderByWithRelationInput[]
+    orderBy?: StaffBranchOrderByWithRelationInput | StaffBranchOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for MembershipBranches.
+     * Sets the position for searching for StaffBranches.
      */
-    cursor?: MembershipBranchWhereUniqueInput
+    cursor?: StaffBranchWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` MembershipBranches from the position of the cursor.
+     * Take `±n` StaffBranches from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` MembershipBranches.
+     * Skip the first `n` StaffBranches.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of MembershipBranches.
+     * Filter by unique combinations of StaffBranches.
      */
-    distinct?: MembershipBranchScalarFieldEnum | MembershipBranchScalarFieldEnum[]
+    distinct?: StaffBranchScalarFieldEnum | StaffBranchScalarFieldEnum[]
   }
 
   /**
-   * MembershipBranch findFirstOrThrow
+   * StaffBranch findFirstOrThrow
    */
-  export type MembershipBranchFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type StaffBranchFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MembershipBranch
+     * Select specific fields to fetch from the StaffBranch
      */
-    select?: MembershipBranchSelect<ExtArgs> | null
+    select?: StaffBranchSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the MembershipBranch
+     * Omit specific fields from the StaffBranch
      */
-    omit?: MembershipBranchOmit<ExtArgs> | null
+    omit?: StaffBranchOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: MembershipBranchInclude<ExtArgs> | null
+    include?: StaffBranchInclude<ExtArgs> | null
     /**
-     * Filter, which MembershipBranch to fetch.
+     * Filter, which StaffBranch to fetch.
      */
-    where?: MembershipBranchWhereInput
+    where?: StaffBranchWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of MembershipBranches to fetch.
+     * Determine the order of StaffBranches to fetch.
      */
-    orderBy?: MembershipBranchOrderByWithRelationInput | MembershipBranchOrderByWithRelationInput[]
+    orderBy?: StaffBranchOrderByWithRelationInput | StaffBranchOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for MembershipBranches.
+     * Sets the position for searching for StaffBranches.
      */
-    cursor?: MembershipBranchWhereUniqueInput
+    cursor?: StaffBranchWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` MembershipBranches from the position of the cursor.
+     * Take `±n` StaffBranches from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` MembershipBranches.
+     * Skip the first `n` StaffBranches.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of MembershipBranches.
+     * Filter by unique combinations of StaffBranches.
      */
-    distinct?: MembershipBranchScalarFieldEnum | MembershipBranchScalarFieldEnum[]
+    distinct?: StaffBranchScalarFieldEnum | StaffBranchScalarFieldEnum[]
   }
 
   /**
-   * MembershipBranch findMany
+   * StaffBranch findMany
    */
-  export type MembershipBranchFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type StaffBranchFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MembershipBranch
+     * Select specific fields to fetch from the StaffBranch
      */
-    select?: MembershipBranchSelect<ExtArgs> | null
+    select?: StaffBranchSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the MembershipBranch
+     * Omit specific fields from the StaffBranch
      */
-    omit?: MembershipBranchOmit<ExtArgs> | null
+    omit?: StaffBranchOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: MembershipBranchInclude<ExtArgs> | null
+    include?: StaffBranchInclude<ExtArgs> | null
     /**
-     * Filter, which MembershipBranches to fetch.
+     * Filter, which StaffBranches to fetch.
      */
-    where?: MembershipBranchWhereInput
+    where?: StaffBranchWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of MembershipBranches to fetch.
+     * Determine the order of StaffBranches to fetch.
      */
-    orderBy?: MembershipBranchOrderByWithRelationInput | MembershipBranchOrderByWithRelationInput[]
+    orderBy?: StaffBranchOrderByWithRelationInput | StaffBranchOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing MembershipBranches.
+     * Sets the position for listing StaffBranches.
      */
-    cursor?: MembershipBranchWhereUniqueInput
+    cursor?: StaffBranchWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` MembershipBranches from the position of the cursor.
+     * Take `±n` StaffBranches from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` MembershipBranches.
+     * Skip the first `n` StaffBranches.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of MembershipBranches.
+     * Filter by unique combinations of StaffBranches.
      */
-    distinct?: MembershipBranchScalarFieldEnum | MembershipBranchScalarFieldEnum[]
+    distinct?: StaffBranchScalarFieldEnum | StaffBranchScalarFieldEnum[]
   }
 
   /**
-   * MembershipBranch create
+   * StaffBranch create
    */
-  export type MembershipBranchCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type StaffBranchCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MembershipBranch
+     * Select specific fields to fetch from the StaffBranch
      */
-    select?: MembershipBranchSelect<ExtArgs> | null
+    select?: StaffBranchSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the MembershipBranch
+     * Omit specific fields from the StaffBranch
      */
-    omit?: MembershipBranchOmit<ExtArgs> | null
+    omit?: StaffBranchOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: MembershipBranchInclude<ExtArgs> | null
+    include?: StaffBranchInclude<ExtArgs> | null
     /**
-     * The data needed to create a MembershipBranch.
+     * The data needed to create a StaffBranch.
      */
-    data: XOR<MembershipBranchCreateInput, MembershipBranchUncheckedCreateInput>
+    data: XOR<StaffBranchCreateInput, StaffBranchUncheckedCreateInput>
   }
 
   /**
-   * MembershipBranch createMany
+   * StaffBranch createMany
    */
-  export type MembershipBranchCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type StaffBranchCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many MembershipBranches.
+     * The data used to create many StaffBranches.
      */
-    data: MembershipBranchCreateManyInput | MembershipBranchCreateManyInput[]
+    data: StaffBranchCreateManyInput | StaffBranchCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * MembershipBranch createManyAndReturn
+   * StaffBranch createManyAndReturn
    */
-  export type MembershipBranchCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type StaffBranchCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MembershipBranch
+     * Select specific fields to fetch from the StaffBranch
      */
-    select?: MembershipBranchSelectCreateManyAndReturn<ExtArgs> | null
+    select?: StaffBranchSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * Omit specific fields from the MembershipBranch
+     * Omit specific fields from the StaffBranch
      */
-    omit?: MembershipBranchOmit<ExtArgs> | null
+    omit?: StaffBranchOmit<ExtArgs> | null
     /**
-     * The data used to create many MembershipBranches.
+     * The data used to create many StaffBranches.
      */
-    data: MembershipBranchCreateManyInput | MembershipBranchCreateManyInput[]
+    data: StaffBranchCreateManyInput | StaffBranchCreateManyInput[]
     skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: MembershipBranchIncludeCreateManyAndReturn<ExtArgs> | null
+    include?: StaffBranchIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * MembershipBranch update
+   * StaffBranch update
    */
-  export type MembershipBranchUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type StaffBranchUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MembershipBranch
+     * Select specific fields to fetch from the StaffBranch
      */
-    select?: MembershipBranchSelect<ExtArgs> | null
+    select?: StaffBranchSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the MembershipBranch
+     * Omit specific fields from the StaffBranch
      */
-    omit?: MembershipBranchOmit<ExtArgs> | null
+    omit?: StaffBranchOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: MembershipBranchInclude<ExtArgs> | null
+    include?: StaffBranchInclude<ExtArgs> | null
     /**
-     * The data needed to update a MembershipBranch.
+     * The data needed to update a StaffBranch.
      */
-    data: XOR<MembershipBranchUpdateInput, MembershipBranchUncheckedUpdateInput>
+    data: XOR<StaffBranchUpdateInput, StaffBranchUncheckedUpdateInput>
     /**
-     * Choose, which MembershipBranch to update.
+     * Choose, which StaffBranch to update.
      */
-    where: MembershipBranchWhereUniqueInput
+    where: StaffBranchWhereUniqueInput
   }
 
   /**
-   * MembershipBranch updateMany
+   * StaffBranch updateMany
    */
-  export type MembershipBranchUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type StaffBranchUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update MembershipBranches.
+     * The data used to update StaffBranches.
      */
-    data: XOR<MembershipBranchUpdateManyMutationInput, MembershipBranchUncheckedUpdateManyInput>
+    data: XOR<StaffBranchUpdateManyMutationInput, StaffBranchUncheckedUpdateManyInput>
     /**
-     * Filter which MembershipBranches to update
+     * Filter which StaffBranches to update
      */
-    where?: MembershipBranchWhereInput
+    where?: StaffBranchWhereInput
     /**
-     * Limit how many MembershipBranches to update.
+     * Limit how many StaffBranches to update.
      */
     limit?: number
   }
 
   /**
-   * MembershipBranch updateManyAndReturn
+   * StaffBranch updateManyAndReturn
    */
-  export type MembershipBranchUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type StaffBranchUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MembershipBranch
+     * Select specific fields to fetch from the StaffBranch
      */
-    select?: MembershipBranchSelectUpdateManyAndReturn<ExtArgs> | null
+    select?: StaffBranchSelectUpdateManyAndReturn<ExtArgs> | null
     /**
-     * Omit specific fields from the MembershipBranch
+     * Omit specific fields from the StaffBranch
      */
-    omit?: MembershipBranchOmit<ExtArgs> | null
+    omit?: StaffBranchOmit<ExtArgs> | null
     /**
-     * The data used to update MembershipBranches.
+     * The data used to update StaffBranches.
      */
-    data: XOR<MembershipBranchUpdateManyMutationInput, MembershipBranchUncheckedUpdateManyInput>
+    data: XOR<StaffBranchUpdateManyMutationInput, StaffBranchUncheckedUpdateManyInput>
     /**
-     * Filter which MembershipBranches to update
+     * Filter which StaffBranches to update
      */
-    where?: MembershipBranchWhereInput
+    where?: StaffBranchWhereInput
     /**
-     * Limit how many MembershipBranches to update.
+     * Limit how many StaffBranches to update.
      */
     limit?: number
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: MembershipBranchIncludeUpdateManyAndReturn<ExtArgs> | null
+    include?: StaffBranchIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * MembershipBranch upsert
+   * StaffBranch upsert
    */
-  export type MembershipBranchUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type StaffBranchUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MembershipBranch
+     * Select specific fields to fetch from the StaffBranch
      */
-    select?: MembershipBranchSelect<ExtArgs> | null
+    select?: StaffBranchSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the MembershipBranch
+     * Omit specific fields from the StaffBranch
      */
-    omit?: MembershipBranchOmit<ExtArgs> | null
+    omit?: StaffBranchOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: MembershipBranchInclude<ExtArgs> | null
+    include?: StaffBranchInclude<ExtArgs> | null
     /**
-     * The filter to search for the MembershipBranch to update in case it exists.
+     * The filter to search for the StaffBranch to update in case it exists.
      */
-    where: MembershipBranchWhereUniqueInput
+    where: StaffBranchWhereUniqueInput
     /**
-     * In case the MembershipBranch found by the `where` argument doesn't exist, create a new MembershipBranch with this data.
+     * In case the StaffBranch found by the `where` argument doesn't exist, create a new StaffBranch with this data.
      */
-    create: XOR<MembershipBranchCreateInput, MembershipBranchUncheckedCreateInput>
+    create: XOR<StaffBranchCreateInput, StaffBranchUncheckedCreateInput>
     /**
-     * In case the MembershipBranch was found with the provided `where` argument, update it with this data.
+     * In case the StaffBranch was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<MembershipBranchUpdateInput, MembershipBranchUncheckedUpdateInput>
+    update: XOR<StaffBranchUpdateInput, StaffBranchUncheckedUpdateInput>
   }
 
   /**
-   * MembershipBranch delete
+   * StaffBranch delete
    */
-  export type MembershipBranchDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type StaffBranchDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MembershipBranch
+     * Select specific fields to fetch from the StaffBranch
      */
-    select?: MembershipBranchSelect<ExtArgs> | null
+    select?: StaffBranchSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the MembershipBranch
+     * Omit specific fields from the StaffBranch
      */
-    omit?: MembershipBranchOmit<ExtArgs> | null
+    omit?: StaffBranchOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: MembershipBranchInclude<ExtArgs> | null
+    include?: StaffBranchInclude<ExtArgs> | null
     /**
-     * Filter which MembershipBranch to delete.
+     * Filter which StaffBranch to delete.
      */
-    where: MembershipBranchWhereUniqueInput
+    where: StaffBranchWhereUniqueInput
   }
 
   /**
-   * MembershipBranch deleteMany
+   * StaffBranch deleteMany
    */
-  export type MembershipBranchDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type StaffBranchDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which MembershipBranches to delete
+     * Filter which StaffBranches to delete
      */
-    where?: MembershipBranchWhereInput
+    where?: StaffBranchWhereInput
     /**
-     * Limit how many MembershipBranches to delete.
+     * Limit how many StaffBranches to delete.
      */
     limit?: number
   }
 
   /**
-   * MembershipBranch without action
+   * StaffBranch without action
    */
-  export type MembershipBranchDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type StaffBranchDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MembershipBranch
+     * Select specific fields to fetch from the StaffBranch
      */
-    select?: MembershipBranchSelect<ExtArgs> | null
+    select?: StaffBranchSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the MembershipBranch
+     * Omit specific fields from the StaffBranch
      */
-    omit?: MembershipBranchOmit<ExtArgs> | null
+    omit?: StaffBranchOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: MembershipBranchInclude<ExtArgs> | null
+    include?: StaffBranchInclude<ExtArgs> | null
   }
 
 
@@ -45595,18 +45778,30 @@ export namespace Prisma {
     id: 'id',
     userId: 'userId',
     employeeId: 'employeeId',
-    department: 'department',
-    designation: 'designation',
-    qualification: 'qualification',
+    firstName: 'firstName',
+    lastName: 'lastName',
+    middleName: 'middleName',
+    email: 'email',
+    phone: 'phone',
+    photoUrl: 'photoUrl',
     gender: 'gender',
     dateOfBirth: 'dateOfBirth',
     address: 'address',
-    joinDate: 'joinDate',
-    role: 'role',
+    department: 'department',
+    designation: 'designation',
+    qualification: 'qualification',
     category: 'category',
+    employmentType: 'employmentType',
+    joinDate: 'joinDate',
+    exitDate: 'exitDate',
+    exitReason: 'exitReason',
+    role: 'role',
     isActive: 'isActive',
+    createdById: 'createdById',
+    updatedById: 'updatedById',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    deletedAt: 'deletedAt'
   };
 
   export type StaffScalarFieldEnum = (typeof StaffScalarFieldEnum)[keyof typeof StaffScalarFieldEnum]
@@ -45999,14 +46194,15 @@ export namespace Prisma {
   export type BranchScalarFieldEnum = (typeof BranchScalarFieldEnum)[keyof typeof BranchScalarFieldEnum]
 
 
-  export const MembershipBranchScalarFieldEnum: {
-    membershipId: 'membershipId',
+  export const StaffBranchScalarFieldEnum: {
+    staffId: 'staffId',
     branchId: 'branchId',
+    isPrimary: 'isPrimary',
     assignedAt: 'assignedAt',
     assignedById: 'assignedById'
   };
 
-  export type MembershipBranchScalarFieldEnum = (typeof MembershipBranchScalarFieldEnum)[keyof typeof MembershipBranchScalarFieldEnum]
+  export type StaffBranchScalarFieldEnum = (typeof StaffBranchScalarFieldEnum)[keyof typeof StaffBranchScalarFieldEnum]
 
 
   export const SchoolSettingValueScalarFieldEnum: {
@@ -46240,20 +46436,6 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'StaffRole'
-   */
-  export type EnumStaffRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StaffRole'>
-    
-
-
-  /**
-   * Reference to a field of type 'StaffRole[]'
-   */
-  export type ListEnumStaffRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StaffRole[]'>
-    
-
-
-  /**
    * Reference to a field of type 'StaffCategory'
    */
   export type EnumStaffCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StaffCategory'>
@@ -46264,6 +46446,34 @@ export namespace Prisma {
    * Reference to a field of type 'StaffCategory[]'
    */
   export type ListEnumStaffCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StaffCategory[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'EmploymentType'
+   */
+  export type EnumEmploymentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EmploymentType'>
+    
+
+
+  /**
+   * Reference to a field of type 'EmploymentType[]'
+   */
+  export type ListEnumEmploymentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EmploymentType[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'StaffRole'
+   */
+  export type EnumStaffRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StaffRole'>
+    
+
+
+  /**
+   * Reference to a field of type 'StaffRole[]'
+   */
+  export type ListEnumStaffRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StaffRole[]'>
     
 
 
@@ -46632,44 +46842,70 @@ export namespace Prisma {
     OR?: StaffWhereInput[]
     NOT?: StaffWhereInput | StaffWhereInput[]
     id?: StringFilter<"Staff"> | string
-    userId?: StringFilter<"Staff"> | string
+    userId?: StringNullableFilter<"Staff"> | string | null
     employeeId?: StringNullableFilter<"Staff"> | string | null
-    department?: StringNullableFilter<"Staff"> | string | null
-    designation?: StringNullableFilter<"Staff"> | string | null
-    qualification?: StringNullableFilter<"Staff"> | string | null
+    firstName?: StringFilter<"Staff"> | string
+    lastName?: StringFilter<"Staff"> | string
+    middleName?: StringNullableFilter<"Staff"> | string | null
+    email?: StringNullableFilter<"Staff"> | string | null
+    phone?: StringNullableFilter<"Staff"> | string | null
+    photoUrl?: StringNullableFilter<"Staff"> | string | null
     gender?: EnumGenderNullableFilter<"Staff"> | $Enums.Gender | null
     dateOfBirth?: DateTimeNullableFilter<"Staff"> | Date | string | null
     address?: StringNullableFilter<"Staff"> | string | null
-    joinDate?: DateTimeNullableFilter<"Staff"> | Date | string | null
-    role?: EnumStaffRoleFilter<"Staff"> | $Enums.StaffRole
+    department?: StringNullableFilter<"Staff"> | string | null
+    designation?: StringNullableFilter<"Staff"> | string | null
+    qualification?: StringNullableFilter<"Staff"> | string | null
     category?: EnumStaffCategoryFilter<"Staff"> | $Enums.StaffCategory
+    employmentType?: EnumEmploymentTypeFilter<"Staff"> | $Enums.EmploymentType
+    joinDate?: DateTimeNullableFilter<"Staff"> | Date | string | null
+    exitDate?: DateTimeNullableFilter<"Staff"> | Date | string | null
+    exitReason?: StringNullableFilter<"Staff"> | string | null
+    role?: EnumStaffRoleFilter<"Staff"> | $Enums.StaffRole
     isActive?: BoolFilter<"Staff"> | boolean
+    createdById?: StringNullableFilter<"Staff"> | string | null
+    updatedById?: StringNullableFilter<"Staff"> | string | null
     createdAt?: DateTimeFilter<"Staff"> | Date | string
     updatedAt?: DateTimeFilter<"Staff"> | Date | string
+    deletedAt?: DateTimeNullableFilter<"Staff"> | Date | string | null
     classSubjects?: ClassSubjectListRelationFilter
     classesAsClassTeacher?: ClassListRelationFilter
     subjectDefaults?: SubjectListRelationFilter
+    branches?: StaffBranchListRelationFilter
   }
 
   export type StaffOrderByWithRelationInput = {
     id?: SortOrder
-    userId?: SortOrder
+    userId?: SortOrderInput | SortOrder
     employeeId?: SortOrderInput | SortOrder
-    department?: SortOrderInput | SortOrder
-    designation?: SortOrderInput | SortOrder
-    qualification?: SortOrderInput | SortOrder
+    firstName?: SortOrder
+    lastName?: SortOrder
+    middleName?: SortOrderInput | SortOrder
+    email?: SortOrderInput | SortOrder
+    phone?: SortOrderInput | SortOrder
+    photoUrl?: SortOrderInput | SortOrder
     gender?: SortOrderInput | SortOrder
     dateOfBirth?: SortOrderInput | SortOrder
     address?: SortOrderInput | SortOrder
-    joinDate?: SortOrderInput | SortOrder
-    role?: SortOrder
+    department?: SortOrderInput | SortOrder
+    designation?: SortOrderInput | SortOrder
+    qualification?: SortOrderInput | SortOrder
     category?: SortOrder
+    employmentType?: SortOrder
+    joinDate?: SortOrderInput | SortOrder
+    exitDate?: SortOrderInput | SortOrder
+    exitReason?: SortOrderInput | SortOrder
+    role?: SortOrder
     isActive?: SortOrder
+    createdById?: SortOrderInput | SortOrder
+    updatedById?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    deletedAt?: SortOrderInput | SortOrder
     classSubjects?: ClassSubjectOrderByRelationAggregateInput
     classesAsClassTeacher?: ClassOrderByRelationAggregateInput
     subjectDefaults?: SubjectOrderByRelationAggregateInput
+    branches?: StaffBranchOrderByRelationAggregateInput
   }
 
   export type StaffWhereUniqueInput = Prisma.AtLeast<{
@@ -46679,39 +46915,64 @@ export namespace Prisma {
     AND?: StaffWhereInput | StaffWhereInput[]
     OR?: StaffWhereInput[]
     NOT?: StaffWhereInput | StaffWhereInput[]
-    department?: StringNullableFilter<"Staff"> | string | null
-    designation?: StringNullableFilter<"Staff"> | string | null
-    qualification?: StringNullableFilter<"Staff"> | string | null
+    firstName?: StringFilter<"Staff"> | string
+    lastName?: StringFilter<"Staff"> | string
+    middleName?: StringNullableFilter<"Staff"> | string | null
+    email?: StringNullableFilter<"Staff"> | string | null
+    phone?: StringNullableFilter<"Staff"> | string | null
+    photoUrl?: StringNullableFilter<"Staff"> | string | null
     gender?: EnumGenderNullableFilter<"Staff"> | $Enums.Gender | null
     dateOfBirth?: DateTimeNullableFilter<"Staff"> | Date | string | null
     address?: StringNullableFilter<"Staff"> | string | null
-    joinDate?: DateTimeNullableFilter<"Staff"> | Date | string | null
-    role?: EnumStaffRoleFilter<"Staff"> | $Enums.StaffRole
+    department?: StringNullableFilter<"Staff"> | string | null
+    designation?: StringNullableFilter<"Staff"> | string | null
+    qualification?: StringNullableFilter<"Staff"> | string | null
     category?: EnumStaffCategoryFilter<"Staff"> | $Enums.StaffCategory
+    employmentType?: EnumEmploymentTypeFilter<"Staff"> | $Enums.EmploymentType
+    joinDate?: DateTimeNullableFilter<"Staff"> | Date | string | null
+    exitDate?: DateTimeNullableFilter<"Staff"> | Date | string | null
+    exitReason?: StringNullableFilter<"Staff"> | string | null
+    role?: EnumStaffRoleFilter<"Staff"> | $Enums.StaffRole
     isActive?: BoolFilter<"Staff"> | boolean
+    createdById?: StringNullableFilter<"Staff"> | string | null
+    updatedById?: StringNullableFilter<"Staff"> | string | null
     createdAt?: DateTimeFilter<"Staff"> | Date | string
     updatedAt?: DateTimeFilter<"Staff"> | Date | string
+    deletedAt?: DateTimeNullableFilter<"Staff"> | Date | string | null
     classSubjects?: ClassSubjectListRelationFilter
     classesAsClassTeacher?: ClassListRelationFilter
     subjectDefaults?: SubjectListRelationFilter
+    branches?: StaffBranchListRelationFilter
   }, "id" | "userId" | "employeeId">
 
   export type StaffOrderByWithAggregationInput = {
     id?: SortOrder
-    userId?: SortOrder
+    userId?: SortOrderInput | SortOrder
     employeeId?: SortOrderInput | SortOrder
-    department?: SortOrderInput | SortOrder
-    designation?: SortOrderInput | SortOrder
-    qualification?: SortOrderInput | SortOrder
+    firstName?: SortOrder
+    lastName?: SortOrder
+    middleName?: SortOrderInput | SortOrder
+    email?: SortOrderInput | SortOrder
+    phone?: SortOrderInput | SortOrder
+    photoUrl?: SortOrderInput | SortOrder
     gender?: SortOrderInput | SortOrder
     dateOfBirth?: SortOrderInput | SortOrder
     address?: SortOrderInput | SortOrder
-    joinDate?: SortOrderInput | SortOrder
-    role?: SortOrder
+    department?: SortOrderInput | SortOrder
+    designation?: SortOrderInput | SortOrder
+    qualification?: SortOrderInput | SortOrder
     category?: SortOrder
+    employmentType?: SortOrder
+    joinDate?: SortOrderInput | SortOrder
+    exitDate?: SortOrderInput | SortOrder
+    exitReason?: SortOrderInput | SortOrder
+    role?: SortOrder
     isActive?: SortOrder
+    createdById?: SortOrderInput | SortOrder
+    updatedById?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    deletedAt?: SortOrderInput | SortOrder
     _count?: StaffCountOrderByAggregateInput
     _max?: StaffMaxOrderByAggregateInput
     _min?: StaffMinOrderByAggregateInput
@@ -46722,20 +46983,32 @@ export namespace Prisma {
     OR?: StaffScalarWhereWithAggregatesInput[]
     NOT?: StaffScalarWhereWithAggregatesInput | StaffScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Staff"> | string
-    userId?: StringWithAggregatesFilter<"Staff"> | string
+    userId?: StringNullableWithAggregatesFilter<"Staff"> | string | null
     employeeId?: StringNullableWithAggregatesFilter<"Staff"> | string | null
-    department?: StringNullableWithAggregatesFilter<"Staff"> | string | null
-    designation?: StringNullableWithAggregatesFilter<"Staff"> | string | null
-    qualification?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    firstName?: StringWithAggregatesFilter<"Staff"> | string
+    lastName?: StringWithAggregatesFilter<"Staff"> | string
+    middleName?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    email?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    phone?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    photoUrl?: StringNullableWithAggregatesFilter<"Staff"> | string | null
     gender?: EnumGenderNullableWithAggregatesFilter<"Staff"> | $Enums.Gender | null
     dateOfBirth?: DateTimeNullableWithAggregatesFilter<"Staff"> | Date | string | null
     address?: StringNullableWithAggregatesFilter<"Staff"> | string | null
-    joinDate?: DateTimeNullableWithAggregatesFilter<"Staff"> | Date | string | null
-    role?: EnumStaffRoleWithAggregatesFilter<"Staff"> | $Enums.StaffRole
+    department?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    designation?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    qualification?: StringNullableWithAggregatesFilter<"Staff"> | string | null
     category?: EnumStaffCategoryWithAggregatesFilter<"Staff"> | $Enums.StaffCategory
+    employmentType?: EnumEmploymentTypeWithAggregatesFilter<"Staff"> | $Enums.EmploymentType
+    joinDate?: DateTimeNullableWithAggregatesFilter<"Staff"> | Date | string | null
+    exitDate?: DateTimeNullableWithAggregatesFilter<"Staff"> | Date | string | null
+    exitReason?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    role?: EnumStaffRoleWithAggregatesFilter<"Staff"> | $Enums.StaffRole
     isActive?: BoolWithAggregatesFilter<"Staff"> | boolean
+    createdById?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    updatedById?: StringNullableWithAggregatesFilter<"Staff"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Staff"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Staff"> | Date | string
+    deletedAt?: DateTimeNullableWithAggregatesFilter<"Staff"> | Date | string | null
   }
 
   export type StudentWhereInput = {
@@ -48599,7 +48872,6 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Membership"> | Date | string
     updatedAt?: DateTimeFilter<"Membership"> | Date | string
     roles?: MembershipRoleListRelationFilter
-    branches?: MembershipBranchListRelationFilter
   }
 
   export type MembershipOrderByWithRelationInput = {
@@ -48611,7 +48883,6 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     roles?: MembershipRoleOrderByRelationAggregateInput
-    branches?: MembershipBranchOrderByRelationAggregateInput
   }
 
   export type MembershipWhereUniqueInput = Prisma.AtLeast<{
@@ -48628,7 +48899,6 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Membership"> | Date | string
     updatedAt?: DateTimeFilter<"Membership"> | Date | string
     roles?: MembershipRoleListRelationFilter
-    branches?: MembershipBranchListRelationFilter
   }, "id" | "userId_persona" | "persona_personaEntityId">
 
   export type MembershipOrderByWithAggregationInput = {
@@ -48730,7 +49000,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Branch"> | Date | string
     updatedAt?: DateTimeFilter<"Branch"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Branch"> | Date | string | null
-    members?: MembershipBranchListRelationFilter
+    staff?: StaffBranchListRelationFilter
   }
 
   export type BranchOrderByWithRelationInput = {
@@ -48749,7 +49019,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     deletedAt?: SortOrderInput | SortOrder
-    members?: MembershipBranchOrderByRelationAggregateInput
+    staff?: StaffBranchOrderByRelationAggregateInput
   }
 
   export type BranchWhereUniqueInput = Prisma.AtLeast<{
@@ -48771,7 +49041,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Branch"> | Date | string
     updatedAt?: DateTimeFilter<"Branch"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Branch"> | Date | string | null
-    members?: MembershipBranchListRelationFilter
+    staff?: StaffBranchListRelationFilter
   }, "id" | "code">
 
   export type BranchOrderByWithAggregationInput = {
@@ -48816,58 +49086,63 @@ export namespace Prisma {
     deletedAt?: DateTimeNullableWithAggregatesFilter<"Branch"> | Date | string | null
   }
 
-  export type MembershipBranchWhereInput = {
-    AND?: MembershipBranchWhereInput | MembershipBranchWhereInput[]
-    OR?: MembershipBranchWhereInput[]
-    NOT?: MembershipBranchWhereInput | MembershipBranchWhereInput[]
-    membershipId?: StringFilter<"MembershipBranch"> | string
-    branchId?: StringFilter<"MembershipBranch"> | string
-    assignedAt?: DateTimeFilter<"MembershipBranch"> | Date | string
-    assignedById?: StringNullableFilter<"MembershipBranch"> | string | null
-    membership?: XOR<MembershipScalarRelationFilter, MembershipWhereInput>
+  export type StaffBranchWhereInput = {
+    AND?: StaffBranchWhereInput | StaffBranchWhereInput[]
+    OR?: StaffBranchWhereInput[]
+    NOT?: StaffBranchWhereInput | StaffBranchWhereInput[]
+    staffId?: StringFilter<"StaffBranch"> | string
+    branchId?: StringFilter<"StaffBranch"> | string
+    isPrimary?: BoolFilter<"StaffBranch"> | boolean
+    assignedAt?: DateTimeFilter<"StaffBranch"> | Date | string
+    assignedById?: StringNullableFilter<"StaffBranch"> | string | null
+    staff?: XOR<StaffScalarRelationFilter, StaffWhereInput>
     branch?: XOR<BranchScalarRelationFilter, BranchWhereInput>
   }
 
-  export type MembershipBranchOrderByWithRelationInput = {
-    membershipId?: SortOrder
+  export type StaffBranchOrderByWithRelationInput = {
+    staffId?: SortOrder
     branchId?: SortOrder
+    isPrimary?: SortOrder
     assignedAt?: SortOrder
     assignedById?: SortOrderInput | SortOrder
-    membership?: MembershipOrderByWithRelationInput
+    staff?: StaffOrderByWithRelationInput
     branch?: BranchOrderByWithRelationInput
   }
 
-  export type MembershipBranchWhereUniqueInput = Prisma.AtLeast<{
-    membershipId_branchId?: MembershipBranchMembershipIdBranchIdCompoundUniqueInput
-    AND?: MembershipBranchWhereInput | MembershipBranchWhereInput[]
-    OR?: MembershipBranchWhereInput[]
-    NOT?: MembershipBranchWhereInput | MembershipBranchWhereInput[]
-    membershipId?: StringFilter<"MembershipBranch"> | string
-    branchId?: StringFilter<"MembershipBranch"> | string
-    assignedAt?: DateTimeFilter<"MembershipBranch"> | Date | string
-    assignedById?: StringNullableFilter<"MembershipBranch"> | string | null
-    membership?: XOR<MembershipScalarRelationFilter, MembershipWhereInput>
+  export type StaffBranchWhereUniqueInput = Prisma.AtLeast<{
+    staffId_branchId?: StaffBranchStaffIdBranchIdCompoundUniqueInput
+    AND?: StaffBranchWhereInput | StaffBranchWhereInput[]
+    OR?: StaffBranchWhereInput[]
+    NOT?: StaffBranchWhereInput | StaffBranchWhereInput[]
+    staffId?: StringFilter<"StaffBranch"> | string
+    branchId?: StringFilter<"StaffBranch"> | string
+    isPrimary?: BoolFilter<"StaffBranch"> | boolean
+    assignedAt?: DateTimeFilter<"StaffBranch"> | Date | string
+    assignedById?: StringNullableFilter<"StaffBranch"> | string | null
+    staff?: XOR<StaffScalarRelationFilter, StaffWhereInput>
     branch?: XOR<BranchScalarRelationFilter, BranchWhereInput>
-  }, "membershipId_branchId">
+  }, "staffId_branchId">
 
-  export type MembershipBranchOrderByWithAggregationInput = {
-    membershipId?: SortOrder
+  export type StaffBranchOrderByWithAggregationInput = {
+    staffId?: SortOrder
     branchId?: SortOrder
+    isPrimary?: SortOrder
     assignedAt?: SortOrder
     assignedById?: SortOrderInput | SortOrder
-    _count?: MembershipBranchCountOrderByAggregateInput
-    _max?: MembershipBranchMaxOrderByAggregateInput
-    _min?: MembershipBranchMinOrderByAggregateInput
+    _count?: StaffBranchCountOrderByAggregateInput
+    _max?: StaffBranchMaxOrderByAggregateInput
+    _min?: StaffBranchMinOrderByAggregateInput
   }
 
-  export type MembershipBranchScalarWhereWithAggregatesInput = {
-    AND?: MembershipBranchScalarWhereWithAggregatesInput | MembershipBranchScalarWhereWithAggregatesInput[]
-    OR?: MembershipBranchScalarWhereWithAggregatesInput[]
-    NOT?: MembershipBranchScalarWhereWithAggregatesInput | MembershipBranchScalarWhereWithAggregatesInput[]
-    membershipId?: StringWithAggregatesFilter<"MembershipBranch"> | string
-    branchId?: StringWithAggregatesFilter<"MembershipBranch"> | string
-    assignedAt?: DateTimeWithAggregatesFilter<"MembershipBranch"> | Date | string
-    assignedById?: StringNullableWithAggregatesFilter<"MembershipBranch"> | string | null
+  export type StaffBranchScalarWhereWithAggregatesInput = {
+    AND?: StaffBranchScalarWhereWithAggregatesInput | StaffBranchScalarWhereWithAggregatesInput[]
+    OR?: StaffBranchScalarWhereWithAggregatesInput[]
+    NOT?: StaffBranchScalarWhereWithAggregatesInput | StaffBranchScalarWhereWithAggregatesInput[]
+    staffId?: StringWithAggregatesFilter<"StaffBranch"> | string
+    branchId?: StringWithAggregatesFilter<"StaffBranch"> | string
+    isPrimary?: BoolWithAggregatesFilter<"StaffBranch"> | boolean
+    assignedAt?: DateTimeWithAggregatesFilter<"StaffBranch"> | Date | string
+    assignedById?: StringNullableWithAggregatesFilter<"StaffBranch"> | string | null
   }
 
   export type SchoolSettingValueWhereInput = {
@@ -49546,140 +49821,228 @@ export namespace Prisma {
 
   export type StaffCreateInput = {
     id?: string
-    userId: string
+    userId?: string | null
     employeeId?: string | null
-    department?: string | null
-    designation?: string | null
-    qualification?: string | null
+    firstName: string
+    lastName: string
+    middleName?: string | null
+    email?: string | null
+    phone?: string | null
+    photoUrl?: string | null
     gender?: $Enums.Gender | null
     dateOfBirth?: Date | string | null
     address?: string | null
-    joinDate?: Date | string | null
-    role: $Enums.StaffRole
+    department?: string | null
+    designation?: string | null
+    qualification?: string | null
     category?: $Enums.StaffCategory
+    employmentType?: $Enums.EmploymentType
+    joinDate?: Date | string | null
+    exitDate?: Date | string | null
+    exitReason?: string | null
+    role?: $Enums.StaffRole
     isActive?: boolean
+    createdById?: string | null
+    updatedById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    deletedAt?: Date | string | null
     classSubjects?: ClassSubjectCreateNestedManyWithoutStaffInput
     classesAsClassTeacher?: ClassCreateNestedManyWithoutClassTeacherInput
     subjectDefaults?: SubjectCreateNestedManyWithoutDefaultTeacherInput
+    branches?: StaffBranchCreateNestedManyWithoutStaffInput
   }
 
   export type StaffUncheckedCreateInput = {
     id?: string
-    userId: string
+    userId?: string | null
     employeeId?: string | null
-    department?: string | null
-    designation?: string | null
-    qualification?: string | null
+    firstName: string
+    lastName: string
+    middleName?: string | null
+    email?: string | null
+    phone?: string | null
+    photoUrl?: string | null
     gender?: $Enums.Gender | null
     dateOfBirth?: Date | string | null
     address?: string | null
-    joinDate?: Date | string | null
-    role: $Enums.StaffRole
+    department?: string | null
+    designation?: string | null
+    qualification?: string | null
     category?: $Enums.StaffCategory
+    employmentType?: $Enums.EmploymentType
+    joinDate?: Date | string | null
+    exitDate?: Date | string | null
+    exitReason?: string | null
+    role?: $Enums.StaffRole
     isActive?: boolean
+    createdById?: string | null
+    updatedById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    deletedAt?: Date | string | null
     classSubjects?: ClassSubjectUncheckedCreateNestedManyWithoutStaffInput
     classesAsClassTeacher?: ClassUncheckedCreateNestedManyWithoutClassTeacherInput
     subjectDefaults?: SubjectUncheckedCreateNestedManyWithoutDefaultTeacherInput
+    branches?: StaffBranchUncheckedCreateNestedManyWithoutStaffInput
   }
 
   export type StaffUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     employeeId?: NullableStringFieldUpdateOperationsInput | string | null
-    department?: NullableStringFieldUpdateOperationsInput | string | null
-    designation?: NullableStringFieldUpdateOperationsInput | string | null
-    qualification?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    middleName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     gender?: NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
-    joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
+    department?: NullableStringFieldUpdateOperationsInput | string | null
+    designation?: NullableStringFieldUpdateOperationsInput | string | null
+    qualification?: NullableStringFieldUpdateOperationsInput | string | null
     category?: EnumStaffCategoryFieldUpdateOperationsInput | $Enums.StaffCategory
+    employmentType?: EnumEmploymentTypeFieldUpdateOperationsInput | $Enums.EmploymentType
+    joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    exitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    exitReason?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     classSubjects?: ClassSubjectUpdateManyWithoutStaffNestedInput
     classesAsClassTeacher?: ClassUpdateManyWithoutClassTeacherNestedInput
     subjectDefaults?: SubjectUpdateManyWithoutDefaultTeacherNestedInput
+    branches?: StaffBranchUpdateManyWithoutStaffNestedInput
   }
 
   export type StaffUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     employeeId?: NullableStringFieldUpdateOperationsInput | string | null
-    department?: NullableStringFieldUpdateOperationsInput | string | null
-    designation?: NullableStringFieldUpdateOperationsInput | string | null
-    qualification?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    middleName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     gender?: NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
-    joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
+    department?: NullableStringFieldUpdateOperationsInput | string | null
+    designation?: NullableStringFieldUpdateOperationsInput | string | null
+    qualification?: NullableStringFieldUpdateOperationsInput | string | null
     category?: EnumStaffCategoryFieldUpdateOperationsInput | $Enums.StaffCategory
+    employmentType?: EnumEmploymentTypeFieldUpdateOperationsInput | $Enums.EmploymentType
+    joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    exitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    exitReason?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     classSubjects?: ClassSubjectUncheckedUpdateManyWithoutStaffNestedInput
     classesAsClassTeacher?: ClassUncheckedUpdateManyWithoutClassTeacherNestedInput
     subjectDefaults?: SubjectUncheckedUpdateManyWithoutDefaultTeacherNestedInput
+    branches?: StaffBranchUncheckedUpdateManyWithoutStaffNestedInput
   }
 
   export type StaffCreateManyInput = {
     id?: string
-    userId: string
+    userId?: string | null
     employeeId?: string | null
-    department?: string | null
-    designation?: string | null
-    qualification?: string | null
+    firstName: string
+    lastName: string
+    middleName?: string | null
+    email?: string | null
+    phone?: string | null
+    photoUrl?: string | null
     gender?: $Enums.Gender | null
     dateOfBirth?: Date | string | null
     address?: string | null
-    joinDate?: Date | string | null
-    role: $Enums.StaffRole
+    department?: string | null
+    designation?: string | null
+    qualification?: string | null
     category?: $Enums.StaffCategory
+    employmentType?: $Enums.EmploymentType
+    joinDate?: Date | string | null
+    exitDate?: Date | string | null
+    exitReason?: string | null
+    role?: $Enums.StaffRole
     isActive?: boolean
+    createdById?: string | null
+    updatedById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    deletedAt?: Date | string | null
   }
 
   export type StaffUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     employeeId?: NullableStringFieldUpdateOperationsInput | string | null
-    department?: NullableStringFieldUpdateOperationsInput | string | null
-    designation?: NullableStringFieldUpdateOperationsInput | string | null
-    qualification?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    middleName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     gender?: NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
-    joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
+    department?: NullableStringFieldUpdateOperationsInput | string | null
+    designation?: NullableStringFieldUpdateOperationsInput | string | null
+    qualification?: NullableStringFieldUpdateOperationsInput | string | null
     category?: EnumStaffCategoryFieldUpdateOperationsInput | $Enums.StaffCategory
+    employmentType?: EnumEmploymentTypeFieldUpdateOperationsInput | $Enums.EmploymentType
+    joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    exitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    exitReason?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type StaffUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     employeeId?: NullableStringFieldUpdateOperationsInput | string | null
-    department?: NullableStringFieldUpdateOperationsInput | string | null
-    designation?: NullableStringFieldUpdateOperationsInput | string | null
-    qualification?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    middleName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     gender?: NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
-    joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
+    department?: NullableStringFieldUpdateOperationsInput | string | null
+    designation?: NullableStringFieldUpdateOperationsInput | string | null
+    qualification?: NullableStringFieldUpdateOperationsInput | string | null
     category?: EnumStaffCategoryFieldUpdateOperationsInput | $Enums.StaffCategory
+    employmentType?: EnumEmploymentTypeFieldUpdateOperationsInput | $Enums.EmploymentType
+    joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    exitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    exitReason?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type StudentCreateInput = {
@@ -51712,7 +52075,6 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     roles?: MembershipRoleCreateNestedManyWithoutMembershipInput
-    branches?: MembershipBranchCreateNestedManyWithoutMembershipInput
   }
 
   export type MembershipUncheckedCreateInput = {
@@ -51724,7 +52086,6 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     roles?: MembershipRoleUncheckedCreateNestedManyWithoutMembershipInput
-    branches?: MembershipBranchUncheckedCreateNestedManyWithoutMembershipInput
   }
 
   export type MembershipUpdateInput = {
@@ -51736,7 +52097,6 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     roles?: MembershipRoleUpdateManyWithoutMembershipNestedInput
-    branches?: MembershipBranchUpdateManyWithoutMembershipNestedInput
   }
 
   export type MembershipUncheckedUpdateInput = {
@@ -51748,7 +52108,6 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     roles?: MembershipRoleUncheckedUpdateManyWithoutMembershipNestedInput
-    branches?: MembershipBranchUncheckedUpdateManyWithoutMembershipNestedInput
   }
 
   export type MembershipCreateManyInput = {
@@ -51844,7 +52203,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    members?: MembershipBranchCreateNestedManyWithoutBranchInput
+    staff?: StaffBranchCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateInput = {
@@ -51863,7 +52222,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
-    members?: MembershipBranchUncheckedCreateNestedManyWithoutBranchInput
+    staff?: StaffBranchUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUpdateInput = {
@@ -51882,7 +52241,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    members?: MembershipBranchUpdateManyWithoutBranchNestedInput
+    staff?: StaffBranchUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateInput = {
@@ -51901,7 +52260,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    members?: MembershipBranchUncheckedUpdateManyWithoutBranchNestedInput
+    staff?: StaffBranchUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchCreateManyInput = {
@@ -51958,49 +52317,56 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
-  export type MembershipBranchCreateInput = {
+  export type StaffBranchCreateInput = {
+    isPrimary?: boolean
     assignedAt?: Date | string
     assignedById?: string | null
-    membership: MembershipCreateNestedOneWithoutBranchesInput
-    branch: BranchCreateNestedOneWithoutMembersInput
+    staff: StaffCreateNestedOneWithoutBranchesInput
+    branch: BranchCreateNestedOneWithoutStaffInput
   }
 
-  export type MembershipBranchUncheckedCreateInput = {
-    membershipId: string
+  export type StaffBranchUncheckedCreateInput = {
+    staffId: string
     branchId: string
+    isPrimary?: boolean
     assignedAt?: Date | string
     assignedById?: string | null
   }
 
-  export type MembershipBranchUpdateInput = {
+  export type StaffBranchUpdateInput = {
+    isPrimary?: BoolFieldUpdateOperationsInput | boolean
     assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     assignedById?: NullableStringFieldUpdateOperationsInput | string | null
-    membership?: MembershipUpdateOneRequiredWithoutBranchesNestedInput
-    branch?: BranchUpdateOneRequiredWithoutMembersNestedInput
+    staff?: StaffUpdateOneRequiredWithoutBranchesNestedInput
+    branch?: BranchUpdateOneRequiredWithoutStaffNestedInput
   }
 
-  export type MembershipBranchUncheckedUpdateInput = {
-    membershipId?: StringFieldUpdateOperationsInput | string
+  export type StaffBranchUncheckedUpdateInput = {
+    staffId?: StringFieldUpdateOperationsInput | string
     branchId?: StringFieldUpdateOperationsInput | string
+    isPrimary?: BoolFieldUpdateOperationsInput | boolean
     assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     assignedById?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
-  export type MembershipBranchCreateManyInput = {
-    membershipId: string
+  export type StaffBranchCreateManyInput = {
+    staffId: string
     branchId: string
+    isPrimary?: boolean
     assignedAt?: Date | string
     assignedById?: string | null
   }
 
-  export type MembershipBranchUpdateManyMutationInput = {
+  export type StaffBranchUpdateManyMutationInput = {
+    isPrimary?: BoolFieldUpdateOperationsInput | boolean
     assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     assignedById?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
-  export type MembershipBranchUncheckedUpdateManyInput = {
-    membershipId?: StringFieldUpdateOperationsInput | string
+  export type StaffBranchUncheckedUpdateManyInput = {
+    staffId?: StringFieldUpdateOperationsInput | string
     branchId?: StringFieldUpdateOperationsInput | string
+    isPrimary?: BoolFieldUpdateOperationsInput | boolean
     assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     assignedById?: NullableStringFieldUpdateOperationsInput | string | null
   }
@@ -52836,18 +53202,25 @@ export namespace Prisma {
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
-  export type EnumStaffRoleFilter<$PrismaModel = never> = {
-    equals?: $Enums.StaffRole | EnumStaffRoleFieldRefInput<$PrismaModel>
-    in?: $Enums.StaffRole[] | ListEnumStaffRoleFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StaffRole[] | ListEnumStaffRoleFieldRefInput<$PrismaModel>
-    not?: NestedEnumStaffRoleFilter<$PrismaModel> | $Enums.StaffRole
-  }
-
   export type EnumStaffCategoryFilter<$PrismaModel = never> = {
     equals?: $Enums.StaffCategory | EnumStaffCategoryFieldRefInput<$PrismaModel>
     in?: $Enums.StaffCategory[] | ListEnumStaffCategoryFieldRefInput<$PrismaModel>
     notIn?: $Enums.StaffCategory[] | ListEnumStaffCategoryFieldRefInput<$PrismaModel>
     not?: NestedEnumStaffCategoryFilter<$PrismaModel> | $Enums.StaffCategory
+  }
+
+  export type EnumEmploymentTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmploymentType | EnumEmploymentTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.EmploymentType[] | ListEnumEmploymentTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmploymentType[] | ListEnumEmploymentTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmploymentTypeFilter<$PrismaModel> | $Enums.EmploymentType
+  }
+
+  export type EnumStaffRoleFilter<$PrismaModel = never> = {
+    equals?: $Enums.StaffRole | EnumStaffRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.StaffRole[] | ListEnumStaffRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StaffRole[] | ListEnumStaffRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumStaffRoleFilter<$PrismaModel> | $Enums.StaffRole
   }
 
   export type BoolFilter<$PrismaModel = never> = {
@@ -52884,6 +53257,12 @@ export namespace Prisma {
     none?: SubjectWhereInput
   }
 
+  export type StaffBranchListRelationFilter = {
+    every?: StaffBranchWhereInput
+    some?: StaffBranchWhereInput
+    none?: StaffBranchWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -52901,58 +53280,98 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type StaffBranchOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type StaffCountOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
     employeeId?: SortOrder
-    department?: SortOrder
-    designation?: SortOrder
-    qualification?: SortOrder
+    firstName?: SortOrder
+    lastName?: SortOrder
+    middleName?: SortOrder
+    email?: SortOrder
+    phone?: SortOrder
+    photoUrl?: SortOrder
     gender?: SortOrder
     dateOfBirth?: SortOrder
     address?: SortOrder
-    joinDate?: SortOrder
-    role?: SortOrder
+    department?: SortOrder
+    designation?: SortOrder
+    qualification?: SortOrder
     category?: SortOrder
+    employmentType?: SortOrder
+    joinDate?: SortOrder
+    exitDate?: SortOrder
+    exitReason?: SortOrder
+    role?: SortOrder
     isActive?: SortOrder
+    createdById?: SortOrder
+    updatedById?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    deletedAt?: SortOrder
   }
 
   export type StaffMaxOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
     employeeId?: SortOrder
-    department?: SortOrder
-    designation?: SortOrder
-    qualification?: SortOrder
+    firstName?: SortOrder
+    lastName?: SortOrder
+    middleName?: SortOrder
+    email?: SortOrder
+    phone?: SortOrder
+    photoUrl?: SortOrder
     gender?: SortOrder
     dateOfBirth?: SortOrder
     address?: SortOrder
-    joinDate?: SortOrder
-    role?: SortOrder
+    department?: SortOrder
+    designation?: SortOrder
+    qualification?: SortOrder
     category?: SortOrder
+    employmentType?: SortOrder
+    joinDate?: SortOrder
+    exitDate?: SortOrder
+    exitReason?: SortOrder
+    role?: SortOrder
     isActive?: SortOrder
+    createdById?: SortOrder
+    updatedById?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    deletedAt?: SortOrder
   }
 
   export type StaffMinOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
     employeeId?: SortOrder
-    department?: SortOrder
-    designation?: SortOrder
-    qualification?: SortOrder
+    firstName?: SortOrder
+    lastName?: SortOrder
+    middleName?: SortOrder
+    email?: SortOrder
+    phone?: SortOrder
+    photoUrl?: SortOrder
     gender?: SortOrder
     dateOfBirth?: SortOrder
     address?: SortOrder
-    joinDate?: SortOrder
-    role?: SortOrder
+    department?: SortOrder
+    designation?: SortOrder
+    qualification?: SortOrder
     category?: SortOrder
+    employmentType?: SortOrder
+    joinDate?: SortOrder
+    exitDate?: SortOrder
+    exitReason?: SortOrder
+    role?: SortOrder
     isActive?: SortOrder
+    createdById?: SortOrder
+    updatedById?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    deletedAt?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -53015,16 +53434,6 @@ export namespace Prisma {
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
-  export type EnumStaffRoleWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.StaffRole | EnumStaffRoleFieldRefInput<$PrismaModel>
-    in?: $Enums.StaffRole[] | ListEnumStaffRoleFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StaffRole[] | ListEnumStaffRoleFieldRefInput<$PrismaModel>
-    not?: NestedEnumStaffRoleWithAggregatesFilter<$PrismaModel> | $Enums.StaffRole
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumStaffRoleFilter<$PrismaModel>
-    _max?: NestedEnumStaffRoleFilter<$PrismaModel>
-  }
-
   export type EnumStaffCategoryWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.StaffCategory | EnumStaffCategoryFieldRefInput<$PrismaModel>
     in?: $Enums.StaffCategory[] | ListEnumStaffCategoryFieldRefInput<$PrismaModel>
@@ -53033,6 +53442,26 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumStaffCategoryFilter<$PrismaModel>
     _max?: NestedEnumStaffCategoryFilter<$PrismaModel>
+  }
+
+  export type EnumEmploymentTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmploymentType | EnumEmploymentTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.EmploymentType[] | ListEnumEmploymentTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmploymentType[] | ListEnumEmploymentTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmploymentTypeWithAggregatesFilter<$PrismaModel> | $Enums.EmploymentType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumEmploymentTypeFilter<$PrismaModel>
+    _max?: NestedEnumEmploymentTypeFilter<$PrismaModel>
+  }
+
+  export type EnumStaffRoleWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.StaffRole | EnumStaffRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.StaffRole[] | ListEnumStaffRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StaffRole[] | ListEnumStaffRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumStaffRoleWithAggregatesFilter<$PrismaModel> | $Enums.StaffRole
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumStaffRoleFilter<$PrismaModel>
+    _max?: NestedEnumStaffRoleFilter<$PrismaModel>
   }
 
   export type BoolWithAggregatesFilter<$PrismaModel = never> = {
@@ -54632,16 +55061,6 @@ export namespace Prisma {
     not?: NestedEnumMembershipStatusFilter<$PrismaModel> | $Enums.MembershipStatus
   }
 
-  export type MembershipBranchListRelationFilter = {
-    every?: MembershipBranchWhereInput
-    some?: MembershipBranchWhereInput
-    none?: MembershipBranchWhereInput
-  }
-
-  export type MembershipBranchOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
   export type MembershipUserIdPersonaCompoundUniqueInput = {
     userId: string
     persona: $Enums.Persona
@@ -54782,28 +55201,31 @@ export namespace Prisma {
     isNot?: BranchWhereInput
   }
 
-  export type MembershipBranchMembershipIdBranchIdCompoundUniqueInput = {
-    membershipId: string
+  export type StaffBranchStaffIdBranchIdCompoundUniqueInput = {
+    staffId: string
     branchId: string
   }
 
-  export type MembershipBranchCountOrderByAggregateInput = {
-    membershipId?: SortOrder
+  export type StaffBranchCountOrderByAggregateInput = {
+    staffId?: SortOrder
     branchId?: SortOrder
+    isPrimary?: SortOrder
     assignedAt?: SortOrder
     assignedById?: SortOrder
   }
 
-  export type MembershipBranchMaxOrderByAggregateInput = {
-    membershipId?: SortOrder
+  export type StaffBranchMaxOrderByAggregateInput = {
+    staffId?: SortOrder
     branchId?: SortOrder
+    isPrimary?: SortOrder
     assignedAt?: SortOrder
     assignedById?: SortOrder
   }
 
-  export type MembershipBranchMinOrderByAggregateInput = {
-    membershipId?: SortOrder
+  export type StaffBranchMinOrderByAggregateInput = {
+    staffId?: SortOrder
     branchId?: SortOrder
+    isPrimary?: SortOrder
     assignedAt?: SortOrder
     assignedById?: SortOrder
   }
@@ -55408,6 +55830,13 @@ export namespace Prisma {
     connect?: SubjectWhereUniqueInput | SubjectWhereUniqueInput[]
   }
 
+  export type StaffBranchCreateNestedManyWithoutStaffInput = {
+    create?: XOR<StaffBranchCreateWithoutStaffInput, StaffBranchUncheckedCreateWithoutStaffInput> | StaffBranchCreateWithoutStaffInput[] | StaffBranchUncheckedCreateWithoutStaffInput[]
+    connectOrCreate?: StaffBranchCreateOrConnectWithoutStaffInput | StaffBranchCreateOrConnectWithoutStaffInput[]
+    createMany?: StaffBranchCreateManyStaffInputEnvelope
+    connect?: StaffBranchWhereUniqueInput | StaffBranchWhereUniqueInput[]
+  }
+
   export type ClassSubjectUncheckedCreateNestedManyWithoutStaffInput = {
     create?: XOR<ClassSubjectCreateWithoutStaffInput, ClassSubjectUncheckedCreateWithoutStaffInput> | ClassSubjectCreateWithoutStaffInput[] | ClassSubjectUncheckedCreateWithoutStaffInput[]
     connectOrCreate?: ClassSubjectCreateOrConnectWithoutStaffInput | ClassSubjectCreateOrConnectWithoutStaffInput[]
@@ -55429,6 +55858,13 @@ export namespace Prisma {
     connect?: SubjectWhereUniqueInput | SubjectWhereUniqueInput[]
   }
 
+  export type StaffBranchUncheckedCreateNestedManyWithoutStaffInput = {
+    create?: XOR<StaffBranchCreateWithoutStaffInput, StaffBranchUncheckedCreateWithoutStaffInput> | StaffBranchCreateWithoutStaffInput[] | StaffBranchUncheckedCreateWithoutStaffInput[]
+    connectOrCreate?: StaffBranchCreateOrConnectWithoutStaffInput | StaffBranchCreateOrConnectWithoutStaffInput[]
+    createMany?: StaffBranchCreateManyStaffInputEnvelope
+    connect?: StaffBranchWhereUniqueInput | StaffBranchWhereUniqueInput[]
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -55445,12 +55881,16 @@ export namespace Prisma {
     set?: Date | string | null
   }
 
-  export type EnumStaffRoleFieldUpdateOperationsInput = {
-    set?: $Enums.StaffRole
-  }
-
   export type EnumStaffCategoryFieldUpdateOperationsInput = {
     set?: $Enums.StaffCategory
+  }
+
+  export type EnumEmploymentTypeFieldUpdateOperationsInput = {
+    set?: $Enums.EmploymentType
+  }
+
+  export type EnumStaffRoleFieldUpdateOperationsInput = {
+    set?: $Enums.StaffRole
   }
 
   export type BoolFieldUpdateOperationsInput = {
@@ -55503,6 +55943,20 @@ export namespace Prisma {
     deleteMany?: SubjectScalarWhereInput | SubjectScalarWhereInput[]
   }
 
+  export type StaffBranchUpdateManyWithoutStaffNestedInput = {
+    create?: XOR<StaffBranchCreateWithoutStaffInput, StaffBranchUncheckedCreateWithoutStaffInput> | StaffBranchCreateWithoutStaffInput[] | StaffBranchUncheckedCreateWithoutStaffInput[]
+    connectOrCreate?: StaffBranchCreateOrConnectWithoutStaffInput | StaffBranchCreateOrConnectWithoutStaffInput[]
+    upsert?: StaffBranchUpsertWithWhereUniqueWithoutStaffInput | StaffBranchUpsertWithWhereUniqueWithoutStaffInput[]
+    createMany?: StaffBranchCreateManyStaffInputEnvelope
+    set?: StaffBranchWhereUniqueInput | StaffBranchWhereUniqueInput[]
+    disconnect?: StaffBranchWhereUniqueInput | StaffBranchWhereUniqueInput[]
+    delete?: StaffBranchWhereUniqueInput | StaffBranchWhereUniqueInput[]
+    connect?: StaffBranchWhereUniqueInput | StaffBranchWhereUniqueInput[]
+    update?: StaffBranchUpdateWithWhereUniqueWithoutStaffInput | StaffBranchUpdateWithWhereUniqueWithoutStaffInput[]
+    updateMany?: StaffBranchUpdateManyWithWhereWithoutStaffInput | StaffBranchUpdateManyWithWhereWithoutStaffInput[]
+    deleteMany?: StaffBranchScalarWhereInput | StaffBranchScalarWhereInput[]
+  }
+
   export type ClassSubjectUncheckedUpdateManyWithoutStaffNestedInput = {
     create?: XOR<ClassSubjectCreateWithoutStaffInput, ClassSubjectUncheckedCreateWithoutStaffInput> | ClassSubjectCreateWithoutStaffInput[] | ClassSubjectUncheckedCreateWithoutStaffInput[]
     connectOrCreate?: ClassSubjectCreateOrConnectWithoutStaffInput | ClassSubjectCreateOrConnectWithoutStaffInput[]
@@ -55543,6 +55997,20 @@ export namespace Prisma {
     update?: SubjectUpdateWithWhereUniqueWithoutDefaultTeacherInput | SubjectUpdateWithWhereUniqueWithoutDefaultTeacherInput[]
     updateMany?: SubjectUpdateManyWithWhereWithoutDefaultTeacherInput | SubjectUpdateManyWithWhereWithoutDefaultTeacherInput[]
     deleteMany?: SubjectScalarWhereInput | SubjectScalarWhereInput[]
+  }
+
+  export type StaffBranchUncheckedUpdateManyWithoutStaffNestedInput = {
+    create?: XOR<StaffBranchCreateWithoutStaffInput, StaffBranchUncheckedCreateWithoutStaffInput> | StaffBranchCreateWithoutStaffInput[] | StaffBranchUncheckedCreateWithoutStaffInput[]
+    connectOrCreate?: StaffBranchCreateOrConnectWithoutStaffInput | StaffBranchCreateOrConnectWithoutStaffInput[]
+    upsert?: StaffBranchUpsertWithWhereUniqueWithoutStaffInput | StaffBranchUpsertWithWhereUniqueWithoutStaffInput[]
+    createMany?: StaffBranchCreateManyStaffInputEnvelope
+    set?: StaffBranchWhereUniqueInput | StaffBranchWhereUniqueInput[]
+    disconnect?: StaffBranchWhereUniqueInput | StaffBranchWhereUniqueInput[]
+    delete?: StaffBranchWhereUniqueInput | StaffBranchWhereUniqueInput[]
+    connect?: StaffBranchWhereUniqueInput | StaffBranchWhereUniqueInput[]
+    update?: StaffBranchUpdateWithWhereUniqueWithoutStaffInput | StaffBranchUpdateWithWhereUniqueWithoutStaffInput[]
+    updateMany?: StaffBranchUpdateManyWithWhereWithoutStaffInput | StaffBranchUpdateManyWithWhereWithoutStaffInput[]
+    deleteMany?: StaffBranchScalarWhereInput | StaffBranchScalarWhereInput[]
   }
 
   export type EnrolmentCreateNestedManyWithoutStudentInput = {
@@ -57248,25 +57716,11 @@ export namespace Prisma {
     connect?: MembershipRoleWhereUniqueInput | MembershipRoleWhereUniqueInput[]
   }
 
-  export type MembershipBranchCreateNestedManyWithoutMembershipInput = {
-    create?: XOR<MembershipBranchCreateWithoutMembershipInput, MembershipBranchUncheckedCreateWithoutMembershipInput> | MembershipBranchCreateWithoutMembershipInput[] | MembershipBranchUncheckedCreateWithoutMembershipInput[]
-    connectOrCreate?: MembershipBranchCreateOrConnectWithoutMembershipInput | MembershipBranchCreateOrConnectWithoutMembershipInput[]
-    createMany?: MembershipBranchCreateManyMembershipInputEnvelope
-    connect?: MembershipBranchWhereUniqueInput | MembershipBranchWhereUniqueInput[]
-  }
-
   export type MembershipRoleUncheckedCreateNestedManyWithoutMembershipInput = {
     create?: XOR<MembershipRoleCreateWithoutMembershipInput, MembershipRoleUncheckedCreateWithoutMembershipInput> | MembershipRoleCreateWithoutMembershipInput[] | MembershipRoleUncheckedCreateWithoutMembershipInput[]
     connectOrCreate?: MembershipRoleCreateOrConnectWithoutMembershipInput | MembershipRoleCreateOrConnectWithoutMembershipInput[]
     createMany?: MembershipRoleCreateManyMembershipInputEnvelope
     connect?: MembershipRoleWhereUniqueInput | MembershipRoleWhereUniqueInput[]
-  }
-
-  export type MembershipBranchUncheckedCreateNestedManyWithoutMembershipInput = {
-    create?: XOR<MembershipBranchCreateWithoutMembershipInput, MembershipBranchUncheckedCreateWithoutMembershipInput> | MembershipBranchCreateWithoutMembershipInput[] | MembershipBranchUncheckedCreateWithoutMembershipInput[]
-    connectOrCreate?: MembershipBranchCreateOrConnectWithoutMembershipInput | MembershipBranchCreateOrConnectWithoutMembershipInput[]
-    createMany?: MembershipBranchCreateManyMembershipInputEnvelope
-    connect?: MembershipBranchWhereUniqueInput | MembershipBranchWhereUniqueInput[]
   }
 
   export type EnumMembershipStatusFieldUpdateOperationsInput = {
@@ -57287,20 +57741,6 @@ export namespace Prisma {
     deleteMany?: MembershipRoleScalarWhereInput | MembershipRoleScalarWhereInput[]
   }
 
-  export type MembershipBranchUpdateManyWithoutMembershipNestedInput = {
-    create?: XOR<MembershipBranchCreateWithoutMembershipInput, MembershipBranchUncheckedCreateWithoutMembershipInput> | MembershipBranchCreateWithoutMembershipInput[] | MembershipBranchUncheckedCreateWithoutMembershipInput[]
-    connectOrCreate?: MembershipBranchCreateOrConnectWithoutMembershipInput | MembershipBranchCreateOrConnectWithoutMembershipInput[]
-    upsert?: MembershipBranchUpsertWithWhereUniqueWithoutMembershipInput | MembershipBranchUpsertWithWhereUniqueWithoutMembershipInput[]
-    createMany?: MembershipBranchCreateManyMembershipInputEnvelope
-    set?: MembershipBranchWhereUniqueInput | MembershipBranchWhereUniqueInput[]
-    disconnect?: MembershipBranchWhereUniqueInput | MembershipBranchWhereUniqueInput[]
-    delete?: MembershipBranchWhereUniqueInput | MembershipBranchWhereUniqueInput[]
-    connect?: MembershipBranchWhereUniqueInput | MembershipBranchWhereUniqueInput[]
-    update?: MembershipBranchUpdateWithWhereUniqueWithoutMembershipInput | MembershipBranchUpdateWithWhereUniqueWithoutMembershipInput[]
-    updateMany?: MembershipBranchUpdateManyWithWhereWithoutMembershipInput | MembershipBranchUpdateManyWithWhereWithoutMembershipInput[]
-    deleteMany?: MembershipBranchScalarWhereInput | MembershipBranchScalarWhereInput[]
-  }
-
   export type MembershipRoleUncheckedUpdateManyWithoutMembershipNestedInput = {
     create?: XOR<MembershipRoleCreateWithoutMembershipInput, MembershipRoleUncheckedCreateWithoutMembershipInput> | MembershipRoleCreateWithoutMembershipInput[] | MembershipRoleUncheckedCreateWithoutMembershipInput[]
     connectOrCreate?: MembershipRoleCreateOrConnectWithoutMembershipInput | MembershipRoleCreateOrConnectWithoutMembershipInput[]
@@ -57313,20 +57753,6 @@ export namespace Prisma {
     update?: MembershipRoleUpdateWithWhereUniqueWithoutMembershipInput | MembershipRoleUpdateWithWhereUniqueWithoutMembershipInput[]
     updateMany?: MembershipRoleUpdateManyWithWhereWithoutMembershipInput | MembershipRoleUpdateManyWithWhereWithoutMembershipInput[]
     deleteMany?: MembershipRoleScalarWhereInput | MembershipRoleScalarWhereInput[]
-  }
-
-  export type MembershipBranchUncheckedUpdateManyWithoutMembershipNestedInput = {
-    create?: XOR<MembershipBranchCreateWithoutMembershipInput, MembershipBranchUncheckedCreateWithoutMembershipInput> | MembershipBranchCreateWithoutMembershipInput[] | MembershipBranchUncheckedCreateWithoutMembershipInput[]
-    connectOrCreate?: MembershipBranchCreateOrConnectWithoutMembershipInput | MembershipBranchCreateOrConnectWithoutMembershipInput[]
-    upsert?: MembershipBranchUpsertWithWhereUniqueWithoutMembershipInput | MembershipBranchUpsertWithWhereUniqueWithoutMembershipInput[]
-    createMany?: MembershipBranchCreateManyMembershipInputEnvelope
-    set?: MembershipBranchWhereUniqueInput | MembershipBranchWhereUniqueInput[]
-    disconnect?: MembershipBranchWhereUniqueInput | MembershipBranchWhereUniqueInput[]
-    delete?: MembershipBranchWhereUniqueInput | MembershipBranchWhereUniqueInput[]
-    connect?: MembershipBranchWhereUniqueInput | MembershipBranchWhereUniqueInput[]
-    update?: MembershipBranchUpdateWithWhereUniqueWithoutMembershipInput | MembershipBranchUpdateWithWhereUniqueWithoutMembershipInput[]
-    updateMany?: MembershipBranchUpdateManyWithWhereWithoutMembershipInput | MembershipBranchUpdateManyWithWhereWithoutMembershipInput[]
-    deleteMany?: MembershipBranchScalarWhereInput | MembershipBranchScalarWhereInput[]
   }
 
   export type MembershipCreateNestedOneWithoutRolesInput = {
@@ -57357,74 +57783,74 @@ export namespace Prisma {
     update?: XOR<XOR<SchoolRoleUpdateToOneWithWhereWithoutMembersInput, SchoolRoleUpdateWithoutMembersInput>, SchoolRoleUncheckedUpdateWithoutMembersInput>
   }
 
-  export type MembershipBranchCreateNestedManyWithoutBranchInput = {
-    create?: XOR<MembershipBranchCreateWithoutBranchInput, MembershipBranchUncheckedCreateWithoutBranchInput> | MembershipBranchCreateWithoutBranchInput[] | MembershipBranchUncheckedCreateWithoutBranchInput[]
-    connectOrCreate?: MembershipBranchCreateOrConnectWithoutBranchInput | MembershipBranchCreateOrConnectWithoutBranchInput[]
-    createMany?: MembershipBranchCreateManyBranchInputEnvelope
-    connect?: MembershipBranchWhereUniqueInput | MembershipBranchWhereUniqueInput[]
+  export type StaffBranchCreateNestedManyWithoutBranchInput = {
+    create?: XOR<StaffBranchCreateWithoutBranchInput, StaffBranchUncheckedCreateWithoutBranchInput> | StaffBranchCreateWithoutBranchInput[] | StaffBranchUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: StaffBranchCreateOrConnectWithoutBranchInput | StaffBranchCreateOrConnectWithoutBranchInput[]
+    createMany?: StaffBranchCreateManyBranchInputEnvelope
+    connect?: StaffBranchWhereUniqueInput | StaffBranchWhereUniqueInput[]
   }
 
-  export type MembershipBranchUncheckedCreateNestedManyWithoutBranchInput = {
-    create?: XOR<MembershipBranchCreateWithoutBranchInput, MembershipBranchUncheckedCreateWithoutBranchInput> | MembershipBranchCreateWithoutBranchInput[] | MembershipBranchUncheckedCreateWithoutBranchInput[]
-    connectOrCreate?: MembershipBranchCreateOrConnectWithoutBranchInput | MembershipBranchCreateOrConnectWithoutBranchInput[]
-    createMany?: MembershipBranchCreateManyBranchInputEnvelope
-    connect?: MembershipBranchWhereUniqueInput | MembershipBranchWhereUniqueInput[]
+  export type StaffBranchUncheckedCreateNestedManyWithoutBranchInput = {
+    create?: XOR<StaffBranchCreateWithoutBranchInput, StaffBranchUncheckedCreateWithoutBranchInput> | StaffBranchCreateWithoutBranchInput[] | StaffBranchUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: StaffBranchCreateOrConnectWithoutBranchInput | StaffBranchCreateOrConnectWithoutBranchInput[]
+    createMany?: StaffBranchCreateManyBranchInputEnvelope
+    connect?: StaffBranchWhereUniqueInput | StaffBranchWhereUniqueInput[]
   }
 
-  export type MembershipBranchUpdateManyWithoutBranchNestedInput = {
-    create?: XOR<MembershipBranchCreateWithoutBranchInput, MembershipBranchUncheckedCreateWithoutBranchInput> | MembershipBranchCreateWithoutBranchInput[] | MembershipBranchUncheckedCreateWithoutBranchInput[]
-    connectOrCreate?: MembershipBranchCreateOrConnectWithoutBranchInput | MembershipBranchCreateOrConnectWithoutBranchInput[]
-    upsert?: MembershipBranchUpsertWithWhereUniqueWithoutBranchInput | MembershipBranchUpsertWithWhereUniqueWithoutBranchInput[]
-    createMany?: MembershipBranchCreateManyBranchInputEnvelope
-    set?: MembershipBranchWhereUniqueInput | MembershipBranchWhereUniqueInput[]
-    disconnect?: MembershipBranchWhereUniqueInput | MembershipBranchWhereUniqueInput[]
-    delete?: MembershipBranchWhereUniqueInput | MembershipBranchWhereUniqueInput[]
-    connect?: MembershipBranchWhereUniqueInput | MembershipBranchWhereUniqueInput[]
-    update?: MembershipBranchUpdateWithWhereUniqueWithoutBranchInput | MembershipBranchUpdateWithWhereUniqueWithoutBranchInput[]
-    updateMany?: MembershipBranchUpdateManyWithWhereWithoutBranchInput | MembershipBranchUpdateManyWithWhereWithoutBranchInput[]
-    deleteMany?: MembershipBranchScalarWhereInput | MembershipBranchScalarWhereInput[]
+  export type StaffBranchUpdateManyWithoutBranchNestedInput = {
+    create?: XOR<StaffBranchCreateWithoutBranchInput, StaffBranchUncheckedCreateWithoutBranchInput> | StaffBranchCreateWithoutBranchInput[] | StaffBranchUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: StaffBranchCreateOrConnectWithoutBranchInput | StaffBranchCreateOrConnectWithoutBranchInput[]
+    upsert?: StaffBranchUpsertWithWhereUniqueWithoutBranchInput | StaffBranchUpsertWithWhereUniqueWithoutBranchInput[]
+    createMany?: StaffBranchCreateManyBranchInputEnvelope
+    set?: StaffBranchWhereUniqueInput | StaffBranchWhereUniqueInput[]
+    disconnect?: StaffBranchWhereUniqueInput | StaffBranchWhereUniqueInput[]
+    delete?: StaffBranchWhereUniqueInput | StaffBranchWhereUniqueInput[]
+    connect?: StaffBranchWhereUniqueInput | StaffBranchWhereUniqueInput[]
+    update?: StaffBranchUpdateWithWhereUniqueWithoutBranchInput | StaffBranchUpdateWithWhereUniqueWithoutBranchInput[]
+    updateMany?: StaffBranchUpdateManyWithWhereWithoutBranchInput | StaffBranchUpdateManyWithWhereWithoutBranchInput[]
+    deleteMany?: StaffBranchScalarWhereInput | StaffBranchScalarWhereInput[]
   }
 
-  export type MembershipBranchUncheckedUpdateManyWithoutBranchNestedInput = {
-    create?: XOR<MembershipBranchCreateWithoutBranchInput, MembershipBranchUncheckedCreateWithoutBranchInput> | MembershipBranchCreateWithoutBranchInput[] | MembershipBranchUncheckedCreateWithoutBranchInput[]
-    connectOrCreate?: MembershipBranchCreateOrConnectWithoutBranchInput | MembershipBranchCreateOrConnectWithoutBranchInput[]
-    upsert?: MembershipBranchUpsertWithWhereUniqueWithoutBranchInput | MembershipBranchUpsertWithWhereUniqueWithoutBranchInput[]
-    createMany?: MembershipBranchCreateManyBranchInputEnvelope
-    set?: MembershipBranchWhereUniqueInput | MembershipBranchWhereUniqueInput[]
-    disconnect?: MembershipBranchWhereUniqueInput | MembershipBranchWhereUniqueInput[]
-    delete?: MembershipBranchWhereUniqueInput | MembershipBranchWhereUniqueInput[]
-    connect?: MembershipBranchWhereUniqueInput | MembershipBranchWhereUniqueInput[]
-    update?: MembershipBranchUpdateWithWhereUniqueWithoutBranchInput | MembershipBranchUpdateWithWhereUniqueWithoutBranchInput[]
-    updateMany?: MembershipBranchUpdateManyWithWhereWithoutBranchInput | MembershipBranchUpdateManyWithWhereWithoutBranchInput[]
-    deleteMany?: MembershipBranchScalarWhereInput | MembershipBranchScalarWhereInput[]
+  export type StaffBranchUncheckedUpdateManyWithoutBranchNestedInput = {
+    create?: XOR<StaffBranchCreateWithoutBranchInput, StaffBranchUncheckedCreateWithoutBranchInput> | StaffBranchCreateWithoutBranchInput[] | StaffBranchUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: StaffBranchCreateOrConnectWithoutBranchInput | StaffBranchCreateOrConnectWithoutBranchInput[]
+    upsert?: StaffBranchUpsertWithWhereUniqueWithoutBranchInput | StaffBranchUpsertWithWhereUniqueWithoutBranchInput[]
+    createMany?: StaffBranchCreateManyBranchInputEnvelope
+    set?: StaffBranchWhereUniqueInput | StaffBranchWhereUniqueInput[]
+    disconnect?: StaffBranchWhereUniqueInput | StaffBranchWhereUniqueInput[]
+    delete?: StaffBranchWhereUniqueInput | StaffBranchWhereUniqueInput[]
+    connect?: StaffBranchWhereUniqueInput | StaffBranchWhereUniqueInput[]
+    update?: StaffBranchUpdateWithWhereUniqueWithoutBranchInput | StaffBranchUpdateWithWhereUniqueWithoutBranchInput[]
+    updateMany?: StaffBranchUpdateManyWithWhereWithoutBranchInput | StaffBranchUpdateManyWithWhereWithoutBranchInput[]
+    deleteMany?: StaffBranchScalarWhereInput | StaffBranchScalarWhereInput[]
   }
 
-  export type MembershipCreateNestedOneWithoutBranchesInput = {
-    create?: XOR<MembershipCreateWithoutBranchesInput, MembershipUncheckedCreateWithoutBranchesInput>
-    connectOrCreate?: MembershipCreateOrConnectWithoutBranchesInput
-    connect?: MembershipWhereUniqueInput
+  export type StaffCreateNestedOneWithoutBranchesInput = {
+    create?: XOR<StaffCreateWithoutBranchesInput, StaffUncheckedCreateWithoutBranchesInput>
+    connectOrCreate?: StaffCreateOrConnectWithoutBranchesInput
+    connect?: StaffWhereUniqueInput
   }
 
-  export type BranchCreateNestedOneWithoutMembersInput = {
-    create?: XOR<BranchCreateWithoutMembersInput, BranchUncheckedCreateWithoutMembersInput>
-    connectOrCreate?: BranchCreateOrConnectWithoutMembersInput
+  export type BranchCreateNestedOneWithoutStaffInput = {
+    create?: XOR<BranchCreateWithoutStaffInput, BranchUncheckedCreateWithoutStaffInput>
+    connectOrCreate?: BranchCreateOrConnectWithoutStaffInput
     connect?: BranchWhereUniqueInput
   }
 
-  export type MembershipUpdateOneRequiredWithoutBranchesNestedInput = {
-    create?: XOR<MembershipCreateWithoutBranchesInput, MembershipUncheckedCreateWithoutBranchesInput>
-    connectOrCreate?: MembershipCreateOrConnectWithoutBranchesInput
-    upsert?: MembershipUpsertWithoutBranchesInput
-    connect?: MembershipWhereUniqueInput
-    update?: XOR<XOR<MembershipUpdateToOneWithWhereWithoutBranchesInput, MembershipUpdateWithoutBranchesInput>, MembershipUncheckedUpdateWithoutBranchesInput>
+  export type StaffUpdateOneRequiredWithoutBranchesNestedInput = {
+    create?: XOR<StaffCreateWithoutBranchesInput, StaffUncheckedCreateWithoutBranchesInput>
+    connectOrCreate?: StaffCreateOrConnectWithoutBranchesInput
+    upsert?: StaffUpsertWithoutBranchesInput
+    connect?: StaffWhereUniqueInput
+    update?: XOR<XOR<StaffUpdateToOneWithWhereWithoutBranchesInput, StaffUpdateWithoutBranchesInput>, StaffUncheckedUpdateWithoutBranchesInput>
   }
 
-  export type BranchUpdateOneRequiredWithoutMembersNestedInput = {
-    create?: XOR<BranchCreateWithoutMembersInput, BranchUncheckedCreateWithoutMembersInput>
-    connectOrCreate?: BranchCreateOrConnectWithoutMembersInput
-    upsert?: BranchUpsertWithoutMembersInput
+  export type BranchUpdateOneRequiredWithoutStaffNestedInput = {
+    create?: XOR<BranchCreateWithoutStaffInput, BranchUncheckedCreateWithoutStaffInput>
+    connectOrCreate?: BranchCreateOrConnectWithoutStaffInput
+    upsert?: BranchUpsertWithoutStaffInput
     connect?: BranchWhereUniqueInput
-    update?: XOR<XOR<BranchUpdateToOneWithWhereWithoutMembersInput, BranchUpdateWithoutMembersInput>, BranchUncheckedUpdateWithoutMembersInput>
+    update?: XOR<XOR<BranchUpdateToOneWithWhereWithoutStaffInput, BranchUpdateWithoutStaffInput>, BranchUncheckedUpdateWithoutStaffInput>
   }
 
   export type AutomationRuleCreatechannelsInput = {
@@ -57622,18 +58048,25 @@ export namespace Prisma {
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
-  export type NestedEnumStaffRoleFilter<$PrismaModel = never> = {
-    equals?: $Enums.StaffRole | EnumStaffRoleFieldRefInput<$PrismaModel>
-    in?: $Enums.StaffRole[] | ListEnumStaffRoleFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StaffRole[] | ListEnumStaffRoleFieldRefInput<$PrismaModel>
-    not?: NestedEnumStaffRoleFilter<$PrismaModel> | $Enums.StaffRole
-  }
-
   export type NestedEnumStaffCategoryFilter<$PrismaModel = never> = {
     equals?: $Enums.StaffCategory | EnumStaffCategoryFieldRefInput<$PrismaModel>
     in?: $Enums.StaffCategory[] | ListEnumStaffCategoryFieldRefInput<$PrismaModel>
     notIn?: $Enums.StaffCategory[] | ListEnumStaffCategoryFieldRefInput<$PrismaModel>
     not?: NestedEnumStaffCategoryFilter<$PrismaModel> | $Enums.StaffCategory
+  }
+
+  export type NestedEnumEmploymentTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmploymentType | EnumEmploymentTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.EmploymentType[] | ListEnumEmploymentTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmploymentType[] | ListEnumEmploymentTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmploymentTypeFilter<$PrismaModel> | $Enums.EmploymentType
+  }
+
+  export type NestedEnumStaffRoleFilter<$PrismaModel = never> = {
+    equals?: $Enums.StaffRole | EnumStaffRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.StaffRole[] | ListEnumStaffRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StaffRole[] | ListEnumStaffRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumStaffRoleFilter<$PrismaModel> | $Enums.StaffRole
   }
 
   export type NestedBoolFilter<$PrismaModel = never> = {
@@ -57732,16 +58165,6 @@ export namespace Prisma {
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
-  export type NestedEnumStaffRoleWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.StaffRole | EnumStaffRoleFieldRefInput<$PrismaModel>
-    in?: $Enums.StaffRole[] | ListEnumStaffRoleFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StaffRole[] | ListEnumStaffRoleFieldRefInput<$PrismaModel>
-    not?: NestedEnumStaffRoleWithAggregatesFilter<$PrismaModel> | $Enums.StaffRole
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumStaffRoleFilter<$PrismaModel>
-    _max?: NestedEnumStaffRoleFilter<$PrismaModel>
-  }
-
   export type NestedEnumStaffCategoryWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.StaffCategory | EnumStaffCategoryFieldRefInput<$PrismaModel>
     in?: $Enums.StaffCategory[] | ListEnumStaffCategoryFieldRefInput<$PrismaModel>
@@ -57750,6 +58173,26 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumStaffCategoryFilter<$PrismaModel>
     _max?: NestedEnumStaffCategoryFilter<$PrismaModel>
+  }
+
+  export type NestedEnumEmploymentTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmploymentType | EnumEmploymentTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.EmploymentType[] | ListEnumEmploymentTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmploymentType[] | ListEnumEmploymentTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmploymentTypeWithAggregatesFilter<$PrismaModel> | $Enums.EmploymentType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumEmploymentTypeFilter<$PrismaModel>
+    _max?: NestedEnumEmploymentTypeFilter<$PrismaModel>
+  }
+
+  export type NestedEnumStaffRoleWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.StaffRole | EnumStaffRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.StaffRole[] | ListEnumStaffRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StaffRole[] | ListEnumStaffRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumStaffRoleWithAggregatesFilter<$PrismaModel> | $Enums.StaffRole
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumStaffRoleFilter<$PrismaModel>
+    _max?: NestedEnumStaffRoleFilter<$PrismaModel>
   }
 
   export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
@@ -58378,6 +58821,30 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type StaffBranchCreateWithoutStaffInput = {
+    isPrimary?: boolean
+    assignedAt?: Date | string
+    assignedById?: string | null
+    branch: BranchCreateNestedOneWithoutStaffInput
+  }
+
+  export type StaffBranchUncheckedCreateWithoutStaffInput = {
+    branchId: string
+    isPrimary?: boolean
+    assignedAt?: Date | string
+    assignedById?: string | null
+  }
+
+  export type StaffBranchCreateOrConnectWithoutStaffInput = {
+    where: StaffBranchWhereUniqueInput
+    create: XOR<StaffBranchCreateWithoutStaffInput, StaffBranchUncheckedCreateWithoutStaffInput>
+  }
+
+  export type StaffBranchCreateManyStaffInputEnvelope = {
+    data: StaffBranchCreateManyStaffInput | StaffBranchCreateManyStaffInput[]
+    skipDuplicates?: boolean
+  }
+
   export type ClassSubjectUpsertWithWhereUniqueWithoutStaffInput = {
     where: ClassSubjectWhereUniqueInput
     update: XOR<ClassSubjectUpdateWithoutStaffInput, ClassSubjectUncheckedUpdateWithoutStaffInput>
@@ -58464,6 +58931,33 @@ export namespace Prisma {
     defaultTeacherId?: StringNullableFilter<"Subject"> | string | null
     createdAt?: DateTimeFilter<"Subject"> | Date | string
     updatedAt?: DateTimeFilter<"Subject"> | Date | string
+  }
+
+  export type StaffBranchUpsertWithWhereUniqueWithoutStaffInput = {
+    where: StaffBranchWhereUniqueInput
+    update: XOR<StaffBranchUpdateWithoutStaffInput, StaffBranchUncheckedUpdateWithoutStaffInput>
+    create: XOR<StaffBranchCreateWithoutStaffInput, StaffBranchUncheckedCreateWithoutStaffInput>
+  }
+
+  export type StaffBranchUpdateWithWhereUniqueWithoutStaffInput = {
+    where: StaffBranchWhereUniqueInput
+    data: XOR<StaffBranchUpdateWithoutStaffInput, StaffBranchUncheckedUpdateWithoutStaffInput>
+  }
+
+  export type StaffBranchUpdateManyWithWhereWithoutStaffInput = {
+    where: StaffBranchScalarWhereInput
+    data: XOR<StaffBranchUpdateManyMutationInput, StaffBranchUncheckedUpdateManyWithoutStaffInput>
+  }
+
+  export type StaffBranchScalarWhereInput = {
+    AND?: StaffBranchScalarWhereInput | StaffBranchScalarWhereInput[]
+    OR?: StaffBranchScalarWhereInput[]
+    NOT?: StaffBranchScalarWhereInput | StaffBranchScalarWhereInput[]
+    staffId?: StringFilter<"StaffBranch"> | string
+    branchId?: StringFilter<"StaffBranch"> | string
+    isPrimary?: BoolFilter<"StaffBranch"> | boolean
+    assignedAt?: DateTimeFilter<"StaffBranch"> | Date | string
+    assignedById?: StringNullableFilter<"StaffBranch"> | string | null
   }
 
   export type EnrolmentCreateWithoutStudentInput = {
@@ -59896,42 +60390,68 @@ export namespace Prisma {
 
   export type StaffCreateWithoutClassesAsClassTeacherInput = {
     id?: string
-    userId: string
+    userId?: string | null
     employeeId?: string | null
-    department?: string | null
-    designation?: string | null
-    qualification?: string | null
+    firstName: string
+    lastName: string
+    middleName?: string | null
+    email?: string | null
+    phone?: string | null
+    photoUrl?: string | null
     gender?: $Enums.Gender | null
     dateOfBirth?: Date | string | null
     address?: string | null
-    joinDate?: Date | string | null
-    role: $Enums.StaffRole
+    department?: string | null
+    designation?: string | null
+    qualification?: string | null
     category?: $Enums.StaffCategory
+    employmentType?: $Enums.EmploymentType
+    joinDate?: Date | string | null
+    exitDate?: Date | string | null
+    exitReason?: string | null
+    role?: $Enums.StaffRole
     isActive?: boolean
+    createdById?: string | null
+    updatedById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    deletedAt?: Date | string | null
     classSubjects?: ClassSubjectCreateNestedManyWithoutStaffInput
     subjectDefaults?: SubjectCreateNestedManyWithoutDefaultTeacherInput
+    branches?: StaffBranchCreateNestedManyWithoutStaffInput
   }
 
   export type StaffUncheckedCreateWithoutClassesAsClassTeacherInput = {
     id?: string
-    userId: string
+    userId?: string | null
     employeeId?: string | null
-    department?: string | null
-    designation?: string | null
-    qualification?: string | null
+    firstName: string
+    lastName: string
+    middleName?: string | null
+    email?: string | null
+    phone?: string | null
+    photoUrl?: string | null
     gender?: $Enums.Gender | null
     dateOfBirth?: Date | string | null
     address?: string | null
-    joinDate?: Date | string | null
-    role: $Enums.StaffRole
+    department?: string | null
+    designation?: string | null
+    qualification?: string | null
     category?: $Enums.StaffCategory
+    employmentType?: $Enums.EmploymentType
+    joinDate?: Date | string | null
+    exitDate?: Date | string | null
+    exitReason?: string | null
+    role?: $Enums.StaffRole
     isActive?: boolean
+    createdById?: string | null
+    updatedById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    deletedAt?: Date | string | null
     classSubjects?: ClassSubjectUncheckedCreateNestedManyWithoutStaffInput
     subjectDefaults?: SubjectUncheckedCreateNestedManyWithoutDefaultTeacherInput
+    branches?: StaffBranchUncheckedCreateNestedManyWithoutStaffInput
   }
 
   export type StaffCreateOrConnectWithoutClassesAsClassTeacherInput = {
@@ -60060,42 +60580,68 @@ export namespace Prisma {
 
   export type StaffUpdateWithoutClassesAsClassTeacherInput = {
     id?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     employeeId?: NullableStringFieldUpdateOperationsInput | string | null
-    department?: NullableStringFieldUpdateOperationsInput | string | null
-    designation?: NullableStringFieldUpdateOperationsInput | string | null
-    qualification?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    middleName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     gender?: NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
-    joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
+    department?: NullableStringFieldUpdateOperationsInput | string | null
+    designation?: NullableStringFieldUpdateOperationsInput | string | null
+    qualification?: NullableStringFieldUpdateOperationsInput | string | null
     category?: EnumStaffCategoryFieldUpdateOperationsInput | $Enums.StaffCategory
+    employmentType?: EnumEmploymentTypeFieldUpdateOperationsInput | $Enums.EmploymentType
+    joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    exitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    exitReason?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     classSubjects?: ClassSubjectUpdateManyWithoutStaffNestedInput
     subjectDefaults?: SubjectUpdateManyWithoutDefaultTeacherNestedInput
+    branches?: StaffBranchUpdateManyWithoutStaffNestedInput
   }
 
   export type StaffUncheckedUpdateWithoutClassesAsClassTeacherInput = {
     id?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     employeeId?: NullableStringFieldUpdateOperationsInput | string | null
-    department?: NullableStringFieldUpdateOperationsInput | string | null
-    designation?: NullableStringFieldUpdateOperationsInput | string | null
-    qualification?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    middleName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     gender?: NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
-    joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
+    department?: NullableStringFieldUpdateOperationsInput | string | null
+    designation?: NullableStringFieldUpdateOperationsInput | string | null
+    qualification?: NullableStringFieldUpdateOperationsInput | string | null
     category?: EnumStaffCategoryFieldUpdateOperationsInput | $Enums.StaffCategory
+    employmentType?: EnumEmploymentTypeFieldUpdateOperationsInput | $Enums.EmploymentType
+    joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    exitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    exitReason?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     classSubjects?: ClassSubjectUncheckedUpdateManyWithoutStaffNestedInput
     subjectDefaults?: SubjectUncheckedUpdateManyWithoutDefaultTeacherNestedInput
+    branches?: StaffBranchUncheckedUpdateManyWithoutStaffNestedInput
   }
 
   export type EnrolmentUpsertWithWhereUniqueWithoutClassInput = {
@@ -60175,42 +60721,68 @@ export namespace Prisma {
 
   export type StaffCreateWithoutSubjectDefaultsInput = {
     id?: string
-    userId: string
+    userId?: string | null
     employeeId?: string | null
-    department?: string | null
-    designation?: string | null
-    qualification?: string | null
+    firstName: string
+    lastName: string
+    middleName?: string | null
+    email?: string | null
+    phone?: string | null
+    photoUrl?: string | null
     gender?: $Enums.Gender | null
     dateOfBirth?: Date | string | null
     address?: string | null
-    joinDate?: Date | string | null
-    role: $Enums.StaffRole
+    department?: string | null
+    designation?: string | null
+    qualification?: string | null
     category?: $Enums.StaffCategory
+    employmentType?: $Enums.EmploymentType
+    joinDate?: Date | string | null
+    exitDate?: Date | string | null
+    exitReason?: string | null
+    role?: $Enums.StaffRole
     isActive?: boolean
+    createdById?: string | null
+    updatedById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    deletedAt?: Date | string | null
     classSubjects?: ClassSubjectCreateNestedManyWithoutStaffInput
     classesAsClassTeacher?: ClassCreateNestedManyWithoutClassTeacherInput
+    branches?: StaffBranchCreateNestedManyWithoutStaffInput
   }
 
   export type StaffUncheckedCreateWithoutSubjectDefaultsInput = {
     id?: string
-    userId: string
+    userId?: string | null
     employeeId?: string | null
-    department?: string | null
-    designation?: string | null
-    qualification?: string | null
+    firstName: string
+    lastName: string
+    middleName?: string | null
+    email?: string | null
+    phone?: string | null
+    photoUrl?: string | null
     gender?: $Enums.Gender | null
     dateOfBirth?: Date | string | null
     address?: string | null
-    joinDate?: Date | string | null
-    role: $Enums.StaffRole
+    department?: string | null
+    designation?: string | null
+    qualification?: string | null
     category?: $Enums.StaffCategory
+    employmentType?: $Enums.EmploymentType
+    joinDate?: Date | string | null
+    exitDate?: Date | string | null
+    exitReason?: string | null
+    role?: $Enums.StaffRole
     isActive?: boolean
+    createdById?: string | null
+    updatedById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    deletedAt?: Date | string | null
     classSubjects?: ClassSubjectUncheckedCreateNestedManyWithoutStaffInput
     classesAsClassTeacher?: ClassUncheckedCreateNestedManyWithoutClassTeacherInput
+    branches?: StaffBranchUncheckedCreateNestedManyWithoutStaffInput
   }
 
   export type StaffCreateOrConnectWithoutSubjectDefaultsInput = {
@@ -60263,42 +60835,68 @@ export namespace Prisma {
 
   export type StaffUpdateWithoutSubjectDefaultsInput = {
     id?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     employeeId?: NullableStringFieldUpdateOperationsInput | string | null
-    department?: NullableStringFieldUpdateOperationsInput | string | null
-    designation?: NullableStringFieldUpdateOperationsInput | string | null
-    qualification?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    middleName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     gender?: NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
-    joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
+    department?: NullableStringFieldUpdateOperationsInput | string | null
+    designation?: NullableStringFieldUpdateOperationsInput | string | null
+    qualification?: NullableStringFieldUpdateOperationsInput | string | null
     category?: EnumStaffCategoryFieldUpdateOperationsInput | $Enums.StaffCategory
+    employmentType?: EnumEmploymentTypeFieldUpdateOperationsInput | $Enums.EmploymentType
+    joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    exitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    exitReason?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     classSubjects?: ClassSubjectUpdateManyWithoutStaffNestedInput
     classesAsClassTeacher?: ClassUpdateManyWithoutClassTeacherNestedInput
+    branches?: StaffBranchUpdateManyWithoutStaffNestedInput
   }
 
   export type StaffUncheckedUpdateWithoutSubjectDefaultsInput = {
     id?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     employeeId?: NullableStringFieldUpdateOperationsInput | string | null
-    department?: NullableStringFieldUpdateOperationsInput | string | null
-    designation?: NullableStringFieldUpdateOperationsInput | string | null
-    qualification?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    middleName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     gender?: NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
-    joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
+    department?: NullableStringFieldUpdateOperationsInput | string | null
+    designation?: NullableStringFieldUpdateOperationsInput | string | null
+    qualification?: NullableStringFieldUpdateOperationsInput | string | null
     category?: EnumStaffCategoryFieldUpdateOperationsInput | $Enums.StaffCategory
+    employmentType?: EnumEmploymentTypeFieldUpdateOperationsInput | $Enums.EmploymentType
+    joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    exitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    exitReason?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     classSubjects?: ClassSubjectUncheckedUpdateManyWithoutStaffNestedInput
     classesAsClassTeacher?: ClassUncheckedUpdateManyWithoutClassTeacherNestedInput
+    branches?: StaffBranchUncheckedUpdateManyWithoutStaffNestedInput
   }
 
   export type ClassSubjectUpsertWithWhereUniqueWithoutSubjectInput = {
@@ -60375,42 +60973,68 @@ export namespace Prisma {
 
   export type StaffCreateWithoutClassSubjectsInput = {
     id?: string
-    userId: string
+    userId?: string | null
     employeeId?: string | null
-    department?: string | null
-    designation?: string | null
-    qualification?: string | null
+    firstName: string
+    lastName: string
+    middleName?: string | null
+    email?: string | null
+    phone?: string | null
+    photoUrl?: string | null
     gender?: $Enums.Gender | null
     dateOfBirth?: Date | string | null
     address?: string | null
-    joinDate?: Date | string | null
-    role: $Enums.StaffRole
+    department?: string | null
+    designation?: string | null
+    qualification?: string | null
     category?: $Enums.StaffCategory
+    employmentType?: $Enums.EmploymentType
+    joinDate?: Date | string | null
+    exitDate?: Date | string | null
+    exitReason?: string | null
+    role?: $Enums.StaffRole
     isActive?: boolean
+    createdById?: string | null
+    updatedById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    deletedAt?: Date | string | null
     classesAsClassTeacher?: ClassCreateNestedManyWithoutClassTeacherInput
     subjectDefaults?: SubjectCreateNestedManyWithoutDefaultTeacherInput
+    branches?: StaffBranchCreateNestedManyWithoutStaffInput
   }
 
   export type StaffUncheckedCreateWithoutClassSubjectsInput = {
     id?: string
-    userId: string
+    userId?: string | null
     employeeId?: string | null
-    department?: string | null
-    designation?: string | null
-    qualification?: string | null
+    firstName: string
+    lastName: string
+    middleName?: string | null
+    email?: string | null
+    phone?: string | null
+    photoUrl?: string | null
     gender?: $Enums.Gender | null
     dateOfBirth?: Date | string | null
     address?: string | null
-    joinDate?: Date | string | null
-    role: $Enums.StaffRole
+    department?: string | null
+    designation?: string | null
+    qualification?: string | null
     category?: $Enums.StaffCategory
+    employmentType?: $Enums.EmploymentType
+    joinDate?: Date | string | null
+    exitDate?: Date | string | null
+    exitReason?: string | null
+    role?: $Enums.StaffRole
     isActive?: boolean
+    createdById?: string | null
+    updatedById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    deletedAt?: Date | string | null
     classesAsClassTeacher?: ClassUncheckedCreateNestedManyWithoutClassTeacherInput
     subjectDefaults?: SubjectUncheckedCreateNestedManyWithoutDefaultTeacherInput
+    branches?: StaffBranchUncheckedCreateNestedManyWithoutStaffInput
   }
 
   export type StaffCreateOrConnectWithoutClassSubjectsInput = {
@@ -60580,42 +61204,68 @@ export namespace Prisma {
 
   export type StaffUpdateWithoutClassSubjectsInput = {
     id?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     employeeId?: NullableStringFieldUpdateOperationsInput | string | null
-    department?: NullableStringFieldUpdateOperationsInput | string | null
-    designation?: NullableStringFieldUpdateOperationsInput | string | null
-    qualification?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    middleName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     gender?: NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
-    joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
+    department?: NullableStringFieldUpdateOperationsInput | string | null
+    designation?: NullableStringFieldUpdateOperationsInput | string | null
+    qualification?: NullableStringFieldUpdateOperationsInput | string | null
     category?: EnumStaffCategoryFieldUpdateOperationsInput | $Enums.StaffCategory
+    employmentType?: EnumEmploymentTypeFieldUpdateOperationsInput | $Enums.EmploymentType
+    joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    exitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    exitReason?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     classesAsClassTeacher?: ClassUpdateManyWithoutClassTeacherNestedInput
     subjectDefaults?: SubjectUpdateManyWithoutDefaultTeacherNestedInput
+    branches?: StaffBranchUpdateManyWithoutStaffNestedInput
   }
 
   export type StaffUncheckedUpdateWithoutClassSubjectsInput = {
     id?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     employeeId?: NullableStringFieldUpdateOperationsInput | string | null
-    department?: NullableStringFieldUpdateOperationsInput | string | null
-    designation?: NullableStringFieldUpdateOperationsInput | string | null
-    qualification?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    middleName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     gender?: NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
     dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
-    joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
+    department?: NullableStringFieldUpdateOperationsInput | string | null
+    designation?: NullableStringFieldUpdateOperationsInput | string | null
+    qualification?: NullableStringFieldUpdateOperationsInput | string | null
     category?: EnumStaffCategoryFieldUpdateOperationsInput | $Enums.StaffCategory
+    employmentType?: EnumEmploymentTypeFieldUpdateOperationsInput | $Enums.EmploymentType
+    joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    exitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    exitReason?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     classesAsClassTeacher?: ClassUncheckedUpdateManyWithoutClassTeacherNestedInput
     subjectDefaults?: SubjectUncheckedUpdateManyWithoutDefaultTeacherNestedInput
+    branches?: StaffBranchUncheckedUpdateManyWithoutStaffNestedInput
   }
 
   export type TermUpsertWithoutClassSubjectsInput = {
@@ -62577,28 +63227,6 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type MembershipBranchCreateWithoutMembershipInput = {
-    assignedAt?: Date | string
-    assignedById?: string | null
-    branch: BranchCreateNestedOneWithoutMembersInput
-  }
-
-  export type MembershipBranchUncheckedCreateWithoutMembershipInput = {
-    branchId: string
-    assignedAt?: Date | string
-    assignedById?: string | null
-  }
-
-  export type MembershipBranchCreateOrConnectWithoutMembershipInput = {
-    where: MembershipBranchWhereUniqueInput
-    create: XOR<MembershipBranchCreateWithoutMembershipInput, MembershipBranchUncheckedCreateWithoutMembershipInput>
-  }
-
-  export type MembershipBranchCreateManyMembershipInputEnvelope = {
-    data: MembershipBranchCreateManyMembershipInput | MembershipBranchCreateManyMembershipInput[]
-    skipDuplicates?: boolean
-  }
-
   export type MembershipRoleUpsertWithWhereUniqueWithoutMembershipInput = {
     where: MembershipRoleWhereUniqueInput
     update: XOR<MembershipRoleUpdateWithoutMembershipInput, MembershipRoleUncheckedUpdateWithoutMembershipInput>
@@ -62615,32 +63243,6 @@ export namespace Prisma {
     data: XOR<MembershipRoleUpdateManyMutationInput, MembershipRoleUncheckedUpdateManyWithoutMembershipInput>
   }
 
-  export type MembershipBranchUpsertWithWhereUniqueWithoutMembershipInput = {
-    where: MembershipBranchWhereUniqueInput
-    update: XOR<MembershipBranchUpdateWithoutMembershipInput, MembershipBranchUncheckedUpdateWithoutMembershipInput>
-    create: XOR<MembershipBranchCreateWithoutMembershipInput, MembershipBranchUncheckedCreateWithoutMembershipInput>
-  }
-
-  export type MembershipBranchUpdateWithWhereUniqueWithoutMembershipInput = {
-    where: MembershipBranchWhereUniqueInput
-    data: XOR<MembershipBranchUpdateWithoutMembershipInput, MembershipBranchUncheckedUpdateWithoutMembershipInput>
-  }
-
-  export type MembershipBranchUpdateManyWithWhereWithoutMembershipInput = {
-    where: MembershipBranchScalarWhereInput
-    data: XOR<MembershipBranchUpdateManyMutationInput, MembershipBranchUncheckedUpdateManyWithoutMembershipInput>
-  }
-
-  export type MembershipBranchScalarWhereInput = {
-    AND?: MembershipBranchScalarWhereInput | MembershipBranchScalarWhereInput[]
-    OR?: MembershipBranchScalarWhereInput[]
-    NOT?: MembershipBranchScalarWhereInput | MembershipBranchScalarWhereInput[]
-    membershipId?: StringFilter<"MembershipBranch"> | string
-    branchId?: StringFilter<"MembershipBranch"> | string
-    assignedAt?: DateTimeFilter<"MembershipBranch"> | Date | string
-    assignedById?: StringNullableFilter<"MembershipBranch"> | string | null
-  }
-
   export type MembershipCreateWithoutRolesInput = {
     id?: string
     userId: string
@@ -62649,7 +63251,6 @@ export namespace Prisma {
     status?: $Enums.MembershipStatus
     createdAt?: Date | string
     updatedAt?: Date | string
-    branches?: MembershipBranchCreateNestedManyWithoutMembershipInput
   }
 
   export type MembershipUncheckedCreateWithoutRolesInput = {
@@ -62660,7 +63261,6 @@ export namespace Prisma {
     status?: $Enums.MembershipStatus
     createdAt?: Date | string
     updatedAt?: Date | string
-    branches?: MembershipBranchUncheckedCreateNestedManyWithoutMembershipInput
   }
 
   export type MembershipCreateOrConnectWithoutRolesInput = {
@@ -62726,7 +63326,6 @@ export namespace Prisma {
     status?: EnumMembershipStatusFieldUpdateOperationsInput | $Enums.MembershipStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    branches?: MembershipBranchUpdateManyWithoutMembershipNestedInput
   }
 
   export type MembershipUncheckedUpdateWithoutRolesInput = {
@@ -62737,7 +63336,6 @@ export namespace Prisma {
     status?: EnumMembershipStatusFieldUpdateOperationsInput | $Enums.MembershipStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    branches?: MembershipBranchUncheckedUpdateManyWithoutMembershipNestedInput
   }
 
   export type SchoolRoleUpsertWithoutMembersInput = {
@@ -62785,72 +63383,118 @@ export namespace Prisma {
     permissions?: SchoolRolePermissionUncheckedUpdateManyWithoutRoleNestedInput
   }
 
-  export type MembershipBranchCreateWithoutBranchInput = {
+  export type StaffBranchCreateWithoutBranchInput = {
+    isPrimary?: boolean
     assignedAt?: Date | string
     assignedById?: string | null
-    membership: MembershipCreateNestedOneWithoutBranchesInput
+    staff: StaffCreateNestedOneWithoutBranchesInput
   }
 
-  export type MembershipBranchUncheckedCreateWithoutBranchInput = {
-    membershipId: string
+  export type StaffBranchUncheckedCreateWithoutBranchInput = {
+    staffId: string
+    isPrimary?: boolean
     assignedAt?: Date | string
     assignedById?: string | null
   }
 
-  export type MembershipBranchCreateOrConnectWithoutBranchInput = {
-    where: MembershipBranchWhereUniqueInput
-    create: XOR<MembershipBranchCreateWithoutBranchInput, MembershipBranchUncheckedCreateWithoutBranchInput>
+  export type StaffBranchCreateOrConnectWithoutBranchInput = {
+    where: StaffBranchWhereUniqueInput
+    create: XOR<StaffBranchCreateWithoutBranchInput, StaffBranchUncheckedCreateWithoutBranchInput>
   }
 
-  export type MembershipBranchCreateManyBranchInputEnvelope = {
-    data: MembershipBranchCreateManyBranchInput | MembershipBranchCreateManyBranchInput[]
+  export type StaffBranchCreateManyBranchInputEnvelope = {
+    data: StaffBranchCreateManyBranchInput | StaffBranchCreateManyBranchInput[]
     skipDuplicates?: boolean
   }
 
-  export type MembershipBranchUpsertWithWhereUniqueWithoutBranchInput = {
-    where: MembershipBranchWhereUniqueInput
-    update: XOR<MembershipBranchUpdateWithoutBranchInput, MembershipBranchUncheckedUpdateWithoutBranchInput>
-    create: XOR<MembershipBranchCreateWithoutBranchInput, MembershipBranchUncheckedCreateWithoutBranchInput>
+  export type StaffBranchUpsertWithWhereUniqueWithoutBranchInput = {
+    where: StaffBranchWhereUniqueInput
+    update: XOR<StaffBranchUpdateWithoutBranchInput, StaffBranchUncheckedUpdateWithoutBranchInput>
+    create: XOR<StaffBranchCreateWithoutBranchInput, StaffBranchUncheckedCreateWithoutBranchInput>
   }
 
-  export type MembershipBranchUpdateWithWhereUniqueWithoutBranchInput = {
-    where: MembershipBranchWhereUniqueInput
-    data: XOR<MembershipBranchUpdateWithoutBranchInput, MembershipBranchUncheckedUpdateWithoutBranchInput>
+  export type StaffBranchUpdateWithWhereUniqueWithoutBranchInput = {
+    where: StaffBranchWhereUniqueInput
+    data: XOR<StaffBranchUpdateWithoutBranchInput, StaffBranchUncheckedUpdateWithoutBranchInput>
   }
 
-  export type MembershipBranchUpdateManyWithWhereWithoutBranchInput = {
-    where: MembershipBranchScalarWhereInput
-    data: XOR<MembershipBranchUpdateManyMutationInput, MembershipBranchUncheckedUpdateManyWithoutBranchInput>
+  export type StaffBranchUpdateManyWithWhereWithoutBranchInput = {
+    where: StaffBranchScalarWhereInput
+    data: XOR<StaffBranchUpdateManyMutationInput, StaffBranchUncheckedUpdateManyWithoutBranchInput>
   }
 
-  export type MembershipCreateWithoutBranchesInput = {
+  export type StaffCreateWithoutBranchesInput = {
     id?: string
-    userId: string
-    persona: $Enums.Persona
-    personaEntityId: string
-    status?: $Enums.MembershipStatus
+    userId?: string | null
+    employeeId?: string | null
+    firstName: string
+    lastName: string
+    middleName?: string | null
+    email?: string | null
+    phone?: string | null
+    photoUrl?: string | null
+    gender?: $Enums.Gender | null
+    dateOfBirth?: Date | string | null
+    address?: string | null
+    department?: string | null
+    designation?: string | null
+    qualification?: string | null
+    category?: $Enums.StaffCategory
+    employmentType?: $Enums.EmploymentType
+    joinDate?: Date | string | null
+    exitDate?: Date | string | null
+    exitReason?: string | null
+    role?: $Enums.StaffRole
+    isActive?: boolean
+    createdById?: string | null
+    updatedById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    roles?: MembershipRoleCreateNestedManyWithoutMembershipInput
+    deletedAt?: Date | string | null
+    classSubjects?: ClassSubjectCreateNestedManyWithoutStaffInput
+    classesAsClassTeacher?: ClassCreateNestedManyWithoutClassTeacherInput
+    subjectDefaults?: SubjectCreateNestedManyWithoutDefaultTeacherInput
   }
 
-  export type MembershipUncheckedCreateWithoutBranchesInput = {
+  export type StaffUncheckedCreateWithoutBranchesInput = {
     id?: string
-    userId: string
-    persona: $Enums.Persona
-    personaEntityId: string
-    status?: $Enums.MembershipStatus
+    userId?: string | null
+    employeeId?: string | null
+    firstName: string
+    lastName: string
+    middleName?: string | null
+    email?: string | null
+    phone?: string | null
+    photoUrl?: string | null
+    gender?: $Enums.Gender | null
+    dateOfBirth?: Date | string | null
+    address?: string | null
+    department?: string | null
+    designation?: string | null
+    qualification?: string | null
+    category?: $Enums.StaffCategory
+    employmentType?: $Enums.EmploymentType
+    joinDate?: Date | string | null
+    exitDate?: Date | string | null
+    exitReason?: string | null
+    role?: $Enums.StaffRole
+    isActive?: boolean
+    createdById?: string | null
+    updatedById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    roles?: MembershipRoleUncheckedCreateNestedManyWithoutMembershipInput
+    deletedAt?: Date | string | null
+    classSubjects?: ClassSubjectUncheckedCreateNestedManyWithoutStaffInput
+    classesAsClassTeacher?: ClassUncheckedCreateNestedManyWithoutClassTeacherInput
+    subjectDefaults?: SubjectUncheckedCreateNestedManyWithoutDefaultTeacherInput
   }
 
-  export type MembershipCreateOrConnectWithoutBranchesInput = {
-    where: MembershipWhereUniqueInput
-    create: XOR<MembershipCreateWithoutBranchesInput, MembershipUncheckedCreateWithoutBranchesInput>
+  export type StaffCreateOrConnectWithoutBranchesInput = {
+    where: StaffWhereUniqueInput
+    create: XOR<StaffCreateWithoutBranchesInput, StaffUncheckedCreateWithoutBranchesInput>
   }
 
-  export type BranchCreateWithoutMembersInput = {
+  export type BranchCreateWithoutStaffInput = {
     id?: string
     name: string
     code: string
@@ -62868,7 +63512,7 @@ export namespace Prisma {
     deletedAt?: Date | string | null
   }
 
-  export type BranchUncheckedCreateWithoutMembersInput = {
+  export type BranchUncheckedCreateWithoutStaffInput = {
     id?: string
     name: string
     code: string
@@ -62886,56 +63530,100 @@ export namespace Prisma {
     deletedAt?: Date | string | null
   }
 
-  export type BranchCreateOrConnectWithoutMembersInput = {
+  export type BranchCreateOrConnectWithoutStaffInput = {
     where: BranchWhereUniqueInput
-    create: XOR<BranchCreateWithoutMembersInput, BranchUncheckedCreateWithoutMembersInput>
+    create: XOR<BranchCreateWithoutStaffInput, BranchUncheckedCreateWithoutStaffInput>
   }
 
-  export type MembershipUpsertWithoutBranchesInput = {
-    update: XOR<MembershipUpdateWithoutBranchesInput, MembershipUncheckedUpdateWithoutBranchesInput>
-    create: XOR<MembershipCreateWithoutBranchesInput, MembershipUncheckedCreateWithoutBranchesInput>
-    where?: MembershipWhereInput
+  export type StaffUpsertWithoutBranchesInput = {
+    update: XOR<StaffUpdateWithoutBranchesInput, StaffUncheckedUpdateWithoutBranchesInput>
+    create: XOR<StaffCreateWithoutBranchesInput, StaffUncheckedCreateWithoutBranchesInput>
+    where?: StaffWhereInput
   }
 
-  export type MembershipUpdateToOneWithWhereWithoutBranchesInput = {
-    where?: MembershipWhereInput
-    data: XOR<MembershipUpdateWithoutBranchesInput, MembershipUncheckedUpdateWithoutBranchesInput>
+  export type StaffUpdateToOneWithWhereWithoutBranchesInput = {
+    where?: StaffWhereInput
+    data: XOR<StaffUpdateWithoutBranchesInput, StaffUncheckedUpdateWithoutBranchesInput>
   }
 
-  export type MembershipUpdateWithoutBranchesInput = {
+  export type StaffUpdateWithoutBranchesInput = {
     id?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
-    persona?: EnumPersonaFieldUpdateOperationsInput | $Enums.Persona
-    personaEntityId?: StringFieldUpdateOperationsInput | string
-    status?: EnumMembershipStatusFieldUpdateOperationsInput | $Enums.MembershipStatus
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    employeeId?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    middleName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    gender?: NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    department?: NullableStringFieldUpdateOperationsInput | string | null
+    designation?: NullableStringFieldUpdateOperationsInput | string | null
+    qualification?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: EnumStaffCategoryFieldUpdateOperationsInput | $Enums.StaffCategory
+    employmentType?: EnumEmploymentTypeFieldUpdateOperationsInput | $Enums.EmploymentType
+    joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    exitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    exitReason?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    roles?: MembershipRoleUpdateManyWithoutMembershipNestedInput
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    classSubjects?: ClassSubjectUpdateManyWithoutStaffNestedInput
+    classesAsClassTeacher?: ClassUpdateManyWithoutClassTeacherNestedInput
+    subjectDefaults?: SubjectUpdateManyWithoutDefaultTeacherNestedInput
   }
 
-  export type MembershipUncheckedUpdateWithoutBranchesInput = {
+  export type StaffUncheckedUpdateWithoutBranchesInput = {
     id?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
-    persona?: EnumPersonaFieldUpdateOperationsInput | $Enums.Persona
-    personaEntityId?: StringFieldUpdateOperationsInput | string
-    status?: EnumMembershipStatusFieldUpdateOperationsInput | $Enums.MembershipStatus
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    employeeId?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    middleName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    gender?: NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    department?: NullableStringFieldUpdateOperationsInput | string | null
+    designation?: NullableStringFieldUpdateOperationsInput | string | null
+    qualification?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: EnumStaffCategoryFieldUpdateOperationsInput | $Enums.StaffCategory
+    employmentType?: EnumEmploymentTypeFieldUpdateOperationsInput | $Enums.EmploymentType
+    joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    exitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    exitReason?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    roles?: MembershipRoleUncheckedUpdateManyWithoutMembershipNestedInput
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    classSubjects?: ClassSubjectUncheckedUpdateManyWithoutStaffNestedInput
+    classesAsClassTeacher?: ClassUncheckedUpdateManyWithoutClassTeacherNestedInput
+    subjectDefaults?: SubjectUncheckedUpdateManyWithoutDefaultTeacherNestedInput
   }
 
-  export type BranchUpsertWithoutMembersInput = {
-    update: XOR<BranchUpdateWithoutMembersInput, BranchUncheckedUpdateWithoutMembersInput>
-    create: XOR<BranchCreateWithoutMembersInput, BranchUncheckedCreateWithoutMembersInput>
+  export type BranchUpsertWithoutStaffInput = {
+    update: XOR<BranchUpdateWithoutStaffInput, BranchUncheckedUpdateWithoutStaffInput>
+    create: XOR<BranchCreateWithoutStaffInput, BranchUncheckedCreateWithoutStaffInput>
     where?: BranchWhereInput
   }
 
-  export type BranchUpdateToOneWithWhereWithoutMembersInput = {
+  export type BranchUpdateToOneWithWhereWithoutStaffInput = {
     where?: BranchWhereInput
-    data: XOR<BranchUpdateWithoutMembersInput, BranchUncheckedUpdateWithoutMembersInput>
+    data: XOR<BranchUpdateWithoutStaffInput, BranchUncheckedUpdateWithoutStaffInput>
   }
 
-  export type BranchUpdateWithoutMembersInput = {
+  export type BranchUpdateWithoutStaffInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
@@ -62953,7 +63641,7 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
-  export type BranchUncheckedUpdateWithoutMembersInput = {
+  export type BranchUncheckedUpdateWithoutStaffInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
@@ -63324,6 +64012,13 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type StaffBranchCreateManyStaffInput = {
+    branchId: string
+    isPrimary?: boolean
+    assignedAt?: Date | string
+    assignedById?: string | null
+  }
+
   export type ClassSubjectUpdateWithoutStaffInput = {
     id?: StringFieldUpdateOperationsInput | string
     assignedVia?: EnumClassSubjectAssignmentSourceFieldUpdateOperationsInput | $Enums.ClassSubjectAssignmentSource
@@ -63418,6 +64113,27 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StaffBranchUpdateWithoutStaffInput = {
+    isPrimary?: BoolFieldUpdateOperationsInput | boolean
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    assignedById?: NullableStringFieldUpdateOperationsInput | string | null
+    branch?: BranchUpdateOneRequiredWithoutStaffNestedInput
+  }
+
+  export type StaffBranchUncheckedUpdateWithoutStaffInput = {
+    branchId?: StringFieldUpdateOperationsInput | string
+    isPrimary?: BoolFieldUpdateOperationsInput | boolean
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    assignedById?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type StaffBranchUncheckedUpdateManyWithoutStaffInput = {
+    branchId?: StringFieldUpdateOperationsInput | string
+    isPrimary?: BoolFieldUpdateOperationsInput | boolean
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    assignedById?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type EnrolmentCreateManyStudentInput = {
@@ -64686,12 +65402,6 @@ export namespace Prisma {
     assignedById?: string | null
   }
 
-  export type MembershipBranchCreateManyMembershipInput = {
-    branchId: string
-    assignedAt?: Date | string
-    assignedById?: string | null
-  }
-
   export type MembershipRoleUpdateWithoutMembershipInput = {
     assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     assignedById?: NullableStringFieldUpdateOperationsInput | string | null
@@ -64710,44 +65420,30 @@ export namespace Prisma {
     assignedById?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
-  export type MembershipBranchUpdateWithoutMembershipInput = {
-    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    assignedById?: NullableStringFieldUpdateOperationsInput | string | null
-    branch?: BranchUpdateOneRequiredWithoutMembersNestedInput
-  }
-
-  export type MembershipBranchUncheckedUpdateWithoutMembershipInput = {
-    branchId?: StringFieldUpdateOperationsInput | string
-    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    assignedById?: NullableStringFieldUpdateOperationsInput | string | null
-  }
-
-  export type MembershipBranchUncheckedUpdateManyWithoutMembershipInput = {
-    branchId?: StringFieldUpdateOperationsInput | string
-    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    assignedById?: NullableStringFieldUpdateOperationsInput | string | null
-  }
-
-  export type MembershipBranchCreateManyBranchInput = {
-    membershipId: string
+  export type StaffBranchCreateManyBranchInput = {
+    staffId: string
+    isPrimary?: boolean
     assignedAt?: Date | string
     assignedById?: string | null
   }
 
-  export type MembershipBranchUpdateWithoutBranchInput = {
+  export type StaffBranchUpdateWithoutBranchInput = {
+    isPrimary?: BoolFieldUpdateOperationsInput | boolean
     assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     assignedById?: NullableStringFieldUpdateOperationsInput | string | null
-    membership?: MembershipUpdateOneRequiredWithoutBranchesNestedInput
+    staff?: StaffUpdateOneRequiredWithoutBranchesNestedInput
   }
 
-  export type MembershipBranchUncheckedUpdateWithoutBranchInput = {
-    membershipId?: StringFieldUpdateOperationsInput | string
+  export type StaffBranchUncheckedUpdateWithoutBranchInput = {
+    staffId?: StringFieldUpdateOperationsInput | string
+    isPrimary?: BoolFieldUpdateOperationsInput | boolean
     assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     assignedById?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
-  export type MembershipBranchUncheckedUpdateManyWithoutBranchInput = {
-    membershipId?: StringFieldUpdateOperationsInput | string
+  export type StaffBranchUncheckedUpdateManyWithoutBranchInput = {
+    staffId?: StringFieldUpdateOperationsInput | string
+    isPrimary?: BoolFieldUpdateOperationsInput | boolean
     assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     assignedById?: NullableStringFieldUpdateOperationsInput | string | null
   }

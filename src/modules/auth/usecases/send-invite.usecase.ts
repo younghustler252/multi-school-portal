@@ -57,6 +57,15 @@ export class SendInviteUseCase {
             }
         }
 
+        // An invitation for an existing staff record must go to that staff member's own email, never to someone else
+        if (dto.persona === "STAFF" && dto.personaEntityId) {
+            const contact = await d.membershipService.getStaffContact(dto.personaEntityId);
+            if (!contact) throw authErrors.notFound("Staff member");
+            if (!contact.email || contact.email.toLowerCase() !== dto.email) {
+                throw authErrors.badRequest("The invitation must be sent to the staff member's own email address");
+            }
+        }
+
         // ── Already a member? ────────────────────────────────────────────
         const existing = await d.userRepository.findByEmail(dto.email);
         if (existing && await d.membershipService.findByUserPersona(existing.id, dto.persona)) {

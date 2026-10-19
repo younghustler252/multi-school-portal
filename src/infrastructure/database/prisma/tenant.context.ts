@@ -1,8 +1,15 @@
 import { AsyncLocalStorage } from "async_hooks";
+import type { Prisma } from "../../../generated/tenant";
+
+/** The database client you get while a transaction is open (see withTenantTransaction in prisma.client.ts). */
+export type TenantTransactionClient = Prisma.TransactionClient;
 
 interface TenantContext {
   tenantSchema: string;
   schoolId: string;
+  // Set only while withTenantTransaction is running. When it is set, getTenantClient() hands out this
+  // transaction, so every repository call made inside joins it without any change to the repository.
+  tx?: TenantTransactionClient;
 }
 
 const tenantStorage = new AsyncLocalStorage<TenantContext>();
@@ -33,5 +40,10 @@ export const TenantContext = {
 
     getSchoolId(): string {
         return TenantContext.get().schoolId;
+    },
+
+    // The open transaction of the current context, or null when none is open (never throws)
+    getTransaction(): TenantTransactionClient | null {
+        return tenantStorage.getStore()?.tx ?? null;
     },
 };

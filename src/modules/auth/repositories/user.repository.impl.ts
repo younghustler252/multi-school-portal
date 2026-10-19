@@ -24,6 +24,13 @@ export class UserRepositoryImpl implements IUserRepository {
         return raw ? this.mapper.toDomain(raw) : null;
     }
 
+    // One query for many users (names for audit entries, member lists)
+    async findByIds(ids: string[]): Promise<UserEntity[]> {
+        if (!ids.length) return [];
+        const rows = await this.prisma.user.findMany({ where: { id: { in: ids } } });
+        return rows.map(r => this.mapper.toDomain(r));
+    }
+
     async findByEmailWithPassword(email: string): Promise<UserWithPassword | null> {
         const raw = await this.prisma.user.findUnique({ where: { email } });
         if (!raw) return null;

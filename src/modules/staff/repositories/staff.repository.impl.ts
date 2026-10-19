@@ -1,135 +1,20 @@
-import { PrismaClient, Prisma }      from "../../../generated/tenant";
-import { getTenantClient }   from "../../../infrastructure/database/prisma/prisma.client";
-import { StaffMapper }       from "../mappers/staff.mapper";
-import { StaffEntity }       from "../domain/staff.entity";
-import { IStaffRepository }  from "./staff.repository";
-import { TenantContext } from "../../../infrastructure/database/prisma/tenant.context";
-// import staffinpu
-import {
-    PaginateParams,
-    PaginatedResult,
-}                            from "../../../infrastructure/repository/base.repository";
-import {
-    parsePagination,
-    buildPaginationMeta,
-}                            from "../../../shared/utils/pagination";
+import { BaseTenantRepository } from "../../../infrastructure/repository/base.repository";
+import { StaffMapper } from "../mappers/staff.mapper";
+import { StaffEntity } from "../domain/staff.entity";
+import { IStaffRepository } from "./staff.repository";
 
-/*
-|--------------------------------------------------------------------------
-| STAFF REPOSITORY IMPLEMENTATION
-| Uses getTenantClient() — queries tenant schema automatically
-| Staff table lives in school_greenfield schema, not public
-|--------------------------------------------------------------------------
-*/
+// Loads a staff member's branches with their names in the same query (no extra round trips)
+export const WITH_BRANCHES = { branches: { include: { branch: { select: { id: true, name: true, code: true } } }, orderBy: { isPrimary: "desc" } } } as const;
 
-export class StaffRepositoryImpl implements IStaffRepository {
-    private readonly mapper: StaffMapper;
+export class StaffRepositoryImpl extends BaseTenantRepository<StaffEntity> implements IStaffRepository {
+    protected readonly modelName = "staff";
+    protected readonly softDelete = true;           // a staff record is never erased: classes, payroll and history point at it
 
-    // Tenant client is created per request via getTenantClient()
-    private get db() {
-    const schema = TenantContext.getSchema();
-    console.log("🔍 Tenant client schema:", schema);
-    return getTenantClient();
-}
-    constructor({ staffMapper }: { staffMapper: StaffMapper }) {
-        this.mapper = staffMapper;
-    }
+    constructor({ staffMapper }: { staffMapper: StaffMapper }) { super(staffMapper); }
 
-    // ── Find by ID ────────────────────────────────────────────────────────
-    async findById(id: string): Promise<StaffEntity | null> {
-        const raw = await this.db.staff.findUnique({ where: { id } });
-        return raw ? this.mapper.toDomain(raw) : null;
-    }
-
-    // ── Find with user data joined ────────────────────────────────────────
-    // Staff table has userId but user data is in public schema
-    // We fetch staff then enrich with user data separately
-    async findWithUser(id: string): Promise<StaffEntity | null> {
-        const raw = await this.db.staff.findUnique({ where: { id } });
-        return raw ? this.mapper.toDomain(raw) : null;
-    }
-
-    // ── Find one ──────────────────────────────────────────────────────────
-    async findOne(where: Record<string, any>): Promise<StaffEntity | null> {
-        const raw = await this.db.staff.findFirst({ where });
-        return raw ? this.mapper.toDomain(raw) : null;
-    }
-
-    // ── Find many ─────────────────────────────────────────────────────────
-    async findMany(
-        where:    Record<string, any> = {},
-        orderBy?: Record<string, any>,
-    ): Promise<StaffEntity[]> {
-        const raws = await this.db.staff.findMany({
-            where,
-            orderBy: orderBy ?? { createdAt: "desc" },
-        });
-        return raws.map(r => this.mapper.toDomain(r));
-    }
-
-    // ── Paginate ──────────────────────────────────────────────────────────
-    async paginate(
-        params: PaginateParams,
-    ): Promise<PaginatedResult<StaffEntity>> {
-        const { page, limit, skip } = parsePagination({
-            page:  params.page,
-            limit: params.limit,
-        });
-
-        const where   = params.where   ?? {};
-        const orderBy = params.orderBy ?? { createdAt: "desc" };
-
-        const [raws, total] = await Promise.all([
-            this.db.staff.findMany({ where, skip, take: limit, orderBy }),
-            this.db.staff.count({ where }),
-        ]);
-
-        return {
-            data: raws.map(r => this.mapper.toDomain(r)),
-            meta: buildPaginationMeta(total, page, limit),
-        };
-    }
-
-    // ── Paginate with user data ───────────────────────────────────────────
-    async paginateWithUser(
-        params: PaginateParams,
-    ): Promise<PaginatedResult<StaffEntity>> {
-        return this.paginate(params);
-    }
-
-    // ── Create ────────────────────────────────────────────────────────────
-    async create(data: Prisma.StaffUncheckedCreateInput): Promise<StaffEntity> {
-        const raw = await this.db.staff.create({ data });
-        return this.mapper.toDomain(raw);
-    }
-
-    // ── Update ────────────────────────────────────────────────────────────
-    async update(
-        id:   string,
-        data: Prisma.StaffUncheckedUpdateInput,
-    ): Promise<StaffEntity> {
-        const raw = await this.db.staff.update({ where: { id }, data });
-        return this.mapper.toDomain(raw);
-    }
-
-    // ── Exists ────────────────────────────────────────────────────────────
-    async exists(where: Record<string, any>): Promise<boolean> {
-        const count = await this.db.staff.count({ where });
-        return count > 0;
-    }
-
-    // ── Count ─────────────────────────────────────────────────────────────
-    async count(where: Record<string, any> = {}): Promise<number> {
-        return this.db.staff.count({ where });
-    }
-
-    // ── Find by user ID ───────────────────────────────────────────────────
-    async findByUserId(userId: string): Promise<StaffEntity | null> {
-        return this.findOne({ userId });
-    }
-
-    // ── Find by employee ID ───────────────────────────────────────────────
-    async findByEmployeeId(employeeId: string): Promise<StaffEntity | null> {
-        return this.findOne({ employeeId });
-    }
+    async findByUserId(userId: string): Promise<StaffEntity | null> { return this.findOne({ userId }); }
+    async findByEmployeeId(employeeId: string): Promise<StaffEntity | null> { return this.findOne({ employeeId }); }
+    // Emails are compared ignoring case
+    async findByEmail(email: string): Promise<StaffEntity | null> { return this.findOne({ email: { equals: email, mode: "insensitive" } }); }
+    async findWithBranches(id: string): Promise<StaffEntity | null> { return this.findById(id, WITH_BRANCHES as never); }
 }

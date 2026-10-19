@@ -1,57 +1,40 @@
 import { IUserRepository } from "../../auth/repositories/user.repository";
 import { SYSTEM_ACTOR_LABELS } from "../../../shared/constants/system-actors";
+import { EnrichedAuditLogEntry } from "../domain/audit.entity";
 
-export interface EnrichedAuditLogEntry {
-    id:        string;
-    actorType: string;
-    actorId:   string | null;
-    actorName: string;
-    action:    string;
-    entity:    string;
-    entityId:  string | null;
-    oldValue:  any;
-    newValue:  any;
-    ipAddress: string | null;
-    metadata:  any;
-    createdAt: Date;
-}
+interface Dependencies { userRepository: IUserRepository }
 
-interface Dependencies { userRepository: IUserRepository; }
-
+/*
+| ENRICHER: turns ids into names for display (one batched user lookup for a whole page).
+| System actors show their label ("Billing system"); a person shows their name; a platform person who was
+| impersonating shows both ("Ada Obi (as Tunde Bello)" is the convention: actor first, impersonator in its own field).
+*/
 export class AuditLogEnricherService {
-    private readonly userRepository: IUserRepository;
-    constructor({ userRepository }: Dependencies) { this.userRepository = userRepository; }
+    private readonly users: IUserRepository;
+    constructor({ userRepository }: Dependencies) { this.users = userRepository; }
 
     async enrich(logs: any[]): Promise<EnrichedAuditLogEntry[]> {
-        const realUserIds = [...new Set(
-            logs.map(l => l.userId).filter((id): id is string => !!id && !SYSTEM_ACTOR_LABELS[id]),
-        )];
+        const ids = new Set<string>();
+        for (const l of logs) {
+            if (l.userId && !SYSTEM_ACTOR_LABELS[l.userId]) ids.add(l.userId);
+            if (l.metadata?.impersonatedBy) ids.add(l.metadata.impersonatedBy);
+        }
+        const people = await this.users.findByIds([...ids]);
+        const byId = new Map(people.map(u => [u.id, u]));
+        const nameOf = (id: string | null | undefined): string | null => {
+            if (!id) return null;
+            if (SYSTEM_ACTOR_LABELS[id]) return SYSTEM_ACTOR_LABELS[id];
+            const u = byId.get(id);
+            return u ? (`${u.firstName ?? ""} ${u.lastName ?? ""}`.trim() || u.email) : null;
+        };
 
-        const users = realUserIds.length > 0
-            ? await this.userRepository.findMany({ id: { in: realUserIds } })
-            : [];
-        const userById = new Map(users.map(u => [u.id, u]));
-
-        return logs.map(log => {
-            let actorName: string;
-
-            if (log.userId && SYSTEM_ACTOR_LABELS[log.userId]) {
-                actorName = SYSTEM_ACTOR_LABELS[log.userId];
-            } else if (log.userId && userById.has(log.userId)) {
-                const u = userById.get(log.userId)!;
-                actorName = `${u.firstName ?? ""} ${u.lastName ?? ""}`.trim() || u.email;
-            } else if (log.actorType === "system") {
-                actorName = "System";
-            } else {
-                actorName = "Unknown";
-            }
-
-            return {
-                id: log.id, actorType: log.actorType, actorId: log.userId, actorName,
-                action: log.action, entity: log.entity, entityId: log.entityId,
-                oldValue: log.oldValue, newValue: log.newValue,
-                ipAddress: log.ipAddress, metadata: log.metadata, createdAt: log.createdAt,
-            };
-        });
+        return logs.map(l => ({
+            id: l.id, actorType: l.actorType, actorId: l.userId,
+            actorName: nameOf(l.userId) ?? (l.actorType === "system" ? "System" : "Unknown"),
+            impersonatedByName: nameOf(l.metadata?.impersonatedBy),
+            action: l.action, module: l.module ?? null, entity: l.entity, entityId: l.entityId,
+            oldValue: l.oldValue, newValue: l.newValue, ipAddress: l.ipAddress, requestId: l.requestId ?? null,
+            metadata: l.metadata, createdAt: l.createdAt,
+        }));
     }
 }

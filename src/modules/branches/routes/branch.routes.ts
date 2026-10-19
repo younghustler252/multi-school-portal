@@ -5,14 +5,14 @@ import { validate } from "../../../infrastructure/middleware/validate.middleware
 import { authenticate } from "../../../infrastructure/middleware/auth.middleware";
 import { requireTenant } from "../../../infrastructure/middleware/tenant-resolver.middleware";
 import { requirePermission } from "../../../infrastructure/middleware/rbac.middleware";
-import { CreateBranchDto, UpdateBranchDto, AssignBranchesDto } from "../dtos/branch.dto";
+import { CreateBranchDto, UpdateBranchDto } from "../dtos/branch.dto";
 
 /*
 | BRANCH ROUTES (school realm, mounted at /branches on the school's host).
 | view   = see branches (all of them, or only the person's own when their role is limited to their branch)
-| manage = create, edit, deactivate, delete and assign staff
+| manage = create, edit, deactivate, delete  (staff are placed in branches from the staff module: PUT /staff/:id/branches)
 | Creating a branch is gated by the plan's `branches.max` limit inside the use case.
-| Fixed paths ("/mine", "/assignments/...") come before "/:id".
+| Fixed paths ("/mine") come before "/:id".
 */
 const router = Router();
 const ctrl   = () => container.resolve<BranchController>("branchController");
@@ -22,7 +22,6 @@ const manage = [authenticate, requireTenant, requirePermission("branches.manage"
 router.get("/", ...view, (q, s, n) => ctrl().list(q, s, n));
 router.get("/mine", ...view, (q, s, n) => ctrl().mine(q, s, n));
 router.post("/", ...manage, validate(CreateBranchDto), (q, s, n) => ctrl().create(q, s, n));
-router.put("/assignments/:membershipId", ...manage, validate(AssignBranchesDto), (q, s, n) => ctrl().assign(q, s, n));
 
 router.get("/:id", ...view, (q, s, n) => ctrl().get(q, s, n));
 router.get("/:id/members", ...manage, (q, s, n) => ctrl().members(q, s, n));

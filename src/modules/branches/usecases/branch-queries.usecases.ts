@@ -45,20 +45,23 @@ export class GetBranchUseCase {
     }
 }
 
-// Who works in this branch. Ids only: names come from the staff module (which owns staff data).
+// Who works in this branch (active staff, primary-branch first).
 export class ListBranchMembersUseCase {
     constructor(private readonly d: Dependencies) {}
 
     async execute(id: string) {
         if (!(await this.d.branchRepository.findById(id))) throw branchErrors.notFound();
-        const rows = await getTenantClient().membershipBranch.findMany({
-            where: { branchId: id, membership: { status: "active" } },
-            select: { assignedAt: true, membership: { select: { id: true, userId: true, persona: true, personaEntityId: true } } },
-            orderBy: { assignedAt: "asc" },
+        const rows = await getTenantClient().staffBranch.findMany({
+            where: { branchId: id, staff: { isActive: true, deletedAt: null } },
+            select: {
+                isPrimary: true, assignedAt: true,
+                staff: { select: { id: true, employeeId: true, firstName: true, lastName: true, category: true, designation: true } },
+            },
+            orderBy: [{ isPrimary: "desc" }, { assignedAt: "asc" }],
         });
         return rows.map(r => ({
-            membershipId: r.membership.id, userId: r.membership.userId, persona: r.membership.persona,
-            staffId: r.membership.persona === "STAFF" ? r.membership.personaEntityId : null, assignedAt: r.assignedAt,
+            staffId: r.staff.id, employeeId: r.staff.employeeId, name: `${r.staff.firstName} ${r.staff.lastName}`,
+            category: r.staff.category, designation: r.staff.designation, isPrimary: r.isPrimary, assignedAt: r.assignedAt,
         }));
     }
 }

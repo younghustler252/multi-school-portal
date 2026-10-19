@@ -44,6 +44,11 @@ export class RefreshTokenRepositoryImpl implements IRefreshTokenRepository {
         });
     }
 
+    // Ends every session of ONE membership (one school), leaving the person's sessions in other schools alone
+    async revokeForMembership(membershipId: string): Promise<void> {
+        await this.prisma.refreshToken.updateMany({ where: { membershipId, revokedAt: null }, data: { revokedAt: new Date() } });
+    }
+
     // One active row per live session (rotation revokes the previous one)
     async listActiveForUser(userId: string): Promise<RefreshTokenEntity[]> {
         return (await this.prisma.refreshToken.findMany({

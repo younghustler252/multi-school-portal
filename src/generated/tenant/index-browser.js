@@ -124,18 +124,30 @@ exports.Prisma.StaffScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   employeeId: 'employeeId',
-  department: 'department',
-  designation: 'designation',
-  qualification: 'qualification',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  middleName: 'middleName',
+  email: 'email',
+  phone: 'phone',
+  photoUrl: 'photoUrl',
   gender: 'gender',
   dateOfBirth: 'dateOfBirth',
   address: 'address',
-  joinDate: 'joinDate',
-  role: 'role',
+  department: 'department',
+  designation: 'designation',
+  qualification: 'qualification',
   category: 'category',
+  employmentType: 'employmentType',
+  joinDate: 'joinDate',
+  exitDate: 'exitDate',
+  exitReason: 'exitReason',
+  role: 'role',
   isActive: 'isActive',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt'
 };
 
 exports.Prisma.StudentScalarFieldEnum = {
@@ -450,9 +462,10 @@ exports.Prisma.BranchScalarFieldEnum = {
   deletedAt: 'deletedAt'
 };
 
-exports.Prisma.MembershipBranchScalarFieldEnum = {
-  membershipId: 'membershipId',
+exports.Prisma.StaffBranchScalarFieldEnum = {
+  staffId: 'staffId',
   branchId: 'branchId',
+  isPrimary: 'isPrimary',
   assignedAt: 'assignedAt',
   assignedById: 'assignedById'
 };
@@ -602,17 +615,24 @@ exports.Gender = exports.$Enums.Gender = {
   female: 'female'
 };
 
+exports.StaffCategory = exports.$Enums.StaffCategory = {
+  teaching: 'teaching',
+  non_teaching: 'non_teaching'
+};
+
+exports.EmploymentType = exports.$Enums.EmploymentType = {
+  full_time: 'full_time',
+  part_time: 'part_time',
+  contract: 'contract',
+  volunteer: 'volunteer'
+};
+
 exports.StaffRole = exports.$Enums.StaffRole = {
   school_admin: 'school_admin',
   principal: 'principal',
   teacher: 'teacher',
   bursar: 'bursar',
   other: 'other'
-};
-
-exports.StaffCategory = exports.$Enums.StaffCategory = {
-  teaching: 'teaching',
-  non_teaching: 'non_teaching'
 };
 
 exports.GuardianRelation = exports.$Enums.GuardianRelation = {
@@ -803,7 +823,7 @@ exports.Prisma.ModelName = {
   Membership: 'Membership',
   MembershipRole: 'MembershipRole',
   Branch: 'Branch',
-  MembershipBranch: 'MembershipBranch',
+  StaffBranch: 'StaffBranch',
   SchoolSettingValue: 'SchoolSettingValue',
   AutomationRule: 'AutomationRule',
   AutomationRunLog: 'AutomationRunLog',

@@ -102,7 +102,6 @@ export interface MembershipRow {
             permissions: Array<{ permissionKey: string; scope: Scope }>;
         };
     }>;
-    branches: Array<{ branchId: string }>;
 }
 
 export interface PlatformMemberRow {
@@ -118,6 +117,7 @@ export interface PlatformMemberRow {
 export interface AccessDb {
     tenant(): {
         membership: { findUnique(args: { where: { id: string }; include: Record<string, unknown> }): Promise<MembershipRow | null> };
+        staffBranch: { findMany(args: { where: { staffId: string }; select: { branchId: true } }): Promise<Array<{ branchId: string }>> };
     };
     platform: {
         platformMember: { findUnique(args: { where: { id: string }; include: Record<string, unknown> }): Promise<PlatformMemberRow | null> };
@@ -166,7 +166,7 @@ export class AccessService {
     private async loadSchool(membershipId: string): Promise<Access> {
         const m = await this.db.tenant().membership.findUnique({
             where:   { id: membershipId },
-            include: { roles: { include: { role: { include: { permissions: true } } } }, branches: true },
+            include: { roles: { include: { role: { include: { permissions: true } } } } },
         });
         if (!m) throw new UnauthorizedError("Session is no longer valid", "SESSION_INVALID");
         if (m.status !== "active") throw new ForbiddenError("Your account is not active in this school.", "MEMBERSHIP_INACTIVE");
@@ -185,7 +185,12 @@ export class AccessService {
             }
         }
 
-        const branchIds = new Set((m.branches ?? []).map(b => b.branchId));
+        // Where this person works comes from their STAFF record (one table answers both "where do they work"
+        // and "where may their BRANCH-scoped roles act"). Students and guardians have no branches.
+        const placed = m.persona === "STAFF"
+            ? await this.db.tenant().staffBranch.findMany({ where: { staffId: m.personaEntityId }, select: { branchId: true } })
+            : [];
+        const branchIds = new Set(placed.map(b => b.branchId));
         return new Access("school", m.userId, m.id, m.persona, m.personaEntityId, roleKeys, grantsAll, permissions, branchIds);
     }
 

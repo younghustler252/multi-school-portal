@@ -3,6 +3,9 @@ export interface AuditLogEntity {
     userId:    string | null;
     schoolId:  string | null;
     actorType: string;
+    actorMembershipId: string | null;
+    module:    string | null;
+    requestId: string | null;
     action:    string;
     entity:    string;
     entityId:  string | null;
@@ -19,6 +22,9 @@ export interface EnrichedAuditLogEntry {
     actorType:  string;
     actorId:    string | null;
     actorName:  string;       // resolved display name, or a system label
+    impersonatedByName: string | null;   // set when a platform person was acting as this user
+    module:     string | null;
+    requestId:  string | null;
     action:     string;
     entity:     string;
     entityId:   string | null;

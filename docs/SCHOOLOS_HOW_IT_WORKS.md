@@ -28,7 +28,8 @@ Every module is explained with the same five questions:
 
 ## 1. The big picture: what happens to one request
 
-**In plain words.** When someone clicks a button in the app, the browser sends a request. The server asks, in order: *Which school is this?* → *Who are you?* → *Are you allowed?* → *Does the school's plan include this?* → *Is the data well-formed?* → then it does the work and answers. If any question fails, it stops and returns an error with a **code**, so the frontend (and you) know exactly which question failed.
+**In plain words.** When someone clicks a button in the app, the browser sends a request. The server asks, in order: *Which school is this?* → *Who are you?* → *Are you allowed?* → *Does the 
+school's plan include this?* → *Is the data well-formed?* → then it does the work and answers. If any question fails, it stops and returns an error with a **code**, so the frontend (and you) know exactly which question failed.
 
 **Under the hood.** The path for a school request, in order:
 

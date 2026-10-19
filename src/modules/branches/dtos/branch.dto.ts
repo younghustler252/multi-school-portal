@@ -28,11 +28,5 @@ export const UpdateBranchDto = z.object({
     principalStaffId: id.nullable().optional(),
 }).strict().refine(d => Object.keys(d).length > 0, { message: "Nothing to update" });
 
-// Replaces the full set of branches a staff member works in
-export const AssignBranchesDto = z.object({
-    branchIds: z.array(id).min(1).max(50),
-}).strict();
-
 export type CreateBranchDtoType   = z.infer<typeof CreateBranchDto>;
 export type UpdateBranchDtoType   = z.infer<typeof UpdateBranchDto>;
-export type AssignBranchesDtoType = z.infer<typeof AssignBranchesDto>;

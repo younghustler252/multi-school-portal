@@ -6,6 +6,8 @@ export interface AuditLogResponseData {
     userId:    string | null;
     schoolId:  string | null;
     actorType: string;
+    module:    string | null;
+    requestId: string | null;
     action:    string;
     entity:    string;
     entityId:  string | null;
@@ -24,6 +26,9 @@ export class AuditMapper implements IMapper<any, AuditLogEntity> {
             userId:    raw.userId    ?? null,
             schoolId:  raw.schoolId  ?? null,
             actorType: raw.actorType,
+            actorMembershipId: raw.actorMembershipId ?? null,
+            module:    raw.module    ?? null,
+            requestId: raw.requestId ?? null,
             action:    raw.action,
             entity:    raw.entity,
             entityId:  raw.entityId  ?? null,
@@ -42,6 +47,8 @@ export class AuditMapper implements IMapper<any, AuditLogEntity> {
             userId:    entity.userId,
             schoolId:  entity.schoolId,
             actorType: entity.actorType,
+            module:    entity.module,
+            requestId: entity.requestId,
             action:    entity.action,
             entity:    entity.entity,
             entityId:  entity.entityId,

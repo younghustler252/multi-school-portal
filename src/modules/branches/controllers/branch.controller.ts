@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { ListBranchesUseCase, GetMyBranchesUseCase, GetBranchUseCase, ListBranchMembersUseCase } from "../usecases/branch-queries.usecases";
 import { CreateBranchUseCase, UpdateBranchUseCase, SetBranchActiveUseCase, DeleteBranchUseCase } from "../usecases/branch-commands.usecases";
-import { AssignBranchesUseCase } from "../usecases/assign-branches.usecase";
 import { sendSuccess, sendCreated } from "../../../shared/utils/api-response";
 import { getAccess } from "../../../infrastructure/middleware/rbac.middleware";
 import { branchErrors } from "../domain/branch.errors";
@@ -9,7 +8,7 @@ import { branchErrors } from "../domain/branch.errors";
 interface Dependencies {
     listBranchesUseCase: ListBranchesUseCase; getMyBranchesUseCase: GetMyBranchesUseCase; getBranchUseCase: GetBranchUseCase;
     listBranchMembersUseCase: ListBranchMembersUseCase; createBranchUseCase: CreateBranchUseCase; updateBranchUseCase: UpdateBranchUseCase;
-    setBranchActiveUseCase: SetBranchActiveUseCase; deleteBranchUseCase: DeleteBranchUseCase; assignBranchesUseCase: AssignBranchesUseCase;
+    setBranchActiveUseCase: SetBranchActiveUseCase; deleteBranchUseCase: DeleteBranchUseCase;
 }
 
 // The school is the one the host resolved to; the person is req.auth. Nothing comes from the body.
@@ -29,5 +28,4 @@ export class BranchController {
     deactivate = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.setBranchActiveUseCase.execute(idOf(req), schoolIdOf(req), userIdOf(req), false), "Branch deactivated"); } catch (e) { next(e); } };
     reactivate = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.setBranchActiveUseCase.execute(idOf(req), schoolIdOf(req), userIdOf(req), true), "Branch reactivated"); } catch (e) { next(e); } };
     remove = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.deleteBranchUseCase.execute(idOf(req), schoolIdOf(req), userIdOf(req)), "Branch deleted"); } catch (e) { next(e); } };
-    assign = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.assignBranchesUseCase.execute(String(req.params.membershipId), schoolIdOf(req), userIdOf(req), req.body), "Branch assignments updated"); } catch (e) { next(e); } };
 }

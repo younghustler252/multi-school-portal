@@ -5,10 +5,9 @@ import { BranchRepositoryImpl } from "./repositories/branch.repository.impl";
 import { BranchUsageService } from "./services/branch-usage.service";
 import { ListBranchesUseCase, GetMyBranchesUseCase, GetBranchUseCase, ListBranchMembersUseCase } from "./usecases/branch-queries.usecases";
 import { CreateBranchUseCase, UpdateBranchUseCase, SetBranchActiveUseCase, DeleteBranchUseCase } from "./usecases/branch-commands.usecases";
-import { AssignBranchesUseCase } from "./usecases/assign-branches.usecase";
 import { BranchController } from "./controllers/branch.controller";
 
-/* Requires: audit module and accessService (registerFoundation). */
+/* Requires: the audit module. */
 export const registerBranches = (container: AwilixContainer): void => {
     container.register({
         branchMapper:        asClass(BranchMapper).singleton(),
@@ -23,7 +22,6 @@ export const registerBranches = (container: AwilixContainer): void => {
         updateBranchUseCase:      asClass(UpdateBranchUseCase).scoped(),
         setBranchActiveUseCase:   asClass(SetBranchActiveUseCase).scoped(),
         deleteBranchUseCase:      asClass(DeleteBranchUseCase).scoped(),
-        assignBranchesUseCase:    asClass(AssignBranchesUseCase).scoped(),
 
         branchController:    asClass(BranchController).scoped(),
     });

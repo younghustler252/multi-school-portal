@@ -2,8 +2,7 @@ import * as Sentry from "@sentry/node";
 import { Worker } from "bullmq";
 import { redisConnection } from "../connection";
 import { container } from "../../../container";
-import { BillingLifecycleService } from "../../../../billing-module-v1 (1)/modules/subscriptions/services/billing-lifecycle.service";
-
+import { BillingLifecycleService } from "../../../modules/subscriptions/services/billing-lifecycle.service";
 export const billingWorker = new Worker(
     "billing",
     async () => {

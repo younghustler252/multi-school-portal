@@ -1,21 +1,14 @@
-import { Router }           from "express";
-import { container }        from "../../../container";
-import { AuditController }  from "../controllers/audit.controller";
-import { validate }         from "../../../infrastructure/middleware/validate.middleware";
-import { authenticate }     from "../../../infrastructure/middleware/auth.middleware";
-import { requireSuperAdmin } from "../../../infrastructure/middleware/rbac.middleware";
-import { ListAuditLogsDto } from "../dtos/audit.dto";
+import { Router } from "express";
+import { container } from "../../../container";
+import { AuditController } from "../controllers/audit.controller";
+import { authenticate } from "../../../infrastructure/middleware/auth.middleware";
+import { requireTenant } from "../../../infrastructure/middleware/tenant-resolver.middleware";
+import { requirePermission } from "../../../infrastructure/middleware/rbac.middleware";
 
+/* SCHOOL AUDIT ROUTES: mounted at /audit on the school's host. Shows only that school's own activity. */
 const router = Router();
 const ctrl   = () => container.resolve<AuditController>("auditController");
 
-// ── Super admin views all audit logs ──────────────────────────────────────
-router.get(
-    "/",
-    authenticate,
-    requireSuperAdmin,
-    validate(ListAuditLogsDto, "query"),
-    (req, res, next) => ctrl().getAuditLogs(req, res, next),
-);
+router.get("/", authenticate, requireTenant, requirePermission("audit.view"), (q, s, n) => ctrl().listSchool(q, s, n));
 
 export default router;
