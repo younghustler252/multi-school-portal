@@ -11,6 +11,7 @@ import { TenantContext } from "../../database/prisma/tenant.context";
 import { env } from "../../../config/env";
 import { MembershipService } from "../../../modules/auth/services/membership.service";
 import { UrlService } from "../../../shared/services/url.service";
+import { loadLedgerAccountTemplates, seedFinanceBooks } from "../../../modules/ledger/ledger.provisioning";
 
 
 function getDefaultClasses(category?: string | null): Array<{ name: string; level: string }> {
@@ -196,6 +197,11 @@ export const provisionSchemaWorker = new Worker<ProvisionSchemaJobData>(
 						 VALUES (gen_random_uuid(), 'Main Campus', 'MAIN', true, true, now(), now())`,
 					);
 					console.log(`✅ Main branch created: ${schemaName}`);
+
+					// Books: chart of accounts (copied from the platform templates) and this fiscal year's months
+					const ledgerTemplates = await loadLedgerAccountTemplates(prisma as any);
+					const books = await seedFinanceBooks(client, ledgerTemplates);
+					console.log(`✅ Finance books seeded (${books.accounts} accounts, ${books.periods} periods): ${schemaName}`);
 
 					// ── School roles: copied from the platform's role templates ──
 					// Templates are data the platform team edits; each school gets its own copy

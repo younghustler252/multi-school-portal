@@ -6,6 +6,7 @@ import { syncPermissions } from "./sync-permissions";
 import { syncRoleTemplates } from "./sync-role-templates";
 import { syncAuthTemplates } from "../modules/auth/auth.templates";
 import { syncDefaultPlans } from "../modules/plans/plans.seed";
+import { syncLedgerAccountTemplates, LedgerTemplateDb } from "../modules/ledger/ledger.templates";
 
 /*
 |--------------------------------------------------------------------------
@@ -17,6 +18,7 @@ import { syncDefaultPlans } from "../modules/plans/plans.seed";
 |   3. role templates        (reference permission keys)
 |   4. message templates     (auth emails; each module adds its own templates here as it is built)
 |   5. default plans         (created once, never overwritten; needs the feature definitions from step 1)
+|   6. ledger account templates (chart of accounts for new schools; system accounts enforced, editable ones created once)
 | Settings and automation rules join this list in their own passes.
 | Exits with code 1 on any conflict, so a deploy pipeline stops instead of continuing silently.
 |--------------------------------------------------------------------------
@@ -50,6 +52,10 @@ async function main(): Promise<void> {
 
     const plans = await syncDefaultPlans(prisma);
     console.log("plans:", JSON.stringify(plans, null, 2));
+
+    const ledger = await syncLedgerAccountTemplates(prisma as unknown as LedgerTemplateDb);
+    console.log("ledgerAccountTemplates:", JSON.stringify(ledger, null, 2));
+    if (ledger.conflicts.length) failed = true;
 
     if (failed) process.exitCode = 1;
 }
