@@ -188,6 +188,26 @@ export type SchoolNotification = $Result.DefaultSelection<Prisma.$SchoolNotifica
  * 
  */
 export type SchoolNotificationRecipient = $Result.DefaultSelection<Prisma.$SchoolNotificationRecipientPayload>
+/**
+ * Model LedgerAccount
+ * 
+ */
+export type LedgerAccount = $Result.DefaultSelection<Prisma.$LedgerAccountPayload>
+/**
+ * Model FinancePeriod
+ * 
+ */
+export type FinancePeriod = $Result.DefaultSelection<Prisma.$FinancePeriodPayload>
+/**
+ * Model JournalEntry
+ * 
+ */
+export type JournalEntry = $Result.DefaultSelection<Prisma.$JournalEntryPayload>
+/**
+ * Model JournalLine
+ * 
+ */
+export type JournalLine = $Result.DefaultSelection<Prisma.$JournalLinePayload>
 
 /**
  * Enums
@@ -456,6 +476,62 @@ export const TargetType: {
 
 export type TargetType = (typeof TargetType)[keyof typeof TargetType]
 
+
+export const LedgerAccountType: {
+  ASSET: 'ASSET',
+  LIABILITY: 'LIABILITY',
+  EQUITY: 'EQUITY',
+  INCOME: 'INCOME',
+  EXPENSE: 'EXPENSE'
+};
+
+export type LedgerAccountType = (typeof LedgerAccountType)[keyof typeof LedgerAccountType]
+
+
+export const JournalStatus: {
+  POSTED: 'POSTED',
+  REVERSED: 'REVERSED'
+};
+
+export type JournalStatus = (typeof JournalStatus)[keyof typeof JournalStatus]
+
+
+export const PeriodStatus: {
+  OPEN: 'OPEN',
+  CLOSED: 'CLOSED'
+};
+
+export type PeriodStatus = (typeof PeriodStatus)[keyof typeof PeriodStatus]
+
+
+export const JournalSourceType: {
+  FEE_INVOICE: 'FEE_INVOICE',
+  PAYMENT: 'PAYMENT',
+  REFUND: 'REFUND',
+  ADJUSTMENT: 'ADJUSTMENT',
+  EXPENSE_BILL: 'EXPENSE_BILL',
+  EXPENSE_PAYMENT: 'EXPENSE_PAYMENT',
+  PAYROLL_ACCRUAL: 'PAYROLL_ACCRUAL',
+  PAYROLL_PAYMENT: 'PAYROLL_PAYMENT',
+  PAYROLL_REMITTANCE: 'PAYROLL_REMITTANCE',
+  TRANSFER: 'TRANSFER',
+  OPENING_BALANCE: 'OPENING_BALANCE',
+  MANUAL: 'MANUAL',
+  REVERSAL: 'REVERSAL'
+};
+
+export type JournalSourceType = (typeof JournalSourceType)[keyof typeof JournalSourceType]
+
+
+export const LedgerPartyType: {
+  STUDENT: 'STUDENT',
+  GUARDIAN: 'GUARDIAN',
+  VENDOR: 'VENDOR',
+  STAFF: 'STAFF'
+};
+
+export type LedgerPartyType = (typeof LedgerPartyType)[keyof typeof LedgerPartyType]
+
 }
 
 export type Persona = $Enums.Persona
@@ -561,6 +637,26 @@ export const NotificationPriority: typeof $Enums.NotificationPriority
 export type TargetType = $Enums.TargetType
 
 export const TargetType: typeof $Enums.TargetType
+
+export type LedgerAccountType = $Enums.LedgerAccountType
+
+export const LedgerAccountType: typeof $Enums.LedgerAccountType
+
+export type JournalStatus = $Enums.JournalStatus
+
+export const JournalStatus: typeof $Enums.JournalStatus
+
+export type PeriodStatus = $Enums.PeriodStatus
+
+export const PeriodStatus: typeof $Enums.PeriodStatus
+
+export type JournalSourceType = $Enums.JournalSourceType
+
+export const JournalSourceType: typeof $Enums.JournalSourceType
+
+export type LedgerPartyType = $Enums.LedgerPartyType
+
+export const LedgerPartyType: typeof $Enums.LedgerPartyType
 
 /**
  * ##  Prisma Client ʲˢ
@@ -1032,6 +1128,46 @@ export class PrismaClient<
     * ```
     */
   get schoolNotificationRecipient(): Prisma.SchoolNotificationRecipientDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.ledgerAccount`: Exposes CRUD operations for the **LedgerAccount** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more LedgerAccounts
+    * const ledgerAccounts = await prisma.ledgerAccount.findMany()
+    * ```
+    */
+  get ledgerAccount(): Prisma.LedgerAccountDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.financePeriod`: Exposes CRUD operations for the **FinancePeriod** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more FinancePeriods
+    * const financePeriods = await prisma.financePeriod.findMany()
+    * ```
+    */
+  get financePeriod(): Prisma.FinancePeriodDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.journalEntry`: Exposes CRUD operations for the **JournalEntry** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more JournalEntries
+    * const journalEntries = await prisma.journalEntry.findMany()
+    * ```
+    */
+  get journalEntry(): Prisma.JournalEntryDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.journalLine`: Exposes CRUD operations for the **JournalLine** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more JournalLines
+    * const journalLines = await prisma.journalLine.findMany()
+    * ```
+    */
+  get journalLine(): Prisma.JournalLineDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1513,7 +1649,11 @@ export namespace Prisma {
     NumberSequence: 'NumberSequence',
     Attachment: 'Attachment',
     SchoolNotification: 'SchoolNotification',
-    SchoolNotificationRecipient: 'SchoolNotificationRecipient'
+    SchoolNotificationRecipient: 'SchoolNotificationRecipient',
+    LedgerAccount: 'LedgerAccount',
+    FinancePeriod: 'FinancePeriod',
+    JournalEntry: 'JournalEntry',
+    JournalLine: 'JournalLine'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1529,7 +1669,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "staff" | "student" | "guardian" | "studentGuardian" | "calendarEvent" | "session" | "term" | "class" | "subject" | "classSubject" | "enrolment" | "classProgression" | "schoolSettings" | "attendance" | "grade" | "gradingConfig" | "reportCard" | "feeType" | "feeInvoice" | "feeInvoiceItem" | "payment" | "schoolRole" | "schoolRolePermission" | "membership" | "membershipRole" | "branch" | "staffBranch" | "schoolSettingValue" | "automationRule" | "automationRunLog" | "schoolMessageTemplate" | "numberSequence" | "attachment" | "schoolNotification" | "schoolNotificationRecipient"
+      modelProps: "staff" | "student" | "guardian" | "studentGuardian" | "calendarEvent" | "session" | "term" | "class" | "subject" | "classSubject" | "enrolment" | "classProgression" | "schoolSettings" | "attendance" | "grade" | "gradingConfig" | "reportCard" | "feeType" | "feeInvoice" | "feeInvoiceItem" | "payment" | "schoolRole" | "schoolRolePermission" | "membership" | "membershipRole" | "branch" | "staffBranch" | "schoolSettingValue" | "automationRule" | "automationRunLog" | "schoolMessageTemplate" | "numberSequence" | "attachment" | "schoolNotification" | "schoolNotificationRecipient" | "ledgerAccount" | "financePeriod" | "journalEntry" | "journalLine"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -4123,6 +4263,302 @@ export namespace Prisma {
           }
         }
       }
+      LedgerAccount: {
+        payload: Prisma.$LedgerAccountPayload<ExtArgs>
+        fields: Prisma.LedgerAccountFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.LedgerAccountFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LedgerAccountPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.LedgerAccountFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LedgerAccountPayload>
+          }
+          findFirst: {
+            args: Prisma.LedgerAccountFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LedgerAccountPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.LedgerAccountFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LedgerAccountPayload>
+          }
+          findMany: {
+            args: Prisma.LedgerAccountFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LedgerAccountPayload>[]
+          }
+          create: {
+            args: Prisma.LedgerAccountCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LedgerAccountPayload>
+          }
+          createMany: {
+            args: Prisma.LedgerAccountCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.LedgerAccountCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LedgerAccountPayload>[]
+          }
+          delete: {
+            args: Prisma.LedgerAccountDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LedgerAccountPayload>
+          }
+          update: {
+            args: Prisma.LedgerAccountUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LedgerAccountPayload>
+          }
+          deleteMany: {
+            args: Prisma.LedgerAccountDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.LedgerAccountUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.LedgerAccountUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LedgerAccountPayload>[]
+          }
+          upsert: {
+            args: Prisma.LedgerAccountUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LedgerAccountPayload>
+          }
+          aggregate: {
+            args: Prisma.LedgerAccountAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateLedgerAccount>
+          }
+          groupBy: {
+            args: Prisma.LedgerAccountGroupByArgs<ExtArgs>
+            result: $Utils.Optional<LedgerAccountGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.LedgerAccountCountArgs<ExtArgs>
+            result: $Utils.Optional<LedgerAccountCountAggregateOutputType> | number
+          }
+        }
+      }
+      FinancePeriod: {
+        payload: Prisma.$FinancePeriodPayload<ExtArgs>
+        fields: Prisma.FinancePeriodFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.FinancePeriodFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancePeriodPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.FinancePeriodFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancePeriodPayload>
+          }
+          findFirst: {
+            args: Prisma.FinancePeriodFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancePeriodPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.FinancePeriodFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancePeriodPayload>
+          }
+          findMany: {
+            args: Prisma.FinancePeriodFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancePeriodPayload>[]
+          }
+          create: {
+            args: Prisma.FinancePeriodCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancePeriodPayload>
+          }
+          createMany: {
+            args: Prisma.FinancePeriodCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.FinancePeriodCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancePeriodPayload>[]
+          }
+          delete: {
+            args: Prisma.FinancePeriodDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancePeriodPayload>
+          }
+          update: {
+            args: Prisma.FinancePeriodUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancePeriodPayload>
+          }
+          deleteMany: {
+            args: Prisma.FinancePeriodDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.FinancePeriodUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.FinancePeriodUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancePeriodPayload>[]
+          }
+          upsert: {
+            args: Prisma.FinancePeriodUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancePeriodPayload>
+          }
+          aggregate: {
+            args: Prisma.FinancePeriodAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateFinancePeriod>
+          }
+          groupBy: {
+            args: Prisma.FinancePeriodGroupByArgs<ExtArgs>
+            result: $Utils.Optional<FinancePeriodGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.FinancePeriodCountArgs<ExtArgs>
+            result: $Utils.Optional<FinancePeriodCountAggregateOutputType> | number
+          }
+        }
+      }
+      JournalEntry: {
+        payload: Prisma.$JournalEntryPayload<ExtArgs>
+        fields: Prisma.JournalEntryFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.JournalEntryFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JournalEntryPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.JournalEntryFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JournalEntryPayload>
+          }
+          findFirst: {
+            args: Prisma.JournalEntryFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JournalEntryPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.JournalEntryFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JournalEntryPayload>
+          }
+          findMany: {
+            args: Prisma.JournalEntryFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JournalEntryPayload>[]
+          }
+          create: {
+            args: Prisma.JournalEntryCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JournalEntryPayload>
+          }
+          createMany: {
+            args: Prisma.JournalEntryCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.JournalEntryCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JournalEntryPayload>[]
+          }
+          delete: {
+            args: Prisma.JournalEntryDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JournalEntryPayload>
+          }
+          update: {
+            args: Prisma.JournalEntryUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JournalEntryPayload>
+          }
+          deleteMany: {
+            args: Prisma.JournalEntryDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.JournalEntryUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.JournalEntryUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JournalEntryPayload>[]
+          }
+          upsert: {
+            args: Prisma.JournalEntryUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JournalEntryPayload>
+          }
+          aggregate: {
+            args: Prisma.JournalEntryAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateJournalEntry>
+          }
+          groupBy: {
+            args: Prisma.JournalEntryGroupByArgs<ExtArgs>
+            result: $Utils.Optional<JournalEntryGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.JournalEntryCountArgs<ExtArgs>
+            result: $Utils.Optional<JournalEntryCountAggregateOutputType> | number
+          }
+        }
+      }
+      JournalLine: {
+        payload: Prisma.$JournalLinePayload<ExtArgs>
+        fields: Prisma.JournalLineFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.JournalLineFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JournalLinePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.JournalLineFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JournalLinePayload>
+          }
+          findFirst: {
+            args: Prisma.JournalLineFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JournalLinePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.JournalLineFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JournalLinePayload>
+          }
+          findMany: {
+            args: Prisma.JournalLineFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JournalLinePayload>[]
+          }
+          create: {
+            args: Prisma.JournalLineCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JournalLinePayload>
+          }
+          createMany: {
+            args: Prisma.JournalLineCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.JournalLineCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JournalLinePayload>[]
+          }
+          delete: {
+            args: Prisma.JournalLineDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JournalLinePayload>
+          }
+          update: {
+            args: Prisma.JournalLineUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JournalLinePayload>
+          }
+          deleteMany: {
+            args: Prisma.JournalLineDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.JournalLineUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.JournalLineUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JournalLinePayload>[]
+          }
+          upsert: {
+            args: Prisma.JournalLineUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JournalLinePayload>
+          }
+          aggregate: {
+            args: Prisma.JournalLineAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateJournalLine>
+          }
+          groupBy: {
+            args: Prisma.JournalLineGroupByArgs<ExtArgs>
+            result: $Utils.Optional<JournalLineGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.JournalLineCountArgs<ExtArgs>
+            result: $Utils.Optional<JournalLineCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -4281,6 +4717,10 @@ export namespace Prisma {
     attachment?: AttachmentOmit
     schoolNotification?: SchoolNotificationOmit
     schoolNotificationRecipient?: SchoolNotificationRecipientOmit
+    ledgerAccount?: LedgerAccountOmit
+    financePeriod?: FinancePeriodOmit
+    journalEntry?: JournalEntryOmit
+    journalLine?: JournalLineOmit
   }
 
   /* Types for Logging */
@@ -4537,11 +4977,13 @@ export namespace Prisma {
   export type SessionCountOutputType = {
     terms: number
     calendarEvents: number
+    journalEntries: number
   }
 
   export type SessionCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     terms?: boolean | SessionCountOutputTypeCountTermsArgs
     calendarEvents?: boolean | SessionCountOutputTypeCountCalendarEventsArgs
+    journalEntries?: boolean | SessionCountOutputTypeCountJournalEntriesArgs
   }
 
   // Custom InputTypes
@@ -4569,6 +5011,13 @@ export namespace Prisma {
     where?: CalendarEventWhereInput
   }
 
+  /**
+   * SessionCountOutputType without action
+   */
+  export type SessionCountOutputTypeCountJournalEntriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: JournalEntryWhereInput
+  }
+
 
   /**
    * Count Type TermCountOutputType
@@ -4582,6 +5031,7 @@ export namespace Prisma {
     feeInvoices: number
     enrolments: number
     reportCards: number
+    journalEntries: number
   }
 
   export type TermCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4592,6 +5042,7 @@ export namespace Prisma {
     feeInvoices?: boolean | TermCountOutputTypeCountFeeInvoicesArgs
     enrolments?: boolean | TermCountOutputTypeCountEnrolmentsArgs
     reportCards?: boolean | TermCountOutputTypeCountReportCardsArgs
+    journalEntries?: boolean | TermCountOutputTypeCountJournalEntriesArgs
   }
 
   // Custom InputTypes
@@ -4652,6 +5103,13 @@ export namespace Prisma {
    */
   export type TermCountOutputTypeCountReportCardsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ReportCardWhereInput
+  }
+
+  /**
+   * TermCountOutputType without action
+   */
+  export type TermCountOutputTypeCountJournalEntriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: JournalEntryWhereInput
   }
 
 
@@ -4923,10 +5381,12 @@ export namespace Prisma {
 
   export type BranchCountOutputType = {
     staff: number
+    journalEntries: number
   }
 
   export type BranchCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     staff?: boolean | BranchCountOutputTypeCountStaffArgs
+    journalEntries?: boolean | BranchCountOutputTypeCountJournalEntriesArgs
   }
 
   // Custom InputTypes
@@ -4945,6 +5405,13 @@ export namespace Prisma {
    */
   export type BranchCountOutputTypeCountStaffArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: StaffBranchWhereInput
+  }
+
+  /**
+   * BranchCountOutputType without action
+   */
+  export type BranchCountOutputTypeCountJournalEntriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: JournalEntryWhereInput
   }
 
 
@@ -5007,6 +5474,108 @@ export namespace Prisma {
    */
   export type SchoolNotificationCountOutputTypeCountRecipientsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: SchoolNotificationRecipientWhereInput
+  }
+
+
+  /**
+   * Count Type LedgerAccountCountOutputType
+   */
+
+  export type LedgerAccountCountOutputType = {
+    children: number
+    lines: number
+  }
+
+  export type LedgerAccountCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    children?: boolean | LedgerAccountCountOutputTypeCountChildrenArgs
+    lines?: boolean | LedgerAccountCountOutputTypeCountLinesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * LedgerAccountCountOutputType without action
+   */
+  export type LedgerAccountCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerAccountCountOutputType
+     */
+    select?: LedgerAccountCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * LedgerAccountCountOutputType without action
+   */
+  export type LedgerAccountCountOutputTypeCountChildrenArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LedgerAccountWhereInput
+  }
+
+  /**
+   * LedgerAccountCountOutputType without action
+   */
+  export type LedgerAccountCountOutputTypeCountLinesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: JournalLineWhereInput
+  }
+
+
+  /**
+   * Count Type FinancePeriodCountOutputType
+   */
+
+  export type FinancePeriodCountOutputType = {
+    journals: number
+  }
+
+  export type FinancePeriodCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    journals?: boolean | FinancePeriodCountOutputTypeCountJournalsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * FinancePeriodCountOutputType without action
+   */
+  export type FinancePeriodCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancePeriodCountOutputType
+     */
+    select?: FinancePeriodCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * FinancePeriodCountOutputType without action
+   */
+  export type FinancePeriodCountOutputTypeCountJournalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: JournalEntryWhereInput
+  }
+
+
+  /**
+   * Count Type JournalEntryCountOutputType
+   */
+
+  export type JournalEntryCountOutputType = {
+    lines: number
+  }
+
+  export type JournalEntryCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    lines?: boolean | JournalEntryCountOutputTypeCountLinesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * JournalEntryCountOutputType without action
+   */
+  export type JournalEntryCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JournalEntryCountOutputType
+     */
+    select?: JournalEntryCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * JournalEntryCountOutputType without action
+   */
+  export type JournalEntryCountOutputTypeCountLinesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: JournalLineWhereInput
   }
 
 
@@ -11490,6 +12059,7 @@ export namespace Prisma {
     updatedAt?: boolean
     terms?: boolean | Session$termsArgs<ExtArgs>
     calendarEvents?: boolean | Session$calendarEventsArgs<ExtArgs>
+    journalEntries?: boolean | Session$journalEntriesArgs<ExtArgs>
     _count?: boolean | SessionCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["session"]>
 
@@ -11527,6 +12097,7 @@ export namespace Prisma {
   export type SessionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     terms?: boolean | Session$termsArgs<ExtArgs>
     calendarEvents?: boolean | Session$calendarEventsArgs<ExtArgs>
+    journalEntries?: boolean | Session$journalEntriesArgs<ExtArgs>
     _count?: boolean | SessionCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type SessionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -11537,6 +12108,7 @@ export namespace Prisma {
     objects: {
       terms: Prisma.$TermPayload<ExtArgs>[]
       calendarEvents: Prisma.$CalendarEventPayload<ExtArgs>[]
+      journalEntries: Prisma.$JournalEntryPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -11942,6 +12514,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     terms<T extends Session$termsArgs<ExtArgs> = {}>(args?: Subset<T, Session$termsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TermPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     calendarEvents<T extends Session$calendarEventsArgs<ExtArgs> = {}>(args?: Subset<T, Session$calendarEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CalendarEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    journalEntries<T extends Session$journalEntriesArgs<ExtArgs> = {}>(args?: Subset<T, Session$journalEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JournalEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -12419,6 +12992,30 @@ export namespace Prisma {
   }
 
   /**
+   * Session.journalEntries
+   */
+  export type Session$journalEntriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JournalEntry
+     */
+    select?: JournalEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JournalEntry
+     */
+    omit?: JournalEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JournalEntryInclude<ExtArgs> | null
+    where?: JournalEntryWhereInput
+    orderBy?: JournalEntryOrderByWithRelationInput | JournalEntryOrderByWithRelationInput[]
+    cursor?: JournalEntryWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: JournalEntryScalarFieldEnum | JournalEntryScalarFieldEnum[]
+  }
+
+  /**
    * Session without action
    */
   export type SessionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -12633,6 +13230,7 @@ export namespace Prisma {
     feeInvoices?: boolean | Term$feeInvoicesArgs<ExtArgs>
     enrolments?: boolean | Term$enrolmentsArgs<ExtArgs>
     reportCards?: boolean | Term$reportCardsArgs<ExtArgs>
+    journalEntries?: boolean | Term$journalEntriesArgs<ExtArgs>
     _count?: boolean | TermCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["term"]>
 
@@ -12681,6 +13279,7 @@ export namespace Prisma {
     feeInvoices?: boolean | Term$feeInvoicesArgs<ExtArgs>
     enrolments?: boolean | Term$enrolmentsArgs<ExtArgs>
     reportCards?: boolean | Term$reportCardsArgs<ExtArgs>
+    journalEntries?: boolean | Term$journalEntriesArgs<ExtArgs>
     _count?: boolean | TermCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type TermIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -12701,6 +13300,7 @@ export namespace Prisma {
       feeInvoices: Prisma.$FeeInvoicePayload<ExtArgs>[]
       enrolments: Prisma.$EnrolmentPayload<ExtArgs>[]
       reportCards: Prisma.$ReportCardPayload<ExtArgs>[]
+      journalEntries: Prisma.$JournalEntryPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -13113,6 +13713,7 @@ export namespace Prisma {
     feeInvoices<T extends Term$feeInvoicesArgs<ExtArgs> = {}>(args?: Subset<T, Term$feeInvoicesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeeInvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     enrolments<T extends Term$enrolmentsArgs<ExtArgs> = {}>(args?: Subset<T, Term$enrolmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EnrolmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     reportCards<T extends Term$reportCardsArgs<ExtArgs> = {}>(args?: Subset<T, Term$reportCardsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportCardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    journalEntries<T extends Term$journalEntriesArgs<ExtArgs> = {}>(args?: Subset<T, Term$journalEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JournalEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -13716,6 +14317,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ReportCardScalarFieldEnum | ReportCardScalarFieldEnum[]
+  }
+
+  /**
+   * Term.journalEntries
+   */
+  export type Term$journalEntriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JournalEntry
+     */
+    select?: JournalEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JournalEntry
+     */
+    omit?: JournalEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JournalEntryInclude<ExtArgs> | null
+    where?: JournalEntryWhereInput
+    orderBy?: JournalEntryOrderByWithRelationInput | JournalEntryOrderByWithRelationInput[]
+    cursor?: JournalEntryWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: JournalEntryScalarFieldEnum | JournalEntryScalarFieldEnum[]
   }
 
   /**
@@ -34726,6 +35351,7 @@ export namespace Prisma {
     updatedAt?: boolean
     deletedAt?: boolean
     staff?: boolean | Branch$staffArgs<ExtArgs>
+    journalEntries?: boolean | Branch$journalEntriesArgs<ExtArgs>
     _count?: boolean | BranchCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["branch"]>
 
@@ -34786,6 +35412,7 @@ export namespace Prisma {
   export type BranchOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "code" | "isMain" | "address" | "city" | "state" | "phone" | "email" | "principalStaffId" | "isActive" | "createdById" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["branch"]>
   export type BranchInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     staff?: boolean | Branch$staffArgs<ExtArgs>
+    journalEntries?: boolean | Branch$journalEntriesArgs<ExtArgs>
     _count?: boolean | BranchCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type BranchIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -34795,6 +35422,7 @@ export namespace Prisma {
     name: "Branch"
     objects: {
       staff: Prisma.$StaffBranchPayload<ExtArgs>[]
+      journalEntries: Prisma.$JournalEntryPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -35207,6 +35835,7 @@ export namespace Prisma {
   export interface Prisma__BranchClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     staff<T extends Branch$staffArgs<ExtArgs> = {}>(args?: Subset<T, Branch$staffArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StaffBranchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    journalEntries<T extends Branch$journalEntriesArgs<ExtArgs> = {}>(args?: Subset<T, Branch$journalEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JournalEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -35665,6 +36294,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: StaffBranchScalarFieldEnum | StaffBranchScalarFieldEnum[]
+  }
+
+  /**
+   * Branch.journalEntries
+   */
+  export type Branch$journalEntriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JournalEntry
+     */
+    select?: JournalEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JournalEntry
+     */
+    omit?: JournalEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JournalEntryInclude<ExtArgs> | null
+    where?: JournalEntryWhereInput
+    orderBy?: JournalEntryOrderByWithRelationInput | JournalEntryOrderByWithRelationInput[]
+    cursor?: JournalEntryWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: JournalEntryScalarFieldEnum | JournalEntryScalarFieldEnum[]
   }
 
   /**
@@ -45761,6 +46414,5159 @@ export namespace Prisma {
 
 
   /**
+   * Model LedgerAccount
+   */
+
+  export type AggregateLedgerAccount = {
+    _count: LedgerAccountCountAggregateOutputType | null
+    _avg: LedgerAccountAvgAggregateOutputType | null
+    _sum: LedgerAccountSumAggregateOutputType | null
+    _min: LedgerAccountMinAggregateOutputType | null
+    _max: LedgerAccountMaxAggregateOutputType | null
+  }
+
+  export type LedgerAccountAvgAggregateOutputType = {
+    sortOrder: number | null
+  }
+
+  export type LedgerAccountSumAggregateOutputType = {
+    sortOrder: number | null
+  }
+
+  export type LedgerAccountMinAggregateOutputType = {
+    id: string | null
+    code: string | null
+    name: string | null
+    type: $Enums.LedgerAccountType | null
+    subtype: string | null
+    systemKey: string | null
+    parentId: string | null
+    description: string | null
+    isMoneyAccount: boolean | null
+    bankName: string | null
+    accountName: string | null
+    accountNumberLast4: string | null
+    isActive: boolean | null
+    isLocked: boolean | null
+    sortOrder: number | null
+    createdById: string | null
+    updatedById: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    deletedAt: Date | null
+  }
+
+  export type LedgerAccountMaxAggregateOutputType = {
+    id: string | null
+    code: string | null
+    name: string | null
+    type: $Enums.LedgerAccountType | null
+    subtype: string | null
+    systemKey: string | null
+    parentId: string | null
+    description: string | null
+    isMoneyAccount: boolean | null
+    bankName: string | null
+    accountName: string | null
+    accountNumberLast4: string | null
+    isActive: boolean | null
+    isLocked: boolean | null
+    sortOrder: number | null
+    createdById: string | null
+    updatedById: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    deletedAt: Date | null
+  }
+
+  export type LedgerAccountCountAggregateOutputType = {
+    id: number
+    code: number
+    name: number
+    type: number
+    subtype: number
+    systemKey: number
+    parentId: number
+    description: number
+    isMoneyAccount: number
+    bankName: number
+    accountName: number
+    accountNumberLast4: number
+    isActive: number
+    isLocked: number
+    sortOrder: number
+    createdById: number
+    updatedById: number
+    createdAt: number
+    updatedAt: number
+    deletedAt: number
+    _all: number
+  }
+
+
+  export type LedgerAccountAvgAggregateInputType = {
+    sortOrder?: true
+  }
+
+  export type LedgerAccountSumAggregateInputType = {
+    sortOrder?: true
+  }
+
+  export type LedgerAccountMinAggregateInputType = {
+    id?: true
+    code?: true
+    name?: true
+    type?: true
+    subtype?: true
+    systemKey?: true
+    parentId?: true
+    description?: true
+    isMoneyAccount?: true
+    bankName?: true
+    accountName?: true
+    accountNumberLast4?: true
+    isActive?: true
+    isLocked?: true
+    sortOrder?: true
+    createdById?: true
+    updatedById?: true
+    createdAt?: true
+    updatedAt?: true
+    deletedAt?: true
+  }
+
+  export type LedgerAccountMaxAggregateInputType = {
+    id?: true
+    code?: true
+    name?: true
+    type?: true
+    subtype?: true
+    systemKey?: true
+    parentId?: true
+    description?: true
+    isMoneyAccount?: true
+    bankName?: true
+    accountName?: true
+    accountNumberLast4?: true
+    isActive?: true
+    isLocked?: true
+    sortOrder?: true
+    createdById?: true
+    updatedById?: true
+    createdAt?: true
+    updatedAt?: true
+    deletedAt?: true
+  }
+
+  export type LedgerAccountCountAggregateInputType = {
+    id?: true
+    code?: true
+    name?: true
+    type?: true
+    subtype?: true
+    systemKey?: true
+    parentId?: true
+    description?: true
+    isMoneyAccount?: true
+    bankName?: true
+    accountName?: true
+    accountNumberLast4?: true
+    isActive?: true
+    isLocked?: true
+    sortOrder?: true
+    createdById?: true
+    updatedById?: true
+    createdAt?: true
+    updatedAt?: true
+    deletedAt?: true
+    _all?: true
+  }
+
+  export type LedgerAccountAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LedgerAccount to aggregate.
+     */
+    where?: LedgerAccountWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LedgerAccounts to fetch.
+     */
+    orderBy?: LedgerAccountOrderByWithRelationInput | LedgerAccountOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: LedgerAccountWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LedgerAccounts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LedgerAccounts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned LedgerAccounts
+    **/
+    _count?: true | LedgerAccountCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: LedgerAccountAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: LedgerAccountSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: LedgerAccountMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: LedgerAccountMaxAggregateInputType
+  }
+
+  export type GetLedgerAccountAggregateType<T extends LedgerAccountAggregateArgs> = {
+        [P in keyof T & keyof AggregateLedgerAccount]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateLedgerAccount[P]>
+      : GetScalarType<T[P], AggregateLedgerAccount[P]>
+  }
+
+
+
+
+  export type LedgerAccountGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LedgerAccountWhereInput
+    orderBy?: LedgerAccountOrderByWithAggregationInput | LedgerAccountOrderByWithAggregationInput[]
+    by: LedgerAccountScalarFieldEnum[] | LedgerAccountScalarFieldEnum
+    having?: LedgerAccountScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: LedgerAccountCountAggregateInputType | true
+    _avg?: LedgerAccountAvgAggregateInputType
+    _sum?: LedgerAccountSumAggregateInputType
+    _min?: LedgerAccountMinAggregateInputType
+    _max?: LedgerAccountMaxAggregateInputType
+  }
+
+  export type LedgerAccountGroupByOutputType = {
+    id: string
+    code: string
+    name: string
+    type: $Enums.LedgerAccountType
+    subtype: string
+    systemKey: string | null
+    parentId: string | null
+    description: string | null
+    isMoneyAccount: boolean
+    bankName: string | null
+    accountName: string | null
+    accountNumberLast4: string | null
+    isActive: boolean
+    isLocked: boolean
+    sortOrder: number
+    createdById: string | null
+    updatedById: string | null
+    createdAt: Date
+    updatedAt: Date
+    deletedAt: Date | null
+    _count: LedgerAccountCountAggregateOutputType | null
+    _avg: LedgerAccountAvgAggregateOutputType | null
+    _sum: LedgerAccountSumAggregateOutputType | null
+    _min: LedgerAccountMinAggregateOutputType | null
+    _max: LedgerAccountMaxAggregateOutputType | null
+  }
+
+  type GetLedgerAccountGroupByPayload<T extends LedgerAccountGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<LedgerAccountGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof LedgerAccountGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], LedgerAccountGroupByOutputType[P]>
+            : GetScalarType<T[P], LedgerAccountGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type LedgerAccountSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    code?: boolean
+    name?: boolean
+    type?: boolean
+    subtype?: boolean
+    systemKey?: boolean
+    parentId?: boolean
+    description?: boolean
+    isMoneyAccount?: boolean
+    bankName?: boolean
+    accountName?: boolean
+    accountNumberLast4?: boolean
+    isActive?: boolean
+    isLocked?: boolean
+    sortOrder?: boolean
+    createdById?: boolean
+    updatedById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    deletedAt?: boolean
+    parent?: boolean | LedgerAccount$parentArgs<ExtArgs>
+    children?: boolean | LedgerAccount$childrenArgs<ExtArgs>
+    lines?: boolean | LedgerAccount$linesArgs<ExtArgs>
+    _count?: boolean | LedgerAccountCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["ledgerAccount"]>
+
+  export type LedgerAccountSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    code?: boolean
+    name?: boolean
+    type?: boolean
+    subtype?: boolean
+    systemKey?: boolean
+    parentId?: boolean
+    description?: boolean
+    isMoneyAccount?: boolean
+    bankName?: boolean
+    accountName?: boolean
+    accountNumberLast4?: boolean
+    isActive?: boolean
+    isLocked?: boolean
+    sortOrder?: boolean
+    createdById?: boolean
+    updatedById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    deletedAt?: boolean
+    parent?: boolean | LedgerAccount$parentArgs<ExtArgs>
+  }, ExtArgs["result"]["ledgerAccount"]>
+
+  export type LedgerAccountSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    code?: boolean
+    name?: boolean
+    type?: boolean
+    subtype?: boolean
+    systemKey?: boolean
+    parentId?: boolean
+    description?: boolean
+    isMoneyAccount?: boolean
+    bankName?: boolean
+    accountName?: boolean
+    accountNumberLast4?: boolean
+    isActive?: boolean
+    isLocked?: boolean
+    sortOrder?: boolean
+    createdById?: boolean
+    updatedById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    deletedAt?: boolean
+    parent?: boolean | LedgerAccount$parentArgs<ExtArgs>
+  }, ExtArgs["result"]["ledgerAccount"]>
+
+  export type LedgerAccountSelectScalar = {
+    id?: boolean
+    code?: boolean
+    name?: boolean
+    type?: boolean
+    subtype?: boolean
+    systemKey?: boolean
+    parentId?: boolean
+    description?: boolean
+    isMoneyAccount?: boolean
+    bankName?: boolean
+    accountName?: boolean
+    accountNumberLast4?: boolean
+    isActive?: boolean
+    isLocked?: boolean
+    sortOrder?: boolean
+    createdById?: boolean
+    updatedById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    deletedAt?: boolean
+  }
+
+  export type LedgerAccountOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "code" | "name" | "type" | "subtype" | "systemKey" | "parentId" | "description" | "isMoneyAccount" | "bankName" | "accountName" | "accountNumberLast4" | "isActive" | "isLocked" | "sortOrder" | "createdById" | "updatedById" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["ledgerAccount"]>
+  export type LedgerAccountInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    parent?: boolean | LedgerAccount$parentArgs<ExtArgs>
+    children?: boolean | LedgerAccount$childrenArgs<ExtArgs>
+    lines?: boolean | LedgerAccount$linesArgs<ExtArgs>
+    _count?: boolean | LedgerAccountCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type LedgerAccountIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    parent?: boolean | LedgerAccount$parentArgs<ExtArgs>
+  }
+  export type LedgerAccountIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    parent?: boolean | LedgerAccount$parentArgs<ExtArgs>
+  }
+
+  export type $LedgerAccountPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "LedgerAccount"
+    objects: {
+      parent: Prisma.$LedgerAccountPayload<ExtArgs> | null
+      children: Prisma.$LedgerAccountPayload<ExtArgs>[]
+      lines: Prisma.$JournalLinePayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      code: string
+      name: string
+      type: $Enums.LedgerAccountType
+      subtype: string
+      systemKey: string | null
+      parentId: string | null
+      description: string | null
+      isMoneyAccount: boolean
+      bankName: string | null
+      accountName: string | null
+      accountNumberLast4: string | null
+      isActive: boolean
+      isLocked: boolean
+      sortOrder: number
+      createdById: string | null
+      updatedById: string | null
+      createdAt: Date
+      updatedAt: Date
+      deletedAt: Date | null
+    }, ExtArgs["result"]["ledgerAccount"]>
+    composites: {}
+  }
+
+  type LedgerAccountGetPayload<S extends boolean | null | undefined | LedgerAccountDefaultArgs> = $Result.GetResult<Prisma.$LedgerAccountPayload, S>
+
+  type LedgerAccountCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<LedgerAccountFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: LedgerAccountCountAggregateInputType | true
+    }
+
+  export interface LedgerAccountDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['LedgerAccount'], meta: { name: 'LedgerAccount' } }
+    /**
+     * Find zero or one LedgerAccount that matches the filter.
+     * @param {LedgerAccountFindUniqueArgs} args - Arguments to find a LedgerAccount
+     * @example
+     * // Get one LedgerAccount
+     * const ledgerAccount = await prisma.ledgerAccount.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends LedgerAccountFindUniqueArgs>(args: SelectSubset<T, LedgerAccountFindUniqueArgs<ExtArgs>>): Prisma__LedgerAccountClient<$Result.GetResult<Prisma.$LedgerAccountPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one LedgerAccount that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {LedgerAccountFindUniqueOrThrowArgs} args - Arguments to find a LedgerAccount
+     * @example
+     * // Get one LedgerAccount
+     * const ledgerAccount = await prisma.ledgerAccount.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends LedgerAccountFindUniqueOrThrowArgs>(args: SelectSubset<T, LedgerAccountFindUniqueOrThrowArgs<ExtArgs>>): Prisma__LedgerAccountClient<$Result.GetResult<Prisma.$LedgerAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LedgerAccount that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LedgerAccountFindFirstArgs} args - Arguments to find a LedgerAccount
+     * @example
+     * // Get one LedgerAccount
+     * const ledgerAccount = await prisma.ledgerAccount.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends LedgerAccountFindFirstArgs>(args?: SelectSubset<T, LedgerAccountFindFirstArgs<ExtArgs>>): Prisma__LedgerAccountClient<$Result.GetResult<Prisma.$LedgerAccountPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LedgerAccount that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LedgerAccountFindFirstOrThrowArgs} args - Arguments to find a LedgerAccount
+     * @example
+     * // Get one LedgerAccount
+     * const ledgerAccount = await prisma.ledgerAccount.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends LedgerAccountFindFirstOrThrowArgs>(args?: SelectSubset<T, LedgerAccountFindFirstOrThrowArgs<ExtArgs>>): Prisma__LedgerAccountClient<$Result.GetResult<Prisma.$LedgerAccountPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more LedgerAccounts that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LedgerAccountFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all LedgerAccounts
+     * const ledgerAccounts = await prisma.ledgerAccount.findMany()
+     * 
+     * // Get first 10 LedgerAccounts
+     * const ledgerAccounts = await prisma.ledgerAccount.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const ledgerAccountWithIdOnly = await prisma.ledgerAccount.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends LedgerAccountFindManyArgs>(args?: SelectSubset<T, LedgerAccountFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LedgerAccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a LedgerAccount.
+     * @param {LedgerAccountCreateArgs} args - Arguments to create a LedgerAccount.
+     * @example
+     * // Create one LedgerAccount
+     * const LedgerAccount = await prisma.ledgerAccount.create({
+     *   data: {
+     *     // ... data to create a LedgerAccount
+     *   }
+     * })
+     * 
+     */
+    create<T extends LedgerAccountCreateArgs>(args: SelectSubset<T, LedgerAccountCreateArgs<ExtArgs>>): Prisma__LedgerAccountClient<$Result.GetResult<Prisma.$LedgerAccountPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many LedgerAccounts.
+     * @param {LedgerAccountCreateManyArgs} args - Arguments to create many LedgerAccounts.
+     * @example
+     * // Create many LedgerAccounts
+     * const ledgerAccount = await prisma.ledgerAccount.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends LedgerAccountCreateManyArgs>(args?: SelectSubset<T, LedgerAccountCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many LedgerAccounts and returns the data saved in the database.
+     * @param {LedgerAccountCreateManyAndReturnArgs} args - Arguments to create many LedgerAccounts.
+     * @example
+     * // Create many LedgerAccounts
+     * const ledgerAccount = await prisma.ledgerAccount.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many LedgerAccounts and only return the `id`
+     * const ledgerAccountWithIdOnly = await prisma.ledgerAccount.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends LedgerAccountCreateManyAndReturnArgs>(args?: SelectSubset<T, LedgerAccountCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LedgerAccountPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a LedgerAccount.
+     * @param {LedgerAccountDeleteArgs} args - Arguments to delete one LedgerAccount.
+     * @example
+     * // Delete one LedgerAccount
+     * const LedgerAccount = await prisma.ledgerAccount.delete({
+     *   where: {
+     *     // ... filter to delete one LedgerAccount
+     *   }
+     * })
+     * 
+     */
+    delete<T extends LedgerAccountDeleteArgs>(args: SelectSubset<T, LedgerAccountDeleteArgs<ExtArgs>>): Prisma__LedgerAccountClient<$Result.GetResult<Prisma.$LedgerAccountPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one LedgerAccount.
+     * @param {LedgerAccountUpdateArgs} args - Arguments to update one LedgerAccount.
+     * @example
+     * // Update one LedgerAccount
+     * const ledgerAccount = await prisma.ledgerAccount.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends LedgerAccountUpdateArgs>(args: SelectSubset<T, LedgerAccountUpdateArgs<ExtArgs>>): Prisma__LedgerAccountClient<$Result.GetResult<Prisma.$LedgerAccountPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more LedgerAccounts.
+     * @param {LedgerAccountDeleteManyArgs} args - Arguments to filter LedgerAccounts to delete.
+     * @example
+     * // Delete a few LedgerAccounts
+     * const { count } = await prisma.ledgerAccount.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends LedgerAccountDeleteManyArgs>(args?: SelectSubset<T, LedgerAccountDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LedgerAccounts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LedgerAccountUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many LedgerAccounts
+     * const ledgerAccount = await prisma.ledgerAccount.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends LedgerAccountUpdateManyArgs>(args: SelectSubset<T, LedgerAccountUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LedgerAccounts and returns the data updated in the database.
+     * @param {LedgerAccountUpdateManyAndReturnArgs} args - Arguments to update many LedgerAccounts.
+     * @example
+     * // Update many LedgerAccounts
+     * const ledgerAccount = await prisma.ledgerAccount.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more LedgerAccounts and only return the `id`
+     * const ledgerAccountWithIdOnly = await prisma.ledgerAccount.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends LedgerAccountUpdateManyAndReturnArgs>(args: SelectSubset<T, LedgerAccountUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LedgerAccountPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one LedgerAccount.
+     * @param {LedgerAccountUpsertArgs} args - Arguments to update or create a LedgerAccount.
+     * @example
+     * // Update or create a LedgerAccount
+     * const ledgerAccount = await prisma.ledgerAccount.upsert({
+     *   create: {
+     *     // ... data to create a LedgerAccount
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the LedgerAccount we want to update
+     *   }
+     * })
+     */
+    upsert<T extends LedgerAccountUpsertArgs>(args: SelectSubset<T, LedgerAccountUpsertArgs<ExtArgs>>): Prisma__LedgerAccountClient<$Result.GetResult<Prisma.$LedgerAccountPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of LedgerAccounts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LedgerAccountCountArgs} args - Arguments to filter LedgerAccounts to count.
+     * @example
+     * // Count the number of LedgerAccounts
+     * const count = await prisma.ledgerAccount.count({
+     *   where: {
+     *     // ... the filter for the LedgerAccounts we want to count
+     *   }
+     * })
+    **/
+    count<T extends LedgerAccountCountArgs>(
+      args?: Subset<T, LedgerAccountCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], LedgerAccountCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a LedgerAccount.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LedgerAccountAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends LedgerAccountAggregateArgs>(args: Subset<T, LedgerAccountAggregateArgs>): Prisma.PrismaPromise<GetLedgerAccountAggregateType<T>>
+
+    /**
+     * Group by LedgerAccount.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LedgerAccountGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends LedgerAccountGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: LedgerAccountGroupByArgs['orderBy'] }
+        : { orderBy?: LedgerAccountGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, LedgerAccountGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetLedgerAccountGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the LedgerAccount model
+   */
+  readonly fields: LedgerAccountFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for LedgerAccount.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__LedgerAccountClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    parent<T extends LedgerAccount$parentArgs<ExtArgs> = {}>(args?: Subset<T, LedgerAccount$parentArgs<ExtArgs>>): Prisma__LedgerAccountClient<$Result.GetResult<Prisma.$LedgerAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    children<T extends LedgerAccount$childrenArgs<ExtArgs> = {}>(args?: Subset<T, LedgerAccount$childrenArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LedgerAccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    lines<T extends LedgerAccount$linesArgs<ExtArgs> = {}>(args?: Subset<T, LedgerAccount$linesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JournalLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the LedgerAccount model
+   */
+  interface LedgerAccountFieldRefs {
+    readonly id: FieldRef<"LedgerAccount", 'String'>
+    readonly code: FieldRef<"LedgerAccount", 'String'>
+    readonly name: FieldRef<"LedgerAccount", 'String'>
+    readonly type: FieldRef<"LedgerAccount", 'LedgerAccountType'>
+    readonly subtype: FieldRef<"LedgerAccount", 'String'>
+    readonly systemKey: FieldRef<"LedgerAccount", 'String'>
+    readonly parentId: FieldRef<"LedgerAccount", 'String'>
+    readonly description: FieldRef<"LedgerAccount", 'String'>
+    readonly isMoneyAccount: FieldRef<"LedgerAccount", 'Boolean'>
+    readonly bankName: FieldRef<"LedgerAccount", 'String'>
+    readonly accountName: FieldRef<"LedgerAccount", 'String'>
+    readonly accountNumberLast4: FieldRef<"LedgerAccount", 'String'>
+    readonly isActive: FieldRef<"LedgerAccount", 'Boolean'>
+    readonly isLocked: FieldRef<"LedgerAccount", 'Boolean'>
+    readonly sortOrder: FieldRef<"LedgerAccount", 'Int'>
+    readonly createdById: FieldRef<"LedgerAccount", 'String'>
+    readonly updatedById: FieldRef<"LedgerAccount", 'String'>
+    readonly createdAt: FieldRef<"LedgerAccount", 'DateTime'>
+    readonly updatedAt: FieldRef<"LedgerAccount", 'DateTime'>
+    readonly deletedAt: FieldRef<"LedgerAccount", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * LedgerAccount findUnique
+   */
+  export type LedgerAccountFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerAccount
+     */
+    select?: LedgerAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerAccount
+     */
+    omit?: LedgerAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LedgerAccountInclude<ExtArgs> | null
+    /**
+     * Filter, which LedgerAccount to fetch.
+     */
+    where: LedgerAccountWhereUniqueInput
+  }
+
+  /**
+   * LedgerAccount findUniqueOrThrow
+   */
+  export type LedgerAccountFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerAccount
+     */
+    select?: LedgerAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerAccount
+     */
+    omit?: LedgerAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LedgerAccountInclude<ExtArgs> | null
+    /**
+     * Filter, which LedgerAccount to fetch.
+     */
+    where: LedgerAccountWhereUniqueInput
+  }
+
+  /**
+   * LedgerAccount findFirst
+   */
+  export type LedgerAccountFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerAccount
+     */
+    select?: LedgerAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerAccount
+     */
+    omit?: LedgerAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LedgerAccountInclude<ExtArgs> | null
+    /**
+     * Filter, which LedgerAccount to fetch.
+     */
+    where?: LedgerAccountWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LedgerAccounts to fetch.
+     */
+    orderBy?: LedgerAccountOrderByWithRelationInput | LedgerAccountOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LedgerAccounts.
+     */
+    cursor?: LedgerAccountWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LedgerAccounts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LedgerAccounts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LedgerAccounts.
+     */
+    distinct?: LedgerAccountScalarFieldEnum | LedgerAccountScalarFieldEnum[]
+  }
+
+  /**
+   * LedgerAccount findFirstOrThrow
+   */
+  export type LedgerAccountFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerAccount
+     */
+    select?: LedgerAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerAccount
+     */
+    omit?: LedgerAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LedgerAccountInclude<ExtArgs> | null
+    /**
+     * Filter, which LedgerAccount to fetch.
+     */
+    where?: LedgerAccountWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LedgerAccounts to fetch.
+     */
+    orderBy?: LedgerAccountOrderByWithRelationInput | LedgerAccountOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LedgerAccounts.
+     */
+    cursor?: LedgerAccountWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LedgerAccounts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LedgerAccounts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LedgerAccounts.
+     */
+    distinct?: LedgerAccountScalarFieldEnum | LedgerAccountScalarFieldEnum[]
+  }
+
+  /**
+   * LedgerAccount findMany
+   */
+  export type LedgerAccountFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerAccount
+     */
+    select?: LedgerAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerAccount
+     */
+    omit?: LedgerAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LedgerAccountInclude<ExtArgs> | null
+    /**
+     * Filter, which LedgerAccounts to fetch.
+     */
+    where?: LedgerAccountWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LedgerAccounts to fetch.
+     */
+    orderBy?: LedgerAccountOrderByWithRelationInput | LedgerAccountOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing LedgerAccounts.
+     */
+    cursor?: LedgerAccountWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LedgerAccounts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LedgerAccounts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LedgerAccounts.
+     */
+    distinct?: LedgerAccountScalarFieldEnum | LedgerAccountScalarFieldEnum[]
+  }
+
+  /**
+   * LedgerAccount create
+   */
+  export type LedgerAccountCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerAccount
+     */
+    select?: LedgerAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerAccount
+     */
+    omit?: LedgerAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LedgerAccountInclude<ExtArgs> | null
+    /**
+     * The data needed to create a LedgerAccount.
+     */
+    data: XOR<LedgerAccountCreateInput, LedgerAccountUncheckedCreateInput>
+  }
+
+  /**
+   * LedgerAccount createMany
+   */
+  export type LedgerAccountCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many LedgerAccounts.
+     */
+    data: LedgerAccountCreateManyInput | LedgerAccountCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * LedgerAccount createManyAndReturn
+   */
+  export type LedgerAccountCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerAccount
+     */
+    select?: LedgerAccountSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerAccount
+     */
+    omit?: LedgerAccountOmit<ExtArgs> | null
+    /**
+     * The data used to create many LedgerAccounts.
+     */
+    data: LedgerAccountCreateManyInput | LedgerAccountCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LedgerAccountIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * LedgerAccount update
+   */
+  export type LedgerAccountUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerAccount
+     */
+    select?: LedgerAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerAccount
+     */
+    omit?: LedgerAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LedgerAccountInclude<ExtArgs> | null
+    /**
+     * The data needed to update a LedgerAccount.
+     */
+    data: XOR<LedgerAccountUpdateInput, LedgerAccountUncheckedUpdateInput>
+    /**
+     * Choose, which LedgerAccount to update.
+     */
+    where: LedgerAccountWhereUniqueInput
+  }
+
+  /**
+   * LedgerAccount updateMany
+   */
+  export type LedgerAccountUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update LedgerAccounts.
+     */
+    data: XOR<LedgerAccountUpdateManyMutationInput, LedgerAccountUncheckedUpdateManyInput>
+    /**
+     * Filter which LedgerAccounts to update
+     */
+    where?: LedgerAccountWhereInput
+    /**
+     * Limit how many LedgerAccounts to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * LedgerAccount updateManyAndReturn
+   */
+  export type LedgerAccountUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerAccount
+     */
+    select?: LedgerAccountSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerAccount
+     */
+    omit?: LedgerAccountOmit<ExtArgs> | null
+    /**
+     * The data used to update LedgerAccounts.
+     */
+    data: XOR<LedgerAccountUpdateManyMutationInput, LedgerAccountUncheckedUpdateManyInput>
+    /**
+     * Filter which LedgerAccounts to update
+     */
+    where?: LedgerAccountWhereInput
+    /**
+     * Limit how many LedgerAccounts to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LedgerAccountIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * LedgerAccount upsert
+   */
+  export type LedgerAccountUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerAccount
+     */
+    select?: LedgerAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerAccount
+     */
+    omit?: LedgerAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LedgerAccountInclude<ExtArgs> | null
+    /**
+     * The filter to search for the LedgerAccount to update in case it exists.
+     */
+    where: LedgerAccountWhereUniqueInput
+    /**
+     * In case the LedgerAccount found by the `where` argument doesn't exist, create a new LedgerAccount with this data.
+     */
+    create: XOR<LedgerAccountCreateInput, LedgerAccountUncheckedCreateInput>
+    /**
+     * In case the LedgerAccount was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<LedgerAccountUpdateInput, LedgerAccountUncheckedUpdateInput>
+  }
+
+  /**
+   * LedgerAccount delete
+   */
+  export type LedgerAccountDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerAccount
+     */
+    select?: LedgerAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerAccount
+     */
+    omit?: LedgerAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LedgerAccountInclude<ExtArgs> | null
+    /**
+     * Filter which LedgerAccount to delete.
+     */
+    where: LedgerAccountWhereUniqueInput
+  }
+
+  /**
+   * LedgerAccount deleteMany
+   */
+  export type LedgerAccountDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LedgerAccounts to delete
+     */
+    where?: LedgerAccountWhereInput
+    /**
+     * Limit how many LedgerAccounts to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * LedgerAccount.parent
+   */
+  export type LedgerAccount$parentArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerAccount
+     */
+    select?: LedgerAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerAccount
+     */
+    omit?: LedgerAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LedgerAccountInclude<ExtArgs> | null
+    where?: LedgerAccountWhereInput
+  }
+
+  /**
+   * LedgerAccount.children
+   */
+  export type LedgerAccount$childrenArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerAccount
+     */
+    select?: LedgerAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerAccount
+     */
+    omit?: LedgerAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LedgerAccountInclude<ExtArgs> | null
+    where?: LedgerAccountWhereInput
+    orderBy?: LedgerAccountOrderByWithRelationInput | LedgerAccountOrderByWithRelationInput[]
+    cursor?: LedgerAccountWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: LedgerAccountScalarFieldEnum | LedgerAccountScalarFieldEnum[]
+  }
+
+  /**
+   * LedgerAccount.lines
+   */
+  export type LedgerAccount$linesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JournalLine
+     */
+    select?: JournalLineSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JournalLine
+     */
+    omit?: JournalLineOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JournalLineInclude<ExtArgs> | null
+    where?: JournalLineWhereInput
+    orderBy?: JournalLineOrderByWithRelationInput | JournalLineOrderByWithRelationInput[]
+    cursor?: JournalLineWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: JournalLineScalarFieldEnum | JournalLineScalarFieldEnum[]
+  }
+
+  /**
+   * LedgerAccount without action
+   */
+  export type LedgerAccountDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerAccount
+     */
+    select?: LedgerAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerAccount
+     */
+    omit?: LedgerAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LedgerAccountInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model FinancePeriod
+   */
+
+  export type AggregateFinancePeriod = {
+    _count: FinancePeriodCountAggregateOutputType | null
+    _min: FinancePeriodMinAggregateOutputType | null
+    _max: FinancePeriodMaxAggregateOutputType | null
+  }
+
+  export type FinancePeriodMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    startDate: Date | null
+    endDate: Date | null
+    status: $Enums.PeriodStatus | null
+    closedAt: Date | null
+    closedById: string | null
+    reopenedAt: Date | null
+    reopenedById: string | null
+    reopenReason: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type FinancePeriodMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    startDate: Date | null
+    endDate: Date | null
+    status: $Enums.PeriodStatus | null
+    closedAt: Date | null
+    closedById: string | null
+    reopenedAt: Date | null
+    reopenedById: string | null
+    reopenReason: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type FinancePeriodCountAggregateOutputType = {
+    id: number
+    name: number
+    startDate: number
+    endDate: number
+    status: number
+    closedAt: number
+    closedById: number
+    reopenedAt: number
+    reopenedById: number
+    reopenReason: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type FinancePeriodMinAggregateInputType = {
+    id?: true
+    name?: true
+    startDate?: true
+    endDate?: true
+    status?: true
+    closedAt?: true
+    closedById?: true
+    reopenedAt?: true
+    reopenedById?: true
+    reopenReason?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type FinancePeriodMaxAggregateInputType = {
+    id?: true
+    name?: true
+    startDate?: true
+    endDate?: true
+    status?: true
+    closedAt?: true
+    closedById?: true
+    reopenedAt?: true
+    reopenedById?: true
+    reopenReason?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type FinancePeriodCountAggregateInputType = {
+    id?: true
+    name?: true
+    startDate?: true
+    endDate?: true
+    status?: true
+    closedAt?: true
+    closedById?: true
+    reopenedAt?: true
+    reopenedById?: true
+    reopenReason?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type FinancePeriodAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which FinancePeriod to aggregate.
+     */
+    where?: FinancePeriodWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FinancePeriods to fetch.
+     */
+    orderBy?: FinancePeriodOrderByWithRelationInput | FinancePeriodOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: FinancePeriodWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FinancePeriods from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FinancePeriods.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned FinancePeriods
+    **/
+    _count?: true | FinancePeriodCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: FinancePeriodMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: FinancePeriodMaxAggregateInputType
+  }
+
+  export type GetFinancePeriodAggregateType<T extends FinancePeriodAggregateArgs> = {
+        [P in keyof T & keyof AggregateFinancePeriod]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateFinancePeriod[P]>
+      : GetScalarType<T[P], AggregateFinancePeriod[P]>
+  }
+
+
+
+
+  export type FinancePeriodGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FinancePeriodWhereInput
+    orderBy?: FinancePeriodOrderByWithAggregationInput | FinancePeriodOrderByWithAggregationInput[]
+    by: FinancePeriodScalarFieldEnum[] | FinancePeriodScalarFieldEnum
+    having?: FinancePeriodScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: FinancePeriodCountAggregateInputType | true
+    _min?: FinancePeriodMinAggregateInputType
+    _max?: FinancePeriodMaxAggregateInputType
+  }
+
+  export type FinancePeriodGroupByOutputType = {
+    id: string
+    name: string
+    startDate: Date
+    endDate: Date
+    status: $Enums.PeriodStatus
+    closedAt: Date | null
+    closedById: string | null
+    reopenedAt: Date | null
+    reopenedById: string | null
+    reopenReason: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: FinancePeriodCountAggregateOutputType | null
+    _min: FinancePeriodMinAggregateOutputType | null
+    _max: FinancePeriodMaxAggregateOutputType | null
+  }
+
+  type GetFinancePeriodGroupByPayload<T extends FinancePeriodGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<FinancePeriodGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof FinancePeriodGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], FinancePeriodGroupByOutputType[P]>
+            : GetScalarType<T[P], FinancePeriodGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type FinancePeriodSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    startDate?: boolean
+    endDate?: boolean
+    status?: boolean
+    closedAt?: boolean
+    closedById?: boolean
+    reopenedAt?: boolean
+    reopenedById?: boolean
+    reopenReason?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    journals?: boolean | FinancePeriod$journalsArgs<ExtArgs>
+    _count?: boolean | FinancePeriodCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["financePeriod"]>
+
+  export type FinancePeriodSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    startDate?: boolean
+    endDate?: boolean
+    status?: boolean
+    closedAt?: boolean
+    closedById?: boolean
+    reopenedAt?: boolean
+    reopenedById?: boolean
+    reopenReason?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["financePeriod"]>
+
+  export type FinancePeriodSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    startDate?: boolean
+    endDate?: boolean
+    status?: boolean
+    closedAt?: boolean
+    closedById?: boolean
+    reopenedAt?: boolean
+    reopenedById?: boolean
+    reopenReason?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["financePeriod"]>
+
+  export type FinancePeriodSelectScalar = {
+    id?: boolean
+    name?: boolean
+    startDate?: boolean
+    endDate?: boolean
+    status?: boolean
+    closedAt?: boolean
+    closedById?: boolean
+    reopenedAt?: boolean
+    reopenedById?: boolean
+    reopenReason?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type FinancePeriodOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "startDate" | "endDate" | "status" | "closedAt" | "closedById" | "reopenedAt" | "reopenedById" | "reopenReason" | "createdAt" | "updatedAt", ExtArgs["result"]["financePeriod"]>
+  export type FinancePeriodInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    journals?: boolean | FinancePeriod$journalsArgs<ExtArgs>
+    _count?: boolean | FinancePeriodCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type FinancePeriodIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type FinancePeriodIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $FinancePeriodPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "FinancePeriod"
+    objects: {
+      journals: Prisma.$JournalEntryPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      startDate: Date
+      endDate: Date
+      status: $Enums.PeriodStatus
+      closedAt: Date | null
+      closedById: string | null
+      reopenedAt: Date | null
+      reopenedById: string | null
+      reopenReason: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["financePeriod"]>
+    composites: {}
+  }
+
+  type FinancePeriodGetPayload<S extends boolean | null | undefined | FinancePeriodDefaultArgs> = $Result.GetResult<Prisma.$FinancePeriodPayload, S>
+
+  type FinancePeriodCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<FinancePeriodFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: FinancePeriodCountAggregateInputType | true
+    }
+
+  export interface FinancePeriodDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['FinancePeriod'], meta: { name: 'FinancePeriod' } }
+    /**
+     * Find zero or one FinancePeriod that matches the filter.
+     * @param {FinancePeriodFindUniqueArgs} args - Arguments to find a FinancePeriod
+     * @example
+     * // Get one FinancePeriod
+     * const financePeriod = await prisma.financePeriod.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends FinancePeriodFindUniqueArgs>(args: SelectSubset<T, FinancePeriodFindUniqueArgs<ExtArgs>>): Prisma__FinancePeriodClient<$Result.GetResult<Prisma.$FinancePeriodPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one FinancePeriod that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {FinancePeriodFindUniqueOrThrowArgs} args - Arguments to find a FinancePeriod
+     * @example
+     * // Get one FinancePeriod
+     * const financePeriod = await prisma.financePeriod.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends FinancePeriodFindUniqueOrThrowArgs>(args: SelectSubset<T, FinancePeriodFindUniqueOrThrowArgs<ExtArgs>>): Prisma__FinancePeriodClient<$Result.GetResult<Prisma.$FinancePeriodPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first FinancePeriod that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FinancePeriodFindFirstArgs} args - Arguments to find a FinancePeriod
+     * @example
+     * // Get one FinancePeriod
+     * const financePeriod = await prisma.financePeriod.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends FinancePeriodFindFirstArgs>(args?: SelectSubset<T, FinancePeriodFindFirstArgs<ExtArgs>>): Prisma__FinancePeriodClient<$Result.GetResult<Prisma.$FinancePeriodPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first FinancePeriod that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FinancePeriodFindFirstOrThrowArgs} args - Arguments to find a FinancePeriod
+     * @example
+     * // Get one FinancePeriod
+     * const financePeriod = await prisma.financePeriod.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends FinancePeriodFindFirstOrThrowArgs>(args?: SelectSubset<T, FinancePeriodFindFirstOrThrowArgs<ExtArgs>>): Prisma__FinancePeriodClient<$Result.GetResult<Prisma.$FinancePeriodPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more FinancePeriods that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FinancePeriodFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all FinancePeriods
+     * const financePeriods = await prisma.financePeriod.findMany()
+     * 
+     * // Get first 10 FinancePeriods
+     * const financePeriods = await prisma.financePeriod.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const financePeriodWithIdOnly = await prisma.financePeriod.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends FinancePeriodFindManyArgs>(args?: SelectSubset<T, FinancePeriodFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FinancePeriodPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a FinancePeriod.
+     * @param {FinancePeriodCreateArgs} args - Arguments to create a FinancePeriod.
+     * @example
+     * // Create one FinancePeriod
+     * const FinancePeriod = await prisma.financePeriod.create({
+     *   data: {
+     *     // ... data to create a FinancePeriod
+     *   }
+     * })
+     * 
+     */
+    create<T extends FinancePeriodCreateArgs>(args: SelectSubset<T, FinancePeriodCreateArgs<ExtArgs>>): Prisma__FinancePeriodClient<$Result.GetResult<Prisma.$FinancePeriodPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many FinancePeriods.
+     * @param {FinancePeriodCreateManyArgs} args - Arguments to create many FinancePeriods.
+     * @example
+     * // Create many FinancePeriods
+     * const financePeriod = await prisma.financePeriod.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends FinancePeriodCreateManyArgs>(args?: SelectSubset<T, FinancePeriodCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many FinancePeriods and returns the data saved in the database.
+     * @param {FinancePeriodCreateManyAndReturnArgs} args - Arguments to create many FinancePeriods.
+     * @example
+     * // Create many FinancePeriods
+     * const financePeriod = await prisma.financePeriod.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many FinancePeriods and only return the `id`
+     * const financePeriodWithIdOnly = await prisma.financePeriod.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends FinancePeriodCreateManyAndReturnArgs>(args?: SelectSubset<T, FinancePeriodCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FinancePeriodPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a FinancePeriod.
+     * @param {FinancePeriodDeleteArgs} args - Arguments to delete one FinancePeriod.
+     * @example
+     * // Delete one FinancePeriod
+     * const FinancePeriod = await prisma.financePeriod.delete({
+     *   where: {
+     *     // ... filter to delete one FinancePeriod
+     *   }
+     * })
+     * 
+     */
+    delete<T extends FinancePeriodDeleteArgs>(args: SelectSubset<T, FinancePeriodDeleteArgs<ExtArgs>>): Prisma__FinancePeriodClient<$Result.GetResult<Prisma.$FinancePeriodPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one FinancePeriod.
+     * @param {FinancePeriodUpdateArgs} args - Arguments to update one FinancePeriod.
+     * @example
+     * // Update one FinancePeriod
+     * const financePeriod = await prisma.financePeriod.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends FinancePeriodUpdateArgs>(args: SelectSubset<T, FinancePeriodUpdateArgs<ExtArgs>>): Prisma__FinancePeriodClient<$Result.GetResult<Prisma.$FinancePeriodPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more FinancePeriods.
+     * @param {FinancePeriodDeleteManyArgs} args - Arguments to filter FinancePeriods to delete.
+     * @example
+     * // Delete a few FinancePeriods
+     * const { count } = await prisma.financePeriod.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends FinancePeriodDeleteManyArgs>(args?: SelectSubset<T, FinancePeriodDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more FinancePeriods.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FinancePeriodUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many FinancePeriods
+     * const financePeriod = await prisma.financePeriod.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends FinancePeriodUpdateManyArgs>(args: SelectSubset<T, FinancePeriodUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more FinancePeriods and returns the data updated in the database.
+     * @param {FinancePeriodUpdateManyAndReturnArgs} args - Arguments to update many FinancePeriods.
+     * @example
+     * // Update many FinancePeriods
+     * const financePeriod = await prisma.financePeriod.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more FinancePeriods and only return the `id`
+     * const financePeriodWithIdOnly = await prisma.financePeriod.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends FinancePeriodUpdateManyAndReturnArgs>(args: SelectSubset<T, FinancePeriodUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FinancePeriodPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one FinancePeriod.
+     * @param {FinancePeriodUpsertArgs} args - Arguments to update or create a FinancePeriod.
+     * @example
+     * // Update or create a FinancePeriod
+     * const financePeriod = await prisma.financePeriod.upsert({
+     *   create: {
+     *     // ... data to create a FinancePeriod
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the FinancePeriod we want to update
+     *   }
+     * })
+     */
+    upsert<T extends FinancePeriodUpsertArgs>(args: SelectSubset<T, FinancePeriodUpsertArgs<ExtArgs>>): Prisma__FinancePeriodClient<$Result.GetResult<Prisma.$FinancePeriodPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of FinancePeriods.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FinancePeriodCountArgs} args - Arguments to filter FinancePeriods to count.
+     * @example
+     * // Count the number of FinancePeriods
+     * const count = await prisma.financePeriod.count({
+     *   where: {
+     *     // ... the filter for the FinancePeriods we want to count
+     *   }
+     * })
+    **/
+    count<T extends FinancePeriodCountArgs>(
+      args?: Subset<T, FinancePeriodCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], FinancePeriodCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a FinancePeriod.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FinancePeriodAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends FinancePeriodAggregateArgs>(args: Subset<T, FinancePeriodAggregateArgs>): Prisma.PrismaPromise<GetFinancePeriodAggregateType<T>>
+
+    /**
+     * Group by FinancePeriod.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FinancePeriodGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends FinancePeriodGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: FinancePeriodGroupByArgs['orderBy'] }
+        : { orderBy?: FinancePeriodGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, FinancePeriodGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFinancePeriodGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the FinancePeriod model
+   */
+  readonly fields: FinancePeriodFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for FinancePeriod.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__FinancePeriodClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    journals<T extends FinancePeriod$journalsArgs<ExtArgs> = {}>(args?: Subset<T, FinancePeriod$journalsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JournalEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the FinancePeriod model
+   */
+  interface FinancePeriodFieldRefs {
+    readonly id: FieldRef<"FinancePeriod", 'String'>
+    readonly name: FieldRef<"FinancePeriod", 'String'>
+    readonly startDate: FieldRef<"FinancePeriod", 'DateTime'>
+    readonly endDate: FieldRef<"FinancePeriod", 'DateTime'>
+    readonly status: FieldRef<"FinancePeriod", 'PeriodStatus'>
+    readonly closedAt: FieldRef<"FinancePeriod", 'DateTime'>
+    readonly closedById: FieldRef<"FinancePeriod", 'String'>
+    readonly reopenedAt: FieldRef<"FinancePeriod", 'DateTime'>
+    readonly reopenedById: FieldRef<"FinancePeriod", 'String'>
+    readonly reopenReason: FieldRef<"FinancePeriod", 'String'>
+    readonly createdAt: FieldRef<"FinancePeriod", 'DateTime'>
+    readonly updatedAt: FieldRef<"FinancePeriod", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * FinancePeriod findUnique
+   */
+  export type FinancePeriodFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancePeriod
+     */
+    select?: FinancePeriodSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancePeriod
+     */
+    omit?: FinancePeriodOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinancePeriodInclude<ExtArgs> | null
+    /**
+     * Filter, which FinancePeriod to fetch.
+     */
+    where: FinancePeriodWhereUniqueInput
+  }
+
+  /**
+   * FinancePeriod findUniqueOrThrow
+   */
+  export type FinancePeriodFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancePeriod
+     */
+    select?: FinancePeriodSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancePeriod
+     */
+    omit?: FinancePeriodOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinancePeriodInclude<ExtArgs> | null
+    /**
+     * Filter, which FinancePeriod to fetch.
+     */
+    where: FinancePeriodWhereUniqueInput
+  }
+
+  /**
+   * FinancePeriod findFirst
+   */
+  export type FinancePeriodFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancePeriod
+     */
+    select?: FinancePeriodSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancePeriod
+     */
+    omit?: FinancePeriodOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinancePeriodInclude<ExtArgs> | null
+    /**
+     * Filter, which FinancePeriod to fetch.
+     */
+    where?: FinancePeriodWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FinancePeriods to fetch.
+     */
+    orderBy?: FinancePeriodOrderByWithRelationInput | FinancePeriodOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for FinancePeriods.
+     */
+    cursor?: FinancePeriodWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FinancePeriods from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FinancePeriods.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FinancePeriods.
+     */
+    distinct?: FinancePeriodScalarFieldEnum | FinancePeriodScalarFieldEnum[]
+  }
+
+  /**
+   * FinancePeriod findFirstOrThrow
+   */
+  export type FinancePeriodFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancePeriod
+     */
+    select?: FinancePeriodSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancePeriod
+     */
+    omit?: FinancePeriodOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinancePeriodInclude<ExtArgs> | null
+    /**
+     * Filter, which FinancePeriod to fetch.
+     */
+    where?: FinancePeriodWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FinancePeriods to fetch.
+     */
+    orderBy?: FinancePeriodOrderByWithRelationInput | FinancePeriodOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for FinancePeriods.
+     */
+    cursor?: FinancePeriodWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FinancePeriods from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FinancePeriods.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FinancePeriods.
+     */
+    distinct?: FinancePeriodScalarFieldEnum | FinancePeriodScalarFieldEnum[]
+  }
+
+  /**
+   * FinancePeriod findMany
+   */
+  export type FinancePeriodFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancePeriod
+     */
+    select?: FinancePeriodSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancePeriod
+     */
+    omit?: FinancePeriodOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinancePeriodInclude<ExtArgs> | null
+    /**
+     * Filter, which FinancePeriods to fetch.
+     */
+    where?: FinancePeriodWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FinancePeriods to fetch.
+     */
+    orderBy?: FinancePeriodOrderByWithRelationInput | FinancePeriodOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing FinancePeriods.
+     */
+    cursor?: FinancePeriodWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FinancePeriods from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FinancePeriods.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FinancePeriods.
+     */
+    distinct?: FinancePeriodScalarFieldEnum | FinancePeriodScalarFieldEnum[]
+  }
+
+  /**
+   * FinancePeriod create
+   */
+  export type FinancePeriodCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancePeriod
+     */
+    select?: FinancePeriodSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancePeriod
+     */
+    omit?: FinancePeriodOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinancePeriodInclude<ExtArgs> | null
+    /**
+     * The data needed to create a FinancePeriod.
+     */
+    data: XOR<FinancePeriodCreateInput, FinancePeriodUncheckedCreateInput>
+  }
+
+  /**
+   * FinancePeriod createMany
+   */
+  export type FinancePeriodCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many FinancePeriods.
+     */
+    data: FinancePeriodCreateManyInput | FinancePeriodCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * FinancePeriod createManyAndReturn
+   */
+  export type FinancePeriodCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancePeriod
+     */
+    select?: FinancePeriodSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancePeriod
+     */
+    omit?: FinancePeriodOmit<ExtArgs> | null
+    /**
+     * The data used to create many FinancePeriods.
+     */
+    data: FinancePeriodCreateManyInput | FinancePeriodCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * FinancePeriod update
+   */
+  export type FinancePeriodUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancePeriod
+     */
+    select?: FinancePeriodSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancePeriod
+     */
+    omit?: FinancePeriodOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinancePeriodInclude<ExtArgs> | null
+    /**
+     * The data needed to update a FinancePeriod.
+     */
+    data: XOR<FinancePeriodUpdateInput, FinancePeriodUncheckedUpdateInput>
+    /**
+     * Choose, which FinancePeriod to update.
+     */
+    where: FinancePeriodWhereUniqueInput
+  }
+
+  /**
+   * FinancePeriod updateMany
+   */
+  export type FinancePeriodUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update FinancePeriods.
+     */
+    data: XOR<FinancePeriodUpdateManyMutationInput, FinancePeriodUncheckedUpdateManyInput>
+    /**
+     * Filter which FinancePeriods to update
+     */
+    where?: FinancePeriodWhereInput
+    /**
+     * Limit how many FinancePeriods to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * FinancePeriod updateManyAndReturn
+   */
+  export type FinancePeriodUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancePeriod
+     */
+    select?: FinancePeriodSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancePeriod
+     */
+    omit?: FinancePeriodOmit<ExtArgs> | null
+    /**
+     * The data used to update FinancePeriods.
+     */
+    data: XOR<FinancePeriodUpdateManyMutationInput, FinancePeriodUncheckedUpdateManyInput>
+    /**
+     * Filter which FinancePeriods to update
+     */
+    where?: FinancePeriodWhereInput
+    /**
+     * Limit how many FinancePeriods to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * FinancePeriod upsert
+   */
+  export type FinancePeriodUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancePeriod
+     */
+    select?: FinancePeriodSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancePeriod
+     */
+    omit?: FinancePeriodOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinancePeriodInclude<ExtArgs> | null
+    /**
+     * The filter to search for the FinancePeriod to update in case it exists.
+     */
+    where: FinancePeriodWhereUniqueInput
+    /**
+     * In case the FinancePeriod found by the `where` argument doesn't exist, create a new FinancePeriod with this data.
+     */
+    create: XOR<FinancePeriodCreateInput, FinancePeriodUncheckedCreateInput>
+    /**
+     * In case the FinancePeriod was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<FinancePeriodUpdateInput, FinancePeriodUncheckedUpdateInput>
+  }
+
+  /**
+   * FinancePeriod delete
+   */
+  export type FinancePeriodDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancePeriod
+     */
+    select?: FinancePeriodSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancePeriod
+     */
+    omit?: FinancePeriodOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinancePeriodInclude<ExtArgs> | null
+    /**
+     * Filter which FinancePeriod to delete.
+     */
+    where: FinancePeriodWhereUniqueInput
+  }
+
+  /**
+   * FinancePeriod deleteMany
+   */
+  export type FinancePeriodDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which FinancePeriods to delete
+     */
+    where?: FinancePeriodWhereInput
+    /**
+     * Limit how many FinancePeriods to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * FinancePeriod.journals
+   */
+  export type FinancePeriod$journalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JournalEntry
+     */
+    select?: JournalEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JournalEntry
+     */
+    omit?: JournalEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JournalEntryInclude<ExtArgs> | null
+    where?: JournalEntryWhereInput
+    orderBy?: JournalEntryOrderByWithRelationInput | JournalEntryOrderByWithRelationInput[]
+    cursor?: JournalEntryWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: JournalEntryScalarFieldEnum | JournalEntryScalarFieldEnum[]
+  }
+
+  /**
+   * FinancePeriod without action
+   */
+  export type FinancePeriodDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancePeriod
+     */
+    select?: FinancePeriodSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancePeriod
+     */
+    omit?: FinancePeriodOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinancePeriodInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model JournalEntry
+   */
+
+  export type AggregateJournalEntry = {
+    _count: JournalEntryCountAggregateOutputType | null
+    _avg: JournalEntryAvgAggregateOutputType | null
+    _sum: JournalEntrySumAggregateOutputType | null
+    _min: JournalEntryMinAggregateOutputType | null
+    _max: JournalEntryMaxAggregateOutputType | null
+  }
+
+  export type JournalEntryAvgAggregateOutputType = {
+    totalKobo: number | null
+  }
+
+  export type JournalEntrySumAggregateOutputType = {
+    totalKobo: bigint | null
+  }
+
+  export type JournalEntryMinAggregateOutputType = {
+    id: string | null
+    number: string | null
+    entryDate: Date | null
+    periodId: string | null
+    termId: string | null
+    sessionId: string | null
+    branchId: string | null
+    description: string | null
+    sourceType: $Enums.JournalSourceType | null
+    sourceId: string | null
+    purpose: string | null
+    idempotencyKey: string | null
+    status: $Enums.JournalStatus | null
+    reversalOfId: string | null
+    reversalReason: string | null
+    totalKobo: bigint | null
+    createdById: string | null
+    isSystemActor: boolean | null
+    postedAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type JournalEntryMaxAggregateOutputType = {
+    id: string | null
+    number: string | null
+    entryDate: Date | null
+    periodId: string | null
+    termId: string | null
+    sessionId: string | null
+    branchId: string | null
+    description: string | null
+    sourceType: $Enums.JournalSourceType | null
+    sourceId: string | null
+    purpose: string | null
+    idempotencyKey: string | null
+    status: $Enums.JournalStatus | null
+    reversalOfId: string | null
+    reversalReason: string | null
+    totalKobo: bigint | null
+    createdById: string | null
+    isSystemActor: boolean | null
+    postedAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type JournalEntryCountAggregateOutputType = {
+    id: number
+    number: number
+    entryDate: number
+    periodId: number
+    termId: number
+    sessionId: number
+    branchId: number
+    description: number
+    sourceType: number
+    sourceId: number
+    purpose: number
+    idempotencyKey: number
+    status: number
+    reversalOfId: number
+    reversalReason: number
+    totalKobo: number
+    createdById: number
+    isSystemActor: number
+    postedAt: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type JournalEntryAvgAggregateInputType = {
+    totalKobo?: true
+  }
+
+  export type JournalEntrySumAggregateInputType = {
+    totalKobo?: true
+  }
+
+  export type JournalEntryMinAggregateInputType = {
+    id?: true
+    number?: true
+    entryDate?: true
+    periodId?: true
+    termId?: true
+    sessionId?: true
+    branchId?: true
+    description?: true
+    sourceType?: true
+    sourceId?: true
+    purpose?: true
+    idempotencyKey?: true
+    status?: true
+    reversalOfId?: true
+    reversalReason?: true
+    totalKobo?: true
+    createdById?: true
+    isSystemActor?: true
+    postedAt?: true
+    createdAt?: true
+  }
+
+  export type JournalEntryMaxAggregateInputType = {
+    id?: true
+    number?: true
+    entryDate?: true
+    periodId?: true
+    termId?: true
+    sessionId?: true
+    branchId?: true
+    description?: true
+    sourceType?: true
+    sourceId?: true
+    purpose?: true
+    idempotencyKey?: true
+    status?: true
+    reversalOfId?: true
+    reversalReason?: true
+    totalKobo?: true
+    createdById?: true
+    isSystemActor?: true
+    postedAt?: true
+    createdAt?: true
+  }
+
+  export type JournalEntryCountAggregateInputType = {
+    id?: true
+    number?: true
+    entryDate?: true
+    periodId?: true
+    termId?: true
+    sessionId?: true
+    branchId?: true
+    description?: true
+    sourceType?: true
+    sourceId?: true
+    purpose?: true
+    idempotencyKey?: true
+    status?: true
+    reversalOfId?: true
+    reversalReason?: true
+    totalKobo?: true
+    createdById?: true
+    isSystemActor?: true
+    postedAt?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type JournalEntryAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which JournalEntry to aggregate.
+     */
+    where?: JournalEntryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of JournalEntries to fetch.
+     */
+    orderBy?: JournalEntryOrderByWithRelationInput | JournalEntryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: JournalEntryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` JournalEntries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` JournalEntries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned JournalEntries
+    **/
+    _count?: true | JournalEntryCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: JournalEntryAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: JournalEntrySumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: JournalEntryMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: JournalEntryMaxAggregateInputType
+  }
+
+  export type GetJournalEntryAggregateType<T extends JournalEntryAggregateArgs> = {
+        [P in keyof T & keyof AggregateJournalEntry]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateJournalEntry[P]>
+      : GetScalarType<T[P], AggregateJournalEntry[P]>
+  }
+
+
+
+
+  export type JournalEntryGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: JournalEntryWhereInput
+    orderBy?: JournalEntryOrderByWithAggregationInput | JournalEntryOrderByWithAggregationInput[]
+    by: JournalEntryScalarFieldEnum[] | JournalEntryScalarFieldEnum
+    having?: JournalEntryScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: JournalEntryCountAggregateInputType | true
+    _avg?: JournalEntryAvgAggregateInputType
+    _sum?: JournalEntrySumAggregateInputType
+    _min?: JournalEntryMinAggregateInputType
+    _max?: JournalEntryMaxAggregateInputType
+  }
+
+  export type JournalEntryGroupByOutputType = {
+    id: string
+    number: string
+    entryDate: Date
+    periodId: string
+    termId: string | null
+    sessionId: string | null
+    branchId: string | null
+    description: string
+    sourceType: $Enums.JournalSourceType
+    sourceId: string | null
+    purpose: string
+    idempotencyKey: string
+    status: $Enums.JournalStatus
+    reversalOfId: string | null
+    reversalReason: string | null
+    totalKobo: bigint
+    createdById: string | null
+    isSystemActor: boolean
+    postedAt: Date
+    createdAt: Date
+    _count: JournalEntryCountAggregateOutputType | null
+    _avg: JournalEntryAvgAggregateOutputType | null
+    _sum: JournalEntrySumAggregateOutputType | null
+    _min: JournalEntryMinAggregateOutputType | null
+    _max: JournalEntryMaxAggregateOutputType | null
+  }
+
+  type GetJournalEntryGroupByPayload<T extends JournalEntryGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<JournalEntryGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof JournalEntryGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], JournalEntryGroupByOutputType[P]>
+            : GetScalarType<T[P], JournalEntryGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type JournalEntrySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    number?: boolean
+    entryDate?: boolean
+    periodId?: boolean
+    termId?: boolean
+    sessionId?: boolean
+    branchId?: boolean
+    description?: boolean
+    sourceType?: boolean
+    sourceId?: boolean
+    purpose?: boolean
+    idempotencyKey?: boolean
+    status?: boolean
+    reversalOfId?: boolean
+    reversalReason?: boolean
+    totalKobo?: boolean
+    createdById?: boolean
+    isSystemActor?: boolean
+    postedAt?: boolean
+    createdAt?: boolean
+    period?: boolean | FinancePeriodDefaultArgs<ExtArgs>
+    term?: boolean | JournalEntry$termArgs<ExtArgs>
+    session?: boolean | JournalEntry$sessionArgs<ExtArgs>
+    branch?: boolean | JournalEntry$branchArgs<ExtArgs>
+    reversalOf?: boolean | JournalEntry$reversalOfArgs<ExtArgs>
+    reversedBy?: boolean | JournalEntry$reversedByArgs<ExtArgs>
+    lines?: boolean | JournalEntry$linesArgs<ExtArgs>
+    _count?: boolean | JournalEntryCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["journalEntry"]>
+
+  export type JournalEntrySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    number?: boolean
+    entryDate?: boolean
+    periodId?: boolean
+    termId?: boolean
+    sessionId?: boolean
+    branchId?: boolean
+    description?: boolean
+    sourceType?: boolean
+    sourceId?: boolean
+    purpose?: boolean
+    idempotencyKey?: boolean
+    status?: boolean
+    reversalOfId?: boolean
+    reversalReason?: boolean
+    totalKobo?: boolean
+    createdById?: boolean
+    isSystemActor?: boolean
+    postedAt?: boolean
+    createdAt?: boolean
+    period?: boolean | FinancePeriodDefaultArgs<ExtArgs>
+    term?: boolean | JournalEntry$termArgs<ExtArgs>
+    session?: boolean | JournalEntry$sessionArgs<ExtArgs>
+    branch?: boolean | JournalEntry$branchArgs<ExtArgs>
+    reversalOf?: boolean | JournalEntry$reversalOfArgs<ExtArgs>
+  }, ExtArgs["result"]["journalEntry"]>
+
+  export type JournalEntrySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    number?: boolean
+    entryDate?: boolean
+    periodId?: boolean
+    termId?: boolean
+    sessionId?: boolean
+    branchId?: boolean
+    description?: boolean
+    sourceType?: boolean
+    sourceId?: boolean
+    purpose?: boolean
+    idempotencyKey?: boolean
+    status?: boolean
+    reversalOfId?: boolean
+    reversalReason?: boolean
+    totalKobo?: boolean
+    createdById?: boolean
+    isSystemActor?: boolean
+    postedAt?: boolean
+    createdAt?: boolean
+    period?: boolean | FinancePeriodDefaultArgs<ExtArgs>
+    term?: boolean | JournalEntry$termArgs<ExtArgs>
+    session?: boolean | JournalEntry$sessionArgs<ExtArgs>
+    branch?: boolean | JournalEntry$branchArgs<ExtArgs>
+    reversalOf?: boolean | JournalEntry$reversalOfArgs<ExtArgs>
+  }, ExtArgs["result"]["journalEntry"]>
+
+  export type JournalEntrySelectScalar = {
+    id?: boolean
+    number?: boolean
+    entryDate?: boolean
+    periodId?: boolean
+    termId?: boolean
+    sessionId?: boolean
+    branchId?: boolean
+    description?: boolean
+    sourceType?: boolean
+    sourceId?: boolean
+    purpose?: boolean
+    idempotencyKey?: boolean
+    status?: boolean
+    reversalOfId?: boolean
+    reversalReason?: boolean
+    totalKobo?: boolean
+    createdById?: boolean
+    isSystemActor?: boolean
+    postedAt?: boolean
+    createdAt?: boolean
+  }
+
+  export type JournalEntryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "number" | "entryDate" | "periodId" | "termId" | "sessionId" | "branchId" | "description" | "sourceType" | "sourceId" | "purpose" | "idempotencyKey" | "status" | "reversalOfId" | "reversalReason" | "totalKobo" | "createdById" | "isSystemActor" | "postedAt" | "createdAt", ExtArgs["result"]["journalEntry"]>
+  export type JournalEntryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    period?: boolean | FinancePeriodDefaultArgs<ExtArgs>
+    term?: boolean | JournalEntry$termArgs<ExtArgs>
+    session?: boolean | JournalEntry$sessionArgs<ExtArgs>
+    branch?: boolean | JournalEntry$branchArgs<ExtArgs>
+    reversalOf?: boolean | JournalEntry$reversalOfArgs<ExtArgs>
+    reversedBy?: boolean | JournalEntry$reversedByArgs<ExtArgs>
+    lines?: boolean | JournalEntry$linesArgs<ExtArgs>
+    _count?: boolean | JournalEntryCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type JournalEntryIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    period?: boolean | FinancePeriodDefaultArgs<ExtArgs>
+    term?: boolean | JournalEntry$termArgs<ExtArgs>
+    session?: boolean | JournalEntry$sessionArgs<ExtArgs>
+    branch?: boolean | JournalEntry$branchArgs<ExtArgs>
+    reversalOf?: boolean | JournalEntry$reversalOfArgs<ExtArgs>
+  }
+  export type JournalEntryIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    period?: boolean | FinancePeriodDefaultArgs<ExtArgs>
+    term?: boolean | JournalEntry$termArgs<ExtArgs>
+    session?: boolean | JournalEntry$sessionArgs<ExtArgs>
+    branch?: boolean | JournalEntry$branchArgs<ExtArgs>
+    reversalOf?: boolean | JournalEntry$reversalOfArgs<ExtArgs>
+  }
+
+  export type $JournalEntryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "JournalEntry"
+    objects: {
+      period: Prisma.$FinancePeriodPayload<ExtArgs>
+      term: Prisma.$TermPayload<ExtArgs> | null
+      session: Prisma.$SessionPayload<ExtArgs> | null
+      branch: Prisma.$BranchPayload<ExtArgs> | null
+      reversalOf: Prisma.$JournalEntryPayload<ExtArgs> | null
+      reversedBy: Prisma.$JournalEntryPayload<ExtArgs> | null
+      lines: Prisma.$JournalLinePayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      number: string
+      entryDate: Date
+      periodId: string
+      termId: string | null
+      sessionId: string | null
+      branchId: string | null
+      description: string
+      sourceType: $Enums.JournalSourceType
+      sourceId: string | null
+      purpose: string
+      idempotencyKey: string
+      status: $Enums.JournalStatus
+      reversalOfId: string | null
+      reversalReason: string | null
+      totalKobo: bigint
+      createdById: string | null
+      isSystemActor: boolean
+      postedAt: Date
+      createdAt: Date
+    }, ExtArgs["result"]["journalEntry"]>
+    composites: {}
+  }
+
+  type JournalEntryGetPayload<S extends boolean | null | undefined | JournalEntryDefaultArgs> = $Result.GetResult<Prisma.$JournalEntryPayload, S>
+
+  type JournalEntryCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<JournalEntryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: JournalEntryCountAggregateInputType | true
+    }
+
+  export interface JournalEntryDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['JournalEntry'], meta: { name: 'JournalEntry' } }
+    /**
+     * Find zero or one JournalEntry that matches the filter.
+     * @param {JournalEntryFindUniqueArgs} args - Arguments to find a JournalEntry
+     * @example
+     * // Get one JournalEntry
+     * const journalEntry = await prisma.journalEntry.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends JournalEntryFindUniqueArgs>(args: SelectSubset<T, JournalEntryFindUniqueArgs<ExtArgs>>): Prisma__JournalEntryClient<$Result.GetResult<Prisma.$JournalEntryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one JournalEntry that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {JournalEntryFindUniqueOrThrowArgs} args - Arguments to find a JournalEntry
+     * @example
+     * // Get one JournalEntry
+     * const journalEntry = await prisma.journalEntry.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends JournalEntryFindUniqueOrThrowArgs>(args: SelectSubset<T, JournalEntryFindUniqueOrThrowArgs<ExtArgs>>): Prisma__JournalEntryClient<$Result.GetResult<Prisma.$JournalEntryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first JournalEntry that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JournalEntryFindFirstArgs} args - Arguments to find a JournalEntry
+     * @example
+     * // Get one JournalEntry
+     * const journalEntry = await prisma.journalEntry.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends JournalEntryFindFirstArgs>(args?: SelectSubset<T, JournalEntryFindFirstArgs<ExtArgs>>): Prisma__JournalEntryClient<$Result.GetResult<Prisma.$JournalEntryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first JournalEntry that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JournalEntryFindFirstOrThrowArgs} args - Arguments to find a JournalEntry
+     * @example
+     * // Get one JournalEntry
+     * const journalEntry = await prisma.journalEntry.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends JournalEntryFindFirstOrThrowArgs>(args?: SelectSubset<T, JournalEntryFindFirstOrThrowArgs<ExtArgs>>): Prisma__JournalEntryClient<$Result.GetResult<Prisma.$JournalEntryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more JournalEntries that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JournalEntryFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all JournalEntries
+     * const journalEntries = await prisma.journalEntry.findMany()
+     * 
+     * // Get first 10 JournalEntries
+     * const journalEntries = await prisma.journalEntry.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const journalEntryWithIdOnly = await prisma.journalEntry.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends JournalEntryFindManyArgs>(args?: SelectSubset<T, JournalEntryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JournalEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a JournalEntry.
+     * @param {JournalEntryCreateArgs} args - Arguments to create a JournalEntry.
+     * @example
+     * // Create one JournalEntry
+     * const JournalEntry = await prisma.journalEntry.create({
+     *   data: {
+     *     // ... data to create a JournalEntry
+     *   }
+     * })
+     * 
+     */
+    create<T extends JournalEntryCreateArgs>(args: SelectSubset<T, JournalEntryCreateArgs<ExtArgs>>): Prisma__JournalEntryClient<$Result.GetResult<Prisma.$JournalEntryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many JournalEntries.
+     * @param {JournalEntryCreateManyArgs} args - Arguments to create many JournalEntries.
+     * @example
+     * // Create many JournalEntries
+     * const journalEntry = await prisma.journalEntry.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends JournalEntryCreateManyArgs>(args?: SelectSubset<T, JournalEntryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many JournalEntries and returns the data saved in the database.
+     * @param {JournalEntryCreateManyAndReturnArgs} args - Arguments to create many JournalEntries.
+     * @example
+     * // Create many JournalEntries
+     * const journalEntry = await prisma.journalEntry.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many JournalEntries and only return the `id`
+     * const journalEntryWithIdOnly = await prisma.journalEntry.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends JournalEntryCreateManyAndReturnArgs>(args?: SelectSubset<T, JournalEntryCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JournalEntryPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a JournalEntry.
+     * @param {JournalEntryDeleteArgs} args - Arguments to delete one JournalEntry.
+     * @example
+     * // Delete one JournalEntry
+     * const JournalEntry = await prisma.journalEntry.delete({
+     *   where: {
+     *     // ... filter to delete one JournalEntry
+     *   }
+     * })
+     * 
+     */
+    delete<T extends JournalEntryDeleteArgs>(args: SelectSubset<T, JournalEntryDeleteArgs<ExtArgs>>): Prisma__JournalEntryClient<$Result.GetResult<Prisma.$JournalEntryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one JournalEntry.
+     * @param {JournalEntryUpdateArgs} args - Arguments to update one JournalEntry.
+     * @example
+     * // Update one JournalEntry
+     * const journalEntry = await prisma.journalEntry.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends JournalEntryUpdateArgs>(args: SelectSubset<T, JournalEntryUpdateArgs<ExtArgs>>): Prisma__JournalEntryClient<$Result.GetResult<Prisma.$JournalEntryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more JournalEntries.
+     * @param {JournalEntryDeleteManyArgs} args - Arguments to filter JournalEntries to delete.
+     * @example
+     * // Delete a few JournalEntries
+     * const { count } = await prisma.journalEntry.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends JournalEntryDeleteManyArgs>(args?: SelectSubset<T, JournalEntryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more JournalEntries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JournalEntryUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many JournalEntries
+     * const journalEntry = await prisma.journalEntry.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends JournalEntryUpdateManyArgs>(args: SelectSubset<T, JournalEntryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more JournalEntries and returns the data updated in the database.
+     * @param {JournalEntryUpdateManyAndReturnArgs} args - Arguments to update many JournalEntries.
+     * @example
+     * // Update many JournalEntries
+     * const journalEntry = await prisma.journalEntry.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more JournalEntries and only return the `id`
+     * const journalEntryWithIdOnly = await prisma.journalEntry.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends JournalEntryUpdateManyAndReturnArgs>(args: SelectSubset<T, JournalEntryUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JournalEntryPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one JournalEntry.
+     * @param {JournalEntryUpsertArgs} args - Arguments to update or create a JournalEntry.
+     * @example
+     * // Update or create a JournalEntry
+     * const journalEntry = await prisma.journalEntry.upsert({
+     *   create: {
+     *     // ... data to create a JournalEntry
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the JournalEntry we want to update
+     *   }
+     * })
+     */
+    upsert<T extends JournalEntryUpsertArgs>(args: SelectSubset<T, JournalEntryUpsertArgs<ExtArgs>>): Prisma__JournalEntryClient<$Result.GetResult<Prisma.$JournalEntryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of JournalEntries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JournalEntryCountArgs} args - Arguments to filter JournalEntries to count.
+     * @example
+     * // Count the number of JournalEntries
+     * const count = await prisma.journalEntry.count({
+     *   where: {
+     *     // ... the filter for the JournalEntries we want to count
+     *   }
+     * })
+    **/
+    count<T extends JournalEntryCountArgs>(
+      args?: Subset<T, JournalEntryCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], JournalEntryCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a JournalEntry.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JournalEntryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends JournalEntryAggregateArgs>(args: Subset<T, JournalEntryAggregateArgs>): Prisma.PrismaPromise<GetJournalEntryAggregateType<T>>
+
+    /**
+     * Group by JournalEntry.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JournalEntryGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends JournalEntryGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: JournalEntryGroupByArgs['orderBy'] }
+        : { orderBy?: JournalEntryGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, JournalEntryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetJournalEntryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the JournalEntry model
+   */
+  readonly fields: JournalEntryFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for JournalEntry.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__JournalEntryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    period<T extends FinancePeriodDefaultArgs<ExtArgs> = {}>(args?: Subset<T, FinancePeriodDefaultArgs<ExtArgs>>): Prisma__FinancePeriodClient<$Result.GetResult<Prisma.$FinancePeriodPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    term<T extends JournalEntry$termArgs<ExtArgs> = {}>(args?: Subset<T, JournalEntry$termArgs<ExtArgs>>): Prisma__TermClient<$Result.GetResult<Prisma.$TermPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    session<T extends JournalEntry$sessionArgs<ExtArgs> = {}>(args?: Subset<T, JournalEntry$sessionArgs<ExtArgs>>): Prisma__SessionClient<$Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    branch<T extends JournalEntry$branchArgs<ExtArgs> = {}>(args?: Subset<T, JournalEntry$branchArgs<ExtArgs>>): Prisma__BranchClient<$Result.GetResult<Prisma.$BranchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    reversalOf<T extends JournalEntry$reversalOfArgs<ExtArgs> = {}>(args?: Subset<T, JournalEntry$reversalOfArgs<ExtArgs>>): Prisma__JournalEntryClient<$Result.GetResult<Prisma.$JournalEntryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    reversedBy<T extends JournalEntry$reversedByArgs<ExtArgs> = {}>(args?: Subset<T, JournalEntry$reversedByArgs<ExtArgs>>): Prisma__JournalEntryClient<$Result.GetResult<Prisma.$JournalEntryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    lines<T extends JournalEntry$linesArgs<ExtArgs> = {}>(args?: Subset<T, JournalEntry$linesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JournalLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the JournalEntry model
+   */
+  interface JournalEntryFieldRefs {
+    readonly id: FieldRef<"JournalEntry", 'String'>
+    readonly number: FieldRef<"JournalEntry", 'String'>
+    readonly entryDate: FieldRef<"JournalEntry", 'DateTime'>
+    readonly periodId: FieldRef<"JournalEntry", 'String'>
+    readonly termId: FieldRef<"JournalEntry", 'String'>
+    readonly sessionId: FieldRef<"JournalEntry", 'String'>
+    readonly branchId: FieldRef<"JournalEntry", 'String'>
+    readonly description: FieldRef<"JournalEntry", 'String'>
+    readonly sourceType: FieldRef<"JournalEntry", 'JournalSourceType'>
+    readonly sourceId: FieldRef<"JournalEntry", 'String'>
+    readonly purpose: FieldRef<"JournalEntry", 'String'>
+    readonly idempotencyKey: FieldRef<"JournalEntry", 'String'>
+    readonly status: FieldRef<"JournalEntry", 'JournalStatus'>
+    readonly reversalOfId: FieldRef<"JournalEntry", 'String'>
+    readonly reversalReason: FieldRef<"JournalEntry", 'String'>
+    readonly totalKobo: FieldRef<"JournalEntry", 'BigInt'>
+    readonly createdById: FieldRef<"JournalEntry", 'String'>
+    readonly isSystemActor: FieldRef<"JournalEntry", 'Boolean'>
+    readonly postedAt: FieldRef<"JournalEntry", 'DateTime'>
+    readonly createdAt: FieldRef<"JournalEntry", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * JournalEntry findUnique
+   */
+  export type JournalEntryFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JournalEntry
+     */
+    select?: JournalEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JournalEntry
+     */
+    omit?: JournalEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JournalEntryInclude<ExtArgs> | null
+    /**
+     * Filter, which JournalEntry to fetch.
+     */
+    where: JournalEntryWhereUniqueInput
+  }
+
+  /**
+   * JournalEntry findUniqueOrThrow
+   */
+  export type JournalEntryFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JournalEntry
+     */
+    select?: JournalEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JournalEntry
+     */
+    omit?: JournalEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JournalEntryInclude<ExtArgs> | null
+    /**
+     * Filter, which JournalEntry to fetch.
+     */
+    where: JournalEntryWhereUniqueInput
+  }
+
+  /**
+   * JournalEntry findFirst
+   */
+  export type JournalEntryFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JournalEntry
+     */
+    select?: JournalEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JournalEntry
+     */
+    omit?: JournalEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JournalEntryInclude<ExtArgs> | null
+    /**
+     * Filter, which JournalEntry to fetch.
+     */
+    where?: JournalEntryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of JournalEntries to fetch.
+     */
+    orderBy?: JournalEntryOrderByWithRelationInput | JournalEntryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for JournalEntries.
+     */
+    cursor?: JournalEntryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` JournalEntries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` JournalEntries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of JournalEntries.
+     */
+    distinct?: JournalEntryScalarFieldEnum | JournalEntryScalarFieldEnum[]
+  }
+
+  /**
+   * JournalEntry findFirstOrThrow
+   */
+  export type JournalEntryFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JournalEntry
+     */
+    select?: JournalEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JournalEntry
+     */
+    omit?: JournalEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JournalEntryInclude<ExtArgs> | null
+    /**
+     * Filter, which JournalEntry to fetch.
+     */
+    where?: JournalEntryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of JournalEntries to fetch.
+     */
+    orderBy?: JournalEntryOrderByWithRelationInput | JournalEntryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for JournalEntries.
+     */
+    cursor?: JournalEntryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` JournalEntries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` JournalEntries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of JournalEntries.
+     */
+    distinct?: JournalEntryScalarFieldEnum | JournalEntryScalarFieldEnum[]
+  }
+
+  /**
+   * JournalEntry findMany
+   */
+  export type JournalEntryFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JournalEntry
+     */
+    select?: JournalEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JournalEntry
+     */
+    omit?: JournalEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JournalEntryInclude<ExtArgs> | null
+    /**
+     * Filter, which JournalEntries to fetch.
+     */
+    where?: JournalEntryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of JournalEntries to fetch.
+     */
+    orderBy?: JournalEntryOrderByWithRelationInput | JournalEntryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing JournalEntries.
+     */
+    cursor?: JournalEntryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` JournalEntries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` JournalEntries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of JournalEntries.
+     */
+    distinct?: JournalEntryScalarFieldEnum | JournalEntryScalarFieldEnum[]
+  }
+
+  /**
+   * JournalEntry create
+   */
+  export type JournalEntryCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JournalEntry
+     */
+    select?: JournalEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JournalEntry
+     */
+    omit?: JournalEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JournalEntryInclude<ExtArgs> | null
+    /**
+     * The data needed to create a JournalEntry.
+     */
+    data: XOR<JournalEntryCreateInput, JournalEntryUncheckedCreateInput>
+  }
+
+  /**
+   * JournalEntry createMany
+   */
+  export type JournalEntryCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many JournalEntries.
+     */
+    data: JournalEntryCreateManyInput | JournalEntryCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * JournalEntry createManyAndReturn
+   */
+  export type JournalEntryCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JournalEntry
+     */
+    select?: JournalEntrySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the JournalEntry
+     */
+    omit?: JournalEntryOmit<ExtArgs> | null
+    /**
+     * The data used to create many JournalEntries.
+     */
+    data: JournalEntryCreateManyInput | JournalEntryCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JournalEntryIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * JournalEntry update
+   */
+  export type JournalEntryUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JournalEntry
+     */
+    select?: JournalEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JournalEntry
+     */
+    omit?: JournalEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JournalEntryInclude<ExtArgs> | null
+    /**
+     * The data needed to update a JournalEntry.
+     */
+    data: XOR<JournalEntryUpdateInput, JournalEntryUncheckedUpdateInput>
+    /**
+     * Choose, which JournalEntry to update.
+     */
+    where: JournalEntryWhereUniqueInput
+  }
+
+  /**
+   * JournalEntry updateMany
+   */
+  export type JournalEntryUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update JournalEntries.
+     */
+    data: XOR<JournalEntryUpdateManyMutationInput, JournalEntryUncheckedUpdateManyInput>
+    /**
+     * Filter which JournalEntries to update
+     */
+    where?: JournalEntryWhereInput
+    /**
+     * Limit how many JournalEntries to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * JournalEntry updateManyAndReturn
+   */
+  export type JournalEntryUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JournalEntry
+     */
+    select?: JournalEntrySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the JournalEntry
+     */
+    omit?: JournalEntryOmit<ExtArgs> | null
+    /**
+     * The data used to update JournalEntries.
+     */
+    data: XOR<JournalEntryUpdateManyMutationInput, JournalEntryUncheckedUpdateManyInput>
+    /**
+     * Filter which JournalEntries to update
+     */
+    where?: JournalEntryWhereInput
+    /**
+     * Limit how many JournalEntries to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JournalEntryIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * JournalEntry upsert
+   */
+  export type JournalEntryUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JournalEntry
+     */
+    select?: JournalEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JournalEntry
+     */
+    omit?: JournalEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JournalEntryInclude<ExtArgs> | null
+    /**
+     * The filter to search for the JournalEntry to update in case it exists.
+     */
+    where: JournalEntryWhereUniqueInput
+    /**
+     * In case the JournalEntry found by the `where` argument doesn't exist, create a new JournalEntry with this data.
+     */
+    create: XOR<JournalEntryCreateInput, JournalEntryUncheckedCreateInput>
+    /**
+     * In case the JournalEntry was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<JournalEntryUpdateInput, JournalEntryUncheckedUpdateInput>
+  }
+
+  /**
+   * JournalEntry delete
+   */
+  export type JournalEntryDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JournalEntry
+     */
+    select?: JournalEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JournalEntry
+     */
+    omit?: JournalEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JournalEntryInclude<ExtArgs> | null
+    /**
+     * Filter which JournalEntry to delete.
+     */
+    where: JournalEntryWhereUniqueInput
+  }
+
+  /**
+   * JournalEntry deleteMany
+   */
+  export type JournalEntryDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which JournalEntries to delete
+     */
+    where?: JournalEntryWhereInput
+    /**
+     * Limit how many JournalEntries to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * JournalEntry.term
+   */
+  export type JournalEntry$termArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Term
+     */
+    select?: TermSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Term
+     */
+    omit?: TermOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TermInclude<ExtArgs> | null
+    where?: TermWhereInput
+  }
+
+  /**
+   * JournalEntry.session
+   */
+  export type JournalEntry$sessionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Session
+     */
+    select?: SessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Session
+     */
+    omit?: SessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SessionInclude<ExtArgs> | null
+    where?: SessionWhereInput
+  }
+
+  /**
+   * JournalEntry.branch
+   */
+  export type JournalEntry$branchArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Branch
+     */
+    select?: BranchSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Branch
+     */
+    omit?: BranchOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BranchInclude<ExtArgs> | null
+    where?: BranchWhereInput
+  }
+
+  /**
+   * JournalEntry.reversalOf
+   */
+  export type JournalEntry$reversalOfArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JournalEntry
+     */
+    select?: JournalEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JournalEntry
+     */
+    omit?: JournalEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JournalEntryInclude<ExtArgs> | null
+    where?: JournalEntryWhereInput
+  }
+
+  /**
+   * JournalEntry.reversedBy
+   */
+  export type JournalEntry$reversedByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JournalEntry
+     */
+    select?: JournalEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JournalEntry
+     */
+    omit?: JournalEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JournalEntryInclude<ExtArgs> | null
+    where?: JournalEntryWhereInput
+  }
+
+  /**
+   * JournalEntry.lines
+   */
+  export type JournalEntry$linesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JournalLine
+     */
+    select?: JournalLineSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JournalLine
+     */
+    omit?: JournalLineOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JournalLineInclude<ExtArgs> | null
+    where?: JournalLineWhereInput
+    orderBy?: JournalLineOrderByWithRelationInput | JournalLineOrderByWithRelationInput[]
+    cursor?: JournalLineWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: JournalLineScalarFieldEnum | JournalLineScalarFieldEnum[]
+  }
+
+  /**
+   * JournalEntry without action
+   */
+  export type JournalEntryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JournalEntry
+     */
+    select?: JournalEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JournalEntry
+     */
+    omit?: JournalEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JournalEntryInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model JournalLine
+   */
+
+  export type AggregateJournalLine = {
+    _count: JournalLineCountAggregateOutputType | null
+    _avg: JournalLineAvgAggregateOutputType | null
+    _sum: JournalLineSumAggregateOutputType | null
+    _min: JournalLineMinAggregateOutputType | null
+    _max: JournalLineMaxAggregateOutputType | null
+  }
+
+  export type JournalLineAvgAggregateOutputType = {
+    lineNumber: number | null
+    debitKobo: number | null
+    creditKobo: number | null
+  }
+
+  export type JournalLineSumAggregateOutputType = {
+    lineNumber: number | null
+    debitKobo: bigint | null
+    creditKobo: bigint | null
+  }
+
+  export type JournalLineMinAggregateOutputType = {
+    id: string | null
+    journalId: string | null
+    lineNumber: number | null
+    ledgerAccountId: string | null
+    debitKobo: bigint | null
+    creditKobo: bigint | null
+    memo: string | null
+    partyType: $Enums.LedgerPartyType | null
+    partyId: string | null
+  }
+
+  export type JournalLineMaxAggregateOutputType = {
+    id: string | null
+    journalId: string | null
+    lineNumber: number | null
+    ledgerAccountId: string | null
+    debitKobo: bigint | null
+    creditKobo: bigint | null
+    memo: string | null
+    partyType: $Enums.LedgerPartyType | null
+    partyId: string | null
+  }
+
+  export type JournalLineCountAggregateOutputType = {
+    id: number
+    journalId: number
+    lineNumber: number
+    ledgerAccountId: number
+    debitKobo: number
+    creditKobo: number
+    memo: number
+    partyType: number
+    partyId: number
+    _all: number
+  }
+
+
+  export type JournalLineAvgAggregateInputType = {
+    lineNumber?: true
+    debitKobo?: true
+    creditKobo?: true
+  }
+
+  export type JournalLineSumAggregateInputType = {
+    lineNumber?: true
+    debitKobo?: true
+    creditKobo?: true
+  }
+
+  export type JournalLineMinAggregateInputType = {
+    id?: true
+    journalId?: true
+    lineNumber?: true
+    ledgerAccountId?: true
+    debitKobo?: true
+    creditKobo?: true
+    memo?: true
+    partyType?: true
+    partyId?: true
+  }
+
+  export type JournalLineMaxAggregateInputType = {
+    id?: true
+    journalId?: true
+    lineNumber?: true
+    ledgerAccountId?: true
+    debitKobo?: true
+    creditKobo?: true
+    memo?: true
+    partyType?: true
+    partyId?: true
+  }
+
+  export type JournalLineCountAggregateInputType = {
+    id?: true
+    journalId?: true
+    lineNumber?: true
+    ledgerAccountId?: true
+    debitKobo?: true
+    creditKobo?: true
+    memo?: true
+    partyType?: true
+    partyId?: true
+    _all?: true
+  }
+
+  export type JournalLineAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which JournalLine to aggregate.
+     */
+    where?: JournalLineWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of JournalLines to fetch.
+     */
+    orderBy?: JournalLineOrderByWithRelationInput | JournalLineOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: JournalLineWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` JournalLines from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` JournalLines.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned JournalLines
+    **/
+    _count?: true | JournalLineCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: JournalLineAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: JournalLineSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: JournalLineMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: JournalLineMaxAggregateInputType
+  }
+
+  export type GetJournalLineAggregateType<T extends JournalLineAggregateArgs> = {
+        [P in keyof T & keyof AggregateJournalLine]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateJournalLine[P]>
+      : GetScalarType<T[P], AggregateJournalLine[P]>
+  }
+
+
+
+
+  export type JournalLineGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: JournalLineWhereInput
+    orderBy?: JournalLineOrderByWithAggregationInput | JournalLineOrderByWithAggregationInput[]
+    by: JournalLineScalarFieldEnum[] | JournalLineScalarFieldEnum
+    having?: JournalLineScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: JournalLineCountAggregateInputType | true
+    _avg?: JournalLineAvgAggregateInputType
+    _sum?: JournalLineSumAggregateInputType
+    _min?: JournalLineMinAggregateInputType
+    _max?: JournalLineMaxAggregateInputType
+  }
+
+  export type JournalLineGroupByOutputType = {
+    id: string
+    journalId: string
+    lineNumber: number
+    ledgerAccountId: string
+    debitKobo: bigint
+    creditKobo: bigint
+    memo: string | null
+    partyType: $Enums.LedgerPartyType | null
+    partyId: string | null
+    _count: JournalLineCountAggregateOutputType | null
+    _avg: JournalLineAvgAggregateOutputType | null
+    _sum: JournalLineSumAggregateOutputType | null
+    _min: JournalLineMinAggregateOutputType | null
+    _max: JournalLineMaxAggregateOutputType | null
+  }
+
+  type GetJournalLineGroupByPayload<T extends JournalLineGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<JournalLineGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof JournalLineGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], JournalLineGroupByOutputType[P]>
+            : GetScalarType<T[P], JournalLineGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type JournalLineSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    journalId?: boolean
+    lineNumber?: boolean
+    ledgerAccountId?: boolean
+    debitKobo?: boolean
+    creditKobo?: boolean
+    memo?: boolean
+    partyType?: boolean
+    partyId?: boolean
+    journal?: boolean | JournalEntryDefaultArgs<ExtArgs>
+    ledgerAccount?: boolean | LedgerAccountDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["journalLine"]>
+
+  export type JournalLineSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    journalId?: boolean
+    lineNumber?: boolean
+    ledgerAccountId?: boolean
+    debitKobo?: boolean
+    creditKobo?: boolean
+    memo?: boolean
+    partyType?: boolean
+    partyId?: boolean
+    journal?: boolean | JournalEntryDefaultArgs<ExtArgs>
+    ledgerAccount?: boolean | LedgerAccountDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["journalLine"]>
+
+  export type JournalLineSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    journalId?: boolean
+    lineNumber?: boolean
+    ledgerAccountId?: boolean
+    debitKobo?: boolean
+    creditKobo?: boolean
+    memo?: boolean
+    partyType?: boolean
+    partyId?: boolean
+    journal?: boolean | JournalEntryDefaultArgs<ExtArgs>
+    ledgerAccount?: boolean | LedgerAccountDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["journalLine"]>
+
+  export type JournalLineSelectScalar = {
+    id?: boolean
+    journalId?: boolean
+    lineNumber?: boolean
+    ledgerAccountId?: boolean
+    debitKobo?: boolean
+    creditKobo?: boolean
+    memo?: boolean
+    partyType?: boolean
+    partyId?: boolean
+  }
+
+  export type JournalLineOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "journalId" | "lineNumber" | "ledgerAccountId" | "debitKobo" | "creditKobo" | "memo" | "partyType" | "partyId", ExtArgs["result"]["journalLine"]>
+  export type JournalLineInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    journal?: boolean | JournalEntryDefaultArgs<ExtArgs>
+    ledgerAccount?: boolean | LedgerAccountDefaultArgs<ExtArgs>
+  }
+  export type JournalLineIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    journal?: boolean | JournalEntryDefaultArgs<ExtArgs>
+    ledgerAccount?: boolean | LedgerAccountDefaultArgs<ExtArgs>
+  }
+  export type JournalLineIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    journal?: boolean | JournalEntryDefaultArgs<ExtArgs>
+    ledgerAccount?: boolean | LedgerAccountDefaultArgs<ExtArgs>
+  }
+
+  export type $JournalLinePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "JournalLine"
+    objects: {
+      journal: Prisma.$JournalEntryPayload<ExtArgs>
+      ledgerAccount: Prisma.$LedgerAccountPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      journalId: string
+      lineNumber: number
+      ledgerAccountId: string
+      debitKobo: bigint
+      creditKobo: bigint
+      memo: string | null
+      partyType: $Enums.LedgerPartyType | null
+      partyId: string | null
+    }, ExtArgs["result"]["journalLine"]>
+    composites: {}
+  }
+
+  type JournalLineGetPayload<S extends boolean | null | undefined | JournalLineDefaultArgs> = $Result.GetResult<Prisma.$JournalLinePayload, S>
+
+  type JournalLineCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<JournalLineFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: JournalLineCountAggregateInputType | true
+    }
+
+  export interface JournalLineDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['JournalLine'], meta: { name: 'JournalLine' } }
+    /**
+     * Find zero or one JournalLine that matches the filter.
+     * @param {JournalLineFindUniqueArgs} args - Arguments to find a JournalLine
+     * @example
+     * // Get one JournalLine
+     * const journalLine = await prisma.journalLine.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends JournalLineFindUniqueArgs>(args: SelectSubset<T, JournalLineFindUniqueArgs<ExtArgs>>): Prisma__JournalLineClient<$Result.GetResult<Prisma.$JournalLinePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one JournalLine that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {JournalLineFindUniqueOrThrowArgs} args - Arguments to find a JournalLine
+     * @example
+     * // Get one JournalLine
+     * const journalLine = await prisma.journalLine.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends JournalLineFindUniqueOrThrowArgs>(args: SelectSubset<T, JournalLineFindUniqueOrThrowArgs<ExtArgs>>): Prisma__JournalLineClient<$Result.GetResult<Prisma.$JournalLinePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first JournalLine that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JournalLineFindFirstArgs} args - Arguments to find a JournalLine
+     * @example
+     * // Get one JournalLine
+     * const journalLine = await prisma.journalLine.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends JournalLineFindFirstArgs>(args?: SelectSubset<T, JournalLineFindFirstArgs<ExtArgs>>): Prisma__JournalLineClient<$Result.GetResult<Prisma.$JournalLinePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first JournalLine that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JournalLineFindFirstOrThrowArgs} args - Arguments to find a JournalLine
+     * @example
+     * // Get one JournalLine
+     * const journalLine = await prisma.journalLine.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends JournalLineFindFirstOrThrowArgs>(args?: SelectSubset<T, JournalLineFindFirstOrThrowArgs<ExtArgs>>): Prisma__JournalLineClient<$Result.GetResult<Prisma.$JournalLinePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more JournalLines that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JournalLineFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all JournalLines
+     * const journalLines = await prisma.journalLine.findMany()
+     * 
+     * // Get first 10 JournalLines
+     * const journalLines = await prisma.journalLine.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const journalLineWithIdOnly = await prisma.journalLine.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends JournalLineFindManyArgs>(args?: SelectSubset<T, JournalLineFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JournalLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a JournalLine.
+     * @param {JournalLineCreateArgs} args - Arguments to create a JournalLine.
+     * @example
+     * // Create one JournalLine
+     * const JournalLine = await prisma.journalLine.create({
+     *   data: {
+     *     // ... data to create a JournalLine
+     *   }
+     * })
+     * 
+     */
+    create<T extends JournalLineCreateArgs>(args: SelectSubset<T, JournalLineCreateArgs<ExtArgs>>): Prisma__JournalLineClient<$Result.GetResult<Prisma.$JournalLinePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many JournalLines.
+     * @param {JournalLineCreateManyArgs} args - Arguments to create many JournalLines.
+     * @example
+     * // Create many JournalLines
+     * const journalLine = await prisma.journalLine.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends JournalLineCreateManyArgs>(args?: SelectSubset<T, JournalLineCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many JournalLines and returns the data saved in the database.
+     * @param {JournalLineCreateManyAndReturnArgs} args - Arguments to create many JournalLines.
+     * @example
+     * // Create many JournalLines
+     * const journalLine = await prisma.journalLine.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many JournalLines and only return the `id`
+     * const journalLineWithIdOnly = await prisma.journalLine.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends JournalLineCreateManyAndReturnArgs>(args?: SelectSubset<T, JournalLineCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JournalLinePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a JournalLine.
+     * @param {JournalLineDeleteArgs} args - Arguments to delete one JournalLine.
+     * @example
+     * // Delete one JournalLine
+     * const JournalLine = await prisma.journalLine.delete({
+     *   where: {
+     *     // ... filter to delete one JournalLine
+     *   }
+     * })
+     * 
+     */
+    delete<T extends JournalLineDeleteArgs>(args: SelectSubset<T, JournalLineDeleteArgs<ExtArgs>>): Prisma__JournalLineClient<$Result.GetResult<Prisma.$JournalLinePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one JournalLine.
+     * @param {JournalLineUpdateArgs} args - Arguments to update one JournalLine.
+     * @example
+     * // Update one JournalLine
+     * const journalLine = await prisma.journalLine.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends JournalLineUpdateArgs>(args: SelectSubset<T, JournalLineUpdateArgs<ExtArgs>>): Prisma__JournalLineClient<$Result.GetResult<Prisma.$JournalLinePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more JournalLines.
+     * @param {JournalLineDeleteManyArgs} args - Arguments to filter JournalLines to delete.
+     * @example
+     * // Delete a few JournalLines
+     * const { count } = await prisma.journalLine.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends JournalLineDeleteManyArgs>(args?: SelectSubset<T, JournalLineDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more JournalLines.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JournalLineUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many JournalLines
+     * const journalLine = await prisma.journalLine.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends JournalLineUpdateManyArgs>(args: SelectSubset<T, JournalLineUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more JournalLines and returns the data updated in the database.
+     * @param {JournalLineUpdateManyAndReturnArgs} args - Arguments to update many JournalLines.
+     * @example
+     * // Update many JournalLines
+     * const journalLine = await prisma.journalLine.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more JournalLines and only return the `id`
+     * const journalLineWithIdOnly = await prisma.journalLine.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends JournalLineUpdateManyAndReturnArgs>(args: SelectSubset<T, JournalLineUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JournalLinePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one JournalLine.
+     * @param {JournalLineUpsertArgs} args - Arguments to update or create a JournalLine.
+     * @example
+     * // Update or create a JournalLine
+     * const journalLine = await prisma.journalLine.upsert({
+     *   create: {
+     *     // ... data to create a JournalLine
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the JournalLine we want to update
+     *   }
+     * })
+     */
+    upsert<T extends JournalLineUpsertArgs>(args: SelectSubset<T, JournalLineUpsertArgs<ExtArgs>>): Prisma__JournalLineClient<$Result.GetResult<Prisma.$JournalLinePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of JournalLines.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JournalLineCountArgs} args - Arguments to filter JournalLines to count.
+     * @example
+     * // Count the number of JournalLines
+     * const count = await prisma.journalLine.count({
+     *   where: {
+     *     // ... the filter for the JournalLines we want to count
+     *   }
+     * })
+    **/
+    count<T extends JournalLineCountArgs>(
+      args?: Subset<T, JournalLineCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], JournalLineCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a JournalLine.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JournalLineAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends JournalLineAggregateArgs>(args: Subset<T, JournalLineAggregateArgs>): Prisma.PrismaPromise<GetJournalLineAggregateType<T>>
+
+    /**
+     * Group by JournalLine.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JournalLineGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends JournalLineGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: JournalLineGroupByArgs['orderBy'] }
+        : { orderBy?: JournalLineGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, JournalLineGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetJournalLineGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the JournalLine model
+   */
+  readonly fields: JournalLineFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for JournalLine.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__JournalLineClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    journal<T extends JournalEntryDefaultArgs<ExtArgs> = {}>(args?: Subset<T, JournalEntryDefaultArgs<ExtArgs>>): Prisma__JournalEntryClient<$Result.GetResult<Prisma.$JournalEntryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    ledgerAccount<T extends LedgerAccountDefaultArgs<ExtArgs> = {}>(args?: Subset<T, LedgerAccountDefaultArgs<ExtArgs>>): Prisma__LedgerAccountClient<$Result.GetResult<Prisma.$LedgerAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the JournalLine model
+   */
+  interface JournalLineFieldRefs {
+    readonly id: FieldRef<"JournalLine", 'String'>
+    readonly journalId: FieldRef<"JournalLine", 'String'>
+    readonly lineNumber: FieldRef<"JournalLine", 'Int'>
+    readonly ledgerAccountId: FieldRef<"JournalLine", 'String'>
+    readonly debitKobo: FieldRef<"JournalLine", 'BigInt'>
+    readonly creditKobo: FieldRef<"JournalLine", 'BigInt'>
+    readonly memo: FieldRef<"JournalLine", 'String'>
+    readonly partyType: FieldRef<"JournalLine", 'LedgerPartyType'>
+    readonly partyId: FieldRef<"JournalLine", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * JournalLine findUnique
+   */
+  export type JournalLineFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JournalLine
+     */
+    select?: JournalLineSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JournalLine
+     */
+    omit?: JournalLineOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JournalLineInclude<ExtArgs> | null
+    /**
+     * Filter, which JournalLine to fetch.
+     */
+    where: JournalLineWhereUniqueInput
+  }
+
+  /**
+   * JournalLine findUniqueOrThrow
+   */
+  export type JournalLineFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JournalLine
+     */
+    select?: JournalLineSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JournalLine
+     */
+    omit?: JournalLineOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JournalLineInclude<ExtArgs> | null
+    /**
+     * Filter, which JournalLine to fetch.
+     */
+    where: JournalLineWhereUniqueInput
+  }
+
+  /**
+   * JournalLine findFirst
+   */
+  export type JournalLineFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JournalLine
+     */
+    select?: JournalLineSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JournalLine
+     */
+    omit?: JournalLineOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JournalLineInclude<ExtArgs> | null
+    /**
+     * Filter, which JournalLine to fetch.
+     */
+    where?: JournalLineWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of JournalLines to fetch.
+     */
+    orderBy?: JournalLineOrderByWithRelationInput | JournalLineOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for JournalLines.
+     */
+    cursor?: JournalLineWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` JournalLines from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` JournalLines.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of JournalLines.
+     */
+    distinct?: JournalLineScalarFieldEnum | JournalLineScalarFieldEnum[]
+  }
+
+  /**
+   * JournalLine findFirstOrThrow
+   */
+  export type JournalLineFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JournalLine
+     */
+    select?: JournalLineSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JournalLine
+     */
+    omit?: JournalLineOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JournalLineInclude<ExtArgs> | null
+    /**
+     * Filter, which JournalLine to fetch.
+     */
+    where?: JournalLineWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of JournalLines to fetch.
+     */
+    orderBy?: JournalLineOrderByWithRelationInput | JournalLineOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for JournalLines.
+     */
+    cursor?: JournalLineWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` JournalLines from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` JournalLines.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of JournalLines.
+     */
+    distinct?: JournalLineScalarFieldEnum | JournalLineScalarFieldEnum[]
+  }
+
+  /**
+   * JournalLine findMany
+   */
+  export type JournalLineFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JournalLine
+     */
+    select?: JournalLineSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JournalLine
+     */
+    omit?: JournalLineOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JournalLineInclude<ExtArgs> | null
+    /**
+     * Filter, which JournalLines to fetch.
+     */
+    where?: JournalLineWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of JournalLines to fetch.
+     */
+    orderBy?: JournalLineOrderByWithRelationInput | JournalLineOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing JournalLines.
+     */
+    cursor?: JournalLineWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` JournalLines from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` JournalLines.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of JournalLines.
+     */
+    distinct?: JournalLineScalarFieldEnum | JournalLineScalarFieldEnum[]
+  }
+
+  /**
+   * JournalLine create
+   */
+  export type JournalLineCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JournalLine
+     */
+    select?: JournalLineSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JournalLine
+     */
+    omit?: JournalLineOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JournalLineInclude<ExtArgs> | null
+    /**
+     * The data needed to create a JournalLine.
+     */
+    data: XOR<JournalLineCreateInput, JournalLineUncheckedCreateInput>
+  }
+
+  /**
+   * JournalLine createMany
+   */
+  export type JournalLineCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many JournalLines.
+     */
+    data: JournalLineCreateManyInput | JournalLineCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * JournalLine createManyAndReturn
+   */
+  export type JournalLineCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JournalLine
+     */
+    select?: JournalLineSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the JournalLine
+     */
+    omit?: JournalLineOmit<ExtArgs> | null
+    /**
+     * The data used to create many JournalLines.
+     */
+    data: JournalLineCreateManyInput | JournalLineCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JournalLineIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * JournalLine update
+   */
+  export type JournalLineUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JournalLine
+     */
+    select?: JournalLineSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JournalLine
+     */
+    omit?: JournalLineOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JournalLineInclude<ExtArgs> | null
+    /**
+     * The data needed to update a JournalLine.
+     */
+    data: XOR<JournalLineUpdateInput, JournalLineUncheckedUpdateInput>
+    /**
+     * Choose, which JournalLine to update.
+     */
+    where: JournalLineWhereUniqueInput
+  }
+
+  /**
+   * JournalLine updateMany
+   */
+  export type JournalLineUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update JournalLines.
+     */
+    data: XOR<JournalLineUpdateManyMutationInput, JournalLineUncheckedUpdateManyInput>
+    /**
+     * Filter which JournalLines to update
+     */
+    where?: JournalLineWhereInput
+    /**
+     * Limit how many JournalLines to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * JournalLine updateManyAndReturn
+   */
+  export type JournalLineUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JournalLine
+     */
+    select?: JournalLineSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the JournalLine
+     */
+    omit?: JournalLineOmit<ExtArgs> | null
+    /**
+     * The data used to update JournalLines.
+     */
+    data: XOR<JournalLineUpdateManyMutationInput, JournalLineUncheckedUpdateManyInput>
+    /**
+     * Filter which JournalLines to update
+     */
+    where?: JournalLineWhereInput
+    /**
+     * Limit how many JournalLines to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JournalLineIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * JournalLine upsert
+   */
+  export type JournalLineUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JournalLine
+     */
+    select?: JournalLineSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JournalLine
+     */
+    omit?: JournalLineOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JournalLineInclude<ExtArgs> | null
+    /**
+     * The filter to search for the JournalLine to update in case it exists.
+     */
+    where: JournalLineWhereUniqueInput
+    /**
+     * In case the JournalLine found by the `where` argument doesn't exist, create a new JournalLine with this data.
+     */
+    create: XOR<JournalLineCreateInput, JournalLineUncheckedCreateInput>
+    /**
+     * In case the JournalLine was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<JournalLineUpdateInput, JournalLineUncheckedUpdateInput>
+  }
+
+  /**
+   * JournalLine delete
+   */
+  export type JournalLineDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JournalLine
+     */
+    select?: JournalLineSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JournalLine
+     */
+    omit?: JournalLineOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JournalLineInclude<ExtArgs> | null
+    /**
+     * Filter which JournalLine to delete.
+     */
+    where: JournalLineWhereUniqueInput
+  }
+
+  /**
+   * JournalLine deleteMany
+   */
+  export type JournalLineDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which JournalLines to delete
+     */
+    where?: JournalLineWhereInput
+    /**
+     * Limit how many JournalLines to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * JournalLine without action
+   */
+  export type JournalLineDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JournalLine
+     */
+    select?: JournalLineSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JournalLine
+     */
+    omit?: JournalLineOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JournalLineInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -46340,6 +52146,91 @@ export namespace Prisma {
   export type SchoolNotificationRecipientScalarFieldEnum = (typeof SchoolNotificationRecipientScalarFieldEnum)[keyof typeof SchoolNotificationRecipientScalarFieldEnum]
 
 
+  export const LedgerAccountScalarFieldEnum: {
+    id: 'id',
+    code: 'code',
+    name: 'name',
+    type: 'type',
+    subtype: 'subtype',
+    systemKey: 'systemKey',
+    parentId: 'parentId',
+    description: 'description',
+    isMoneyAccount: 'isMoneyAccount',
+    bankName: 'bankName',
+    accountName: 'accountName',
+    accountNumberLast4: 'accountNumberLast4',
+    isActive: 'isActive',
+    isLocked: 'isLocked',
+    sortOrder: 'sortOrder',
+    createdById: 'createdById',
+    updatedById: 'updatedById',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+    deletedAt: 'deletedAt'
+  };
+
+  export type LedgerAccountScalarFieldEnum = (typeof LedgerAccountScalarFieldEnum)[keyof typeof LedgerAccountScalarFieldEnum]
+
+
+  export const FinancePeriodScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    startDate: 'startDate',
+    endDate: 'endDate',
+    status: 'status',
+    closedAt: 'closedAt',
+    closedById: 'closedById',
+    reopenedAt: 'reopenedAt',
+    reopenedById: 'reopenedById',
+    reopenReason: 'reopenReason',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type FinancePeriodScalarFieldEnum = (typeof FinancePeriodScalarFieldEnum)[keyof typeof FinancePeriodScalarFieldEnum]
+
+
+  export const JournalEntryScalarFieldEnum: {
+    id: 'id',
+    number: 'number',
+    entryDate: 'entryDate',
+    periodId: 'periodId',
+    termId: 'termId',
+    sessionId: 'sessionId',
+    branchId: 'branchId',
+    description: 'description',
+    sourceType: 'sourceType',
+    sourceId: 'sourceId',
+    purpose: 'purpose',
+    idempotencyKey: 'idempotencyKey',
+    status: 'status',
+    reversalOfId: 'reversalOfId',
+    reversalReason: 'reversalReason',
+    totalKobo: 'totalKobo',
+    createdById: 'createdById',
+    isSystemActor: 'isSystemActor',
+    postedAt: 'postedAt',
+    createdAt: 'createdAt'
+  };
+
+  export type JournalEntryScalarFieldEnum = (typeof JournalEntryScalarFieldEnum)[keyof typeof JournalEntryScalarFieldEnum]
+
+
+  export const JournalLineScalarFieldEnum: {
+    id: 'id',
+    journalId: 'journalId',
+    lineNumber: 'lineNumber',
+    ledgerAccountId: 'ledgerAccountId',
+    debitKobo: 'debitKobo',
+    creditKobo: 'creditKobo',
+    memo: 'memo',
+    partyType: 'partyType',
+    partyId: 'partyId'
+  };
+
+  export type JournalLineScalarFieldEnum = (typeof JournalLineScalarFieldEnum)[keyof typeof JournalLineScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -46831,6 +52722,90 @@ export namespace Prisma {
    * Reference to a field of type 'NotificationPriority[]'
    */
   export type ListEnumNotificationPriorityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotificationPriority[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'LedgerAccountType'
+   */
+  export type EnumLedgerAccountTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LedgerAccountType'>
+    
+
+
+  /**
+   * Reference to a field of type 'LedgerAccountType[]'
+   */
+  export type ListEnumLedgerAccountTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LedgerAccountType[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'PeriodStatus'
+   */
+  export type EnumPeriodStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PeriodStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'PeriodStatus[]'
+   */
+  export type ListEnumPeriodStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PeriodStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'JournalSourceType'
+   */
+  export type EnumJournalSourceTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JournalSourceType'>
+    
+
+
+  /**
+   * Reference to a field of type 'JournalSourceType[]'
+   */
+  export type ListEnumJournalSourceTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JournalSourceType[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'JournalStatus'
+   */
+  export type EnumJournalStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JournalStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'JournalStatus[]'
+   */
+  export type ListEnumJournalStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JournalStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'BigInt'
+   */
+  export type BigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt'>
+    
+
+
+  /**
+   * Reference to a field of type 'BigInt[]'
+   */
+  export type ListBigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'LedgerPartyType'
+   */
+  export type EnumLedgerPartyTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LedgerPartyType'>
+    
+
+
+  /**
+   * Reference to a field of type 'LedgerPartyType[]'
+   */
+  export type ListEnumLedgerPartyTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LedgerPartyType[]'>
     
   /**
    * Deep Input Types
@@ -47404,6 +53379,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Session"> | Date | string
     terms?: TermListRelationFilter
     calendarEvents?: CalendarEventListRelationFilter
+    journalEntries?: JournalEntryListRelationFilter
   }
 
   export type SessionOrderByWithRelationInput = {
@@ -47416,6 +53392,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     terms?: TermOrderByRelationAggregateInput
     calendarEvents?: CalendarEventOrderByRelationAggregateInput
+    journalEntries?: JournalEntryOrderByRelationAggregateInput
   }
 
   export type SessionWhereUniqueInput = Prisma.AtLeast<{
@@ -47431,6 +53408,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Session"> | Date | string
     terms?: TermListRelationFilter
     calendarEvents?: CalendarEventListRelationFilter
+    journalEntries?: JournalEntryListRelationFilter
   }, "id">
 
   export type SessionOrderByWithAggregationInput = {
@@ -47479,6 +53457,7 @@ export namespace Prisma {
     feeInvoices?: FeeInvoiceListRelationFilter
     enrolments?: EnrolmentListRelationFilter
     reportCards?: ReportCardListRelationFilter
+    journalEntries?: JournalEntryListRelationFilter
   }
 
   export type TermOrderByWithRelationInput = {
@@ -47498,6 +53477,7 @@ export namespace Prisma {
     feeInvoices?: FeeInvoiceOrderByRelationAggregateInput
     enrolments?: EnrolmentOrderByRelationAggregateInput
     reportCards?: ReportCardOrderByRelationAggregateInput
+    journalEntries?: JournalEntryOrderByRelationAggregateInput
   }
 
   export type TermWhereUniqueInput = Prisma.AtLeast<{
@@ -47520,6 +53500,7 @@ export namespace Prisma {
     feeInvoices?: FeeInvoiceListRelationFilter
     enrolments?: EnrolmentListRelationFilter
     reportCards?: ReportCardListRelationFilter
+    journalEntries?: JournalEntryListRelationFilter
   }, "id">
 
   export type TermOrderByWithAggregationInput = {
@@ -49001,6 +54982,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Branch"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Branch"> | Date | string | null
     staff?: StaffBranchListRelationFilter
+    journalEntries?: JournalEntryListRelationFilter
   }
 
   export type BranchOrderByWithRelationInput = {
@@ -49020,6 +55002,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     deletedAt?: SortOrderInput | SortOrder
     staff?: StaffBranchOrderByRelationAggregateInput
+    journalEntries?: JournalEntryOrderByRelationAggregateInput
   }
 
   export type BranchWhereUniqueInput = Prisma.AtLeast<{
@@ -49042,6 +55025,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Branch"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Branch"> | Date | string | null
     staff?: StaffBranchListRelationFilter
+    journalEntries?: JournalEntryListRelationFilter
   }, "id" | "code">
 
   export type BranchOrderByWithAggregationInput = {
@@ -49819,6 +55803,465 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"SchoolNotificationRecipient"> | Date | string
   }
 
+  export type LedgerAccountWhereInput = {
+    AND?: LedgerAccountWhereInput | LedgerAccountWhereInput[]
+    OR?: LedgerAccountWhereInput[]
+    NOT?: LedgerAccountWhereInput | LedgerAccountWhereInput[]
+    id?: StringFilter<"LedgerAccount"> | string
+    code?: StringFilter<"LedgerAccount"> | string
+    name?: StringFilter<"LedgerAccount"> | string
+    type?: EnumLedgerAccountTypeFilter<"LedgerAccount"> | $Enums.LedgerAccountType
+    subtype?: StringFilter<"LedgerAccount"> | string
+    systemKey?: StringNullableFilter<"LedgerAccount"> | string | null
+    parentId?: StringNullableFilter<"LedgerAccount"> | string | null
+    description?: StringNullableFilter<"LedgerAccount"> | string | null
+    isMoneyAccount?: BoolFilter<"LedgerAccount"> | boolean
+    bankName?: StringNullableFilter<"LedgerAccount"> | string | null
+    accountName?: StringNullableFilter<"LedgerAccount"> | string | null
+    accountNumberLast4?: StringNullableFilter<"LedgerAccount"> | string | null
+    isActive?: BoolFilter<"LedgerAccount"> | boolean
+    isLocked?: BoolFilter<"LedgerAccount"> | boolean
+    sortOrder?: IntFilter<"LedgerAccount"> | number
+    createdById?: StringNullableFilter<"LedgerAccount"> | string | null
+    updatedById?: StringNullableFilter<"LedgerAccount"> | string | null
+    createdAt?: DateTimeFilter<"LedgerAccount"> | Date | string
+    updatedAt?: DateTimeFilter<"LedgerAccount"> | Date | string
+    deletedAt?: DateTimeNullableFilter<"LedgerAccount"> | Date | string | null
+    parent?: XOR<LedgerAccountNullableScalarRelationFilter, LedgerAccountWhereInput> | null
+    children?: LedgerAccountListRelationFilter
+    lines?: JournalLineListRelationFilter
+  }
+
+  export type LedgerAccountOrderByWithRelationInput = {
+    id?: SortOrder
+    code?: SortOrder
+    name?: SortOrder
+    type?: SortOrder
+    subtype?: SortOrder
+    systemKey?: SortOrderInput | SortOrder
+    parentId?: SortOrderInput | SortOrder
+    description?: SortOrderInput | SortOrder
+    isMoneyAccount?: SortOrder
+    bankName?: SortOrderInput | SortOrder
+    accountName?: SortOrderInput | SortOrder
+    accountNumberLast4?: SortOrderInput | SortOrder
+    isActive?: SortOrder
+    isLocked?: SortOrder
+    sortOrder?: SortOrder
+    createdById?: SortOrderInput | SortOrder
+    updatedById?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    deletedAt?: SortOrderInput | SortOrder
+    parent?: LedgerAccountOrderByWithRelationInput
+    children?: LedgerAccountOrderByRelationAggregateInput
+    lines?: JournalLineOrderByRelationAggregateInput
+  }
+
+  export type LedgerAccountWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    code?: string
+    systemKey?: string
+    AND?: LedgerAccountWhereInput | LedgerAccountWhereInput[]
+    OR?: LedgerAccountWhereInput[]
+    NOT?: LedgerAccountWhereInput | LedgerAccountWhereInput[]
+    name?: StringFilter<"LedgerAccount"> | string
+    type?: EnumLedgerAccountTypeFilter<"LedgerAccount"> | $Enums.LedgerAccountType
+    subtype?: StringFilter<"LedgerAccount"> | string
+    parentId?: StringNullableFilter<"LedgerAccount"> | string | null
+    description?: StringNullableFilter<"LedgerAccount"> | string | null
+    isMoneyAccount?: BoolFilter<"LedgerAccount"> | boolean
+    bankName?: StringNullableFilter<"LedgerAccount"> | string | null
+    accountName?: StringNullableFilter<"LedgerAccount"> | string | null
+    accountNumberLast4?: StringNullableFilter<"LedgerAccount"> | string | null
+    isActive?: BoolFilter<"LedgerAccount"> | boolean
+    isLocked?: BoolFilter<"LedgerAccount"> | boolean
+    sortOrder?: IntFilter<"LedgerAccount"> | number
+    createdById?: StringNullableFilter<"LedgerAccount"> | string | null
+    updatedById?: StringNullableFilter<"LedgerAccount"> | string | null
+    createdAt?: DateTimeFilter<"LedgerAccount"> | Date | string
+    updatedAt?: DateTimeFilter<"LedgerAccount"> | Date | string
+    deletedAt?: DateTimeNullableFilter<"LedgerAccount"> | Date | string | null
+    parent?: XOR<LedgerAccountNullableScalarRelationFilter, LedgerAccountWhereInput> | null
+    children?: LedgerAccountListRelationFilter
+    lines?: JournalLineListRelationFilter
+  }, "id" | "code" | "systemKey">
+
+  export type LedgerAccountOrderByWithAggregationInput = {
+    id?: SortOrder
+    code?: SortOrder
+    name?: SortOrder
+    type?: SortOrder
+    subtype?: SortOrder
+    systemKey?: SortOrderInput | SortOrder
+    parentId?: SortOrderInput | SortOrder
+    description?: SortOrderInput | SortOrder
+    isMoneyAccount?: SortOrder
+    bankName?: SortOrderInput | SortOrder
+    accountName?: SortOrderInput | SortOrder
+    accountNumberLast4?: SortOrderInput | SortOrder
+    isActive?: SortOrder
+    isLocked?: SortOrder
+    sortOrder?: SortOrder
+    createdById?: SortOrderInput | SortOrder
+    updatedById?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    deletedAt?: SortOrderInput | SortOrder
+    _count?: LedgerAccountCountOrderByAggregateInput
+    _avg?: LedgerAccountAvgOrderByAggregateInput
+    _max?: LedgerAccountMaxOrderByAggregateInput
+    _min?: LedgerAccountMinOrderByAggregateInput
+    _sum?: LedgerAccountSumOrderByAggregateInput
+  }
+
+  export type LedgerAccountScalarWhereWithAggregatesInput = {
+    AND?: LedgerAccountScalarWhereWithAggregatesInput | LedgerAccountScalarWhereWithAggregatesInput[]
+    OR?: LedgerAccountScalarWhereWithAggregatesInput[]
+    NOT?: LedgerAccountScalarWhereWithAggregatesInput | LedgerAccountScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"LedgerAccount"> | string
+    code?: StringWithAggregatesFilter<"LedgerAccount"> | string
+    name?: StringWithAggregatesFilter<"LedgerAccount"> | string
+    type?: EnumLedgerAccountTypeWithAggregatesFilter<"LedgerAccount"> | $Enums.LedgerAccountType
+    subtype?: StringWithAggregatesFilter<"LedgerAccount"> | string
+    systemKey?: StringNullableWithAggregatesFilter<"LedgerAccount"> | string | null
+    parentId?: StringNullableWithAggregatesFilter<"LedgerAccount"> | string | null
+    description?: StringNullableWithAggregatesFilter<"LedgerAccount"> | string | null
+    isMoneyAccount?: BoolWithAggregatesFilter<"LedgerAccount"> | boolean
+    bankName?: StringNullableWithAggregatesFilter<"LedgerAccount"> | string | null
+    accountName?: StringNullableWithAggregatesFilter<"LedgerAccount"> | string | null
+    accountNumberLast4?: StringNullableWithAggregatesFilter<"LedgerAccount"> | string | null
+    isActive?: BoolWithAggregatesFilter<"LedgerAccount"> | boolean
+    isLocked?: BoolWithAggregatesFilter<"LedgerAccount"> | boolean
+    sortOrder?: IntWithAggregatesFilter<"LedgerAccount"> | number
+    createdById?: StringNullableWithAggregatesFilter<"LedgerAccount"> | string | null
+    updatedById?: StringNullableWithAggregatesFilter<"LedgerAccount"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"LedgerAccount"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"LedgerAccount"> | Date | string
+    deletedAt?: DateTimeNullableWithAggregatesFilter<"LedgerAccount"> | Date | string | null
+  }
+
+  export type FinancePeriodWhereInput = {
+    AND?: FinancePeriodWhereInput | FinancePeriodWhereInput[]
+    OR?: FinancePeriodWhereInput[]
+    NOT?: FinancePeriodWhereInput | FinancePeriodWhereInput[]
+    id?: StringFilter<"FinancePeriod"> | string
+    name?: StringFilter<"FinancePeriod"> | string
+    startDate?: DateTimeFilter<"FinancePeriod"> | Date | string
+    endDate?: DateTimeFilter<"FinancePeriod"> | Date | string
+    status?: EnumPeriodStatusFilter<"FinancePeriod"> | $Enums.PeriodStatus
+    closedAt?: DateTimeNullableFilter<"FinancePeriod"> | Date | string | null
+    closedById?: StringNullableFilter<"FinancePeriod"> | string | null
+    reopenedAt?: DateTimeNullableFilter<"FinancePeriod"> | Date | string | null
+    reopenedById?: StringNullableFilter<"FinancePeriod"> | string | null
+    reopenReason?: StringNullableFilter<"FinancePeriod"> | string | null
+    createdAt?: DateTimeFilter<"FinancePeriod"> | Date | string
+    updatedAt?: DateTimeFilter<"FinancePeriod"> | Date | string
+    journals?: JournalEntryListRelationFilter
+  }
+
+  export type FinancePeriodOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
+    status?: SortOrder
+    closedAt?: SortOrderInput | SortOrder
+    closedById?: SortOrderInput | SortOrder
+    reopenedAt?: SortOrderInput | SortOrder
+    reopenedById?: SortOrderInput | SortOrder
+    reopenReason?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    journals?: JournalEntryOrderByRelationAggregateInput
+  }
+
+  export type FinancePeriodWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    name?: string
+    startDate?: Date | string
+    AND?: FinancePeriodWhereInput | FinancePeriodWhereInput[]
+    OR?: FinancePeriodWhereInput[]
+    NOT?: FinancePeriodWhereInput | FinancePeriodWhereInput[]
+    endDate?: DateTimeFilter<"FinancePeriod"> | Date | string
+    status?: EnumPeriodStatusFilter<"FinancePeriod"> | $Enums.PeriodStatus
+    closedAt?: DateTimeNullableFilter<"FinancePeriod"> | Date | string | null
+    closedById?: StringNullableFilter<"FinancePeriod"> | string | null
+    reopenedAt?: DateTimeNullableFilter<"FinancePeriod"> | Date | string | null
+    reopenedById?: StringNullableFilter<"FinancePeriod"> | string | null
+    reopenReason?: StringNullableFilter<"FinancePeriod"> | string | null
+    createdAt?: DateTimeFilter<"FinancePeriod"> | Date | string
+    updatedAt?: DateTimeFilter<"FinancePeriod"> | Date | string
+    journals?: JournalEntryListRelationFilter
+  }, "id" | "name" | "startDate">
+
+  export type FinancePeriodOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
+    status?: SortOrder
+    closedAt?: SortOrderInput | SortOrder
+    closedById?: SortOrderInput | SortOrder
+    reopenedAt?: SortOrderInput | SortOrder
+    reopenedById?: SortOrderInput | SortOrder
+    reopenReason?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: FinancePeriodCountOrderByAggregateInput
+    _max?: FinancePeriodMaxOrderByAggregateInput
+    _min?: FinancePeriodMinOrderByAggregateInput
+  }
+
+  export type FinancePeriodScalarWhereWithAggregatesInput = {
+    AND?: FinancePeriodScalarWhereWithAggregatesInput | FinancePeriodScalarWhereWithAggregatesInput[]
+    OR?: FinancePeriodScalarWhereWithAggregatesInput[]
+    NOT?: FinancePeriodScalarWhereWithAggregatesInput | FinancePeriodScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"FinancePeriod"> | string
+    name?: StringWithAggregatesFilter<"FinancePeriod"> | string
+    startDate?: DateTimeWithAggregatesFilter<"FinancePeriod"> | Date | string
+    endDate?: DateTimeWithAggregatesFilter<"FinancePeriod"> | Date | string
+    status?: EnumPeriodStatusWithAggregatesFilter<"FinancePeriod"> | $Enums.PeriodStatus
+    closedAt?: DateTimeNullableWithAggregatesFilter<"FinancePeriod"> | Date | string | null
+    closedById?: StringNullableWithAggregatesFilter<"FinancePeriod"> | string | null
+    reopenedAt?: DateTimeNullableWithAggregatesFilter<"FinancePeriod"> | Date | string | null
+    reopenedById?: StringNullableWithAggregatesFilter<"FinancePeriod"> | string | null
+    reopenReason?: StringNullableWithAggregatesFilter<"FinancePeriod"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"FinancePeriod"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"FinancePeriod"> | Date | string
+  }
+
+  export type JournalEntryWhereInput = {
+    AND?: JournalEntryWhereInput | JournalEntryWhereInput[]
+    OR?: JournalEntryWhereInput[]
+    NOT?: JournalEntryWhereInput | JournalEntryWhereInput[]
+    id?: StringFilter<"JournalEntry"> | string
+    number?: StringFilter<"JournalEntry"> | string
+    entryDate?: DateTimeFilter<"JournalEntry"> | Date | string
+    periodId?: StringFilter<"JournalEntry"> | string
+    termId?: StringNullableFilter<"JournalEntry"> | string | null
+    sessionId?: StringNullableFilter<"JournalEntry"> | string | null
+    branchId?: StringNullableFilter<"JournalEntry"> | string | null
+    description?: StringFilter<"JournalEntry"> | string
+    sourceType?: EnumJournalSourceTypeFilter<"JournalEntry"> | $Enums.JournalSourceType
+    sourceId?: StringNullableFilter<"JournalEntry"> | string | null
+    purpose?: StringFilter<"JournalEntry"> | string
+    idempotencyKey?: StringFilter<"JournalEntry"> | string
+    status?: EnumJournalStatusFilter<"JournalEntry"> | $Enums.JournalStatus
+    reversalOfId?: StringNullableFilter<"JournalEntry"> | string | null
+    reversalReason?: StringNullableFilter<"JournalEntry"> | string | null
+    totalKobo?: BigIntFilter<"JournalEntry"> | bigint | number
+    createdById?: StringNullableFilter<"JournalEntry"> | string | null
+    isSystemActor?: BoolFilter<"JournalEntry"> | boolean
+    postedAt?: DateTimeFilter<"JournalEntry"> | Date | string
+    createdAt?: DateTimeFilter<"JournalEntry"> | Date | string
+    period?: XOR<FinancePeriodScalarRelationFilter, FinancePeriodWhereInput>
+    term?: XOR<TermNullableScalarRelationFilter, TermWhereInput> | null
+    session?: XOR<SessionNullableScalarRelationFilter, SessionWhereInput> | null
+    branch?: XOR<BranchNullableScalarRelationFilter, BranchWhereInput> | null
+    reversalOf?: XOR<JournalEntryNullableScalarRelationFilter, JournalEntryWhereInput> | null
+    reversedBy?: XOR<JournalEntryNullableScalarRelationFilter, JournalEntryWhereInput> | null
+    lines?: JournalLineListRelationFilter
+  }
+
+  export type JournalEntryOrderByWithRelationInput = {
+    id?: SortOrder
+    number?: SortOrder
+    entryDate?: SortOrder
+    periodId?: SortOrder
+    termId?: SortOrderInput | SortOrder
+    sessionId?: SortOrderInput | SortOrder
+    branchId?: SortOrderInput | SortOrder
+    description?: SortOrder
+    sourceType?: SortOrder
+    sourceId?: SortOrderInput | SortOrder
+    purpose?: SortOrder
+    idempotencyKey?: SortOrder
+    status?: SortOrder
+    reversalOfId?: SortOrderInput | SortOrder
+    reversalReason?: SortOrderInput | SortOrder
+    totalKobo?: SortOrder
+    createdById?: SortOrderInput | SortOrder
+    isSystemActor?: SortOrder
+    postedAt?: SortOrder
+    createdAt?: SortOrder
+    period?: FinancePeriodOrderByWithRelationInput
+    term?: TermOrderByWithRelationInput
+    session?: SessionOrderByWithRelationInput
+    branch?: BranchOrderByWithRelationInput
+    reversalOf?: JournalEntryOrderByWithRelationInput
+    reversedBy?: JournalEntryOrderByWithRelationInput
+    lines?: JournalLineOrderByRelationAggregateInput
+  }
+
+  export type JournalEntryWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    number?: string
+    idempotencyKey?: string
+    reversalOfId?: string
+    AND?: JournalEntryWhereInput | JournalEntryWhereInput[]
+    OR?: JournalEntryWhereInput[]
+    NOT?: JournalEntryWhereInput | JournalEntryWhereInput[]
+    entryDate?: DateTimeFilter<"JournalEntry"> | Date | string
+    periodId?: StringFilter<"JournalEntry"> | string
+    termId?: StringNullableFilter<"JournalEntry"> | string | null
+    sessionId?: StringNullableFilter<"JournalEntry"> | string | null
+    branchId?: StringNullableFilter<"JournalEntry"> | string | null
+    description?: StringFilter<"JournalEntry"> | string
+    sourceType?: EnumJournalSourceTypeFilter<"JournalEntry"> | $Enums.JournalSourceType
+    sourceId?: StringNullableFilter<"JournalEntry"> | string | null
+    purpose?: StringFilter<"JournalEntry"> | string
+    status?: EnumJournalStatusFilter<"JournalEntry"> | $Enums.JournalStatus
+    reversalReason?: StringNullableFilter<"JournalEntry"> | string | null
+    totalKobo?: BigIntFilter<"JournalEntry"> | bigint | number
+    createdById?: StringNullableFilter<"JournalEntry"> | string | null
+    isSystemActor?: BoolFilter<"JournalEntry"> | boolean
+    postedAt?: DateTimeFilter<"JournalEntry"> | Date | string
+    createdAt?: DateTimeFilter<"JournalEntry"> | Date | string
+    period?: XOR<FinancePeriodScalarRelationFilter, FinancePeriodWhereInput>
+    term?: XOR<TermNullableScalarRelationFilter, TermWhereInput> | null
+    session?: XOR<SessionNullableScalarRelationFilter, SessionWhereInput> | null
+    branch?: XOR<BranchNullableScalarRelationFilter, BranchWhereInput> | null
+    reversalOf?: XOR<JournalEntryNullableScalarRelationFilter, JournalEntryWhereInput> | null
+    reversedBy?: XOR<JournalEntryNullableScalarRelationFilter, JournalEntryWhereInput> | null
+    lines?: JournalLineListRelationFilter
+  }, "id" | "number" | "idempotencyKey" | "reversalOfId">
+
+  export type JournalEntryOrderByWithAggregationInput = {
+    id?: SortOrder
+    number?: SortOrder
+    entryDate?: SortOrder
+    periodId?: SortOrder
+    termId?: SortOrderInput | SortOrder
+    sessionId?: SortOrderInput | SortOrder
+    branchId?: SortOrderInput | SortOrder
+    description?: SortOrder
+    sourceType?: SortOrder
+    sourceId?: SortOrderInput | SortOrder
+    purpose?: SortOrder
+    idempotencyKey?: SortOrder
+    status?: SortOrder
+    reversalOfId?: SortOrderInput | SortOrder
+    reversalReason?: SortOrderInput | SortOrder
+    totalKobo?: SortOrder
+    createdById?: SortOrderInput | SortOrder
+    isSystemActor?: SortOrder
+    postedAt?: SortOrder
+    createdAt?: SortOrder
+    _count?: JournalEntryCountOrderByAggregateInput
+    _avg?: JournalEntryAvgOrderByAggregateInput
+    _max?: JournalEntryMaxOrderByAggregateInput
+    _min?: JournalEntryMinOrderByAggregateInput
+    _sum?: JournalEntrySumOrderByAggregateInput
+  }
+
+  export type JournalEntryScalarWhereWithAggregatesInput = {
+    AND?: JournalEntryScalarWhereWithAggregatesInput | JournalEntryScalarWhereWithAggregatesInput[]
+    OR?: JournalEntryScalarWhereWithAggregatesInput[]
+    NOT?: JournalEntryScalarWhereWithAggregatesInput | JournalEntryScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"JournalEntry"> | string
+    number?: StringWithAggregatesFilter<"JournalEntry"> | string
+    entryDate?: DateTimeWithAggregatesFilter<"JournalEntry"> | Date | string
+    periodId?: StringWithAggregatesFilter<"JournalEntry"> | string
+    termId?: StringNullableWithAggregatesFilter<"JournalEntry"> | string | null
+    sessionId?: StringNullableWithAggregatesFilter<"JournalEntry"> | string | null
+    branchId?: StringNullableWithAggregatesFilter<"JournalEntry"> | string | null
+    description?: StringWithAggregatesFilter<"JournalEntry"> | string
+    sourceType?: EnumJournalSourceTypeWithAggregatesFilter<"JournalEntry"> | $Enums.JournalSourceType
+    sourceId?: StringNullableWithAggregatesFilter<"JournalEntry"> | string | null
+    purpose?: StringWithAggregatesFilter<"JournalEntry"> | string
+    idempotencyKey?: StringWithAggregatesFilter<"JournalEntry"> | string
+    status?: EnumJournalStatusWithAggregatesFilter<"JournalEntry"> | $Enums.JournalStatus
+    reversalOfId?: StringNullableWithAggregatesFilter<"JournalEntry"> | string | null
+    reversalReason?: StringNullableWithAggregatesFilter<"JournalEntry"> | string | null
+    totalKobo?: BigIntWithAggregatesFilter<"JournalEntry"> | bigint | number
+    createdById?: StringNullableWithAggregatesFilter<"JournalEntry"> | string | null
+    isSystemActor?: BoolWithAggregatesFilter<"JournalEntry"> | boolean
+    postedAt?: DateTimeWithAggregatesFilter<"JournalEntry"> | Date | string
+    createdAt?: DateTimeWithAggregatesFilter<"JournalEntry"> | Date | string
+  }
+
+  export type JournalLineWhereInput = {
+    AND?: JournalLineWhereInput | JournalLineWhereInput[]
+    OR?: JournalLineWhereInput[]
+    NOT?: JournalLineWhereInput | JournalLineWhereInput[]
+    id?: StringFilter<"JournalLine"> | string
+    journalId?: StringFilter<"JournalLine"> | string
+    lineNumber?: IntFilter<"JournalLine"> | number
+    ledgerAccountId?: StringFilter<"JournalLine"> | string
+    debitKobo?: BigIntFilter<"JournalLine"> | bigint | number
+    creditKobo?: BigIntFilter<"JournalLine"> | bigint | number
+    memo?: StringNullableFilter<"JournalLine"> | string | null
+    partyType?: EnumLedgerPartyTypeNullableFilter<"JournalLine"> | $Enums.LedgerPartyType | null
+    partyId?: StringNullableFilter<"JournalLine"> | string | null
+    journal?: XOR<JournalEntryScalarRelationFilter, JournalEntryWhereInput>
+    ledgerAccount?: XOR<LedgerAccountScalarRelationFilter, LedgerAccountWhereInput>
+  }
+
+  export type JournalLineOrderByWithRelationInput = {
+    id?: SortOrder
+    journalId?: SortOrder
+    lineNumber?: SortOrder
+    ledgerAccountId?: SortOrder
+    debitKobo?: SortOrder
+    creditKobo?: SortOrder
+    memo?: SortOrderInput | SortOrder
+    partyType?: SortOrderInput | SortOrder
+    partyId?: SortOrderInput | SortOrder
+    journal?: JournalEntryOrderByWithRelationInput
+    ledgerAccount?: LedgerAccountOrderByWithRelationInput
+  }
+
+  export type JournalLineWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    journalId_lineNumber?: JournalLineJournalIdLineNumberCompoundUniqueInput
+    AND?: JournalLineWhereInput | JournalLineWhereInput[]
+    OR?: JournalLineWhereInput[]
+    NOT?: JournalLineWhereInput | JournalLineWhereInput[]
+    journalId?: StringFilter<"JournalLine"> | string
+    lineNumber?: IntFilter<"JournalLine"> | number
+    ledgerAccountId?: StringFilter<"JournalLine"> | string
+    debitKobo?: BigIntFilter<"JournalLine"> | bigint | number
+    creditKobo?: BigIntFilter<"JournalLine"> | bigint | number
+    memo?: StringNullableFilter<"JournalLine"> | string | null
+    partyType?: EnumLedgerPartyTypeNullableFilter<"JournalLine"> | $Enums.LedgerPartyType | null
+    partyId?: StringNullableFilter<"JournalLine"> | string | null
+    journal?: XOR<JournalEntryScalarRelationFilter, JournalEntryWhereInput>
+    ledgerAccount?: XOR<LedgerAccountScalarRelationFilter, LedgerAccountWhereInput>
+  }, "id" | "journalId_lineNumber">
+
+  export type JournalLineOrderByWithAggregationInput = {
+    id?: SortOrder
+    journalId?: SortOrder
+    lineNumber?: SortOrder
+    ledgerAccountId?: SortOrder
+    debitKobo?: SortOrder
+    creditKobo?: SortOrder
+    memo?: SortOrderInput | SortOrder
+    partyType?: SortOrderInput | SortOrder
+    partyId?: SortOrderInput | SortOrder
+    _count?: JournalLineCountOrderByAggregateInput
+    _avg?: JournalLineAvgOrderByAggregateInput
+    _max?: JournalLineMaxOrderByAggregateInput
+    _min?: JournalLineMinOrderByAggregateInput
+    _sum?: JournalLineSumOrderByAggregateInput
+  }
+
+  export type JournalLineScalarWhereWithAggregatesInput = {
+    AND?: JournalLineScalarWhereWithAggregatesInput | JournalLineScalarWhereWithAggregatesInput[]
+    OR?: JournalLineScalarWhereWithAggregatesInput[]
+    NOT?: JournalLineScalarWhereWithAggregatesInput | JournalLineScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"JournalLine"> | string
+    journalId?: StringWithAggregatesFilter<"JournalLine"> | string
+    lineNumber?: IntWithAggregatesFilter<"JournalLine"> | number
+    ledgerAccountId?: StringWithAggregatesFilter<"JournalLine"> | string
+    debitKobo?: BigIntWithAggregatesFilter<"JournalLine"> | bigint | number
+    creditKobo?: BigIntWithAggregatesFilter<"JournalLine"> | bigint | number
+    memo?: StringNullableWithAggregatesFilter<"JournalLine"> | string | null
+    partyType?: EnumLedgerPartyTypeNullableWithAggregatesFilter<"JournalLine"> | $Enums.LedgerPartyType | null
+    partyId?: StringNullableWithAggregatesFilter<"JournalLine"> | string | null
+  }
+
   export type StaffCreateInput = {
     id?: string
     userId?: string | null
@@ -50496,6 +56939,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     terms?: TermCreateNestedManyWithoutSessionInput
     calendarEvents?: CalendarEventCreateNestedManyWithoutSessionInput
+    journalEntries?: JournalEntryCreateNestedManyWithoutSessionInput
   }
 
   export type SessionUncheckedCreateInput = {
@@ -50508,6 +56952,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     terms?: TermUncheckedCreateNestedManyWithoutSessionInput
     calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutSessionInput
+    journalEntries?: JournalEntryUncheckedCreateNestedManyWithoutSessionInput
   }
 
   export type SessionUpdateInput = {
@@ -50520,6 +56965,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     terms?: TermUpdateManyWithoutSessionNestedInput
     calendarEvents?: CalendarEventUpdateManyWithoutSessionNestedInput
+    journalEntries?: JournalEntryUpdateManyWithoutSessionNestedInput
   }
 
   export type SessionUncheckedUpdateInput = {
@@ -50532,6 +56978,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     terms?: TermUncheckedUpdateManyWithoutSessionNestedInput
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutSessionNestedInput
+    journalEntries?: JournalEntryUncheckedUpdateManyWithoutSessionNestedInput
   }
 
   export type SessionCreateManyInput = {
@@ -50580,6 +57027,7 @@ export namespace Prisma {
     feeInvoices?: FeeInvoiceCreateNestedManyWithoutTermInput
     enrolments?: EnrolmentCreateNestedManyWithoutTermInput
     reportCards?: ReportCardCreateNestedManyWithoutTermInput
+    journalEntries?: JournalEntryCreateNestedManyWithoutTermInput
   }
 
   export type TermUncheckedCreateInput = {
@@ -50598,6 +57046,7 @@ export namespace Prisma {
     feeInvoices?: FeeInvoiceUncheckedCreateNestedManyWithoutTermInput
     enrolments?: EnrolmentUncheckedCreateNestedManyWithoutTermInput
     reportCards?: ReportCardUncheckedCreateNestedManyWithoutTermInput
+    journalEntries?: JournalEntryUncheckedCreateNestedManyWithoutTermInput
   }
 
   export type TermUpdateInput = {
@@ -50616,6 +57065,7 @@ export namespace Prisma {
     feeInvoices?: FeeInvoiceUpdateManyWithoutTermNestedInput
     enrolments?: EnrolmentUpdateManyWithoutTermNestedInput
     reportCards?: ReportCardUpdateManyWithoutTermNestedInput
+    journalEntries?: JournalEntryUpdateManyWithoutTermNestedInput
   }
 
   export type TermUncheckedUpdateInput = {
@@ -50634,6 +57084,7 @@ export namespace Prisma {
     feeInvoices?: FeeInvoiceUncheckedUpdateManyWithoutTermNestedInput
     enrolments?: EnrolmentUncheckedUpdateManyWithoutTermNestedInput
     reportCards?: ReportCardUncheckedUpdateManyWithoutTermNestedInput
+    journalEntries?: JournalEntryUncheckedUpdateManyWithoutTermNestedInput
   }
 
   export type TermCreateManyInput = {
@@ -52204,6 +58655,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     deletedAt?: Date | string | null
     staff?: StaffBranchCreateNestedManyWithoutBranchInput
+    journalEntries?: JournalEntryCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateInput = {
@@ -52223,6 +58675,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     deletedAt?: Date | string | null
     staff?: StaffBranchUncheckedCreateNestedManyWithoutBranchInput
+    journalEntries?: JournalEntryUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUpdateInput = {
@@ -52242,6 +58695,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     staff?: StaffBranchUpdateManyWithoutBranchNestedInput
+    journalEntries?: JournalEntryUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateInput = {
@@ -52261,6 +58715,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     staff?: StaffBranchUncheckedUpdateManyWithoutBranchNestedInput
+    journalEntries?: JournalEntryUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchCreateManyInput = {
@@ -53154,6 +59609,529 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type LedgerAccountCreateInput = {
+    id?: string
+    code: string
+    name: string
+    type: $Enums.LedgerAccountType
+    subtype?: string
+    systemKey?: string | null
+    description?: string | null
+    isMoneyAccount?: boolean
+    bankName?: string | null
+    accountName?: string | null
+    accountNumberLast4?: string | null
+    isActive?: boolean
+    isLocked?: boolean
+    sortOrder?: number
+    createdById?: string | null
+    updatedById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    parent?: LedgerAccountCreateNestedOneWithoutChildrenInput
+    children?: LedgerAccountCreateNestedManyWithoutParentInput
+    lines?: JournalLineCreateNestedManyWithoutLedgerAccountInput
+  }
+
+  export type LedgerAccountUncheckedCreateInput = {
+    id?: string
+    code: string
+    name: string
+    type: $Enums.LedgerAccountType
+    subtype?: string
+    systemKey?: string | null
+    parentId?: string | null
+    description?: string | null
+    isMoneyAccount?: boolean
+    bankName?: string | null
+    accountName?: string | null
+    accountNumberLast4?: string | null
+    isActive?: boolean
+    isLocked?: boolean
+    sortOrder?: number
+    createdById?: string | null
+    updatedById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    children?: LedgerAccountUncheckedCreateNestedManyWithoutParentInput
+    lines?: JournalLineUncheckedCreateNestedManyWithoutLedgerAccountInput
+  }
+
+  export type LedgerAccountUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    type?: EnumLedgerAccountTypeFieldUpdateOperationsInput | $Enums.LedgerAccountType
+    subtype?: StringFieldUpdateOperationsInput | string
+    systemKey?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    isMoneyAccount?: BoolFieldUpdateOperationsInput | boolean
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
+    accountName?: NullableStringFieldUpdateOperationsInput | string | null
+    accountNumberLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isLocked?: BoolFieldUpdateOperationsInput | boolean
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    parent?: LedgerAccountUpdateOneWithoutChildrenNestedInput
+    children?: LedgerAccountUpdateManyWithoutParentNestedInput
+    lines?: JournalLineUpdateManyWithoutLedgerAccountNestedInput
+  }
+
+  export type LedgerAccountUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    type?: EnumLedgerAccountTypeFieldUpdateOperationsInput | $Enums.LedgerAccountType
+    subtype?: StringFieldUpdateOperationsInput | string
+    systemKey?: NullableStringFieldUpdateOperationsInput | string | null
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    isMoneyAccount?: BoolFieldUpdateOperationsInput | boolean
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
+    accountName?: NullableStringFieldUpdateOperationsInput | string | null
+    accountNumberLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isLocked?: BoolFieldUpdateOperationsInput | boolean
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    children?: LedgerAccountUncheckedUpdateManyWithoutParentNestedInput
+    lines?: JournalLineUncheckedUpdateManyWithoutLedgerAccountNestedInput
+  }
+
+  export type LedgerAccountCreateManyInput = {
+    id?: string
+    code: string
+    name: string
+    type: $Enums.LedgerAccountType
+    subtype?: string
+    systemKey?: string | null
+    parentId?: string | null
+    description?: string | null
+    isMoneyAccount?: boolean
+    bankName?: string | null
+    accountName?: string | null
+    accountNumberLast4?: string | null
+    isActive?: boolean
+    isLocked?: boolean
+    sortOrder?: number
+    createdById?: string | null
+    updatedById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+  }
+
+  export type LedgerAccountUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    type?: EnumLedgerAccountTypeFieldUpdateOperationsInput | $Enums.LedgerAccountType
+    subtype?: StringFieldUpdateOperationsInput | string
+    systemKey?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    isMoneyAccount?: BoolFieldUpdateOperationsInput | boolean
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
+    accountName?: NullableStringFieldUpdateOperationsInput | string | null
+    accountNumberLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isLocked?: BoolFieldUpdateOperationsInput | boolean
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type LedgerAccountUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    type?: EnumLedgerAccountTypeFieldUpdateOperationsInput | $Enums.LedgerAccountType
+    subtype?: StringFieldUpdateOperationsInput | string
+    systemKey?: NullableStringFieldUpdateOperationsInput | string | null
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    isMoneyAccount?: BoolFieldUpdateOperationsInput | boolean
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
+    accountName?: NullableStringFieldUpdateOperationsInput | string | null
+    accountNumberLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isLocked?: BoolFieldUpdateOperationsInput | boolean
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type FinancePeriodCreateInput = {
+    id?: string
+    name: string
+    startDate: Date | string
+    endDate: Date | string
+    status?: $Enums.PeriodStatus
+    closedAt?: Date | string | null
+    closedById?: string | null
+    reopenedAt?: Date | string | null
+    reopenedById?: string | null
+    reopenReason?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    journals?: JournalEntryCreateNestedManyWithoutPeriodInput
+  }
+
+  export type FinancePeriodUncheckedCreateInput = {
+    id?: string
+    name: string
+    startDate: Date | string
+    endDate: Date | string
+    status?: $Enums.PeriodStatus
+    closedAt?: Date | string | null
+    closedById?: string | null
+    reopenedAt?: Date | string | null
+    reopenedById?: string | null
+    reopenReason?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    journals?: JournalEntryUncheckedCreateNestedManyWithoutPeriodInput
+  }
+
+  export type FinancePeriodUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: EnumPeriodStatusFieldUpdateOperationsInput | $Enums.PeriodStatus
+    closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    closedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reopenedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reopenedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reopenReason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    journals?: JournalEntryUpdateManyWithoutPeriodNestedInput
+  }
+
+  export type FinancePeriodUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: EnumPeriodStatusFieldUpdateOperationsInput | $Enums.PeriodStatus
+    closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    closedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reopenedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reopenedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reopenReason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    journals?: JournalEntryUncheckedUpdateManyWithoutPeriodNestedInput
+  }
+
+  export type FinancePeriodCreateManyInput = {
+    id?: string
+    name: string
+    startDate: Date | string
+    endDate: Date | string
+    status?: $Enums.PeriodStatus
+    closedAt?: Date | string | null
+    closedById?: string | null
+    reopenedAt?: Date | string | null
+    reopenedById?: string | null
+    reopenReason?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type FinancePeriodUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: EnumPeriodStatusFieldUpdateOperationsInput | $Enums.PeriodStatus
+    closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    closedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reopenedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reopenedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reopenReason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FinancePeriodUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: EnumPeriodStatusFieldUpdateOperationsInput | $Enums.PeriodStatus
+    closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    closedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reopenedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reopenedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reopenReason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JournalEntryCreateInput = {
+    id?: string
+    number: string
+    entryDate: Date | string
+    description: string
+    sourceType: $Enums.JournalSourceType
+    sourceId?: string | null
+    purpose: string
+    idempotencyKey: string
+    status?: $Enums.JournalStatus
+    reversalReason?: string | null
+    totalKobo: bigint | number
+    createdById?: string | null
+    isSystemActor?: boolean
+    postedAt?: Date | string
+    createdAt?: Date | string
+    period: FinancePeriodCreateNestedOneWithoutJournalsInput
+    term?: TermCreateNestedOneWithoutJournalEntriesInput
+    session?: SessionCreateNestedOneWithoutJournalEntriesInput
+    branch?: BranchCreateNestedOneWithoutJournalEntriesInput
+    reversalOf?: JournalEntryCreateNestedOneWithoutReversedByInput
+    reversedBy?: JournalEntryCreateNestedOneWithoutReversalOfInput
+    lines?: JournalLineCreateNestedManyWithoutJournalInput
+  }
+
+  export type JournalEntryUncheckedCreateInput = {
+    id?: string
+    number: string
+    entryDate: Date | string
+    periodId: string
+    termId?: string | null
+    sessionId?: string | null
+    branchId?: string | null
+    description: string
+    sourceType: $Enums.JournalSourceType
+    sourceId?: string | null
+    purpose: string
+    idempotencyKey: string
+    status?: $Enums.JournalStatus
+    reversalOfId?: string | null
+    reversalReason?: string | null
+    totalKobo: bigint | number
+    createdById?: string | null
+    isSystemActor?: boolean
+    postedAt?: Date | string
+    createdAt?: Date | string
+    reversedBy?: JournalEntryUncheckedCreateNestedOneWithoutReversalOfInput
+    lines?: JournalLineUncheckedCreateNestedManyWithoutJournalInput
+  }
+
+  export type JournalEntryUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    number?: StringFieldUpdateOperationsInput | string
+    entryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    description?: StringFieldUpdateOperationsInput | string
+    sourceType?: EnumJournalSourceTypeFieldUpdateOperationsInput | $Enums.JournalSourceType
+    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    purpose?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    status?: EnumJournalStatusFieldUpdateOperationsInput | $Enums.JournalStatus
+    reversalReason?: NullableStringFieldUpdateOperationsInput | string | null
+    totalKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    isSystemActor?: BoolFieldUpdateOperationsInput | boolean
+    postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    period?: FinancePeriodUpdateOneRequiredWithoutJournalsNestedInput
+    term?: TermUpdateOneWithoutJournalEntriesNestedInput
+    session?: SessionUpdateOneWithoutJournalEntriesNestedInput
+    branch?: BranchUpdateOneWithoutJournalEntriesNestedInput
+    reversalOf?: JournalEntryUpdateOneWithoutReversedByNestedInput
+    reversedBy?: JournalEntryUpdateOneWithoutReversalOfNestedInput
+    lines?: JournalLineUpdateManyWithoutJournalNestedInput
+  }
+
+  export type JournalEntryUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    number?: StringFieldUpdateOperationsInput | string
+    entryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodId?: StringFieldUpdateOperationsInput | string
+    termId?: NullableStringFieldUpdateOperationsInput | string | null
+    sessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    branchId?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: StringFieldUpdateOperationsInput | string
+    sourceType?: EnumJournalSourceTypeFieldUpdateOperationsInput | $Enums.JournalSourceType
+    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    purpose?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    status?: EnumJournalStatusFieldUpdateOperationsInput | $Enums.JournalStatus
+    reversalOfId?: NullableStringFieldUpdateOperationsInput | string | null
+    reversalReason?: NullableStringFieldUpdateOperationsInput | string | null
+    totalKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    isSystemActor?: BoolFieldUpdateOperationsInput | boolean
+    postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reversedBy?: JournalEntryUncheckedUpdateOneWithoutReversalOfNestedInput
+    lines?: JournalLineUncheckedUpdateManyWithoutJournalNestedInput
+  }
+
+  export type JournalEntryCreateManyInput = {
+    id?: string
+    number: string
+    entryDate: Date | string
+    periodId: string
+    termId?: string | null
+    sessionId?: string | null
+    branchId?: string | null
+    description: string
+    sourceType: $Enums.JournalSourceType
+    sourceId?: string | null
+    purpose: string
+    idempotencyKey: string
+    status?: $Enums.JournalStatus
+    reversalOfId?: string | null
+    reversalReason?: string | null
+    totalKobo: bigint | number
+    createdById?: string | null
+    isSystemActor?: boolean
+    postedAt?: Date | string
+    createdAt?: Date | string
+  }
+
+  export type JournalEntryUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    number?: StringFieldUpdateOperationsInput | string
+    entryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    description?: StringFieldUpdateOperationsInput | string
+    sourceType?: EnumJournalSourceTypeFieldUpdateOperationsInput | $Enums.JournalSourceType
+    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    purpose?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    status?: EnumJournalStatusFieldUpdateOperationsInput | $Enums.JournalStatus
+    reversalReason?: NullableStringFieldUpdateOperationsInput | string | null
+    totalKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    isSystemActor?: BoolFieldUpdateOperationsInput | boolean
+    postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JournalEntryUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    number?: StringFieldUpdateOperationsInput | string
+    entryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodId?: StringFieldUpdateOperationsInput | string
+    termId?: NullableStringFieldUpdateOperationsInput | string | null
+    sessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    branchId?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: StringFieldUpdateOperationsInput | string
+    sourceType?: EnumJournalSourceTypeFieldUpdateOperationsInput | $Enums.JournalSourceType
+    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    purpose?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    status?: EnumJournalStatusFieldUpdateOperationsInput | $Enums.JournalStatus
+    reversalOfId?: NullableStringFieldUpdateOperationsInput | string | null
+    reversalReason?: NullableStringFieldUpdateOperationsInput | string | null
+    totalKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    isSystemActor?: BoolFieldUpdateOperationsInput | boolean
+    postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JournalLineCreateInput = {
+    id?: string
+    lineNumber: number
+    debitKobo?: bigint | number
+    creditKobo?: bigint | number
+    memo?: string | null
+    partyType?: $Enums.LedgerPartyType | null
+    partyId?: string | null
+    journal: JournalEntryCreateNestedOneWithoutLinesInput
+    ledgerAccount: LedgerAccountCreateNestedOneWithoutLinesInput
+  }
+
+  export type JournalLineUncheckedCreateInput = {
+    id?: string
+    journalId: string
+    lineNumber: number
+    ledgerAccountId: string
+    debitKobo?: bigint | number
+    creditKobo?: bigint | number
+    memo?: string | null
+    partyType?: $Enums.LedgerPartyType | null
+    partyId?: string | null
+  }
+
+  export type JournalLineUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    lineNumber?: IntFieldUpdateOperationsInput | number
+    debitKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    creditKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    memo?: NullableStringFieldUpdateOperationsInput | string | null
+    partyType?: NullableEnumLedgerPartyTypeFieldUpdateOperationsInput | $Enums.LedgerPartyType | null
+    partyId?: NullableStringFieldUpdateOperationsInput | string | null
+    journal?: JournalEntryUpdateOneRequiredWithoutLinesNestedInput
+    ledgerAccount?: LedgerAccountUpdateOneRequiredWithoutLinesNestedInput
+  }
+
+  export type JournalLineUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    journalId?: StringFieldUpdateOperationsInput | string
+    lineNumber?: IntFieldUpdateOperationsInput | number
+    ledgerAccountId?: StringFieldUpdateOperationsInput | string
+    debitKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    creditKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    memo?: NullableStringFieldUpdateOperationsInput | string | null
+    partyType?: NullableEnumLedgerPartyTypeFieldUpdateOperationsInput | $Enums.LedgerPartyType | null
+    partyId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type JournalLineCreateManyInput = {
+    id?: string
+    journalId: string
+    lineNumber: number
+    ledgerAccountId: string
+    debitKobo?: bigint | number
+    creditKobo?: bigint | number
+    memo?: string | null
+    partyType?: $Enums.LedgerPartyType | null
+    partyId?: string | null
+  }
+
+  export type JournalLineUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    lineNumber?: IntFieldUpdateOperationsInput | number
+    debitKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    creditKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    memo?: NullableStringFieldUpdateOperationsInput | string | null
+    partyType?: NullableEnumLedgerPartyTypeFieldUpdateOperationsInput | $Enums.LedgerPartyType | null
+    partyId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type JournalLineUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    journalId?: StringFieldUpdateOperationsInput | string
+    lineNumber?: IntFieldUpdateOperationsInput | number
+    ledgerAccountId?: StringFieldUpdateOperationsInput | string
+    debitKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    creditKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    memo?: NullableStringFieldUpdateOperationsInput | string | null
+    partyType?: NullableEnumLedgerPartyTypeFieldUpdateOperationsInput | $Enums.LedgerPartyType | null
+    partyId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -53804,11 +60782,21 @@ export namespace Prisma {
     none?: CalendarEventWhereInput
   }
 
+  export type JournalEntryListRelationFilter = {
+    every?: JournalEntryWhereInput
+    some?: JournalEntryWhereInput
+    none?: JournalEntryWhereInput
+  }
+
   export type TermOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
   export type CalendarEventOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type JournalEntryOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -55809,6 +62797,420 @@ export namespace Prisma {
     _max?: NestedEnumNotificationPriorityFilter<$PrismaModel>
   }
 
+  export type EnumLedgerAccountTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.LedgerAccountType | EnumLedgerAccountTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.LedgerAccountType[] | ListEnumLedgerAccountTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.LedgerAccountType[] | ListEnumLedgerAccountTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumLedgerAccountTypeFilter<$PrismaModel> | $Enums.LedgerAccountType
+  }
+
+  export type LedgerAccountNullableScalarRelationFilter = {
+    is?: LedgerAccountWhereInput | null
+    isNot?: LedgerAccountWhereInput | null
+  }
+
+  export type LedgerAccountListRelationFilter = {
+    every?: LedgerAccountWhereInput
+    some?: LedgerAccountWhereInput
+    none?: LedgerAccountWhereInput
+  }
+
+  export type JournalLineListRelationFilter = {
+    every?: JournalLineWhereInput
+    some?: JournalLineWhereInput
+    none?: JournalLineWhereInput
+  }
+
+  export type LedgerAccountOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type JournalLineOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type LedgerAccountCountOrderByAggregateInput = {
+    id?: SortOrder
+    code?: SortOrder
+    name?: SortOrder
+    type?: SortOrder
+    subtype?: SortOrder
+    systemKey?: SortOrder
+    parentId?: SortOrder
+    description?: SortOrder
+    isMoneyAccount?: SortOrder
+    bankName?: SortOrder
+    accountName?: SortOrder
+    accountNumberLast4?: SortOrder
+    isActive?: SortOrder
+    isLocked?: SortOrder
+    sortOrder?: SortOrder
+    createdById?: SortOrder
+    updatedById?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    deletedAt?: SortOrder
+  }
+
+  export type LedgerAccountAvgOrderByAggregateInput = {
+    sortOrder?: SortOrder
+  }
+
+  export type LedgerAccountMaxOrderByAggregateInput = {
+    id?: SortOrder
+    code?: SortOrder
+    name?: SortOrder
+    type?: SortOrder
+    subtype?: SortOrder
+    systemKey?: SortOrder
+    parentId?: SortOrder
+    description?: SortOrder
+    isMoneyAccount?: SortOrder
+    bankName?: SortOrder
+    accountName?: SortOrder
+    accountNumberLast4?: SortOrder
+    isActive?: SortOrder
+    isLocked?: SortOrder
+    sortOrder?: SortOrder
+    createdById?: SortOrder
+    updatedById?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    deletedAt?: SortOrder
+  }
+
+  export type LedgerAccountMinOrderByAggregateInput = {
+    id?: SortOrder
+    code?: SortOrder
+    name?: SortOrder
+    type?: SortOrder
+    subtype?: SortOrder
+    systemKey?: SortOrder
+    parentId?: SortOrder
+    description?: SortOrder
+    isMoneyAccount?: SortOrder
+    bankName?: SortOrder
+    accountName?: SortOrder
+    accountNumberLast4?: SortOrder
+    isActive?: SortOrder
+    isLocked?: SortOrder
+    sortOrder?: SortOrder
+    createdById?: SortOrder
+    updatedById?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    deletedAt?: SortOrder
+  }
+
+  export type LedgerAccountSumOrderByAggregateInput = {
+    sortOrder?: SortOrder
+  }
+
+  export type EnumLedgerAccountTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.LedgerAccountType | EnumLedgerAccountTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.LedgerAccountType[] | ListEnumLedgerAccountTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.LedgerAccountType[] | ListEnumLedgerAccountTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumLedgerAccountTypeWithAggregatesFilter<$PrismaModel> | $Enums.LedgerAccountType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumLedgerAccountTypeFilter<$PrismaModel>
+    _max?: NestedEnumLedgerAccountTypeFilter<$PrismaModel>
+  }
+
+  export type EnumPeriodStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.PeriodStatus | EnumPeriodStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.PeriodStatus[] | ListEnumPeriodStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.PeriodStatus[] | ListEnumPeriodStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumPeriodStatusFilter<$PrismaModel> | $Enums.PeriodStatus
+  }
+
+  export type FinancePeriodCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
+    status?: SortOrder
+    closedAt?: SortOrder
+    closedById?: SortOrder
+    reopenedAt?: SortOrder
+    reopenedById?: SortOrder
+    reopenReason?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type FinancePeriodMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
+    status?: SortOrder
+    closedAt?: SortOrder
+    closedById?: SortOrder
+    reopenedAt?: SortOrder
+    reopenedById?: SortOrder
+    reopenReason?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type FinancePeriodMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
+    status?: SortOrder
+    closedAt?: SortOrder
+    closedById?: SortOrder
+    reopenedAt?: SortOrder
+    reopenedById?: SortOrder
+    reopenReason?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EnumPeriodStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.PeriodStatus | EnumPeriodStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.PeriodStatus[] | ListEnumPeriodStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.PeriodStatus[] | ListEnumPeriodStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumPeriodStatusWithAggregatesFilter<$PrismaModel> | $Enums.PeriodStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumPeriodStatusFilter<$PrismaModel>
+    _max?: NestedEnumPeriodStatusFilter<$PrismaModel>
+  }
+
+  export type EnumJournalSourceTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.JournalSourceType | EnumJournalSourceTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.JournalSourceType[] | ListEnumJournalSourceTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.JournalSourceType[] | ListEnumJournalSourceTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumJournalSourceTypeFilter<$PrismaModel> | $Enums.JournalSourceType
+  }
+
+  export type EnumJournalStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.JournalStatus | EnumJournalStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.JournalStatus[] | ListEnumJournalStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.JournalStatus[] | ListEnumJournalStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumJournalStatusFilter<$PrismaModel> | $Enums.JournalStatus
+  }
+
+  export type BigIntFilter<$PrismaModel = never> = {
+    equals?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    in?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel>
+    notIn?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel>
+    lt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    lte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    not?: NestedBigIntFilter<$PrismaModel> | bigint | number
+  }
+
+  export type FinancePeriodScalarRelationFilter = {
+    is?: FinancePeriodWhereInput
+    isNot?: FinancePeriodWhereInput
+  }
+
+  export type BranchNullableScalarRelationFilter = {
+    is?: BranchWhereInput | null
+    isNot?: BranchWhereInput | null
+  }
+
+  export type JournalEntryNullableScalarRelationFilter = {
+    is?: JournalEntryWhereInput | null
+    isNot?: JournalEntryWhereInput | null
+  }
+
+  export type JournalEntryCountOrderByAggregateInput = {
+    id?: SortOrder
+    number?: SortOrder
+    entryDate?: SortOrder
+    periodId?: SortOrder
+    termId?: SortOrder
+    sessionId?: SortOrder
+    branchId?: SortOrder
+    description?: SortOrder
+    sourceType?: SortOrder
+    sourceId?: SortOrder
+    purpose?: SortOrder
+    idempotencyKey?: SortOrder
+    status?: SortOrder
+    reversalOfId?: SortOrder
+    reversalReason?: SortOrder
+    totalKobo?: SortOrder
+    createdById?: SortOrder
+    isSystemActor?: SortOrder
+    postedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type JournalEntryAvgOrderByAggregateInput = {
+    totalKobo?: SortOrder
+  }
+
+  export type JournalEntryMaxOrderByAggregateInput = {
+    id?: SortOrder
+    number?: SortOrder
+    entryDate?: SortOrder
+    periodId?: SortOrder
+    termId?: SortOrder
+    sessionId?: SortOrder
+    branchId?: SortOrder
+    description?: SortOrder
+    sourceType?: SortOrder
+    sourceId?: SortOrder
+    purpose?: SortOrder
+    idempotencyKey?: SortOrder
+    status?: SortOrder
+    reversalOfId?: SortOrder
+    reversalReason?: SortOrder
+    totalKobo?: SortOrder
+    createdById?: SortOrder
+    isSystemActor?: SortOrder
+    postedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type JournalEntryMinOrderByAggregateInput = {
+    id?: SortOrder
+    number?: SortOrder
+    entryDate?: SortOrder
+    periodId?: SortOrder
+    termId?: SortOrder
+    sessionId?: SortOrder
+    branchId?: SortOrder
+    description?: SortOrder
+    sourceType?: SortOrder
+    sourceId?: SortOrder
+    purpose?: SortOrder
+    idempotencyKey?: SortOrder
+    status?: SortOrder
+    reversalOfId?: SortOrder
+    reversalReason?: SortOrder
+    totalKobo?: SortOrder
+    createdById?: SortOrder
+    isSystemActor?: SortOrder
+    postedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type JournalEntrySumOrderByAggregateInput = {
+    totalKobo?: SortOrder
+  }
+
+  export type EnumJournalSourceTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.JournalSourceType | EnumJournalSourceTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.JournalSourceType[] | ListEnumJournalSourceTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.JournalSourceType[] | ListEnumJournalSourceTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumJournalSourceTypeWithAggregatesFilter<$PrismaModel> | $Enums.JournalSourceType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumJournalSourceTypeFilter<$PrismaModel>
+    _max?: NestedEnumJournalSourceTypeFilter<$PrismaModel>
+  }
+
+  export type EnumJournalStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.JournalStatus | EnumJournalStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.JournalStatus[] | ListEnumJournalStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.JournalStatus[] | ListEnumJournalStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumJournalStatusWithAggregatesFilter<$PrismaModel> | $Enums.JournalStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumJournalStatusFilter<$PrismaModel>
+    _max?: NestedEnumJournalStatusFilter<$PrismaModel>
+  }
+
+  export type BigIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    in?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel>
+    notIn?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel>
+    lt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    lte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    not?: NestedBigIntWithAggregatesFilter<$PrismaModel> | bigint | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedBigIntFilter<$PrismaModel>
+    _min?: NestedBigIntFilter<$PrismaModel>
+    _max?: NestedBigIntFilter<$PrismaModel>
+  }
+
+  export type EnumLedgerPartyTypeNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.LedgerPartyType | EnumLedgerPartyTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.LedgerPartyType[] | ListEnumLedgerPartyTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.LedgerPartyType[] | ListEnumLedgerPartyTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumLedgerPartyTypeNullableFilter<$PrismaModel> | $Enums.LedgerPartyType | null
+  }
+
+  export type JournalEntryScalarRelationFilter = {
+    is?: JournalEntryWhereInput
+    isNot?: JournalEntryWhereInput
+  }
+
+  export type LedgerAccountScalarRelationFilter = {
+    is?: LedgerAccountWhereInput
+    isNot?: LedgerAccountWhereInput
+  }
+
+  export type JournalLineJournalIdLineNumberCompoundUniqueInput = {
+    journalId: string
+    lineNumber: number
+  }
+
+  export type JournalLineCountOrderByAggregateInput = {
+    id?: SortOrder
+    journalId?: SortOrder
+    lineNumber?: SortOrder
+    ledgerAccountId?: SortOrder
+    debitKobo?: SortOrder
+    creditKobo?: SortOrder
+    memo?: SortOrder
+    partyType?: SortOrder
+    partyId?: SortOrder
+  }
+
+  export type JournalLineAvgOrderByAggregateInput = {
+    lineNumber?: SortOrder
+    debitKobo?: SortOrder
+    creditKobo?: SortOrder
+  }
+
+  export type JournalLineMaxOrderByAggregateInput = {
+    id?: SortOrder
+    journalId?: SortOrder
+    lineNumber?: SortOrder
+    ledgerAccountId?: SortOrder
+    debitKobo?: SortOrder
+    creditKobo?: SortOrder
+    memo?: SortOrder
+    partyType?: SortOrder
+    partyId?: SortOrder
+  }
+
+  export type JournalLineMinOrderByAggregateInput = {
+    id?: SortOrder
+    journalId?: SortOrder
+    lineNumber?: SortOrder
+    ledgerAccountId?: SortOrder
+    debitKobo?: SortOrder
+    creditKobo?: SortOrder
+    memo?: SortOrder
+    partyType?: SortOrder
+    partyId?: SortOrder
+  }
+
+  export type JournalLineSumOrderByAggregateInput = {
+    lineNumber?: SortOrder
+    debitKobo?: SortOrder
+    creditKobo?: SortOrder
+  }
+
+  export type EnumLedgerPartyTypeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.LedgerPartyType | EnumLedgerPartyTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.LedgerPartyType[] | ListEnumLedgerPartyTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.LedgerPartyType[] | ListEnumLedgerPartyTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumLedgerPartyTypeNullableWithAggregatesFilter<$PrismaModel> | $Enums.LedgerPartyType | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumLedgerPartyTypeNullableFilter<$PrismaModel>
+    _max?: NestedEnumLedgerPartyTypeNullableFilter<$PrismaModel>
+  }
+
   export type ClassSubjectCreateNestedManyWithoutStaffInput = {
     create?: XOR<ClassSubjectCreateWithoutStaffInput, ClassSubjectUncheckedCreateWithoutStaffInput> | ClassSubjectCreateWithoutStaffInput[] | ClassSubjectUncheckedCreateWithoutStaffInput[]
     connectOrCreate?: ClassSubjectCreateOrConnectWithoutStaffInput | ClassSubjectCreateOrConnectWithoutStaffInput[]
@@ -56431,6 +63833,13 @@ export namespace Prisma {
     connect?: CalendarEventWhereUniqueInput | CalendarEventWhereUniqueInput[]
   }
 
+  export type JournalEntryCreateNestedManyWithoutSessionInput = {
+    create?: XOR<JournalEntryCreateWithoutSessionInput, JournalEntryUncheckedCreateWithoutSessionInput> | JournalEntryCreateWithoutSessionInput[] | JournalEntryUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: JournalEntryCreateOrConnectWithoutSessionInput | JournalEntryCreateOrConnectWithoutSessionInput[]
+    createMany?: JournalEntryCreateManySessionInputEnvelope
+    connect?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+  }
+
   export type TermUncheckedCreateNestedManyWithoutSessionInput = {
     create?: XOR<TermCreateWithoutSessionInput, TermUncheckedCreateWithoutSessionInput> | TermCreateWithoutSessionInput[] | TermUncheckedCreateWithoutSessionInput[]
     connectOrCreate?: TermCreateOrConnectWithoutSessionInput | TermCreateOrConnectWithoutSessionInput[]
@@ -56443,6 +63852,13 @@ export namespace Prisma {
     connectOrCreate?: CalendarEventCreateOrConnectWithoutSessionInput | CalendarEventCreateOrConnectWithoutSessionInput[]
     createMany?: CalendarEventCreateManySessionInputEnvelope
     connect?: CalendarEventWhereUniqueInput | CalendarEventWhereUniqueInput[]
+  }
+
+  export type JournalEntryUncheckedCreateNestedManyWithoutSessionInput = {
+    create?: XOR<JournalEntryCreateWithoutSessionInput, JournalEntryUncheckedCreateWithoutSessionInput> | JournalEntryCreateWithoutSessionInput[] | JournalEntryUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: JournalEntryCreateOrConnectWithoutSessionInput | JournalEntryCreateOrConnectWithoutSessionInput[]
+    createMany?: JournalEntryCreateManySessionInputEnvelope
+    connect?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
   }
 
   export type TermUpdateManyWithoutSessionNestedInput = {
@@ -56473,6 +63889,20 @@ export namespace Prisma {
     deleteMany?: CalendarEventScalarWhereInput | CalendarEventScalarWhereInput[]
   }
 
+  export type JournalEntryUpdateManyWithoutSessionNestedInput = {
+    create?: XOR<JournalEntryCreateWithoutSessionInput, JournalEntryUncheckedCreateWithoutSessionInput> | JournalEntryCreateWithoutSessionInput[] | JournalEntryUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: JournalEntryCreateOrConnectWithoutSessionInput | JournalEntryCreateOrConnectWithoutSessionInput[]
+    upsert?: JournalEntryUpsertWithWhereUniqueWithoutSessionInput | JournalEntryUpsertWithWhereUniqueWithoutSessionInput[]
+    createMany?: JournalEntryCreateManySessionInputEnvelope
+    set?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+    disconnect?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+    delete?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+    connect?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+    update?: JournalEntryUpdateWithWhereUniqueWithoutSessionInput | JournalEntryUpdateWithWhereUniqueWithoutSessionInput[]
+    updateMany?: JournalEntryUpdateManyWithWhereWithoutSessionInput | JournalEntryUpdateManyWithWhereWithoutSessionInput[]
+    deleteMany?: JournalEntryScalarWhereInput | JournalEntryScalarWhereInput[]
+  }
+
   export type TermUncheckedUpdateManyWithoutSessionNestedInput = {
     create?: XOR<TermCreateWithoutSessionInput, TermUncheckedCreateWithoutSessionInput> | TermCreateWithoutSessionInput[] | TermUncheckedCreateWithoutSessionInput[]
     connectOrCreate?: TermCreateOrConnectWithoutSessionInput | TermCreateOrConnectWithoutSessionInput[]
@@ -56499,6 +63929,20 @@ export namespace Prisma {
     update?: CalendarEventUpdateWithWhereUniqueWithoutSessionInput | CalendarEventUpdateWithWhereUniqueWithoutSessionInput[]
     updateMany?: CalendarEventUpdateManyWithWhereWithoutSessionInput | CalendarEventUpdateManyWithWhereWithoutSessionInput[]
     deleteMany?: CalendarEventScalarWhereInput | CalendarEventScalarWhereInput[]
+  }
+
+  export type JournalEntryUncheckedUpdateManyWithoutSessionNestedInput = {
+    create?: XOR<JournalEntryCreateWithoutSessionInput, JournalEntryUncheckedCreateWithoutSessionInput> | JournalEntryCreateWithoutSessionInput[] | JournalEntryUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: JournalEntryCreateOrConnectWithoutSessionInput | JournalEntryCreateOrConnectWithoutSessionInput[]
+    upsert?: JournalEntryUpsertWithWhereUniqueWithoutSessionInput | JournalEntryUpsertWithWhereUniqueWithoutSessionInput[]
+    createMany?: JournalEntryCreateManySessionInputEnvelope
+    set?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+    disconnect?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+    delete?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+    connect?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+    update?: JournalEntryUpdateWithWhereUniqueWithoutSessionInput | JournalEntryUpdateWithWhereUniqueWithoutSessionInput[]
+    updateMany?: JournalEntryUpdateManyWithWhereWithoutSessionInput | JournalEntryUpdateManyWithWhereWithoutSessionInput[]
+    deleteMany?: JournalEntryScalarWhereInput | JournalEntryScalarWhereInput[]
   }
 
   export type SessionCreateNestedOneWithoutTermsInput = {
@@ -56556,6 +64000,13 @@ export namespace Prisma {
     connect?: ReportCardWhereUniqueInput | ReportCardWhereUniqueInput[]
   }
 
+  export type JournalEntryCreateNestedManyWithoutTermInput = {
+    create?: XOR<JournalEntryCreateWithoutTermInput, JournalEntryUncheckedCreateWithoutTermInput> | JournalEntryCreateWithoutTermInput[] | JournalEntryUncheckedCreateWithoutTermInput[]
+    connectOrCreate?: JournalEntryCreateOrConnectWithoutTermInput | JournalEntryCreateOrConnectWithoutTermInput[]
+    createMany?: JournalEntryCreateManyTermInputEnvelope
+    connect?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+  }
+
   export type ClassSubjectUncheckedCreateNestedManyWithoutTermInput = {
     create?: XOR<ClassSubjectCreateWithoutTermInput, ClassSubjectUncheckedCreateWithoutTermInput> | ClassSubjectCreateWithoutTermInput[] | ClassSubjectUncheckedCreateWithoutTermInput[]
     connectOrCreate?: ClassSubjectCreateOrConnectWithoutTermInput | ClassSubjectCreateOrConnectWithoutTermInput[]
@@ -56603,6 +64054,13 @@ export namespace Prisma {
     connectOrCreate?: ReportCardCreateOrConnectWithoutTermInput | ReportCardCreateOrConnectWithoutTermInput[]
     createMany?: ReportCardCreateManyTermInputEnvelope
     connect?: ReportCardWhereUniqueInput | ReportCardWhereUniqueInput[]
+  }
+
+  export type JournalEntryUncheckedCreateNestedManyWithoutTermInput = {
+    create?: XOR<JournalEntryCreateWithoutTermInput, JournalEntryUncheckedCreateWithoutTermInput> | JournalEntryCreateWithoutTermInput[] | JournalEntryUncheckedCreateWithoutTermInput[]
+    connectOrCreate?: JournalEntryCreateOrConnectWithoutTermInput | JournalEntryCreateOrConnectWithoutTermInput[]
+    createMany?: JournalEntryCreateManyTermInputEnvelope
+    connect?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
   }
 
   export type EnumTermNameFieldUpdateOperationsInput = {
@@ -56715,6 +64173,20 @@ export namespace Prisma {
     deleteMany?: ReportCardScalarWhereInput | ReportCardScalarWhereInput[]
   }
 
+  export type JournalEntryUpdateManyWithoutTermNestedInput = {
+    create?: XOR<JournalEntryCreateWithoutTermInput, JournalEntryUncheckedCreateWithoutTermInput> | JournalEntryCreateWithoutTermInput[] | JournalEntryUncheckedCreateWithoutTermInput[]
+    connectOrCreate?: JournalEntryCreateOrConnectWithoutTermInput | JournalEntryCreateOrConnectWithoutTermInput[]
+    upsert?: JournalEntryUpsertWithWhereUniqueWithoutTermInput | JournalEntryUpsertWithWhereUniqueWithoutTermInput[]
+    createMany?: JournalEntryCreateManyTermInputEnvelope
+    set?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+    disconnect?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+    delete?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+    connect?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+    update?: JournalEntryUpdateWithWhereUniqueWithoutTermInput | JournalEntryUpdateWithWhereUniqueWithoutTermInput[]
+    updateMany?: JournalEntryUpdateManyWithWhereWithoutTermInput | JournalEntryUpdateManyWithWhereWithoutTermInput[]
+    deleteMany?: JournalEntryScalarWhereInput | JournalEntryScalarWhereInput[]
+  }
+
   export type ClassSubjectUncheckedUpdateManyWithoutTermNestedInput = {
     create?: XOR<ClassSubjectCreateWithoutTermInput, ClassSubjectUncheckedCreateWithoutTermInput> | ClassSubjectCreateWithoutTermInput[] | ClassSubjectUncheckedCreateWithoutTermInput[]
     connectOrCreate?: ClassSubjectCreateOrConnectWithoutTermInput | ClassSubjectCreateOrConnectWithoutTermInput[]
@@ -56811,6 +64283,20 @@ export namespace Prisma {
     update?: ReportCardUpdateWithWhereUniqueWithoutTermInput | ReportCardUpdateWithWhereUniqueWithoutTermInput[]
     updateMany?: ReportCardUpdateManyWithWhereWithoutTermInput | ReportCardUpdateManyWithWhereWithoutTermInput[]
     deleteMany?: ReportCardScalarWhereInput | ReportCardScalarWhereInput[]
+  }
+
+  export type JournalEntryUncheckedUpdateManyWithoutTermNestedInput = {
+    create?: XOR<JournalEntryCreateWithoutTermInput, JournalEntryUncheckedCreateWithoutTermInput> | JournalEntryCreateWithoutTermInput[] | JournalEntryUncheckedCreateWithoutTermInput[]
+    connectOrCreate?: JournalEntryCreateOrConnectWithoutTermInput | JournalEntryCreateOrConnectWithoutTermInput[]
+    upsert?: JournalEntryUpsertWithWhereUniqueWithoutTermInput | JournalEntryUpsertWithWhereUniqueWithoutTermInput[]
+    createMany?: JournalEntryCreateManyTermInputEnvelope
+    set?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+    disconnect?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+    delete?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+    connect?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+    update?: JournalEntryUpdateWithWhereUniqueWithoutTermInput | JournalEntryUpdateWithWhereUniqueWithoutTermInput[]
+    updateMany?: JournalEntryUpdateManyWithWhereWithoutTermInput | JournalEntryUpdateManyWithWhereWithoutTermInput[]
+    deleteMany?: JournalEntryScalarWhereInput | JournalEntryScalarWhereInput[]
   }
 
   export type StaffCreateNestedOneWithoutClassesAsClassTeacherInput = {
@@ -57790,11 +65276,25 @@ export namespace Prisma {
     connect?: StaffBranchWhereUniqueInput | StaffBranchWhereUniqueInput[]
   }
 
+  export type JournalEntryCreateNestedManyWithoutBranchInput = {
+    create?: XOR<JournalEntryCreateWithoutBranchInput, JournalEntryUncheckedCreateWithoutBranchInput> | JournalEntryCreateWithoutBranchInput[] | JournalEntryUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: JournalEntryCreateOrConnectWithoutBranchInput | JournalEntryCreateOrConnectWithoutBranchInput[]
+    createMany?: JournalEntryCreateManyBranchInputEnvelope
+    connect?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+  }
+
   export type StaffBranchUncheckedCreateNestedManyWithoutBranchInput = {
     create?: XOR<StaffBranchCreateWithoutBranchInput, StaffBranchUncheckedCreateWithoutBranchInput> | StaffBranchCreateWithoutBranchInput[] | StaffBranchUncheckedCreateWithoutBranchInput[]
     connectOrCreate?: StaffBranchCreateOrConnectWithoutBranchInput | StaffBranchCreateOrConnectWithoutBranchInput[]
     createMany?: StaffBranchCreateManyBranchInputEnvelope
     connect?: StaffBranchWhereUniqueInput | StaffBranchWhereUniqueInput[]
+  }
+
+  export type JournalEntryUncheckedCreateNestedManyWithoutBranchInput = {
+    create?: XOR<JournalEntryCreateWithoutBranchInput, JournalEntryUncheckedCreateWithoutBranchInput> | JournalEntryCreateWithoutBranchInput[] | JournalEntryUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: JournalEntryCreateOrConnectWithoutBranchInput | JournalEntryCreateOrConnectWithoutBranchInput[]
+    createMany?: JournalEntryCreateManyBranchInputEnvelope
+    connect?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
   }
 
   export type StaffBranchUpdateManyWithoutBranchNestedInput = {
@@ -57811,6 +65311,20 @@ export namespace Prisma {
     deleteMany?: StaffBranchScalarWhereInput | StaffBranchScalarWhereInput[]
   }
 
+  export type JournalEntryUpdateManyWithoutBranchNestedInput = {
+    create?: XOR<JournalEntryCreateWithoutBranchInput, JournalEntryUncheckedCreateWithoutBranchInput> | JournalEntryCreateWithoutBranchInput[] | JournalEntryUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: JournalEntryCreateOrConnectWithoutBranchInput | JournalEntryCreateOrConnectWithoutBranchInput[]
+    upsert?: JournalEntryUpsertWithWhereUniqueWithoutBranchInput | JournalEntryUpsertWithWhereUniqueWithoutBranchInput[]
+    createMany?: JournalEntryCreateManyBranchInputEnvelope
+    set?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+    disconnect?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+    delete?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+    connect?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+    update?: JournalEntryUpdateWithWhereUniqueWithoutBranchInput | JournalEntryUpdateWithWhereUniqueWithoutBranchInput[]
+    updateMany?: JournalEntryUpdateManyWithWhereWithoutBranchInput | JournalEntryUpdateManyWithWhereWithoutBranchInput[]
+    deleteMany?: JournalEntryScalarWhereInput | JournalEntryScalarWhereInput[]
+  }
+
   export type StaffBranchUncheckedUpdateManyWithoutBranchNestedInput = {
     create?: XOR<StaffBranchCreateWithoutBranchInput, StaffBranchUncheckedCreateWithoutBranchInput> | StaffBranchCreateWithoutBranchInput[] | StaffBranchUncheckedCreateWithoutBranchInput[]
     connectOrCreate?: StaffBranchCreateOrConnectWithoutBranchInput | StaffBranchCreateOrConnectWithoutBranchInput[]
@@ -57823,6 +65337,20 @@ export namespace Prisma {
     update?: StaffBranchUpdateWithWhereUniqueWithoutBranchInput | StaffBranchUpdateWithWhereUniqueWithoutBranchInput[]
     updateMany?: StaffBranchUpdateManyWithWhereWithoutBranchInput | StaffBranchUpdateManyWithWhereWithoutBranchInput[]
     deleteMany?: StaffBranchScalarWhereInput | StaffBranchScalarWhereInput[]
+  }
+
+  export type JournalEntryUncheckedUpdateManyWithoutBranchNestedInput = {
+    create?: XOR<JournalEntryCreateWithoutBranchInput, JournalEntryUncheckedCreateWithoutBranchInput> | JournalEntryCreateWithoutBranchInput[] | JournalEntryUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: JournalEntryCreateOrConnectWithoutBranchInput | JournalEntryCreateOrConnectWithoutBranchInput[]
+    upsert?: JournalEntryUpsertWithWhereUniqueWithoutBranchInput | JournalEntryUpsertWithWhereUniqueWithoutBranchInput[]
+    createMany?: JournalEntryCreateManyBranchInputEnvelope
+    set?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+    disconnect?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+    delete?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+    connect?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+    update?: JournalEntryUpdateWithWhereUniqueWithoutBranchInput | JournalEntryUpdateWithWhereUniqueWithoutBranchInput[]
+    updateMany?: JournalEntryUpdateManyWithWhereWithoutBranchInput | JournalEntryUpdateManyWithWhereWithoutBranchInput[]
+    deleteMany?: JournalEntryScalarWhereInput | JournalEntryScalarWhereInput[]
   }
 
   export type StaffCreateNestedOneWithoutBranchesInput = {
@@ -58000,6 +65528,356 @@ export namespace Prisma {
     upsert?: SchoolNotificationUpsertWithoutRecipientsInput
     connect?: SchoolNotificationWhereUniqueInput
     update?: XOR<XOR<SchoolNotificationUpdateToOneWithWhereWithoutRecipientsInput, SchoolNotificationUpdateWithoutRecipientsInput>, SchoolNotificationUncheckedUpdateWithoutRecipientsInput>
+  }
+
+  export type LedgerAccountCreateNestedOneWithoutChildrenInput = {
+    create?: XOR<LedgerAccountCreateWithoutChildrenInput, LedgerAccountUncheckedCreateWithoutChildrenInput>
+    connectOrCreate?: LedgerAccountCreateOrConnectWithoutChildrenInput
+    connect?: LedgerAccountWhereUniqueInput
+  }
+
+  export type LedgerAccountCreateNestedManyWithoutParentInput = {
+    create?: XOR<LedgerAccountCreateWithoutParentInput, LedgerAccountUncheckedCreateWithoutParentInput> | LedgerAccountCreateWithoutParentInput[] | LedgerAccountUncheckedCreateWithoutParentInput[]
+    connectOrCreate?: LedgerAccountCreateOrConnectWithoutParentInput | LedgerAccountCreateOrConnectWithoutParentInput[]
+    createMany?: LedgerAccountCreateManyParentInputEnvelope
+    connect?: LedgerAccountWhereUniqueInput | LedgerAccountWhereUniqueInput[]
+  }
+
+  export type JournalLineCreateNestedManyWithoutLedgerAccountInput = {
+    create?: XOR<JournalLineCreateWithoutLedgerAccountInput, JournalLineUncheckedCreateWithoutLedgerAccountInput> | JournalLineCreateWithoutLedgerAccountInput[] | JournalLineUncheckedCreateWithoutLedgerAccountInput[]
+    connectOrCreate?: JournalLineCreateOrConnectWithoutLedgerAccountInput | JournalLineCreateOrConnectWithoutLedgerAccountInput[]
+    createMany?: JournalLineCreateManyLedgerAccountInputEnvelope
+    connect?: JournalLineWhereUniqueInput | JournalLineWhereUniqueInput[]
+  }
+
+  export type LedgerAccountUncheckedCreateNestedManyWithoutParentInput = {
+    create?: XOR<LedgerAccountCreateWithoutParentInput, LedgerAccountUncheckedCreateWithoutParentInput> | LedgerAccountCreateWithoutParentInput[] | LedgerAccountUncheckedCreateWithoutParentInput[]
+    connectOrCreate?: LedgerAccountCreateOrConnectWithoutParentInput | LedgerAccountCreateOrConnectWithoutParentInput[]
+    createMany?: LedgerAccountCreateManyParentInputEnvelope
+    connect?: LedgerAccountWhereUniqueInput | LedgerAccountWhereUniqueInput[]
+  }
+
+  export type JournalLineUncheckedCreateNestedManyWithoutLedgerAccountInput = {
+    create?: XOR<JournalLineCreateWithoutLedgerAccountInput, JournalLineUncheckedCreateWithoutLedgerAccountInput> | JournalLineCreateWithoutLedgerAccountInput[] | JournalLineUncheckedCreateWithoutLedgerAccountInput[]
+    connectOrCreate?: JournalLineCreateOrConnectWithoutLedgerAccountInput | JournalLineCreateOrConnectWithoutLedgerAccountInput[]
+    createMany?: JournalLineCreateManyLedgerAccountInputEnvelope
+    connect?: JournalLineWhereUniqueInput | JournalLineWhereUniqueInput[]
+  }
+
+  export type EnumLedgerAccountTypeFieldUpdateOperationsInput = {
+    set?: $Enums.LedgerAccountType
+  }
+
+  export type LedgerAccountUpdateOneWithoutChildrenNestedInput = {
+    create?: XOR<LedgerAccountCreateWithoutChildrenInput, LedgerAccountUncheckedCreateWithoutChildrenInput>
+    connectOrCreate?: LedgerAccountCreateOrConnectWithoutChildrenInput
+    upsert?: LedgerAccountUpsertWithoutChildrenInput
+    disconnect?: LedgerAccountWhereInput | boolean
+    delete?: LedgerAccountWhereInput | boolean
+    connect?: LedgerAccountWhereUniqueInput
+    update?: XOR<XOR<LedgerAccountUpdateToOneWithWhereWithoutChildrenInput, LedgerAccountUpdateWithoutChildrenInput>, LedgerAccountUncheckedUpdateWithoutChildrenInput>
+  }
+
+  export type LedgerAccountUpdateManyWithoutParentNestedInput = {
+    create?: XOR<LedgerAccountCreateWithoutParentInput, LedgerAccountUncheckedCreateWithoutParentInput> | LedgerAccountCreateWithoutParentInput[] | LedgerAccountUncheckedCreateWithoutParentInput[]
+    connectOrCreate?: LedgerAccountCreateOrConnectWithoutParentInput | LedgerAccountCreateOrConnectWithoutParentInput[]
+    upsert?: LedgerAccountUpsertWithWhereUniqueWithoutParentInput | LedgerAccountUpsertWithWhereUniqueWithoutParentInput[]
+    createMany?: LedgerAccountCreateManyParentInputEnvelope
+    set?: LedgerAccountWhereUniqueInput | LedgerAccountWhereUniqueInput[]
+    disconnect?: LedgerAccountWhereUniqueInput | LedgerAccountWhereUniqueInput[]
+    delete?: LedgerAccountWhereUniqueInput | LedgerAccountWhereUniqueInput[]
+    connect?: LedgerAccountWhereUniqueInput | LedgerAccountWhereUniqueInput[]
+    update?: LedgerAccountUpdateWithWhereUniqueWithoutParentInput | LedgerAccountUpdateWithWhereUniqueWithoutParentInput[]
+    updateMany?: LedgerAccountUpdateManyWithWhereWithoutParentInput | LedgerAccountUpdateManyWithWhereWithoutParentInput[]
+    deleteMany?: LedgerAccountScalarWhereInput | LedgerAccountScalarWhereInput[]
+  }
+
+  export type JournalLineUpdateManyWithoutLedgerAccountNestedInput = {
+    create?: XOR<JournalLineCreateWithoutLedgerAccountInput, JournalLineUncheckedCreateWithoutLedgerAccountInput> | JournalLineCreateWithoutLedgerAccountInput[] | JournalLineUncheckedCreateWithoutLedgerAccountInput[]
+    connectOrCreate?: JournalLineCreateOrConnectWithoutLedgerAccountInput | JournalLineCreateOrConnectWithoutLedgerAccountInput[]
+    upsert?: JournalLineUpsertWithWhereUniqueWithoutLedgerAccountInput | JournalLineUpsertWithWhereUniqueWithoutLedgerAccountInput[]
+    createMany?: JournalLineCreateManyLedgerAccountInputEnvelope
+    set?: JournalLineWhereUniqueInput | JournalLineWhereUniqueInput[]
+    disconnect?: JournalLineWhereUniqueInput | JournalLineWhereUniqueInput[]
+    delete?: JournalLineWhereUniqueInput | JournalLineWhereUniqueInput[]
+    connect?: JournalLineWhereUniqueInput | JournalLineWhereUniqueInput[]
+    update?: JournalLineUpdateWithWhereUniqueWithoutLedgerAccountInput | JournalLineUpdateWithWhereUniqueWithoutLedgerAccountInput[]
+    updateMany?: JournalLineUpdateManyWithWhereWithoutLedgerAccountInput | JournalLineUpdateManyWithWhereWithoutLedgerAccountInput[]
+    deleteMany?: JournalLineScalarWhereInput | JournalLineScalarWhereInput[]
+  }
+
+  export type LedgerAccountUncheckedUpdateManyWithoutParentNestedInput = {
+    create?: XOR<LedgerAccountCreateWithoutParentInput, LedgerAccountUncheckedCreateWithoutParentInput> | LedgerAccountCreateWithoutParentInput[] | LedgerAccountUncheckedCreateWithoutParentInput[]
+    connectOrCreate?: LedgerAccountCreateOrConnectWithoutParentInput | LedgerAccountCreateOrConnectWithoutParentInput[]
+    upsert?: LedgerAccountUpsertWithWhereUniqueWithoutParentInput | LedgerAccountUpsertWithWhereUniqueWithoutParentInput[]
+    createMany?: LedgerAccountCreateManyParentInputEnvelope
+    set?: LedgerAccountWhereUniqueInput | LedgerAccountWhereUniqueInput[]
+    disconnect?: LedgerAccountWhereUniqueInput | LedgerAccountWhereUniqueInput[]
+    delete?: LedgerAccountWhereUniqueInput | LedgerAccountWhereUniqueInput[]
+    connect?: LedgerAccountWhereUniqueInput | LedgerAccountWhereUniqueInput[]
+    update?: LedgerAccountUpdateWithWhereUniqueWithoutParentInput | LedgerAccountUpdateWithWhereUniqueWithoutParentInput[]
+    updateMany?: LedgerAccountUpdateManyWithWhereWithoutParentInput | LedgerAccountUpdateManyWithWhereWithoutParentInput[]
+    deleteMany?: LedgerAccountScalarWhereInput | LedgerAccountScalarWhereInput[]
+  }
+
+  export type JournalLineUncheckedUpdateManyWithoutLedgerAccountNestedInput = {
+    create?: XOR<JournalLineCreateWithoutLedgerAccountInput, JournalLineUncheckedCreateWithoutLedgerAccountInput> | JournalLineCreateWithoutLedgerAccountInput[] | JournalLineUncheckedCreateWithoutLedgerAccountInput[]
+    connectOrCreate?: JournalLineCreateOrConnectWithoutLedgerAccountInput | JournalLineCreateOrConnectWithoutLedgerAccountInput[]
+    upsert?: JournalLineUpsertWithWhereUniqueWithoutLedgerAccountInput | JournalLineUpsertWithWhereUniqueWithoutLedgerAccountInput[]
+    createMany?: JournalLineCreateManyLedgerAccountInputEnvelope
+    set?: JournalLineWhereUniqueInput | JournalLineWhereUniqueInput[]
+    disconnect?: JournalLineWhereUniqueInput | JournalLineWhereUniqueInput[]
+    delete?: JournalLineWhereUniqueInput | JournalLineWhereUniqueInput[]
+    connect?: JournalLineWhereUniqueInput | JournalLineWhereUniqueInput[]
+    update?: JournalLineUpdateWithWhereUniqueWithoutLedgerAccountInput | JournalLineUpdateWithWhereUniqueWithoutLedgerAccountInput[]
+    updateMany?: JournalLineUpdateManyWithWhereWithoutLedgerAccountInput | JournalLineUpdateManyWithWhereWithoutLedgerAccountInput[]
+    deleteMany?: JournalLineScalarWhereInput | JournalLineScalarWhereInput[]
+  }
+
+  export type JournalEntryCreateNestedManyWithoutPeriodInput = {
+    create?: XOR<JournalEntryCreateWithoutPeriodInput, JournalEntryUncheckedCreateWithoutPeriodInput> | JournalEntryCreateWithoutPeriodInput[] | JournalEntryUncheckedCreateWithoutPeriodInput[]
+    connectOrCreate?: JournalEntryCreateOrConnectWithoutPeriodInput | JournalEntryCreateOrConnectWithoutPeriodInput[]
+    createMany?: JournalEntryCreateManyPeriodInputEnvelope
+    connect?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+  }
+
+  export type JournalEntryUncheckedCreateNestedManyWithoutPeriodInput = {
+    create?: XOR<JournalEntryCreateWithoutPeriodInput, JournalEntryUncheckedCreateWithoutPeriodInput> | JournalEntryCreateWithoutPeriodInput[] | JournalEntryUncheckedCreateWithoutPeriodInput[]
+    connectOrCreate?: JournalEntryCreateOrConnectWithoutPeriodInput | JournalEntryCreateOrConnectWithoutPeriodInput[]
+    createMany?: JournalEntryCreateManyPeriodInputEnvelope
+    connect?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+  }
+
+  export type EnumPeriodStatusFieldUpdateOperationsInput = {
+    set?: $Enums.PeriodStatus
+  }
+
+  export type JournalEntryUpdateManyWithoutPeriodNestedInput = {
+    create?: XOR<JournalEntryCreateWithoutPeriodInput, JournalEntryUncheckedCreateWithoutPeriodInput> | JournalEntryCreateWithoutPeriodInput[] | JournalEntryUncheckedCreateWithoutPeriodInput[]
+    connectOrCreate?: JournalEntryCreateOrConnectWithoutPeriodInput | JournalEntryCreateOrConnectWithoutPeriodInput[]
+    upsert?: JournalEntryUpsertWithWhereUniqueWithoutPeriodInput | JournalEntryUpsertWithWhereUniqueWithoutPeriodInput[]
+    createMany?: JournalEntryCreateManyPeriodInputEnvelope
+    set?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+    disconnect?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+    delete?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+    connect?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+    update?: JournalEntryUpdateWithWhereUniqueWithoutPeriodInput | JournalEntryUpdateWithWhereUniqueWithoutPeriodInput[]
+    updateMany?: JournalEntryUpdateManyWithWhereWithoutPeriodInput | JournalEntryUpdateManyWithWhereWithoutPeriodInput[]
+    deleteMany?: JournalEntryScalarWhereInput | JournalEntryScalarWhereInput[]
+  }
+
+  export type JournalEntryUncheckedUpdateManyWithoutPeriodNestedInput = {
+    create?: XOR<JournalEntryCreateWithoutPeriodInput, JournalEntryUncheckedCreateWithoutPeriodInput> | JournalEntryCreateWithoutPeriodInput[] | JournalEntryUncheckedCreateWithoutPeriodInput[]
+    connectOrCreate?: JournalEntryCreateOrConnectWithoutPeriodInput | JournalEntryCreateOrConnectWithoutPeriodInput[]
+    upsert?: JournalEntryUpsertWithWhereUniqueWithoutPeriodInput | JournalEntryUpsertWithWhereUniqueWithoutPeriodInput[]
+    createMany?: JournalEntryCreateManyPeriodInputEnvelope
+    set?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+    disconnect?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+    delete?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+    connect?: JournalEntryWhereUniqueInput | JournalEntryWhereUniqueInput[]
+    update?: JournalEntryUpdateWithWhereUniqueWithoutPeriodInput | JournalEntryUpdateWithWhereUniqueWithoutPeriodInput[]
+    updateMany?: JournalEntryUpdateManyWithWhereWithoutPeriodInput | JournalEntryUpdateManyWithWhereWithoutPeriodInput[]
+    deleteMany?: JournalEntryScalarWhereInput | JournalEntryScalarWhereInput[]
+  }
+
+  export type FinancePeriodCreateNestedOneWithoutJournalsInput = {
+    create?: XOR<FinancePeriodCreateWithoutJournalsInput, FinancePeriodUncheckedCreateWithoutJournalsInput>
+    connectOrCreate?: FinancePeriodCreateOrConnectWithoutJournalsInput
+    connect?: FinancePeriodWhereUniqueInput
+  }
+
+  export type TermCreateNestedOneWithoutJournalEntriesInput = {
+    create?: XOR<TermCreateWithoutJournalEntriesInput, TermUncheckedCreateWithoutJournalEntriesInput>
+    connectOrCreate?: TermCreateOrConnectWithoutJournalEntriesInput
+    connect?: TermWhereUniqueInput
+  }
+
+  export type SessionCreateNestedOneWithoutJournalEntriesInput = {
+    create?: XOR<SessionCreateWithoutJournalEntriesInput, SessionUncheckedCreateWithoutJournalEntriesInput>
+    connectOrCreate?: SessionCreateOrConnectWithoutJournalEntriesInput
+    connect?: SessionWhereUniqueInput
+  }
+
+  export type BranchCreateNestedOneWithoutJournalEntriesInput = {
+    create?: XOR<BranchCreateWithoutJournalEntriesInput, BranchUncheckedCreateWithoutJournalEntriesInput>
+    connectOrCreate?: BranchCreateOrConnectWithoutJournalEntriesInput
+    connect?: BranchWhereUniqueInput
+  }
+
+  export type JournalEntryCreateNestedOneWithoutReversedByInput = {
+    create?: XOR<JournalEntryCreateWithoutReversedByInput, JournalEntryUncheckedCreateWithoutReversedByInput>
+    connectOrCreate?: JournalEntryCreateOrConnectWithoutReversedByInput
+    connect?: JournalEntryWhereUniqueInput
+  }
+
+  export type JournalEntryCreateNestedOneWithoutReversalOfInput = {
+    create?: XOR<JournalEntryCreateWithoutReversalOfInput, JournalEntryUncheckedCreateWithoutReversalOfInput>
+    connectOrCreate?: JournalEntryCreateOrConnectWithoutReversalOfInput
+    connect?: JournalEntryWhereUniqueInput
+  }
+
+  export type JournalLineCreateNestedManyWithoutJournalInput = {
+    create?: XOR<JournalLineCreateWithoutJournalInput, JournalLineUncheckedCreateWithoutJournalInput> | JournalLineCreateWithoutJournalInput[] | JournalLineUncheckedCreateWithoutJournalInput[]
+    connectOrCreate?: JournalLineCreateOrConnectWithoutJournalInput | JournalLineCreateOrConnectWithoutJournalInput[]
+    createMany?: JournalLineCreateManyJournalInputEnvelope
+    connect?: JournalLineWhereUniqueInput | JournalLineWhereUniqueInput[]
+  }
+
+  export type JournalEntryUncheckedCreateNestedOneWithoutReversalOfInput = {
+    create?: XOR<JournalEntryCreateWithoutReversalOfInput, JournalEntryUncheckedCreateWithoutReversalOfInput>
+    connectOrCreate?: JournalEntryCreateOrConnectWithoutReversalOfInput
+    connect?: JournalEntryWhereUniqueInput
+  }
+
+  export type JournalLineUncheckedCreateNestedManyWithoutJournalInput = {
+    create?: XOR<JournalLineCreateWithoutJournalInput, JournalLineUncheckedCreateWithoutJournalInput> | JournalLineCreateWithoutJournalInput[] | JournalLineUncheckedCreateWithoutJournalInput[]
+    connectOrCreate?: JournalLineCreateOrConnectWithoutJournalInput | JournalLineCreateOrConnectWithoutJournalInput[]
+    createMany?: JournalLineCreateManyJournalInputEnvelope
+    connect?: JournalLineWhereUniqueInput | JournalLineWhereUniqueInput[]
+  }
+
+  export type EnumJournalSourceTypeFieldUpdateOperationsInput = {
+    set?: $Enums.JournalSourceType
+  }
+
+  export type EnumJournalStatusFieldUpdateOperationsInput = {
+    set?: $Enums.JournalStatus
+  }
+
+  export type BigIntFieldUpdateOperationsInput = {
+    set?: bigint | number
+    increment?: bigint | number
+    decrement?: bigint | number
+    multiply?: bigint | number
+    divide?: bigint | number
+  }
+
+  export type FinancePeriodUpdateOneRequiredWithoutJournalsNestedInput = {
+    create?: XOR<FinancePeriodCreateWithoutJournalsInput, FinancePeriodUncheckedCreateWithoutJournalsInput>
+    connectOrCreate?: FinancePeriodCreateOrConnectWithoutJournalsInput
+    upsert?: FinancePeriodUpsertWithoutJournalsInput
+    connect?: FinancePeriodWhereUniqueInput
+    update?: XOR<XOR<FinancePeriodUpdateToOneWithWhereWithoutJournalsInput, FinancePeriodUpdateWithoutJournalsInput>, FinancePeriodUncheckedUpdateWithoutJournalsInput>
+  }
+
+  export type TermUpdateOneWithoutJournalEntriesNestedInput = {
+    create?: XOR<TermCreateWithoutJournalEntriesInput, TermUncheckedCreateWithoutJournalEntriesInput>
+    connectOrCreate?: TermCreateOrConnectWithoutJournalEntriesInput
+    upsert?: TermUpsertWithoutJournalEntriesInput
+    disconnect?: TermWhereInput | boolean
+    delete?: TermWhereInput | boolean
+    connect?: TermWhereUniqueInput
+    update?: XOR<XOR<TermUpdateToOneWithWhereWithoutJournalEntriesInput, TermUpdateWithoutJournalEntriesInput>, TermUncheckedUpdateWithoutJournalEntriesInput>
+  }
+
+  export type SessionUpdateOneWithoutJournalEntriesNestedInput = {
+    create?: XOR<SessionCreateWithoutJournalEntriesInput, SessionUncheckedCreateWithoutJournalEntriesInput>
+    connectOrCreate?: SessionCreateOrConnectWithoutJournalEntriesInput
+    upsert?: SessionUpsertWithoutJournalEntriesInput
+    disconnect?: SessionWhereInput | boolean
+    delete?: SessionWhereInput | boolean
+    connect?: SessionWhereUniqueInput
+    update?: XOR<XOR<SessionUpdateToOneWithWhereWithoutJournalEntriesInput, SessionUpdateWithoutJournalEntriesInput>, SessionUncheckedUpdateWithoutJournalEntriesInput>
+  }
+
+  export type BranchUpdateOneWithoutJournalEntriesNestedInput = {
+    create?: XOR<BranchCreateWithoutJournalEntriesInput, BranchUncheckedCreateWithoutJournalEntriesInput>
+    connectOrCreate?: BranchCreateOrConnectWithoutJournalEntriesInput
+    upsert?: BranchUpsertWithoutJournalEntriesInput
+    disconnect?: BranchWhereInput | boolean
+    delete?: BranchWhereInput | boolean
+    connect?: BranchWhereUniqueInput
+    update?: XOR<XOR<BranchUpdateToOneWithWhereWithoutJournalEntriesInput, BranchUpdateWithoutJournalEntriesInput>, BranchUncheckedUpdateWithoutJournalEntriesInput>
+  }
+
+  export type JournalEntryUpdateOneWithoutReversedByNestedInput = {
+    create?: XOR<JournalEntryCreateWithoutReversedByInput, JournalEntryUncheckedCreateWithoutReversedByInput>
+    connectOrCreate?: JournalEntryCreateOrConnectWithoutReversedByInput
+    upsert?: JournalEntryUpsertWithoutReversedByInput
+    disconnect?: JournalEntryWhereInput | boolean
+    delete?: JournalEntryWhereInput | boolean
+    connect?: JournalEntryWhereUniqueInput
+    update?: XOR<XOR<JournalEntryUpdateToOneWithWhereWithoutReversedByInput, JournalEntryUpdateWithoutReversedByInput>, JournalEntryUncheckedUpdateWithoutReversedByInput>
+  }
+
+  export type JournalEntryUpdateOneWithoutReversalOfNestedInput = {
+    create?: XOR<JournalEntryCreateWithoutReversalOfInput, JournalEntryUncheckedCreateWithoutReversalOfInput>
+    connectOrCreate?: JournalEntryCreateOrConnectWithoutReversalOfInput
+    upsert?: JournalEntryUpsertWithoutReversalOfInput
+    disconnect?: JournalEntryWhereInput | boolean
+    delete?: JournalEntryWhereInput | boolean
+    connect?: JournalEntryWhereUniqueInput
+    update?: XOR<XOR<JournalEntryUpdateToOneWithWhereWithoutReversalOfInput, JournalEntryUpdateWithoutReversalOfInput>, JournalEntryUncheckedUpdateWithoutReversalOfInput>
+  }
+
+  export type JournalLineUpdateManyWithoutJournalNestedInput = {
+    create?: XOR<JournalLineCreateWithoutJournalInput, JournalLineUncheckedCreateWithoutJournalInput> | JournalLineCreateWithoutJournalInput[] | JournalLineUncheckedCreateWithoutJournalInput[]
+    connectOrCreate?: JournalLineCreateOrConnectWithoutJournalInput | JournalLineCreateOrConnectWithoutJournalInput[]
+    upsert?: JournalLineUpsertWithWhereUniqueWithoutJournalInput | JournalLineUpsertWithWhereUniqueWithoutJournalInput[]
+    createMany?: JournalLineCreateManyJournalInputEnvelope
+    set?: JournalLineWhereUniqueInput | JournalLineWhereUniqueInput[]
+    disconnect?: JournalLineWhereUniqueInput | JournalLineWhereUniqueInput[]
+    delete?: JournalLineWhereUniqueInput | JournalLineWhereUniqueInput[]
+    connect?: JournalLineWhereUniqueInput | JournalLineWhereUniqueInput[]
+    update?: JournalLineUpdateWithWhereUniqueWithoutJournalInput | JournalLineUpdateWithWhereUniqueWithoutJournalInput[]
+    updateMany?: JournalLineUpdateManyWithWhereWithoutJournalInput | JournalLineUpdateManyWithWhereWithoutJournalInput[]
+    deleteMany?: JournalLineScalarWhereInput | JournalLineScalarWhereInput[]
+  }
+
+  export type JournalEntryUncheckedUpdateOneWithoutReversalOfNestedInput = {
+    create?: XOR<JournalEntryCreateWithoutReversalOfInput, JournalEntryUncheckedCreateWithoutReversalOfInput>
+    connectOrCreate?: JournalEntryCreateOrConnectWithoutReversalOfInput
+    upsert?: JournalEntryUpsertWithoutReversalOfInput
+    disconnect?: JournalEntryWhereInput | boolean
+    delete?: JournalEntryWhereInput | boolean
+    connect?: JournalEntryWhereUniqueInput
+    update?: XOR<XOR<JournalEntryUpdateToOneWithWhereWithoutReversalOfInput, JournalEntryUpdateWithoutReversalOfInput>, JournalEntryUncheckedUpdateWithoutReversalOfInput>
+  }
+
+  export type JournalLineUncheckedUpdateManyWithoutJournalNestedInput = {
+    create?: XOR<JournalLineCreateWithoutJournalInput, JournalLineUncheckedCreateWithoutJournalInput> | JournalLineCreateWithoutJournalInput[] | JournalLineUncheckedCreateWithoutJournalInput[]
+    connectOrCreate?: JournalLineCreateOrConnectWithoutJournalInput | JournalLineCreateOrConnectWithoutJournalInput[]
+    upsert?: JournalLineUpsertWithWhereUniqueWithoutJournalInput | JournalLineUpsertWithWhereUniqueWithoutJournalInput[]
+    createMany?: JournalLineCreateManyJournalInputEnvelope
+    set?: JournalLineWhereUniqueInput | JournalLineWhereUniqueInput[]
+    disconnect?: JournalLineWhereUniqueInput | JournalLineWhereUniqueInput[]
+    delete?: JournalLineWhereUniqueInput | JournalLineWhereUniqueInput[]
+    connect?: JournalLineWhereUniqueInput | JournalLineWhereUniqueInput[]
+    update?: JournalLineUpdateWithWhereUniqueWithoutJournalInput | JournalLineUpdateWithWhereUniqueWithoutJournalInput[]
+    updateMany?: JournalLineUpdateManyWithWhereWithoutJournalInput | JournalLineUpdateManyWithWhereWithoutJournalInput[]
+    deleteMany?: JournalLineScalarWhereInput | JournalLineScalarWhereInput[]
+  }
+
+  export type JournalEntryCreateNestedOneWithoutLinesInput = {
+    create?: XOR<JournalEntryCreateWithoutLinesInput, JournalEntryUncheckedCreateWithoutLinesInput>
+    connectOrCreate?: JournalEntryCreateOrConnectWithoutLinesInput
+    connect?: JournalEntryWhereUniqueInput
+  }
+
+  export type LedgerAccountCreateNestedOneWithoutLinesInput = {
+    create?: XOR<LedgerAccountCreateWithoutLinesInput, LedgerAccountUncheckedCreateWithoutLinesInput>
+    connectOrCreate?: LedgerAccountCreateOrConnectWithoutLinesInput
+    connect?: LedgerAccountWhereUniqueInput
+  }
+
+  export type NullableEnumLedgerPartyTypeFieldUpdateOperationsInput = {
+    set?: $Enums.LedgerPartyType | null
+  }
+
+  export type JournalEntryUpdateOneRequiredWithoutLinesNestedInput = {
+    create?: XOR<JournalEntryCreateWithoutLinesInput, JournalEntryUncheckedCreateWithoutLinesInput>
+    connectOrCreate?: JournalEntryCreateOrConnectWithoutLinesInput
+    upsert?: JournalEntryUpsertWithoutLinesInput
+    connect?: JournalEntryWhereUniqueInput
+    update?: XOR<XOR<JournalEntryUpdateToOneWithWhereWithoutLinesInput, JournalEntryUpdateWithoutLinesInput>, JournalEntryUncheckedUpdateWithoutLinesInput>
+  }
+
+  export type LedgerAccountUpdateOneRequiredWithoutLinesNestedInput = {
+    create?: XOR<LedgerAccountCreateWithoutLinesInput, LedgerAccountUncheckedCreateWithoutLinesInput>
+    connectOrCreate?: LedgerAccountCreateOrConnectWithoutLinesInput
+    upsert?: LedgerAccountUpsertWithoutLinesInput
+    connect?: LedgerAccountWhereUniqueInput
+    update?: XOR<XOR<LedgerAccountUpdateToOneWithWhereWithoutLinesInput, LedgerAccountUpdateWithoutLinesInput>, LedgerAccountUncheckedUpdateWithoutLinesInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -58721,6 +66599,118 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumNotificationPriorityFilter<$PrismaModel>
     _max?: NestedEnumNotificationPriorityFilter<$PrismaModel>
+  }
+
+  export type NestedEnumLedgerAccountTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.LedgerAccountType | EnumLedgerAccountTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.LedgerAccountType[] | ListEnumLedgerAccountTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.LedgerAccountType[] | ListEnumLedgerAccountTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumLedgerAccountTypeFilter<$PrismaModel> | $Enums.LedgerAccountType
+  }
+
+  export type NestedEnumLedgerAccountTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.LedgerAccountType | EnumLedgerAccountTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.LedgerAccountType[] | ListEnumLedgerAccountTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.LedgerAccountType[] | ListEnumLedgerAccountTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumLedgerAccountTypeWithAggregatesFilter<$PrismaModel> | $Enums.LedgerAccountType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumLedgerAccountTypeFilter<$PrismaModel>
+    _max?: NestedEnumLedgerAccountTypeFilter<$PrismaModel>
+  }
+
+  export type NestedEnumPeriodStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.PeriodStatus | EnumPeriodStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.PeriodStatus[] | ListEnumPeriodStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.PeriodStatus[] | ListEnumPeriodStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumPeriodStatusFilter<$PrismaModel> | $Enums.PeriodStatus
+  }
+
+  export type NestedEnumPeriodStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.PeriodStatus | EnumPeriodStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.PeriodStatus[] | ListEnumPeriodStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.PeriodStatus[] | ListEnumPeriodStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumPeriodStatusWithAggregatesFilter<$PrismaModel> | $Enums.PeriodStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumPeriodStatusFilter<$PrismaModel>
+    _max?: NestedEnumPeriodStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumJournalSourceTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.JournalSourceType | EnumJournalSourceTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.JournalSourceType[] | ListEnumJournalSourceTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.JournalSourceType[] | ListEnumJournalSourceTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumJournalSourceTypeFilter<$PrismaModel> | $Enums.JournalSourceType
+  }
+
+  export type NestedEnumJournalStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.JournalStatus | EnumJournalStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.JournalStatus[] | ListEnumJournalStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.JournalStatus[] | ListEnumJournalStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumJournalStatusFilter<$PrismaModel> | $Enums.JournalStatus
+  }
+
+  export type NestedBigIntFilter<$PrismaModel = never> = {
+    equals?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    in?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel>
+    notIn?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel>
+    lt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    lte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    not?: NestedBigIntFilter<$PrismaModel> | bigint | number
+  }
+
+  export type NestedEnumJournalSourceTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.JournalSourceType | EnumJournalSourceTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.JournalSourceType[] | ListEnumJournalSourceTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.JournalSourceType[] | ListEnumJournalSourceTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumJournalSourceTypeWithAggregatesFilter<$PrismaModel> | $Enums.JournalSourceType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumJournalSourceTypeFilter<$PrismaModel>
+    _max?: NestedEnumJournalSourceTypeFilter<$PrismaModel>
+  }
+
+  export type NestedEnumJournalStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.JournalStatus | EnumJournalStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.JournalStatus[] | ListEnumJournalStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.JournalStatus[] | ListEnumJournalStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumJournalStatusWithAggregatesFilter<$PrismaModel> | $Enums.JournalStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumJournalStatusFilter<$PrismaModel>
+    _max?: NestedEnumJournalStatusFilter<$PrismaModel>
+  }
+
+  export type NestedBigIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    in?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel>
+    notIn?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel>
+    lt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    lte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    not?: NestedBigIntWithAggregatesFilter<$PrismaModel> | bigint | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedBigIntFilter<$PrismaModel>
+    _min?: NestedBigIntFilter<$PrismaModel>
+    _max?: NestedBigIntFilter<$PrismaModel>
+  }
+
+  export type NestedEnumLedgerPartyTypeNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.LedgerPartyType | EnumLedgerPartyTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.LedgerPartyType[] | ListEnumLedgerPartyTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.LedgerPartyType[] | ListEnumLedgerPartyTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumLedgerPartyTypeNullableFilter<$PrismaModel> | $Enums.LedgerPartyType | null
+  }
+
+  export type NestedEnumLedgerPartyTypeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.LedgerPartyType | EnumLedgerPartyTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.LedgerPartyType[] | ListEnumLedgerPartyTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.LedgerPartyType[] | ListEnumLedgerPartyTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumLedgerPartyTypeNullableWithAggregatesFilter<$PrismaModel> | $Enums.LedgerPartyType | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumLedgerPartyTypeNullableFilter<$PrismaModel>
+    _max?: NestedEnumLedgerPartyTypeNullableFilter<$PrismaModel>
   }
 
   export type ClassSubjectCreateWithoutStaffInput = {
@@ -59691,6 +67681,7 @@ export namespace Prisma {
     feeInvoices?: FeeInvoiceCreateNestedManyWithoutTermInput
     enrolments?: EnrolmentCreateNestedManyWithoutTermInput
     reportCards?: ReportCardCreateNestedManyWithoutTermInput
+    journalEntries?: JournalEntryCreateNestedManyWithoutTermInput
   }
 
   export type TermUncheckedCreateWithoutCalendarEventsInput = {
@@ -59708,6 +67699,7 @@ export namespace Prisma {
     feeInvoices?: FeeInvoiceUncheckedCreateNestedManyWithoutTermInput
     enrolments?: EnrolmentUncheckedCreateNestedManyWithoutTermInput
     reportCards?: ReportCardUncheckedCreateNestedManyWithoutTermInput
+    journalEntries?: JournalEntryUncheckedCreateNestedManyWithoutTermInput
   }
 
   export type TermCreateOrConnectWithoutCalendarEventsInput = {
@@ -59724,6 +67716,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     terms?: TermCreateNestedManyWithoutSessionInput
+    journalEntries?: JournalEntryCreateNestedManyWithoutSessionInput
   }
 
   export type SessionUncheckedCreateWithoutCalendarEventsInput = {
@@ -59735,6 +67728,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     terms?: TermUncheckedCreateNestedManyWithoutSessionInput
+    journalEntries?: JournalEntryUncheckedCreateNestedManyWithoutSessionInput
   }
 
   export type SessionCreateOrConnectWithoutCalendarEventsInput = {
@@ -59768,6 +67762,7 @@ export namespace Prisma {
     feeInvoices?: FeeInvoiceUpdateManyWithoutTermNestedInput
     enrolments?: EnrolmentUpdateManyWithoutTermNestedInput
     reportCards?: ReportCardUpdateManyWithoutTermNestedInput
+    journalEntries?: JournalEntryUpdateManyWithoutTermNestedInput
   }
 
   export type TermUncheckedUpdateWithoutCalendarEventsInput = {
@@ -59785,6 +67780,7 @@ export namespace Prisma {
     feeInvoices?: FeeInvoiceUncheckedUpdateManyWithoutTermNestedInput
     enrolments?: EnrolmentUncheckedUpdateManyWithoutTermNestedInput
     reportCards?: ReportCardUncheckedUpdateManyWithoutTermNestedInput
+    journalEntries?: JournalEntryUncheckedUpdateManyWithoutTermNestedInput
   }
 
   export type SessionUpsertWithoutCalendarEventsInput = {
@@ -59807,6 +67803,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     terms?: TermUpdateManyWithoutSessionNestedInput
+    journalEntries?: JournalEntryUpdateManyWithoutSessionNestedInput
   }
 
   export type SessionUncheckedUpdateWithoutCalendarEventsInput = {
@@ -59818,6 +67815,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     terms?: TermUncheckedUpdateManyWithoutSessionNestedInput
+    journalEntries?: JournalEntryUncheckedUpdateManyWithoutSessionNestedInput
   }
 
   export type TermCreateWithoutSessionInput = {
@@ -59835,6 +67833,7 @@ export namespace Prisma {
     feeInvoices?: FeeInvoiceCreateNestedManyWithoutTermInput
     enrolments?: EnrolmentCreateNestedManyWithoutTermInput
     reportCards?: ReportCardCreateNestedManyWithoutTermInput
+    journalEntries?: JournalEntryCreateNestedManyWithoutTermInput
   }
 
   export type TermUncheckedCreateWithoutSessionInput = {
@@ -59852,6 +67851,7 @@ export namespace Prisma {
     feeInvoices?: FeeInvoiceUncheckedCreateNestedManyWithoutTermInput
     enrolments?: EnrolmentUncheckedCreateNestedManyWithoutTermInput
     reportCards?: ReportCardUncheckedCreateNestedManyWithoutTermInput
+    journalEntries?: JournalEntryUncheckedCreateNestedManyWithoutTermInput
   }
 
   export type TermCreateOrConnectWithoutSessionInput = {
@@ -59899,6 +67899,64 @@ export namespace Prisma {
 
   export type CalendarEventCreateManySessionInputEnvelope = {
     data: CalendarEventCreateManySessionInput | CalendarEventCreateManySessionInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type JournalEntryCreateWithoutSessionInput = {
+    id?: string
+    number: string
+    entryDate: Date | string
+    description: string
+    sourceType: $Enums.JournalSourceType
+    sourceId?: string | null
+    purpose: string
+    idempotencyKey: string
+    status?: $Enums.JournalStatus
+    reversalReason?: string | null
+    totalKobo: bigint | number
+    createdById?: string | null
+    isSystemActor?: boolean
+    postedAt?: Date | string
+    createdAt?: Date | string
+    period: FinancePeriodCreateNestedOneWithoutJournalsInput
+    term?: TermCreateNestedOneWithoutJournalEntriesInput
+    branch?: BranchCreateNestedOneWithoutJournalEntriesInput
+    reversalOf?: JournalEntryCreateNestedOneWithoutReversedByInput
+    reversedBy?: JournalEntryCreateNestedOneWithoutReversalOfInput
+    lines?: JournalLineCreateNestedManyWithoutJournalInput
+  }
+
+  export type JournalEntryUncheckedCreateWithoutSessionInput = {
+    id?: string
+    number: string
+    entryDate: Date | string
+    periodId: string
+    termId?: string | null
+    branchId?: string | null
+    description: string
+    sourceType: $Enums.JournalSourceType
+    sourceId?: string | null
+    purpose: string
+    idempotencyKey: string
+    status?: $Enums.JournalStatus
+    reversalOfId?: string | null
+    reversalReason?: string | null
+    totalKobo: bigint | number
+    createdById?: string | null
+    isSystemActor?: boolean
+    postedAt?: Date | string
+    createdAt?: Date | string
+    reversedBy?: JournalEntryUncheckedCreateNestedOneWithoutReversalOfInput
+    lines?: JournalLineUncheckedCreateNestedManyWithoutJournalInput
+  }
+
+  export type JournalEntryCreateOrConnectWithoutSessionInput = {
+    where: JournalEntryWhereUniqueInput
+    create: XOR<JournalEntryCreateWithoutSessionInput, JournalEntryUncheckedCreateWithoutSessionInput>
+  }
+
+  export type JournalEntryCreateManySessionInputEnvelope = {
+    data: JournalEntryCreateManySessionInput | JournalEntryCreateManySessionInput[]
     skipDuplicates?: boolean
   }
 
@@ -59966,6 +68024,48 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"CalendarEvent"> | Date | string
   }
 
+  export type JournalEntryUpsertWithWhereUniqueWithoutSessionInput = {
+    where: JournalEntryWhereUniqueInput
+    update: XOR<JournalEntryUpdateWithoutSessionInput, JournalEntryUncheckedUpdateWithoutSessionInput>
+    create: XOR<JournalEntryCreateWithoutSessionInput, JournalEntryUncheckedCreateWithoutSessionInput>
+  }
+
+  export type JournalEntryUpdateWithWhereUniqueWithoutSessionInput = {
+    where: JournalEntryWhereUniqueInput
+    data: XOR<JournalEntryUpdateWithoutSessionInput, JournalEntryUncheckedUpdateWithoutSessionInput>
+  }
+
+  export type JournalEntryUpdateManyWithWhereWithoutSessionInput = {
+    where: JournalEntryScalarWhereInput
+    data: XOR<JournalEntryUpdateManyMutationInput, JournalEntryUncheckedUpdateManyWithoutSessionInput>
+  }
+
+  export type JournalEntryScalarWhereInput = {
+    AND?: JournalEntryScalarWhereInput | JournalEntryScalarWhereInput[]
+    OR?: JournalEntryScalarWhereInput[]
+    NOT?: JournalEntryScalarWhereInput | JournalEntryScalarWhereInput[]
+    id?: StringFilter<"JournalEntry"> | string
+    number?: StringFilter<"JournalEntry"> | string
+    entryDate?: DateTimeFilter<"JournalEntry"> | Date | string
+    periodId?: StringFilter<"JournalEntry"> | string
+    termId?: StringNullableFilter<"JournalEntry"> | string | null
+    sessionId?: StringNullableFilter<"JournalEntry"> | string | null
+    branchId?: StringNullableFilter<"JournalEntry"> | string | null
+    description?: StringFilter<"JournalEntry"> | string
+    sourceType?: EnumJournalSourceTypeFilter<"JournalEntry"> | $Enums.JournalSourceType
+    sourceId?: StringNullableFilter<"JournalEntry"> | string | null
+    purpose?: StringFilter<"JournalEntry"> | string
+    idempotencyKey?: StringFilter<"JournalEntry"> | string
+    status?: EnumJournalStatusFilter<"JournalEntry"> | $Enums.JournalStatus
+    reversalOfId?: StringNullableFilter<"JournalEntry"> | string | null
+    reversalReason?: StringNullableFilter<"JournalEntry"> | string | null
+    totalKobo?: BigIntFilter<"JournalEntry"> | bigint | number
+    createdById?: StringNullableFilter<"JournalEntry"> | string | null
+    isSystemActor?: BoolFilter<"JournalEntry"> | boolean
+    postedAt?: DateTimeFilter<"JournalEntry"> | Date | string
+    createdAt?: DateTimeFilter<"JournalEntry"> | Date | string
+  }
+
   export type SessionCreateWithoutTermsInput = {
     id?: string
     name: string
@@ -59975,6 +68075,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     calendarEvents?: CalendarEventCreateNestedManyWithoutSessionInput
+    journalEntries?: JournalEntryCreateNestedManyWithoutSessionInput
   }
 
   export type SessionUncheckedCreateWithoutTermsInput = {
@@ -59986,6 +68087,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutSessionInput
+    journalEntries?: JournalEntryUncheckedCreateNestedManyWithoutSessionInput
   }
 
   export type SessionCreateOrConnectWithoutTermsInput = {
@@ -60243,6 +68345,64 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type JournalEntryCreateWithoutTermInput = {
+    id?: string
+    number: string
+    entryDate: Date | string
+    description: string
+    sourceType: $Enums.JournalSourceType
+    sourceId?: string | null
+    purpose: string
+    idempotencyKey: string
+    status?: $Enums.JournalStatus
+    reversalReason?: string | null
+    totalKobo: bigint | number
+    createdById?: string | null
+    isSystemActor?: boolean
+    postedAt?: Date | string
+    createdAt?: Date | string
+    period: FinancePeriodCreateNestedOneWithoutJournalsInput
+    session?: SessionCreateNestedOneWithoutJournalEntriesInput
+    branch?: BranchCreateNestedOneWithoutJournalEntriesInput
+    reversalOf?: JournalEntryCreateNestedOneWithoutReversedByInput
+    reversedBy?: JournalEntryCreateNestedOneWithoutReversalOfInput
+    lines?: JournalLineCreateNestedManyWithoutJournalInput
+  }
+
+  export type JournalEntryUncheckedCreateWithoutTermInput = {
+    id?: string
+    number: string
+    entryDate: Date | string
+    periodId: string
+    sessionId?: string | null
+    branchId?: string | null
+    description: string
+    sourceType: $Enums.JournalSourceType
+    sourceId?: string | null
+    purpose: string
+    idempotencyKey: string
+    status?: $Enums.JournalStatus
+    reversalOfId?: string | null
+    reversalReason?: string | null
+    totalKobo: bigint | number
+    createdById?: string | null
+    isSystemActor?: boolean
+    postedAt?: Date | string
+    createdAt?: Date | string
+    reversedBy?: JournalEntryUncheckedCreateNestedOneWithoutReversalOfInput
+    lines?: JournalLineUncheckedCreateNestedManyWithoutJournalInput
+  }
+
+  export type JournalEntryCreateOrConnectWithoutTermInput = {
+    where: JournalEntryWhereUniqueInput
+    create: XOR<JournalEntryCreateWithoutTermInput, JournalEntryUncheckedCreateWithoutTermInput>
+  }
+
+  export type JournalEntryCreateManyTermInputEnvelope = {
+    data: JournalEntryCreateManyTermInput | JournalEntryCreateManyTermInput[]
+    skipDuplicates?: boolean
+  }
+
   export type SessionUpsertWithoutTermsInput = {
     update: XOR<SessionUpdateWithoutTermsInput, SessionUncheckedUpdateWithoutTermsInput>
     create: XOR<SessionCreateWithoutTermsInput, SessionUncheckedCreateWithoutTermsInput>
@@ -60263,6 +68423,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     calendarEvents?: CalendarEventUpdateManyWithoutSessionNestedInput
+    journalEntries?: JournalEntryUpdateManyWithoutSessionNestedInput
   }
 
   export type SessionUncheckedUpdateWithoutTermsInput = {
@@ -60274,6 +68435,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     calendarEvents?: CalendarEventUncheckedUpdateManyWithoutSessionNestedInput
+    journalEntries?: JournalEntryUncheckedUpdateManyWithoutSessionNestedInput
   }
 
   export type ClassSubjectUpsertWithWhereUniqueWithoutTermInput = {
@@ -60386,6 +68548,22 @@ export namespace Prisma {
   export type ReportCardUpdateManyWithWhereWithoutTermInput = {
     where: ReportCardScalarWhereInput
     data: XOR<ReportCardUpdateManyMutationInput, ReportCardUncheckedUpdateManyWithoutTermInput>
+  }
+
+  export type JournalEntryUpsertWithWhereUniqueWithoutTermInput = {
+    where: JournalEntryWhereUniqueInput
+    update: XOR<JournalEntryUpdateWithoutTermInput, JournalEntryUncheckedUpdateWithoutTermInput>
+    create: XOR<JournalEntryCreateWithoutTermInput, JournalEntryUncheckedCreateWithoutTermInput>
+  }
+
+  export type JournalEntryUpdateWithWhereUniqueWithoutTermInput = {
+    where: JournalEntryWhereUniqueInput
+    data: XOR<JournalEntryUpdateWithoutTermInput, JournalEntryUncheckedUpdateWithoutTermInput>
+  }
+
+  export type JournalEntryUpdateManyWithWhereWithoutTermInput = {
+    where: JournalEntryScalarWhereInput
+    data: XOR<JournalEntryUpdateManyMutationInput, JournalEntryUncheckedUpdateManyWithoutTermInput>
   }
 
   export type StaffCreateWithoutClassesAsClassTeacherInput = {
@@ -61057,6 +69235,7 @@ export namespace Prisma {
     feeInvoices?: FeeInvoiceCreateNestedManyWithoutTermInput
     enrolments?: EnrolmentCreateNestedManyWithoutTermInput
     reportCards?: ReportCardCreateNestedManyWithoutTermInput
+    journalEntries?: JournalEntryCreateNestedManyWithoutTermInput
   }
 
   export type TermUncheckedCreateWithoutClassSubjectsInput = {
@@ -61074,6 +69253,7 @@ export namespace Prisma {
     feeInvoices?: FeeInvoiceUncheckedCreateNestedManyWithoutTermInput
     enrolments?: EnrolmentUncheckedCreateNestedManyWithoutTermInput
     reportCards?: ReportCardUncheckedCreateNestedManyWithoutTermInput
+    journalEntries?: JournalEntryUncheckedCreateNestedManyWithoutTermInput
   }
 
   export type TermCreateOrConnectWithoutClassSubjectsInput = {
@@ -61294,6 +69474,7 @@ export namespace Prisma {
     feeInvoices?: FeeInvoiceUpdateManyWithoutTermNestedInput
     enrolments?: EnrolmentUpdateManyWithoutTermNestedInput
     reportCards?: ReportCardUpdateManyWithoutTermNestedInput
+    journalEntries?: JournalEntryUpdateManyWithoutTermNestedInput
   }
 
   export type TermUncheckedUpdateWithoutClassSubjectsInput = {
@@ -61311,6 +69492,7 @@ export namespace Prisma {
     feeInvoices?: FeeInvoiceUncheckedUpdateManyWithoutTermNestedInput
     enrolments?: EnrolmentUncheckedUpdateManyWithoutTermNestedInput
     reportCards?: ReportCardUncheckedUpdateManyWithoutTermNestedInput
+    journalEntries?: JournalEntryUncheckedUpdateManyWithoutTermNestedInput
   }
 
   export type GradeUpsertWithWhereUniqueWithoutClassSubjectInput = {
@@ -61432,6 +69614,7 @@ export namespace Prisma {
     grades?: GradeCreateNestedManyWithoutTermInput
     feeInvoices?: FeeInvoiceCreateNestedManyWithoutTermInput
     reportCards?: ReportCardCreateNestedManyWithoutTermInput
+    journalEntries?: JournalEntryCreateNestedManyWithoutTermInput
   }
 
   export type TermUncheckedCreateWithoutEnrolmentsInput = {
@@ -61449,6 +69632,7 @@ export namespace Prisma {
     grades?: GradeUncheckedCreateNestedManyWithoutTermInput
     feeInvoices?: FeeInvoiceUncheckedCreateNestedManyWithoutTermInput
     reportCards?: ReportCardUncheckedCreateNestedManyWithoutTermInput
+    journalEntries?: JournalEntryUncheckedCreateNestedManyWithoutTermInput
   }
 
   export type TermCreateOrConnectWithoutEnrolmentsInput = {
@@ -61582,6 +69766,7 @@ export namespace Prisma {
     grades?: GradeUpdateManyWithoutTermNestedInput
     feeInvoices?: FeeInvoiceUpdateManyWithoutTermNestedInput
     reportCards?: ReportCardUpdateManyWithoutTermNestedInput
+    journalEntries?: JournalEntryUpdateManyWithoutTermNestedInput
   }
 
   export type TermUncheckedUpdateWithoutEnrolmentsInput = {
@@ -61599,6 +69784,7 @@ export namespace Prisma {
     grades?: GradeUncheckedUpdateManyWithoutTermNestedInput
     feeInvoices?: FeeInvoiceUncheckedUpdateManyWithoutTermNestedInput
     reportCards?: ReportCardUncheckedUpdateManyWithoutTermNestedInput
+    journalEntries?: JournalEntryUncheckedUpdateManyWithoutTermNestedInput
   }
 
   export type ClassCreateWithoutProgressionsFromInput = {
@@ -61809,6 +69995,7 @@ export namespace Prisma {
     feeInvoices?: FeeInvoiceCreateNestedManyWithoutTermInput
     enrolments?: EnrolmentCreateNestedManyWithoutTermInput
     reportCards?: ReportCardCreateNestedManyWithoutTermInput
+    journalEntries?: JournalEntryCreateNestedManyWithoutTermInput
   }
 
   export type TermUncheckedCreateWithoutAttendancesInput = {
@@ -61826,6 +70013,7 @@ export namespace Prisma {
     feeInvoices?: FeeInvoiceUncheckedCreateNestedManyWithoutTermInput
     enrolments?: EnrolmentUncheckedCreateNestedManyWithoutTermInput
     reportCards?: ReportCardUncheckedCreateNestedManyWithoutTermInput
+    journalEntries?: JournalEntryUncheckedCreateNestedManyWithoutTermInput
   }
 
   export type TermCreateOrConnectWithoutAttendancesInput = {
@@ -61922,6 +70110,7 @@ export namespace Prisma {
     feeInvoices?: FeeInvoiceUpdateManyWithoutTermNestedInput
     enrolments?: EnrolmentUpdateManyWithoutTermNestedInput
     reportCards?: ReportCardUpdateManyWithoutTermNestedInput
+    journalEntries?: JournalEntryUpdateManyWithoutTermNestedInput
   }
 
   export type TermUncheckedUpdateWithoutAttendancesInput = {
@@ -61939,6 +70128,7 @@ export namespace Prisma {
     feeInvoices?: FeeInvoiceUncheckedUpdateManyWithoutTermNestedInput
     enrolments?: EnrolmentUncheckedUpdateManyWithoutTermNestedInput
     reportCards?: ReportCardUncheckedUpdateManyWithoutTermNestedInput
+    journalEntries?: JournalEntryUncheckedUpdateManyWithoutTermNestedInput
   }
 
   export type StudentCreateWithoutGradesInput = {
@@ -62013,6 +70203,7 @@ export namespace Prisma {
     feeInvoices?: FeeInvoiceCreateNestedManyWithoutTermInput
     enrolments?: EnrolmentCreateNestedManyWithoutTermInput
     reportCards?: ReportCardCreateNestedManyWithoutTermInput
+    journalEntries?: JournalEntryCreateNestedManyWithoutTermInput
   }
 
   export type TermUncheckedCreateWithoutGradesInput = {
@@ -62030,6 +70221,7 @@ export namespace Prisma {
     feeInvoices?: FeeInvoiceUncheckedCreateNestedManyWithoutTermInput
     enrolments?: EnrolmentUncheckedCreateNestedManyWithoutTermInput
     reportCards?: ReportCardUncheckedCreateNestedManyWithoutTermInput
+    journalEntries?: JournalEntryUncheckedCreateNestedManyWithoutTermInput
   }
 
   export type TermCreateOrConnectWithoutGradesInput = {
@@ -62153,6 +70345,7 @@ export namespace Prisma {
     feeInvoices?: FeeInvoiceUpdateManyWithoutTermNestedInput
     enrolments?: EnrolmentUpdateManyWithoutTermNestedInput
     reportCards?: ReportCardUpdateManyWithoutTermNestedInput
+    journalEntries?: JournalEntryUpdateManyWithoutTermNestedInput
   }
 
   export type TermUncheckedUpdateWithoutGradesInput = {
@@ -62170,6 +70363,7 @@ export namespace Prisma {
     feeInvoices?: FeeInvoiceUncheckedUpdateManyWithoutTermNestedInput
     enrolments?: EnrolmentUncheckedUpdateManyWithoutTermNestedInput
     reportCards?: ReportCardUncheckedUpdateManyWithoutTermNestedInput
+    journalEntries?: JournalEntryUncheckedUpdateManyWithoutTermNestedInput
   }
 
   export type ClassSubjectUpsertWithoutGradesInput = {
@@ -62277,6 +70471,7 @@ export namespace Prisma {
     grades?: GradeCreateNestedManyWithoutTermInput
     feeInvoices?: FeeInvoiceCreateNestedManyWithoutTermInput
     enrolments?: EnrolmentCreateNestedManyWithoutTermInput
+    journalEntries?: JournalEntryCreateNestedManyWithoutTermInput
   }
 
   export type TermUncheckedCreateWithoutReportCardsInput = {
@@ -62294,6 +70489,7 @@ export namespace Prisma {
     grades?: GradeUncheckedCreateNestedManyWithoutTermInput
     feeInvoices?: FeeInvoiceUncheckedCreateNestedManyWithoutTermInput
     enrolments?: EnrolmentUncheckedCreateNestedManyWithoutTermInput
+    journalEntries?: JournalEntryUncheckedCreateNestedManyWithoutTermInput
   }
 
   export type TermCreateOrConnectWithoutReportCardsInput = {
@@ -62390,6 +70586,7 @@ export namespace Prisma {
     grades?: GradeUpdateManyWithoutTermNestedInput
     feeInvoices?: FeeInvoiceUpdateManyWithoutTermNestedInput
     enrolments?: EnrolmentUpdateManyWithoutTermNestedInput
+    journalEntries?: JournalEntryUpdateManyWithoutTermNestedInput
   }
 
   export type TermUncheckedUpdateWithoutReportCardsInput = {
@@ -62407,6 +70604,7 @@ export namespace Prisma {
     grades?: GradeUncheckedUpdateManyWithoutTermNestedInput
     feeInvoices?: FeeInvoiceUncheckedUpdateManyWithoutTermNestedInput
     enrolments?: EnrolmentUncheckedUpdateManyWithoutTermNestedInput
+    journalEntries?: JournalEntryUncheckedUpdateManyWithoutTermNestedInput
   }
 
   export type FeeInvoiceItemCreateWithoutFeeTypeInput = {
@@ -62532,6 +70730,7 @@ export namespace Prisma {
     grades?: GradeCreateNestedManyWithoutTermInput
     enrolments?: EnrolmentCreateNestedManyWithoutTermInput
     reportCards?: ReportCardCreateNestedManyWithoutTermInput
+    journalEntries?: JournalEntryCreateNestedManyWithoutTermInput
   }
 
   export type TermUncheckedCreateWithoutFeeInvoicesInput = {
@@ -62549,6 +70748,7 @@ export namespace Prisma {
     grades?: GradeUncheckedCreateNestedManyWithoutTermInput
     enrolments?: EnrolmentUncheckedCreateNestedManyWithoutTermInput
     reportCards?: ReportCardUncheckedCreateNestedManyWithoutTermInput
+    journalEntries?: JournalEntryUncheckedCreateNestedManyWithoutTermInput
   }
 
   export type TermCreateOrConnectWithoutFeeInvoicesInput = {
@@ -62713,6 +70913,7 @@ export namespace Prisma {
     grades?: GradeUpdateManyWithoutTermNestedInput
     enrolments?: EnrolmentUpdateManyWithoutTermNestedInput
     reportCards?: ReportCardUpdateManyWithoutTermNestedInput
+    journalEntries?: JournalEntryUpdateManyWithoutTermNestedInput
   }
 
   export type TermUncheckedUpdateWithoutFeeInvoicesInput = {
@@ -62730,6 +70931,7 @@ export namespace Prisma {
     grades?: GradeUncheckedUpdateManyWithoutTermNestedInput
     enrolments?: EnrolmentUncheckedUpdateManyWithoutTermNestedInput
     reportCards?: ReportCardUncheckedUpdateManyWithoutTermNestedInput
+    journalEntries?: JournalEntryUncheckedUpdateManyWithoutTermNestedInput
   }
 
   export type FeeInvoiceItemUpsertWithWhereUniqueWithoutFeeInvoiceInput = {
@@ -63407,6 +71609,64 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type JournalEntryCreateWithoutBranchInput = {
+    id?: string
+    number: string
+    entryDate: Date | string
+    description: string
+    sourceType: $Enums.JournalSourceType
+    sourceId?: string | null
+    purpose: string
+    idempotencyKey: string
+    status?: $Enums.JournalStatus
+    reversalReason?: string | null
+    totalKobo: bigint | number
+    createdById?: string | null
+    isSystemActor?: boolean
+    postedAt?: Date | string
+    createdAt?: Date | string
+    period: FinancePeriodCreateNestedOneWithoutJournalsInput
+    term?: TermCreateNestedOneWithoutJournalEntriesInput
+    session?: SessionCreateNestedOneWithoutJournalEntriesInput
+    reversalOf?: JournalEntryCreateNestedOneWithoutReversedByInput
+    reversedBy?: JournalEntryCreateNestedOneWithoutReversalOfInput
+    lines?: JournalLineCreateNestedManyWithoutJournalInput
+  }
+
+  export type JournalEntryUncheckedCreateWithoutBranchInput = {
+    id?: string
+    number: string
+    entryDate: Date | string
+    periodId: string
+    termId?: string | null
+    sessionId?: string | null
+    description: string
+    sourceType: $Enums.JournalSourceType
+    sourceId?: string | null
+    purpose: string
+    idempotencyKey: string
+    status?: $Enums.JournalStatus
+    reversalOfId?: string | null
+    reversalReason?: string | null
+    totalKobo: bigint | number
+    createdById?: string | null
+    isSystemActor?: boolean
+    postedAt?: Date | string
+    createdAt?: Date | string
+    reversedBy?: JournalEntryUncheckedCreateNestedOneWithoutReversalOfInput
+    lines?: JournalLineUncheckedCreateNestedManyWithoutJournalInput
+  }
+
+  export type JournalEntryCreateOrConnectWithoutBranchInput = {
+    where: JournalEntryWhereUniqueInput
+    create: XOR<JournalEntryCreateWithoutBranchInput, JournalEntryUncheckedCreateWithoutBranchInput>
+  }
+
+  export type JournalEntryCreateManyBranchInputEnvelope = {
+    data: JournalEntryCreateManyBranchInput | JournalEntryCreateManyBranchInput[]
+    skipDuplicates?: boolean
+  }
+
   export type StaffBranchUpsertWithWhereUniqueWithoutBranchInput = {
     where: StaffBranchWhereUniqueInput
     update: XOR<StaffBranchUpdateWithoutBranchInput, StaffBranchUncheckedUpdateWithoutBranchInput>
@@ -63421,6 +71681,22 @@ export namespace Prisma {
   export type StaffBranchUpdateManyWithWhereWithoutBranchInput = {
     where: StaffBranchScalarWhereInput
     data: XOR<StaffBranchUpdateManyMutationInput, StaffBranchUncheckedUpdateManyWithoutBranchInput>
+  }
+
+  export type JournalEntryUpsertWithWhereUniqueWithoutBranchInput = {
+    where: JournalEntryWhereUniqueInput
+    update: XOR<JournalEntryUpdateWithoutBranchInput, JournalEntryUncheckedUpdateWithoutBranchInput>
+    create: XOR<JournalEntryCreateWithoutBranchInput, JournalEntryUncheckedCreateWithoutBranchInput>
+  }
+
+  export type JournalEntryUpdateWithWhereUniqueWithoutBranchInput = {
+    where: JournalEntryWhereUniqueInput
+    data: XOR<JournalEntryUpdateWithoutBranchInput, JournalEntryUncheckedUpdateWithoutBranchInput>
+  }
+
+  export type JournalEntryUpdateManyWithWhereWithoutBranchInput = {
+    where: JournalEntryScalarWhereInput
+    data: XOR<JournalEntryUpdateManyMutationInput, JournalEntryUncheckedUpdateManyWithoutBranchInput>
   }
 
   export type StaffCreateWithoutBranchesInput = {
@@ -63510,6 +71786,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
+    journalEntries?: JournalEntryCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutStaffInput = {
@@ -63528,6 +71805,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
+    journalEntries?: JournalEntryUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutStaffInput = {
@@ -63639,6 +71917,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    journalEntries?: JournalEntryUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutStaffInput = {
@@ -63657,6 +71936,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    journalEntries?: JournalEntryUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type AutomationRunLogCreateWithoutRuleInput = {
@@ -63982,6 +72262,1171 @@ export namespace Prisma {
     sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LedgerAccountCreateWithoutChildrenInput = {
+    id?: string
+    code: string
+    name: string
+    type: $Enums.LedgerAccountType
+    subtype?: string
+    systemKey?: string | null
+    description?: string | null
+    isMoneyAccount?: boolean
+    bankName?: string | null
+    accountName?: string | null
+    accountNumberLast4?: string | null
+    isActive?: boolean
+    isLocked?: boolean
+    sortOrder?: number
+    createdById?: string | null
+    updatedById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    parent?: LedgerAccountCreateNestedOneWithoutChildrenInput
+    lines?: JournalLineCreateNestedManyWithoutLedgerAccountInput
+  }
+
+  export type LedgerAccountUncheckedCreateWithoutChildrenInput = {
+    id?: string
+    code: string
+    name: string
+    type: $Enums.LedgerAccountType
+    subtype?: string
+    systemKey?: string | null
+    parentId?: string | null
+    description?: string | null
+    isMoneyAccount?: boolean
+    bankName?: string | null
+    accountName?: string | null
+    accountNumberLast4?: string | null
+    isActive?: boolean
+    isLocked?: boolean
+    sortOrder?: number
+    createdById?: string | null
+    updatedById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    lines?: JournalLineUncheckedCreateNestedManyWithoutLedgerAccountInput
+  }
+
+  export type LedgerAccountCreateOrConnectWithoutChildrenInput = {
+    where: LedgerAccountWhereUniqueInput
+    create: XOR<LedgerAccountCreateWithoutChildrenInput, LedgerAccountUncheckedCreateWithoutChildrenInput>
+  }
+
+  export type LedgerAccountCreateWithoutParentInput = {
+    id?: string
+    code: string
+    name: string
+    type: $Enums.LedgerAccountType
+    subtype?: string
+    systemKey?: string | null
+    description?: string | null
+    isMoneyAccount?: boolean
+    bankName?: string | null
+    accountName?: string | null
+    accountNumberLast4?: string | null
+    isActive?: boolean
+    isLocked?: boolean
+    sortOrder?: number
+    createdById?: string | null
+    updatedById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    children?: LedgerAccountCreateNestedManyWithoutParentInput
+    lines?: JournalLineCreateNestedManyWithoutLedgerAccountInput
+  }
+
+  export type LedgerAccountUncheckedCreateWithoutParentInput = {
+    id?: string
+    code: string
+    name: string
+    type: $Enums.LedgerAccountType
+    subtype?: string
+    systemKey?: string | null
+    description?: string | null
+    isMoneyAccount?: boolean
+    bankName?: string | null
+    accountName?: string | null
+    accountNumberLast4?: string | null
+    isActive?: boolean
+    isLocked?: boolean
+    sortOrder?: number
+    createdById?: string | null
+    updatedById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    children?: LedgerAccountUncheckedCreateNestedManyWithoutParentInput
+    lines?: JournalLineUncheckedCreateNestedManyWithoutLedgerAccountInput
+  }
+
+  export type LedgerAccountCreateOrConnectWithoutParentInput = {
+    where: LedgerAccountWhereUniqueInput
+    create: XOR<LedgerAccountCreateWithoutParentInput, LedgerAccountUncheckedCreateWithoutParentInput>
+  }
+
+  export type LedgerAccountCreateManyParentInputEnvelope = {
+    data: LedgerAccountCreateManyParentInput | LedgerAccountCreateManyParentInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type JournalLineCreateWithoutLedgerAccountInput = {
+    id?: string
+    lineNumber: number
+    debitKobo?: bigint | number
+    creditKobo?: bigint | number
+    memo?: string | null
+    partyType?: $Enums.LedgerPartyType | null
+    partyId?: string | null
+    journal: JournalEntryCreateNestedOneWithoutLinesInput
+  }
+
+  export type JournalLineUncheckedCreateWithoutLedgerAccountInput = {
+    id?: string
+    journalId: string
+    lineNumber: number
+    debitKobo?: bigint | number
+    creditKobo?: bigint | number
+    memo?: string | null
+    partyType?: $Enums.LedgerPartyType | null
+    partyId?: string | null
+  }
+
+  export type JournalLineCreateOrConnectWithoutLedgerAccountInput = {
+    where: JournalLineWhereUniqueInput
+    create: XOR<JournalLineCreateWithoutLedgerAccountInput, JournalLineUncheckedCreateWithoutLedgerAccountInput>
+  }
+
+  export type JournalLineCreateManyLedgerAccountInputEnvelope = {
+    data: JournalLineCreateManyLedgerAccountInput | JournalLineCreateManyLedgerAccountInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type LedgerAccountUpsertWithoutChildrenInput = {
+    update: XOR<LedgerAccountUpdateWithoutChildrenInput, LedgerAccountUncheckedUpdateWithoutChildrenInput>
+    create: XOR<LedgerAccountCreateWithoutChildrenInput, LedgerAccountUncheckedCreateWithoutChildrenInput>
+    where?: LedgerAccountWhereInput
+  }
+
+  export type LedgerAccountUpdateToOneWithWhereWithoutChildrenInput = {
+    where?: LedgerAccountWhereInput
+    data: XOR<LedgerAccountUpdateWithoutChildrenInput, LedgerAccountUncheckedUpdateWithoutChildrenInput>
+  }
+
+  export type LedgerAccountUpdateWithoutChildrenInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    type?: EnumLedgerAccountTypeFieldUpdateOperationsInput | $Enums.LedgerAccountType
+    subtype?: StringFieldUpdateOperationsInput | string
+    systemKey?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    isMoneyAccount?: BoolFieldUpdateOperationsInput | boolean
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
+    accountName?: NullableStringFieldUpdateOperationsInput | string | null
+    accountNumberLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isLocked?: BoolFieldUpdateOperationsInput | boolean
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    parent?: LedgerAccountUpdateOneWithoutChildrenNestedInput
+    lines?: JournalLineUpdateManyWithoutLedgerAccountNestedInput
+  }
+
+  export type LedgerAccountUncheckedUpdateWithoutChildrenInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    type?: EnumLedgerAccountTypeFieldUpdateOperationsInput | $Enums.LedgerAccountType
+    subtype?: StringFieldUpdateOperationsInput | string
+    systemKey?: NullableStringFieldUpdateOperationsInput | string | null
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    isMoneyAccount?: BoolFieldUpdateOperationsInput | boolean
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
+    accountName?: NullableStringFieldUpdateOperationsInput | string | null
+    accountNumberLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isLocked?: BoolFieldUpdateOperationsInput | boolean
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lines?: JournalLineUncheckedUpdateManyWithoutLedgerAccountNestedInput
+  }
+
+  export type LedgerAccountUpsertWithWhereUniqueWithoutParentInput = {
+    where: LedgerAccountWhereUniqueInput
+    update: XOR<LedgerAccountUpdateWithoutParentInput, LedgerAccountUncheckedUpdateWithoutParentInput>
+    create: XOR<LedgerAccountCreateWithoutParentInput, LedgerAccountUncheckedCreateWithoutParentInput>
+  }
+
+  export type LedgerAccountUpdateWithWhereUniqueWithoutParentInput = {
+    where: LedgerAccountWhereUniqueInput
+    data: XOR<LedgerAccountUpdateWithoutParentInput, LedgerAccountUncheckedUpdateWithoutParentInput>
+  }
+
+  export type LedgerAccountUpdateManyWithWhereWithoutParentInput = {
+    where: LedgerAccountScalarWhereInput
+    data: XOR<LedgerAccountUpdateManyMutationInput, LedgerAccountUncheckedUpdateManyWithoutParentInput>
+  }
+
+  export type LedgerAccountScalarWhereInput = {
+    AND?: LedgerAccountScalarWhereInput | LedgerAccountScalarWhereInput[]
+    OR?: LedgerAccountScalarWhereInput[]
+    NOT?: LedgerAccountScalarWhereInput | LedgerAccountScalarWhereInput[]
+    id?: StringFilter<"LedgerAccount"> | string
+    code?: StringFilter<"LedgerAccount"> | string
+    name?: StringFilter<"LedgerAccount"> | string
+    type?: EnumLedgerAccountTypeFilter<"LedgerAccount"> | $Enums.LedgerAccountType
+    subtype?: StringFilter<"LedgerAccount"> | string
+    systemKey?: StringNullableFilter<"LedgerAccount"> | string | null
+    parentId?: StringNullableFilter<"LedgerAccount"> | string | null
+    description?: StringNullableFilter<"LedgerAccount"> | string | null
+    isMoneyAccount?: BoolFilter<"LedgerAccount"> | boolean
+    bankName?: StringNullableFilter<"LedgerAccount"> | string | null
+    accountName?: StringNullableFilter<"LedgerAccount"> | string | null
+    accountNumberLast4?: StringNullableFilter<"LedgerAccount"> | string | null
+    isActive?: BoolFilter<"LedgerAccount"> | boolean
+    isLocked?: BoolFilter<"LedgerAccount"> | boolean
+    sortOrder?: IntFilter<"LedgerAccount"> | number
+    createdById?: StringNullableFilter<"LedgerAccount"> | string | null
+    updatedById?: StringNullableFilter<"LedgerAccount"> | string | null
+    createdAt?: DateTimeFilter<"LedgerAccount"> | Date | string
+    updatedAt?: DateTimeFilter<"LedgerAccount"> | Date | string
+    deletedAt?: DateTimeNullableFilter<"LedgerAccount"> | Date | string | null
+  }
+
+  export type JournalLineUpsertWithWhereUniqueWithoutLedgerAccountInput = {
+    where: JournalLineWhereUniqueInput
+    update: XOR<JournalLineUpdateWithoutLedgerAccountInput, JournalLineUncheckedUpdateWithoutLedgerAccountInput>
+    create: XOR<JournalLineCreateWithoutLedgerAccountInput, JournalLineUncheckedCreateWithoutLedgerAccountInput>
+  }
+
+  export type JournalLineUpdateWithWhereUniqueWithoutLedgerAccountInput = {
+    where: JournalLineWhereUniqueInput
+    data: XOR<JournalLineUpdateWithoutLedgerAccountInput, JournalLineUncheckedUpdateWithoutLedgerAccountInput>
+  }
+
+  export type JournalLineUpdateManyWithWhereWithoutLedgerAccountInput = {
+    where: JournalLineScalarWhereInput
+    data: XOR<JournalLineUpdateManyMutationInput, JournalLineUncheckedUpdateManyWithoutLedgerAccountInput>
+  }
+
+  export type JournalLineScalarWhereInput = {
+    AND?: JournalLineScalarWhereInput | JournalLineScalarWhereInput[]
+    OR?: JournalLineScalarWhereInput[]
+    NOT?: JournalLineScalarWhereInput | JournalLineScalarWhereInput[]
+    id?: StringFilter<"JournalLine"> | string
+    journalId?: StringFilter<"JournalLine"> | string
+    lineNumber?: IntFilter<"JournalLine"> | number
+    ledgerAccountId?: StringFilter<"JournalLine"> | string
+    debitKobo?: BigIntFilter<"JournalLine"> | bigint | number
+    creditKobo?: BigIntFilter<"JournalLine"> | bigint | number
+    memo?: StringNullableFilter<"JournalLine"> | string | null
+    partyType?: EnumLedgerPartyTypeNullableFilter<"JournalLine"> | $Enums.LedgerPartyType | null
+    partyId?: StringNullableFilter<"JournalLine"> | string | null
+  }
+
+  export type JournalEntryCreateWithoutPeriodInput = {
+    id?: string
+    number: string
+    entryDate: Date | string
+    description: string
+    sourceType: $Enums.JournalSourceType
+    sourceId?: string | null
+    purpose: string
+    idempotencyKey: string
+    status?: $Enums.JournalStatus
+    reversalReason?: string | null
+    totalKobo: bigint | number
+    createdById?: string | null
+    isSystemActor?: boolean
+    postedAt?: Date | string
+    createdAt?: Date | string
+    term?: TermCreateNestedOneWithoutJournalEntriesInput
+    session?: SessionCreateNestedOneWithoutJournalEntriesInput
+    branch?: BranchCreateNestedOneWithoutJournalEntriesInput
+    reversalOf?: JournalEntryCreateNestedOneWithoutReversedByInput
+    reversedBy?: JournalEntryCreateNestedOneWithoutReversalOfInput
+    lines?: JournalLineCreateNestedManyWithoutJournalInput
+  }
+
+  export type JournalEntryUncheckedCreateWithoutPeriodInput = {
+    id?: string
+    number: string
+    entryDate: Date | string
+    termId?: string | null
+    sessionId?: string | null
+    branchId?: string | null
+    description: string
+    sourceType: $Enums.JournalSourceType
+    sourceId?: string | null
+    purpose: string
+    idempotencyKey: string
+    status?: $Enums.JournalStatus
+    reversalOfId?: string | null
+    reversalReason?: string | null
+    totalKobo: bigint | number
+    createdById?: string | null
+    isSystemActor?: boolean
+    postedAt?: Date | string
+    createdAt?: Date | string
+    reversedBy?: JournalEntryUncheckedCreateNestedOneWithoutReversalOfInput
+    lines?: JournalLineUncheckedCreateNestedManyWithoutJournalInput
+  }
+
+  export type JournalEntryCreateOrConnectWithoutPeriodInput = {
+    where: JournalEntryWhereUniqueInput
+    create: XOR<JournalEntryCreateWithoutPeriodInput, JournalEntryUncheckedCreateWithoutPeriodInput>
+  }
+
+  export type JournalEntryCreateManyPeriodInputEnvelope = {
+    data: JournalEntryCreateManyPeriodInput | JournalEntryCreateManyPeriodInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type JournalEntryUpsertWithWhereUniqueWithoutPeriodInput = {
+    where: JournalEntryWhereUniqueInput
+    update: XOR<JournalEntryUpdateWithoutPeriodInput, JournalEntryUncheckedUpdateWithoutPeriodInput>
+    create: XOR<JournalEntryCreateWithoutPeriodInput, JournalEntryUncheckedCreateWithoutPeriodInput>
+  }
+
+  export type JournalEntryUpdateWithWhereUniqueWithoutPeriodInput = {
+    where: JournalEntryWhereUniqueInput
+    data: XOR<JournalEntryUpdateWithoutPeriodInput, JournalEntryUncheckedUpdateWithoutPeriodInput>
+  }
+
+  export type JournalEntryUpdateManyWithWhereWithoutPeriodInput = {
+    where: JournalEntryScalarWhereInput
+    data: XOR<JournalEntryUpdateManyMutationInput, JournalEntryUncheckedUpdateManyWithoutPeriodInput>
+  }
+
+  export type FinancePeriodCreateWithoutJournalsInput = {
+    id?: string
+    name: string
+    startDate: Date | string
+    endDate: Date | string
+    status?: $Enums.PeriodStatus
+    closedAt?: Date | string | null
+    closedById?: string | null
+    reopenedAt?: Date | string | null
+    reopenedById?: string | null
+    reopenReason?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type FinancePeriodUncheckedCreateWithoutJournalsInput = {
+    id?: string
+    name: string
+    startDate: Date | string
+    endDate: Date | string
+    status?: $Enums.PeriodStatus
+    closedAt?: Date | string | null
+    closedById?: string | null
+    reopenedAt?: Date | string | null
+    reopenedById?: string | null
+    reopenReason?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type FinancePeriodCreateOrConnectWithoutJournalsInput = {
+    where: FinancePeriodWhereUniqueInput
+    create: XOR<FinancePeriodCreateWithoutJournalsInput, FinancePeriodUncheckedCreateWithoutJournalsInput>
+  }
+
+  export type TermCreateWithoutJournalEntriesInput = {
+    id?: string
+    name: $Enums.TermName
+    startDate: Date | string
+    endDate: Date | string
+    isCurrent?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    session: SessionCreateNestedOneWithoutTermsInput
+    classSubjects?: ClassSubjectCreateNestedManyWithoutTermInput
+    attendances?: AttendanceCreateNestedManyWithoutTermInput
+    calendarEvents?: CalendarEventCreateNestedManyWithoutTermInput
+    grades?: GradeCreateNestedManyWithoutTermInput
+    feeInvoices?: FeeInvoiceCreateNestedManyWithoutTermInput
+    enrolments?: EnrolmentCreateNestedManyWithoutTermInput
+    reportCards?: ReportCardCreateNestedManyWithoutTermInput
+  }
+
+  export type TermUncheckedCreateWithoutJournalEntriesInput = {
+    id?: string
+    sessionId: string
+    name: $Enums.TermName
+    startDate: Date | string
+    endDate: Date | string
+    isCurrent?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    classSubjects?: ClassSubjectUncheckedCreateNestedManyWithoutTermInput
+    attendances?: AttendanceUncheckedCreateNestedManyWithoutTermInput
+    calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutTermInput
+    grades?: GradeUncheckedCreateNestedManyWithoutTermInput
+    feeInvoices?: FeeInvoiceUncheckedCreateNestedManyWithoutTermInput
+    enrolments?: EnrolmentUncheckedCreateNestedManyWithoutTermInput
+    reportCards?: ReportCardUncheckedCreateNestedManyWithoutTermInput
+  }
+
+  export type TermCreateOrConnectWithoutJournalEntriesInput = {
+    where: TermWhereUniqueInput
+    create: XOR<TermCreateWithoutJournalEntriesInput, TermUncheckedCreateWithoutJournalEntriesInput>
+  }
+
+  export type SessionCreateWithoutJournalEntriesInput = {
+    id?: string
+    name: string
+    startDate: Date | string
+    endDate: Date | string
+    isCurrent?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    terms?: TermCreateNestedManyWithoutSessionInput
+    calendarEvents?: CalendarEventCreateNestedManyWithoutSessionInput
+  }
+
+  export type SessionUncheckedCreateWithoutJournalEntriesInput = {
+    id?: string
+    name: string
+    startDate: Date | string
+    endDate: Date | string
+    isCurrent?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    terms?: TermUncheckedCreateNestedManyWithoutSessionInput
+    calendarEvents?: CalendarEventUncheckedCreateNestedManyWithoutSessionInput
+  }
+
+  export type SessionCreateOrConnectWithoutJournalEntriesInput = {
+    where: SessionWhereUniqueInput
+    create: XOR<SessionCreateWithoutJournalEntriesInput, SessionUncheckedCreateWithoutJournalEntriesInput>
+  }
+
+  export type BranchCreateWithoutJournalEntriesInput = {
+    id?: string
+    name: string
+    code: string
+    isMain?: boolean
+    address?: string | null
+    city?: string | null
+    state?: string | null
+    phone?: string | null
+    email?: string | null
+    principalStaffId?: string | null
+    isActive?: boolean
+    createdById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    staff?: StaffBranchCreateNestedManyWithoutBranchInput
+  }
+
+  export type BranchUncheckedCreateWithoutJournalEntriesInput = {
+    id?: string
+    name: string
+    code: string
+    isMain?: boolean
+    address?: string | null
+    city?: string | null
+    state?: string | null
+    phone?: string | null
+    email?: string | null
+    principalStaffId?: string | null
+    isActive?: boolean
+    createdById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    staff?: StaffBranchUncheckedCreateNestedManyWithoutBranchInput
+  }
+
+  export type BranchCreateOrConnectWithoutJournalEntriesInput = {
+    where: BranchWhereUniqueInput
+    create: XOR<BranchCreateWithoutJournalEntriesInput, BranchUncheckedCreateWithoutJournalEntriesInput>
+  }
+
+  export type JournalEntryCreateWithoutReversedByInput = {
+    id?: string
+    number: string
+    entryDate: Date | string
+    description: string
+    sourceType: $Enums.JournalSourceType
+    sourceId?: string | null
+    purpose: string
+    idempotencyKey: string
+    status?: $Enums.JournalStatus
+    reversalReason?: string | null
+    totalKobo: bigint | number
+    createdById?: string | null
+    isSystemActor?: boolean
+    postedAt?: Date | string
+    createdAt?: Date | string
+    period: FinancePeriodCreateNestedOneWithoutJournalsInput
+    term?: TermCreateNestedOneWithoutJournalEntriesInput
+    session?: SessionCreateNestedOneWithoutJournalEntriesInput
+    branch?: BranchCreateNestedOneWithoutJournalEntriesInput
+    reversalOf?: JournalEntryCreateNestedOneWithoutReversedByInput
+    lines?: JournalLineCreateNestedManyWithoutJournalInput
+  }
+
+  export type JournalEntryUncheckedCreateWithoutReversedByInput = {
+    id?: string
+    number: string
+    entryDate: Date | string
+    periodId: string
+    termId?: string | null
+    sessionId?: string | null
+    branchId?: string | null
+    description: string
+    sourceType: $Enums.JournalSourceType
+    sourceId?: string | null
+    purpose: string
+    idempotencyKey: string
+    status?: $Enums.JournalStatus
+    reversalOfId?: string | null
+    reversalReason?: string | null
+    totalKobo: bigint | number
+    createdById?: string | null
+    isSystemActor?: boolean
+    postedAt?: Date | string
+    createdAt?: Date | string
+    lines?: JournalLineUncheckedCreateNestedManyWithoutJournalInput
+  }
+
+  export type JournalEntryCreateOrConnectWithoutReversedByInput = {
+    where: JournalEntryWhereUniqueInput
+    create: XOR<JournalEntryCreateWithoutReversedByInput, JournalEntryUncheckedCreateWithoutReversedByInput>
+  }
+
+  export type JournalEntryCreateWithoutReversalOfInput = {
+    id?: string
+    number: string
+    entryDate: Date | string
+    description: string
+    sourceType: $Enums.JournalSourceType
+    sourceId?: string | null
+    purpose: string
+    idempotencyKey: string
+    status?: $Enums.JournalStatus
+    reversalReason?: string | null
+    totalKobo: bigint | number
+    createdById?: string | null
+    isSystemActor?: boolean
+    postedAt?: Date | string
+    createdAt?: Date | string
+    period: FinancePeriodCreateNestedOneWithoutJournalsInput
+    term?: TermCreateNestedOneWithoutJournalEntriesInput
+    session?: SessionCreateNestedOneWithoutJournalEntriesInput
+    branch?: BranchCreateNestedOneWithoutJournalEntriesInput
+    reversedBy?: JournalEntryCreateNestedOneWithoutReversalOfInput
+    lines?: JournalLineCreateNestedManyWithoutJournalInput
+  }
+
+  export type JournalEntryUncheckedCreateWithoutReversalOfInput = {
+    id?: string
+    number: string
+    entryDate: Date | string
+    periodId: string
+    termId?: string | null
+    sessionId?: string | null
+    branchId?: string | null
+    description: string
+    sourceType: $Enums.JournalSourceType
+    sourceId?: string | null
+    purpose: string
+    idempotencyKey: string
+    status?: $Enums.JournalStatus
+    reversalReason?: string | null
+    totalKobo: bigint | number
+    createdById?: string | null
+    isSystemActor?: boolean
+    postedAt?: Date | string
+    createdAt?: Date | string
+    reversedBy?: JournalEntryUncheckedCreateNestedOneWithoutReversalOfInput
+    lines?: JournalLineUncheckedCreateNestedManyWithoutJournalInput
+  }
+
+  export type JournalEntryCreateOrConnectWithoutReversalOfInput = {
+    where: JournalEntryWhereUniqueInput
+    create: XOR<JournalEntryCreateWithoutReversalOfInput, JournalEntryUncheckedCreateWithoutReversalOfInput>
+  }
+
+  export type JournalLineCreateWithoutJournalInput = {
+    id?: string
+    lineNumber: number
+    debitKobo?: bigint | number
+    creditKobo?: bigint | number
+    memo?: string | null
+    partyType?: $Enums.LedgerPartyType | null
+    partyId?: string | null
+    ledgerAccount: LedgerAccountCreateNestedOneWithoutLinesInput
+  }
+
+  export type JournalLineUncheckedCreateWithoutJournalInput = {
+    id?: string
+    lineNumber: number
+    ledgerAccountId: string
+    debitKobo?: bigint | number
+    creditKobo?: bigint | number
+    memo?: string | null
+    partyType?: $Enums.LedgerPartyType | null
+    partyId?: string | null
+  }
+
+  export type JournalLineCreateOrConnectWithoutJournalInput = {
+    where: JournalLineWhereUniqueInput
+    create: XOR<JournalLineCreateWithoutJournalInput, JournalLineUncheckedCreateWithoutJournalInput>
+  }
+
+  export type JournalLineCreateManyJournalInputEnvelope = {
+    data: JournalLineCreateManyJournalInput | JournalLineCreateManyJournalInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type FinancePeriodUpsertWithoutJournalsInput = {
+    update: XOR<FinancePeriodUpdateWithoutJournalsInput, FinancePeriodUncheckedUpdateWithoutJournalsInput>
+    create: XOR<FinancePeriodCreateWithoutJournalsInput, FinancePeriodUncheckedCreateWithoutJournalsInput>
+    where?: FinancePeriodWhereInput
+  }
+
+  export type FinancePeriodUpdateToOneWithWhereWithoutJournalsInput = {
+    where?: FinancePeriodWhereInput
+    data: XOR<FinancePeriodUpdateWithoutJournalsInput, FinancePeriodUncheckedUpdateWithoutJournalsInput>
+  }
+
+  export type FinancePeriodUpdateWithoutJournalsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: EnumPeriodStatusFieldUpdateOperationsInput | $Enums.PeriodStatus
+    closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    closedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reopenedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reopenedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reopenReason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FinancePeriodUncheckedUpdateWithoutJournalsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: EnumPeriodStatusFieldUpdateOperationsInput | $Enums.PeriodStatus
+    closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    closedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reopenedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reopenedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reopenReason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TermUpsertWithoutJournalEntriesInput = {
+    update: XOR<TermUpdateWithoutJournalEntriesInput, TermUncheckedUpdateWithoutJournalEntriesInput>
+    create: XOR<TermCreateWithoutJournalEntriesInput, TermUncheckedCreateWithoutJournalEntriesInput>
+    where?: TermWhereInput
+  }
+
+  export type TermUpdateToOneWithWhereWithoutJournalEntriesInput = {
+    where?: TermWhereInput
+    data: XOR<TermUpdateWithoutJournalEntriesInput, TermUncheckedUpdateWithoutJournalEntriesInput>
+  }
+
+  export type TermUpdateWithoutJournalEntriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: EnumTermNameFieldUpdateOperationsInput | $Enums.TermName
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    isCurrent?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    session?: SessionUpdateOneRequiredWithoutTermsNestedInput
+    classSubjects?: ClassSubjectUpdateManyWithoutTermNestedInput
+    attendances?: AttendanceUpdateManyWithoutTermNestedInput
+    calendarEvents?: CalendarEventUpdateManyWithoutTermNestedInput
+    grades?: GradeUpdateManyWithoutTermNestedInput
+    feeInvoices?: FeeInvoiceUpdateManyWithoutTermNestedInput
+    enrolments?: EnrolmentUpdateManyWithoutTermNestedInput
+    reportCards?: ReportCardUpdateManyWithoutTermNestedInput
+  }
+
+  export type TermUncheckedUpdateWithoutJournalEntriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    name?: EnumTermNameFieldUpdateOperationsInput | $Enums.TermName
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    isCurrent?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    classSubjects?: ClassSubjectUncheckedUpdateManyWithoutTermNestedInput
+    attendances?: AttendanceUncheckedUpdateManyWithoutTermNestedInput
+    calendarEvents?: CalendarEventUncheckedUpdateManyWithoutTermNestedInput
+    grades?: GradeUncheckedUpdateManyWithoutTermNestedInput
+    feeInvoices?: FeeInvoiceUncheckedUpdateManyWithoutTermNestedInput
+    enrolments?: EnrolmentUncheckedUpdateManyWithoutTermNestedInput
+    reportCards?: ReportCardUncheckedUpdateManyWithoutTermNestedInput
+  }
+
+  export type SessionUpsertWithoutJournalEntriesInput = {
+    update: XOR<SessionUpdateWithoutJournalEntriesInput, SessionUncheckedUpdateWithoutJournalEntriesInput>
+    create: XOR<SessionCreateWithoutJournalEntriesInput, SessionUncheckedCreateWithoutJournalEntriesInput>
+    where?: SessionWhereInput
+  }
+
+  export type SessionUpdateToOneWithWhereWithoutJournalEntriesInput = {
+    where?: SessionWhereInput
+    data: XOR<SessionUpdateWithoutJournalEntriesInput, SessionUncheckedUpdateWithoutJournalEntriesInput>
+  }
+
+  export type SessionUpdateWithoutJournalEntriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    isCurrent?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    terms?: TermUpdateManyWithoutSessionNestedInput
+    calendarEvents?: CalendarEventUpdateManyWithoutSessionNestedInput
+  }
+
+  export type SessionUncheckedUpdateWithoutJournalEntriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    isCurrent?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    terms?: TermUncheckedUpdateManyWithoutSessionNestedInput
+    calendarEvents?: CalendarEventUncheckedUpdateManyWithoutSessionNestedInput
+  }
+
+  export type BranchUpsertWithoutJournalEntriesInput = {
+    update: XOR<BranchUpdateWithoutJournalEntriesInput, BranchUncheckedUpdateWithoutJournalEntriesInput>
+    create: XOR<BranchCreateWithoutJournalEntriesInput, BranchUncheckedCreateWithoutJournalEntriesInput>
+    where?: BranchWhereInput
+  }
+
+  export type BranchUpdateToOneWithWhereWithoutJournalEntriesInput = {
+    where?: BranchWhereInput
+    data: XOR<BranchUpdateWithoutJournalEntriesInput, BranchUncheckedUpdateWithoutJournalEntriesInput>
+  }
+
+  export type BranchUpdateWithoutJournalEntriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    isMain?: BoolFieldUpdateOperationsInput | boolean
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    principalStaffId?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    staff?: StaffBranchUpdateManyWithoutBranchNestedInput
+  }
+
+  export type BranchUncheckedUpdateWithoutJournalEntriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    isMain?: BoolFieldUpdateOperationsInput | boolean
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    principalStaffId?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    staff?: StaffBranchUncheckedUpdateManyWithoutBranchNestedInput
+  }
+
+  export type JournalEntryUpsertWithoutReversedByInput = {
+    update: XOR<JournalEntryUpdateWithoutReversedByInput, JournalEntryUncheckedUpdateWithoutReversedByInput>
+    create: XOR<JournalEntryCreateWithoutReversedByInput, JournalEntryUncheckedCreateWithoutReversedByInput>
+    where?: JournalEntryWhereInput
+  }
+
+  export type JournalEntryUpdateToOneWithWhereWithoutReversedByInput = {
+    where?: JournalEntryWhereInput
+    data: XOR<JournalEntryUpdateWithoutReversedByInput, JournalEntryUncheckedUpdateWithoutReversedByInput>
+  }
+
+  export type JournalEntryUpdateWithoutReversedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    number?: StringFieldUpdateOperationsInput | string
+    entryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    description?: StringFieldUpdateOperationsInput | string
+    sourceType?: EnumJournalSourceTypeFieldUpdateOperationsInput | $Enums.JournalSourceType
+    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    purpose?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    status?: EnumJournalStatusFieldUpdateOperationsInput | $Enums.JournalStatus
+    reversalReason?: NullableStringFieldUpdateOperationsInput | string | null
+    totalKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    isSystemActor?: BoolFieldUpdateOperationsInput | boolean
+    postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    period?: FinancePeriodUpdateOneRequiredWithoutJournalsNestedInput
+    term?: TermUpdateOneWithoutJournalEntriesNestedInput
+    session?: SessionUpdateOneWithoutJournalEntriesNestedInput
+    branch?: BranchUpdateOneWithoutJournalEntriesNestedInput
+    reversalOf?: JournalEntryUpdateOneWithoutReversedByNestedInput
+    lines?: JournalLineUpdateManyWithoutJournalNestedInput
+  }
+
+  export type JournalEntryUncheckedUpdateWithoutReversedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    number?: StringFieldUpdateOperationsInput | string
+    entryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodId?: StringFieldUpdateOperationsInput | string
+    termId?: NullableStringFieldUpdateOperationsInput | string | null
+    sessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    branchId?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: StringFieldUpdateOperationsInput | string
+    sourceType?: EnumJournalSourceTypeFieldUpdateOperationsInput | $Enums.JournalSourceType
+    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    purpose?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    status?: EnumJournalStatusFieldUpdateOperationsInput | $Enums.JournalStatus
+    reversalOfId?: NullableStringFieldUpdateOperationsInput | string | null
+    reversalReason?: NullableStringFieldUpdateOperationsInput | string | null
+    totalKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    isSystemActor?: BoolFieldUpdateOperationsInput | boolean
+    postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lines?: JournalLineUncheckedUpdateManyWithoutJournalNestedInput
+  }
+
+  export type JournalEntryUpsertWithoutReversalOfInput = {
+    update: XOR<JournalEntryUpdateWithoutReversalOfInput, JournalEntryUncheckedUpdateWithoutReversalOfInput>
+    create: XOR<JournalEntryCreateWithoutReversalOfInput, JournalEntryUncheckedCreateWithoutReversalOfInput>
+    where?: JournalEntryWhereInput
+  }
+
+  export type JournalEntryUpdateToOneWithWhereWithoutReversalOfInput = {
+    where?: JournalEntryWhereInput
+    data: XOR<JournalEntryUpdateWithoutReversalOfInput, JournalEntryUncheckedUpdateWithoutReversalOfInput>
+  }
+
+  export type JournalEntryUpdateWithoutReversalOfInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    number?: StringFieldUpdateOperationsInput | string
+    entryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    description?: StringFieldUpdateOperationsInput | string
+    sourceType?: EnumJournalSourceTypeFieldUpdateOperationsInput | $Enums.JournalSourceType
+    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    purpose?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    status?: EnumJournalStatusFieldUpdateOperationsInput | $Enums.JournalStatus
+    reversalReason?: NullableStringFieldUpdateOperationsInput | string | null
+    totalKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    isSystemActor?: BoolFieldUpdateOperationsInput | boolean
+    postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    period?: FinancePeriodUpdateOneRequiredWithoutJournalsNestedInput
+    term?: TermUpdateOneWithoutJournalEntriesNestedInput
+    session?: SessionUpdateOneWithoutJournalEntriesNestedInput
+    branch?: BranchUpdateOneWithoutJournalEntriesNestedInput
+    reversedBy?: JournalEntryUpdateOneWithoutReversalOfNestedInput
+    lines?: JournalLineUpdateManyWithoutJournalNestedInput
+  }
+
+  export type JournalEntryUncheckedUpdateWithoutReversalOfInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    number?: StringFieldUpdateOperationsInput | string
+    entryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodId?: StringFieldUpdateOperationsInput | string
+    termId?: NullableStringFieldUpdateOperationsInput | string | null
+    sessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    branchId?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: StringFieldUpdateOperationsInput | string
+    sourceType?: EnumJournalSourceTypeFieldUpdateOperationsInput | $Enums.JournalSourceType
+    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    purpose?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    status?: EnumJournalStatusFieldUpdateOperationsInput | $Enums.JournalStatus
+    reversalReason?: NullableStringFieldUpdateOperationsInput | string | null
+    totalKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    isSystemActor?: BoolFieldUpdateOperationsInput | boolean
+    postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reversedBy?: JournalEntryUncheckedUpdateOneWithoutReversalOfNestedInput
+    lines?: JournalLineUncheckedUpdateManyWithoutJournalNestedInput
+  }
+
+  export type JournalLineUpsertWithWhereUniqueWithoutJournalInput = {
+    where: JournalLineWhereUniqueInput
+    update: XOR<JournalLineUpdateWithoutJournalInput, JournalLineUncheckedUpdateWithoutJournalInput>
+    create: XOR<JournalLineCreateWithoutJournalInput, JournalLineUncheckedCreateWithoutJournalInput>
+  }
+
+  export type JournalLineUpdateWithWhereUniqueWithoutJournalInput = {
+    where: JournalLineWhereUniqueInput
+    data: XOR<JournalLineUpdateWithoutJournalInput, JournalLineUncheckedUpdateWithoutJournalInput>
+  }
+
+  export type JournalLineUpdateManyWithWhereWithoutJournalInput = {
+    where: JournalLineScalarWhereInput
+    data: XOR<JournalLineUpdateManyMutationInput, JournalLineUncheckedUpdateManyWithoutJournalInput>
+  }
+
+  export type JournalEntryCreateWithoutLinesInput = {
+    id?: string
+    number: string
+    entryDate: Date | string
+    description: string
+    sourceType: $Enums.JournalSourceType
+    sourceId?: string | null
+    purpose: string
+    idempotencyKey: string
+    status?: $Enums.JournalStatus
+    reversalReason?: string | null
+    totalKobo: bigint | number
+    createdById?: string | null
+    isSystemActor?: boolean
+    postedAt?: Date | string
+    createdAt?: Date | string
+    period: FinancePeriodCreateNestedOneWithoutJournalsInput
+    term?: TermCreateNestedOneWithoutJournalEntriesInput
+    session?: SessionCreateNestedOneWithoutJournalEntriesInput
+    branch?: BranchCreateNestedOneWithoutJournalEntriesInput
+    reversalOf?: JournalEntryCreateNestedOneWithoutReversedByInput
+    reversedBy?: JournalEntryCreateNestedOneWithoutReversalOfInput
+  }
+
+  export type JournalEntryUncheckedCreateWithoutLinesInput = {
+    id?: string
+    number: string
+    entryDate: Date | string
+    periodId: string
+    termId?: string | null
+    sessionId?: string | null
+    branchId?: string | null
+    description: string
+    sourceType: $Enums.JournalSourceType
+    sourceId?: string | null
+    purpose: string
+    idempotencyKey: string
+    status?: $Enums.JournalStatus
+    reversalOfId?: string | null
+    reversalReason?: string | null
+    totalKobo: bigint | number
+    createdById?: string | null
+    isSystemActor?: boolean
+    postedAt?: Date | string
+    createdAt?: Date | string
+    reversedBy?: JournalEntryUncheckedCreateNestedOneWithoutReversalOfInput
+  }
+
+  export type JournalEntryCreateOrConnectWithoutLinesInput = {
+    where: JournalEntryWhereUniqueInput
+    create: XOR<JournalEntryCreateWithoutLinesInput, JournalEntryUncheckedCreateWithoutLinesInput>
+  }
+
+  export type LedgerAccountCreateWithoutLinesInput = {
+    id?: string
+    code: string
+    name: string
+    type: $Enums.LedgerAccountType
+    subtype?: string
+    systemKey?: string | null
+    description?: string | null
+    isMoneyAccount?: boolean
+    bankName?: string | null
+    accountName?: string | null
+    accountNumberLast4?: string | null
+    isActive?: boolean
+    isLocked?: boolean
+    sortOrder?: number
+    createdById?: string | null
+    updatedById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    parent?: LedgerAccountCreateNestedOneWithoutChildrenInput
+    children?: LedgerAccountCreateNestedManyWithoutParentInput
+  }
+
+  export type LedgerAccountUncheckedCreateWithoutLinesInput = {
+    id?: string
+    code: string
+    name: string
+    type: $Enums.LedgerAccountType
+    subtype?: string
+    systemKey?: string | null
+    parentId?: string | null
+    description?: string | null
+    isMoneyAccount?: boolean
+    bankName?: string | null
+    accountName?: string | null
+    accountNumberLast4?: string | null
+    isActive?: boolean
+    isLocked?: boolean
+    sortOrder?: number
+    createdById?: string | null
+    updatedById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    children?: LedgerAccountUncheckedCreateNestedManyWithoutParentInput
+  }
+
+  export type LedgerAccountCreateOrConnectWithoutLinesInput = {
+    where: LedgerAccountWhereUniqueInput
+    create: XOR<LedgerAccountCreateWithoutLinesInput, LedgerAccountUncheckedCreateWithoutLinesInput>
+  }
+
+  export type JournalEntryUpsertWithoutLinesInput = {
+    update: XOR<JournalEntryUpdateWithoutLinesInput, JournalEntryUncheckedUpdateWithoutLinesInput>
+    create: XOR<JournalEntryCreateWithoutLinesInput, JournalEntryUncheckedCreateWithoutLinesInput>
+    where?: JournalEntryWhereInput
+  }
+
+  export type JournalEntryUpdateToOneWithWhereWithoutLinesInput = {
+    where?: JournalEntryWhereInput
+    data: XOR<JournalEntryUpdateWithoutLinesInput, JournalEntryUncheckedUpdateWithoutLinesInput>
+  }
+
+  export type JournalEntryUpdateWithoutLinesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    number?: StringFieldUpdateOperationsInput | string
+    entryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    description?: StringFieldUpdateOperationsInput | string
+    sourceType?: EnumJournalSourceTypeFieldUpdateOperationsInput | $Enums.JournalSourceType
+    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    purpose?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    status?: EnumJournalStatusFieldUpdateOperationsInput | $Enums.JournalStatus
+    reversalReason?: NullableStringFieldUpdateOperationsInput | string | null
+    totalKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    isSystemActor?: BoolFieldUpdateOperationsInput | boolean
+    postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    period?: FinancePeriodUpdateOneRequiredWithoutJournalsNestedInput
+    term?: TermUpdateOneWithoutJournalEntriesNestedInput
+    session?: SessionUpdateOneWithoutJournalEntriesNestedInput
+    branch?: BranchUpdateOneWithoutJournalEntriesNestedInput
+    reversalOf?: JournalEntryUpdateOneWithoutReversedByNestedInput
+    reversedBy?: JournalEntryUpdateOneWithoutReversalOfNestedInput
+  }
+
+  export type JournalEntryUncheckedUpdateWithoutLinesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    number?: StringFieldUpdateOperationsInput | string
+    entryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodId?: StringFieldUpdateOperationsInput | string
+    termId?: NullableStringFieldUpdateOperationsInput | string | null
+    sessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    branchId?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: StringFieldUpdateOperationsInput | string
+    sourceType?: EnumJournalSourceTypeFieldUpdateOperationsInput | $Enums.JournalSourceType
+    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    purpose?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    status?: EnumJournalStatusFieldUpdateOperationsInput | $Enums.JournalStatus
+    reversalOfId?: NullableStringFieldUpdateOperationsInput | string | null
+    reversalReason?: NullableStringFieldUpdateOperationsInput | string | null
+    totalKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    isSystemActor?: BoolFieldUpdateOperationsInput | boolean
+    postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reversedBy?: JournalEntryUncheckedUpdateOneWithoutReversalOfNestedInput
+  }
+
+  export type LedgerAccountUpsertWithoutLinesInput = {
+    update: XOR<LedgerAccountUpdateWithoutLinesInput, LedgerAccountUncheckedUpdateWithoutLinesInput>
+    create: XOR<LedgerAccountCreateWithoutLinesInput, LedgerAccountUncheckedCreateWithoutLinesInput>
+    where?: LedgerAccountWhereInput
+  }
+
+  export type LedgerAccountUpdateToOneWithWhereWithoutLinesInput = {
+    where?: LedgerAccountWhereInput
+    data: XOR<LedgerAccountUpdateWithoutLinesInput, LedgerAccountUncheckedUpdateWithoutLinesInput>
+  }
+
+  export type LedgerAccountUpdateWithoutLinesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    type?: EnumLedgerAccountTypeFieldUpdateOperationsInput | $Enums.LedgerAccountType
+    subtype?: StringFieldUpdateOperationsInput | string
+    systemKey?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    isMoneyAccount?: BoolFieldUpdateOperationsInput | boolean
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
+    accountName?: NullableStringFieldUpdateOperationsInput | string | null
+    accountNumberLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isLocked?: BoolFieldUpdateOperationsInput | boolean
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    parent?: LedgerAccountUpdateOneWithoutChildrenNestedInput
+    children?: LedgerAccountUpdateManyWithoutParentNestedInput
+  }
+
+  export type LedgerAccountUncheckedUpdateWithoutLinesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    type?: EnumLedgerAccountTypeFieldUpdateOperationsInput | $Enums.LedgerAccountType
+    subtype?: StringFieldUpdateOperationsInput | string
+    systemKey?: NullableStringFieldUpdateOperationsInput | string | null
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    isMoneyAccount?: BoolFieldUpdateOperationsInput | boolean
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
+    accountName?: NullableStringFieldUpdateOperationsInput | string | null
+    accountNumberLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isLocked?: BoolFieldUpdateOperationsInput | boolean
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    children?: LedgerAccountUncheckedUpdateManyWithoutParentNestedInput
   }
 
   export type ClassSubjectCreateManyStaffInput = {
@@ -64548,6 +73993,28 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type JournalEntryCreateManySessionInput = {
+    id?: string
+    number: string
+    entryDate: Date | string
+    periodId: string
+    termId?: string | null
+    branchId?: string | null
+    description: string
+    sourceType: $Enums.JournalSourceType
+    sourceId?: string | null
+    purpose: string
+    idempotencyKey: string
+    status?: $Enums.JournalStatus
+    reversalOfId?: string | null
+    reversalReason?: string | null
+    totalKobo: bigint | number
+    createdById?: string | null
+    isSystemActor?: boolean
+    postedAt?: Date | string
+    createdAt?: Date | string
+  }
+
   export type TermUpdateWithoutSessionInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: EnumTermNameFieldUpdateOperationsInput | $Enums.TermName
@@ -64563,6 +74030,7 @@ export namespace Prisma {
     feeInvoices?: FeeInvoiceUpdateManyWithoutTermNestedInput
     enrolments?: EnrolmentUpdateManyWithoutTermNestedInput
     reportCards?: ReportCardUpdateManyWithoutTermNestedInput
+    journalEntries?: JournalEntryUpdateManyWithoutTermNestedInput
   }
 
   export type TermUncheckedUpdateWithoutSessionInput = {
@@ -64580,6 +74048,7 @@ export namespace Prisma {
     feeInvoices?: FeeInvoiceUncheckedUpdateManyWithoutTermNestedInput
     enrolments?: EnrolmentUncheckedUpdateManyWithoutTermNestedInput
     reportCards?: ReportCardUncheckedUpdateManyWithoutTermNestedInput
+    journalEntries?: JournalEntryUncheckedUpdateManyWithoutTermNestedInput
   }
 
   export type TermUncheckedUpdateManyWithoutSessionInput = {
@@ -64632,6 +74101,76 @@ export namespace Prisma {
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JournalEntryUpdateWithoutSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    number?: StringFieldUpdateOperationsInput | string
+    entryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    description?: StringFieldUpdateOperationsInput | string
+    sourceType?: EnumJournalSourceTypeFieldUpdateOperationsInput | $Enums.JournalSourceType
+    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    purpose?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    status?: EnumJournalStatusFieldUpdateOperationsInput | $Enums.JournalStatus
+    reversalReason?: NullableStringFieldUpdateOperationsInput | string | null
+    totalKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    isSystemActor?: BoolFieldUpdateOperationsInput | boolean
+    postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    period?: FinancePeriodUpdateOneRequiredWithoutJournalsNestedInput
+    term?: TermUpdateOneWithoutJournalEntriesNestedInput
+    branch?: BranchUpdateOneWithoutJournalEntriesNestedInput
+    reversalOf?: JournalEntryUpdateOneWithoutReversedByNestedInput
+    reversedBy?: JournalEntryUpdateOneWithoutReversalOfNestedInput
+    lines?: JournalLineUpdateManyWithoutJournalNestedInput
+  }
+
+  export type JournalEntryUncheckedUpdateWithoutSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    number?: StringFieldUpdateOperationsInput | string
+    entryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodId?: StringFieldUpdateOperationsInput | string
+    termId?: NullableStringFieldUpdateOperationsInput | string | null
+    branchId?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: StringFieldUpdateOperationsInput | string
+    sourceType?: EnumJournalSourceTypeFieldUpdateOperationsInput | $Enums.JournalSourceType
+    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    purpose?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    status?: EnumJournalStatusFieldUpdateOperationsInput | $Enums.JournalStatus
+    reversalOfId?: NullableStringFieldUpdateOperationsInput | string | null
+    reversalReason?: NullableStringFieldUpdateOperationsInput | string | null
+    totalKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    isSystemActor?: BoolFieldUpdateOperationsInput | boolean
+    postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reversedBy?: JournalEntryUncheckedUpdateOneWithoutReversalOfNestedInput
+    lines?: JournalLineUncheckedUpdateManyWithoutJournalNestedInput
+  }
+
+  export type JournalEntryUncheckedUpdateManyWithoutSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    number?: StringFieldUpdateOperationsInput | string
+    entryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodId?: StringFieldUpdateOperationsInput | string
+    termId?: NullableStringFieldUpdateOperationsInput | string | null
+    branchId?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: StringFieldUpdateOperationsInput | string
+    sourceType?: EnumJournalSourceTypeFieldUpdateOperationsInput | $Enums.JournalSourceType
+    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    purpose?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    status?: EnumJournalStatusFieldUpdateOperationsInput | $Enums.JournalStatus
+    reversalOfId?: NullableStringFieldUpdateOperationsInput | string | null
+    reversalReason?: NullableStringFieldUpdateOperationsInput | string | null
+    totalKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    isSystemActor?: BoolFieldUpdateOperationsInput | boolean
+    postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ClassSubjectCreateManyTermInput = {
@@ -64719,6 +74258,28 @@ export namespace Prisma {
     generatedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+  }
+
+  export type JournalEntryCreateManyTermInput = {
+    id?: string
+    number: string
+    entryDate: Date | string
+    periodId: string
+    sessionId?: string | null
+    branchId?: string | null
+    description: string
+    sourceType: $Enums.JournalSourceType
+    sourceId?: string | null
+    purpose: string
+    idempotencyKey: string
+    status?: $Enums.JournalStatus
+    reversalOfId?: string | null
+    reversalReason?: string | null
+    totalKobo: bigint | number
+    createdById?: string | null
+    isSystemActor?: boolean
+    postedAt?: Date | string
+    createdAt?: Date | string
   }
 
   export type ClassSubjectUpdateWithoutTermInput = {
@@ -64986,6 +74547,76 @@ export namespace Prisma {
     generatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JournalEntryUpdateWithoutTermInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    number?: StringFieldUpdateOperationsInput | string
+    entryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    description?: StringFieldUpdateOperationsInput | string
+    sourceType?: EnumJournalSourceTypeFieldUpdateOperationsInput | $Enums.JournalSourceType
+    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    purpose?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    status?: EnumJournalStatusFieldUpdateOperationsInput | $Enums.JournalStatus
+    reversalReason?: NullableStringFieldUpdateOperationsInput | string | null
+    totalKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    isSystemActor?: BoolFieldUpdateOperationsInput | boolean
+    postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    period?: FinancePeriodUpdateOneRequiredWithoutJournalsNestedInput
+    session?: SessionUpdateOneWithoutJournalEntriesNestedInput
+    branch?: BranchUpdateOneWithoutJournalEntriesNestedInput
+    reversalOf?: JournalEntryUpdateOneWithoutReversedByNestedInput
+    reversedBy?: JournalEntryUpdateOneWithoutReversalOfNestedInput
+    lines?: JournalLineUpdateManyWithoutJournalNestedInput
+  }
+
+  export type JournalEntryUncheckedUpdateWithoutTermInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    number?: StringFieldUpdateOperationsInput | string
+    entryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodId?: StringFieldUpdateOperationsInput | string
+    sessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    branchId?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: StringFieldUpdateOperationsInput | string
+    sourceType?: EnumJournalSourceTypeFieldUpdateOperationsInput | $Enums.JournalSourceType
+    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    purpose?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    status?: EnumJournalStatusFieldUpdateOperationsInput | $Enums.JournalStatus
+    reversalOfId?: NullableStringFieldUpdateOperationsInput | string | null
+    reversalReason?: NullableStringFieldUpdateOperationsInput | string | null
+    totalKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    isSystemActor?: BoolFieldUpdateOperationsInput | boolean
+    postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reversedBy?: JournalEntryUncheckedUpdateOneWithoutReversalOfNestedInput
+    lines?: JournalLineUncheckedUpdateManyWithoutJournalNestedInput
+  }
+
+  export type JournalEntryUncheckedUpdateManyWithoutTermInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    number?: StringFieldUpdateOperationsInput | string
+    entryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodId?: StringFieldUpdateOperationsInput | string
+    sessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    branchId?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: StringFieldUpdateOperationsInput | string
+    sourceType?: EnumJournalSourceTypeFieldUpdateOperationsInput | $Enums.JournalSourceType
+    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    purpose?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    status?: EnumJournalStatusFieldUpdateOperationsInput | $Enums.JournalStatus
+    reversalOfId?: NullableStringFieldUpdateOperationsInput | string | null
+    reversalReason?: NullableStringFieldUpdateOperationsInput | string | null
+    totalKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    isSystemActor?: BoolFieldUpdateOperationsInput | boolean
+    postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type EnrolmentCreateManyClassInput = {
@@ -65427,6 +75058,28 @@ export namespace Prisma {
     assignedById?: string | null
   }
 
+  export type JournalEntryCreateManyBranchInput = {
+    id?: string
+    number: string
+    entryDate: Date | string
+    periodId: string
+    termId?: string | null
+    sessionId?: string | null
+    description: string
+    sourceType: $Enums.JournalSourceType
+    sourceId?: string | null
+    purpose: string
+    idempotencyKey: string
+    status?: $Enums.JournalStatus
+    reversalOfId?: string | null
+    reversalReason?: string | null
+    totalKobo: bigint | number
+    createdById?: string | null
+    isSystemActor?: boolean
+    postedAt?: Date | string
+    createdAt?: Date | string
+  }
+
   export type StaffBranchUpdateWithoutBranchInput = {
     isPrimary?: BoolFieldUpdateOperationsInput | boolean
     assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -65446,6 +75099,76 @@ export namespace Prisma {
     isPrimary?: BoolFieldUpdateOperationsInput | boolean
     assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     assignedById?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type JournalEntryUpdateWithoutBranchInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    number?: StringFieldUpdateOperationsInput | string
+    entryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    description?: StringFieldUpdateOperationsInput | string
+    sourceType?: EnumJournalSourceTypeFieldUpdateOperationsInput | $Enums.JournalSourceType
+    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    purpose?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    status?: EnumJournalStatusFieldUpdateOperationsInput | $Enums.JournalStatus
+    reversalReason?: NullableStringFieldUpdateOperationsInput | string | null
+    totalKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    isSystemActor?: BoolFieldUpdateOperationsInput | boolean
+    postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    period?: FinancePeriodUpdateOneRequiredWithoutJournalsNestedInput
+    term?: TermUpdateOneWithoutJournalEntriesNestedInput
+    session?: SessionUpdateOneWithoutJournalEntriesNestedInput
+    reversalOf?: JournalEntryUpdateOneWithoutReversedByNestedInput
+    reversedBy?: JournalEntryUpdateOneWithoutReversalOfNestedInput
+    lines?: JournalLineUpdateManyWithoutJournalNestedInput
+  }
+
+  export type JournalEntryUncheckedUpdateWithoutBranchInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    number?: StringFieldUpdateOperationsInput | string
+    entryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodId?: StringFieldUpdateOperationsInput | string
+    termId?: NullableStringFieldUpdateOperationsInput | string | null
+    sessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: StringFieldUpdateOperationsInput | string
+    sourceType?: EnumJournalSourceTypeFieldUpdateOperationsInput | $Enums.JournalSourceType
+    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    purpose?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    status?: EnumJournalStatusFieldUpdateOperationsInput | $Enums.JournalStatus
+    reversalOfId?: NullableStringFieldUpdateOperationsInput | string | null
+    reversalReason?: NullableStringFieldUpdateOperationsInput | string | null
+    totalKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    isSystemActor?: BoolFieldUpdateOperationsInput | boolean
+    postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reversedBy?: JournalEntryUncheckedUpdateOneWithoutReversalOfNestedInput
+    lines?: JournalLineUncheckedUpdateManyWithoutJournalNestedInput
+  }
+
+  export type JournalEntryUncheckedUpdateManyWithoutBranchInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    number?: StringFieldUpdateOperationsInput | string
+    entryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodId?: StringFieldUpdateOperationsInput | string
+    termId?: NullableStringFieldUpdateOperationsInput | string | null
+    sessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: StringFieldUpdateOperationsInput | string
+    sourceType?: EnumJournalSourceTypeFieldUpdateOperationsInput | $Enums.JournalSourceType
+    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    purpose?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    status?: EnumJournalStatusFieldUpdateOperationsInput | $Enums.JournalStatus
+    reversalOfId?: NullableStringFieldUpdateOperationsInput | string | null
+    reversalReason?: NullableStringFieldUpdateOperationsInput | string | null
+    totalKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    isSystemActor?: BoolFieldUpdateOperationsInput | boolean
+    postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AutomationRunLogCreateManyRuleInput = {
@@ -65586,6 +75309,278 @@ export namespace Prisma {
     deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LedgerAccountCreateManyParentInput = {
+    id?: string
+    code: string
+    name: string
+    type: $Enums.LedgerAccountType
+    subtype?: string
+    systemKey?: string | null
+    description?: string | null
+    isMoneyAccount?: boolean
+    bankName?: string | null
+    accountName?: string | null
+    accountNumberLast4?: string | null
+    isActive?: boolean
+    isLocked?: boolean
+    sortOrder?: number
+    createdById?: string | null
+    updatedById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+  }
+
+  export type JournalLineCreateManyLedgerAccountInput = {
+    id?: string
+    journalId: string
+    lineNumber: number
+    debitKobo?: bigint | number
+    creditKobo?: bigint | number
+    memo?: string | null
+    partyType?: $Enums.LedgerPartyType | null
+    partyId?: string | null
+  }
+
+  export type LedgerAccountUpdateWithoutParentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    type?: EnumLedgerAccountTypeFieldUpdateOperationsInput | $Enums.LedgerAccountType
+    subtype?: StringFieldUpdateOperationsInput | string
+    systemKey?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    isMoneyAccount?: BoolFieldUpdateOperationsInput | boolean
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
+    accountName?: NullableStringFieldUpdateOperationsInput | string | null
+    accountNumberLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isLocked?: BoolFieldUpdateOperationsInput | boolean
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    children?: LedgerAccountUpdateManyWithoutParentNestedInput
+    lines?: JournalLineUpdateManyWithoutLedgerAccountNestedInput
+  }
+
+  export type LedgerAccountUncheckedUpdateWithoutParentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    type?: EnumLedgerAccountTypeFieldUpdateOperationsInput | $Enums.LedgerAccountType
+    subtype?: StringFieldUpdateOperationsInput | string
+    systemKey?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    isMoneyAccount?: BoolFieldUpdateOperationsInput | boolean
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
+    accountName?: NullableStringFieldUpdateOperationsInput | string | null
+    accountNumberLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isLocked?: BoolFieldUpdateOperationsInput | boolean
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    children?: LedgerAccountUncheckedUpdateManyWithoutParentNestedInput
+    lines?: JournalLineUncheckedUpdateManyWithoutLedgerAccountNestedInput
+  }
+
+  export type LedgerAccountUncheckedUpdateManyWithoutParentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    type?: EnumLedgerAccountTypeFieldUpdateOperationsInput | $Enums.LedgerAccountType
+    subtype?: StringFieldUpdateOperationsInput | string
+    systemKey?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    isMoneyAccount?: BoolFieldUpdateOperationsInput | boolean
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
+    accountName?: NullableStringFieldUpdateOperationsInput | string | null
+    accountNumberLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isLocked?: BoolFieldUpdateOperationsInput | boolean
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type JournalLineUpdateWithoutLedgerAccountInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    lineNumber?: IntFieldUpdateOperationsInput | number
+    debitKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    creditKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    memo?: NullableStringFieldUpdateOperationsInput | string | null
+    partyType?: NullableEnumLedgerPartyTypeFieldUpdateOperationsInput | $Enums.LedgerPartyType | null
+    partyId?: NullableStringFieldUpdateOperationsInput | string | null
+    journal?: JournalEntryUpdateOneRequiredWithoutLinesNestedInput
+  }
+
+  export type JournalLineUncheckedUpdateWithoutLedgerAccountInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    journalId?: StringFieldUpdateOperationsInput | string
+    lineNumber?: IntFieldUpdateOperationsInput | number
+    debitKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    creditKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    memo?: NullableStringFieldUpdateOperationsInput | string | null
+    partyType?: NullableEnumLedgerPartyTypeFieldUpdateOperationsInput | $Enums.LedgerPartyType | null
+    partyId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type JournalLineUncheckedUpdateManyWithoutLedgerAccountInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    journalId?: StringFieldUpdateOperationsInput | string
+    lineNumber?: IntFieldUpdateOperationsInput | number
+    debitKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    creditKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    memo?: NullableStringFieldUpdateOperationsInput | string | null
+    partyType?: NullableEnumLedgerPartyTypeFieldUpdateOperationsInput | $Enums.LedgerPartyType | null
+    partyId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type JournalEntryCreateManyPeriodInput = {
+    id?: string
+    number: string
+    entryDate: Date | string
+    termId?: string | null
+    sessionId?: string | null
+    branchId?: string | null
+    description: string
+    sourceType: $Enums.JournalSourceType
+    sourceId?: string | null
+    purpose: string
+    idempotencyKey: string
+    status?: $Enums.JournalStatus
+    reversalOfId?: string | null
+    reversalReason?: string | null
+    totalKobo: bigint | number
+    createdById?: string | null
+    isSystemActor?: boolean
+    postedAt?: Date | string
+    createdAt?: Date | string
+  }
+
+  export type JournalEntryUpdateWithoutPeriodInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    number?: StringFieldUpdateOperationsInput | string
+    entryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    description?: StringFieldUpdateOperationsInput | string
+    sourceType?: EnumJournalSourceTypeFieldUpdateOperationsInput | $Enums.JournalSourceType
+    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    purpose?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    status?: EnumJournalStatusFieldUpdateOperationsInput | $Enums.JournalStatus
+    reversalReason?: NullableStringFieldUpdateOperationsInput | string | null
+    totalKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    isSystemActor?: BoolFieldUpdateOperationsInput | boolean
+    postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    term?: TermUpdateOneWithoutJournalEntriesNestedInput
+    session?: SessionUpdateOneWithoutJournalEntriesNestedInput
+    branch?: BranchUpdateOneWithoutJournalEntriesNestedInput
+    reversalOf?: JournalEntryUpdateOneWithoutReversedByNestedInput
+    reversedBy?: JournalEntryUpdateOneWithoutReversalOfNestedInput
+    lines?: JournalLineUpdateManyWithoutJournalNestedInput
+  }
+
+  export type JournalEntryUncheckedUpdateWithoutPeriodInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    number?: StringFieldUpdateOperationsInput | string
+    entryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    termId?: NullableStringFieldUpdateOperationsInput | string | null
+    sessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    branchId?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: StringFieldUpdateOperationsInput | string
+    sourceType?: EnumJournalSourceTypeFieldUpdateOperationsInput | $Enums.JournalSourceType
+    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    purpose?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    status?: EnumJournalStatusFieldUpdateOperationsInput | $Enums.JournalStatus
+    reversalOfId?: NullableStringFieldUpdateOperationsInput | string | null
+    reversalReason?: NullableStringFieldUpdateOperationsInput | string | null
+    totalKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    isSystemActor?: BoolFieldUpdateOperationsInput | boolean
+    postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reversedBy?: JournalEntryUncheckedUpdateOneWithoutReversalOfNestedInput
+    lines?: JournalLineUncheckedUpdateManyWithoutJournalNestedInput
+  }
+
+  export type JournalEntryUncheckedUpdateManyWithoutPeriodInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    number?: StringFieldUpdateOperationsInput | string
+    entryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    termId?: NullableStringFieldUpdateOperationsInput | string | null
+    sessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    branchId?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: StringFieldUpdateOperationsInput | string
+    sourceType?: EnumJournalSourceTypeFieldUpdateOperationsInput | $Enums.JournalSourceType
+    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    purpose?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    status?: EnumJournalStatusFieldUpdateOperationsInput | $Enums.JournalStatus
+    reversalOfId?: NullableStringFieldUpdateOperationsInput | string | null
+    reversalReason?: NullableStringFieldUpdateOperationsInput | string | null
+    totalKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    isSystemActor?: BoolFieldUpdateOperationsInput | boolean
+    postedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JournalLineCreateManyJournalInput = {
+    id?: string
+    lineNumber: number
+    ledgerAccountId: string
+    debitKobo?: bigint | number
+    creditKobo?: bigint | number
+    memo?: string | null
+    partyType?: $Enums.LedgerPartyType | null
+    partyId?: string | null
+  }
+
+  export type JournalLineUpdateWithoutJournalInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    lineNumber?: IntFieldUpdateOperationsInput | number
+    debitKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    creditKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    memo?: NullableStringFieldUpdateOperationsInput | string | null
+    partyType?: NullableEnumLedgerPartyTypeFieldUpdateOperationsInput | $Enums.LedgerPartyType | null
+    partyId?: NullableStringFieldUpdateOperationsInput | string | null
+    ledgerAccount?: LedgerAccountUpdateOneRequiredWithoutLinesNestedInput
+  }
+
+  export type JournalLineUncheckedUpdateWithoutJournalInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    lineNumber?: IntFieldUpdateOperationsInput | number
+    ledgerAccountId?: StringFieldUpdateOperationsInput | string
+    debitKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    creditKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    memo?: NullableStringFieldUpdateOperationsInput | string | null
+    partyType?: NullableEnumLedgerPartyTypeFieldUpdateOperationsInput | $Enums.LedgerPartyType | null
+    partyId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type JournalLineUncheckedUpdateManyWithoutJournalInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    lineNumber?: IntFieldUpdateOperationsInput | number
+    ledgerAccountId?: StringFieldUpdateOperationsInput | string
+    debitKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    creditKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+    memo?: NullableStringFieldUpdateOperationsInput | string | null
+    partyType?: NullableEnumLedgerPartyTypeFieldUpdateOperationsInput | $Enums.LedgerPartyType | null
+    partyId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
 

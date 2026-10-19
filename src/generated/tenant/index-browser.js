@@ -581,6 +581,79 @@ exports.Prisma.SchoolNotificationRecipientScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.LedgerAccountScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  type: 'type',
+  subtype: 'subtype',
+  systemKey: 'systemKey',
+  parentId: 'parentId',
+  description: 'description',
+  isMoneyAccount: 'isMoneyAccount',
+  bankName: 'bankName',
+  accountName: 'accountName',
+  accountNumberLast4: 'accountNumberLast4',
+  isActive: 'isActive',
+  isLocked: 'isLocked',
+  sortOrder: 'sortOrder',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt'
+};
+
+exports.Prisma.FinancePeriodScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  status: 'status',
+  closedAt: 'closedAt',
+  closedById: 'closedById',
+  reopenedAt: 'reopenedAt',
+  reopenedById: 'reopenedById',
+  reopenReason: 'reopenReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.JournalEntryScalarFieldEnum = {
+  id: 'id',
+  number: 'number',
+  entryDate: 'entryDate',
+  periodId: 'periodId',
+  termId: 'termId',
+  sessionId: 'sessionId',
+  branchId: 'branchId',
+  description: 'description',
+  sourceType: 'sourceType',
+  sourceId: 'sourceId',
+  purpose: 'purpose',
+  idempotencyKey: 'idempotencyKey',
+  status: 'status',
+  reversalOfId: 'reversalOfId',
+  reversalReason: 'reversalReason',
+  totalKobo: 'totalKobo',
+  createdById: 'createdById',
+  isSystemActor: 'isSystemActor',
+  postedAt: 'postedAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.JournalLineScalarFieldEnum = {
+  id: 'id',
+  journalId: 'journalId',
+  lineNumber: 'lineNumber',
+  ledgerAccountId: 'ledgerAccountId',
+  debitKobo: 'debitKobo',
+  creditKobo: 'creditKobo',
+  memo: 'memo',
+  partyType: 'partyType',
+  partyId: 'partyId'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -796,6 +869,47 @@ exports.NotificationPriority = exports.$Enums.NotificationPriority = {
   CRITICAL: 'CRITICAL'
 };
 
+exports.LedgerAccountType = exports.$Enums.LedgerAccountType = {
+  ASSET: 'ASSET',
+  LIABILITY: 'LIABILITY',
+  EQUITY: 'EQUITY',
+  INCOME: 'INCOME',
+  EXPENSE: 'EXPENSE'
+};
+
+exports.PeriodStatus = exports.$Enums.PeriodStatus = {
+  OPEN: 'OPEN',
+  CLOSED: 'CLOSED'
+};
+
+exports.JournalSourceType = exports.$Enums.JournalSourceType = {
+  FEE_INVOICE: 'FEE_INVOICE',
+  PAYMENT: 'PAYMENT',
+  REFUND: 'REFUND',
+  ADJUSTMENT: 'ADJUSTMENT',
+  EXPENSE_BILL: 'EXPENSE_BILL',
+  EXPENSE_PAYMENT: 'EXPENSE_PAYMENT',
+  PAYROLL_ACCRUAL: 'PAYROLL_ACCRUAL',
+  PAYROLL_PAYMENT: 'PAYROLL_PAYMENT',
+  PAYROLL_REMITTANCE: 'PAYROLL_REMITTANCE',
+  TRANSFER: 'TRANSFER',
+  OPENING_BALANCE: 'OPENING_BALANCE',
+  MANUAL: 'MANUAL',
+  REVERSAL: 'REVERSAL'
+};
+
+exports.JournalStatus = exports.$Enums.JournalStatus = {
+  POSTED: 'POSTED',
+  REVERSED: 'REVERSED'
+};
+
+exports.LedgerPartyType = exports.$Enums.LedgerPartyType = {
+  STUDENT: 'STUDENT',
+  GUARDIAN: 'GUARDIAN',
+  VENDOR: 'VENDOR',
+  STAFF: 'STAFF'
+};
+
 exports.Prisma.ModelName = {
   Staff: 'Staff',
   Student: 'Student',
@@ -831,7 +945,11 @@ exports.Prisma.ModelName = {
   NumberSequence: 'NumberSequence',
   Attachment: 'Attachment',
   SchoolNotification: 'SchoolNotification',
-  SchoolNotificationRecipient: 'SchoolNotificationRecipient'
+  SchoolNotificationRecipient: 'SchoolNotificationRecipient',
+  LedgerAccount: 'LedgerAccount',
+  FinancePeriod: 'FinancePeriod',
+  JournalEntry: 'JournalEntry',
+  JournalLine: 'JournalLine'
 };
 
 /**

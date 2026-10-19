@@ -20,6 +20,7 @@ export const container: AwilixContainer = createContainer({
 |--------------------------------------------------------------------------
 
 */
+import { registerAudit } from "../modules/audit/audit.container";
 import { registerFoundation } from "../foundation/foundation.container";
 import { registerAuth }          from "../modules/auth/auth.container";
 import { registerSchool }        from "../modules/school/school.container";
@@ -38,7 +39,6 @@ import { registerStudents }      from "../modules/students/students.container";
 // import { registerReportCards }   from "../modules/report-cards/report-cards.container";
 // import { registerFees }          from "../modules/fees/fees.container";
 // import { registerPayments }      from "../modules/payments/payments.container";
-// import { registerAudit } from "../modules/audit/audit.container";
 // import { registerNotifications } from "../modules/notifications/notifications.container";
 // import { registerSuperAdmin }    from "../modules/super-admin/super-admin.container";
 // import { registerSchoolSettings } from "../modules/school-settings/school-settings.container";
@@ -54,7 +54,7 @@ const modules: Array<(c: AwilixContainer) => void> = [
     registerPlans,
     registerSubscriptions,
     registerBranches,
-    // registerStaff,
+    registerStaff,
     // registerStudents,
     // registerGuardians,
     // registerClasses,
@@ -65,7 +65,7 @@ const modules: Array<(c: AwilixContainer) => void> = [
     // registerReportCards,
     // registerFees,
     // registerPayments,
-    // registerAudit,
+    registerAudit,
     // registerNotifications,
     // registerSuperAdmin, 
     // registerSchoolSettings,

@@ -1,6 +1,6 @@
 import { IAuditRepository } from "../repositories/audit.repository";
 import { ActorType }        from "../domain/audit.enums";
-import { RequestContext }   from "../../../../staff-module-v1/shared/context/request-context";
+import { RequestContext } from "../../../shared/context/request-context";
 
 /*
 |--------------------------------------------------------------------------

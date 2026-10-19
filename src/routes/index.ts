@@ -7,7 +7,7 @@ import schoolRouter from "../modules/school/routes/school.routes";
 import plansRouter from "../modules/plans/routes/plan.routes";
 import subscriptionRouter from "../modules/subscriptions/routes/billing.routes";
 import branchRouter from "../modules/branches/routes/branch.routes"
-// import staffRouter from "../modules/staff/routes/staff.routes";
+import staffRouter from "../modules/staff/routes/staff.routes";
 // import studentRouter from "../modules/students/routes/student.routes";
 // import guardianRouter from "../modules/guardians/routes/guardian.routes";
 // import classRouter from "../modules/classes/routes/class.routes";
@@ -19,7 +19,7 @@ import branchRouter from "../modules/branches/routes/branch.routes"
 // import sessionRouter from "../modules/sessions/routes/session.routes"
 // import paymentRouter from "../modules/payments/routes/payment.routes";
 // import superAdminRouter from "../modules/super-admin/routes/super-admin.routes";
-// import auditRouter from "../modules/audit/routes/audit.routes"
+import auditRouter from "../modules/audit/routes/audit.routes"
 // import notificationRouter from "../modules/notifications/routes/notification.routes";
 // import schoolSettingRouter from "../modules/school-settings/routes/school-settings.routes"
 // import platformsettingsRouter from "../modules/platform-settings/routes/platform-settings.route"
@@ -33,7 +33,8 @@ router.use("/users", userRouter)
 router.use("/schools", schoolRouter);
 router.use("/plans", plansRouter);
 router.use("/subscriptions", subscriptionRouter);
-// router.use("/staff", staffRouter);
+router.use("/audit", auditRouter)   
+router.use("/staff", staffRouter);
 // router.use("/students", studentRouter);
 // router.use("/guardians", guardianRouter);
 // router.use("/classes", classRouter);
@@ -45,7 +46,6 @@ router.use("/subscriptions", subscriptionRouter);
 // router.use("/fees", feesRouter);
 // router.use("/payments", paymentRouter)
 // router.use("/super-admin", superAdminRouter)
-// router.use("/audit", auditRouter)   
 // router.use("/notifications", notificationRouter);
 // router.use("/school-settings", schoolSettingRouter)
 // router.use("/platform-settings", platformsettingsRouter)
