@@ -1,4 +1,4 @@
-import { asFunction } from "awilix";
+import { asClass, asFunction } from "awilix";
 import type { AwilixContainer } from "awilix";
 import { getTenantClient, withTenantTransaction } from "../../infrastructure/database/prisma/prisma.client";
 import { RequestContext } from "../../shared/context/request-context";
@@ -6,9 +6,11 @@ import { NumberSequenceService } from "../../shared/services/number-sequence.ser
 import { PostingService, type PostingDb } from "./ledger.posting";
 import { BooksService, type BooksDb } from "./ledger.books";
 import { LedgerReportService, type ReportDb } from "./ledger.reports";
+import { LedgerQueryService, type QueryDb } from "./ledger.queries";
+import { LedgerController } from "./ledger.controller";
 
 /*
-| Requires: audit (auditService). Registers the posting service (for other finance modules), the books service and the book reports.
+| Requires: audit (auditService). Registers the posting service (for other finance modules), the books service, the book reports, the journal queries and the HTTP controller.
 | Routes, use cases and controllers for the ledger arrive with the later pieces of phase 1.
 */
 export const registerLedger = (container: AwilixContainer): void => {
@@ -25,5 +27,8 @@ export const registerLedger = (container: AwilixContainer): void => {
             new BooksService({ db: () => getTenantClient() as unknown as BooksDb, posting: postingService })).scoped(),
         ledgerReportService: asFunction(() =>
             new LedgerReportService({ db: () => getTenantClient() as unknown as ReportDb })).scoped(),
+        ledgerQueryService: asFunction(() =>
+            new LedgerQueryService({ db: () => getTenantClient() as unknown as QueryDb })).scoped(),
+        ledgerController: asClass(LedgerController).scoped(),
     });
 };

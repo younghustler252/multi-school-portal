@@ -67,7 +67,7 @@ export class LedgerReportService {
     async accountBalances(asOf: string, opts: { moneyOnly?: boolean } = {}): Promise<AccountBalanceRow[]> {
         parseDay(asOf);
         const rows = await this.deps.db().$queryRawUnsafe<any[]>(
-            `SELECT a.id, a.code, a.name, a.type::text AS type, a.subtype, a."systemKey", a."isMoneyAccount",
+            `SELECT a.id AS "accountId", a.code, a.name, a.type::text AS type, a.subtype, a."systemKey", a."isMoneyAccount",
                     COALESCE(SUM(CASE WHEN e.id IS NOT NULL THEN l."debitKobo"  END), 0) AS debit,
                     COALESCE(SUM(CASE WHEN e.id IS NOT NULL THEN l."creditKobo" END), 0) AS credit
                FROM "LedgerAccount" a
