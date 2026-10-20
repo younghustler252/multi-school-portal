@@ -4,9 +4,11 @@ import { getTenantClient, withTenantTransaction } from "../../infrastructure/dat
 import { RequestContext } from "../../shared/context/request-context";
 import { NumberSequenceService } from "../../shared/services/number-sequence.service";
 import { PostingService, type PostingDb } from "./ledger.posting";
+import { BooksService, type BooksDb } from "./ledger.books";
+import { LedgerReportService, type ReportDb } from "./ledger.reports";
 
 /*
-| Requires: audit (auditService). Registers the posting service for other finance modules to use.
+| Requires: audit (auditService). Registers the posting service (for other finance modules), the books service and the book reports.
 | Routes, use cases and controllers for the ledger arrive with the later pieces of phase 1.
 */
 export const registerLedger = (container: AwilixContainer): void => {
@@ -19,5 +21,9 @@ export const registerLedger = (container: AwilixContainer): void => {
                 auditService,
                 currentUserId: () => RequestContext.get()?.userId,
             })).scoped(),
+        booksService: asFunction(({ postingService }: { postingService: PostingService }) =>
+            new BooksService({ db: () => getTenantClient() as unknown as BooksDb, posting: postingService })).scoped(),
+        ledgerReportService: asFunction(() =>
+            new LedgerReportService({ db: () => getTenantClient() as unknown as ReportDb })).scoped(),
     });
 };

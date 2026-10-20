@@ -23,4 +23,13 @@ export const ledgerErrors = {
     cannotReverseReversal: (number: string) => new AppError(
         `Journal ${number} is itself a reversal and cannot be reversed`, 409, true, "CANNOT_REVERSE_REVERSAL", { number }),
     reasonRequired:    () => new BadRequestError("A reason is required to reverse a journal"),
+    openingAlreadySet: (account: string) => new AppError(
+        `${account} already has an opening balance. Reverse it first if it was wrong`, 409, true, "OPENING_BALANCE_EXISTS", { account }),
+    notMoneyAccount:   (account: string) => new AppError(
+        `${account} is not a cash, bank or other money account`, 400, true, "NOT_A_MONEY_ACCOUNT", { account }),
+    sameAccount:       () => new AppError("Choose two different accounts", 400, true, "SAME_ACCOUNT"),
+    amountInvalid:     () => new AppError("The amount must be a whole number of kobo above zero", 400, true, "INVALID_AMOUNT"),
+    accountLocked:     (account: string) => new AppError(
+        `${account} is kept by the system (it follows invoices, bills or payroll) and cannot be used in a manual journal`,
+        409, true, "ACCOUNT_LOCKED", { account }),
 };
