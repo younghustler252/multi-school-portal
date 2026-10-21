@@ -16,6 +16,8 @@ import { SetOpeningBalanceUseCase, RecordTransferUseCase } from "./usecases/book
 import { AccountBalancesUseCase, CashBookUseCase } from "./usecases/ledger-report.usecases";
 import { ListAccountsUseCase, GetAccountUseCase } from "./usecases/account-queries.usecases";
 import { CreateAccountUseCase, UpdateAccountUseCase, SetAccountActiveUseCase, DeleteAccountUseCase } from "./usecases/account-commands.usecases";
+import { RunLedgerIntegrityCheckUseCase, RunLedgerIntegrityForAllSchoolsUseCase } from "./usecases/ledger-integrity.usecases";
+import { LedgerIntegrityRepositoryImpl } from "./repositories/ledger-integrity.repository.impl";
 import { LedgerController } from "./controllers/ledger.controller";
 
 /*
@@ -33,6 +35,7 @@ export const registerLedger = (container: AwilixContainer): void => {
         financePeriodRepository: asClass(FinancePeriodRepositoryImpl).scoped(),
         ledgerAccountRepository: asClass(LedgerAccountRepositoryImpl).scoped(),
         ledgerReportRepository:  asClass(LedgerReportRepositoryImpl).scoped(),
+        ledgerIntegrityRepository: asClass(LedgerIntegrityRepositoryImpl).scoped(),
 
         numberSequenceService: asClass(NumberSequenceService).singleton(),
         postingService:        asClass(PostingService).scoped(),
@@ -53,6 +56,9 @@ export const registerLedger = (container: AwilixContainer): void => {
         updateAccountUseCase:      asClass(UpdateAccountUseCase).scoped(),
         setAccountActiveUseCase:   asClass(SetAccountActiveUseCase).scoped(),
         deleteAccountUseCase:      asClass(DeleteAccountUseCase).scoped(),
+
+        runLedgerIntegrityCheckUseCase:         asClass(RunLedgerIntegrityCheckUseCase).scoped(),
+        runLedgerIntegrityForAllSchoolsUseCase: asClass(RunLedgerIntegrityForAllSchoolsUseCase).scoped(),
 
         ledgerController:          asClass(LedgerController).scoped(),
     });

@@ -1,0 +1,97 @@
+import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
+import { IntegrityFinding, MAX_ROWS_PER_CHECK, SystemAccountRow } from "../domain/ledger-integrity";
+import { ILedgerIntegrityRepository } from "./ledger-integrity.repository";
+
+/*
+| INTEGRITY QUERIES (read-only SQL over the school's own schema). Money is cast to text so that nothing here
+| needs BigInt handling, and rows are capped (MAX_ROWS_PER_CHECK) so a badly broken school cannot flood the report.
+*/
+const day = (v: unknown): string => (v instanceof Date ? v.toISOString().slice(0, 10) : String(v).slice(0, 10));
+
+export class LedgerIntegrityRepositoryImpl implements ILedgerIntegrityRepository {
+    private get db() { return getTenantClient(); }
+    private rows(sql: string, ...params: unknown[]) { return this.db.$queryRawUnsafe<any[]>(sql, ...params); }
+
+    async unbalancedJournals(): Promise<IntegrityFinding[]> {
+        const rows = await this.rows(
+            `SELECT e.id, e.number, e."totalKobo"::text AS total,
+                    COALESCE(SUM(l."debitKobo"), 0)::text AS debit, COALESCE(SUM(l."creditKobo"), 0)::text AS credit, COUNT(l.id)::int AS lines
+               FROM "JournalEntry" e LEFT JOIN "JournalLine" l ON l."journalId" = e.id
+              GROUP BY e.id
+             HAVING COUNT(l.id) < 2 OR SUM(l."debitKobo") <> SUM(l."creditKobo") OR SUM(l."debitKobo") <> e."totalKobo"
+              ORDER BY e.number LIMIT ${MAX_ROWS_PER_CHECK}`);
+        return rows.map(r => ({
+            check: "UNBALANCED_JOURNAL" as const, message: `Journal ${r.number} does not balance`,
+            details: { journalId: r.id, number: r.number, lines: r.lines, debitKobo: r.debit, creditKobo: r.credit, totalKobo: r.total },
+        }));
+    }
+
+    async trialBalance(): Promise<IntegrityFinding[]> {
+        const [r] = await this.rows(`SELECT COALESCE(SUM("debitKobo"), 0)::text AS debit, COALESCE(SUM("creditKobo"), 0)::text AS credit FROM "JournalLine"`);
+        return r.debit === r.credit ? [] : [{
+            check: "TRIAL_BALANCE", message: "Total debits do not equal total credits across the school's books",
+            details: { debitKobo: r.debit, creditKobo: r.credit },
+        }];
+    }
+
+    async reversalProblems(): Promise<IntegrityFinding[]> {
+        const missing = await this.rows(
+            `SELECT e.id, e.number FROM "JournalEntry" e
+              WHERE e.status = 'REVERSED' AND NOT EXISTS (SELECT 1 FROM "JournalEntry" r WHERE r."reversalOfId" = e.id)
+              ORDER BY e.number LIMIT ${MAX_ROWS_PER_CHECK}`);
+        const unmarked = await this.rows(
+            `SELECT r.id, r.number, o.number AS "originalNumber" FROM "JournalEntry" r JOIN "JournalEntry" o ON o.id = r."reversalOfId"
+              WHERE o.status <> 'REVERSED' ORDER BY r.number LIMIT ${MAX_ROWS_PER_CHECK}`);
+        // Same accounts and amounts with the sides swapped, compared as sorted lists
+        const notMirror = await this.rows(
+            `SELECT r.id, r.number, o.number AS "originalNumber"
+               FROM "JournalEntry" r JOIN "JournalEntry" o ON o.id = r."reversalOfId"
+              WHERE (SELECT COALESCE(jsonb_agg(to_jsonb(x) ORDER BY x.a, x.d, x.c), '[]'::jsonb)
+                       FROM (SELECT l."ledgerAccountId" AS a, l."debitKobo"::text AS d, l."creditKobo"::text AS c FROM "JournalLine" l WHERE l."journalId" = r.id) x)
+                 <> (SELECT COALESCE(jsonb_agg(to_jsonb(y) ORDER BY y.a, y.d, y.c), '[]'::jsonb)
+                       FROM (SELECT l."ledgerAccountId" AS a, l."creditKobo"::text AS d, l."debitKobo"::text AS c FROM "JournalLine" l WHERE l."journalId" = o.id) y)
+              ORDER BY r.number LIMIT ${MAX_ROWS_PER_CHECK}`);
+        return [
+            ...missing.map(r => ({ check: "REVERSAL_MISSING" as const, message: `Journal ${r.number} is marked reversed but no reversal exists`, details: { journalId: r.id, number: r.number } })),
+            ...unmarked.map(r => ({ check: "REVERSAL_ORIGINAL_NOT_MARKED" as const, message: `Reversal ${r.number} points at ${r.originalNumber}, which is not marked reversed`, details: { journalId: r.id, number: r.number, originalNumber: r.originalNumber } })),
+            ...notMirror.map(r => ({ check: "REVERSAL_NOT_MIRROR" as const, message: `Reversal ${r.number} is not the exact opposite of ${r.originalNumber}`, details: { journalId: r.id, number: r.number, originalNumber: r.originalNumber } })),
+        ];
+    }
+
+    async periodProblems(timeZone: string): Promise<IntegrityFinding[]> {
+        const mismatch = await this.rows(
+            `SELECT e.id, e.number, e."entryDate" AS date, p.name AS period FROM "JournalEntry" e JOIN "FinancePeriod" p ON p.id = e."periodId"
+              WHERE e."entryDate" < p."startDate" OR e."entryDate" > p."endDate" ORDER BY e.number LIMIT ${MAX_ROWS_PER_CHECK}`);
+        const future = await this.rows(
+            `SELECT e.id, e.number, e."entryDate" AS date FROM "JournalEntry" e
+              WHERE e."entryDate" > (e."postedAt" AT TIME ZONE $1)::date ORDER BY e.number LIMIT ${MAX_ROWS_PER_CHECK}`, timeZone);
+        // Posted after the period was closed (a reopen in between makes it legitimate, so those are skipped)
+        const afterClose = await this.rows(
+            `SELECT e.id, e.number, p.name AS period FROM "JournalEntry" e JOIN "FinancePeriod" p ON p.id = e."periodId"
+              WHERE p."closedAt" IS NOT NULL AND e."postedAt" > p."closedAt" AND (p."reopenedAt" IS NULL OR p."reopenedAt" < p."closedAt")
+                AND p.status = 'CLOSED' ORDER BY e.number LIMIT ${MAX_ROWS_PER_CHECK}`);
+        return [
+            ...mismatch.map(r => ({ check: "PERIOD_MISMATCH" as const, message: `Journal ${r.number} is dated ${day(r.date)} but filed in period ${r.period}`, details: { journalId: r.id, number: r.number, entryDate: day(r.date), period: r.period } })),
+            ...future.map(r => ({ check: "FUTURE_DATED" as const, message: `Journal ${r.number} is dated ${day(r.date)}, after the day it was posted`, details: { journalId: r.id, number: r.number, entryDate: day(r.date) } })),
+            ...afterClose.map(r => ({ check: "POSTED_AFTER_CLOSE" as const, message: `Journal ${r.number} was posted into period ${r.period} after it was closed`, details: { journalId: r.id, number: r.number, period: r.period } })),
+        ];
+    }
+
+    async duplicateOpeningBalances(): Promise<IntegrityFinding[]> {
+        const rows = await this.rows(
+            `SELECT e."sourceId" AS account, COUNT(*)::int AS n FROM "JournalEntry" e
+              WHERE e."sourceType" = 'OPENING_BALANCE' AND e.status = 'POSTED' GROUP BY e."sourceId" HAVING COUNT(*) > 1 LIMIT ${MAX_ROWS_PER_CHECK}`);
+        return rows.map(r => ({ check: "DUPLICATE_OPENING_BALANCE" as const, message: `Account ${r.account} has ${r.n} live opening balances`, details: { accountId: r.account, count: r.n } }));
+    }
+
+    async linesOnDeletedAccounts(): Promise<IntegrityFinding[]> {
+        const rows = await this.rows(
+            `SELECT a.id, a.code, a.name, COUNT(l.id)::int AS lines FROM "LedgerAccount" a JOIN "JournalLine" l ON l."ledgerAccountId" = a.id
+              WHERE a."deletedAt" IS NOT NULL GROUP BY a.id ORDER BY a.code LIMIT ${MAX_ROWS_PER_CHECK}`);
+        return rows.map(r => ({ check: "LINE_ON_DELETED_ACCOUNT" as const, message: `Deleted account ${r.code} ${r.name} has ${r.lines} posting line(s)`, details: { accountId: r.id, code: r.code, lines: r.lines } }));
+    }
+
+    async systemAccounts(): Promise<SystemAccountRow[]> {
+        return this.rows(`SELECT "systemKey", "isActive", "isLocked", "deletedAt" FROM "LedgerAccount" WHERE "systemKey" IS NOT NULL`);
+    }
+}

@@ -1,0 +1,12 @@
+import { IntegrityFinding, SystemAccountRow } from "../domain/ledger-integrity";
+
+/* Read-only queries that look for broken rules. Each returns the findings it made (empty when the rule holds). */
+export interface ILedgerIntegrityRepository {
+    unbalancedJournals(): Promise<IntegrityFinding[]>;
+    trialBalance(): Promise<IntegrityFinding[]>;
+    reversalProblems(): Promise<IntegrityFinding[]>;
+    periodProblems(timeZone: string): Promise<IntegrityFinding[]>;       // period mismatch, future-dated, posted after close
+    duplicateOpeningBalances(): Promise<IntegrityFinding[]>;
+    linesOnDeletedAccounts(): Promise<IntegrityFinding[]>;
+    systemAccounts(): Promise<SystemAccountRow[]>;
+}

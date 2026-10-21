@@ -7,6 +7,7 @@ export const initWorkers = (): void => {
     require("./workers/default-reminder.worker");
     require("./workers/subscription-expiry.worker");
     require("./workers/payment-reconciliation.worker")
+    require("./workers/ledger-integrity.worker")
     require("./workers/default-reminder.worker")
     console.log("✅ Background workers started");
 };
