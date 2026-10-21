@@ -68,3 +68,9 @@ export const CashBookQuery = z.object({
     from:      day,
     to:        day,
 });
+
+export type OpeningBalanceDtoType = z.infer<typeof OpeningBalanceDto>;
+export type TransferDtoType       = z.infer<typeof TransferDto>;
+export type ManualJournalDtoType  = z.infer<typeof ManualJournalDto>;
+export type ReverseJournalDtoType = z.infer<typeof ReverseJournalDto>;
+export type ListJournalsQueryType = z.infer<typeof ListJournalsQuery>;

@@ -8,9 +8,10 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { PERMISSION_REGISTRY, validatePermissionRegistry } from "../../src/foundation/permissions.registry";
 import { ROLE_TEMPLATES } from "../../src/foundation/role-templates.registry";
-import { OpeningBalanceDto, TransferDto, ManualJournalDto, ListJournalsQuery } from "../../src/modules/ledger/ledger.dto";
-import { koboOut, journalDetail } from "../../src/modules/ledger/ledger.mapper";
-import { LedgerController } from "../../src/modules/ledger/ledger.controller";
+import { OpeningBalanceDto, TransferDto, ManualJournalDto, ListJournalsQuery } from "../../src/modules/ledger/dtos/ledger.dto";
+import { koboOut } from "../../src/modules/ledger/mappers/kobo";
+import { JournalMapper } from "../../src/modules/ledger/mappers/journal.mapper";
+import { LedgerController } from "../../src/modules/ledger/controllers/ledger.controller";
 
 describe("finance permissions", () => {
     const finance = PERMISSION_REGISTRY.filter(p => p.module === "finance");
@@ -81,12 +82,13 @@ describe("money in responses", () => {
     });
 
     it("journal detail carries account names and has no BigInt left to break JSON", () => {
-        const out = journalDetail({
+        const mapper = new JournalMapper();
+        const out = mapper.toDetail(mapper.toDomain({
             id: "j", number: "JE-2026-000001", entryDate: new Date("2026-10-05T00:00:00Z"), description: "d", sourceType: "MANUAL", sourceId: "s", purpose: "MANUAL",
             status: "POSTED", totalKobo: 700n, reversalOfId: null, reversalReason: null, branchId: null, termId: null, sessionId: null, createdById: "u", isSystemActor: false, postedAt: new Date(),
             period: { name: "2026-10", status: "OPEN" },
             lines: [{ lineNumber: 1, ledgerAccountId: "a", ledgerAccount: { code: "5100", name: "Utilities" }, debitKobo: 700n, creditKobo: 0n, partyType: null, partyId: null, memo: null }],
-        });
+        } as any));
         assert.doesNotThrow(() => JSON.stringify(out));
         assert.equal(out.entryDate, "2026-10-05");
         assert.equal(out.lines[0].accountName, "Utilities");
@@ -97,20 +99,21 @@ describe("controller", () => {
     const run = async (fn: (c: LedgerController, res: any, next: (e?: unknown) => void) => Promise<void>) => {
         const seen: any = {};
         const res: any = { status(c: number) { seen.status = c; return this; }, json(b: unknown) { seen.body = b; return this; } };
-        const books = { transfer: async (i: any) => { seen.input = i; return { journal: { id: "j", entryDate: new Date("2026-10-10T00:00:00Z"), totalKobo: 5n }, duplicate: seen.dup === true }; } };
-        const c = new LedgerController({ booksService: books, postingService: {}, ledgerReportService: {}, ledgerQueryService: {} } as any);
+        const recordTransferUseCase = { execute: async (schoolId: string, userId: string, dto: unknown) => { seen.args = { schoolId, userId, dto }; return { journal: { id: "j" }, duplicate: false }; } };
+        const c = new LedgerController({ recordTransferUseCase } as any);
         await fn(c, res, (e) => { seen.error = e; });
-        return { seen, books };
+        return seen;
     };
 
-    it("takes the actor from the session, not from the body", async () => {
-        const { seen } = await run((c, res, next) => c.transfer({ auth: { userId: "real-user" }, body: { fromAccountId: "a", toAccountId: "b", amountKobo: 5n, entryDate: "2026-10-10", actorUserId: "hacker" } } as any, res, next));
-        assert.equal(seen.input.actorUserId, "real-user");
+    it("takes the school from the host and the actor from the session, never from the body", async () => {
+        const seen = await run((c, res, next) => c.transfer({ schoolId: "school-1", auth: { userId: "real-user" }, body: { fromAccountId: "a", toAccountId: "b", amountKobo: 5n, entryDate: "2026-10-10" } } as any, res, next));
+        assert.equal(seen.args.schoolId, "school-1");
+        assert.equal(seen.args.userId, "real-user");
         assert.equal(seen.status, 201);
     });
 
     it("refuses a request with no session", async () => {
-        const { seen } = await run((c, res, next) => c.transfer({ body: {} } as any, res, next));
+        const seen = await run((c, res, next) => c.transfer({ schoolId: "school-1", body: {} } as any, res, next));
         assert.equal(seen.error.code, "TOKEN_MISSING");
     });
 });

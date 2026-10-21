@@ -6,12 +6,13 @@
 */
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { REQUIRED_SYSTEM_KEYS } from "../../src/modules/ledger/ledger.constants";
+import { REQUIRED_SYSTEM_KEYS } from "../../src/modules/ledger/domain/ledger.constants";
 import {
     LEDGER_ACCOUNT_TEMPLATES, LedgerAccountTemplateDef, LedgerTemplateRow, LedgerTemplateDb,
     syncLedgerAccountTemplates, validateLedgerAccountTemplates,
 } from "../../src/modules/ledger/ledger.templates";
-import { monthlyPeriods, seedFinanceBooks } from "../../src/modules/ledger/ledger.provisioning";
+import { seedFinanceBooks } from "../../src/modules/ledger/services/ledger-seed";
+import { monthlyPeriods } from "../../src/modules/ledger/domain/ledger.dates";
 
 const names = (ps: { name: string }[]) => [ps[0].name, ps[11].name];
 

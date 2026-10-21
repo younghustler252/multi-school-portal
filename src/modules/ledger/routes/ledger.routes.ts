@@ -1,12 +1,12 @@
 import { Router } from "express";
-import { container } from "../../container";
-import { LedgerController } from "./ledger.controller";
-import { validate } from "../../infrastructure/middleware/validate.middleware";
-import { authenticate } from "../../infrastructure/middleware/auth.middleware";
-import { requireTenant } from "../../infrastructure/middleware/tenant-resolver.middleware";
-import { requirePermission } from "../../infrastructure/middleware/rbac.middleware";
-import { requireFeature } from "../../infrastructure/middleware/feature-gate.middleware";
-import { OpeningBalanceDto, TransferDto, ManualJournalDto, ReverseJournalDto } from "./ledger.dto";
+import { container } from "../../../container";
+import { LedgerController } from "../controllers/ledger.controller";
+import { validate } from "../../../infrastructure/middleware/validate.middleware";
+import { authenticate } from "../../../infrastructure/middleware/auth.middleware";
+import { requireTenant } from "../../../infrastructure/middleware/tenant-resolver.middleware";
+import { requirePermission } from "../../../infrastructure/middleware/rbac.middleware";
+import { requireFeature } from "../../../infrastructure/middleware/feature-gate.middleware";
+import { OpeningBalanceDto, TransferDto, ManualJournalDto, ReverseJournalDto } from "../dtos/ledger.dto";
 
 /*
 | LEDGER ROUTES (school realm, mounted at /finance on the school's host).

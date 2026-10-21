@@ -1,4 +1,4 @@
-import { AppError, BadRequestError, NotFoundError } from "../../shared/errors/domain.errors";
+import { AppError, BadRequestError, NotFoundError } from "../../../shared/errors/domain.errors";
 
 /* The only place the ledger builds domain errors. Codes are stable; the frontend switches on them.
    Money in `details` is always a string of kobo (JSON cannot carry BigInt). */

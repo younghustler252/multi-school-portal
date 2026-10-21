@@ -11,7 +11,7 @@ import { TenantContext } from "../../database/prisma/tenant.context";
 import { env } from "../../../config/env";
 import { MembershipService } from "../../../modules/auth/services/membership.service";
 import { UrlService } from "../../../shared/services/url.service";
-import { loadLedgerAccountTemplates, seedFinanceBooks } from "../../../modules/ledger/ledger.provisioning";
+import { loadLedgerAccountTemplates, seedFinanceBooks } from "../../../modules/ledger/services/ledger-seed";
 
 
 function getDefaultClasses(category?: string | null): Array<{ name: string; level: string }> {

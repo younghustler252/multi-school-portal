@@ -20,7 +20,7 @@ import staffRouter from "../modules/staff/routes/staff.routes";
 // import paymentRouter from "../modules/payments/routes/payment.routes";
 // import superAdminRouter from "../modules/super-admin/routes/super-admin.routes";
 import auditRouter from "../modules/audit/routes/audit.routes"
-import ledgerRouter from "../modules/ledger/ledger.routes";
+import ledgerRouter from "../modules/ledger/routes/ledger.routes";
 // import notificationRouter from "../modules/notifications/routes/notification.routes";
 // import schoolSettingRouter from "../modules/school-settings/routes/school-settings.routes"
 // import platformsettingsRouter from "../modules/platform-settings/routes/platform-settings.route"

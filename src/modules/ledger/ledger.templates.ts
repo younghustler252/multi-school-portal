@@ -1,4 +1,4 @@
-import { REQUIRED_SYSTEM_KEYS } from "./ledger.constants";
+import { REQUIRED_SYSTEM_KEYS } from "./domain/ledger.constants";
 
 /*
 |--------------------------------------------------------------------------

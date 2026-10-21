@@ -1,8 +1,9 @@
 import { randomUUID } from "crypto";
 import {
     DEFAULT_FISCAL_YEAR_START_MONTH, MONEY_SUBTYPES, REQUIRED_SYSTEM_KEYS,
-} from "./ledger.constants";
-import type { LedgerTemplateRow } from "./ledger.templates";
+} from "../domain/ledger.constants";
+import { monthlyPeriods } from "../domain/ledger.dates";
+import type { LedgerTemplateRow } from "../ledger.templates";
 
 /*
 |--------------------------------------------------------------------------
@@ -39,41 +40,6 @@ export interface LedgerTemplateReader {
 /** The active account templates, in display order. */
 export const loadLedgerAccountTemplates = (db: LedgerTemplateReader): Promise<AccountTemplateInput[]> =>
     db.ledgerAccountTemplate.findMany({ where: { isActive: true }, orderBy: [{ sortOrder: "asc" }, { code: "asc" }] });
-
-/* ── Periods ──────────────────────────────────────────────────────────── */
-
-export interface PeriodDraft { name: string; startDate: string; endDate: string }
-
-const pad = (n: number) => String(n).padStart(2, "0");
-const isoDate = (d: Date) => `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
-
-/**
- * The 12 accounting months of the fiscal year that contains `today`.
- * Fiscal year starting in month 1 (January) and today in October 2026: 2026-01 ... 2026-12.
- * Starting in month 9 (September), today October 2026: 2026-09 ... 2027-08; today March 2026: 2025-09 ... 2026-08.
- * Dates are plain calendar dates ("2026-10-31"), so there is no time zone to go wrong.
- */
-export function monthlyPeriods(fiscalYearStartMonth: number, today: Date): PeriodDraft[] {
-    if (!Number.isInteger(fiscalYearStartMonth) || fiscalYearStartMonth < 1 || fiscalYearStartMonth > 12) {
-        throw new Error(`The fiscal year start month must be a whole number from 1 to 12 (got ${fiscalYearStartMonth}).`);
-    }
-
-    const thisMonth = today.getUTCMonth() + 1;
-    const startYear = thisMonth >= fiscalYearStartMonth ? today.getUTCFullYear() : today.getUTCFullYear() - 1;
-
-    const periods: PeriodDraft[] = [];
-    for (let i = 0; i < 12; i++) {
-        const index = fiscalYearStartMonth - 1 + i;
-        const year  = startYear + Math.floor(index / 12);
-        const month = index % 12;                                   // 0 to 11
-        periods.push({
-            name:      `${year}-${pad(month + 1)}`,
-            startDate: isoDate(new Date(Date.UTC(year, month, 1))),
-            endDate:   isoDate(new Date(Date.UTC(year, month + 1, 0))),   // day 0 of next month = last day of this one
-        });
-    }
-    return periods;
-}
 
 /* ── Accounts ─────────────────────────────────────────────────────────── */
 
