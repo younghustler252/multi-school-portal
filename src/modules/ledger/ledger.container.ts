@@ -14,6 +14,8 @@ import { ListJournalsUseCase, GetJournalUseCase, ListPeriodsUseCase } from "./us
 import { PostManualJournalUseCase, ReverseJournalUseCase } from "./usecases/journal-commands.usecases";
 import { SetOpeningBalanceUseCase, RecordTransferUseCase } from "./usecases/books-commands.usecases";
 import { AccountBalancesUseCase, CashBookUseCase } from "./usecases/ledger-report.usecases";
+import { ListAccountsUseCase, GetAccountUseCase } from "./usecases/account-queries.usecases";
+import { CreateAccountUseCase, UpdateAccountUseCase, SetAccountActiveUseCase, DeleteAccountUseCase } from "./usecases/account-commands.usecases";
 import { LedgerController } from "./controllers/ledger.controller";
 
 /*
@@ -44,6 +46,13 @@ export const registerLedger = (container: AwilixContainer): void => {
         recordTransferUseCase:     asClass(RecordTransferUseCase).scoped(),
         accountBalancesUseCase:    asClass(AccountBalancesUseCase).scoped(),
         cashBookUseCase:           asClass(CashBookUseCase).scoped(),
+
+        listAccountsUseCase:       asClass(ListAccountsUseCase).scoped(),
+        getAccountUseCase:         asClass(GetAccountUseCase).scoped(),
+        createAccountUseCase:      asClass(CreateAccountUseCase).scoped(),
+        updateAccountUseCase:      asClass(UpdateAccountUseCase).scoped(),
+        setAccountActiveUseCase:   asClass(SetAccountActiveUseCase).scoped(),
+        deleteAccountUseCase:      asClass(DeleteAccountUseCase).scoped(),
 
         ledgerController:          asClass(LedgerController).scoped(),
     });

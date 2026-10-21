@@ -6,11 +6,15 @@ import { authenticate } from "../../../infrastructure/middleware/auth.middleware
 import { requireTenant } from "../../../infrastructure/middleware/tenant-resolver.middleware";
 import { requirePermission } from "../../../infrastructure/middleware/rbac.middleware";
 import { requireFeature } from "../../../infrastructure/middleware/feature-gate.middleware";
-import { OpeningBalanceDto, TransferDto, ManualJournalDto, ReverseJournalDto } from "../dtos/ledger.dto";
+import { OpeningBalanceDto, TransferDto, ManualJournalDto, ReverseJournalDto, CreateAccountDto, UpdateAccountDto } from "../dtos/ledger.dto";
 
 /*
 | LEDGER ROUTES (school realm, mounted at /finance on the school's host).
 | Every route: authenticate, tenant, permission, then the finance entitlement (modules.fees), then validation.
+|   GET  /accounts, /accounts/:id           finance.accounts.view     (?status=active|inactive|all, ?type=, ?q=, ?withBalances=true)
+|   POST /accounts                          finance.accounts.manage
+|   PUT  /accounts/:id                      finance.accounts.manage   (system accounts: rename only)
+|   POST /accounts/:id/deactivate, /reactivate, DELETE /accounts/:id   finance.accounts.manage
 |   GET  /journals, /journals/:id          finance.journals.view
 |   POST /journals                         finance.journals.post     manual journal (needs a written reason)
 |   POST /journals/:id/reverse             finance.journals.reverse
@@ -22,6 +26,14 @@ import { OpeningBalanceDto, TransferDto, ManualJournalDto, ReverseJournalDto } f
 const router = Router();
 const ctrl = () => container.resolve<LedgerController>("ledgerController");
 const guard = (permission: string) => [authenticate, requireTenant, requirePermission(permission), requireFeature("modules.fees")] as const;
+
+router.get("/accounts", ...guard("finance.accounts.view"), (q, s, n) => ctrl().listAccounts(q, s, n));
+router.post("/accounts", ...guard("finance.accounts.manage"), validate(CreateAccountDto), (q, s, n) => ctrl().createAccount(q, s, n));
+router.get("/accounts/:id", ...guard("finance.accounts.view"), (q, s, n) => ctrl().getAccount(q, s, n));
+router.put("/accounts/:id", ...guard("finance.accounts.manage"), validate(UpdateAccountDto), (q, s, n) => ctrl().updateAccount(q, s, n));
+router.post("/accounts/:id/deactivate", ...guard("finance.accounts.manage"), (q, s, n) => ctrl().deactivateAccount(q, s, n));
+router.post("/accounts/:id/reactivate", ...guard("finance.accounts.manage"), (q, s, n) => ctrl().reactivateAccount(q, s, n));
+router.delete("/accounts/:id", ...guard("finance.accounts.manage"), (q, s, n) => ctrl().deleteAccount(q, s, n));
 
 router.get("/journals", ...guard("finance.journals.view"), (q, s, n) => ctrl().listJournals(q, s, n));
 router.post("/journals", ...guard("finance.journals.post"), validate(ManualJournalDto), (q, s, n) => ctrl().postManual(q, s, n));

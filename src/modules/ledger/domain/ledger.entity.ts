@@ -22,6 +22,11 @@ export interface LedgerAccountEntity {
     isActive:       boolean;
     isLocked:       boolean;
     sortOrder:      number;
+    description:        string | null;
+    bankName:           string | null;
+    accountName:        string | null;
+    accountNumberLast4: string | null;
+    createdAt:      Date;
     deletedAt:      Date | null;
 }
 
@@ -87,3 +92,5 @@ export interface JournalFilters {
     page?: number; limit?: number; from?: string; to?: string;
     sourceType?: string; status?: string; accountId?: string;
 }
+
+export interface AccountFilters { type?: LedgerAccountType; status?: "active" | "inactive" | "all"; q?: string }

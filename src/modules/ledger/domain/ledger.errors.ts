@@ -32,4 +32,17 @@ export const ledgerErrors = {
     accountLocked:     (account: string) => new AppError(
         `${account} is kept by the system (it follows invoices, bills or payroll) and cannot be used in a manual journal`,
         409, true, "ACCOUNT_LOCKED", { account }),
+    accountLockedFor:  (account: string, action: string) => new AppError(
+        `${account} is a system account: it can be renamed, but it cannot be ${action}`, 409, true, "ACCOUNT_LOCKED", { account, action }),
+    accountHasPostings: (account: string, lines: number) => new AppError(
+        `${account} already has postings, so it cannot be deleted. Deactivate it instead`, 409, true, "ACCOUNT_HAS_POSTINGS", { account, lines }),
+    accountHasChildren: (account: string, children: number) => new AppError(
+        `${account} still has ${children} account(s) nested under it. Move or deactivate them first`, 409, true, "ACCOUNT_HAS_CHILDREN", { account, children }),
+    accountHasBalance:  (account: string, balanceKobo: string) => new AppError(
+        `${account} still holds money. Move the balance to another account first`, 409, true, "ACCOUNT_HAS_BALANCE", { account, balanceKobo }),
+    accountCodeTaken:   (code: string) => new AppError(`Account code ${code} is already used`, 409, true, "ACCOUNT_CODE_TAKEN", { code }),
+    accountCodeInvalid: (message: string) => new AppError(message, 400, true, "INVALID_ACCOUNT_CODE"),
+    accountInvalid:     (message: string) => new AppError(message, 400, true, "INVALID_ACCOUNT"),
+    accountAlreadyActive:   (account: string) => new AppError(`${account} is already active`, 409, true, "ACCOUNT_ALREADY_ACTIVE", { account }),
+    accountAlreadyInactive: (account: string) => new AppError(`${account} is already inactive`, 409, true, "ACCOUNT_ALREADY_INACTIVE", { account }),
 };

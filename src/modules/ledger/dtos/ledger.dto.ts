@@ -69,6 +69,46 @@ export const CashBookQuery = z.object({
     to:        day,
 });
 
+/* ── chart of accounts ───────────────────────────────────────────────── */
+const accountType = z.enum(["ASSET", "LIABILITY", "EQUITY", "INCOME", "EXPENSE"]);
+const last4 = z.string().regex(/^\d{4}$/, "Enter the last 4 digits of the account number");
+
+export const CreateAccountDto = z.object({
+    name:        z.string().trim().min(2).max(100),
+    type:        accountType,
+    kind:        z.enum(["GENERAL", "CASH", "BANK", "PETTY_CASH"]).default("GENERAL"),   // cash, bank and petty cash accounts are "money accounts"
+    code:        z.string().regex(/^\d{4}$/, "Use a four digit code").optional(),          // made automatically when omitted
+    parentId:    id.optional(),
+    description: z.string().trim().max(300).optional(),
+    bankName:    z.string().trim().min(1).max(100).optional(),
+    accountName: z.string().trim().min(1).max(100).optional(),
+    accountNumberLast4: last4.optional(),
+}).strict().superRefine((d, ctx) => {
+    if (d.kind !== "GENERAL" && d.type !== "ASSET") ctx.addIssue({ code: "custom", path: ["kind"], message: "Cash, bank and petty cash accounts are assets" });
+    if ((d.bankName || d.accountName || d.accountNumberLast4) && d.kind !== "BANK") ctx.addIssue({ code: "custom", path: ["bankName"], message: "Bank details belong to bank accounts" });
+});
+
+// Code, type and kind are permanent, so they are not editable
+export const UpdateAccountDto = z.object({
+    name:        z.string().trim().min(2).max(100).optional(),
+    description: z.string().trim().max(300).nullable().optional(),
+    parentId:    id.nullable().optional(),
+    bankName:    z.string().trim().min(1).max(100).nullable().optional(),
+    accountName: z.string().trim().min(1).max(100).nullable().optional(),
+    accountNumberLast4: last4.nullable().optional(),
+    sortOrder:   z.number().int().min(0).max(100000).optional(),
+}).strict().refine(d => Object.keys(d).length > 0, { message: "Nothing to update" });
+
+export const ListAccountsQuery = z.object({
+    type:         accountType.optional(),
+    status:       z.enum(["active", "inactive", "all"]).default("active"),
+    q:            z.string().trim().min(1).max(100).optional(),
+    withBalances: z.enum(["true", "false"]).optional().transform(v => v === "true"),
+});
+
+export type CreateAccountDtoType = z.infer<typeof CreateAccountDto>;
+export type UpdateAccountDtoType = z.infer<typeof UpdateAccountDto>;
+export type ListAccountsQueryType = z.infer<typeof ListAccountsQuery>;
 export type OpeningBalanceDtoType = z.infer<typeof OpeningBalanceDto>;
 export type TransferDtoType       = z.infer<typeof TransferDto>;
 export type ManualJournalDtoType  = z.infer<typeof ManualJournalDto>;

@@ -3,15 +3,19 @@ import { ListJournalsUseCase, GetJournalUseCase, ListPeriodsUseCase } from "../u
 import { PostManualJournalUseCase, ReverseJournalUseCase } from "../usecases/journal-commands.usecases";
 import { SetOpeningBalanceUseCase, RecordTransferUseCase } from "../usecases/books-commands.usecases";
 import { AccountBalancesUseCase, CashBookUseCase } from "../usecases/ledger-report.usecases";
+import { ListAccountsUseCase, GetAccountUseCase } from "../usecases/account-queries.usecases";
+import { CreateAccountUseCase, UpdateAccountUseCase, SetAccountActiveUseCase, DeleteAccountUseCase } from "../usecases/account-commands.usecases";
 import { sendSuccess, sendCreated } from "../../../shared/utils/api-response";
 import { UnauthorizedError } from "../../../shared/errors/domain.errors";
-import { ListJournalsQuery, AccountBalancesQuery, CashBookQuery } from "../dtos/ledger.dto";
+import { ListJournalsQuery, AccountBalancesQuery, CashBookQuery, ListAccountsQuery } from "../dtos/ledger.dto";
 
 interface Dependencies {
     listJournalsUseCase: ListJournalsUseCase; getJournalUseCase: GetJournalUseCase; listPeriodsUseCase: ListPeriodsUseCase;
     postManualJournalUseCase: PostManualJournalUseCase; reverseJournalUseCase: ReverseJournalUseCase;
     setOpeningBalanceUseCase: SetOpeningBalanceUseCase; recordTransferUseCase: RecordTransferUseCase;
     accountBalancesUseCase: AccountBalancesUseCase; cashBookUseCase: CashBookUseCase;
+    listAccountsUseCase: ListAccountsUseCase; getAccountUseCase: GetAccountUseCase; createAccountUseCase: CreateAccountUseCase;
+    updateAccountUseCase: UpdateAccountUseCase; setAccountActiveUseCase: SetAccountActiveUseCase; deleteAccountUseCase: DeleteAccountUseCase;
 }
 
 /*
@@ -77,5 +81,33 @@ export class LedgerController {
             const q = CashBookQuery.parse(req.query);
             sendSuccess(res, await this.d.cashBookUseCase.execute(q.accountId, q.from, q.to), "Cash book retrieved successfully");
         } catch (e) { next(e); }
+    };
+
+    listAccounts = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.listAccountsUseCase.execute(ListAccountsQuery.parse(req.query)), "Accounts retrieved successfully"); } catch (e) { next(e); }
+    };
+
+    getAccount = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.getAccountUseCase.execute(idOf(req)), "Account retrieved successfully"); } catch (e) { next(e); }
+    };
+
+    createAccount = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendCreated(res, await this.d.createAccountUseCase.execute(schoolIdOf(req), userIdOf(req), req.body), "Account created successfully"); } catch (e) { next(e); }
+    };
+
+    updateAccount = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.updateAccountUseCase.execute(idOf(req), schoolIdOf(req), userIdOf(req), req.body), "Account updated successfully"); } catch (e) { next(e); }
+    };
+
+    deactivateAccount = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.setAccountActiveUseCase.execute(idOf(req), schoolIdOf(req), userIdOf(req), false), "Account deactivated"); } catch (e) { next(e); }
+    };
+
+    reactivateAccount = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.setAccountActiveUseCase.execute(idOf(req), schoolIdOf(req), userIdOf(req), true), "Account reactivated"); } catch (e) { next(e); }
+    };
+
+    deleteAccount = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.deleteAccountUseCase.execute(idOf(req), schoolIdOf(req), userIdOf(req)), "Account deleted"); } catch (e) { next(e); }
     };
 }
