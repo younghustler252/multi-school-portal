@@ -143,6 +143,9 @@ model Student {
   grades        Grade[]
   feeInvoices   FeeInvoice[]
   reportCards   ReportCard[]
+  discounts     StudentDiscount[]
+  allocations   PaymentAllocation[]
+  refunds       Refund[]
 }
 
 model Guardian {
@@ -230,6 +233,9 @@ model Session {
   terms          Term[]
   calendarEvents CalendarEvent[]
   journalEntries JournalEntry[]
+  feeStructures  FeeStructure[]
+  feeInvoices    FeeInvoice[]
+  studentDiscounts StudentDiscount[]
 }
 
 model Term {
@@ -251,6 +257,7 @@ model Term {
   enrolments     Enrolment[]
   reportCards    ReportCard[]
   journalEntries JournalEntry[]
+  feeStructures  FeeStructure[]
 }
 
 enum TermName {
@@ -273,6 +280,8 @@ model Class {
   classSubjects    ClassSubject[]
   progressionsFrom ClassProgression[] @relation("ProgressionFrom")
   progressionsTo   ClassProgression[] @relation("ProgressionTo")
+  feeStructures    FeeStructure[]
+  feeInvoices      FeeInvoice[]
 }
 
 model Subject {
@@ -466,75 +475,69 @@ enum ReportCardStatus {
   sent
 }
 
-// ===== FEES AND PAYMENTS =====
+// ===== FEES AND PAYMENTS (v2) =====
+// Money is BigInt kobo. Every invoice, payment, adjustment and refund posts to the books
+// (see the ledger module); these tables hold the school-facing records.
 
-model FeeType {
-  id          String   @id @default(uuid())
-  name        String
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  isActive    Boolean  @default(true)
-
-  invoiceItems FeeInvoiceItem[]
+enum FeeStudentType {
+  ALL
+  NEW
+  RETURNING
 }
 
-model FeeInvoice {
-  id           String        @id @default(uuid())
-  studentId    String
-  termId       String
-  discountKobo Int           @default(0)
-  status       InvoiceStatus @default(unpaid)
-  dueDate      DateTime?
-  note         String?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-
-  student  Student          @relation(fields: [studentId], references: [id])
-  term     Term             @relation(fields: [termId], references: [id])
-  items    FeeInvoiceItem[]
-  payments Payment[]
-
-  @@unique([studentId, termId])
+enum InvoiceType {
+  TERM_FEES
+  ADMISSION
+  ADHOC
+  OPENING_BALANCE
 }
 
-model FeeInvoiceItem {
-  id           String   @id @default(uuid())
-  feeInvoiceId String
-  feeTypeId    String
-  amountKobo   Int
-  createdAt    DateTime @default(now())
-
-  feeInvoice FeeInvoice @relation(fields: [feeInvoiceId], references: [id])
-  feeType    FeeType    @relation(fields: [feeTypeId], references: [id])
-}
-
+// draft: not yet visible to parents and not in the books. void: cancelled after issue (journal reversed).
 enum InvoiceStatus {
+  draft
   unpaid
   partial
   paid
   waived
+  void
 }
 
-model Payment {
-  id               String        @id @default(uuid())
-  feeInvoiceId     String
-  guardianId       String?
-  amountKobo       Int
-  method           PaymentMethod
-  channel          String?
-  reference        String?       @unique
-  status           PaymentStatus @default(pending)
-  webhookVerified  Boolean       @default(false)
-  providerResponse Json?
-  receiptUrl       String?
-  recordedById     String?
-  paidAt           DateTime?
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
+enum FeeDiscountType {
+  PERCENT
+  FIXED
+}
 
-  feeInvoice FeeInvoice @relation(fields: [feeInvoiceId], references: [id])
-  guardian   Guardian?  @relation(fields: [guardianId], references: [id])
+enum FeeDiscountKind {
+  SIBLING
+  STAFF_CHILD
+  SCHOLARSHIP
+  EARLY_PAYMENT
+  CUSTOM
+}
+
+enum AdjustmentType {
+  WAIVER
+  WRITE_OFF
+  CREDIT_NOTE
+  ADDITIONAL_DISCOUNT
+}
+
+enum InvoiceAdjustmentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum InstalmentPlanStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentPayerType {
+  GUARDIAN
+  STUDENT
+  OTHER
 }
 
 enum PaymentMethod {
@@ -542,13 +545,368 @@ enum PaymentMethod {
   flutterwave
   bank_transfer
   cash
+  cheque
+  pos
+  other
 }
 
-enum PaymentStatus {
-  pending
-  success
-  failed
-  refunded
+enum FeePaymentStatus {
+  PENDING
+  AWAITING_CONFIRMATION
+  CONFIRMED
+  FAILED
+  REVERSED
+}
+
+enum RefundStatus {
+  REQUESTED
+  APPROVED
+  PAID
+  REJECTED
+}
+
+// A kind of fee (tuition, uniform ...). Its income account is where money earned lands.
+model FeeType {
+  id              String    @id @default(uuid())
+  code            String    @unique
+  name            String
+  description     String?
+  incomeAccountId String
+  isRefundable    Boolean   @default(false)
+  isActive        Boolean   @default(true)
+  sortOrder       Int       @default(0)
+  createdById     String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  incomeAccount LedgerAccount    @relation(fields: [incomeAccountId], references: [id], onDelete: Restrict)
+  structureItems FeeStructureItem[]
+  invoiceItems  FeeInvoiceItem[]
+  discountRules FeeDiscountRule[]
+
+  @@index([incomeAccountId])
+  @@index([isActive])
+  @@index([deletedAt])
+}
+
+// What a class (or every class) is charged for one term.
+model FeeStructure {
+  id          String         @id @default(uuid())
+  name        String
+  sessionId   String
+  termId      String
+  classId     String?
+  branchId    String?
+  studentType FeeStudentType @default(ALL)
+  dueDate     DateTime?      @db.Date
+  description String?
+  isActive    Boolean        @default(true)
+  createdById String?
+  updatedById String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  deletedAt   DateTime?
+
+  session  Session  @relation(fields: [sessionId], references: [id], onDelete: Restrict)
+  term     Term     @relation(fields: [termId], references: [id], onDelete: Restrict)
+  class    Class?   @relation(fields: [classId], references: [id], onDelete: Restrict)
+  branch   Branch?  @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  items    FeeStructureItem[]
+  invoices FeeInvoice[]
+
+  @@index([termId, classId])
+  @@index([sessionId])
+  @@index([branchId])
+  @@index([deletedAt])
+}
+
+model FeeStructureItem {
+  id          String   @id @default(uuid())
+  structureId String
+  feeTypeId   String
+  amountKobo  BigInt
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  structure FeeStructure @relation(fields: [structureId], references: [id], onDelete: Cascade)
+  feeType   FeeType      @relation(fields: [feeTypeId], references: [id], onDelete: Restrict)
+
+  @@unique([structureId, feeTypeId])
+  @@index([feeTypeId])
+}
+
+// A bill to one student. Amounts are kept on the row and checked by the database:
+// total = subtotal - discount + adjustments, balance = total - paid.
+// invoiceNumber is given when the invoice is issued, never before.
+model FeeInvoice {
+  id                String        @id @default(uuid())
+  invoiceNumber     String?       @unique
+  type              InvoiceType   @default(TERM_FEES)
+  studentId         String
+  sessionId         String?
+  termId            String?
+  classId           String?
+  branchId          String?
+  sourceStructureId String?
+  status            InvoiceStatus @default(draft)
+  issueDate         DateTime?     @db.Date
+  dueDate           DateTime?     @db.Date
+  subtotalKobo      BigInt        @default(0)
+  discountKobo      BigInt        @default(0)
+  adjustmentsKobo   BigInt        @default(0)
+  totalKobo         BigInt        @default(0)
+  paidKobo          BigInt        @default(0)
+  balanceKobo       BigInt        @default(0)
+  journalId         String?       @unique
+  note              String?
+  version           Int           @default(1)
+  voidedAt          DateTime?
+  voidedById        String?
+  voidReason        String?
+  createdById       String?
+  updatedById       String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  student         Student            @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  session         Session?           @relation(fields: [sessionId], references: [id], onDelete: Restrict)
+  term            Term?              @relation(fields: [termId], references: [id], onDelete: Restrict)
+  class           Class?             @relation(fields: [classId], references: [id], onDelete: Restrict)
+  branch          Branch?            @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  sourceStructure FeeStructure?      @relation(fields: [sourceStructureId], references: [id], onDelete: Restrict)
+  journal         JournalEntry?      @relation(fields: [journalId], references: [id], onDelete: Restrict)
+  items           FeeInvoiceItem[]
+  adjustments     InvoiceAdjustment[]
+  allocations     PaymentAllocation[]
+  instalmentPlan  InstalmentPlan?
+
+  @@index([studentId, status])
+  @@index([termId, status])
+  @@index([status, dueDate])
+  @@index([branchId])
+  @@index([sourceStructureId])
+}
+
+// A line on an invoice. Description and income account are copied at the time, so a later
+// change to the fee type never rewrites an old invoice.
+model FeeInvoiceItem {
+  id              String   @id @default(uuid())
+  invoiceId       String
+  feeTypeId       String?
+  description     String
+  incomeAccountId String
+  amountKobo      BigInt
+  sortOrder       Int      @default(0)
+  createdAt       DateTime @default(now())
+
+  invoice       FeeInvoice    @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  feeType       FeeType?      @relation(fields: [feeTypeId], references: [id], onDelete: Restrict)
+  incomeAccount LedgerAccount @relation(fields: [incomeAccountId], references: [id], onDelete: Restrict)
+
+  @@index([invoiceId])
+  @@index([feeTypeId])
+  @@index([incomeAccountId])
+}
+
+// A reusable discount (sibling, staff child, scholarship ...). feeTypeId empty = whole invoice.
+// value is basis points for PERCENT (1000 = 10%) and kobo for FIXED.
+model FeeDiscountRule {
+  id          String          @id @default(uuid())
+  name        String
+  kind        FeeDiscountKind @default(CUSTOM)
+  type        FeeDiscountType
+  value       BigInt
+  feeTypeId   String?
+  isActive    Boolean         @default(true)
+  createdById String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  deletedAt   DateTime?
+
+  feeType  FeeType?          @relation(fields: [feeTypeId], references: [id], onDelete: Restrict)
+  students StudentDiscount[]
+
+  @@index([isActive])
+  @@index([deletedAt])
+}
+
+// Gives one student a discount rule, for a session or for good (sessionId empty).
+model StudentDiscount {
+  id          String    @id @default(uuid())
+  studentId   String
+  ruleId      String
+  sessionId   String?
+  note        String?
+  createdById String?
+  createdAt   DateTime  @default(now())
+  deletedAt   DateTime?
+
+  student Student         @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  rule    FeeDiscountRule @relation(fields: [ruleId], references: [id], onDelete: Restrict)
+  session Session?        @relation(fields: [sessionId], references: [id], onDelete: Restrict)
+
+  @@index([studentId])
+  @@index([ruleId])
+  @@index([sessionId])
+}
+
+// A change to an issued invoice (waiver, write-off, credit note, extra discount).
+// Needs a second person to approve; the books are touched only on approval.
+// amountKobo is always positive; the type says which way it moves the invoice.
+model InvoiceAdjustment {
+  id            String                  @id @default(uuid())
+  invoiceId     String
+  type          AdjustmentType
+  amountKobo    BigInt
+  reason        String
+  status        InvoiceAdjustmentStatus @default(PENDING)
+  requestedById String
+  decidedById   String?
+  decidedAt     DateTime?
+  decisionNote  String?
+  journalId     String?                 @unique
+  createdAt     DateTime                @default(now())
+  updatedAt     DateTime                @updatedAt
+
+  invoice FeeInvoice    @relation(fields: [invoiceId], references: [id], onDelete: Restrict)
+  journal JournalEntry? @relation(fields: [journalId], references: [id], onDelete: Restrict)
+
+  @@index([invoiceId])
+  @@index([status])
+}
+
+model InstalmentPlan {
+  id          String               @id @default(uuid())
+  invoiceId   String               @unique
+  status      InstalmentPlanStatus @default(ACTIVE)
+  createdById String?
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  invoice FeeInvoice        @relation(fields: [invoiceId], references: [id], onDelete: Restrict)
+  lines   InstalmentLine[]
+}
+
+model InstalmentLine {
+  id         String   @id @default(uuid())
+  planId     String
+  lineNumber Int
+  dueDate    DateTime @db.Date
+  amountKobo BigInt
+
+  plan InstalmentPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@unique([planId, lineNumber])
+  @@index([dueDate])
+}
+
+// Money received. It does not belong to one invoice: allocations say where it went,
+// and what is not allocated stays as the payer's credit (unallocatedKobo).
+model Payment {
+  id               String           @id @default(uuid())
+  payerType        PaymentPayerType @default(GUARDIAN)
+  guardianId       String?
+  payerName        String?
+  payerPhone       String?
+  branchId         String?
+  method           PaymentMethod
+  channel          String?
+  amountKobo       BigInt
+  unallocatedKobo  BigInt           @default(0)
+  accountId        String
+  status           FeePaymentStatus @default(PENDING)
+  reference        String?          @unique
+  gatewayReference String?
+  webhookVerified  Boolean          @default(false)
+  providerResponse Json?
+  proofAttachmentId String?
+  note             String?
+  paidAt           DateTime?
+  recordedById     String?
+  confirmedById    String?
+  confirmedAt      DateTime?
+  journalId        String?          @unique
+  reversedAt       DateTime?
+  reversedById     String?
+  reversalReason   String?
+  version          Int              @default(1)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  guardian        Guardian?           @relation(fields: [guardianId], references: [id], onDelete: Restrict)
+  branch          Branch?             @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  account         LedgerAccount       @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  proofAttachment Attachment?         @relation(fields: [proofAttachmentId], references: [id], onDelete: Restrict)
+  journal         JournalEntry?       @relation(fields: [journalId], references: [id], onDelete: Restrict)
+  allocations     PaymentAllocation[]
+  refunds         Refund[]
+  receipt         Receipt?
+
+  @@index([status])
+  @@index([guardianId])
+  @@index([accountId])
+  @@index([branchId])
+  @@index([createdAt])
+}
+
+// Part of a payment applied to one invoice. invoiceId empty = held as the student's credit.
+model PaymentAllocation {
+  id          String    @id @default(uuid())
+  paymentId   String
+  invoiceId   String?
+  studentId   String
+  amountKobo  BigInt
+  reversedAt  DateTime?
+  createdById String?
+  createdAt   DateTime  @default(now())
+
+  payment Payment     @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+  invoice FeeInvoice? @relation(fields: [invoiceId], references: [id], onDelete: Restrict)
+  student Student     @relation(fields: [studentId], references: [id], onDelete: Restrict)
+
+  @@index([paymentId])
+  @@index([invoiceId])
+  @@index([studentId])
+}
+
+model Refund {
+  id              String       @id @default(uuid())
+  paymentId       String
+  studentId       String?
+  amountKobo      BigInt
+  reason          String
+  status          RefundStatus @default(REQUESTED)
+  payoutAccountId String?
+  requestedById   String
+  decidedById     String?
+  decidedAt       DateTime?
+  decisionNote    String?
+  paidAt          DateTime?
+  journalId       String?      @unique
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  payment       Payment        @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+  student       Student?       @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  payoutAccount LedgerAccount? @relation("RefundPayoutAccount", fields: [payoutAccountId], references: [id], onDelete: Restrict)
+  journal       JournalEntry?  @relation(fields: [journalId], references: [id], onDelete: Restrict)
+
+  @@index([paymentId])
+  @@index([status])
+  @@index([studentId])
+}
+
+// The receipt handed to the payer. The snapshot is frozen when issued.
+model Receipt {
+  id            String   @id @default(uuid())
+  receiptNumber String   @unique
+  paymentId     String   @unique
+  issuedAt      DateTime @default(now())
+  snapshot      Json
+  createdAt     DateTime @default(now())
+
+  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Restrict)
 }
 
 // ===== SCHOOL ROLE MANAGEMENT =====
@@ -639,6 +997,9 @@ model Branch {
 
   staff          StaffBranch[]
   journalEntries JournalEntry[]
+  feeStructures  FeeStructure[]
+  feeInvoices    FeeInvoice[]
+  payments       Payment[]
 
   @@index([isActive])
   @@index([deletedAt])
@@ -772,6 +1133,8 @@ model Attachment {
   uploadedById String?
   createdAt    DateTime  @default(now())
   deletedAt    DateTime?
+
+  paymentProofs Payment[]
 
   @@index([ownerType, ownerId])
   @@index([deletedAt])
@@ -942,6 +1305,11 @@ model LedgerAccount {
   children LedgerAccount[] @relation("LedgerAccountTree")
   lines    JournalLine[]
 
+  feeTypes     FeeType[]
+  invoiceItems FeeInvoiceItem[]
+  payments     Payment[]
+  refundPayouts Refund[] @relation("RefundPayoutAccount")
+
   @@index([type])
   @@index([parentId])
   @@index([isActive])
@@ -998,6 +1366,11 @@ model JournalEntry {
   reversalOf JournalEntry? @relation("JournalReversal", fields: [reversalOfId], references: [id], onDelete: Restrict)
   reversedBy JournalEntry? @relation("JournalReversal")
   lines      JournalLine[]
+
+  feeInvoice  FeeInvoice?
+  payment     Payment?
+  adjustment  InvoiceAdjustment?
+  refund      Refund?
 
   @@index([periodId])
   @@index([entryDate])

@@ -87,13 +87,14 @@ function getDefaultSubjects(category?: string | null): Array<{ name: string; cod
 	return [...coreSubjects, ...secondaryOnly];
 }
 
+// incomeCode is the chart-of-accounts code (see ledger.templates) where money for this fee is earned.
 const defaultFeeTypes = [
-	{ name: "School Fees", description: "Termly tuition fee" },
-	{ name: "Development Levy", description: "Annual infrastructure and development contribution" },
-	{ name: "PTA Levy", description: "Parent-Teacher Association dues" },
-	{ name: "Lesson/Tutorial Fee", description: "Extra-curricular lesson or tutorial fee" },
-	{ name: "Uniform Fee", description: "School uniform cost" },
-	{ name: "Exam Fee", description: "Termly examination fee" },
+	{ code: "SCHOOL_FEES", name: "School Fees", description: "Termly tuition fee", incomeCode: "4000" },
+	{ code: "DEVELOPMENT_LEVY", name: "Development Levy", description: "Annual infrastructure and development contribution", incomeCode: "4900" },
+	{ code: "PTA_LEVY", name: "PTA Levy", description: "Parent-Teacher Association dues", incomeCode: "4900" },
+	{ code: "LESSON_FEE", name: "Lesson/Tutorial Fee", description: "Extra-curricular lesson or tutorial fee", incomeCode: "4900" },
+	{ code: "UNIFORM_FEE", name: "Uniform Fee", description: "School uniform cost", incomeCode: "4040" },
+	{ code: "EXAM_FEE", name: "Exam Fee", description: "Termly examination fee", incomeCode: "4020" },
 ];
 
 const SCHEMA_NAME_PATTERN = /^[a-z][a-z0-9_]*$/;
@@ -181,16 +182,6 @@ export const provisionSchemaWorker = new Worker<ProvisionSchemaJobData>(
 
 					console.log(`✅ Grading config seeded: ${schemaName}`);
 
-					for (const feeType of defaultFeeTypes) {
-						await client.query(
-							`INSERT INTO "FeeType" (id, name, description, "createdAt", "updatedAt")
-							 VALUES (gen_random_uuid(), $1, $2, now(), now())`,
-							[feeType.name, feeType.description],
-						);
-					}
-
-					console.log(`✅ Default fee types seeded: ${schemaName}`);
-
 					// Every school has one main branch from day one (the app hides branch pickers while there is only one)
 					await client.query(
 						`INSERT INTO "Branch" (id, name, code, "isMain", "isActive", "createdAt", "updatedAt")
@@ -202,6 +193,20 @@ export const provisionSchemaWorker = new Worker<ProvisionSchemaJobData>(
 					const ledgerTemplates = await loadLedgerAccountTemplates(prisma as any);
 					const books = await seedFinanceBooks(client, ledgerTemplates);
 					console.log(`✅ Finance books seeded (${books.accounts} accounts, ${books.periods} periods): ${schemaName}`);
+
+					// Fee types need their income accounts, so they are seeded after the chart of accounts
+					for (const [index, feeType] of defaultFeeTypes.entries()) {
+						const inserted = await client.query(
+							`INSERT INTO "FeeType" (id, code, name, description, "incomeAccountId", "sortOrder", "createdAt", "updatedAt")
+							 SELECT gen_random_uuid(), $1, $2, $3, a.id, $5, now(), now()
+							 FROM "LedgerAccount" a WHERE a.code = $4`,
+							[feeType.code, feeType.name, feeType.description, feeType.incomeCode, index],
+						);
+						if (inserted.rowCount !== 1) {
+							throw new Error(`Fee type ${feeType.code} needs income account ${feeType.incomeCode}, which is not in the chart of accounts`);
+						}
+					}
+					console.log(`✅ Default fee types seeded: ${schemaName}`);
 
 					// ── School roles: copied from the platform's role templates ──
 					// Templates are data the platform team edits; each school gets its own copy
