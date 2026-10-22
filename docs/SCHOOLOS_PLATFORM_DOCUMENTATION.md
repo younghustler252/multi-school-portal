@@ -102,8 +102,8 @@ Status terms used here:
 | School onboarding / verification | `registerSchool` and `/schools` are enabled; `docs/SCHOOL_MODULE_NOTES.md` documents lifecycle and routes | Implemented pass according to notes; check lifecycle worker/scheduler wiring before changing lifecycle behavior |
 | User/profile/session management | `registerUser` and `/users` are enabled; see `docs/USER_MODULE_NOTES.md` | Implemented pass according to notes; email-change flow is explicitly deferred |
 | Plans | `registerPlans` and `/plans` are enabled; see `docs/PLANS_MODULE_NOTES.md` | Implemented pass according to notes; plans use entitlements rather than the old fixed feature JSON |
-| Subscriptions / platform billing | Subscription container and billing routes are enabled; see `docs/BILLING_MODULE_NOTES.md` and `docs/BILLING_SCHEMA.md` | Billing engine pass exists; verify workers, webhook behavior, migrations, and tests before assuming production readiness |
-| Branches | `registerBranches` is enabled and branch route import exists; see `docs/BRANCHES_NOTES.md` | Implemented pass according to notes; respect branch scopes and staff-branch assignments |
+| Subscriptions / platform billing | Subscription container is enabled; `src/routes/index.ts` currently mounts `billing.routes` at `/subscriptions`; see `docs/BILLING_MODULE_NOTES.md` and `docs/BILLING_SCHEMA.md` | Billing engine pass exists. The notes describe `/billing` and `/platform/subscriptions`, so the current route wiring differs from that documented contract and must be reconciled deliberately; verify workers, webhooks, migrations, and tests |
+| Branches | `registerBranches` is enabled and `branchRouter` is imported, but the inspected `src/routes/index.ts` does not mount it | **Route integration incomplete.** Do not call the Branches API integrated until the intended mount is restored and verified; respect branch scopes and staff-branch assignments |
 | Staff | `registerStaff` and `/staff` are enabled; see `docs/STAFF_AND_AUDIT_NOTES.md` | Implemented pass according to notes; CSV/Excel bulk import was deferred to a shared import approach with Students |
 | Audit | `registerAudit` and `/audit` are enabled; see `docs/STAFF_AND_AUDIT_NOTES.md` | Integrated; audit changes should preserve actor, module, request ID, and impersonation semantics |
 | Ledger / finance foundation | `registerLedger` and `/finance` are enabled; `src/modules/ledger/ledger.container.ts` exposes the posting service and accounting use cases | Finance foundation exists. Fees/payments/expenses/payroll should integrate with the posting service; do not duplicate ledger posting logic |
@@ -119,7 +119,7 @@ Status terms used here:
 
 At the reviewed head, `src/container/index.ts` registers Shared, Foundation, Auth, School, User, Plans, Subscriptions, Branches, Staff, Ledger, Fees, and Audit. The imported `registerStudents` is commented out inside the active registration array.
 
-At the same head, `src/routes/index.ts` mounts Auth, Users, Schools, Plans, Subscriptions, Audit, Staff, Finance, and Fees. The Students route import and `/students` mount are commented out.
+At the same head, `src/routes/index.ts` mounts Auth, Users, Schools, Plans, Subscriptions (using `billing.routes`), Audit, Staff, Finance, and Fees. The Students route import and `/students` mount are commented out. `branchRouter` is imported but no `/branches` mount is present in the inspected file. The Billing notes describe a different route contract (`/billing` and `/platform/subscriptions`); resolve this discrepancy as part of a scoped billing integration task rather than silently changing it during the Students pass.
 
 This is a code snapshot, not a guarantee that every route or worker is correct. Confirm exact current code before changing it.
 
