@@ -287,13 +287,13 @@ describe("fee set-up policy and request validation", () => {
 });
 
 describe("fees permissions", () => {
-    it("are in the registry, staff only, and only discounts are sensitive", () => {
+    it("are in the registry, staff only, and only discounts and voiding are sensitive", () => {
         for (const p of FEES_PERMISSIONS) {
             const reg = PERMISSION_REGISTRY.find(x => x.key === p.key)!;
             assert.ok(reg, p.key);
             assert.deepEqual([...reg.personas], ["STAFF"]);
         }
-        assert.deepEqual(FEES_PERMISSIONS.filter(p => "isSensitive" in p && p.isSensitive).map(p => p.key), ["fees.discounts.manage"]);
+        assert.deepEqual(FEES_PERMISSIONS.filter(p => "isSensitive" in p && p.isSensitive).map(p => p.key), ["fees.discounts.manage", "fees.invoices.void"]);
     });
 
     it("go to the right roles", () => {

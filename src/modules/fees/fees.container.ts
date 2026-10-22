@@ -13,9 +13,17 @@ import {
     ListStudentDiscountsUseCase, GiveStudentDiscountUseCase, RemoveStudentDiscountUseCase,
 } from "./usecases/fee-discount.usecases";
 import { FeeSetupController } from "./controllers/fee-setup.controller";
+import { FeeInvoiceMapper } from "./mappers/fee-invoice.mapper";
+import { FeeInvoiceRepositoryImpl } from "./repositories/fee-invoice.repository.impl";
+import { InvoiceGenerationRepositoryImpl } from "./repositories/invoice-generation.repository.impl";
+import { ListInvoicesUseCase, GetInvoiceUseCase } from "./usecases/invoice-queries.usecases";
+import { GenerateInvoicesUseCase, CreateInvoiceUseCase, UpdateDraftInvoiceUseCase, DeleteDraftInvoiceUseCase } from "./usecases/invoice-drafts.usecases";
+import { IssueInvoiceUseCase, BulkIssueInvoicesUseCase, VoidInvoiceUseCase } from "./usecases/invoice-issue.usecases";
+import { FeeInvoiceController } from "./controllers/fee-invoice.controller";
 
 /*
-| Requires: the audit module (auditService) and the ledger module (ledgerAccountRepository, to check income accounts).
+| Requires: the audit module (auditService) and the ledger module (ledgerAccountRepository to check income accounts;
+| postingService and numberSequenceService to issue invoices).
 | Invoices, payments and the rest of fees v2 register here as they are built.
 */
 export const registerFees = (container: AwilixContainer): void => {
@@ -50,5 +58,19 @@ export const registerFees = (container: AwilixContainer): void => {
         removeStudentDiscountUseCase: asClass(RemoveStudentDiscountUseCase).scoped(),
 
         feeSetupController: asClass(FeeSetupController).scoped(),
+
+        feeInvoiceMapper:              asClass(FeeInvoiceMapper).singleton(),
+        feeInvoiceRepository:          asClass(FeeInvoiceRepositoryImpl).scoped(),
+        invoiceGenerationRepository:   asClass(InvoiceGenerationRepositoryImpl).scoped(),
+        listInvoicesUseCase:           asClass(ListInvoicesUseCase).scoped(),
+        getInvoiceUseCase:             asClass(GetInvoiceUseCase).scoped(),
+        generateInvoicesUseCase:       asClass(GenerateInvoicesUseCase).scoped(),
+        createInvoiceUseCase:          asClass(CreateInvoiceUseCase).scoped(),
+        updateDraftInvoiceUseCase:     asClass(UpdateDraftInvoiceUseCase).scoped(),
+        deleteDraftInvoiceUseCase:     asClass(DeleteDraftInvoiceUseCase).scoped(),
+        issueInvoiceUseCase:           asClass(IssueInvoiceUseCase).scoped(),
+        bulkIssueInvoicesUseCase:      asClass(BulkIssueInvoicesUseCase).scoped(),
+        voidInvoiceUseCase:            asClass(VoidInvoiceUseCase).scoped(),
+        feeInvoiceController:          asClass(FeeInvoiceController).scoped(),
     });
 };

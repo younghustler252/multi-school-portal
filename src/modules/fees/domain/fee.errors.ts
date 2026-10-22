@@ -24,4 +24,19 @@ export const feeErrors = {
         "This discount is given to students. Deactivate it instead of deleting it", 409, true, "DISCOUNT_RULE_IN_USE"),
     discountRuleInactive: () => new AppError("This discount rule is not active", 400, true, "DISCOUNT_RULE_INACTIVE"),
     discountAlreadyGiven: () => new AppError("The student already has this discount for that session", 409, true, "DISCOUNT_ALREADY_GIVEN"),
+
+    // invoices
+    invoiceNotFound:   () => new NotFoundError("Invoice"),
+    termNotFound:      () => new NotFoundError("Term"),
+    invoiceNotDraft:   (number: string | null) => new AppError(
+        "Only a draft invoice can be changed or deleted. An issued invoice changes through an adjustment, or is voided", 409, true, "INVOICE_NOT_DRAFT", { number }),
+    invoiceChanged:    () => new AppError("Someone else changed this invoice. Reload it and try again", 409, true, "INVOICE_CHANGED"),
+    invoiceEmpty:      () => new AppError("An invoice needs at least one fee above zero", 400, true, "INVOICE_HAS_NO_ITEMS"),
+    invoiceAlreadyVoid: () => new AppError("This invoice is already void", 409, true, "INVOICE_ALREADY_VOID"),
+    invoiceNotIssued:  () => new AppError("A draft was never issued. Delete it instead", 409, true, "INVOICE_NOT_ISSUED"),
+    invoiceHasPayments: () => new AppError(
+        "Money has been paid against this invoice. Reverse the payment, or use a credit note and refund", 409, true, "INVOICE_HAS_PAYMENTS"),
+    invoiceHasAdjustments: () => new AppError(
+        "This invoice has adjustments. Use a credit note instead of voiding it", 409, true, "INVOICE_HAS_ADJUSTMENTS"),
+    studentRequired:   () => new AppError("Choose a student for the invoice", 400, true, "STUDENT_REQUIRED"),
 };

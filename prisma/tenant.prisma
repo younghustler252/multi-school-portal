@@ -584,6 +584,7 @@ model FeeType {
   structureItems FeeStructureItem[]
   invoiceItems  FeeInvoiceItem[]
   discountRules FeeDiscountRule[]
+  invoiceDiscountLines FeeInvoiceDiscount[]
 
   @@index([incomeAccountId])
   @@index([isActive])
@@ -677,6 +678,7 @@ model FeeInvoice {
   sourceStructure FeeStructure?      @relation(fields: [sourceStructureId], references: [id], onDelete: Restrict)
   journal         JournalEntry?      @relation(fields: [journalId], references: [id], onDelete: Restrict)
   items           FeeInvoiceItem[]
+  discounts       FeeInvoiceDiscount[]
   adjustments     InvoiceAdjustment[]
   allocations     PaymentAllocation[]
   instalmentPlan  InstalmentPlan?
@@ -709,6 +711,25 @@ model FeeInvoiceItem {
   @@index([incomeAccountId])
 }
 
+// A discount taken off one invoice, with the rule it came from. The label is copied, so renaming a rule
+// never rewrites an old invoice. The invoice's discountKobo is the sum of these lines.
+model FeeInvoiceDiscount {
+  id         String   @id @default(uuid())
+  invoiceId  String
+  ruleId     String?
+  feeTypeId  String?
+  label      String
+  amountKobo BigInt
+  createdAt  DateTime @default(now())
+
+  invoice FeeInvoice       @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  rule    FeeDiscountRule? @relation(fields: [ruleId], references: [id], onDelete: Restrict)
+  feeType FeeType?         @relation(fields: [feeTypeId], references: [id], onDelete: Restrict)
+
+  @@index([invoiceId])
+  @@index([ruleId])
+}
+
 // A reusable discount (sibling, staff child, scholarship ...). feeTypeId empty = whole invoice.
 // value is basis points for PERCENT (1000 = 10%) and kobo for FIXED.
 model FeeDiscountRule {
@@ -726,6 +747,7 @@ model FeeDiscountRule {
 
   feeType  FeeType?          @relation(fields: [feeTypeId], references: [id], onDelete: Restrict)
   students StudentDiscount[]
+  invoiceDiscounts FeeInvoiceDiscount[]
 
   @@index([isActive])
   @@index([deletedAt])

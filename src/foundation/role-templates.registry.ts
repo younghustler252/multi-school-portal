@@ -38,7 +38,7 @@ export const ROLE_TEMPLATES: RoleTemplateDef[] = [
         permissions: [
             { key: "school.view", scope: "ALL" }, { key: "school.update", scope: "ALL" }, { key: "school.dashboard.view", scope: "ALL" },
             { key: "students.view", scope: "ALL" }, { key: "attendance.view", scope: "ALL" },
-            { key: "fees.view", scope: "ALL" }, { key: "fees.setup.view", scope: "ALL" }, { key: "staff.view", scope: "ALL" },
+            { key: "fees.view", scope: "ALL" }, { key: "fees.setup.view", scope: "ALL" }, { key: "fees.invoices.view", scope: "ALL" }, { key: "staff.view", scope: "ALL" },
             { key: "branches.view", scope: "ALL" },
             { key: "finance.accounts.view", scope: "ALL" }, { key: "finance.journals.view", scope: "ALL" }, { key: "finance.periods.view", scope: "ALL" }, { key: "finance.reports.view", scope: "ALL" },
         ],
@@ -67,6 +67,7 @@ export const ROLE_TEMPLATES: RoleTemplateDef[] = [
             { key: "school.view", scope: "ALL" }, { key: "school.dashboard.view", scope: "ALL" },
             { key: "students.view", scope: "ALL" }, { key: "fees.view", scope: "ALL" },
             { key: "fees.setup.view", scope: "ALL" }, { key: "fees.types.manage", scope: "ALL" }, { key: "fees.structures.manage", scope: "ALL" },
+            { key: "fees.invoices.view", scope: "ALL" }, { key: "fees.invoices.create", scope: "ALL" }, { key: "fees.invoices.issue", scope: "ALL" },
             { key: "finance.accounts.view", scope: "ALL" }, { key: "finance.journals.view", scope: "ALL" }, { key: "finance.periods.view", scope: "ALL" }, { key: "finance.reports.view", scope: "ALL" },
         ],
     },
