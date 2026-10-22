@@ -1,94 +1,57 @@
-import { Prisma } from "../../../generated/tenant";
-import { getTenantClient }       from "../../../infrastructure/database/prisma/prisma.client";
-import { PaymentMapper }         from "../mappers/payment.mapper";
-import { PaymentEntity }         from "../domain/payment.entity";
-import { IPaymentRepository }    from "./payment.repository";
-import {
-    PaginateParams,
-    PaginatedResult,
-}                                from "../../../infrastructure/repository/base.repository";
-import {
-    parsePagination,
-    buildPaginationMeta,
-}                                from "../../../shared/utils/pagination";
+import { BaseTenantRepository } from "../../../infrastructure/repository/base.repository";
+import { PaymentMapper, PaymentRow } from "../mappers/payment.mapper";
+import { PaymentEntity, PaymentFilters, ReceiptEntity } from "../domain/payment.entity";
+import { IPaymentRepository, NewAllocation } from "./payment.repository";
 
-export class PaymentRepositoryImpl implements IPaymentRepository {
-    private readonly mapper: PaymentMapper;
+const WITH_RECEIPT = { receipt: { select: { receiptNumber: true } } };
+const WITH_DETAIL = {
+    ...WITH_RECEIPT,
+    allocations: { orderBy: { createdAt: "asc" }, include: { invoice: { select: { invoiceNumber: true } }, student: { select: { firstName: true, lastName: true } } } },
+};
+const WAITING = ["PENDING", "AWAITING_CONFIRMATION"];
 
-    private get db() { return getTenantClient(); }
+export class PaymentRepositoryImpl extends BaseTenantRepository<PaymentEntity, PaymentRow> implements IPaymentRepository {
+    protected readonly modelName = "payment";
 
-    constructor({ paymentMapper }: { paymentMapper: PaymentMapper }) {
-        this.mapper = paymentMapper;
-    }
+    constructor({ paymentMapper }: { paymentMapper: PaymentMapper }) { super(paymentMapper); this.mapperRef = paymentMapper; }
+    private readonly mapperRef: PaymentMapper;
 
-    async findById(id: string): Promise<PaymentEntity | null> {
-        const raw = await this.db.payment.findUnique({ where: { id } });
-        return raw ? this.mapper.toDomain(raw) : null;
-    }
+    findById(id: string) { return super.findById(id, WITH_DETAIL); }
+    findByClientRequestId(clientRequestId: string) { return this.findOne({ clientRequestId }, WITH_DETAIL); }
 
-    async findOne(where: Record<string, any>): Promise<PaymentEntity | null> {
-        const raw = await this.db.payment.findFirst({ where });
-        return raw ? this.mapper.toDomain(raw) : null;
-    }
-
-    async findMany(
-        where: Record<string, any> = {},
-    ): Promise<PaymentEntity[]> {
-        const raws = await this.db.payment.findMany({
-            where,
-            orderBy: { createdAt: "desc" },
-        });
-        return raws.map(r => this.mapper.toDomain(r));
-    }
-
-    async paginate(
-        params: PaginateParams,
-    ): Promise<PaginatedResult<PaymentEntity>> {
-        const { page, limit, skip } = parsePagination({
-            page:  params.page,
-            limit: params.limit,
-        });
-
-        const where   = params.where   ?? {};
-        const orderBy = params.orderBy ?? { createdAt: "desc" };
-
-        const [raws, total] = await Promise.all([
-            this.db.payment.findMany({ where, skip, take: limit, orderBy }),
-            this.db.payment.count({ where }),
-        ]);
-
-        return {
-            data: raws.map(r => this.mapper.toDomain(r)),
-            meta: buildPaginationMeta(total, page, limit),
+    list(f: PaymentFilters, page?: number, limit?: number) {
+        const where: Record<string, unknown> = {
+            ...(f.status && { status: f.status }), ...(f.method && { method: f.method }), ...(f.guardianId && { guardianId: f.guardianId }), ...(f.branchId && { branchId: f.branchId }),
+            ...(f.studentId && { allocations: { some: { studentId: f.studentId } } }),
+            ...((f.from || f.to) && { paidAt: { ...(f.from && { gte: f.from }), ...(f.to && { lte: f.to }) } }),
         };
+        return this.paginate({ page, limit, where, include: WITH_RECEIPT, orderBy: { createdAt: "desc" } });
     }
 
-    async create(data: Prisma.PaymentUncheckedCreateInput): Promise<PaymentEntity> {
-        const raw = await this.db.payment.create({ data });
-        return this.mapper.toDomain(raw);
+    createPayment(data: Record<string, any>) { return super.create(data, WITH_DETAIL); }
+
+    // The version and the waiting status in the filter stop two people confirming the same payment at once
+    async markConfirmed(id: string, version: number, data: Record<string, any>) {
+        const r = await this.model().updateMany({ where: { id, version, status: { in: WAITING } }, data: { ...data, status: "CONFIRMED", version: { increment: 1 } } });
+        return r.count === 1;
     }
 
-    async update(
-        id:   string,
-        data: Record<string, any>,
-    ): Promise<PaymentEntity> {
-        const raw = await this.db.payment.update({ where: { id }, data });
-        return this.mapper.toDomain(raw);
+    async markRejected(id: string, version: number, data: Record<string, any>) {
+        const r = await this.model().updateMany({ where: { id, version, status: "AWAITING_CONFIRMATION" }, data: { ...data, status: "FAILED", version: { increment: 1 } } });
+        return r.count === 1;
     }
 
-    async findByReference(reference: string): Promise<PaymentEntity | null> {
-        return this.findOne({ reference });
+    async addAllocations(rows: NewAllocation[]) {
+        if (rows.length === 0) return;
+        await this.prisma.paymentAllocation.createMany({ data: rows });
     }
 
-    async findByInvoice(invoiceId: string): Promise<PaymentEntity[]> {
-        return this.findMany({ feeInvoiceId: invoiceId });
+    async createReceipt(data: { receiptNumber: string; paymentId: string; issuedAt: Date; snapshot: unknown }) {
+        await this.prisma.receipt.create({ data: data as any });
     }
 
-    async sumPaidByInvoice(invoiceId: string): Promise<number> {
-        const payments = await this.db.payment.findMany({
-            where: { feeInvoiceId: invoiceId, status: "success" },
-            select: { amountKobo: true },
-        });
-        return payments.reduce((sum, p) => sum + p.amountKobo, 0);
+    async findReceipt(paymentId: string): Promise<ReceiptEntity | null> {
+        const raw = await this.prisma.receipt.findUnique({ where: { paymentId } });
+        return raw ? this.mapperRef.receiptToDomain(raw as any) : null;
     }
 }

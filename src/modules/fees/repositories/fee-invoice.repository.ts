@@ -11,5 +11,8 @@ export interface IFeeInvoiceRepository {
     markIssued(id: string, version: number, data: Record<string, any>): Promise<boolean>;                 // false when it changed meanwhile
     markVoid(id: string, version: number, data: Record<string, any>): Promise<boolean>;
     deleteDraft(id: string): Promise<boolean>;
+    findOpenForStudents(studentIds: string[]): Promise<FeeInvoiceEntity[]>;                                // issued, balance above zero, for these students (no items)
+    findManyByIds(ids: string[]): Promise<FeeInvoiceEntity[]>;                                             // no items
+    applyPayment(id: string, version: number, amountKobo: bigint, status: "partial" | "paid"): Promise<boolean>;   // false when it changed meanwhile
     countPayments(id: string): Promise<number>;                                                           // live allocations against it
 }

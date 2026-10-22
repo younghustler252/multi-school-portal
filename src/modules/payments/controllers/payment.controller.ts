@@ -1,239 +1,48 @@
 import { Request, Response, NextFunction } from "express";
-
-import { InitializePaymentUseCase }  from "../usecases/initialize-payment.usecase";
-import { VerifyPaymentUseCase }      from "../usecases/verify-payment.usecase";
-import { HandleWebhookUseCase }      from "../usecases/handle-webhook.usecase";
-import { GetPaymentsUseCase }        from "../usecases/get-payments.usecase";
-import { GetMyPaymentsUseCase }      from "../usecases/get-my-payments.usecase";
-import { ListBanksUseCase }          from "../usecases/list-banks.usecaase";
-import { VerifyBankAccountUseCase }  from "../usecases/verify-bank-account.usecase";
-
-import {
-    sendSuccess,
-    sendPaginated,
-} from "../../../shared/utils/api-response";
-
+import { RecordPaymentUseCase, ConfirmPaymentUseCase, RejectPaymentUseCase, PreviewAllocationUseCase } from "../usecases/payment-record.usecases";
+import { ListPaymentsUseCase, GetPaymentUseCase, GetReceiptUseCase } from "../usecases/payment-queries.usecases";
+import { sendSuccess, sendCreated } from "../../../shared/utils/api-response";
+import { UnauthorizedError } from "../../../shared/errors/domain.errors";
+import { ListPaymentsQuery } from "../dtos/payment.dto";
 
 interface Dependencies {
-    initializePaymentUseCase: InitializePaymentUseCase;
-    verifyPaymentUseCase:     VerifyPaymentUseCase;
-    handleWebhookUseCase:     HandleWebhookUseCase;
-    getMyPaymentsUseCase:     GetMyPaymentsUseCase;
-    getPaymentsUseCase:       GetPaymentsUseCase;
-
-    // ── Bank verification ────────────────────────────────────────────────
-    listBanksUseCase:         ListBanksUseCase;
-    verifyBankAccountUseCase: VerifyBankAccountUseCase;
+    recordPaymentUseCase: RecordPaymentUseCase; confirmPaymentUseCase: ConfirmPaymentUseCase; rejectPaymentUseCase: RejectPaymentUseCase;
+    previewAllocationUseCase: PreviewAllocationUseCase; listPaymentsUseCase: ListPaymentsUseCase; getPaymentUseCase: GetPaymentUseCase; getReceiptUseCase: GetReceiptUseCase;
 }
 
+/* PAYMENT CONTROLLER (school realm, /payments). Bodies are already validated and converted by the route; queries are parsed here. */
+const schoolIdOf = (req: Request): string => req.schoolId as string;
+const userIdOf   = (req: Request): string => { if (!req.auth) throw new UnauthorizedError("No token provided", "TOKEN_MISSING"); return req.auth.userId; };
+const idOf       = (req: Request): string => String(req.params.id);
 
 export class PaymentController {
-    private readonly initializePaymentUseCase: InitializePaymentUseCase;
-    private readonly verifyPaymentUseCase:     VerifyPaymentUseCase;
-    private readonly handleWebhookUseCase:     HandleWebhookUseCase;
-    private readonly getPaymentsUseCase:       GetPaymentsUseCase;
-    private readonly getMyPaymentsUseCase:     GetMyPaymentsUseCase;
+    constructor(private readonly d: Dependencies) {}
 
-    // ── Bank verification ────────────────────────────────────────────────
-    private readonly listBanksUseCase:         ListBanksUseCase;
-    private readonly verifyBankAccountUseCase: VerifyBankAccountUseCase;
-
-
-    constructor({
-        initializePaymentUseCase,
-        verifyPaymentUseCase,
-        handleWebhookUseCase,
-        getPaymentsUseCase,
-        getMyPaymentsUseCase,
-        listBanksUseCase,
-        verifyBankAccountUseCase,
-    }: Dependencies) {
-
-        this.initializePaymentUseCase = initializePaymentUseCase;
-        this.verifyPaymentUseCase     = verifyPaymentUseCase;
-        this.handleWebhookUseCase     = handleWebhookUseCase;
-        this.getPaymentsUseCase       = getPaymentsUseCase;
-        this.getMyPaymentsUseCase     = getMyPaymentsUseCase;
-
-        // ── Bank verification ────────────────────────────────────────────
-        this.listBanksUseCase         = listBanksUseCase;
-        this.verifyBankAccountUseCase = verifyBankAccountUseCase;
-    }
-
-
-    // ── Get payments ──────────────────────────────────────────────────────
-    getPayments = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
+    list = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const result = await this.getPaymentsUseCase.execute(
-                req.query as any,
-            );
-
-            sendPaginated(
-                res,
-                result.data,
-                result.meta,
-            );
-        } catch (err) {
-            next(err);
-        }
+            const r = await this.d.listPaymentsUseCase.execute(ListPaymentsQuery.parse(req.query));
+            res.status(200).json({ success: true, message: "Payments retrieved successfully", data: r.data, meta: r.meta });
+        } catch (e) { next(e); }
     };
-
-
-    // ── Get my payments ───────────────────────────────────────────────────
-    getMyPayments = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.getMyPaymentsUseCase.execute(
-                req.user!.id,
-                {
-                    page: req.query.page
-                        ? Number(req.query.page)
-                        : undefined,
-
-                    limit: req.query.limit
-                        ? Number(req.query.limit)
-                        : undefined,
-                },
-            );
-
-            sendPaginated(
-                res,
-                result.data,
-                result.meta,
-            );
-        } catch (err) {
-            next(err);
-        }
+    get = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.getPaymentUseCase.execute(idOf(req)), "Payment retrieved successfully"); } catch (e) { next(e); }
     };
-
-
-    // ── Initialize payment ────────────────────────────────────────────────
-    initializePayment = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.initializePaymentUseCase.execute(
-                req.body,
-                req.user!.id,
-                req.user!.schoolId!,
-            );
-
-            sendSuccess(
-                res,
-                result,
-                "Payment initialized successfully",
-            );
-        } catch (err) {
-            next(err);
-        }
+    receipt = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.getReceiptUseCase.execute(idOf(req)), "Receipt retrieved successfully"); } catch (e) { next(e); }
     };
-
-
-    // ── Verify payment (callback) ─────────────────────────────────────────
-    verifyPayment = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
+    record = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const result = await this.verifyPaymentUseCase.execute({
-                reference: req.params.reference as string,
-            });
-
-            sendSuccess(
-                res,
-                result,
-                "Payment verified successfully",
-            );
-        } catch (err) {
-            next(err);
-        }
+            const r = await this.d.recordPaymentUseCase.execute(schoolIdOf(req), userIdOf(req), req.body);
+            r.duplicate ? sendSuccess(res, r.payment, "Payment was already recorded") : sendCreated(res, r.payment, "Payment recorded successfully");
+        } catch (e) { next(e); }
     };
-
-
-    // ── List Nigerian banks ───────────────────────────────────────────────
-    listBanks = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.listBanksUseCase.execute();
-
-            sendSuccess(
-                res,
-                result,
-                "Banks retrieved successfully",
-            );
-        } catch (err) {
-            next(err);
-        }
+    preview = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.previewAllocationUseCase.execute(req.body), "Allocation previewed successfully"); } catch (e) { next(e); }
     };
-
-
-    // ── Verify bank account ───────────────────────────────────────────────
-    verifyBankAccount = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.verifyBankAccountUseCase.execute({
-                accountNumber: req.body.accountNumber,
-                bankCode:      req.body.bankCode,
-            });
-
-            sendSuccess(
-                res,
-                result,
-                "Bank account verified successfully",
-            );
-        } catch (err) {
-            next(err);
-        }
+    confirm = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.confirmPaymentUseCase.execute(idOf(req), schoolIdOf(req), userIdOf(req), req.body), "Payment confirmed successfully"); } catch (e) { next(e); }
     };
-
-
-    // ── Paystack webhook ──────────────────────────────────────────────────
-    handleWebhook = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const signature =
-                req.headers["x-paystack-signature"] as string;
-
-            const payload = JSON.stringify(req.body);
-
-            const result =
-                await this.handleWebhookUseCase.execute(
-                    payload,
-                    signature,
-                );
-
-            // Always return 200 to Paystack immediately
-            res.status(200).json({
-                received: true,
-                ...result,
-            });
-
-        } catch (err) {
-
-            // Still return 200 so Paystack doesn't retry
-            res.status(200).json({
-                received: true,
-                error: "Processing failed",
-            });
-        }
+    reject = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.rejectPaymentUseCase.execute(idOf(req), schoolIdOf(req), userIdOf(req), req.body), "Payment rejected successfully"); } catch (e) { next(e); }
     };
 }

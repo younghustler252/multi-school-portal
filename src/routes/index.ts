@@ -18,7 +18,7 @@ import staffRouter from "../modules/staff/routes/staff.routes";
 import feesRouter from "../modules/fees/routes/fee-setup.routes";
 import feeInvoiceRouter from "../modules/fees/routes/fee-invoice.routes";
 // import sessionRouter from "../modules/sessions/routes/session.routes"
-// import paymentRouter from "../modules/payments/routes/payment.routes";
+import paymentRouter from "../modules/payments/routes/payment.routes";
 // import superAdminRouter from "../modules/super-admin/routes/super-admin.routes";
 import auditRouter from "../modules/audit/routes/audit.routes"
 import ledgerRouter from "../modules/ledger/routes/ledger.routes";
@@ -48,7 +48,7 @@ router.use("/finance", ledgerRouter);
 // router.use("/report-cards", reportCardRouter)
 router.use("/fees/invoices", feeInvoiceRouter);
 router.use("/fees", feesRouter);
-// router.use("/payments", paymentRouter)
+router.use("/payments", paymentRouter)
 // router.use("/super-admin", superAdminRouter)
 // router.use("/notifications", notificationRouter);
 // router.use("/school-settings", schoolSettingRouter)

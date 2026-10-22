@@ -79,5 +79,21 @@ export class FeeInvoiceRepositoryImpl extends BaseTenantRepository<FeeInvoiceEnt
         return r.count === 1;
     }
 
+    async findOpenForStudents(studentIds: string[]): Promise<FeeInvoiceEntity[]> {
+        if (studentIds.length === 0) return [];
+        return this.findMany({ studentId: { in: studentIds }, status: { in: ["unpaid", "partial"] }, balanceKobo: { gt: 0n } }, WITH_STUDENT);
+    }
+
+    findManyByIds(ids: string[]): Promise<FeeInvoiceEntity[]> { return this.findMany({ id: { in: ids } }, WITH_STUDENT); }
+
+    // Moves money from "balance" to "paid" in one statement; the version in the filter stops two payments racing on one invoice
+    async applyPayment(id: string, version: number, amountKobo: bigint, status: "partial" | "paid") {
+        const r = await this.model().updateMany({
+            where: { id, version, status: { in: ["unpaid", "partial"] }, balanceKobo: { gte: amountKobo } },
+            data: { paidKobo: { increment: amountKobo }, balanceKobo: { decrement: amountKobo }, status, version: { increment: 1 } },
+        });
+        return r.count === 1;
+    }
+
     countPayments(id: string): Promise<number> { return this.prisma.paymentAllocation.count({ where: { invoiceId: id, reversedAt: null } }); }
 }

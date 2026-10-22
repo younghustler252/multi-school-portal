@@ -843,6 +843,8 @@ model Payment {
   webhookVerified  Boolean          @default(false)
   providerResponse Json?
   proofAttachmentId String?
+  targetStudentIds String[]         @default([])
+  clientRequestId  String?          @unique
   note             String?
   paidAt           DateTime?
   recordedById     String?
