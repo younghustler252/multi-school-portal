@@ -57,7 +57,7 @@ const modules: Array<(c: AwilixContainer) => void> = [
     registerBranches,
     registerStaff,
     registerLedger,
-    // registerStudents,
+    registerStudents,
     // registerGuardians,
     // registerClasses,
     // registerSessions,

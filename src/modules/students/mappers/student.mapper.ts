@@ -1,6 +1,5 @@
 import { IMapper }        from "../../../infrastructure/repository/base.repository";
 import { StudentEntity }  from "../domain/student.entity";
-import { GuardianResponseData } from "../../guardians/mappers/guardian.mapper";
 /*
 |--------------------------------------------------------------------------
 | STUDENT MAPPER
@@ -9,14 +8,6 @@ import { GuardianResponseData } from "../../guardians/mappers/guardian.mapper";
 
 
 
-export interface StudentGuardianLinkResponseData extends GuardianResponseData {
-    relation:  string;
-    isPrimary: boolean;
-}
-
-export interface StudentWithGuardiansResponseData extends StudentResponseData {
-    guardians: StudentGuardianLinkResponseData[];
-}
 export interface StudentResponseData {
     id:              string;
     userId:          string | null;

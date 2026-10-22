@@ -5,6 +5,7 @@ import { PLANS_PERMISSIONS }  from "../modules/plans/plans.permissions";
 import { SUBSCRIPTION_PERMISSIONS } from "../modules/subscriptions/subscriptions.permissions";
 import { BRANCH_PERMISSIONS } from "../modules/branches/branches.permissions";
 import { STAFF_PERMISSIONS } from "../modules/staff/staff.permissions";
+import { STUDENT_PERMISSIONS } from "../modules/students/students.permissions";
 import { AUDIT_PERMISSIONS } from "../modules/audit/audit.permissions";
 import { LEDGER_PERMISSIONS } from "../modules/ledger/ledger.permissions";
 import { FEES_PERMISSIONS } from "../modules/fees/fees.permissions";
@@ -42,9 +43,8 @@ export interface PermissionDef {
 }
 
 // Keys that other modules already check (dashboard sections). The records modules
-// (students, attendance, fees) take ownership of them in their own passes and add their other keys.
+// (attendance, fees) take ownership of them in their own passes and add their other keys.
 const CORE_PERMISSIONS: PermissionDef[] = [
-    { key: "students.view",   realm: "SCHOOL", module: "students",   scopes: ["ALL", "BRANCH", "ASSIGNED", "OWN"], personas: ["STAFF", "STUDENT", "GUARDIAN"], label: "View students" },
     { key: "attendance.view", realm: "SCHOOL", module: "attendance", scopes: ["ALL", "BRANCH", "ASSIGNED", "OWN"], personas: ["STAFF", "STUDENT", "GUARDIAN"], label: "View attendance" },
     { key: "fees.view",       realm: "SCHOOL", module: "fees",       scopes: ["ALL", "BRANCH", "OWN"],  personas: ["STAFF", "STUDENT", "GUARDIAN"], label: "View fees and invoices" },
 ];
@@ -57,6 +57,7 @@ const ALL: readonly PermissionDef[] = [
     ...SUBSCRIPTION_PERMISSIONS,
     ...BRANCH_PERMISSIONS,
     ...STAFF_PERMISSIONS,
+    ...STUDENT_PERMISSIONS,
     ...AUDIT_PERMISSIONS,
     ...LEDGER_PERMISSIONS,
     ...FEES_PERMISSIONS,

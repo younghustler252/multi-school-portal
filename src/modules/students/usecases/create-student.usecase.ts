@@ -1,172 +1,86 @@
+import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
+import { assertWithinPlanLimit } from "../../../infrastructure/middleware/feature-gate.middleware";
+import { AuditService } from "../../audit/services/audit.service";
+import { NumberSequenceService } from "../../../shared/services/number-sequence.service";
 import { IStudentRepository } from "../repositories/student.repository";
-import { StudentMapper } from "../mappers/student.mapper";
-import { StudentResponseData } from "../mappers/student.mapper";
-import { IUserRepository } from "../../auth/repositories/user.repository";
-import { PasswordService } from "../../../shared/services/password.service";
-import { MailService } from "../../../infrastructure/mail/mail.service";
-import { ISchoolSettingsRepository } from "../../school-settings/repositories/school-settings.repository";
-import { ConflictError } from "../../../shared/errors/domain.errors";
-import { StudentErrorMessage } from "../domain/student.enums";
+import { StudentMapper, StudentResponseData } from "../mappers/student.mapper";
+import { studentErrors } from "../domain/student.errors";
+import { ADMISSION_NUMBER_SEQUENCE, MAX_ADMISSION_TRIES, admissionYear, formatAdmissionNumber } from "../domain/student.policy";
+import { StudentActor } from "../domain/student.types";
 import { CreateStudentDtoType } from "../dtos/student.dto";
-import { Role } from "../../../generated/public";
+
+interface Dependencies {
+    studentRepository: IStudentRepository; studentMapper: StudentMapper;
+    numberSequenceService: NumberSequenceService; auditService: AuditService;
+}
+
+type Tx = Parameters<NumberSequenceService["next"]>[2] & { student: ReturnType<typeof getTenantClient>["student"] };
+
+/**
+ * Next free admission number for the year. Runs INSIDE the creating transaction, so the counter only moves
+ * if the student is saved. A number someone typed by hand earlier is skipped.
+ */
+export async function nextAdmissionNumber(seq: NumberSequenceService, tx: Tx, admittedAt: Date): Promise<string> {
+    const year = admissionYear(admittedAt);
+    for (let i = 0; i < MAX_ADMISSION_TRIES; i++) {
+        const candidate = formatAdmissionNumber(year, await seq.next(ADMISSION_NUMBER_SEQUENCE, year, tx));
+        if (!(await tx.student.findUnique({ where: { admissionNumber: candidate }, select: { id: true } }))) return candidate;
+    }
+    throw studentErrors.admissionNumberFailed();
+}
 
 /*
 |--------------------------------------------------------------------------
-| CREATE STUDENT USE CASE
-|
-| Flow:
-| 1. Check admission number is not already taken
-| 2. Check student login requirements when enabled
-| 3. Create User account when student login is enabled
-| 4. Create Student record linked to User
-| 5. Send welcome email when login account is created
+| CREATE STUDENT
+| Creates the school's record of a student. NO login is created here: a portal login comes later through an
+| invitation (the old version emailed a temporary password and made a login for everyone).
+|  - the plan's student limit is checked first
+|  - same admission number is refused; same name + date of birth asks for confirmation
+|  - the admission number is made automatically (2026/0001) inside the same transaction as the record,
+|    unless one was typed
 |--------------------------------------------------------------------------
 */
-
-interface Dependencies {
-    studentRepository: IStudentRepository;
-    studentMapper: StudentMapper;
-    userRepository: IUserRepository;
-    passwordService: PasswordService;
-    mailService: MailService;
-    schoolSettingsRepository: ISchoolSettingsRepository;
-}
-
 export class CreateStudentUseCase {
-    private readonly studentRepository: IStudentRepository;
-    private readonly studentMapper: StudentMapper;
-    private readonly userRepository: IUserRepository;
-    private readonly passwordService: PasswordService;
-    private readonly mailService: MailService;
-    private readonly schoolSettingsRepository: ISchoolSettingsRepository;
+    constructor(private readonly d: Dependencies) {}
 
-    constructor({
-        studentRepository,
-        studentMapper,
-        userRepository,
-        passwordService,
-        mailService,
-        schoolSettingsRepository,
-    }: Dependencies) {
-        this.studentRepository = studentRepository;
-        this.studentMapper = studentMapper;
-        this.userRepository = userRepository;
-        this.passwordService = passwordService;
-        this.mailService = mailService;
-        this.schoolSettingsRepository = schoolSettingsRepository;
-    }
+    async execute(schoolId: string, dto: CreateStudentDtoType, actor: StudentActor): Promise<StudentResponseData> {
+        const d = this.d;
+        await assertWithinPlanLimit(schoolId, "student", 1);
 
-    async execute(
-        dto: CreateStudentDtoType,
-        schoolId: string,
-    ): Promise<StudentResponseData> {
+        if (dto.admissionNumber && await d.studentRepository.findByAdmissionNumber(dto.admissionNumber)) throw studentErrors.admissionNumberTaken();
 
-        // ── 1. Check admission number is not taken ────────────────────────
-        if (dto.admissionNumber) {
-            const existing =
-                await this.studentRepository.findByAdmissionNumber(
-                    dto.admissionNumber,
-                );
-
-            if (existing) {
-                throw new ConflictError(
-                    StudentErrorMessage.ADMISSION_NUMBER_TAKEN,
-                );
-            }
-        }
-
-        // ── 2. Get school settings ────────────────────────────────────────
-        const settings = await this.schoolSettingsRepository.find();
-        const allowStudentLogin = settings?.allowStudentLogin ?? false;
-
-
-        // ── 3. Student login requirements ─────────────────────────────────
-        if (allowStudentLogin && !dto.email) {
-            throw new ConflictError(
-                "Student email is required when student login is enabled.",
-            );
-        }
-
-        let userId: string | null = null;
-
-        // ── 4. Create student login account ────────────────────────────────
-        if (allowStudentLogin && dto.email) {
-
-            // Prevent email from being attached to another user account
-            const existingUser =
-                await this.userRepository.findByEmail(dto.email);
-
-            if (existingUser) {
-                throw new ConflictError(
-                    "A user with this email already exists.",
-                );
-            }
-
-            // Generate temporary login credentials
-            const tempPassword =
-                this.passwordService.generateTemp();
-
-            const passwordHash =
-                await this.passwordService.hash(tempPassword);
-
-            // Create public User account
-            const user = await this.userRepository.create({
-                schoolId,
-                email: dto.email,
-                passwordHash,
-                role: Role.student,
-                firstName: dto.firstName,
-                lastName: dto.lastName,
-                isActive: true,
-                isEmailVerified: true,
-                mustChangePassword: true,
+        if (!dto.confirmNotDuplicate && dto.dateOfBirth) {
+            const dup = await d.studentRepository.findOne({
+                firstName: { equals: dto.firstName, mode: "insensitive" }, lastName: { equals: dto.lastName, mode: "insensitive" },
+                dateOfBirth: new Date(dto.dateOfBirth),
             });
-
-            userId = user.id;
-
-            // Send login credentials
-            await this.mailService.sendLetter(dto.email, {
-                subject: "Welcome to the student portal — Your login details",
-                title: "Your Student Account is Ready",
-                greeting: `Hi ${dto.firstName},`,
-                paragraphs: [
-                    `A student account has been created for you on SchoolPortal.`,
-                    `Your login credentials are:`,
-                    `Email: <strong>${dto.email}</strong>`,
-                    `Temporary Password: <strong>${tempPassword}</strong>`,
-                    `Please change your password after your first login.`,
-                ],
-                footer:
-                    "If you did not expect this email, please contact the school.",
-            });
+            if (dup) throw studentErrors.possibleDuplicate(dup.id);
         }
 
-        // ── 5. Create student record ──────────────────────────────────────
-        const student = await this.studentRepository.create({
-            userId,
+        const admittedAt = dto.admittedAt ? new Date(dto.admittedAt) : new Date();
+        const db = getTenantClient();
+        let created;
+        try {
+            created = await db.$transaction(async tx => {
+                const admissionNumber = dto.admissionNumber ?? await nextAdmissionNumber(d.numberSequenceService, tx as unknown as Tx, admittedAt);
+                return tx.student.create({
+                    data: {
+                        admissionNumber, firstName: dto.firstName, lastName: dto.lastName, middleName: dto.middleName,
+                        dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : undefined,
+                        gender: dto.gender, bloodGroup: dto.bloodGroup, address: dto.address, religion: dto.religion,
+                        nationality: dto.nationality, stateOfOrigin: dto.stateOfOrigin, admittedAt, isActive: true,
+                    },
+                });
+            });
+        } catch (err: any) {
+            if (err?.code === "P2002" && dto.admissionNumber) throw studentErrors.admissionNumberTaken();   // two people typed the same number at once
+            throw err;
+        }
 
-            firstName: dto.firstName,
-            lastName: dto.lastName,
-            middleName: dto.middleName,
-
-            admissionNumber: dto.admissionNumber,
-
-            dateOfBirth: dto.dateOfBirth
-                ? new Date(dto.dateOfBirth)
-                : null,
-
-            gender: dto.gender,
-            bloodGroup: dto.bloodGroup,
-            address: dto.address,
-            religion: dto.religion,
-            nationality: dto.nationality ?? "Nigerian",
-            stateOfOrigin: dto.stateOfOrigin,
-
-            admittedAt: dto.admittedAt
-                ? new Date(dto.admittedAt)
-                : new Date(),
+        await d.auditService.log({
+            userId: actor.userId, schoolId, action: "student.created", entity: "Student", entityId: created.id,
+            newValue: { name: `${dto.firstName} ${dto.lastName}`, admissionNumber: created.admissionNumber },
         });
-
-        return this.studentMapper.toResponse(student);
+        return d.studentMapper.toResponse(d.studentMapper.toDomain(created));
     }
 }

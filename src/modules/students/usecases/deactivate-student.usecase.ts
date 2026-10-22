@@ -1,40 +1,30 @@
-import { IStudentRepository }  from "../repositories/student.repository";
-import { StudentMapper }       from "../mappers/student.mapper";
-import { StudentResponseData } from "../mappers/student.mapper";
-import { NotFoundError }       from "../../../shared/errors/domain.errors";
-import { StudentErrorMessage } from "../domain/student.enums";
+import { AuditService } from "../../audit/services/audit.service";
+import { IStudentRepository } from "../repositories/student.repository";
+import { StudentMapper, StudentResponseData } from "../mappers/student.mapper";
+import { studentErrors } from "../domain/student.errors";
+import { StudentActor } from "../domain/student.types";
+import { DeactivateStudentDtoType } from "../dtos/student.dto";
+
+interface Dependencies { studentRepository: IStudentRepository; studentMapper: StudentMapper; auditService: AuditService; }
 
 /*
-|--------------------------------------------------------------------------
-| DEACTIVATE STUDENT USE CASE
-|--------------------------------------------------------------------------
+| DEACTIVATE. A student is never erased: enrolments, grades, attendance and invoices stay linked.
+| (An inactive student does not count toward the plan's student limit.)
 */
-
-interface Dependencies {
-    studentRepository: IStudentRepository;
-    studentMapper:     StudentMapper;
-}
-
 export class DeactivateStudentUseCase {
-    private readonly studentRepository: IStudentRepository;
-    private readonly studentMapper:     StudentMapper;
+    constructor(private readonly d: Dependencies) {}
 
-    constructor({ studentRepository, studentMapper }: Dependencies) {
-        this.studentRepository = studentRepository;
-        this.studentMapper     = studentMapper;
-    }
+    async execute(schoolId: string, id: string, dto: DeactivateStudentDtoType, actor: StudentActor): Promise<StudentResponseData> {
+        const d = this.d;
+        const student = await d.studentRepository.findById(id);
+        if (!student) throw studentErrors.notFound();
+        if (!student.isActive) throw studentErrors.alreadyInactive();
 
-    async execute(id: string): Promise<StudentResponseData> {
-        const student = await this.studentRepository.findById(id);
-
-        if (!student) {
-            throw new NotFoundError(StudentErrorMessage.NOT_FOUND);
-        }
-
-        const updated = await this.studentRepository.update(id, {
-            isActive: false,
+        const updated = await d.studentRepository.update(id, { isActive: false });
+        await d.auditService.log({
+            userId: actor.userId, schoolId, action: "student.deactivated", entity: "Student", entityId: id,
+            newValue: { name: `${student.firstName} ${student.lastName}`, reason: dto?.reason ?? null },
         });
-
-        return this.studentMapper.toResponse(updated);
+        return d.studentMapper.toResponse(updated);
     }
 }

@@ -1,243 +1,56 @@
 import { Request, Response, NextFunction } from "express";
-import { CreateStudentUseCase }      from "../usecases/create-student.usecase";
-import { GetStudentUseCase }         from "../usecases/get-student.usecase";
-import { ListStudentsUseCase }       from "../usecases/list-students.usecase";
-import { UpdateStudentUseCase }      from "../usecases/update-student.usecase";
-import { DeactivateStudentUseCase }  from "../usecases/deactivate-student.usecase";
+import { CreateStudentUseCase } from "../usecases/create-student.usecase";
+import { UpdateStudentUseCase } from "../usecases/update-student.usecase";
+import { DeactivateStudentUseCase } from "../usecases/deactivate-student.usecase";
+import { ReactivateStudentUseCase } from "../usecases/reactivate-student.usecase";
+import { ListStudentsUseCase, GetStudentUseCase, GetMyStudentProfileUseCase } from "../usecases/student-queries.usecases";
 import { UploadStudentPhotoUseCase } from "../usecases/upload-photo.usecase";
-import { GetStudentsBatchUseCase } from "../usecases/get-students-batch.usecase";
-import { ImportStudentsUseCase } from "../usecases/import-students.usecase";
-import {
-    sendSuccess,
-    sendCreated,
-    sendPaginated,
-}                                    from "../../../shared/utils/api-response";
-
-/*
-|--------------------------------------------------------------------------
-| STUDENT CONTROLLER
-|--------------------------------------------------------------------------
-*/
+import { sendSuccess, sendCreated } from "../../../shared/utils/api-response";
+import { getAccess } from "../../../infrastructure/middleware/rbac.middleware";
+import { ListStudentsQuery } from "../dtos/student.dto";
+import { studentErrors } from "../domain/student.errors";
+import { StudentActor } from "../domain/student.types";
 
 interface Dependencies {
-    createStudentUseCase:      CreateStudentUseCase;
-    getStudentUseCase:         GetStudentUseCase;
-    listStudentsUseCase:       ListStudentsUseCase;
-    updateStudentUseCase:      UpdateStudentUseCase;
-    deactivateStudentUseCase:  DeactivateStudentUseCase;
+    listStudentsUseCase: ListStudentsUseCase; getStudentUseCase: GetStudentUseCase; getMyStudentProfileUseCase: GetMyStudentProfileUseCase;
+    createStudentUseCase: CreateStudentUseCase; updateStudentUseCase: UpdateStudentUseCase;
+    deactivateStudentUseCase: DeactivateStudentUseCase; reactivateStudentUseCase: ReactivateStudentUseCase;
     uploadStudentPhotoUseCase: UploadStudentPhotoUseCase;
-    getStudentsBatchUseCase:   GetStudentsBatchUseCase;
-    importStudentsUseCase:     ImportStudentsUseCase;
 }
 
+/*
+| STUDENT CONTROLLER (school realm, /students). The school is the host's school; the acting person comes ONLY
+| from the verified session (req.auth), never from the body or URL.
+*/
+const schoolIdOf = (req: Request): string => req.schoolId as string;
+const idOf = (req: Request): string => String(req.params.id);
+const actorOf = (req: Request): StudentActor => {
+    if (!req.auth) throw studentErrors.notFound();
+    return { userId: req.auth.userId };
+};
+
 export class StudentController {
-    private readonly createStudentUseCase:      CreateStudentUseCase;
-    private readonly getStudentUseCase:         GetStudentUseCase;
-    private readonly listStudentsUseCase:       ListStudentsUseCase;
-    private readonly updateStudentUseCase:      UpdateStudentUseCase;
-    private readonly deactivateStudentUseCase:  DeactivateStudentUseCase;
-    private readonly uploadStudentPhotoUseCase: UploadStudentPhotoUseCase;
-    private readonly getStudentsBatchUseCase:   GetStudentsBatchUseCase;
-    private readonly importStudentsUseCase:     ImportStudentsUseCase;
+    constructor(private readonly d: Dependencies) {}
 
-    constructor({
-        createStudentUseCase,
-        getStudentUseCase,
-        listStudentsUseCase,
-        updateStudentUseCase,
-        deactivateStudentUseCase,
-        uploadStudentPhotoUseCase,
-        getStudentsBatchUseCase,
-        importStudentsUseCase
-    }: Dependencies) {
-        this.createStudentUseCase      = createStudentUseCase;
-        this.getStudentUseCase         = getStudentUseCase;
-        this.listStudentsUseCase       = listStudentsUseCase;
-        this.updateStudentUseCase      = updateStudentUseCase;
-        this.deactivateStudentUseCase  = deactivateStudentUseCase;
-        this.uploadStudentPhotoUseCase = uploadStudentPhotoUseCase ;
-        this.getStudentsBatchUseCase   = getStudentsBatchUseCase;
-        this.importStudentsUseCase     = importStudentsUseCase;
-    }
-
-    // ── List students ─────────────────────────────────────────────────────
-    listStudents = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
+    list = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const result = await this.listStudentsUseCase.execute(
-                req.query as any,
-            );
-            sendPaginated(res, result.data, result.meta);
-        } catch (err) {
-            next(err);
-        }
+            // The validate middleware does not write query values back, so the query is parsed here
+            const r = await this.d.listStudentsUseCase.execute(ListStudentsQuery.parse(req.query), getAccess(req));
+            res.status(200).json({ success: true, message: "Students retrieved successfully", data: r.data, meta: r.meta });
+        } catch (e) { next(e); }
     };
 
-    // ── Get student ───────────────────────────────────────────────────────
-    getStudent = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
+    get    = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.getStudentUseCase.execute(idOf(req), getAccess(req)), "Student retrieved successfully"); } catch (e) { next(e); } };
+    me     = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.getMyStudentProfileUseCase.execute(getAccess(req)), "Profile retrieved successfully"); } catch (e) { next(e); } };
+    create = async (req: Request, res: Response, next: NextFunction) => { try { sendCreated(res, await this.d.createStudentUseCase.execute(schoolIdOf(req), req.body, actorOf(req)), "Student created successfully"); } catch (e) { next(e); } };
+    update = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.updateStudentUseCase.execute(schoolIdOf(req), idOf(req), req.body, actorOf(req)), "Student updated successfully"); } catch (e) { next(e); } };
+    deactivate = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.deactivateStudentUseCase.execute(schoolIdOf(req), idOf(req), req.body ?? {}, actorOf(req)), "Student deactivated successfully"); } catch (e) { next(e); } };
+    reactivate = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.reactivateStudentUseCase.execute(schoolIdOf(req), idOf(req), actorOf(req)), "Student reactivated successfully"); } catch (e) { next(e); } };
+
+    uploadPhoto = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const result = await this.getStudentUseCase.execute(
-                req.params.id as string,
-            );
-            sendSuccess(res, result, "Student retrieved successfully");
-            
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    // ── Create student ────────────────────────────────────────────────────
-    createStudent = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.createStudentUseCase.execute(
-                req.body,
-                req.user?.schoolId as string
-            );
-            sendCreated(res, result, "Student created successfully");
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    // ── Update student ────────────────────────────────────────────────────
-    updateStudent = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.updateStudentUseCase.execute(
-                req.params.id as string,
-                req.body,
-            );
-            sendSuccess(res, result, "Student updated successfully");
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    // ── Deactivate student ────────────────────────────────────────────────
-    deactivateStudent = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.deactivateStudentUseCase.execute(
-                req.params.id as string,
-            );
-            sendSuccess(res, result, "Student deactivated successfully");
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    // ── Upload photo ──────────────────────────────────────────────────────
-    uploadPhoto = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const file = req.file;
-
-            if (!file) {
-                res.status(400).json({
-                    success: false,
-                    message: "No file uploaded",
-                });
-                return;
-            }
-
-            const result = await this.uploadStudentPhotoUseCase.execute(
-                req.params.id as string,
-                req.user!.schoolId!,
-                {
-                    buffer:   file.buffer,
-                    mimetype: file.mimetype,
-                    filename: file.originalname,
-                },
-            );
-            sendSuccess(res, result, "Photo uploaded successfully");
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    // ── Get students batch ────────────────────────────────────────────────────
-    getStudentsBatch = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.getStudentsBatchUseCase.execute(req.body.ids);
-            sendSuccess(res, result, "Students retrieved successfully");
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    importStudentsCsv = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            if (!req.file) {
-                res.status(400).json({ success: false, message: "CSV file is required." });
-                return;
-            }
-
-            const result = await this.importStudentsUseCase.executeFromCsv(
-                req.file.buffer,
-                req.schoolId as string,
-                req.user?.id as string,
-            );
-
-            sendSuccess(res, result, `${result.created} of ${result.total} students imported`);
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    bulkCreateStudents = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const students = req.body.students;
-
-            if (!Array.isArray(students) || students.length === 0) {
-                res.status(400).json({ success: false, message: "students array is required." });
-                return;
-            }
-            if (students.length > 200) {
-                res.status(400).json({ success: false, message: "Maximum 200 students per bulk request." });
-                return;
-            }
-
-            const result = await this.importStudentsUseCase.executeFromRows(
-                students,
-                req.schoolId as string,
-                req.user?.id as string,
-            );
-
-            sendSuccess(res, result, `${result.created} of ${result.total} students created`);
-        } catch (err) {
-            next(err);
-        }
+            if (!req.file) throw studentErrors.noPhotoFile();
+            sendSuccess(res, await this.d.uploadStudentPhotoUseCase.execute(schoolIdOf(req), idOf(req), { buffer: req.file.buffer }, actorOf(req)), "Photo uploaded successfully");
+        } catch (e) { next(e); }
     };
 }

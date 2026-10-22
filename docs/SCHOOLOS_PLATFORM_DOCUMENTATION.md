@@ -108,7 +108,7 @@ Status terms used here:
 | Audit | `registerAudit` and `/audit` are enabled; see `docs/STAFF_AND_AUDIT_NOTES.md` | Integrated; audit changes should preserve actor, module, request ID, and impersonation semantics |
 | Ledger / finance foundation | `registerLedger` and `/finance` are enabled; `src/modules/ledger/ledger.container.ts` exposes the posting service and accounting use cases | Finance foundation exists. Fees/payments/expenses/payroll should integrate with the posting service; do not duplicate ledger posting logic |
 | Fees v2 | `registerFees` and `/fees` are enabled. Latest commits on this branch implement phase 2 pieces 1–2: schema/migration groundwork, fee types, fee structures, and discount rules | **Partial/in progress.** The container comment explicitly says invoices, payments, and the rest of Fees v2 are to be added as built. Do not describe the entire fee lifecycle as complete |
-| Students | Student entity, DTOs, mapper, repository, use cases, controller, routes, and container exist under `src/modules/students/` | **Implemented, integration incomplete and dependencies need audit.** `registerStudents` is commented out in the container list and `/students` is commented out in routes |
+| Students | `registerStudents` and `/students` are enabled; see `docs/STUDENTS_MODULE_NOTES.md` | **First slice implemented** (create, get, list/search, update, deactivate, reactivate, photo). Bulk import, guardians on the detail, class/attendance on the list and student login are deferred. Build and unit tests checked; database/API tests not run |
 | Guardians | Some references/files exist, including dependencies from student import | Not integrated; inspect current module completeness before enabling |
 | Classes / Sessions / Enrolment | Student import references these modules; route/container registrations are commented out | Not integrated; treat as dependencies, not completed functionality |
 | Attendance / Grades / Report Cards | Models/references and some module files exist; route/container registrations are commented out | Not integrated; audit each module before enabling |
@@ -117,9 +117,9 @@ Status terms used here:
 
 ### Important wiring snapshot
 
-At the reviewed head, `src/container/index.ts` registers Shared, Foundation, Auth, School, User, Plans, Subscriptions, Branches, Staff, Ledger, Fees, and Audit. The imported `registerStudents` is commented out inside the active registration array.
+At the reviewed head, `src/container/index.ts` registers Shared, Foundation, Auth, School, User, Plans, Subscriptions, Branches, Staff, Ledger, Fees, and Audit. `registerStudents` is also registered (Students first slice).
 
-At the same head, `src/routes/index.ts` mounts Auth, Users, Schools, Plans, Subscriptions (using `billing.routes`), Audit, Staff, Finance, and Fees. The Students route import and `/students` mount are commented out. `branchRouter` is imported but no `/branches` mount is present in the inspected file. The Billing notes describe a different route contract (`/billing` and `/platform/subscriptions`); resolve this discrepancy as part of a scoped billing integration task rather than silently changing it during the Students pass.
+At the same head, `src/routes/index.ts` mounts Auth, Users, Schools, Plans, Subscriptions (using `billing.routes`), Audit, Staff, Finance, and Fees. `/students` is mounted (Students first slice). `branchRouter` is imported but no `/branches` mount is present in the inspected file. The Billing notes describe a different route contract (`/billing` and `/platform/subscriptions`); resolve this discrepancy as part of a scoped billing integration task rather than silently changing it during the Students pass.
 
 This is a code snapshot, not a guarantee that every route or worker is correct. Confirm exact current code before changing it.
 
@@ -203,6 +203,7 @@ Read the relevant notes before modifying the associated area:
 - `docs/PLANS_MODULE_NOTES.md` — plans, entitlements, plan permissions, registry sync, pricing rules.
 - `docs/BILLING_MODULE_NOTES.md` + `docs/BILLING_SCHEMA.md` — subscription billing engine, invoices, attempts, webhooks, workers and migration requirements.
 - `docs/BRANCHES_NOTES.md` — branch model, branch scope, branch entitlements, migrations and role templates.
+- `docs/STUDENTS_MODULE_NOTES.md` — students first slice: routes, permissions, admission numbers, frontend changes, deferred items.
 - `docs/STAFF_AND_AUDIT_NOTES.md` — staff lifecycle, invites, staff branches, audit upgrade, permissions, deferred bulk import.
 - `docs/SCHOOLOS_HOW_IT_WORKS.md` — deeper explanation of request flow, tenancy, shared foundation, module conventions, and debugging.
 - `docs/TESTING_GUIDE.md` — test commands and safe database-test setup.
@@ -241,6 +242,4 @@ Use `docs/TESTING_GUIDE.md` before database tests. Database tests must use the d
 
 ## 9. Current next action
 
-**Audit Students first; do not begin by editing its code.**
-
-The goal of the next pass is to produce an evidence-based gap list and an implementation plan for the existing Students module. Once that audit is accepted, make the smallest set of changes needed to bring Students in line with the current architecture, including its real dependencies and wiring. Update this document and any relevant module notes after that pass.
+**Guardians next** (then Classes / Sessions / Enrolment). Audit the Guardians module the same way as Students: trace its dependencies, compare routes to the permission system, then make the smallest change set. Run `npm run sync:registries` after pulling the Students pass. Update this document and the module notes after each pass.

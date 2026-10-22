@@ -1,63 +1,55 @@
-import { IStudentRepository }      from "../repositories/student.repository";
-import { StudentMapper }           from "../mappers/student.mapper";
-import { StudentResponseData }     from "../mappers/student.mapper";
-import { SupabaseStorageService }  from "../../../infrastructure/storage/supabase-storage.service";
-import { NotFoundError }           from "../../../shared/errors/domain.errors";
-import { StudentErrorMessage }     from "../domain/student.enums";
-
-/*
-|--------------------------------------------------------------------------
-| UPLOAD PHOTO USE CASE
-|--------------------------------------------------------------------------
-*/
+import { env } from "../../../config/env";
+import { SupabaseStorageService } from "../../../infrastructure/storage/supabase-storage.service";
+import { AuditService } from "../../audit/services/audit.service";
+import { IStudentRepository } from "../repositories/student.repository";
+import { StudentMapper, StudentResponseData } from "../mappers/student.mapper";
+import { studentErrors } from "../domain/student.errors";
+import { MAX_PHOTO_BYTES } from "../domain/student.policy";
+import { StudentActor } from "../domain/student.types";
 
 interface Dependencies {
-    studentRepository: IStudentRepository;
-    studentMapper:     StudentMapper;
-    storageService:    SupabaseStorageService;
+    studentRepository: IStudentRepository; studentMapper: StudentMapper;
+    storageService: SupabaseStorageService; auditService: AuditService;
 }
 
+// The browser's claimed file type is not trusted: the file's first bytes must match an allowed image type
+export function sniffImage(buf: Buffer): "image/jpeg" | "image/png" | "image/webp" | null {
+    if (buf.length > 12 && buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) return "image/jpeg";
+    if (buf.length > 12 && buf.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return "image/png";
+    if (buf.length > 12 && buf.subarray(0, 4).toString("ascii") === "RIFF" && buf.subarray(8, 12).toString("ascii") === "WEBP") return "image/webp";
+    return null;
+}
+const EXT = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" } as const;
+
+/*
+| UPLOAD STUDENT PHOTO. The file is checked by its real content, saved under a name we choose (never the
+| uploaded name), and if the database update fails the new file is removed again.
+*/
 export class UploadStudentPhotoUseCase {
-    private readonly studentRepository: IStudentRepository;
-    private readonly studentMapper:     StudentMapper;
-    private readonly storageService:    SupabaseStorageService;
+    constructor(private readonly d: Dependencies) {}
 
-    constructor({
-        studentRepository,
-        studentMapper,
-        storageService,
-    }: Dependencies) {
-        this.studentRepository = studentRepository;
-        this.studentMapper     = studentMapper;
-        this.storageService    = storageService;
-    }
+    async execute(schoolId: string, id: string, file: { buffer: Buffer }, actor: StudentActor): Promise<StudentResponseData> {
+        const d = this.d;
+        const student = await d.studentRepository.findById(id);
+        if (!student) throw studentErrors.notFound();
 
-    async execute(
-        id:       string,
-        schoolId: string,
-        file: {
-            buffer:   Buffer;
-            mimetype: string;
-            filename: string;
-        },
-    ): Promise<StudentResponseData> {
+        if (file.buffer.length === 0 || file.buffer.length > MAX_PHOTO_BYTES) throw studentErrors.invalidImage();
+        const type = sniffImage(file.buffer);
+        if (!type) throw studentErrors.invalidImage();
 
-        const student = await this.studentRepository.findById(id);
-        if (!student) {
-            throw new NotFoundError(StudentErrorMessage.NOT_FOUND);
+        const result = await d.storageService.upload({
+            bucket: env.supabase.publicBucket, folder: `students/${schoolId}/photos`,
+            file: file.buffer, mimetype: type, filename: `${id}-${Date.now()}.${EXT[type]}`,
+        });
+
+        let updated;
+        try { updated = await d.studentRepository.update(id, { photoUrl: result.url }); }
+        catch (err) {
+            await d.storageService.delete(result.path, result.bucket).catch(() => undefined);   // do not leave an unused file behind
+            throw err;
         }
 
-        const result = await this.storageService.upload({
-            folder:   `students/${schoolId}/photos`,
-            file:     file.buffer,
-            mimetype: file.mimetype,
-            filename: file.filename,
-        });
-
-        const updated = await this.studentRepository.update(id, {
-            photoUrl: result.url,
-        });
-
-        return this.studentMapper.toResponse(updated);
+        await d.auditService.log({ userId: actor.userId, schoolId, action: "student.photo_changed", entity: "Student", entityId: id });
+        return d.studentMapper.toResponse(updated);
     }
 }
