@@ -7,6 +7,7 @@ import { BRANCH_PERMISSIONS } from "../modules/branches/branches.permissions";
 import { STAFF_PERMISSIONS } from "../modules/staff/staff.permissions";
 import { AUDIT_PERMISSIONS } from "../modules/audit/audit.permissions";
 import { LEDGER_PERMISSIONS } from "../modules/ledger/ledger.permissions";
+import { FEES_PERMISSIONS } from "../modules/fees/fees.permissions";
 
 /*
 |--------------------------------------------------------------------------
@@ -57,6 +58,7 @@ const ALL: readonly PermissionDef[] = [
     ...STAFF_PERMISSIONS,
     ...AUDIT_PERMISSIONS,
     ...LEDGER_PERMISSIONS,
+    ...FEES_PERMISSIONS,
     ...CORE_PERMISSIONS,
 ];
 
