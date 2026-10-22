@@ -55,5 +55,6 @@ export class PaymentMapper implements IMapper<PaymentRow, PaymentEntity> {
         };
     }
 
-    receiptToResponse(r: ReceiptEntity) { return { id: r.id, receiptNumber: r.receiptNumber, paymentId: r.paymentId, issuedAt: r.issuedAt, ...r.snapshot }; }
+    // The snapshot already carries the receipt number and issue time as they were printed; money in it is kobo as digit strings
+    receiptToResponse(r: ReceiptEntity) { return { id: r.id, paymentId: r.paymentId, ...r.snapshot }; }
 }
