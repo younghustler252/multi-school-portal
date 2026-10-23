@@ -20,6 +20,7 @@ export class RunLedgerIntegrityCheckUseCase {
             ...await r.periodProblems(FINANCE_TIMEZONE),
             ...await r.duplicateOpeningBalances(),
             ...await r.linesOnDeletedAccounts(),
+            ...await r.feesControls(),
             ...systemAccountFindings(await r.systemAccounts()),
         ];
         return buildReport(findings, this.now());

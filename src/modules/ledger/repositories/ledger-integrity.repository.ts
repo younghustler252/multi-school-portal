@@ -8,5 +8,6 @@ export interface ILedgerIntegrityRepository {
     periodProblems(timeZone: string): Promise<IntegrityFinding[]>;       // period mismatch, future-dated, posted after close
     duplicateOpeningBalances(): Promise<IntegrityFinding[]>;
     linesOnDeletedAccounts(): Promise<IntegrityFinding[]>;
+    feesControls(): Promise<IntegrityFinding[]>;                          // receivable = open invoices, advance = unallocated payments, invoices and credit = allocations
     systemAccounts(): Promise<SystemAccountRow[]>;
 }

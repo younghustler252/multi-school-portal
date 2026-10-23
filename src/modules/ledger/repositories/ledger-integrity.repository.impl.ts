@@ -91,6 +91,39 @@ export class LedgerIntegrityRepositoryImpl implements ILedgerIntegrityRepository
         return rows.map(r => ({ check: "LINE_ON_DELETED_ACCOUNT" as const, message: `Deleted account ${r.code} ${r.name} has ${r.lines} posting line(s)`, details: { accountId: r.id, code: r.code, lines: r.lines } }));
     }
 
+    /* FEES CONTROLS (brief section 12): the books must agree with the invoices and payments. */
+    async feesControls(): Promise<IntegrityFinding[]> {
+        const issued = `"status" NOT IN ('draft', 'void')`;
+        const [total] = await this.rows(
+            `SELECT (SELECT COALESCE(SUM(l."debitKobo") - SUM(l."creditKobo"), 0) FROM "JournalLine" l JOIN "LedgerAccount" a ON a.id = l."ledgerAccountId" WHERE a."systemKey" = 'FEES_RECEIVABLE')::text AS ledger,
+                    (SELECT COALESCE(SUM("balanceKobo"), 0) FROM "FeeInvoice" WHERE ${issued})::text AS invoices`);
+        const perStudent = await this.rows(
+            `SELECT COALESCE(g."partyId", i."studentId") AS student, COALESCE(g.amount, 0)::text AS ledger, COALESCE(i.amount, 0)::text AS invoices
+               FROM (SELECT l."partyId", SUM(l."debitKobo") - SUM(l."creditKobo") AS amount FROM "JournalLine" l JOIN "LedgerAccount" a ON a.id = l."ledgerAccountId"
+                      WHERE a."systemKey" = 'FEES_RECEIVABLE' AND l."partyType" = 'STUDENT' GROUP BY l."partyId") g
+               FULL JOIN (SELECT "studentId", SUM("balanceKobo") AS amount FROM "FeeInvoice" WHERE ${issued} GROUP BY "studentId") i ON i."studentId" = g."partyId"
+              WHERE COALESCE(g.amount, 0) <> COALESCE(i.amount, 0) ORDER BY 1 LIMIT ${MAX_ROWS_PER_CHECK}`);
+        const [advance] = await this.rows(
+            `SELECT (SELECT COALESCE(SUM(l."creditKobo") - SUM(l."debitKobo"), 0) FROM "JournalLine" l JOIN "LedgerAccount" a ON a.id = l."ledgerAccountId" WHERE a."systemKey" = 'ADVANCE_PAYMENTS')::text AS ledger,
+                    (SELECT COALESCE(SUM("unallocatedKobo"), 0) FROM "Payment" WHERE status = 'CONFIRMED')::text AS payments`);
+        const invoices = await this.rows(
+            `SELECT i.id, i."invoiceNumber" AS number, i."paidKobo"::text AS paid, COALESCE(SUM(al."amountKobo"), 0)::text AS allocated
+               FROM "FeeInvoice" i LEFT JOIN "PaymentAllocation" al ON al."invoiceId" = i.id AND al."reversedAt" IS NULL
+              WHERE i.${issued} GROUP BY i.id HAVING i."paidKobo" <> COALESCE(SUM(al."amountKobo"), 0) ORDER BY i."invoiceNumber" LIMIT ${MAX_ROWS_PER_CHECK}`);
+        const credit = await this.rows(
+            `SELECT p.id, p."unallocatedKobo"::text AS unallocated, COALESCE(SUM(al."amountKobo"), 0)::text AS credit
+               FROM "Payment" p LEFT JOIN "PaymentAllocation" al ON al."paymentId" = p.id AND al."invoiceId" IS NULL AND al."reversedAt" IS NULL
+              WHERE p.status = 'CONFIRMED' GROUP BY p.id HAVING p."unallocatedKobo" <> COALESCE(SUM(al."amountKobo"), 0) ORDER BY p.id LIMIT ${MAX_ROWS_PER_CHECK}`);
+
+        const out: IntegrityFinding[] = [];
+        if (total.ledger !== total.invoices) out.push({ check: "RECEIVABLE_CONTROL", message: "Fees receivable in the books does not equal what issued invoices still owe", details: { ledgerKobo: total.ledger, invoicesKobo: total.invoices } });
+        for (const r of perStudent) out.push({ check: "RECEIVABLE_CONTROL", message: `Student ${r.student}: receivable in the books differs from the invoices`, details: { studentId: r.student, ledgerKobo: r.ledger, invoicesKobo: r.invoices } });
+        if (advance.ledger !== advance.payments) out.push({ check: "ADVANCE_CONTROL", message: "Advance payments in the books does not equal the unallocated money on confirmed payments", details: { ledgerKobo: advance.ledger, paymentsKobo: advance.payments } });
+        for (const r of invoices) out.push({ check: "INVOICE_PAID_MISMATCH", message: `Invoice ${r.number} shows ${r.paid} paid but its payments add up to ${r.allocated}`, details: { invoiceId: r.id, paidKobo: r.paid, allocatedKobo: r.allocated } });
+        for (const r of credit) out.push({ check: "CREDIT_MISMATCH", message: `Payment ${r.id} holds ${r.unallocated} unallocated but its credit adds up to ${r.credit}`, details: { paymentId: r.id, unallocatedKobo: r.unallocated, creditKobo: r.credit } });
+        return out;
+    }
+
     async systemAccounts(): Promise<SystemAccountRow[]> {
         return this.rows(`SELECT "systemKey", "isActive", "isLocked", "deletedAt" FROM "LedgerAccount" WHERE "systemKey" IS NOT NULL`);
     }

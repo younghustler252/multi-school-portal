@@ -6,7 +6,7 @@ import { REQUIRED_SYSTEM_KEYS } from "./ledger.constants";
 | The database refuses bad data and the posting service refuses it first, so on a healthy school this finds
 | nothing. It exists to prove that, and to shout the moment someone (a script, a manual SQL fix, a future bug)
 | breaks a rule. Every check is read-only. Later phases add their control checks (receivables against invoices,
-| payables against bills, advance payments against allocations) to the same list.
+| payables against bills, advance payments against allocations: the first two now run, see feesControls) to the same list.
 |--------------------------------------------------------------------------
 */
 
@@ -21,6 +21,10 @@ export type IntegrityCheck =
     | "POSTED_AFTER_CLOSE"          // posted into a period after it was closed
     | "DUPLICATE_OPENING_BALANCE"   // two live opening balances for one account
     | "LINE_ON_DELETED_ACCOUNT"     // a line on an account that was deleted
+    | "RECEIVABLE_CONTROL"          // fees receivable in the books is not what the issued invoices still owe (school total, or one student)
+    | "ADVANCE_CONTROL"             // advance payments in the books is not the unallocated money on confirmed payments
+    | "INVOICE_PAID_MISMATCH"       // an invoice shows paid money that its live payment allocations do not add up to
+    | "CREDIT_MISMATCH"             // a confirmed payment's unallocated amount is not what its credit rows add up to
     | "SYSTEM_ACCOUNT";             // a system account is missing, inactive, deleted or unlocked
 
 export interface IntegrityFinding {
