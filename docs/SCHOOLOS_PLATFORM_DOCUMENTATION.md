@@ -109,7 +109,7 @@ Status terms used here:
 | Ledger / finance foundation | `registerLedger` and `/finance` are enabled; `src/modules/ledger/ledger.container.ts` exposes the posting service and accounting use cases | Finance foundation exists. Fees/payments/expenses/payroll should integrate with the posting service; do not duplicate ledger posting logic |
 | Fees v2 | `registerFees` and `/fees` are enabled. Latest commits on this branch implement phase 2 pieces 1–2: schema/migration groundwork, fee types, fee structures, and discount rules | **Partial/in progress.** The container comment explicitly says invoices, payments, and the rest of Fees v2 are to be added as built. Do not describe the entire fee lifecycle as complete |
 | Students | `registerStudents` and `/students` are enabled; see `docs/STUDENTS_MODULE_NOTES.md` | **First slice implemented** (create, get, list/search, update, deactivate, reactivate, photo). Bulk import, guardians on the detail, class/attendance on the list and student login are deferred. Build and unit tests checked; database/API tests not run |
-| Guardians | Some references/files exist, including dependencies from student import | Not integrated; inspect current module completeness before enabling |
+| Guardians | `registerGuardians` and `/guardians` are enabled; see `docs/GUARDIANS_MODULE_NOTES.md` | **First slice implemented** (create+link, get, list, update, link, unlink, invite through Auth, my children). Needs the `20261023150000_guardian_primary_unique` tenant migration and `npm run sync:registries`. Class details on my-children, deactivate and merge are deferred. Build and unit tests checked; database/API tests not run |
 | Classes / Sessions / Enrolment | Student import references these modules; route/container registrations are commented out | Not integrated; treat as dependencies, not completed functionality |
 | Attendance / Grades / Report Cards | Models/references and some module files exist; route/container registrations are commented out | Not integrated; audit each module before enabling |
 | Payments / Notifications / Settings / Platform admin / Feedback | Some imports/files may exist, but current container/routes have registrations commented out | Not integrated as a whole; inspect individual scope before starting or re-enabling |
@@ -203,6 +203,7 @@ Read the relevant notes before modifying the associated area:
 - `docs/PLANS_MODULE_NOTES.md` — plans, entitlements, plan permissions, registry sync, pricing rules.
 - `docs/BILLING_MODULE_NOTES.md` + `docs/BILLING_SCHEMA.md` — subscription billing engine, invoices, attempts, webhooks, workers and migration requirements.
 - `docs/BRANCHES_NOTES.md` — branch model, branch scope, branch entitlements, migrations and role templates.
+- `docs/GUARDIANS_MODULE_NOTES.md` — guardians first slice: routes, permissions, primary-guardian rule, invites through Auth, frontend changes.
 - `docs/STUDENTS_MODULE_NOTES.md` — students first slice: routes, permissions, admission numbers, frontend changes, deferred items.
 - `docs/STAFF_AND_AUDIT_NOTES.md` — staff lifecycle, invites, staff branches, audit upgrade, permissions, deferred bulk import.
 - `docs/SCHOOLOS_HOW_IT_WORKS.md` — deeper explanation of request flow, tenancy, shared foundation, module conventions, and debugging.
@@ -242,4 +243,4 @@ Use `docs/TESTING_GUIDE.md` before database tests. Database tests must use the d
 
 ## 9. Current next action
 
-**Guardians next** (then Classes / Sessions / Enrolment). Audit the Guardians module the same way as Students: trace its dependencies, compare routes to the permission system, then make the smallest change set. Run `npm run sync:registries` after pulling the Students pass. Update this document and the module notes after each pass.
+**Classes, Sessions and Enrolment next.** Audit them the same way as Students and Guardians: trace dependencies, compare routes to the permission system, then make the smallest change set. They unlock class names on Guardians' "my children" and the BRANCH and ASSIGNED scopes for Students. Apply the Guardians migration and run `npm run sync:registries` first. Update this document and the module notes after each pass.

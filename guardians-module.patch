@@ -1,0 +1,2393 @@
+diff --git a/docs/GUARDIANS_MODULE_AUDIT.md b/docs/GUARDIANS_MODULE_AUDIT.md
+new file mode 100644
+index 0000000..c0ab3d6
+--- /dev/null
++++ b/docs/GUARDIANS_MODULE_AUDIT.md
+@@ -0,0 +1,71 @@
++# Guardians Module Audit & Refactor Plan
++
++> Branch `refactor/modules`, commit `2e5f907` (Students pass applied). Source inspection only: no code changed, no build or test run for this document. Recheck against the working tree before implementing.
++
++## 1. Decision
++Guardians is the next module. Do not enable it by uncommenting the container and route. Its invite flow does not work, its create flow uses the old login model, and it has no permissions of its own. Recommended first slice: a permission-protected guardian record (create with link, get, list, update, link, unlink, invite through Auth, "my children"), with audit, strict validation and tests.
++
++## 2. Confirmed findings
++
++### Does not work / does not compile
++1. `registerGuardians` and the `/guardians` mount are commented out.
++2. `invite-guardian` and `bulk-invite-guardian` use `env.APP_BASE_DOMAIN`, which does not exist (2 build errors; the variable is `BASE_DOMAIN`).
++3. **Invites cannot be accepted.** Both use cases make a token and email a link, but never save an `Invite` row. Auth looks the token up in `invites`, so every link is dead. They also build the URL by hand (`https://`, "7 days" typed in) instead of using Auth's invite service.
++4. Unlink: the use case and repository method exist and the container registers the use case, but the controller and routes have no unlink endpoint.
++
++### Security and privacy
++5. Routes use `requireStaff` and `requireSchoolAdmin`. There are no guardian permissions. Any staff member (including a teacher with a custom role) can list every guardian's email and phone and open any guardian.
++6. `GET /guardians/me/children` has no persona check; any signed-in person reaches the use case.
++7. `getChildStudentIds` in the repository has a `console.log("student links", links)` that writes student ids to the logs. Other modules call this method.
++8. Create guardian makes a login with `Math.random()` (not secure), emails the password in plain text, marks the email verified without checking it, and has "SchoolPortal" typed into the email. It also needs `Role` and `User.schoolId`, which are being removed.
++
++### Data consistency
++9. Create is three separate writes (public login, guardian, link) with no recovery. A failure in the middle leaves an orphan login or a guardian with no student.
++10. Email matching is case-sensitive and emails are not lowercased, so "Mum@x.com" and "mum@x.com" become two guardians. The table has no index on email.
++11. Several primary guardians can exist for one student; nothing enforces one.
++12. Update changes the guardian's email even when the guardian has a login, so the guardian record and the login email drift apart.
++13. Link and unlink have no audit and no transaction; a double click gives a raw duplicate-key error.
++14. Create, update, link and unlink write no audit entries (only the first-time create does).
++
++### Validation and queries
++15. DTOs are not strict; phone, occupation and address are unbounded; emails are not trimmed or lowercased; the list query is string-based and unbounded (`limit=100000` works); `studentId` in the query is not checked as an id; the update body may be empty; optional fields cannot be cleared.
++16. List by student: unpaginated and loads each guardian one by one. Get guardian: loads each child one by one, ignores student visibility, and after the Students pass the child's `photoUrl` is always null (needs `StudentPhotoService`).
++17. `GetMyChildren` needs Enrolment, Sessions and Classes repositories, which are not registered.
++18. No guardian deactivate or reactivate, even though `isActive` exists.
++19. No tests for this module.
++
++### Other modules depend on it
++`guardianRepository` is used by attendance, grades, report-cards, payments (verify) and five notification files. Its method names must stay the same: `findById`, `findByUserId`, `findByEmail`, `isLinked`, `linkToStudent`, `findStudentLinksByGuardianId`, `getChildStudentIds`, `isGuardianOfStudentByUserId`, `paginate`.
++
++## 3. Reference: what already works in Auth
++Auth's `SendInviteUseCase` already supports persona GUARDIAN with `personaEntityId`: it saves a hashed, expiring invite, sends the email from templates, refuses someone who is already a member, and on acceptance links the new login to the guardian record and gives the locked Guardian role. Staff already uses it through `InviteStaffUseCase`. Guardians should do the same.
++
++## 4. Proposed first slice
++
++**In scope**
++- Permissions `guardians.view` (ALL) and `guardians.manage` (ALL) in `guardians.permissions.ts`, added to the registry.
++- Create a guardian record and link it to a student in ONE transaction. Reuse an existing guardian with the same email (case-insensitive). No login is created. Optional `invite: true` sends the portal invitation through Auth; if that fails the guardian is still saved and the response says so.
++- Get (children loaded in one query, photos through `StudentPhotoService`), list (paginated, search by name, email or phone, filter by student, active filter), update (audit, only changed fields, email change refused when the guardian has a login), link (one primary per student, audit), unlink (new endpoint, audit).
++- Invite and bulk invite rewritten to call Auth's `SendInviteUseCase`; bulk reports sent, skipped and failed per guardian.
++- `GET /guardians/me/children` limited to the GUARDIAN persona; class names stay out until Enrolment is on.
++- Strict DTOs, shared error codes, audit entries, container and route wiring, unit tests, notes.
++
++**Deferred**
++Class and attendance details on "my children", guardian deactivate/reactivate, a guardian editing their own contact details, pickup authorization, contact preferences, duplicate-guardian merge, an email index (needs a tenant migration).
++
++**Non-goals**
++Changes to Auth, Students, Staff or notifications (their existing build errors stay); enabling Classes, Sessions or Enrolment.
++
++## 5. Decisions needed
++1. **Who can see guardian contact details?** Recommend: only School Admin by default (grantsAll). The platform can tick `guardians.view` for principal or bursar roles later.
++2. **Can the last guardian be unlinked from a student?** Recommend: yes (the school may not know the parent yet; the "guardian required" rule can become a setting later).
++3. **Guardian email change when they already have a login?** Recommend: refuse with a clear code until the email-change flow in the User module exists.
++
++## 6. Implementation order
++1. Permissions and registry; errors and policy; strict DTOs.
++2. Repository fixes (remove the log line, add search and one-query links, keep method names).
++3. Create (transaction), update, link, unlink use cases with audit.
++4. Invite and bulk invite through Auth.
++5. Get, list, me/children.
++6. Controller, routes, container; switch on the module.
++7. Tests, build check, notes and platform document update.
+diff --git a/docs/GUARDIANS_MODULE_NOTES.md b/docs/GUARDIANS_MODULE_NOTES.md
+new file mode 100644
+index 0000000..393891b
+--- /dev/null
++++ b/docs/GUARDIANS_MODULE_NOTES.md
+@@ -0,0 +1,56 @@
++# Guardians Module Notes (first slice)
++
++> Branch `refactor/modules`. Follows `docs/GUARDIANS_MODULE_AUDIT.md`. Build: no new TypeScript errors (the guardians module's 2 old errors are gone; the rest are in other modules). Tests: 22 guardian unit tests pass; no database or API test was run.
++
++## What is switched on
++`registerGuardians` is in the container list and `/guardians` is mounted.
++
++| Method and path | Who | What it does |
++|---|---|---|
++| GET `/guardians/me/children` | GUARDIAN persona | The signed-in guardian's children (one query, signed photo links) |
++| POST `/guardians/invite/bulk` | `guardians.manage` | Body `guardianIds` (max 100). One result per guardian: sent, skipped or failed (with a code) |
++| GET `/guardians` | `guardians.view` | List. Query: `page`, `limit` (max 100), `search` (name, email, phone), `studentId` |
++| POST `/guardians` | `guardians.manage` | Create + link to a student (see rules). Optional `invite: true` |
++| GET `/guardians/:id` | `guardians.view` | Guardian with `students[]` (limited to the students the viewer may see) |
++| PUT `/guardians/:id` | `guardians.manage` | Update; only changed fields are written and audited |
++| POST `/guardians/:id/invite` | `guardians.manage` | Portal invitation through Auth |
++| POST `/guardians/:id/link` | `guardians.manage` | Link to another student |
++| PUT `/guardians/:id/students/:studentId` | `guardians.manage` | Change relation or primary |
++| DELETE `/guardians/:id/students/:studentId` | `guardians.manage` | Unlink (guardian and student stay) |
++
++## Rules
++- **Permissions** (`guardians.permissions.ts`): `guardians.view` and `guardians.manage`, both sensitive and ALL-only. Only the School Admin (grants-all) holds them until the platform ticks them for another role. Every endpoint, including "guardians of a student" (`?studentId=`), needs `guardians.view`. Run `npm run sync:registries`.
++- **Create** (`services/guardian-linking.ts`): one transaction. The guardian is found by email (trimmed, lower-case, any capitals, this school only) or created, then linked. An existing guardian is reused as it is: name, phone and other details are never overwritten. Response: `{ guardian, outcome: "created" | "reused" | "already_linked", invite? }` (201 for created or reused, 200 for already_linked).
++- **No login is created.** The old temporary-password email is gone. A guardian gets a login by accepting an invitation.
++- **Invitations** use Auth's `SendInviteUseCase` (persona GUARDIAN, `personaEntityId` = the guardian record, sent to the guardian's own email; saved, hashed, expiring, single use). This module has no token, link or email code of its own. A guardian who already has a login or membership is refused (`GUARDIAN_ALREADY_HAS_ACCESS`); a second invite replaces an unused one, so retries are safe.
++- **Invite after the save.** The invitation runs only after the transaction commits. If it fails, the guardian stays saved and `invite.status` is `"failed"` with a `code`; it is never reported as sent. Statuses: `sent`, `not_needed` (already has access), `failed`.
++- **One primary guardian per student**, enforced twice: the use case hands the primary over, and a database partial unique index (`prisma/tenant-migrations/20261023150000_guardian_primary_unique`) refuses a second primary even if two requests arrive together. That refusal becomes `PRIMARY_GUARDIAN_CONFLICT` (try again). Prisma cannot declare this index in the schema file, so it exists only in the migration.
++- **Email change**: refused with `GUARDIAN_HAS_LOGIN` if the guardian has a portal login (until the User module has an email-change flow). Allowed otherwise; refused with `GUARDIAN_EMAIL_TAKEN` if another guardian has that email.
++- **Unlink** is allowed even for a student's last guardian.
++- **Children**: loaded in one query, limited by the Students scope rules (`studentScopeWhere`), with photo links from `StudentPhotoService` (private storage, short-lived links). `me/children` takes the guardian from the session, not from the request.
++- **Audit**: `guardian.created`, `.linked`, `.updated` (old and new), `.link_updated`, `.unlinked`, written after the change succeeds.
++- **Repository**: method names unchanged for other modules (attendance, grades, report cards, payments, notifications). `findByEmail` is now case-insensitive, `findByStudentId` is one query, `searchGuardians` is new, and the `console.log` that wrote student ids to the logs is removed.
++
++## Error codes
++`GUARDIAN_ALREADY_LINKED`, `GUARDIAN_NOT_LINKED`, `GUARDIAN_HAS_LOGIN`, `GUARDIAN_EMAIL_TAKEN`, `GUARDIAN_ALREADY_HAS_ACCESS`, `PRIMARY_GUARDIAN_CONFLICT`, plus the shared `NOT_FOUND`, `VALIDATION_ERROR`, `PERMISSION_DENIED`.
++
++## Migration
++Apply `20261023150000_guardian_primary_unique` to every existing school schema (new schemas get it through provisioning). It first clears extra primaries (keeps the earliest per student), then adds the index.
++
++## Frontend changes
++- `POST /guardians` now returns `{ guardian, outcome, invite? }` instead of the guardian alone. It no longer creates a login or emails a password.
++- Create and update bodies are strict (unknown fields rejected); `email` is lower-cased; `phone` must look like a phone number.
++- `POST /guardians/:id/link` returns the link `{ guardianId, studentId, relation, isPrimary }`; a repeat link is `409 GUARDIAN_ALREADY_LINKED`.
++- New: `PUT` and `DELETE /guardians/:id/students/:studentId`.
++- `GET /guardians/me/children` no longer has `classId` and `className` (they return with Classes and Enrolment). `photoUrl` is a link that expires after 1 hour.
++- Guardian detail `students[]` items are student responses (with signed `photoUrl`) plus `relation` and `isPrimary`.
++- The list no longer returns an unpaginated array for `?studentId=`; it is paginated like the rest.
++- Invite and bulk-invite now send a working Auth invitation. Bulk returns `results[]` with `code` instead of `reason`.
++
++## Left for later
++Class and attendance on "my children", guardian deactivate/reactivate, a guardian editing their own contact details, pickup authorization, contact preferences, duplicate-guardian merge, an index on guardian email (optional, needs a tenant migration), a database-level guard against two simultaneous creates of the same new email (rare; would need an advisory lock or a unique index on lower(email)).
++- `students/usecases/import-students.usecase.ts` is still switched off. Its guardian columns now throw "not supported yet" instead of calling the old create signature. Rebuild them in the import slice.
++- Other modules still read `guardian.userId` through `guardianRepository`; it is set when an invite is accepted.
++
++## Next step
++Classes, Sessions and Enrolment (they unlock class names on "my children" and the branch and assigned scopes for Students).
+diff --git a/docs/SCHOOLOS_PLATFORM_DOCUMENTATION.md b/docs/SCHOOLOS_PLATFORM_DOCUMENTATION.md
+index 0032772..3171e08 100644
+--- a/docs/SCHOOLOS_PLATFORM_DOCUMENTATION.md
++++ b/docs/SCHOOLOS_PLATFORM_DOCUMENTATION.md
+@@ -109,7 +109,7 @@ Status terms used here:
+ | Ledger / finance foundation | `registerLedger` and `/finance` are enabled; `src/modules/ledger/ledger.container.ts` exposes the posting service and accounting use cases | Finance foundation exists. Fees/payments/expenses/payroll should integrate with the posting service; do not duplicate ledger posting logic |
+ | Fees v2 | `registerFees` and `/fees` are enabled. Latest commits on this branch implement phase 2 pieces 1–2: schema/migration groundwork, fee types, fee structures, and discount rules | **Partial/in progress.** The container comment explicitly says invoices, payments, and the rest of Fees v2 are to be added as built. Do not describe the entire fee lifecycle as complete |
+ | Students | `registerStudents` and `/students` are enabled; see `docs/STUDENTS_MODULE_NOTES.md` | **First slice implemented** (create, get, list/search, update, deactivate, reactivate, photo). Bulk import, guardians on the detail, class/attendance on the list and student login are deferred. Build and unit tests checked; database/API tests not run |
+-| Guardians | Some references/files exist, including dependencies from student import | Not integrated; inspect current module completeness before enabling |
++| Guardians | `registerGuardians` and `/guardians` are enabled; see `docs/GUARDIANS_MODULE_NOTES.md` | **First slice implemented** (create+link, get, list, update, link, unlink, invite through Auth, my children). Needs the `20261023150000_guardian_primary_unique` tenant migration and `npm run sync:registries`. Class details on my-children, deactivate and merge are deferred. Build and unit tests checked; database/API tests not run |
+ | Classes / Sessions / Enrolment | Student import references these modules; route/container registrations are commented out | Not integrated; treat as dependencies, not completed functionality |
+ | Attendance / Grades / Report Cards | Models/references and some module files exist; route/container registrations are commented out | Not integrated; audit each module before enabling |
+ | Payments / Notifications / Settings / Platform admin / Feedback | Some imports/files may exist, but current container/routes have registrations commented out | Not integrated as a whole; inspect individual scope before starting or re-enabling |
+@@ -203,6 +203,7 @@ Read the relevant notes before modifying the associated area:
+ - `docs/PLANS_MODULE_NOTES.md` — plans, entitlements, plan permissions, registry sync, pricing rules.
+ - `docs/BILLING_MODULE_NOTES.md` + `docs/BILLING_SCHEMA.md` — subscription billing engine, invoices, attempts, webhooks, workers and migration requirements.
+ - `docs/BRANCHES_NOTES.md` — branch model, branch scope, branch entitlements, migrations and role templates.
++- `docs/GUARDIANS_MODULE_NOTES.md` — guardians first slice: routes, permissions, primary-guardian rule, invites through Auth, frontend changes.
+ - `docs/STUDENTS_MODULE_NOTES.md` — students first slice: routes, permissions, admission numbers, frontend changes, deferred items.
+ - `docs/STAFF_AND_AUDIT_NOTES.md` — staff lifecycle, invites, staff branches, audit upgrade, permissions, deferred bulk import.
+ - `docs/SCHOOLOS_HOW_IT_WORKS.md` — deeper explanation of request flow, tenancy, shared foundation, module conventions, and debugging.
+@@ -242,4 +243,4 @@ Use `docs/TESTING_GUIDE.md` before database tests. Database tests must use the d
+ 
+ ## 9. Current next action
+ 
+-**Guardians next** (then Classes / Sessions / Enrolment). Audit the Guardians module the same way as Students: trace its dependencies, compare routes to the permission system, then make the smallest change set. Run `npm run sync:registries` after pulling the Students pass. Update this document and the module notes after each pass.
++**Classes, Sessions and Enrolment next.** Audit them the same way as Students and Guardians: trace dependencies, compare routes to the permission system, then make the smallest change set. They unlock class names on Guardians' "my children" and the BRANCH and ASSIGNED scopes for Students. Apply the Guardians migration and run `npm run sync:registries` first. Update this document and the module notes after each pass.
+diff --git a/prisma/tenant-migrations/20261023150000_guardian_primary_unique/migration.sql b/prisma/tenant-migrations/20261023150000_guardian_primary_unique/migration.sql
+new file mode 100644
+index 0000000..82d4a84
+--- /dev/null
++++ b/prisma/tenant-migrations/20261023150000_guardian_primary_unique/migration.sql
+@@ -0,0 +1,15 @@
++-- At most ONE primary guardian per student, enforced by the database itself (so two requests at the same moment
++-- cannot both succeed). Prisma cannot declare a partial unique index in the schema file, so it lives only here.
++
++-- Tidy any existing data first: where a student has several primaries, keep the earliest and clear the rest.
++UPDATE "StudentGuardian" sg
++SET "isPrimary" = false
++WHERE sg."isPrimary" = true
++  AND EXISTS (
++    SELECT 1 FROM "StudentGuardian" o
++    WHERE o."studentId" = sg."studentId" AND o."isPrimary" = true
++      AND (o."createdAt" < sg."createdAt" OR (o."createdAt" = sg."createdAt" AND o."id" < sg."id"))
++  );
++
++-- CreateIndex
++CREATE UNIQUE INDEX "StudentGuardian_one_primary_per_student" ON "StudentGuardian"("studentId") WHERE "isPrimary" = true;
+diff --git a/src/container/index.ts b/src/container/index.ts
+index 1f7e10b..844ccc5 100644
+--- a/src/container/index.ts
++++ b/src/container/index.ts
+@@ -31,7 +31,7 @@ import { registerBranches } from "../modules/branches/branches.container";
+ import { registerStaff }         from "../modules/staff/staff.container";
+ import { registerLedger } from "../modules/ledger/ledger.container";
+ import { registerStudents }      from "../modules/students/students.container";
+-// import { registerGuardians }     from "../modules/guardians/guardians.container";
++import { registerGuardians }     from "../modules/guardians/guardians.container";
+ // import { registerClasses }       from "../modules/classes/classes.container";
+ // import { registerSessions } from "../modules/sessions/sessions.container";
+ // import { registerEnrolment }     from "../modules/enrolment/enrolment.container";
+@@ -58,7 +58,7 @@ const modules: Array<(c: AwilixContainer) => void> = [
+     registerStaff,
+     registerLedger,
+     registerStudents,
+-    // registerGuardians,
++    registerGuardians,
+     // registerClasses,
+     // registerSessions,
+     // registerEnrolment,
+diff --git a/src/foundation/permissions.registry.ts b/src/foundation/permissions.registry.ts
+index 23d324c..4bd7b14 100644
+--- a/src/foundation/permissions.registry.ts
++++ b/src/foundation/permissions.registry.ts
+@@ -6,6 +6,7 @@ import { SUBSCRIPTION_PERMISSIONS } from "../modules/subscriptions/subscriptions
+ import { BRANCH_PERMISSIONS } from "../modules/branches/branches.permissions";
+ import { STAFF_PERMISSIONS } from "../modules/staff/staff.permissions";
+ import { STUDENT_PERMISSIONS } from "../modules/students/students.permissions";
++import { GUARDIAN_PERMISSIONS } from "../modules/guardians/guardians.permissions";
+ import { AUDIT_PERMISSIONS } from "../modules/audit/audit.permissions";
+ import { LEDGER_PERMISSIONS } from "../modules/ledger/ledger.permissions";
+ import { FEES_PERMISSIONS } from "../modules/fees/fees.permissions";
+@@ -58,6 +59,7 @@ const ALL: readonly PermissionDef[] = [
+     ...BRANCH_PERMISSIONS,
+     ...STAFF_PERMISSIONS,
+     ...STUDENT_PERMISSIONS,
++    ...GUARDIAN_PERMISSIONS,
+     ...AUDIT_PERMISSIONS,
+     ...LEDGER_PERMISSIONS,
+     ...FEES_PERMISSIONS,
+diff --git a/src/modules/guardians/controllers/guardian.controller.ts b/src/modules/guardians/controllers/guardian.controller.ts
+index e285fee..349beff 100644
+--- a/src/modules/guardians/controllers/guardian.controller.ts
++++ b/src/modules/guardians/controllers/guardian.controller.ts
+@@ -1,195 +1,70 @@
+ import { Request, Response, NextFunction } from "express";
+-import { CreateGuardianUseCase }  from "../usecases/create-guardian.usecase";
+-import { GetGuardianUseCase }     from "../usecases/get-guardian.usecase";
+-import { ListGuardiansUseCase }   from "../usecases/list-guardians.usecase";
+-import { UpdateGuardianUseCase }  from "../usecases/update-guardian.usecase";
+-import { InviteGuardianUseCase }  from "../usecases/invite-guardian.usecase";
+-import { LinkGuardianUseCase }    from "../usecases/link-guardian.usecase";
+-import { GetMyChildrenUseCase } from "../usecases/get-my-children.usecase";
+-import { BulkInviteGuardiansUseCase } from "../usecases/bulk-invite-guardian.usecase";
+-
+-import { BulkInviteGuardiansDto } from "../dtos/guardian.dto";
+-import {
+-    sendSuccess,
+-    sendCreated,
+-    sendPaginated,
+-}                                 from "../../../shared/utils/api-response";
+-
+-/*
+-|--------------------------------------------------------------------------
+-| GUARDIAN CONTROLLER
+-|--------------------------------------------------------------------------
+-*/
++import { CreateGuardianUseCase } from "../usecases/create-guardian.usecase";
++import { UpdateGuardianUseCase } from "../usecases/update-guardian.usecase";
++import { LinkGuardianUseCase, UpdateGuardianLinkUseCase, UnlinkGuardianUseCase } from "../usecases/guardian-links.usecases";
++import { InviteGuardianUseCase, BulkInviteGuardiansUseCase } from "../usecases/guardian-invites.usecases";
++import { ListGuardiansUseCase, GetGuardianUseCase, GetMyChildrenUseCase } from "../usecases/guardian-queries.usecases";
++import { sendSuccess, sendCreated } from "../../../shared/utils/api-response";
++import { getAccess } from "../../../infrastructure/middleware/rbac.middleware";
++import { ListGuardiansQuery } from "../dtos/guardian.dto";
++import { guardianErrors } from "../domain/guardian.errors";
++import { GuardianActor } from "../domain/guardian.types";
+ 
+ interface Dependencies {
+-    createGuardianUseCase: CreateGuardianUseCase;
+-    getGuardianUseCase:    GetGuardianUseCase;
+-    listGuardiansUseCase:  ListGuardiansUseCase;
+-    updateGuardianUseCase: UpdateGuardianUseCase;
+-    inviteGuardianUseCase: InviteGuardianUseCase;
+-    linkGuardianUseCase:   LinkGuardianUseCase;
+-    bulkInviteGuardiansUseCase: BulkInviteGuardiansUseCase;
+-    getMyChildrenUseCase: GetMyChildrenUseCase;
+-
++    listGuardiansUseCase: ListGuardiansUseCase; getGuardianUseCase: GetGuardianUseCase; getMyChildrenUseCase: GetMyChildrenUseCase;
++    createGuardianUseCase: CreateGuardianUseCase; updateGuardianUseCase: UpdateGuardianUseCase;
++    linkGuardianUseCase: LinkGuardianUseCase; updateGuardianLinkUseCase: UpdateGuardianLinkUseCase; unlinkGuardianUseCase: UnlinkGuardianUseCase;
++    inviteGuardianUseCase: InviteGuardianUseCase; bulkInviteGuardiansUseCase: BulkInviteGuardiansUseCase;
+ }
+ 
+-export class GuardianController {
+-    private readonly createGuardianUseCase: CreateGuardianUseCase;
+-    private readonly getGuardianUseCase:    GetGuardianUseCase;
+-    private readonly listGuardiansUseCase:  ListGuardiansUseCase;
+-    private readonly updateGuardianUseCase: UpdateGuardianUseCase;
+-    private readonly inviteGuardianUseCase: InviteGuardianUseCase;
+-    private readonly linkGuardianUseCase:   LinkGuardianUseCase;
+-    private readonly bulkInviteGuardiansUseCase:   BulkInviteGuardiansUseCase;
+-    private readonly getMyChildrenUseCase: GetMyChildrenUseCase;
+-
+-    constructor({
+-        createGuardianUseCase,
+-        getGuardianUseCase,
+-        getMyChildrenUseCase,
+-        listGuardiansUseCase,
+-        updateGuardianUseCase,
+-        inviteGuardianUseCase,
+-        linkGuardianUseCase,
+-        bulkInviteGuardiansUseCase,
+-    }: Dependencies) {
+-        this.createGuardianUseCase = createGuardianUseCase;
+-        this.getGuardianUseCase    = getGuardianUseCase;
+-        this.getMyChildrenUseCase  = getMyChildrenUseCase
+-        this.listGuardiansUseCase  = listGuardiansUseCase;
+-        this.updateGuardianUseCase = updateGuardianUseCase;
+-        this.inviteGuardianUseCase = inviteGuardianUseCase;
+-        this.linkGuardianUseCase   = linkGuardianUseCase;
+-        this.bulkInviteGuardiansUseCase = bulkInviteGuardiansUseCase;
+-    }
+-
+-    // ── List guardians ────────────────────────────────────────────────────
+-    listGuardians = async (
+-        req:  Request,
+-        res:  Response,
+-        next: NextFunction,
+-    ): Promise<void> => {
+-        try {
+-            const result = await this.listGuardiansUseCase.execute(
+-                req.query as any,
+-            );
+-            sendPaginated(res, result.data, result.meta);
+-        } catch (err) {
+-            next(err);
+-        }
++/*
++| GUARDIAN CONTROLLER (school realm, /guardians). The school is the host's school; the acting person comes ONLY
++| from the verified session (req.auth), never from the body or URL.
++*/
++const schoolIdOf = (req: Request): string => req.schoolId as string;
++const idOf = (req: Request): string => String(req.params.id);
++const actorOf = (req: Request): GuardianActor => {
++    if (!req.auth) throw guardianErrors.notFound();
++    const access = getAccess(req);
++    return {
++        userId: req.auth.userId, membershipId: req.auth.membershipId, access,
++        ip: req.ip ?? req.socket.remoteAddress ?? "unknown", userAgent: req.get("user-agent") ?? null,
++        isAdmin: access.hasRoleKey("school_admin"),
+     };
++};
+ 
+-    // ── Get guardian ──────────────────────────────────────────────────────
+-    getGuardian = async (
+-        req:  Request,
+-        res:  Response,
+-        next: NextFunction,
+-    ): Promise<void> => {
+-        try {
+-            const result = await this.getGuardianUseCase.execute(
+-                req.params.id as string,
+-            );
+-            sendSuccess(res, result, "Guardian retrieved successfully");
+-        } catch (err) {
+-            next(err);
+-        }
+-    };
++export class GuardianController {
++    constructor(private readonly d: Dependencies) {}
+ 
+-    getMyChildren = async (
+-        req: Request,
+-        res: Response,
+-        next: NextFunction,
+-    ): Promise<void> => {
++    list = async (req: Request, res: Response, next: NextFunction) => {
+         try {
+-            const result = await this.getMyChildrenUseCase.execute(
+-                req.user?.id as string,
+-            );
+-
+-            sendSuccess(res, result, "Children retrieved successfully");
+-        } catch (err) {
+-            next(err);
+-        }
++            // The validate middleware does not write query values back, so the query is parsed here
++            const r = await this.d.listGuardiansUseCase.execute(ListGuardiansQuery.parse(req.query));
++            res.status(200).json({ success: true, message: "Guardians retrieved successfully", data: r.data, meta: r.meta });
++        } catch (e) { next(e); }
+     };
+ 
+-    // ── Create guardian ───────────────────────────────────────────────────
+-    createGuardian = async (
+-        req:  Request,
+-        res:  Response,
+-        next: NextFunction,
+-    ): Promise<void> => {
+-        try {
+-            const result = await this.createGuardianUseCase.execute(
+-                req.body, 
+-                req.user!.schoolId!,
+-                req.user?.id as string,
+-            );
+-            sendCreated(res, result, "Guardian created successfully");
+-        } catch (err) {
+-            next(err);
+-        }
+-    };
++    get = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.getGuardianUseCase.execute(idOf(req), getAccess(req)), "Guardian retrieved successfully"); } catch (e) { next(e); } };
++    myChildren = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.getMyChildrenUseCase.execute(getAccess(req)), "Children retrieved successfully"); } catch (e) { next(e); } };
+ 
+-    // ── Update guardian ───────────────────────────────────────────────────
+-    updateGuardian = async (
+-        req:  Request,
+-        res:  Response,
+-        next: NextFunction,
+-    ): Promise<void> => {
++    create = async (req: Request, res: Response, next: NextFunction) => {
+         try {
+-            const result = await this.updateGuardianUseCase.execute(
+-                req.params.id as string,
+-                req.body,
+-            );
+-            sendSuccess(res, result, "Guardian updated successfully");
+-        } catch (err) {
+-            next(err);
+-        }
++            const r = await this.d.createGuardianUseCase.execute(schoolIdOf(req), req.body, actorOf(req));
++            if (r.outcome === "already_linked") return sendSuccess(res, r, "This guardian was already linked to the student");
++            sendCreated(res, r, r.outcome === "created" ? "Guardian created successfully" : "Existing guardian linked to the student");
++        } catch (e) { next(e); }
+     };
+ 
+-    // ── Invite guardian to portal ─────────────────────────────────────────
+-    inviteGuardian = async (
+-        req:  Request,
+-        res:  Response,
+-        next: NextFunction,
+-    ): Promise<void> => {
+-        try {
+-            const result = await this.inviteGuardianUseCase.execute(
+-                { guardianId: req.params.id as string },
+-                req.schoolId as string,
+-            );
+-            sendSuccess(res, null, result.message);
+-        } catch (err) {
+-            next(err);
+-        }
+-    };
+-    // ── Link guardian to another student ──────────────────────────────────
+-    linkGuardian = async (
+-        req:  Request,
+-        res:  Response,
+-        next: NextFunction,
+-    ): Promise<void> => {
+-        try {
+-            const result = await this.linkGuardianUseCase.execute(
+-                req.params.id as string,
+-                req.body,
+-            );
+-            sendSuccess(res, result, "Guardian linked to student successfully");
+-        } catch (err) {
+-            next(err);
+-        }
+-    };
++    update = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.updateGuardianUseCase.execute(schoolIdOf(req), idOf(req), req.body, actorOf(req)), "Guardian updated successfully"); } catch (e) { next(e); } };
++    link = async (req: Request, res: Response, next: NextFunction) => { try { sendCreated(res, await this.d.linkGuardianUseCase.execute(schoolIdOf(req), idOf(req), req.body, actorOf(req)), "Guardian linked to student"); } catch (e) { next(e); } };
++    updateLink = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.updateGuardianLinkUseCase.execute(schoolIdOf(req), idOf(req), String(req.params.studentId), req.body, actorOf(req)), "Link updated successfully"); } catch (e) { next(e); } };
++    unlink = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.unlinkGuardianUseCase.execute(schoolIdOf(req), idOf(req), String(req.params.studentId), actorOf(req)), "Guardian unlinked from student"); } catch (e) { next(e); } };
++    invite = async (req: Request, res: Response, next: NextFunction) => { try { sendCreated(res, await this.d.inviteGuardianUseCase.execute(schoolIdOf(req), idOf(req), actorOf(req)), "Invitation sent"); } catch (e) { next(e); } };
+ 
+-    bulkInviteGuardians = async (
+-        req:  Request,
+-        res:  Response,
+-        next: NextFunction,
+-    ): Promise<void> => {
++    bulkInvite = async (req: Request, res: Response, next: NextFunction) => {
+         try {
+-            const dto = BulkInviteGuardiansDto.parse(req.body);
+-            const result = await this.bulkInviteGuardiansUseCase.execute(dto, req.schoolId as string);
+-            sendSuccess(res, result, `${result.sent} invitation(s) sent`);
+-        } catch (err) {
+-            next(err);
+-        }
++            const r = await this.d.bulkInviteGuardiansUseCase.execute(schoolIdOf(req), req.body, actorOf(req));
++            sendSuccess(res, r, `${r.sent} invitation(s) sent`);
++        } catch (e) { next(e); }
+     };
+-}
+\ No newline at end of file
++}
+diff --git a/src/modules/guardians/domain/guardian.errors.ts b/src/modules/guardians/domain/guardian.errors.ts
+new file mode 100644
+index 0000000..a868786
+--- /dev/null
++++ b/src/modules/guardians/domain/guardian.errors.ts
+@@ -0,0 +1,13 @@
++import { AppError, NotFoundError } from "../../../shared/errors/domain.errors";
++
++/* The only place the guardians module builds domain errors. Codes are stable; the frontend switches on them. */
++export const guardianErrors = {
++    notFound:        () => new NotFoundError("Guardian"),
++    studentNotFound: () => new NotFoundError("Student"),
++    alreadyLinked:   () => new AppError("This guardian is already linked to this student", 409, true, "GUARDIAN_ALREADY_LINKED"),
++    notLinked:       () => new AppError("This guardian is not linked to this student", 404, true, "GUARDIAN_NOT_LINKED"),
++    hasLogin:        () => new AppError("This guardian has a portal login, so the email cannot be changed here yet", 409, true, "GUARDIAN_HAS_LOGIN"),
++    emailTaken:      () => new AppError("Another guardian already uses this email", 409, true, "GUARDIAN_EMAIL_TAKEN"),
++    alreadyHasAccess: () => new AppError("This guardian already has portal access", 409, true, "GUARDIAN_ALREADY_HAS_ACCESS"),
++    primaryConflict: () => new AppError("The primary guardian was changed at the same moment. Please try again", 409, true, "PRIMARY_GUARDIAN_CONFLICT"),
++};
+diff --git a/src/modules/guardians/domain/guardian.policy.ts b/src/modules/guardians/domain/guardian.policy.ts
+new file mode 100644
+index 0000000..e2f9a55
+--- /dev/null
++++ b/src/modules/guardians/domain/guardian.policy.ts
+@@ -0,0 +1,5 @@
++export const GUARDIAN_RELATIONS = ["father", "mother", "uncle", "aunt", "grandparent", "sibling", "guardian", "other"] as const;
++export type GuardianRelation = typeof GUARDIAN_RELATIONS[number];
++
++/** Emails are compared and stored trimmed and lower-case, so "Mum@x.com" and "mum@x.com" are one guardian. */
++export const normalizeEmail = (email: string): string => email.trim().toLowerCase();
+diff --git a/src/modules/guardians/domain/guardian.types.ts b/src/modules/guardians/domain/guardian.types.ts
+new file mode 100644
+index 0000000..d265778
+--- /dev/null
++++ b/src/modules/guardians/domain/guardian.types.ts
+@@ -0,0 +1,14 @@
++import type { Access } from "../../../foundation/access.service";
++
++// Who is acting. Comes ONLY from the verified session, never from the request body.
++export interface GuardianActor {
++    userId:       string;
++    membershipId: string | null;
++    access:       Access;
++    ip:           string;
++    userAgent:    string | null;
++    isAdmin:      boolean;      // holds the locked School Admin role
++}
++
++export type GuardianOutcome = "created" | "reused" | "already_linked";
++export type InviteStatus    = { status: "sent" | "not_needed" | "failed"; code?: string };
+diff --git a/src/modules/guardians/dtos/guardian.dto.ts b/src/modules/guardians/dtos/guardian.dto.ts
+index 5972f04..7585672 100644
+--- a/src/modules/guardians/dtos/guardian.dto.ts
++++ b/src/modules/guardians/dtos/guardian.dto.ts
+@@ -1,81 +1,71 @@
+ import { z } from "zod";
++import { GUARDIAN_RELATIONS } from "../domain/guardian.policy";
+ 
+ /*
+-|--------------------------------------------------------------------------
+-| GUARDIAN DTOs
+-|--------------------------------------------------------------------------
++| GUARDIAN DTOs. Text is trimmed and bounded; emails are lower-cased; blank strings count as "not sent" (create)
++| or "clear it" (update). Unknown fields are rejected (.strict()).
+ */
++const blank = (to: undefined | null) => (v: unknown) => (typeof v === "string" && v.trim() === "" ? to : v);
++const text  = (max: number) => z.string().trim().max(max);
++const optText   = (max: number) => z.preprocess(blank(undefined), text(max).optional());
++const clearText = (max: number) => z.preprocess(blank(null), text(max).nullable().optional());
+ 
+-// ── Create guardian ───────────────────────────────────────────────────────
+-export const CreateGuardianDto = z.object({
+-    firstName:  z.string().min(1).max(50),
+-    lastName:   z.string().min(1).max(50),
+-    email:      z.string().email(),
+-    phone:      z.string().optional(),
+-    occupation: z.string().optional(),
+-    address:    z.string().optional(),
++const email = z.string().trim().toLowerCase().email().max(254);
++const phone = z.string().trim().regex(/^[+0-9 ()\-]{7,20}$/, "Enter a valid phone number");
++const relation = z.enum(GUARDIAN_RELATIONS);
+ 
+-    // Link to student immediately
++// ── Create guardian (and link to a student) ────────────────────────────────
++export const CreateGuardianDto = z.object({
++    firstName:  z.string().trim().min(1).max(50),
++    lastName:   z.string().trim().min(1).max(50),
++    email,
++    phone:      z.preprocess(blank(undefined), phone.optional()),
++    occupation: optText(100),
++    address:    optText(300),
+     studentId:  z.string().uuid(),
+-    relation:   z.enum([
+-                    "father",
+-                    "mother",
+-                    "uncle",
+-                    "aunt",
+-                    "grandparent",
+-                    "sibling",
+-                    "guardian",
+-                    "other",
+-                ]),
++    relation,
+     isPrimary:  z.boolean().default(false),
+-});
++    invite:     z.boolean().default(false),          // also send the portal invitation after saving
++}).strict();
+ 
+-// ── Update guardian ───────────────────────────────────────────────────────
++// ── Update guardian (send only what changes; blank or null clears an optional field) ──
+ export const UpdateGuardianDto = z.object({
+-    firstName:  z.string().min(1).max(50).optional(),
+-    lastName:   z.string().min(1).max(50).optional(),
+-    email:      z.string().email().optional(),
+-    phone:      z.string().optional(),
+-    occupation: z.string().optional(),
+-    address:    z.string().optional(),
+-});
++    firstName:  z.string().trim().min(1).max(50).optional(),
++    lastName:   z.string().trim().min(1).max(50).optional(),
++    email:      email.optional(),
++    phone:      z.preprocess(blank(null), phone.nullable().optional()),
++    occupation: clearText(100),
++    address:    clearText(300),
++}).strict().refine(o => Object.keys(o).length > 0, "Send at least one field to change");
+ 
+-// ── Link guardian to another student ─────────────────────────────────────
++// ── Link to another student / change a link ───────────────────────────────
+ export const LinkGuardianDto = z.object({
+     studentId: z.string().uuid(),
+-    relation:  z.enum([
+-                   "father",
+-                   "mother",
+-                   "uncle",
+-                   "aunt",
+-                   "grandparent",
+-                   "sibling",
+-                   "guardian",
+-                   "other",
+-               ]),
++    relation,
+     isPrimary: z.boolean().default(false),
+-});
++}).strict();
+ 
+-// ── Invite guardian to portal ─────────────────────────────────────────────
+-export const InviteGuardianDto = z.object({
+-    guardianId: z.string().uuid(),
+-});
+-
+-// ── List guardians ────────────────────────────────────────────────────────
+-export const ListGuardiansDto = z.object({
+-    page:      z.string().optional(),
+-    limit:     z.string().optional(),
+-    studentId: z.string().optional(),
+-    search:    z.string().optional(),
+-});
++export const UpdateGuardianLinkDto = z.object({
++    relation:  relation.optional(),
++    isPrimary: z.boolean().optional(),
++}).strict().refine(o => Object.keys(o).length > 0, "Send at least one field to change");
+ 
++// ── Bulk invite ───────────────────────────────────────────────────────────
+ export const BulkInviteGuardiansDto = z.object({
+     guardianIds: z.array(z.string().uuid()).min(1).max(100),
++}).strict();
++
++// ── List (parsed in the controller: the validate middleware does not write query values back) ──
++export const ListGuardiansQuery = z.object({
++    page:      z.coerce.number().int().min(1).default(1),
++    limit:     z.coerce.number().int().min(1).max(100).default(20),
++    search:    z.string().trim().max(100).optional(),
++    studentId: z.string().uuid().optional(),
+ });
+ 
+-export type CreateGuardianDtoType  = z.infer<typeof CreateGuardianDto>;
+-export type UpdateGuardianDtoType  = z.infer<typeof UpdateGuardianDto>;
+-export type LinkGuardianDtoType    = z.infer<typeof LinkGuardianDto>;
+-export type InviteGuardianDtoType  = z.infer<typeof InviteGuardianDto>;
+-export type ListGuardiansDtoType   = z.infer<typeof ListGuardiansDto>;
+-export type BulkInviteGuardiansDtoType = z.infer<typeof BulkInviteGuardiansDto>;
+\ No newline at end of file
++export type CreateGuardianDtoType      = z.infer<typeof CreateGuardianDto>;
++export type UpdateGuardianDtoType      = z.infer<typeof UpdateGuardianDto>;
++export type LinkGuardianDtoType        = z.infer<typeof LinkGuardianDto>;
++export type UpdateGuardianLinkDtoType  = z.infer<typeof UpdateGuardianLinkDto>;
++export type BulkInviteGuardiansDtoType = z.infer<typeof BulkInviteGuardiansDto>;
++export type ListGuardiansQueryType     = z.infer<typeof ListGuardiansQuery>;
+diff --git a/src/modules/guardians/guardians.container.ts b/src/modules/guardians/guardians.container.ts
+index a69ba76..be672b2 100644
+--- a/src/modules/guardians/guardians.container.ts
++++ b/src/modules/guardians/guardians.container.ts
+@@ -1,38 +1,35 @@
+-import { asClass }                   from "awilix";
+-import type { AwilixContainer }      from "awilix";
+-import { GuardianMapper }            from "./mappers/guardian.mapper";
+-import { GuardianRepositoryImpl }    from "./repositories/guardian.repository.impl";
+-import { CreateGuardianUseCase }     from "./usecases/create-guardian.usecase";
+-import { GetGuardianUseCase }        from "./usecases/get-guardian.usecase";
+-import { GetMyChildrenUseCase } from "./usecases/get-my-children.usecase";
+-import { ListGuardiansUseCase }      from "./usecases/list-guardians.usecase";
+-
+-import { UpdateGuardianUseCase }     from "./usecases/update-guardian.usecase";
+-import { InviteGuardianUseCase }     from "./usecases/invite-guardian.usecase";
+-import { LinkGuardianUseCase }       from "./usecases/link-guardian.usecase";
+-import { UnlinkGuardianUseCase } from "./usecases/unlink-guardian.usecase";
+-import { BulkInviteGuardiansUseCase } from "./usecases/bulk-invite-guardian.usecase";
+-import { GuardianController }        from "./controllers/guardian.controller";
++import { asClass } from "awilix";
++import type { AwilixContainer } from "awilix";
++import { GuardianMapper } from "./mappers/guardian.mapper";
++import { GuardianRepositoryImpl } from "./repositories/guardian.repository.impl";
++import { CreateGuardianUseCase } from "./usecases/create-guardian.usecase";
++import { UpdateGuardianUseCase } from "./usecases/update-guardian.usecase";
++import { LinkGuardianUseCase, UpdateGuardianLinkUseCase, UnlinkGuardianUseCase } from "./usecases/guardian-links.usecases";
++import { InviteGuardianUseCase, BulkInviteGuardiansUseCase } from "./usecases/guardian-invites.usecases";
++import { ListGuardiansUseCase, GetGuardianUseCase, GetMyChildrenUseCase } from "./usecases/guardian-queries.usecases";
++import { GuardianController } from "./controllers/guardian.controller";
+ 
+ /*
+-|--------------------------------------------------------------------------
+-| GUARDIANS CONTAINER
+-|--------------------------------------------------------------------------
++| GUARDIANS CONTAINER.
++| Requires: registerStudents (studentRepository, studentPhotoService), registerAudit (auditService),
++|           registerAuth (sendInviteUseCase, membershipService), registerFoundation (accessService).
+ */
+-
+ export const registerGuardians = (container: AwilixContainer): void => {
+     container.register({
+-        guardianMapper:          asClass(GuardianMapper).singleton(),
+-        guardianRepository:      asClass(GuardianRepositoryImpl).scoped(),
+-        createGuardianUseCase:   asClass(CreateGuardianUseCase).scoped(),
+-        getGuardianUseCase:      asClass(GetGuardianUseCase).scoped(),
+-        getMyChildrenUseCase:    asClass(GetMyChildrenUseCase).scoped(),
+-        listGuardiansUseCase:    asClass(ListGuardiansUseCase).scoped(),
+-        updateGuardianUseCase:   asClass(UpdateGuardianUseCase).scoped(),
+-        inviteGuardianUseCase:   asClass(InviteGuardianUseCase).scoped(),
+-        linkGuardianUseCase:     asClass(LinkGuardianUseCase).scoped(),
+-        unlinkGuardianUseCase:     asClass(UnlinkGuardianUseCase).scoped(),
++        guardianMapper:             asClass(GuardianMapper).singleton(),
++        guardianRepository:         asClass(GuardianRepositoryImpl).scoped(),
++
++        listGuardiansUseCase:       asClass(ListGuardiansUseCase).scoped(),
++        getGuardianUseCase:         asClass(GetGuardianUseCase).scoped(),
++        getMyChildrenUseCase:       asClass(GetMyChildrenUseCase).scoped(),
++        createGuardianUseCase:      asClass(CreateGuardianUseCase).scoped(),
++        updateGuardianUseCase:      asClass(UpdateGuardianUseCase).scoped(),
++        linkGuardianUseCase:        asClass(LinkGuardianUseCase).scoped(),
++        updateGuardianLinkUseCase:  asClass(UpdateGuardianLinkUseCase).scoped(),
++        unlinkGuardianUseCase:      asClass(UnlinkGuardianUseCase).scoped(),
++        inviteGuardianUseCase:      asClass(InviteGuardianUseCase).scoped(),
+         bulkInviteGuardiansUseCase: asClass(BulkInviteGuardiansUseCase).scoped(),
+-        guardianController:      asClass(GuardianController).scoped(),
++
++        guardianController:         asClass(GuardianController).scoped(),
+     });
+-};
+\ No newline at end of file
++};
+diff --git a/src/modules/guardians/guardians.permissions.ts b/src/modules/guardians/guardians.permissions.ts
+new file mode 100644
+index 0000000..c1276c8
+--- /dev/null
++++ b/src/modules/guardians/guardians.permissions.ts
+@@ -0,0 +1,11 @@
++/*
++| GUARDIAN PERMISSION KEYS. Guardian contact details (email, phone, address) are private, so both keys are
++| sensitive and ALL-only. By default only the School Admin (grants-all) holds them; the platform can tick them
++| for other roles. A guardian never needs a key to see their OWN children: that uses the GUARDIAN persona.
++| guardians.view    see guardians and their contact details
++| guardians.manage  add, edit, link, unlink and invite guardians
++*/
++export const GUARDIAN_PERMISSIONS = [
++    { key: "guardians.view",   realm: "SCHOOL", module: "guardians", scopes: ["ALL"], personas: ["STAFF"], label: "View guardians and their contact details", isSensitive: true },
++    { key: "guardians.manage", realm: "SCHOOL", module: "guardians", scopes: ["ALL"], personas: ["STAFF"], label: "Add, edit, link and invite guardians", isSensitive: true },
++] as const;
+diff --git a/src/modules/guardians/repositories/guardian.repository.impl.ts b/src/modules/guardians/repositories/guardian.repository.impl.ts
+index 0f2a4f1..f7115f6 100644
+--- a/src/modules/guardians/repositories/guardian.repository.impl.ts
++++ b/src/modules/guardians/repositories/guardian.repository.impl.ts
+@@ -1,5 +1,5 @@
+ import { Prisma } from "../../../generated/tenant";
+-import { BaseTenantRepository } from "../../../infrastructure/repository/base.repository";
++import { BaseTenantRepository, PaginateParams, PaginatedResult } from "../../../infrastructure/repository/base.repository";
+ import { GuardianMapper } from "../mappers/guardian.mapper";
+ import { GuardianEntity, StudentGuardianEntity } from "../domain/guardian.entity";
+ import { IGuardianRepository } from "./guardian.repository";
+@@ -15,17 +15,24 @@ export class GuardianRepositoryImpl
+     }
+ 
+     async findByEmail(email: string): Promise<GuardianEntity | null> {
+-        return this.findOne({ email });
++        return this.findOne({ email: { equals: email.trim(), mode: "insensitive" } });   // any capitals
+     }
+ 
+     async findByStudentId(studentId: string): Promise<GuardianEntity[]> {
+-        const links = await this.prisma.studentGuardian.findMany({ where: { studentId } });
+-
+-        const guardians = await Promise.all(
+-            links.map(link => this.prisma.guardian.findUnique({ where: { id: link.guardianId } })),
+-        );
++        const rows = await this.prisma.guardian.findMany({ where: { studentLinks: { some: { studentId } } }, orderBy: { createdAt: "asc" } });   // one query
++        return this.mapMany(rows as any[]);
++    }
+ 
+-        return this.mapMany(guardians.filter(Boolean) as any[]);
++    /** Name, email or phone search. Every word typed must match somewhere; filters in params.where are KEPT. */
++    async searchGuardians(query: string, params: PaginateParams): Promise<PaginatedResult<GuardianEntity>> {
++        const words = query.trim().split(/\s+/).filter(Boolean).slice(0, 5);
++        const matchesWord = (w: string) => ({
++            OR: [
++                { firstName: { contains: w, mode: "insensitive" } }, { lastName: { contains: w, mode: "insensitive" } },
++                { email:     { contains: w, mode: "insensitive" } }, { phone:    { contains: w } },
++            ],
++        });
++        return this.paginate({ ...params, where: { AND: [params.where ?? {}, ...words.map(matchesWord)] } });
+     }
+ 
+     async findByUserId(userId: string): Promise<GuardianEntity | null> {
+@@ -96,8 +103,6 @@ export class GuardianRepositoryImpl
+             select: { studentId: true },
+         });
+ 
+-        console.log("student links",  links)
+-
+         return links.map(l => l.studentId);
+     }
+ }
+\ No newline at end of file
+diff --git a/src/modules/guardians/repositories/guardian.repository.ts b/src/modules/guardians/repositories/guardian.repository.ts
+index 594e851..01b95b8 100644
+--- a/src/modules/guardians/repositories/guardian.repository.ts
++++ b/src/modules/guardians/repositories/guardian.repository.ts
+@@ -24,6 +24,7 @@ export interface IGuardianRepository {
+     // ── Guardian specific ─────────────────────────────────────────────────
+     findByEmail(email: string):                     Promise<GuardianEntity | null>;
+     findByStudentId(studentId: string):             Promise<GuardianEntity[]>;
++    searchGuardians(query: string, params: PaginateParams): Promise<PaginatedResult<GuardianEntity>>;
+     findGuardianLinksByStudentId(
+         studentId: string,
+     ): Promise<Array<{ guardian: GuardianEntity; relation: string; isPrimary: boolean }>>;
+diff --git a/src/modules/guardians/routes/guardian.routes.ts b/src/modules/guardians/routes/guardian.routes.ts
+index 38a04a4..cb27035 100644
+--- a/src/modules/guardians/routes/guardian.routes.ts
++++ b/src/modules/guardians/routes/guardian.routes.ts
+@@ -1,103 +1,36 @@
+-import { Router }               from "express";
+-import { container }            from "../../../container";
+-import { GuardianController }   from "../controllers/guardian.controller";
+-import { validate }             from "../../../infrastructure/middleware/validate.middleware";
+-import { authenticate }         from "../../../infrastructure/middleware/auth.middleware";
+-import {
+-    requireSchoolAdmin,
+-    requireStaff,
+-}                               from "../../../infrastructure/middleware/rbac.middleware";
+-import { requireTenant }        from "../../../infrastructure/middleware/tenant-resolver.middleware";
+-import {
+-    CreateGuardianDto,
+-    UpdateGuardianDto,
+-    LinkGuardianDto,
+-    ListGuardiansDto,
+-    BulkInviteGuardiansDto
+-}                               from "../dtos/guardian.dto";
++import { Router } from "express";
++import { container } from "../../../container";
++import { GuardianController } from "../controllers/guardian.controller";
++import { validate } from "../../../infrastructure/middleware/validate.middleware";
++import { authenticate } from "../../../infrastructure/middleware/auth.middleware";
++import { requireTenant } from "../../../infrastructure/middleware/tenant-resolver.middleware";
++import { requirePermission, requirePersona } from "../../../infrastructure/middleware/rbac.middleware";
++import { CreateGuardianDto, UpdateGuardianDto, LinkGuardianDto, UpdateGuardianLinkDto, BulkInviteGuardiansDto } from "../dtos/guardian.dto";
+ 
+ /*
+-|--------------------------------------------------------------------------
+-| GUARDIAN ROUTES
+-|--------------------------------------------------------------------------
++| GUARDIAN ROUTES (school realm, mounted at /guardians on the school's host).
++| guardians.view   = see guardians and their contact details (including "guardians of a student")
++| guardians.manage = create, edit, link, unlink, invite
++| /me/children is for the GUARDIAN persona only: who they are comes from the session, never from the request.
++| Fixed paths ("/me/children", "/invite/bulk") come before "/:id".
+ */
+-
+ const router = Router();
+ const ctrl   = () => container.resolve<GuardianController>("guardianController");
++const view   = [authenticate, requireTenant, requirePermission("guardians.view")] as const;
++const manage = [authenticate, requireTenant, requirePermission("guardians.manage")] as const;
++const mine   = [authenticate, requireTenant, requirePersona("GUARDIAN")] as const;
+ 
+-// ── List guardians ────────────────────────────────────────────────────────
+-router.get(
+-    "/",
+-    authenticate,
+-    requireTenant,
+-    requireStaff,
+-    validate(ListGuardiansDto, "query"),
+-    (req, res, next) => ctrl().listGuardians(req, res, next),
+-);
+-// ── Get my children ──────────────────────────────────────────────────────
+-router.get(
+-    "/me/children",
+-    authenticate,
+-    requireTenant,
+-    (req, res, next) => ctrl().getMyChildren(req, res, next),
+-);
+-
+-// ── Get guardian ──────────────────────────────────────────────────────────
+-router.get(
+-    "/:id",
+-    authenticate,
+-    requireTenant,
+-    requireStaff,
+-    (req, res, next) => ctrl().getGuardian(req, res, next),
+-);
+-
+-// ── Create guardian ───────────────────────────────────────────────────────
+-router.post(
+-    "/",
+-    authenticate,
+-    requireTenant,
+-    requireSchoolAdmin,
+-    validate(CreateGuardianDto),
+-    (req, res, next) => ctrl().createGuardian(req, res, next),
+-);
+-
+-// ── Update guardian ───────────────────────────────────────────────────────
+-router.put(
+-    "/:id",
+-    authenticate,
+-    requireTenant,
+-    requireSchoolAdmin,
+-    validate(UpdateGuardianDto),
+-    (req, res, next) => ctrl().updateGuardian(req, res, next),
+-);
+-
+-// ── Invite guardian to portal ─────────────────────────────────────────────
+-router.post(
+-    "/:id/invite",
+-    authenticate,
+-    requireTenant,
+-    requireSchoolAdmin,
+-    (req, res, next) => ctrl().inviteGuardian(req, res, next),
+-);
+-
+-router.post(
+-    "/invite/bulk",
+-    authenticate,
+-    requireTenant,
+-    requireSchoolAdmin,
+-    validate(BulkInviteGuardiansDto),
+-    (req, res, next) => ctrl().bulkInviteGuardians(req, res, next),
+-);
++router.get("/me/children", ...mine, (q, s, n) => ctrl().myChildren(q, s, n));
++router.post("/invite/bulk", ...manage, validate(BulkInviteGuardiansDto), (q, s, n) => ctrl().bulkInvite(q, s, n));
+ 
++router.get("/", ...view, (q, s, n) => ctrl().list(q, s, n));
++router.post("/", ...manage, validate(CreateGuardianDto), (q, s, n) => ctrl().create(q, s, n));
+ 
+-// ── Link guardian to another student ─────────────────────────────────────
+-router.post(
+-    "/:id/link",
+-    authenticate,
+-    requireTenant,
+-    requireSchoolAdmin,
+-    validate(LinkGuardianDto),
+-    (req, res, next) => ctrl().linkGuardian(req, res, next),
+-);
++router.get("/:id", ...view, (q, s, n) => ctrl().get(q, s, n));
++router.put("/:id", ...manage, validate(UpdateGuardianDto), (q, s, n) => ctrl().update(q, s, n));
++router.post("/:id/invite", ...manage, (q, s, n) => ctrl().invite(q, s, n));
++router.post("/:id/link", ...manage, validate(LinkGuardianDto), (q, s, n) => ctrl().link(q, s, n));
++router.put("/:id/students/:studentId", ...manage, validate(UpdateGuardianLinkDto), (q, s, n) => ctrl().updateLink(q, s, n));
++router.delete("/:id/students/:studentId", ...manage, (q, s, n) => ctrl().unlink(q, s, n));
+ 
+-export default router;
+\ No newline at end of file
++export default router;
+diff --git a/src/modules/guardians/services/guardian-linking.ts b/src/modules/guardians/services/guardian-linking.ts
+new file mode 100644
+index 0000000..5e68186
+--- /dev/null
++++ b/src/modules/guardians/services/guardian-linking.ts
+@@ -0,0 +1,43 @@
++import { GuardianRelation } from "../domain/guardian.policy";
++
++/*
++| The database steps shared by "create guardian" and "link guardian". They take the open transaction (tx) so the
++| guardian and the link are saved together or not at all. This file imports nothing from the app, so it can be tested
++| with a small fake.
++|
++| ONE PRIMARY GUARDIAN PER STUDENT: the steps below hand the primary over (the old one stops being primary), and a
++| database rule (a partial unique index, migration 20261023150000_guardian_primary_unique) refuses a second primary even
++| if two requests arrive in the same moment. The caller turns that refusal (error code P2002) into PRIMARY_GUARDIAN_CONFLICT.
++*/
++export interface LinkTx {
++    guardian:        { findFirst(a: any): Promise<any>; create(a: any): Promise<any> };
++    studentGuardian: { findUnique(a: any): Promise<any>; updateMany(a: any): Promise<any>; create(a: any): Promise<any> };
++}
++
++export interface LinkInput { guardianId: string; studentId: string; relation: GuardianRelation; isPrimary: boolean }
++
++/** Links a guardian to a student. Returns "already_linked" (and changes nothing) if the link exists. */
++export async function linkInTx(tx: LinkTx, p: LinkInput): Promise<"linked" | "already_linked"> {
++    const existing = await tx.studentGuardian.findUnique({ where: { studentId_guardianId: { studentId: p.studentId, guardianId: p.guardianId } } });
++    if (existing) return "already_linked";
++    if (p.isPrimary) await tx.studentGuardian.updateMany({ where: { studentId: p.studentId, isPrimary: true }, data: { isPrimary: false } });
++    await tx.studentGuardian.create({ data: { guardianId: p.guardianId, studentId: p.studentId, relation: p.relation, isPrimary: p.isPrimary } });
++    return "linked";
++}
++
++export interface NewGuardian { firstName: string; lastName: string; email: string; phone?: string; occupation?: string; address?: string }
++
++/**
++ * Finds the guardian with this email in THIS school (any capitals) or creates one, then links to the student.
++ * An existing guardian is reused as it is: their name, phone and other details are never overwritten.
++ */
++export async function createOrReuseGuardianInTx(
++    tx: LinkTx, guardian: NewGuardian, link: Omit<LinkInput, "guardianId">,
++): Promise<{ guardian: any; outcome: "created" | "reused" | "already_linked" }> {
++    let g = await tx.guardian.findFirst({ where: { email: { equals: guardian.email, mode: "insensitive" } } });
++    const created = !g;
++    if (!g) g = await tx.guardian.create({ data: { ...guardian, isActive: true } });
++
++    const result = await linkInTx(tx, { ...link, guardianId: g.id });
++    return { guardian: g, outcome: result === "already_linked" ? "already_linked" : created ? "created" : "reused" };
++}
+diff --git a/src/modules/guardians/usecases/bulk-invite-guardian.usecase.ts b/src/modules/guardians/usecases/bulk-invite-guardian.usecase.ts
+deleted file mode 100644
+index aae5452..0000000
+--- a/src/modules/guardians/usecases/bulk-invite-guardian.usecase.ts
++++ /dev/null
+@@ -1,104 +0,0 @@
+-import { IGuardianRepository }          from "../repositories/guardian.repository";
+-import { ISchoolRepository }            from "../../school/repositories/school.repository";
+-import { MailService }                  from "../../../infrastructure/mail/mail.service";
+-import { TokenService }                 from "../../../shared/services/token.service";
+-import { NotFoundError }                from "../../../shared/errors/domain.errors";
+-import { BulkInviteGuardiansDtoType }   from "../dtos/guardian.dto";
+-import { env }                          from "../../../config/env";
+-
+-interface Dependencies {
+-    guardianRepository: IGuardianRepository;
+-    schoolRepository:   ISchoolRepository;
+-    mailService:        MailService;
+-    tokenService:       TokenService;
+-}
+-
+-export type BulkInviteStatus = "sent" | "skipped" | "failed";
+-
+-export interface BulkInviteResultItem {
+-    guardianId: string;
+-    status:     BulkInviteStatus;
+-    reason?:    string;
+-}
+-
+-export interface BulkInviteGuardiansResult {
+-    sent:    number;
+-    skipped: number;
+-    failed:  number;
+-    results: BulkInviteResultItem[];
+-}
+-
+-export class BulkInviteGuardiansUseCase {
+-    private readonly guardianRepository: IGuardianRepository;
+-    private readonly schoolRepository:   ISchoolRepository;
+-    private readonly mailService:        MailService;
+-    private readonly tokenService:       TokenService;
+-
+-    constructor({
+-        guardianRepository,
+-        schoolRepository,
+-        mailService,
+-        tokenService,
+-    }: Dependencies) {
+-        this.guardianRepository = guardianRepository;
+-        this.schoolRepository   = schoolRepository;
+-        this.mailService        = mailService;
+-        this.tokenService       = tokenService;
+-    }
+-
+-    async execute(
+-        dto:      BulkInviteGuardiansDtoType,
+-        schoolId: string,
+-    ): Promise<BulkInviteGuardiansResult> {
+-
+-        const school = await this.schoolRepository.findById(schoolId);
+-        if (!school) {
+-            throw new NotFoundError("School not found");
+-        }
+-
+-        const results: BulkInviteResultItem[] = [];
+-
+-        for (const guardianId of dto.guardianIds) {
+-            try {
+-                const guardian = await this.guardianRepository.findById(guardianId);
+-
+-                if (!guardian) {
+-                    results.push({ guardianId, status: "failed", reason: "Guardian not found" });
+-                    continue;
+-                }
+-
+-                if (guardian.userId) {
+-                    results.push({ guardianId, status: "skipped", reason: "Already has an account" });
+-                    continue;
+-                }
+-
+-                const token     = this.tokenService.generateInviteToken();
+-                const inviteUrl = `https://${school.subdomain}.${env.APP_BASE_DOMAIN}/invite/guardian?token=${token}`;
+-
+-                await this.mailService.sendInvite({
+-                    to:         guardian.email,
+-                    firstName:  guardian.firstName,
+-                    schoolName: school.name,
+-                    role:       "Parent/Guardian",
+-                    inviteUrl,
+-                    expiresIn:  "7 days",
+-                });
+-
+-                results.push({ guardianId, status: "sent" });
+-            } catch (err) {
+-                results.push({
+-                    guardianId,
+-                    status: "failed",
+-                    reason: err instanceof Error ? err.message : "Unknown error",
+-                });
+-            }
+-        }
+-
+-        return {
+-            sent:    results.filter(r => r.status === "sent").length,
+-            skipped: results.filter(r => r.status === "skipped").length,
+-            failed:  results.filter(r => r.status === "failed").length,
+-            results,
+-        };
+-    }
+-}
+\ No newline at end of file
+diff --git a/src/modules/guardians/usecases/create-guardian.usecase.ts b/src/modules/guardians/usecases/create-guardian.usecase.ts
+index e193c1e..649559a 100644
+--- a/src/modules/guardians/usecases/create-guardian.usecase.ts
++++ b/src/modules/guardians/usecases/create-guardian.usecase.ts
+@@ -1,187 +1,64 @@
+-import { IGuardianRepository }   from "../repositories/guardian.repository";
+-import { IStudentRepository }    from "../../students/repositories/student.repository";
+-import { IUserRepository }       from "../../auth/repositories/user.repository";
+-import { GuardianMapper }         from "../mappers/guardian.mapper";
+-import { GuardianResponseData }  from "../mappers/guardian.mapper";
+-import { PasswordService }        from "../../../shared/services/password.service";
+-import { MailService }            from "../../../infrastructure/mail/mail.service";
+-import { AuditService }            from "../../audit/services/audit.service";
+-import {
+-    ConflictError,
+-    NotFoundError,
+-}                                 from "../../../shared/errors/domain.errors";
+-import { GuardianErrorMessage }   from "../domain/guardian.enums";
+-import { StudentErrorMessage }    from "../../students/domain/student.enums";
+-import { CreateGuardianDtoType }  from "../dtos/guardian.dto";
+-import { Role }                   from "../../../generated/public";
++import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
++import { AuditService } from "../../audit/services/audit.service";
++import { IStudentRepository } from "../../students/repositories/student.repository";
++import { GuardianMapper, GuardianResponseData } from "../mappers/guardian.mapper";
++import { guardianErrors } from "../domain/guardian.errors";
++import { normalizeEmail } from "../domain/guardian.policy";
++import { GuardianActor, GuardianOutcome, InviteStatus } from "../domain/guardian.types";
++import { CreateGuardianDtoType } from "../dtos/guardian.dto";
++import { createOrReuseGuardianInTx } from "../services/guardian-linking";
++import { InviteGuardianUseCase, tryInvite } from "./guardian-invites.usecases";
++
++interface Dependencies {
++    studentRepository: IStudentRepository; guardianMapper: GuardianMapper; auditService: AuditService; inviteGuardianUseCase: InviteGuardianUseCase;
++}
++
++export interface CreateGuardianResult { guardian: GuardianResponseData; outcome: GuardianOutcome; invite?: InviteStatus }
+ 
+ /*
+ |--------------------------------------------------------------------------
+-| CREATE GUARDIAN USE CASE
+-| Flow:
+-| 1. Check student exists
+-| 2. If guardian with this email already exists — just link (don't
+-|    recreate their account, they may already have one)
+-| 3. Otherwise: create User (public schema, login-ready) + Guardian
+-|    (tenant schema, linked via userId) + audit account creation +
+-|    send welcome email
+-| 4. Link guardian to student
++| CREATE GUARDIAN (and link to a student)
++|  1. the student must exist
++|  2. in ONE transaction: find the guardian by email in this school (any capitals) or create one, then link
++|     - an existing guardian is REUSED as it is: their details are never overwritten
++|     - already linked to this student: nothing changes, outcome "already_linked"
++|     - isPrimary hands the primary role over; the database refuses two primaries even under a race
++|  3. only after the commit: audit entry, then (if `invite: true`) the portal invitation through Auth
++| No login is created here. An invitation that fails does NOT undo the saved guardian: the response says
++| invite.status "failed" with a code, and the invite can be sent again later.
+ |--------------------------------------------------------------------------
+ */
+-
+-interface Dependencies {
+-    guardianRepository: IGuardianRepository;
+-    studentRepository:  IStudentRepository;
+-    userRepository:     IUserRepository;
+-    guardianMapper:     GuardianMapper;
+-    passwordService:    PasswordService;
+-    mailService:        MailService;
+-    auditService:       AuditService;
+-}
+-
+ export class CreateGuardianUseCase {
+-    private readonly guardianRepository: IGuardianRepository;
+-    private readonly studentRepository:  IStudentRepository;
+-    private readonly userRepository:     IUserRepository;
+-    private readonly guardianMapper:     GuardianMapper;
+-    private readonly passwordService:    PasswordService;
+-    private readonly mailService:        MailService;
+-    private readonly auditService:       AuditService;
+-
+-    constructor({
+-        guardianRepository,
+-        studentRepository,
+-        userRepository,
+-        guardianMapper,
+-        passwordService,
+-        mailService,
+-        auditService,
+-    }: Dependencies) {
+-        this.guardianRepository = guardianRepository;
+-        this.studentRepository  = studentRepository;
+-        this.userRepository     = userRepository;
+-        this.guardianMapper     = guardianMapper;
+-        this.passwordService    = passwordService;
+-        this.mailService        = mailService;
+-        this.auditService       = auditService;
+-    }
+-
+-    async execute(
+-        dto:      CreateGuardianDtoType,
+-        schoolId: string,
+-        userId:   string,
+-    ): Promise<GuardianResponseData> {
+-
+-        // ── 1. Check student exists ───────────────────────────────────────
+-        const student = await this.studentRepository.findById(dto.studentId);
+-        if (!student) {
+-            throw new NotFoundError(StudentErrorMessage.NOT_FOUND);
++    constructor(private readonly d: Dependencies) {}
++
++    async execute(schoolId: string, dto: CreateGuardianDtoType, actor: GuardianActor): Promise<CreateGuardianResult> {
++        const d = this.d;
++        if (!(await d.studentRepository.findById(dto.studentId))) throw guardianErrors.studentNotFound();
++
++        let saved;
++        try {
++            saved = await getTenantClient().$transaction(tx => createOrReuseGuardianInTx(
++                tx as any,
++                { firstName: dto.firstName, lastName: dto.lastName, email: normalizeEmail(dto.email), phone: dto.phone, occupation: dto.occupation, address: dto.address },
++                { studentId: dto.studentId, relation: dto.relation, isPrimary: dto.isPrimary },
++            ));
++        } catch (err: any) {
++            if (err?.code === "P2002") throw dto.isPrimary ? guardianErrors.primaryConflict() : guardianErrors.alreadyLinked();
++            throw err;
+         }
+ 
+-        // ── 2. Check if guardian with email already exists ────────────────
+-        let guardian = await this.guardianRepository.findByEmail(dto.email);
+-
+-        if (guardian) {
+-            const alreadyLinked = await this.guardianRepository.isLinked(
+-                guardian.id,
+-                dto.studentId,
+-            );
+-
+-            if (alreadyLinked) {
+-                throw new ConflictError(GuardianErrorMessage.ALREADY_LINKED);
+-            }
+-        } else {
+-            // ── 3a. Check email not already a different kind of user ──────
+-            const existingUser = await this.userRepository.findByEmail(dto.email);
+-            if (existingUser) {
+-                throw new ConflictError(
+-                    "A user with this email already exists.",
+-                );
+-            }
+-
+-            // ── 3b. Create login account ───────────────────────────────────
+-            const tempPassword = this.generateTempPassword();
+-            const passwordHash = await this.passwordService.hash(tempPassword);
+-
+-            const user = await this.userRepository.create({
+-                schoolId,
+-                email:           dto.email,
+-                passwordHash,
+-                role:             Role.guardian,
+-                firstName:       dto.firstName,
+-                lastName:        dto.lastName,
+-                phone:           dto.phone,
+-                isActive:        true,
+-                isEmailVerified: true,
+-                mustChangePassword: true,
+-            });
+-
+-            // ── 3c. Create guardian record, linked to the new account ─────
+-            guardian = await this.guardianRepository.create({
+-                userId:     user.id,
+-                firstName:  dto.firstName,
+-                lastName:   dto.lastName,
+-                email:      dto.email,
+-                phone:      dto.phone,
+-                occupation: dto.occupation,
+-                address:    dto.address,
+-            });
+-
+-            // ── 3d. Audit guardian account creation ───────────────────────
+-            await this.auditService.log({
+-                userId,
+-                schoolId,
+-                action:   "guardian.created",
+-                entity:   "Guardian",
+-                entityId: guardian.id,
+-                newValue: {
+-                    guardianId: guardian.id,
+-                    userId:     user.id,
+-                    studentId:  dto.studentId,
+-                    email:      user.email,
+-                    firstName:  user.firstName,
+-                    lastName:   user.lastName,
+-                    phone:      user.phone,
+-                    occupation: guardian.occupation,
+-                    address:    guardian.address,
+-                    relation:   dto.relation,
+-                    isPrimary:  dto.isPrimary,
+-                },
+-            });
+-
+-            // ── 3e. Send welcome email with credentials ────────────────────
+-            await this.mailService.sendLetter(dto.email, {
+-                subject:    "Welcome to the parent portal — Your login details",
+-                title:      "Your Account is Ready",
+-                greeting:   `Hi ${dto.firstName},`,
+-                paragraphs: [
+-                    `A parent/guardian account has been created for you on SchoolPortal.`,
+-                    `Your login credentials are:`,
+-                    `Email: <strong>${dto.email}</strong>`,
+-                    `Temporary Password: <strong>${tempPassword}</strong>`,
+-                    `Please change your password after your first login.`,
+-                ],
+-                footer: "If you did not expect this email, please contact the school.",
++        const { guardian, outcome } = saved;
++        if (outcome !== "already_linked") {
++            await d.auditService.log({
++                userId: actor.userId, schoolId, action: outcome === "created" ? "guardian.created" : "guardian.linked",
++                entity: "Guardian", entityId: guardian.id,
++                newValue: { guardianId: guardian.id, studentId: dto.studentId, relation: dto.relation, isPrimary: dto.isPrimary,
++                            ...(outcome === "created" ? { name: `${guardian.firstName} ${guardian.lastName}`, email: guardian.email } : {}) },
+             });
+         }
+ 
+-        // ── 4. Link guardian to student ───────────────────────────────────
+-        await this.guardianRepository.linkToStudent({
+-            guardianId: guardian.id,
+-            studentId:  dto.studentId,
+-            relation:   dto.relation,
+-            isPrimary:  dto.isPrimary,
+-        });
+-
+-        return this.guardianMapper.toResponse(guardian);
+-    }
+-
+-    private generateTempPassword(): string {
+-        const chars  = "ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#";
+-        let password = "";
+-        for (let i = 0; i < 10; i++) {
+-            password += chars[Math.floor(Math.random() * chars.length)];
+-        }
+-        return password;
++        const result: CreateGuardianResult = { guardian: d.guardianMapper.toResponse(d.guardianMapper.toDomain(guardian)), outcome };
++        if (dto.invite) result.invite = await tryInvite(() => d.inviteGuardianUseCase.execute(schoolId, guardian.id, actor));
++        return result;
+     }
+ }
+diff --git a/src/modules/guardians/usecases/get-guardian.usecase.ts b/src/modules/guardians/usecases/get-guardian.usecase.ts
+deleted file mode 100644
+index 5c0093b..0000000
+--- a/src/modules/guardians/usecases/get-guardian.usecase.ts
++++ /dev/null
+@@ -1,61 +0,0 @@
+-import { IGuardianRepository }  from "../repositories/guardian.repository";
+-import { IStudentRepository }   from "../../students/repositories/student.repository";
+-import { GuardianMapper }       from "../mappers/guardian.mapper";
+-import { GuardianWithStudentsResponseData } from "../mappers/guardian.mapper";
+-import { StudentMapper }        from "../../students/mappers/student.mapper";
+-import { NotFoundError }        from "../../../shared/errors/domain.errors";
+-import { GuardianErrorMessage } from "../domain/guardian.enums";
+-
+-interface Dependencies {
+-    guardianRepository: IGuardianRepository;
+-    guardianMapper:     GuardianMapper;
+-    studentRepository:  IStudentRepository;
+-    studentMapper:      StudentMapper;
+-}
+-
+-export class GetGuardianUseCase {
+-    private readonly guardianRepository: IGuardianRepository;
+-    private readonly guardianMapper:     GuardianMapper;
+-    private readonly studentRepository:  IStudentRepository;
+-    private readonly studentMapper:      StudentMapper;
+-
+-    constructor({
+-        guardianRepository,
+-        guardianMapper,
+-        studentRepository,
+-        studentMapper,
+-    }: Dependencies) {
+-        this.guardianRepository = guardianRepository;
+-        this.guardianMapper     = guardianMapper;
+-        this.studentRepository  = studentRepository;
+-        this.studentMapper      = studentMapper;
+-    }
+-
+-    async execute(id: string): Promise<GuardianWithStudentsResponseData> {
+-        const guardian = await this.guardianRepository.findById(id);
+-
+-        if (!guardian) {
+-            throw new NotFoundError(GuardianErrorMessage.NOT_FOUND);
+-        }
+-
+-        const links = await this.guardianRepository.findStudentLinksByGuardianId(id);
+-
+-        const students = await Promise.all(
+-            links.map(async link => {
+-                const student = await this.studentRepository.findById(link.studentId);
+-                if (!student) return null;
+-
+-                return {
+-                    ...this.studentMapper.toResponse(student),
+-                    relation:  link.relation,
+-                    isPrimary: link.isPrimary,
+-                };
+-            }),
+-        );
+-
+-        return {
+-            ...this.guardianMapper.toResponse(guardian),
+-            students: students.filter((s): s is NonNullable<typeof s> => s !== null),
+-        };
+-    }
+-}
+\ No newline at end of file
+diff --git a/src/modules/guardians/usecases/get-my-children.usecase.ts b/src/modules/guardians/usecases/get-my-children.usecase.ts
+deleted file mode 100644
+index 3281d34..0000000
+--- a/src/modules/guardians/usecases/get-my-children.usecase.ts
++++ /dev/null
+@@ -1,97 +0,0 @@
+-import { IGuardianRepository } from "../repositories/guardian.repository";
+-import { IStudentRepository }  from "../../students/repositories/student.repository";
+-import { IEnrolmentRepository } from "../../enrolment/repositories/enrolment.repository";
+-import { ISessionRepository }   from "../../sessions/repositories/session.repository";
+-import { IClassRepository }     from "../../classes/repositories/class.repository";
+-import { NotFoundError }       from "../../../shared/errors/domain.errors";
+-import { GuardianErrorMessage } from "../domain/guardian.enums";
+-
+-interface Dependencies {
+-    guardianRepository: IGuardianRepository;
+-    studentRepository:  IStudentRepository;
+-    enrolmentRepository: IEnrolmentRepository;
+-    sessionRepository:   ISessionRepository;
+-    classRepository:     IClassRepository;
+-}
+-
+-export interface MyChildResponseData {
+-    studentId:  string;
+-    relation:   string;
+-    isPrimary:  boolean;
+-    firstName:  string;
+-    lastName:   string;
+-    photoUrl:   string | null;
+-    isActive:   boolean;
+-    classId:    string | null;
+-    className:  string | null;
+-}
+-
+-export class GetMyChildrenUseCase {
+-    private readonly guardianRepository:  IGuardianRepository;
+-    private readonly studentRepository:   IStudentRepository;
+-    private readonly enrolmentRepository: IEnrolmentRepository;
+-    private readonly sessionRepository:   ISessionRepository;
+-    private readonly classRepository:     IClassRepository;
+-
+-    constructor({
+-        guardianRepository,
+-        studentRepository,
+-        enrolmentRepository,
+-        sessionRepository,
+-        classRepository,
+-    }: Dependencies) {
+-        this.guardianRepository  = guardianRepository;
+-        this.studentRepository   = studentRepository;
+-        this.enrolmentRepository = enrolmentRepository;
+-        this.sessionRepository   = sessionRepository;
+-        this.classRepository     = classRepository;
+-    }
+-
+-    async execute(userId: string): Promise<MyChildResponseData[]> {
+-        const guardian = await this.guardianRepository.findByUserId(userId);
+-
+-        if (!guardian) {
+-            throw new NotFoundError(GuardianErrorMessage.NOT_FOUND);
+-        }
+-
+-        const currentTerm = await this.sessionRepository.findCurrentTerm();
+-        const links = await this.guardianRepository.findStudentLinksByGuardianId(guardian.id);
+-
+-        const children = await Promise.all(
+-            links.map(async link => {
+-                const student = await this.studentRepository.findById(link.studentId);
+-                if (!student) return null;
+-
+-                let classId:   string | null = null;
+-                let className: string | null = null;
+-
+-                if (currentTerm) {
+-                    const enrolment = await this.enrolmentRepository.findByStudentAndTerm(
+-                        student.id,
+-                        currentTerm.id,
+-                    );
+-
+-                    if (enrolment) {
+-                        const cls = await this.classRepository.findClassById(enrolment.classId);
+-                        classId   = enrolment.classId;
+-                        className = cls?.name ?? null;
+-                    }
+-                }
+-
+-                return {
+-                    studentId: student.id,
+-                    relation:  link.relation,
+-                    isPrimary: link.isPrimary,
+-                    firstName: student.firstName,
+-                    lastName:  student.lastName,
+-                    photoUrl:  student.photoUrl,
+-                    isActive:  student.isActive,
+-                    classId,
+-                    className,
+-                };
+-            }),
+-        );
+-
+-        return children.filter((c): c is NonNullable<typeof c> => c !== null);
+-    }
+-}
+\ No newline at end of file
+diff --git a/src/modules/guardians/usecases/guardian-invites.usecases.ts b/src/modules/guardians/usecases/guardian-invites.usecases.ts
+new file mode 100644
+index 0000000..a8b409e
+--- /dev/null
++++ b/src/modules/guardians/usecases/guardian-invites.usecases.ts
+@@ -0,0 +1,71 @@
++import { SendInviteUseCase } from "../../auth/usecases/send-invite.usecase";
++import { MembershipService } from "../../auth/services/membership.service";
++import { IGuardianRepository } from "../repositories/guardian.repository";
++import { guardianErrors } from "../domain/guardian.errors";
++import { GuardianActor, InviteStatus } from "../domain/guardian.types";
++import { BulkInviteGuardiansDtoType } from "../dtos/guardian.dto";
++
++interface Dependencies { guardianRepository: IGuardianRepository; sendInviteUseCase: SendInviteUseCase; membershipService: MembershipService }
++
++/*
++|--------------------------------------------------------------------------
++| INVITE GUARDIAN (portal access)
++| Uses Auth's invitation flow, so the invite is saved (hashed, expiring, one use), the email comes from the
++| templates, and accepting it links the new login to THIS guardian record. This module has no token or email
++| code of its own. A guardian who already has access is refused; a second invite replaces an unused earlier one.
++|--------------------------------------------------------------------------
++*/
++export class InviteGuardianUseCase {
++    constructor(private readonly d: Dependencies) {}
++
++    async execute(schoolId: string, id: string, actor: GuardianActor) {
++        const d = this.d;
++        const guardian = await d.guardianRepository.findById(id);
++        if (!guardian) throw guardianErrors.notFound();
++        if (guardian.userId || await d.membershipService.findByEntity("GUARDIAN", id)) throw guardianErrors.alreadyHasAccess();
++
++        return d.sendInviteUseCase.execute(
++            { email: guardian.email, persona: "GUARDIAN", personaEntityId: id, firstName: guardian.firstName },
++            schoolId,
++            { userId: actor.userId, membershipId: actor.membershipId, isAdmin: actor.isAdmin, can: (k: string) => actor.access.can(k) },
++            { ip: actor.ip, userAgent: actor.userAgent },
++        );
++    }
++}
++
++export interface BulkInviteResultItem { guardianId: string; status: "sent" | "skipped" | "failed"; code?: string }
++export interface BulkInviteGuardiansResult { sent: number; skipped: number; failed: number; results: BulkInviteResultItem[] }
++
++/*
++| BULK INVITE. One result per guardian (sent, skipped because they already have access, or failed with a code).
++| Safe to run again: a repeat replaces the unused earlier invite instead of stacking a second one.
++*/
++export class BulkInviteGuardiansUseCase {
++    constructor(private readonly d: { inviteGuardianUseCase: InviteGuardianUseCase }) {}
++
++    async execute(schoolId: string, dto: BulkInviteGuardiansDtoType, actor: GuardianActor): Promise<BulkInviteGuardiansResult> {
++        const results: BulkInviteResultItem[] = [];
++        for (const guardianId of [...new Set(dto.guardianIds)]) {
++            try {
++                await this.d.inviteGuardianUseCase.execute(schoolId, guardianId, actor);
++                results.push({ guardianId, status: "sent" });
++            } catch (err: any) {
++                const code = err?.code ?? "INVITE_FAILED";
++                results.push({ guardianId, status: code === "GUARDIAN_ALREADY_HAS_ACCESS" ? "skipped" : "failed", code });
++            }
++        }
++        return {
++            sent: results.filter(r => r.status === "sent").length, skipped: results.filter(r => r.status === "skipped").length,
++            failed: results.filter(r => r.status === "failed").length, results,
++        };
++    }
++}
++
++/** Turns an invite attempt into a status the API can report next to a saved guardian. */
++export async function tryInvite(run: () => Promise<unknown>): Promise<InviteStatus> {
++    try { await run(); return { status: "sent" }; }
++    catch (err: any) {
++        if (err?.code === "GUARDIAN_ALREADY_HAS_ACCESS") return { status: "not_needed", code: err.code };
++        return { status: "failed", code: err?.code ?? "INVITE_FAILED" };
++    }
++}
+diff --git a/src/modules/guardians/usecases/guardian-links.usecases.ts b/src/modules/guardians/usecases/guardian-links.usecases.ts
+new file mode 100644
+index 0000000..9d4d3fc
+--- /dev/null
++++ b/src/modules/guardians/usecases/guardian-links.usecases.ts
+@@ -0,0 +1,78 @@
++import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
++import { AuditService } from "../../audit/services/audit.service";
++import { IGuardianRepository } from "../repositories/guardian.repository";
++import { IStudentRepository } from "../../students/repositories/student.repository";
++import { guardianErrors } from "../domain/guardian.errors";
++import { GuardianActor } from "../domain/guardian.types";
++import { LinkGuardianDtoType, UpdateGuardianLinkDtoType } from "../dtos/guardian.dto";
++import { linkInTx } from "../services/guardian-linking";
++
++interface Dependencies { guardianRepository: IGuardianRepository; studentRepository: IStudentRepository; auditService: AuditService }
++
++export interface GuardianLinkData { guardianId: string; studentId: string; relation: string; isPrimary: boolean }
++
++const asPrimaryOrAlreadyLinked = (err: any, isPrimary: boolean) => {
++    if (err?.code === "P2002") return isPrimary ? guardianErrors.primaryConflict() : guardianErrors.alreadyLinked();
++    return err;
++};
++
++/* LINK an existing guardian to another student. One primary per student: choosing primary hands it over. */
++export class LinkGuardianUseCase {
++    constructor(private readonly d: Dependencies) {}
++
++    async execute(schoolId: string, guardianId: string, dto: LinkGuardianDtoType, actor: GuardianActor): Promise<GuardianLinkData> {
++        const d = this.d;
++        if (!(await d.guardianRepository.findById(guardianId))) throw guardianErrors.notFound();
++        if (!(await d.studentRepository.findById(dto.studentId))) throw guardianErrors.studentNotFound();
++
++        let result;
++        try { result = await getTenantClient().$transaction(tx => linkInTx(tx as any, { guardianId, studentId: dto.studentId, relation: dto.relation, isPrimary: dto.isPrimary })); }
++        catch (err) { throw asPrimaryOrAlreadyLinked(err, dto.isPrimary); }
++        if (result === "already_linked") throw guardianErrors.alreadyLinked();
++
++        await d.auditService.log({ userId: actor.userId, schoolId, action: "guardian.linked", entity: "Guardian", entityId: guardianId,
++            newValue: { studentId: dto.studentId, relation: dto.relation, isPrimary: dto.isPrimary } });
++        return { guardianId, studentId: dto.studentId, relation: dto.relation, isPrimary: dto.isPrimary };
++    }
++}
++
++/* CHANGE a link (relationship, or make this guardian the primary / not primary). */
++export class UpdateGuardianLinkUseCase {
++    constructor(private readonly d: Dependencies) {}
++
++    async execute(schoolId: string, guardianId: string, studentId: string, dto: UpdateGuardianLinkDtoType, actor: GuardianActor): Promise<GuardianLinkData> {
++        const d = this.d;
++        const link = (await d.guardianRepository.findStudentLinksByGuardianId(guardianId)).find(l => l.studentId === studentId);
++        if (!link) throw guardianErrors.notLinked();
++
++        const data: Record<string, unknown> = {};
++        if (dto.relation !== undefined && dto.relation !== link.relation) data.relation = dto.relation;
++        if (dto.isPrimary !== undefined && dto.isPrimary !== link.isPrimary) data.isPrimary = dto.isPrimary;
++        if (Object.keys(data).length === 0) return { guardianId, studentId, relation: link.relation, isPrimary: link.isPrimary };
++
++        try {
++            await getTenantClient().$transaction(async tx => {
++                if (data.isPrimary === true) await tx.studentGuardian.updateMany({ where: { studentId, isPrimary: true, NOT: { guardianId } }, data: { isPrimary: false } });
++                await tx.studentGuardian.update({ where: { studentId_guardianId: { studentId, guardianId } }, data });
++            });
++        } catch (err) { throw asPrimaryOrAlreadyLinked(err, data.isPrimary === true); }
++
++        const now = { relation: (data.relation as string) ?? link.relation, isPrimary: (data.isPrimary as boolean) ?? link.isPrimary };
++        await d.auditService.log({ userId: actor.userId, schoolId, action: "guardian.link_updated", entity: "Guardian", entityId: guardianId,
++            oldValue: { studentId, relation: link.relation, isPrimary: link.isPrimary }, newValue: { studentId, ...now } });
++        return { guardianId, studentId, ...now };
++    }
++}
++
++/* UNLINK. The guardian and the student both stay; only the link goes. (A student may have no guardian.) */
++export class UnlinkGuardianUseCase {
++    constructor(private readonly d: Dependencies) {}
++
++    async execute(schoolId: string, guardianId: string, studentId: string, actor: GuardianActor): Promise<{ guardianId: string; studentId: string }> {
++        const d = this.d;
++        if (!(await d.guardianRepository.isLinked(guardianId, studentId))) throw guardianErrors.notLinked();
++        await d.guardianRepository.unlinkFromStudent(guardianId, studentId);
++        await d.auditService.log({ userId: actor.userId, schoolId, action: "guardian.unlinked", entity: "Guardian", entityId: guardianId, oldValue: { studentId } });
++        return { guardianId, studentId };
++    }
++}
+diff --git a/src/modules/guardians/usecases/guardian-queries.usecases.ts b/src/modules/guardians/usecases/guardian-queries.usecases.ts
+new file mode 100644
+index 0000000..a728a5e
+--- /dev/null
++++ b/src/modules/guardians/usecases/guardian-queries.usecases.ts
+@@ -0,0 +1,71 @@
++import type { Access } from "../../../foundation/access.service";
++import { PaginatedResult } from "../../../infrastructure/repository/base.repository";
++import { IGuardianRepository } from "../repositories/guardian.repository";
++import { IStudentRepository } from "../../students/repositories/student.repository";
++import { StudentPhotoService } from "../../students/services/student-photo.service";
++import { studentScopeWhere } from "../../students/services/student-scope";
++import { StudentResponseData } from "../../students/mappers/student.mapper";
++import { GuardianMapper, GuardianResponseData, GuardianWithStudentsResponseData } from "../mappers/guardian.mapper";
++import { guardianErrors } from "../domain/guardian.errors";
++import { ListGuardiansQueryType } from "../dtos/guardian.dto";
++
++interface Dependencies {
++    guardianRepository: IGuardianRepository; guardianMapper: GuardianMapper;
++    studentRepository: IStudentRepository; studentPhotoService: StudentPhotoService;
++}
++
++/*
++| A guardian's children in ONE query, limited to the students the viewer may see (the Students scope rules),
++| with photo links from StudentPhotoService (private storage, short-lived links). Never a loop of queries.
++*/
++async function childrenOf(d: Dependencies, guardianId: string, access: Access): Promise<Array<StudentResponseData & { relation: string; isPrimary: boolean }>> {
++    const links = await d.guardianRepository.findStudentLinksByGuardianId(guardianId);
++    if (links.length === 0) return [];
++    const students = await d.studentRepository.findMany({ AND: [{ id: { in: links.map(l => l.studentId) } }, studentScopeWhere(access)] });
++    const responses = await d.studentPhotoService.toResponses(students);
++    const byId = new Map(links.map(l => [l.studentId, l]));
++    return responses.map(r => ({ ...r, relation: byId.get(r.id)!.relation, isPrimary: byId.get(r.id)!.isPrimary }));
++}
++
++export class ListGuardiansUseCase {
++    constructor(private readonly d: Dependencies) {}
++
++    async execute(query: ListGuardiansQueryType): Promise<PaginatedResult<GuardianResponseData>> {
++        const { guardianRepository: repo, guardianMapper: mapper } = this.d;
++        const params = {
++            page: query.page, limit: query.limit, orderBy: { createdAt: "desc" },
++            where: query.studentId ? { studentLinks: { some: { studentId: query.studentId } } } : {},
++        };
++        const result = query.search ? await repo.searchGuardians(query.search, params) : await repo.paginate(params);
++        return { data: result.data.map(g => mapper.toResponse(g)), meta: result.meta };
++    }
++}
++
++export class GetGuardianUseCase {
++    constructor(private readonly d: Dependencies) {}
++
++    async execute(id: string, access: Access): Promise<GuardianWithStudentsResponseData> {
++        const guardian = await this.d.guardianRepository.findById(id);
++        if (!guardian) throw guardianErrors.notFound();
++        return { ...this.d.guardianMapper.toResponse(guardian), students: await childrenOf(this.d, id, access) };
++    }
++}
++
++export type MyChildResponseData = Pick<StudentResponseData, "firstName" | "lastName" | "photoUrl" | "isActive"> & { studentId: string; relation: string; isPrimary: boolean };
++
++/*
++| MY CHILDREN (GET /guardians/me/children). The guardian is the one in the signed-in session (persona GUARDIAN);
++| nothing the client sends is trusted as proof of who they are. Class and attendance details come back when
++| Classes and Enrolment are switched on.
++*/
++export class GetMyChildrenUseCase {
++    constructor(private readonly d: Dependencies) {}
++
++    async execute(access: Access): Promise<MyChildResponseData[]> {
++        if (access.persona !== "GUARDIAN" || !access.personaEntityId) throw guardianErrors.notFound();
++        const guardian = await this.d.guardianRepository.findById(access.personaEntityId);
++        if (!guardian) throw guardianErrors.notFound();
++        const children = await childrenOf(this.d, guardian.id, access);
++        return children.map(c => ({ studentId: c.id, relation: c.relation, isPrimary: c.isPrimary, firstName: c.firstName, lastName: c.lastName, photoUrl: c.photoUrl, isActive: c.isActive }));
++    }
++}
+diff --git a/src/modules/guardians/usecases/invite-guardian.usecase.ts b/src/modules/guardians/usecases/invite-guardian.usecase.ts
+deleted file mode 100644
+index ffd79ee..0000000
+--- a/src/modules/guardians/usecases/invite-guardian.usecase.ts
++++ /dev/null
+@@ -1,66 +0,0 @@
+-import { IGuardianRepository }   from "../repositories/guardian.repository";
+-import { ISchoolRepository }     from "../../school/repositories/school.repository";
+-import { MailService }           from "../../../infrastructure/mail/mail.service";
+-import { TokenService }          from "../../../shared/services/token.service";
+-import { NotFoundError }         from "../../../shared/errors/domain.errors";
+-import { GuardianErrorMessage }  from "../domain/guardian.enums";
+-import { InviteGuardianDtoType } from "../dtos/guardian.dto";
+-import { env }                   from "../../../config/env";
+-
+-interface Dependencies {
+-    guardianRepository: IGuardianRepository;
+-    schoolRepository:   ISchoolRepository;
+-    mailService:        MailService;
+-    tokenService:       TokenService;
+-}
+-
+-export class InviteGuardianUseCase {
+-    private readonly guardianRepository: IGuardianRepository;
+-    private readonly schoolRepository:   ISchoolRepository;
+-    private readonly mailService:        MailService;
+-    private readonly tokenService:       TokenService;
+-
+-    constructor({
+-        guardianRepository,
+-        schoolRepository,
+-        mailService,
+-        tokenService,
+-    }: Dependencies) {
+-        this.guardianRepository = guardianRepository;
+-        this.schoolRepository   = schoolRepository;
+-        this.mailService        = mailService;
+-        this.tokenService       = tokenService;
+-    }
+-
+-    async execute(
+-        dto:      InviteGuardianDtoType,
+-        schoolId: string,
+-    ): Promise<{ message: string }> {
+-
+-        const guardian = await this.guardianRepository.findById(dto.guardianId);
+-        if (!guardian) {
+-            throw new NotFoundError(GuardianErrorMessage.NOT_FOUND);
+-        }
+-
+-        const school = await this.schoolRepository.findById(schoolId);
+-        if (!school) {
+-            throw new NotFoundError("School not found");
+-        }
+-
+-        const token     = this.tokenService.generateInviteToken();
+-        const inviteUrl = `https://${school.subdomain}.${env.APP_BASE_DOMAIN}/invite/guardian?token=${token}`;
+-
+-        await this.mailService.sendInvite({
+-            to:         guardian.email,
+-            firstName:  guardian.firstName,
+-            schoolName: school.name,
+-            role:       "Parent/Guardian",
+-            inviteUrl,
+-            expiresIn:  "7 days",
+-        });
+-
+-        return {
+-            message: `Invitation sent to ${guardian.email}`,
+-        };
+-    }
+-}
+\ No newline at end of file
+diff --git a/src/modules/guardians/usecases/link-guardian.usecase.ts b/src/modules/guardians/usecases/link-guardian.usecase.ts
+deleted file mode 100644
+index 2748afc..0000000
+--- a/src/modules/guardians/usecases/link-guardian.usecase.ts
++++ /dev/null
+@@ -1,78 +0,0 @@
+-import { IGuardianRepository }  from "../repositories/guardian.repository";
+-import { IStudentRepository }   from "../../students/repositories/student.repository";
+-import { GuardianMapper }       from "../mappers/guardian.mapper";
+-import { GuardianResponseData } from "../mappers/guardian.mapper";
+-import {
+-    NotFoundError,
+-    ConflictError,
+-}                               from "../../../shared/errors/domain.errors";
+-import { GuardianErrorMessage } from "../domain/guardian.enums";
+-import { StudentErrorMessage }  from "../../students/domain/student.enums";
+-import { LinkGuardianDtoType }  from "../dtos/guardian.dto";
+-
+-/*
+-|--------------------------------------------------------------------------
+-| LINK GUARDIAN USE CASE
+-| Links existing guardian to another student
+-|--------------------------------------------------------------------------
+-*/
+-
+-interface Dependencies {
+-    guardianRepository: IGuardianRepository;
+-    studentRepository:  IStudentRepository;
+-    guardianMapper:     GuardianMapper;
+-}
+-
+-export class LinkGuardianUseCase {
+-    private readonly guardianRepository: IGuardianRepository;
+-    private readonly studentRepository:  IStudentRepository;
+-    private readonly guardianMapper:     GuardianMapper;
+-
+-    constructor({
+-        guardianRepository,
+-        studentRepository,
+-        guardianMapper,
+-    }: Dependencies) {
+-        this.guardianRepository = guardianRepository;
+-        this.studentRepository  = studentRepository;
+-        this.guardianMapper     = guardianMapper;
+-    }
+-
+-    async execute(
+-        guardianId: string,
+-        dto:        LinkGuardianDtoType,
+-    ): Promise<GuardianResponseData> {
+-
+-        // ── Find guardian ─────────────────────────────────────────────────
+-        const guardian = await this.guardianRepository.findById(guardianId);
+-        if (!guardian) {
+-            throw new NotFoundError(GuardianErrorMessage.NOT_FOUND);
+-        }
+-
+-        // ── Find student ──────────────────────────────────────────────────
+-        const student = await this.studentRepository.findById(dto.studentId);
+-        if (!student) {
+-            throw new NotFoundError(StudentErrorMessage.NOT_FOUND);
+-        }
+-
+-        // ── Check not already linked ──────────────────────────────────────
+-        const alreadyLinked = await this.guardianRepository.isLinked(
+-            guardianId,
+-            dto.studentId,
+-        );
+-
+-        if (alreadyLinked) {
+-            throw new ConflictError(GuardianErrorMessage.ALREADY_LINKED);
+-        }
+-
+-        // ── Link ──────────────────────────────────────────────────────────
+-        await this.guardianRepository.linkToStudent({
+-            guardianId,
+-            studentId:  dto.studentId,
+-            relation:   dto.relation,
+-            isPrimary:  dto.isPrimary,
+-        });
+-
+-        return this.guardianMapper.toResponse(guardian);
+-    }
+-}
+\ No newline at end of file
+diff --git a/src/modules/guardians/usecases/list-guardians.usecase.ts b/src/modules/guardians/usecases/list-guardians.usecase.ts
+deleted file mode 100644
+index fa595c1..0000000
+--- a/src/modules/guardians/usecases/list-guardians.usecase.ts
++++ /dev/null
+@@ -1,66 +0,0 @@
+-import { IGuardianRepository }  from "../repositories/guardian.repository";
+-import { GuardianMapper }       from "../mappers/guardian.mapper";
+-import { GuardianResponseData } from "../mappers/guardian.mapper";
+-import { PaginatedResult }      from "../../../infrastructure/repository/base.repository";
+-import { ListGuardiansDtoType } from "../dtos/guardian.dto";
+-
+-interface Dependencies {
+-    guardianRepository: IGuardianRepository;
+-    guardianMapper:     GuardianMapper;
+-}
+-
+-export class ListGuardiansUseCase {
+-    private readonly guardianRepository: IGuardianRepository;
+-    private readonly guardianMapper:     GuardianMapper;
+-
+-    constructor({ guardianRepository, guardianMapper }: Dependencies) {
+-        this.guardianRepository = guardianRepository;
+-        this.guardianMapper     = guardianMapper;
+-    }
+-
+-    async execute(
+-        dto: ListGuardiansDtoType,
+-    ): Promise<PaginatedResult<GuardianResponseData>> {
+-
+-        // ── If filtering by student ───────────────────────────────────────
+-        if (dto.studentId) {
+-            const guardians = await this.guardianRepository
+-                .findByStudentId(dto.studentId);
+-
+-            return {
+-                data: guardians.map(g => this.guardianMapper.toResponse(g)),
+-                meta: {
+-                    total:      guardians.length,
+-                    page:       1,
+-                    limit:      guardians.length,
+-                    totalPages: 1,
+-                    hasNext:    false,
+-                    hasPrev:    false,
+-                },
+-            };
+-        }
+-
+-        // ── Standard paginated list ───────────────────────────────────────
+-        const where: Record<string, any> = {};
+-
+-        if (dto.search) {
+-            where.OR = [
+-                { firstName: { contains: dto.search, mode: "insensitive" } },
+-                { lastName:  { contains: dto.search, mode: "insensitive" } },
+-                { email:     { contains: dto.search, mode: "insensitive" } },
+-            ];
+-        }
+-
+-        const result = await this.guardianRepository.paginate({
+-            page:    Number(dto.page)  || 1,
+-            limit:   Number(dto.limit) || 20,
+-            where,
+-            orderBy: { createdAt: "desc" },
+-        });
+-
+-        return {
+-            data: result.data.map(g => this.guardianMapper.toResponse(g)),
+-            meta: result.meta,
+-        };
+-    }
+-}
+\ No newline at end of file
+diff --git a/src/modules/guardians/usecases/unlink-guardian.usecase.ts b/src/modules/guardians/usecases/unlink-guardian.usecase.ts
+deleted file mode 100644
+index 8a2fc99..0000000
+--- a/src/modules/guardians/usecases/unlink-guardian.usecase.ts
++++ /dev/null
+@@ -1,27 +0,0 @@
+-import { IGuardianRepository }  from "../repositories/guardian.repository";
+-import { NotFoundError }        from "../../../shared/errors/domain.errors";
+-import { GuardianErrorMessage } from "../domain/guardian.enums";
+-
+-interface Dependencies {
+-    guardianRepository: IGuardianRepository;
+-}
+-
+-export class UnlinkGuardianUseCase {
+-    private readonly guardianRepository: IGuardianRepository;
+-
+-    constructor({ guardianRepository }: Dependencies) {
+-        this.guardianRepository = guardianRepository;
+-    }
+-
+-    async execute(guardianId: string, studentId: string): Promise<{ message: string }> {
+-        const isLinked = await this.guardianRepository.isLinked(guardianId, studentId);
+-
+-        if (!isLinked) {
+-            throw new NotFoundError(GuardianErrorMessage.NOT_LINKED ?? "Guardian is not linked to this student.");
+-        }
+-
+-        await this.guardianRepository.unlinkFromStudent(guardianId, studentId);
+-
+-        return { message: "Guardian unlinked from student." };
+-    }
+-}
+\ No newline at end of file
+diff --git a/src/modules/guardians/usecases/update-guardian.usecase.ts b/src/modules/guardians/usecases/update-guardian.usecase.ts
+index b52fd6f..66f783a 100644
+--- a/src/modules/guardians/usecases/update-guardian.usecase.ts
++++ b/src/modules/guardians/usecases/update-guardian.usecase.ts
+@@ -1,35 +1,44 @@
+-import { IGuardianRepository }   from "../repositories/guardian.repository";
+-import { GuardianMapper }        from "../mappers/guardian.mapper";
+-import { GuardianResponseData }  from "../mappers/guardian.mapper";
+-import { NotFoundError }         from "../../../shared/errors/domain.errors";
+-import { GuardianErrorMessage }  from "../domain/guardian.enums";
++import { AuditService } from "../../audit/services/audit.service";
++import { IGuardianRepository } from "../repositories/guardian.repository";
++import { GuardianMapper, GuardianResponseData } from "../mappers/guardian.mapper";
++import { guardianErrors } from "../domain/guardian.errors";
++import { normalizeEmail } from "../domain/guardian.policy";
++import { GuardianActor } from "../domain/guardian.types";
+ import { UpdateGuardianDtoType } from "../dtos/guardian.dto";
+ 
+-interface Dependencies {
+-    guardianRepository: IGuardianRepository;
+-    guardianMapper:     GuardianMapper;
+-}
++interface Dependencies { guardianRepository: IGuardianRepository; guardianMapper: GuardianMapper; auditService: AuditService }
+ 
++/*
++| UPDATE GUARDIAN. Only fields that really change are written and audited (old and new value).
++| EMAIL: a guardian who already has a portal login keeps their email until the User module has a proper
++| email-change flow (otherwise the guardian record and the login would show different emails).
++*/
+ export class UpdateGuardianUseCase {
+-    private readonly guardianRepository: IGuardianRepository;
+-    private readonly guardianMapper:     GuardianMapper;
++    constructor(private readonly d: Dependencies) {}
+ 
+-    constructor({ guardianRepository, guardianMapper }: Dependencies) {
+-        this.guardianRepository = guardianRepository;
+-        this.guardianMapper     = guardianMapper;
+-    }
++    async execute(schoolId: string, id: string, dto: UpdateGuardianDtoType, actor: GuardianActor): Promise<GuardianResponseData> {
++        const d = this.d;
++        const guardian = await d.guardianRepository.findById(id);
++        if (!guardian) throw guardianErrors.notFound();
+ 
+-    async execute(
+-        id:  string,
+-        dto: UpdateGuardianDtoType,
+-    ): Promise<GuardianResponseData> {
++        const data: Record<string, unknown> = {}, before: Record<string, unknown> = {}, after: Record<string, unknown> = {};
++        for (const [key, raw] of Object.entries(dto)) {
++            if (raw === undefined) continue;
++            const value = key === "email" ? normalizeEmail(raw as string) : raw;
++            const current = (guardian as unknown as Record<string, unknown>)[key] ?? null;
++            if (current === value) continue;
++            data[key] = value; before[key] = current; after[key] = value;
++        }
++        if (Object.keys(data).length === 0) return d.guardianMapper.toResponse(guardian);   // nothing changed
+ 
+-        const guardian = await this.guardianRepository.findById(id);
+-        if (!guardian) {
+-            throw new NotFoundError(GuardianErrorMessage.NOT_FOUND);
++        if (typeof data.email === "string") {
++            if (guardian.userId) throw guardianErrors.hasLogin();
++            const other = await d.guardianRepository.findByEmail(data.email);
++            if (other && other.id !== id) throw guardianErrors.emailTaken();
+         }
+ 
+-        const updated = await this.guardianRepository.update(id, dto);
+-        return this.guardianMapper.toResponse(updated);
++        const updated = await d.guardianRepository.update(id, data);
++        await d.auditService.log({ userId: actor.userId, schoolId, action: "guardian.updated", entity: "Guardian", entityId: id, oldValue: before, newValue: after });
++        return d.guardianMapper.toResponse(updated);
+     }
+-}
+\ No newline at end of file
++}
+diff --git a/src/modules/students/usecases/import-students.usecase.ts b/src/modules/students/usecases/import-students.usecase.ts
+index 7865523..251dc1e 100644
+--- a/src/modules/students/usecases/import-students.usecase.ts
++++ b/src/modules/students/usecases/import-students.usecase.ts
+@@ -133,21 +133,11 @@ export class ImportStudentsUseCase {
+ 					row.guardianFirstName &&
+ 					row.guardianLastName
+ 				) {
+-					await this.createGuardianUseCase.execute(
+-						{
+-							studentId: student.id,
+-							firstName: row.guardianFirstName,
+-							lastName: row.guardianLastName,
+-							email: row.guardianEmail,
+-							phone: row.guardianPhone,
+-							relation:
+-								row.guardianRelation ??
+-								"guardian",
+-							isPrimary: true,
+-						},
+-						schoolId,
+-						importedById,
+-					);
++					// NOT SUPPORTED YET: this import is switched off. The create-guardian use case now takes
++					// (schoolId, dto, actor) and needs a signed-in actor. Rebuild guardian rows when the import slice is done
++					// (see docs/GUARDIANS_MODULE_NOTES.md). Until then fail loudly rather than call it the old way.
++					void importedById;
++					throw new Error("Guardian columns in a student import are not supported yet");
+ 				}
+ 
+ 				results.push({
+diff --git a/src/routes/index.ts b/src/routes/index.ts
+index b9be703..17c2e13 100644
+--- a/src/routes/index.ts
++++ b/src/routes/index.ts
+@@ -9,7 +9,7 @@ import subscriptionRouter from "../modules/subscriptions/routes/billing.routes";
+ import branchRouter from "../modules/branches/routes/branch.routes"
+ import staffRouter from "../modules/staff/routes/staff.routes";
+ import studentRouter from "../modules/students/routes/student.routes";
+-// import guardianRouter from "../modules/guardians/routes/guardian.routes";
++import guardianRouter from "../modules/guardians/routes/guardian.routes";
+ // import classRouter from "../modules/classes/routes/class.routes";
+ // import enrolmentRouter from "../modules/enrolment/routes/enrolment.routes";
+ // import attendanceRouter from "../modules/attendance/routes/attendance.routes";
+@@ -40,7 +40,7 @@ router.use("/audit", auditRouter)
+ router.use("/staff", staffRouter);
+ router.use("/finance", ledgerRouter);
+ router.use("/students", studentRouter);
+-// router.use("/guardians", guardianRouter);
++router.use("/guardians", guardianRouter);
+ // router.use("/classes", classRouter);
+ // router.use("/enrolments", enrolmentRouter);
+ // router.use("/attendance", attendanceRouter);
+diff --git a/tests/guardians/guardians.test.ts b/tests/guardians/guardians.test.ts
+new file mode 100644
+index 0000000..8b3a296
+--- /dev/null
++++ b/tests/guardians/guardians.test.ts
+@@ -0,0 +1,221 @@
++import { describe, it } from "node:test";
++import assert from "node:assert/strict";
++import { readFileSync } from "node:fs";
++import { Access } from "../../src/foundation/access.service";
++import { validatePermissionRegistry, PERMISSION_REGISTRY } from "../../src/foundation/permissions.registry";
++import { normalizeEmail } from "../../src/modules/guardians/domain/guardian.policy";
++import { CreateGuardianDto, UpdateGuardianDto, UpdateGuardianLinkDto, BulkInviteGuardiansDto, ListGuardiansQuery } from "../../src/modules/guardians/dtos/guardian.dto";
++import { linkInTx, createOrReuseGuardianInTx } from "../../src/modules/guardians/services/guardian-linking";
++import { UpdateGuardianUseCase } from "../../src/modules/guardians/usecases/update-guardian.usecase";
++import { InviteGuardianUseCase, BulkInviteGuardiansUseCase, tryInvite } from "../../src/modules/guardians/usecases/guardian-invites.usecases";
++import { GetMyChildrenUseCase } from "../../src/modules/guardians/usecases/guardian-queries.usecases";
++import { GuardianMapper } from "../../src/modules/guardians/mappers/guardian.mapper";
++
++const SID = "11111111-1111-4111-8111-111111111111";
++const GID = "22222222-2222-4222-8222-222222222222";
++const base = { firstName: "Ada", lastName: "Obi", email: "mum@x.com", studentId: SID, relation: "mother" };
++
++describe("guardian permissions", () => {
++    it("registry is valid; guardians.view and guardians.manage exist once, are sensitive and ALL-only", () => {
++        assert.deepEqual(validatePermissionRegistry(), []);
++        for (const key of ["guardians.view", "guardians.manage"]) {
++            const p = PERMISSION_REGISTRY.filter(x => x.key === key);
++            assert.equal(p.length, 1); assert.equal(p[0].isSensitive, true); assert.deepEqual([...p[0].scopes], ["ALL"]);
++        }
++    });
++});
++
++describe("guardian DTOs", () => {
++    it("create trims and lower-cases the email, and rejects unknown fields, bad phones and bad relations", () => {
++        assert.equal(CreateGuardianDto.parse({ ...base, email: "  Mum@X.com " }).email, "mum@x.com");
++        assert.equal(CreateGuardianDto.safeParse({ ...base, password: "x" }).success, false);
++        assert.equal(CreateGuardianDto.safeParse({ ...base, phone: "call me" }).success, false);
++        assert.equal(CreateGuardianDto.safeParse({ ...base, relation: "cousin" }).success, false);
++        assert.equal(CreateGuardianDto.safeParse({ ...base, studentId: "abc" }).success, false);
++        const ok = CreateGuardianDto.parse({ ...base, phone: " ", occupation: "" });
++        assert.equal(ok.phone, undefined); assert.equal(ok.isPrimary, false); assert.equal(ok.invite, false);
++    });
++    it("update needs one field and blank clears an optional field", () => {
++        assert.equal(UpdateGuardianDto.safeParse({}).success, false);
++        assert.equal((UpdateGuardianDto.parse({ phone: "" }) as any).phone, null);
++        assert.equal(UpdateGuardianLinkDto.safeParse({}).success, false);
++    });
++    it("bulk invite is capped at 100, list has safe defaults", () => {
++        assert.equal(BulkInviteGuardiansDto.safeParse({ guardianIds: Array(101).fill(SID) }).success, false);
++        assert.deepEqual(ListGuardiansQuery.parse({}), { page: 1, limit: 20 });
++        assert.equal(ListGuardiansQuery.safeParse({ limit: "100000" }).success, false);
++    });
++    it("normalizeEmail", () => assert.equal(normalizeEmail("  A@B.Com "), "a@b.com"));
++});
++
++// ── a tiny in-memory transaction ─────────────────────────────────────────────
++function fakeTx(opts: { guardian?: any; link?: any } = {}) {
++    const calls: string[] = [];
++    const tx = {
++        guardian: {
++            findFirst: async (a: any) => { calls.push(`find:${a.where.email.equals}:${a.where.email.mode}`); return opts.guardian ?? null; },
++            create: async (a: any) => { calls.push("create"); return { id: GID, ...a.data }; },
++        },
++        studentGuardian: {
++            findUnique: async () => opts.link ?? null,
++            updateMany: async (a: any) => { calls.push(`demote:${a.where.studentId}`); },
++            create: async (a: any) => { calls.push(`link:${a.data.isPrimary}`); return a.data; },
++        },
++    };
++    return { tx, calls };
++}
++const link = { studentId: SID, relation: "mother" as const, isPrimary: false };
++const person = { firstName: "Ada", lastName: "Obi", email: "mum@x.com" };
++
++describe("linking a guardian (one transaction)", () => {
++    it("creates a new guardian and links, searching the email without caring about capitals", async () => {
++        const { tx, calls } = fakeTx();
++        const r = await createOrReuseGuardianInTx(tx, person, link);
++        assert.equal(r.outcome, "created");
++        assert.deepEqual(calls, ["find:mum@x.com:insensitive", "create", "link:false"]);
++    });
++    it("reuses an existing guardian and never overwrites their details", async () => {
++        const existing = { id: GID, firstName: "Old", lastName: "Name", email: "Mum@X.com", phone: "0801" };
++        const { tx, calls } = fakeTx({ guardian: existing });
++        const r = await createOrReuseGuardianInTx(tx, { ...person, firstName: "NEW", phone: "9999" }, link);
++        assert.equal(r.outcome, "reused"); assert.equal(r.guardian.firstName, "Old"); assert.equal(r.guardian.phone, "0801");
++        assert.ok(!calls.includes("create"));
++    });
++    it("already linked: changes nothing, even when primary was asked for", async () => {
++        const { tx, calls } = fakeTx({ guardian: { id: GID, ...person }, link: { id: "l1" } });
++        const r = await createOrReuseGuardianInTx(tx, person, { ...link, isPrimary: true });
++        assert.equal(r.outcome, "already_linked");
++        assert.deepEqual(calls.filter(c => c.startsWith("demote") || c.startsWith("link")), []);
++    });
++    it("a new primary first clears the old primary, then links", async () => {
++        const { tx, calls } = fakeTx();
++        assert.equal(await linkInTx(tx, { guardianId: GID, ...link, isPrimary: true }), "linked");
++        assert.deepEqual(calls, [`demote:${SID}`, "link:true"]);
++    });
++    it("a non-primary link does not touch the current primary", async () => {
++        const { tx, calls } = fakeTx();
++        await linkInTx(tx, { guardianId: GID, ...link });
++        assert.deepEqual(calls, ["link:false"]);
++    });
++});
++
++describe("one primary guardian per student is also a database rule", () => {
++    it("the migration adds a partial unique index and tidies old duplicates first", () => {
++        const sql = readFileSync("prisma/tenant-migrations/20261023150000_guardian_primary_unique/migration.sql", "utf8");
++        assert.match(sql, /CREATE UNIQUE INDEX "StudentGuardian_one_primary_per_student" ON "StudentGuardian"\("studentId"\) WHERE "isPrimary" = true/);
++        assert.match(sql, /UPDATE "StudentGuardian"/);
++    });
++});
++
++// ── fakes for the use cases ──────────────────────────────────────────────────
++const mapper = new GuardianMapper();
++const row = { id: GID, userId: null, firstName: "Ada", lastName: "Obi", email: "mum@x.com", phone: "0801", occupation: null, address: null, isActive: true, createdAt: new Date(), updatedAt: new Date() };
++function guardianFakes(initial: any = row, other: any = null) {
++    const state = { g: { ...initial }, updates: [] as any[], audits: [] as any[] };
++    const guardianRepository: any = {
++        findById: async (id: string) => (id === state.g.id ? mapper.toDomain(state.g) : null),
++        findByEmail: async () => (other ? mapper.toDomain(other) : null),
++        update: async (_i: string, data: any) => { state.updates.push(data); state.g = { ...state.g, ...data }; return mapper.toDomain(state.g); },
++    };
++    const auditService: any = { log: async (p: any) => { state.audits.push(p); } };
++    return { state, guardianRepository, d: { guardianRepository, guardianMapper: mapper, auditService } };
++}
++const actor: any = { userId: "u1", membershipId: "m1", ip: "1.1.1.1", userAgent: null, isAdmin: true, access: { can: () => true } };
++
++describe("update guardian", () => {
++    it("writes and audits only what changed", async () => {
++        const { state, d } = guardianFakes();
++        await new UpdateGuardianUseCase(d).execute("sch", GID, { firstName: "Ada", phone: "0802" }, actor);
++        assert.deepEqual(state.updates, [{ phone: "0802" }]);
++        assert.deepEqual(state.audits[0].oldValue, { phone: "0801" }); assert.deepEqual(state.audits[0].newValue, { phone: "0802" });
++    });
++    it("does nothing when nothing changed", async () => {
++        const { state, d } = guardianFakes();
++        await new UpdateGuardianUseCase(d).execute("sch", GID, { email: "MUM@x.com" }, actor);   // same email, different capitals
++        assert.equal(state.updates.length, 0); assert.equal(state.audits.length, 0);
++    });
++    it("refuses an email change when the guardian already has a login", async () => {
++        const { d, state } = guardianFakes({ ...row, userId: "user-1" });
++        await assert.rejects(new UpdateGuardianUseCase(d).execute("sch", GID, { email: "new@x.com" }, actor), { code: "GUARDIAN_HAS_LOGIN" });
++        assert.equal(state.updates.length, 0);
++    });
++    it("allows an email change without a login, and refuses one another guardian already has", async () => {
++        const a = guardianFakes();
++        await new UpdateGuardianUseCase(a.d).execute("sch", GID, { email: "New@x.com" }, actor);
++        assert.deepEqual(a.state.updates, [{ email: "new@x.com" }]);
++        const b = guardianFakes(row, { ...row, id: "other" });
++        await assert.rejects(new UpdateGuardianUseCase(b.d).execute("sch", GID, { email: "taken@x.com" }, actor), { code: "GUARDIAN_EMAIL_TAKEN" });
++    });
++    it("reports a missing guardian", async () => {
++        const { d } = guardianFakes();
++        await assert.rejects(new UpdateGuardianUseCase(d).execute("sch", "nope", { phone: "0803" }, actor), { code: "NOT_FOUND" });
++    });
++});
++
++describe("invitations go through Auth", () => {
++    function inviteFakes(g: any = row, membership: any = null, fail?: any) {
++        const sent: any[] = [];
++        const d: any = {
++            guardianRepository: { findById: async (id: string) => (id === GID ? mapper.toDomain(g) : null) },
++            membershipService: { findByEntity: async () => membership },
++            sendInviteUseCase: { execute: async (...a: any[]) => { if (fail) throw fail; sent.push(a); return { message: "ok" }; } },
++        };
++        return { d, sent };
++    }
++    it("sends a GUARDIAN invite for this guardian record, to the guardian's own email", async () => {
++        const { d, sent } = inviteFakes();
++        await new InviteGuardianUseCase(d).execute("sch", GID, actor);
++        assert.equal(sent.length, 1);
++        assert.deepEqual(sent[0][0], { email: "mum@x.com", persona: "GUARDIAN", personaEntityId: GID, firstName: "Ada" });
++        assert.equal(sent[0][1], "sch");
++    });
++    it("refuses a guardian who already has access (login or membership) and a missing guardian", async () => {
++        await assert.rejects(new InviteGuardianUseCase(inviteFakes({ ...row, userId: "u9" }).d).execute("sch", GID, actor), { code: "GUARDIAN_ALREADY_HAS_ACCESS" });
++        await assert.rejects(new InviteGuardianUseCase(inviteFakes(row, { id: "m" }).d).execute("sch", GID, actor), { code: "GUARDIAN_ALREADY_HAS_ACCESS" });
++        await assert.rejects(new InviteGuardianUseCase(inviteFakes().d).execute("sch", "nope", actor), { code: "NOT_FOUND" });
++    });
++    it("bulk reports sent, skipped and failed one by one, and handles repeats once", async () => {
++        const ids = [GID, "33333333-3333-4333-8333-333333333333", "44444444-4444-4444-8444-444444444444"];
++        const outcomes: Record<string, any> = { [ids[0]]: null, [ids[1]]: { code: "GUARDIAN_ALREADY_HAS_ACCESS" }, [ids[2]]: { code: "INVITE_RATE_LIMITED" } };
++        const invite: any = { execute: async (_s: string, id: string) => { if (outcomes[id]) throw outcomes[id]; } };
++        const r = await new BulkInviteGuardiansUseCase({ inviteGuardianUseCase: invite }).execute("sch", { guardianIds: [...ids, ids[0]] }, actor);
++        assert.deepEqual([r.sent, r.skipped, r.failed], [1, 1, 1]);
++        assert.equal(r.results.length, 3);
++        assert.equal(r.results[2].code, "INVITE_RATE_LIMITED");
++    });
++    it("a failed invite is reported as failed, never as sent", async () => {
++        assert.deepEqual(await tryInvite(async () => { throw { code: "EMAIL_FAILED" }; }), { status: "failed", code: "EMAIL_FAILED" });
++        assert.deepEqual(await tryInvite(async () => undefined), { status: "sent" });
++        assert.equal((await tryInvite(async () => { throw { code: "GUARDIAN_ALREADY_HAS_ACCESS" }; })).status, "not_needed");
++    });
++});
++
++describe("my children", () => {
++    const acc = (persona: "STAFF" | "STUDENT" | "GUARDIAN", entityId: string | null) =>
++        new Access("school", "u1", "m1", persona, entityId, new Set(), false, new Map([["students.view", "OWN" as any]]));
++    function childFakes() {
++        const seen: any = {};
++        const d: any = {
++            guardianRepository: {
++                findById: async (id: string) => { seen.guardianId = id; return mapper.toDomain({ ...row, id }); },
++                findStudentLinksByGuardianId: async () => [{ studentId: "s1", relation: "mother", isPrimary: true }, { studentId: "s2", relation: "mother", isPrimary: false }],
++            },
++            guardianMapper: mapper,
++            studentRepository: { findMany: async (where: any) => { seen.where = where; return [{ id: "s1" }, { id: "s2" }]; } },
++            studentPhotoService: { toResponses: async (list: any[]) => list.map(s => ({ id: s.id, firstName: "Kid" + s.id, lastName: "Obi", photoUrl: "https://signed.test/" + s.id, isActive: true })) },
++        };
++        return { d, seen };
++    }
++    it("only the GUARDIAN persona may use it", async () => {
++        const { d } = childFakes();
++        for (const a of [acc("STAFF", "x"), acc("STUDENT", "x"), acc("GUARDIAN", null)])
++            await assert.rejects(new GetMyChildrenUseCase(d).execute(a), { code: "NOT_FOUND" });
++    });
++    it("uses the guardian from the session, limits the students to the viewer's scope, and returns signed photo links", async () => {
++        const { d, seen } = childFakes();
++        const r = await new GetMyChildrenUseCase(d).execute(acc("GUARDIAN", "g-session"));
++        assert.equal(seen.guardianId, "g-session");
++        assert.deepEqual(seen.where.AND[1], { guardianLinks: { some: { guardianId: "g-session" } } });
++        assert.deepEqual(r.map(c => [c.studentId, c.isPrimary, c.photoUrl]), [["s1", true, "https://signed.test/s1"], ["s2", false, "https://signed.test/s2"]]);
++    });
++});

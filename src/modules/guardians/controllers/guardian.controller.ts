@@ -1,195 +1,70 @@
 import { Request, Response, NextFunction } from "express";
-import { CreateGuardianUseCase }  from "../usecases/create-guardian.usecase";
-import { GetGuardianUseCase }     from "../usecases/get-guardian.usecase";
-import { ListGuardiansUseCase }   from "../usecases/list-guardians.usecase";
-import { UpdateGuardianUseCase }  from "../usecases/update-guardian.usecase";
-import { InviteGuardianUseCase }  from "../usecases/invite-guardian.usecase";
-import { LinkGuardianUseCase }    from "../usecases/link-guardian.usecase";
-import { GetMyChildrenUseCase } from "../usecases/get-my-children.usecase";
-import { BulkInviteGuardiansUseCase } from "../usecases/bulk-invite-guardian.usecase";
-
-import { BulkInviteGuardiansDto } from "../dtos/guardian.dto";
-import {
-    sendSuccess,
-    sendCreated,
-    sendPaginated,
-}                                 from "../../../shared/utils/api-response";
-
-/*
-|--------------------------------------------------------------------------
-| GUARDIAN CONTROLLER
-|--------------------------------------------------------------------------
-*/
+import { CreateGuardianUseCase } from "../usecases/create-guardian.usecase";
+import { UpdateGuardianUseCase } from "../usecases/update-guardian.usecase";
+import { LinkGuardianUseCase, UpdateGuardianLinkUseCase, UnlinkGuardianUseCase } from "../usecases/guardian-links.usecases";
+import { InviteGuardianUseCase, BulkInviteGuardiansUseCase } from "../usecases/guardian-invites.usecases";
+import { ListGuardiansUseCase, GetGuardianUseCase, GetMyChildrenUseCase } from "../usecases/guardian-queries.usecases";
+import { sendSuccess, sendCreated } from "../../../shared/utils/api-response";
+import { getAccess } from "../../../infrastructure/middleware/rbac.middleware";
+import { ListGuardiansQuery } from "../dtos/guardian.dto";
+import { guardianErrors } from "../domain/guardian.errors";
+import { GuardianActor } from "../domain/guardian.types";
 
 interface Dependencies {
-    createGuardianUseCase: CreateGuardianUseCase;
-    getGuardianUseCase:    GetGuardianUseCase;
-    listGuardiansUseCase:  ListGuardiansUseCase;
-    updateGuardianUseCase: UpdateGuardianUseCase;
-    inviteGuardianUseCase: InviteGuardianUseCase;
-    linkGuardianUseCase:   LinkGuardianUseCase;
-    bulkInviteGuardiansUseCase: BulkInviteGuardiansUseCase;
-    getMyChildrenUseCase: GetMyChildrenUseCase;
-
+    listGuardiansUseCase: ListGuardiansUseCase; getGuardianUseCase: GetGuardianUseCase; getMyChildrenUseCase: GetMyChildrenUseCase;
+    createGuardianUseCase: CreateGuardianUseCase; updateGuardianUseCase: UpdateGuardianUseCase;
+    linkGuardianUseCase: LinkGuardianUseCase; updateGuardianLinkUseCase: UpdateGuardianLinkUseCase; unlinkGuardianUseCase: UnlinkGuardianUseCase;
+    inviteGuardianUseCase: InviteGuardianUseCase; bulkInviteGuardiansUseCase: BulkInviteGuardiansUseCase;
 }
 
+/*
+| GUARDIAN CONTROLLER (school realm, /guardians). The school is the host's school; the acting person comes ONLY
+| from the verified session (req.auth), never from the body or URL.
+*/
+const schoolIdOf = (req: Request): string => req.schoolId as string;
+const idOf = (req: Request): string => String(req.params.id);
+const actorOf = (req: Request): GuardianActor => {
+    if (!req.auth) throw guardianErrors.notFound();
+    const access = getAccess(req);
+    return {
+        userId: req.auth.userId, membershipId: req.auth.membershipId, access,
+        ip: req.ip ?? req.socket.remoteAddress ?? "unknown", userAgent: req.get("user-agent") ?? null,
+        isAdmin: access.hasRoleKey("school_admin"),
+    };
+};
+
 export class GuardianController {
-    private readonly createGuardianUseCase: CreateGuardianUseCase;
-    private readonly getGuardianUseCase:    GetGuardianUseCase;
-    private readonly listGuardiansUseCase:  ListGuardiansUseCase;
-    private readonly updateGuardianUseCase: UpdateGuardianUseCase;
-    private readonly inviteGuardianUseCase: InviteGuardianUseCase;
-    private readonly linkGuardianUseCase:   LinkGuardianUseCase;
-    private readonly bulkInviteGuardiansUseCase:   BulkInviteGuardiansUseCase;
-    private readonly getMyChildrenUseCase: GetMyChildrenUseCase;
+    constructor(private readonly d: Dependencies) {}
 
-    constructor({
-        createGuardianUseCase,
-        getGuardianUseCase,
-        getMyChildrenUseCase,
-        listGuardiansUseCase,
-        updateGuardianUseCase,
-        inviteGuardianUseCase,
-        linkGuardianUseCase,
-        bulkInviteGuardiansUseCase,
-    }: Dependencies) {
-        this.createGuardianUseCase = createGuardianUseCase;
-        this.getGuardianUseCase    = getGuardianUseCase;
-        this.getMyChildrenUseCase  = getMyChildrenUseCase
-        this.listGuardiansUseCase  = listGuardiansUseCase;
-        this.updateGuardianUseCase = updateGuardianUseCase;
-        this.inviteGuardianUseCase = inviteGuardianUseCase;
-        this.linkGuardianUseCase   = linkGuardianUseCase;
-        this.bulkInviteGuardiansUseCase = bulkInviteGuardiansUseCase;
-    }
-
-    // ── List guardians ────────────────────────────────────────────────────
-    listGuardians = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
+    list = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const result = await this.listGuardiansUseCase.execute(
-                req.query as any,
-            );
-            sendPaginated(res, result.data, result.meta);
-        } catch (err) {
-            next(err);
-        }
+            // The validate middleware does not write query values back, so the query is parsed here
+            const r = await this.d.listGuardiansUseCase.execute(ListGuardiansQuery.parse(req.query));
+            res.status(200).json({ success: true, message: "Guardians retrieved successfully", data: r.data, meta: r.meta });
+        } catch (e) { next(e); }
     };
 
-    // ── Get guardian ──────────────────────────────────────────────────────
-    getGuardian = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
+    get = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.getGuardianUseCase.execute(idOf(req), getAccess(req)), "Guardian retrieved successfully"); } catch (e) { next(e); } };
+    myChildren = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.getMyChildrenUseCase.execute(getAccess(req)), "Children retrieved successfully"); } catch (e) { next(e); } };
+
+    create = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const result = await this.getGuardianUseCase.execute(
-                req.params.id as string,
-            );
-            sendSuccess(res, result, "Guardian retrieved successfully");
-        } catch (err) {
-            next(err);
-        }
+            const r = await this.d.createGuardianUseCase.execute(schoolIdOf(req), req.body, actorOf(req));
+            if (r.outcome === "already_linked") return sendSuccess(res, r, "This guardian was already linked to the student");
+            sendCreated(res, r, r.outcome === "created" ? "Guardian created successfully" : "Existing guardian linked to the student");
+        } catch (e) { next(e); }
     };
 
-    getMyChildren = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.getMyChildrenUseCase.execute(
-                req.user?.id as string,
-            );
+    update = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.updateGuardianUseCase.execute(schoolIdOf(req), idOf(req), req.body, actorOf(req)), "Guardian updated successfully"); } catch (e) { next(e); } };
+    link = async (req: Request, res: Response, next: NextFunction) => { try { sendCreated(res, await this.d.linkGuardianUseCase.execute(schoolIdOf(req), idOf(req), req.body, actorOf(req)), "Guardian linked to student"); } catch (e) { next(e); } };
+    updateLink = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.updateGuardianLinkUseCase.execute(schoolIdOf(req), idOf(req), String(req.params.studentId), req.body, actorOf(req)), "Link updated successfully"); } catch (e) { next(e); } };
+    unlink = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.unlinkGuardianUseCase.execute(schoolIdOf(req), idOf(req), String(req.params.studentId), actorOf(req)), "Guardian unlinked from student"); } catch (e) { next(e); } };
+    invite = async (req: Request, res: Response, next: NextFunction) => { try { sendCreated(res, await this.d.inviteGuardianUseCase.execute(schoolIdOf(req), idOf(req), actorOf(req)), "Invitation sent"); } catch (e) { next(e); } };
 
-            sendSuccess(res, result, "Children retrieved successfully");
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    // ── Create guardian ───────────────────────────────────────────────────
-    createGuardian = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
+    bulkInvite = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const result = await this.createGuardianUseCase.execute(
-                req.body, 
-                req.user!.schoolId!,
-                req.user?.id as string,
-            );
-            sendCreated(res, result, "Guardian created successfully");
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    // ── Update guardian ───────────────────────────────────────────────────
-    updateGuardian = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.updateGuardianUseCase.execute(
-                req.params.id as string,
-                req.body,
-            );
-            sendSuccess(res, result, "Guardian updated successfully");
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    // ── Invite guardian to portal ─────────────────────────────────────────
-    inviteGuardian = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.inviteGuardianUseCase.execute(
-                { guardianId: req.params.id as string },
-                req.schoolId as string,
-            );
-            sendSuccess(res, null, result.message);
-        } catch (err) {
-            next(err);
-        }
-    };
-    // ── Link guardian to another student ──────────────────────────────────
-    linkGuardian = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.linkGuardianUseCase.execute(
-                req.params.id as string,
-                req.body,
-            );
-            sendSuccess(res, result, "Guardian linked to student successfully");
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    bulkInviteGuardians = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const dto = BulkInviteGuardiansDto.parse(req.body);
-            const result = await this.bulkInviteGuardiansUseCase.execute(dto, req.schoolId as string);
-            sendSuccess(res, result, `${result.sent} invitation(s) sent`);
-        } catch (err) {
-            next(err);
-        }
+            const r = await this.d.bulkInviteGuardiansUseCase.execute(schoolIdOf(req), req.body, actorOf(req));
+            sendSuccess(res, r, `${r.sent} invitation(s) sent`);
+        } catch (e) { next(e); }
     };
 }

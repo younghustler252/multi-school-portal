@@ -1,103 +1,36 @@
-import { Router }               from "express";
-import { container }            from "../../../container";
-import { GuardianController }   from "../controllers/guardian.controller";
-import { validate }             from "../../../infrastructure/middleware/validate.middleware";
-import { authenticate }         from "../../../infrastructure/middleware/auth.middleware";
-import {
-    requireSchoolAdmin,
-    requireStaff,
-}                               from "../../../infrastructure/middleware/rbac.middleware";
-import { requireTenant }        from "../../../infrastructure/middleware/tenant-resolver.middleware";
-import {
-    CreateGuardianDto,
-    UpdateGuardianDto,
-    LinkGuardianDto,
-    ListGuardiansDto,
-    BulkInviteGuardiansDto
-}                               from "../dtos/guardian.dto";
+import { Router } from "express";
+import { container } from "../../../container";
+import { GuardianController } from "../controllers/guardian.controller";
+import { validate } from "../../../infrastructure/middleware/validate.middleware";
+import { authenticate } from "../../../infrastructure/middleware/auth.middleware";
+import { requireTenant } from "../../../infrastructure/middleware/tenant-resolver.middleware";
+import { requirePermission, requirePersona } from "../../../infrastructure/middleware/rbac.middleware";
+import { CreateGuardianDto, UpdateGuardianDto, LinkGuardianDto, UpdateGuardianLinkDto, BulkInviteGuardiansDto } from "../dtos/guardian.dto";
 
 /*
-|--------------------------------------------------------------------------
-| GUARDIAN ROUTES
-|--------------------------------------------------------------------------
+| GUARDIAN ROUTES (school realm, mounted at /guardians on the school's host).
+| guardians.view   = see guardians and their contact details (including "guardians of a student")
+| guardians.manage = create, edit, link, unlink, invite
+| /me/children is for the GUARDIAN persona only: who they are comes from the session, never from the request.
+| Fixed paths ("/me/children", "/invite/bulk") come before "/:id".
 */
-
 const router = Router();
 const ctrl   = () => container.resolve<GuardianController>("guardianController");
+const view   = [authenticate, requireTenant, requirePermission("guardians.view")] as const;
+const manage = [authenticate, requireTenant, requirePermission("guardians.manage")] as const;
+const mine   = [authenticate, requireTenant, requirePersona("GUARDIAN")] as const;
 
-// ── List guardians ────────────────────────────────────────────────────────
-router.get(
-    "/",
-    authenticate,
-    requireTenant,
-    requireStaff,
-    validate(ListGuardiansDto, "query"),
-    (req, res, next) => ctrl().listGuardians(req, res, next),
-);
-// ── Get my children ──────────────────────────────────────────────────────
-router.get(
-    "/me/children",
-    authenticate,
-    requireTenant,
-    (req, res, next) => ctrl().getMyChildren(req, res, next),
-);
+router.get("/me/children", ...mine, (q, s, n) => ctrl().myChildren(q, s, n));
+router.post("/invite/bulk", ...manage, validate(BulkInviteGuardiansDto), (q, s, n) => ctrl().bulkInvite(q, s, n));
 
-// ── Get guardian ──────────────────────────────────────────────────────────
-router.get(
-    "/:id",
-    authenticate,
-    requireTenant,
-    requireStaff,
-    (req, res, next) => ctrl().getGuardian(req, res, next),
-);
+router.get("/", ...view, (q, s, n) => ctrl().list(q, s, n));
+router.post("/", ...manage, validate(CreateGuardianDto), (q, s, n) => ctrl().create(q, s, n));
 
-// ── Create guardian ───────────────────────────────────────────────────────
-router.post(
-    "/",
-    authenticate,
-    requireTenant,
-    requireSchoolAdmin,
-    validate(CreateGuardianDto),
-    (req, res, next) => ctrl().createGuardian(req, res, next),
-);
-
-// ── Update guardian ───────────────────────────────────────────────────────
-router.put(
-    "/:id",
-    authenticate,
-    requireTenant,
-    requireSchoolAdmin,
-    validate(UpdateGuardianDto),
-    (req, res, next) => ctrl().updateGuardian(req, res, next),
-);
-
-// ── Invite guardian to portal ─────────────────────────────────────────────
-router.post(
-    "/:id/invite",
-    authenticate,
-    requireTenant,
-    requireSchoolAdmin,
-    (req, res, next) => ctrl().inviteGuardian(req, res, next),
-);
-
-router.post(
-    "/invite/bulk",
-    authenticate,
-    requireTenant,
-    requireSchoolAdmin,
-    validate(BulkInviteGuardiansDto),
-    (req, res, next) => ctrl().bulkInviteGuardians(req, res, next),
-);
-
-
-// ── Link guardian to another student ─────────────────────────────────────
-router.post(
-    "/:id/link",
-    authenticate,
-    requireTenant,
-    requireSchoolAdmin,
-    validate(LinkGuardianDto),
-    (req, res, next) => ctrl().linkGuardian(req, res, next),
-);
+router.get("/:id", ...view, (q, s, n) => ctrl().get(q, s, n));
+router.put("/:id", ...manage, validate(UpdateGuardianDto), (q, s, n) => ctrl().update(q, s, n));
+router.post("/:id/invite", ...manage, (q, s, n) => ctrl().invite(q, s, n));
+router.post("/:id/link", ...manage, validate(LinkGuardianDto), (q, s, n) => ctrl().link(q, s, n));
+router.put("/:id/students/:studentId", ...manage, validate(UpdateGuardianLinkDto), (q, s, n) => ctrl().updateLink(q, s, n));
+router.delete("/:id/students/:studentId", ...manage, (q, s, n) => ctrl().unlink(q, s, n));
 
 export default router;

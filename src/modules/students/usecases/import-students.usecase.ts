@@ -133,21 +133,11 @@ export class ImportStudentsUseCase {
 					row.guardianFirstName &&
 					row.guardianLastName
 				) {
-					await this.createGuardianUseCase.execute(
-						{
-							studentId: student.id,
-							firstName: row.guardianFirstName,
-							lastName: row.guardianLastName,
-							email: row.guardianEmail,
-							phone: row.guardianPhone,
-							relation:
-								row.guardianRelation ??
-								"guardian",
-							isPrimary: true,
-						},
-						schoolId,
-						importedById,
-					);
+					// NOT SUPPORTED YET: this import is switched off. The create-guardian use case now takes
+					// (schoolId, dto, actor) and needs a signed-in actor. Rebuild guardian rows when the import slice is done
+					// (see docs/GUARDIANS_MODULE_NOTES.md). Until then fail loudly rather than call it the old way.
+					void importedById;
+					throw new Error("Guardian columns in a student import are not supported yet");
 				}
 
 				results.push({

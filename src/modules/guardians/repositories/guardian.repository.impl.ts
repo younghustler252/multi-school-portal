@@ -1,5 +1,5 @@
 import { Prisma } from "../../../generated/tenant";
-import { BaseTenantRepository } from "../../../infrastructure/repository/base.repository";
+import { BaseTenantRepository, PaginateParams, PaginatedResult } from "../../../infrastructure/repository/base.repository";
 import { GuardianMapper } from "../mappers/guardian.mapper";
 import { GuardianEntity, StudentGuardianEntity } from "../domain/guardian.entity";
 import { IGuardianRepository } from "./guardian.repository";
@@ -15,17 +15,24 @@ export class GuardianRepositoryImpl
     }
 
     async findByEmail(email: string): Promise<GuardianEntity | null> {
-        return this.findOne({ email });
+        return this.findOne({ email: { equals: email.trim(), mode: "insensitive" } });   // any capitals
     }
 
     async findByStudentId(studentId: string): Promise<GuardianEntity[]> {
-        const links = await this.prisma.studentGuardian.findMany({ where: { studentId } });
+        const rows = await this.prisma.guardian.findMany({ where: { studentLinks: { some: { studentId } } }, orderBy: { createdAt: "asc" } });   // one query
+        return this.mapMany(rows as any[]);
+    }
 
-        const guardians = await Promise.all(
-            links.map(link => this.prisma.guardian.findUnique({ where: { id: link.guardianId } })),
-        );
-
-        return this.mapMany(guardians.filter(Boolean) as any[]);
+    /** Name, email or phone search. Every word typed must match somewhere; filters in params.where are KEPT. */
+    async searchGuardians(query: string, params: PaginateParams): Promise<PaginatedResult<GuardianEntity>> {
+        const words = query.trim().split(/\s+/).filter(Boolean).slice(0, 5);
+        const matchesWord = (w: string) => ({
+            OR: [
+                { firstName: { contains: w, mode: "insensitive" } }, { lastName: { contains: w, mode: "insensitive" } },
+                { email:     { contains: w, mode: "insensitive" } }, { phone:    { contains: w } },
+            ],
+        });
+        return this.paginate({ ...params, where: { AND: [params.where ?? {}, ...words.map(matchesWord)] } });
     }
 
     async findByUserId(userId: string): Promise<GuardianEntity | null> {
@@ -95,8 +102,6 @@ export class GuardianRepositoryImpl
             where:  { guardianId: guardian.id },
             select: { studentId: true },
         });
-
-        console.log("student links",  links)
 
         return links.map(l => l.studentId);
     }
