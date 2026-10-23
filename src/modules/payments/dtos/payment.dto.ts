@@ -62,3 +62,23 @@ export type ConfirmPaymentDtoType = z.infer<typeof ConfirmPaymentDto>;
 export type RejectPaymentDtoType = z.infer<typeof RejectPaymentDto>;
 export type AllocationPreviewDtoType = z.infer<typeof AllocationPreviewDto>;
 export type ListPaymentsQueryType = z.infer<typeof ListPaymentsQuery>;
+
+export const ApplyCreditDto = z.object({ invoiceId: id, amountKobo: positiveKobo.optional() }).strict();      // as much as is owed when omitted
+
+export const RequestRefundDto = z.object({ paymentId: id, studentId: id, amountKobo: positiveKobo, reason: text(300) }).strict();
+export const ApproveRefundDto = z.object({ note: text(300).optional() }).strict();
+export const RejectRefundDto  = z.object({ note: text(300) }).strict();
+export const PayRefundDto     = z.object({ payoutAccountId: id.optional(), paidOn: day.optional() }).strict();      // the payment's own account when omitted
+export const ReversePaymentDto = z.object({ reason: text(300) }).strict();
+export const ListRefundsQuery = z.object({
+    status: z.enum(["REQUESTED", "APPROVED", "PAID", "REJECTED"]).optional(), paymentId: id.optional(), studentId: id.optional(),
+    page: z.coerce.number().int().min(1).optional(), limit: z.coerce.number().int().min(1).max(100).optional(),
+});
+
+export type ApplyCreditDtoType = z.infer<typeof ApplyCreditDto>;
+export type RequestRefundDtoType = z.infer<typeof RequestRefundDto>;
+export type ApproveRefundDtoType = z.infer<typeof ApproveRefundDto>;
+export type RejectRefundDtoType = z.infer<typeof RejectRefundDto>;
+export type PayRefundDtoType = z.infer<typeof PayRefundDto>;
+export type ReversePaymentDtoType = z.infer<typeof ReversePaymentDto>;
+export type ListRefundsQueryType = z.infer<typeof ListRefundsQuery>;

@@ -14,5 +14,7 @@ export interface IFeeInvoiceRepository {
     findOpenForStudents(studentIds: string[]): Promise<FeeInvoiceEntity[]>;                                // issued, balance above zero, for these students (no items)
     findManyByIds(ids: string[]): Promise<FeeInvoiceEntity[]>;                                             // no items
     applyPayment(id: string, version: number, amountKobo: bigint, status: "partial" | "paid"): Promise<boolean>;   // false when it changed meanwhile
+    updateAmounts(id: string, version: number, data: { adjustmentsKobo?: bigint; discountKobo?: bigint; totalKobo: bigint; paidKobo: bigint; balanceKobo: bigint; status: "unpaid" | "partial" | "paid" | "waived" }): Promise<boolean>;   // absolute values on an issued invoice; false when it changed meanwhile
+    addDiscountLine(invoiceId: string, label: string, amountKobo: bigint): Promise<void>;                    // an extra discount shown on the invoice
     countPayments(id: string): Promise<number>;                                                           // live allocations against it
 }

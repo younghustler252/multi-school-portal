@@ -1,3 +1,5 @@
+import { IFeeAdjustmentRepository } from "../repositories/fee-adjustment.repository";
+import { CreditService } from "../../payments/services/credit.service";
 import { IFeeInvoiceRepository } from "../repositories/fee-invoice.repository";
 import { FeeInvoiceMapper } from "../mappers/fee-invoice.mapper";
 import { PostingService } from "../../ledger/services/posting.service";
@@ -6,12 +8,14 @@ import { AuditService } from "../../audit/services/audit.service";
 import { AppError } from "../../../shared/errors/domain.errors";
 import { parseDay, todayInFinanceZone } from "../../ledger/domain/ledger.dates";
 import { feeErrors } from "../domain/fee.errors";
-import { issueLines, invoiceNumber, statusAtIssue } from "../domain/invoice.policy";
+import { issueLines, invoiceNumber, statusAtIssue, AUTO_APPLY_CREDIT } from "../domain/invoice.policy";
 import { IssueInvoiceDtoType, BulkIssueDtoType, VoidInvoiceDtoType } from "../dtos/invoice.dto";
 
 interface Dependencies {
     feeInvoiceRepository: IFeeInvoiceRepository; feeInvoiceMapper: FeeInvoiceMapper; postingService: PostingService;
     numberSequenceService: NumberSequenceService; auditService: AuditService;
+    feeAdjustmentRepository?: IFeeAdjustmentRepository;                       // void checks it for approved adjustments
+    creditService?: CreditService;                                            // issue uses the student's credit on the new invoice
 }
 
 // Replaced in tests only (container injection passes just the first argument)
@@ -63,12 +67,19 @@ export class IssueInvoiceUseCase {
                 journalId: posted.journal.id, updatedById: actorUserId,
             });
             if (!ok) throw feeErrors.invoiceChanged();                                // undoes the number and the journal
-            return { number, journalNumber: posted.journal.number };
+
+            // credit the student already holds (paid in advance) goes onto the new invoice at once
+            let creditAppliedKobo = 0n;
+            if (AUTO_APPLY_CREDIT && this.d.creditService && inv.balanceKobo > 0n) {
+                const [fresh] = await repo.findManyByIds([inv.id]);
+                creditAppliedKobo = await this.d.creditService.applyToInvoice(fresh, undefined, actorUserId);
+            }
+            return { number, journalNumber: posted.journal.number, creditAppliedKobo };
         });
 
         await this.d.auditService.log({
             userId: actorUserId, schoolId, action: "fees.invoice.issued", entity: "FeeInvoice", entityId: id,
-            newValue: { invoiceNumber: done.number, journalNumber: done.journalNumber, issueDate, totalKobo: inv.totalKobo.toString(), discountKobo: inv.discountKobo.toString() },
+            newValue: { invoiceNumber: done.number, journalNumber: done.journalNumber, issueDate, totalKobo: inv.totalKobo.toString(), discountKobo: inv.discountKobo.toString(), creditAppliedKobo: done.creditAppliedKobo.toString() },
         });
         return this.d.feeInvoiceMapper.toResponse((await repo.findById(id))!);
     }
@@ -117,7 +128,7 @@ export class VoidInvoiceUseCase {
         if (inv.status === "void") throw feeErrors.invoiceAlreadyVoid();
         if (inv.status === "draft" || !inv.journalId) throw feeErrors.invoiceNotIssued();
         if (inv.paidKobo > 0n || (await repo.countPayments(id)) > 0) throw feeErrors.invoiceHasPayments();
-        if (inv.adjustmentsKobo !== 0n) throw feeErrors.invoiceHasAdjustments();
+        if (inv.adjustmentsKobo !== 0n || ((await this.d.feeAdjustmentRepository?.countApprovedForInvoice(id)) ?? 0) > 0) throw feeErrors.invoiceHasAdjustments();
 
         await this.transaction(async () => {
             await this.d.postingService.reverse(inv.journalId as string, { reason: `Invoice ${inv.invoiceNumber} voided: ${dto.reason}`, actorUserId });

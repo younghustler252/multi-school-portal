@@ -1,6 +1,6 @@
 import { BaseTenantRepository } from "../../../infrastructure/repository/base.repository";
 import { PaymentMapper, PaymentRow } from "../mappers/payment.mapper";
-import { PaymentEntity, PaymentFilters, ReceiptEntity } from "../domain/payment.entity";
+import { AllocationRow, CreditRow, PaymentEntity, PaymentFilters, ReceiptEntity } from "../domain/payment.entity";
 import { IPaymentRepository, NewAllocation } from "./payment.repository";
 
 const WITH_RECEIPT = { receipt: { select: { receiptNumber: true } } };
@@ -48,6 +48,49 @@ export class PaymentRepositoryImpl extends BaseTenantRepository<PaymentEntity, P
 
     async createReceipt(data: { receiptNumber: string; paymentId: string; issuedAt: Date; snapshot: unknown }) {
         await this.prisma.receipt.create({ data: data as any });
+    }
+
+    async creditRows(studentId: string): Promise<CreditRow[]> {
+        const rows = await this.prisma.paymentAllocation.findMany({
+            where: { studentId, invoiceId: null, reversedAt: null, payment: { status: "CONFIRMED" } },
+            select: { id: true, paymentId: true, amountKobo: true, payment: { select: { receipt: { select: { receiptNumber: true } } } } },
+            orderBy: [{ payment: { createdAt: "asc" } }, { createdAt: "asc" }],
+        });
+        return rows.map(r => ({ allocationId: r.id, paymentId: r.paymentId, receiptNumber: r.payment.receipt?.receiptNumber ?? null, amountKobo: r.amountKobo, availableKobo: r.amountKobo }));
+    }
+
+    async invoiceAllocations(invoiceId: string): Promise<AllocationRow[]> {
+        return this.prisma.paymentAllocation.findMany({ where: { invoiceId, reversedAt: null }, orderBy: { createdAt: "desc" },
+            select: { id: true, paymentId: true, invoiceId: true, studentId: true, amountKobo: true } });
+    }
+
+    async allocationsOfPayment(paymentId: string): Promise<AllocationRow[]> {
+        return this.prisma.paymentAllocation.findMany({ where: { paymentId, reversedAt: null }, orderBy: { createdAt: "asc" },
+            select: { id: true, paymentId: true, invoiceId: true, studentId: true, amountKobo: true } });
+    }
+
+    async setAllocationAmount(id: string, amountKobo: bigint) {
+        if (amountKobo <= 0n) await this.prisma.paymentAllocation.delete({ where: { id } });
+        else await this.prisma.paymentAllocation.update({ where: { id }, data: { amountKobo } });
+    }
+
+    async addCredit(paymentId: string, studentId: string, amountKobo: bigint, createdById: string | null) {
+        const existing = await this.prisma.paymentAllocation.findFirst({ where: { paymentId, studentId, invoiceId: null, reversedAt: null }, select: { id: true } });
+        if (existing) await this.prisma.paymentAllocation.update({ where: { id: existing.id }, data: { amountKobo: { increment: amountKobo } } });
+        else await this.prisma.paymentAllocation.create({ data: { paymentId, studentId, invoiceId: null, amountKobo, createdById } });
+    }
+
+    async adjustUnallocated(paymentId: string, deltaKobo: bigint) {
+        await this.model().update({ where: { id: paymentId }, data: { unallocatedKobo: { increment: deltaKobo } } });
+    }
+
+    async reverseAllocations(paymentId: string, when: Date) {
+        await this.prisma.paymentAllocation.updateMany({ where: { paymentId, reversedAt: null }, data: { reversedAt: when } });
+    }
+
+    async markReversed(id: string, version: number, data: Record<string, any>) {
+        const r = await this.model().updateMany({ where: { id, version, status: "CONFIRMED" }, data: { ...data, status: "REVERSED", version: { increment: 1 } } });
+        return r.count === 1;
     }
 
     async findReceipt(paymentId: string): Promise<ReceiptEntity | null> {

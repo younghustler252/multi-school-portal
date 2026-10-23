@@ -6,6 +6,12 @@ import { PaymentContextRepositoryImpl } from "./repositories/payment-context.rep
 import { PaymentConfirmationService } from "./services/payment-confirmation.service";
 import { RecordPaymentUseCase, ConfirmPaymentUseCase, RejectPaymentUseCase, PreviewAllocationUseCase } from "./usecases/payment-record.usecases";
 import { ListPaymentsUseCase, GetPaymentUseCase, GetReceiptUseCase } from "./usecases/payment-queries.usecases";
+import { RefundMapper } from "./mappers/refund.mapper";
+import { RefundRepositoryImpl } from "./repositories/refund.repository.impl";
+import { CreditService } from "./services/credit.service";
+import { GetCreditUseCase, ApplyCreditUseCase } from "./usecases/credit.usecases";
+import { ListRefundsUseCase, GetRefundUseCase, RequestRefundUseCase, DecideRefundUseCase, PayRefundUseCase } from "./usecases/refund.usecases";
+import { ReversePaymentUseCase } from "./usecases/payment-reverse.usecase";
 import { PaymentController } from "./controllers/payment.controller";
 
 /*
@@ -26,6 +32,18 @@ export const registerPayments = (container: AwilixContainer): void => {
         listPaymentsUseCase:       asClass(ListPaymentsUseCase).scoped(),
         getPaymentUseCase:         asClass(GetPaymentUseCase).scoped(),
         getReceiptUseCase:         asClass(GetReceiptUseCase).scoped(),
+
+        refundMapper:                 asClass(RefundMapper).singleton(),
+        refundRepository:             asClass(RefundRepositoryImpl).scoped(),
+        creditService:                asClass(CreditService).scoped(),
+        getCreditUseCase:             asClass(GetCreditUseCase).scoped(),
+        applyCreditUseCase:           asClass(ApplyCreditUseCase).scoped(),
+        listRefundsUseCase:           asClass(ListRefundsUseCase).scoped(),
+        getRefundUseCase:             asClass(GetRefundUseCase).scoped(),
+        requestRefundUseCase:         asClass(RequestRefundUseCase).scoped(),
+        decideRefundUseCase:          asClass(DecideRefundUseCase).scoped(),
+        payRefundUseCase:             asClass(PayRefundUseCase).scoped(),
+        reversePaymentUseCase:        asClass(ReversePaymentUseCase).scoped(),
 
         paymentController:         asClass(PaymentController).scoped(),
     });

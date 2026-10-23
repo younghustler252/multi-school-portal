@@ -8,7 +8,8 @@
 | fees.invoices.create    generate, make, edit and delete DRAFT invoices
 | fees.invoices.issue     issue invoices (numbers them and posts them to the books)
 | fees.invoices.void      void an issued invoice (sensitive)
-| Adjustment and payment keys arrive with their pieces.
+| fees.adjustments.request  ask for a waiver, write-off, credit note or extra discount on an issued invoice
+| fees.adjustments.approve  approve or reject one (sensitive; never the person who asked)
 */
 const ALL_SCOPE = ["ALL"] as const;
 const staffOnly = ["STAFF"] as const;
@@ -22,4 +23,6 @@ export const FEES_PERMISSIONS = [
     { key: "fees.invoices.create",     realm: "SCHOOL", module: "fees", scopes: ALL_SCOPE, personas: staffOnly, label: "Generate and edit draft invoices" },
     { key: "fees.invoices.issue",      realm: "SCHOOL", module: "fees", scopes: ALL_SCOPE, personas: staffOnly, label: "Issue invoices" },
     { key: "fees.invoices.void",       realm: "SCHOOL", module: "fees", scopes: ALL_SCOPE, personas: staffOnly, label: "Void invoices", isSensitive: true },
+    { key: "fees.adjustments.request", realm: "SCHOOL", module: "fees", scopes: ALL_SCOPE, personas: staffOnly, label: "Request invoice adjustments" },
+    { key: "fees.adjustments.approve", realm: "SCHOOL", module: "fees", scopes: ALL_SCOPE, personas: staffOnly, label: "Approve invoice adjustments", isSensitive: true },
 ] as const;

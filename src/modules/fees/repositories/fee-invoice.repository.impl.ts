@@ -95,5 +95,15 @@ export class FeeInvoiceRepositoryImpl extends BaseTenantRepository<FeeInvoiceEnt
         return r.count === 1;
     }
 
+    // Sets the money columns to exact values (reversing a payment, adjustments); the version in the filter stops two changes racing
+    async updateAmounts(id: string, version: number, data: Record<string, any>) {
+        const r = await this.model().updateMany({ where: { id, version, status: { notIn: ["draft", "void"] } }, data: { ...data, version: { increment: 1 } } });
+        return r.count === 1;
+    }
+
+    async addDiscountLine(invoiceId: string, label: string, amountKobo: bigint) {
+        await this.prisma.feeInvoiceDiscount.create({ data: { invoiceId, ruleId: null, feeTypeId: null, label, amountKobo } });
+    }
+
     countPayments(id: string): Promise<number> { return this.prisma.paymentAllocation.count({ where: { invoiceId: id, reversedAt: null } }); }
 }

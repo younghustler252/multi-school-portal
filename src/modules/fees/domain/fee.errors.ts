@@ -39,4 +39,20 @@ export const feeErrors = {
     invoiceHasAdjustments: () => new AppError(
         "This invoice has adjustments. Use a credit note instead of voiding it", 409, true, "INVOICE_HAS_ADJUSTMENTS"),
     studentRequired:   () => new AppError("Choose a student for the invoice", 400, true, "STUDENT_REQUIRED"),
+    // adjustments
+    adjustmentNotFound: () => new NotFoundError("Adjustment"),
+    adjustmentAmountInvalid: () => new AppError("The amount must be above zero", 400, true, "ADJUSTMENT_AMOUNT_INVALID"),
+    adjustmentInvoiceState: (status: string) => new AppError(
+        "This invoice cannot be adjusted in its current state", 409, true, "ADJUSTMENT_INVOICE_STATE", { status }),
+    adjustmentTooLarge: (maxKobo: bigint) => new AppError(
+        "That is more than the invoice still owes", 400, true, "ADJUSTMENT_EXCEEDS_BALANCE", { maxKobo: maxKobo.toString() }),
+    creditNoteItemRequired: () => new AppError("A credit note must say which fee on the invoice it cancels", 400, true, "CREDIT_NOTE_ITEM_REQUIRED"),
+    itemNotOnInvoice: () => new AppError("That fee is not on this invoice", 400, true, "ITEM_NOT_ON_INVOICE"),
+    itemNotAllowed: () => new AppError("Only a credit note names a fee", 400, true, "ITEM_NOT_ALLOWED"),
+    creditNoteTooLarge: (maxKobo: bigint) => new AppError(
+        "A credit note cannot be more than the fee it cancels, less earlier credit notes on it", 400, true, "CREDIT_NOTE_EXCEEDS_ITEM", { maxKobo: maxKobo.toString() }),
+    adjustmentNotPending: (status: string) => new AppError("This adjustment was already decided", 409, true, "ADJUSTMENT_NOT_PENDING", { status }),
+    adjustmentSelfApproval: () => new AppError(
+        "A different person must approve this. The person who asked for it cannot", 403, true, "SELF_APPROVAL_NOT_ALLOWED"),
+    adjustmentChanged: () => new AppError("This adjustment was changed by someone else. Reload it and try again", 409, true, "ADJUSTMENT_CHANGED"),
 };

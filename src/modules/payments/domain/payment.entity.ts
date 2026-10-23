@@ -42,5 +42,17 @@ export interface OpenInvoice {
 export interface PlannedAllocation { invoiceId: string; studentId: string; amountKobo: bigint }
 export interface AllocationPlan { invoices: PlannedAllocation[]; creditKobo: bigint; creditStudentId: string | null }
 
+// Money a student holds as an advance: the part of a confirmed payment that was not applied to an invoice
+export interface CreditRow { allocationId: string; paymentId: string; receiptNumber: string | null; amountKobo: bigint; availableKobo: bigint }
+export interface AllocationRow { id: string; paymentId: string; invoiceId: string | null; studentId: string; amountKobo: bigint }
+
+export type RefundStatus = "REQUESTED" | "APPROVED" | "PAID" | "REJECTED";
+export interface RefundEntity {
+    id: string; paymentId: string; receiptNumber: string | null; studentId: string | null; studentName: string | null; amountKobo: bigint; reason: string;
+    status: RefundStatus; payoutAccountId: string | null; requestedById: string; decidedById: string | null; decidedAt: Date | null;
+    decisionNote: string | null; paidAt: Date | null; journalId: string | null; createdAt: Date;
+}
+export interface RefundFilters { status?: RefundStatus; paymentId?: string; studentId?: string }
+
 export interface PaymentPerson { id: string; name: string }
 export interface SchoolHeader { name: string | null; address: string | null; logoUrl: string | null; principalName: string | null }

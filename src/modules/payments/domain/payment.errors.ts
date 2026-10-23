@@ -28,6 +28,18 @@ export const paymentErrors = {
     allocationOverPayment: (amountKobo: bigint, allocatedKobo: bigint) => new AppError(
         "The allocations add up to more than the payment", 400, true, "ALLOCATION_EXCEEDS_PAYMENT", { amountKobo: amountKobo.toString(), allocatedKobo: allocatedKobo.toString() }),
     creditStudentInvalid: () => new AppError("The credit student must be one of the students on this payment", 400, true, "CREDIT_STUDENT_INVALID"),
+    refundNotFound:   () => new NotFoundError("Refund"),
+    notConfirmed:     (status: string) => new AppError("Only a confirmed payment can be refunded or reversed", 409, true, "PAYMENT_NOT_CONFIRMED", { status }),
+    noCredit:         (availableKobo: bigint) => new AppError(
+        "The student does not have that much credit from this payment. A refund can only pay out credit", 409, true, "INSUFFICIENT_CREDIT", { availableKobo: availableKobo.toString() }),
+    refundNotRequested: (status: string) => new AppError("This refund was already decided", 409, true, "REFUND_NOT_REQUESTED", { status }),
+    refundNotApproved:  (status: string) => new AppError("Only an approved refund can be paid", 409, true, "REFUND_NOT_APPROVED", { status }),
+    selfApproval:     () => new AppError("A different person must approve this. The person who asked for it cannot", 403, true, "SELF_APPROVAL_NOT_ALLOWED"),
+    refundChanged:    () => new AppError("This refund was changed by someone else. Reload it and try again", 409, true, "REFUND_CHANGED"),
+    paymentHasRefunds: () => new AppError(
+        "This payment has refunds. A payment with refunds cannot be reversed", 409, true, "PAYMENT_HAS_REFUNDS"),
+    invoiceNotPayable: (invoiceId: string) => new AppError("That invoice is not open for payment", 409, true, "INVOICE_NOT_PAYABLE", { invoiceId }),
+    nothingToApply:   () => new AppError("There is no credit to apply, or nothing owing on the invoice", 409, true, "NOTHING_TO_APPLY"),
     allocationsAtConfirmation: () => new AppError(
         "This payment waits for confirmation. Choose the allocation when it is confirmed", 400, true, "ALLOCATION_AT_CONFIRMATION"),
 };

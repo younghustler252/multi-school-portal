@@ -398,7 +398,7 @@ describe("preview, queries, requests and permissions", () => {
         const keys = PAYMENTS_PERMISSIONS.map(p => p.key);
         for (const k of keys) assert.deepEqual([...PERMISSION_REGISTRY.find(p => p.key === k)!.personas], ["STAFF"]);
         const granted = (r: string) => ROLE_TEMPLATES.find(t => t.key === r)!.permissions.map(p => p.key);
-        assert.deepEqual(keys.filter(k => granted("bursar").includes(k)), keys);
+        assert.deepEqual(keys.filter(k => granted("bursar").includes(k)), ["payments.view", "payments.record", "payments.confirm", "payments.refund.request"]);
         assert.deepEqual(keys.filter(k => granted("principal").includes(k)), ["payments.view"]);
         for (const r of ["student", "guardian", "teacher"]) assert.ok(!granted(r).some(k => k.startsWith("payments.")));
     });

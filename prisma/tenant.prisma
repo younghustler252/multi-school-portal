@@ -705,6 +705,7 @@ model FeeInvoiceItem {
   invoice       FeeInvoice    @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
   feeType       FeeType?      @relation(fields: [feeTypeId], references: [id], onDelete: Restrict)
   incomeAccount LedgerAccount @relation(fields: [incomeAccountId], references: [id], onDelete: Restrict)
+  adjustments   InvoiceAdjustment[]
 
   @@index([invoiceId])
   @@index([feeTypeId])
@@ -780,6 +781,7 @@ model InvoiceAdjustment {
   id            String                  @id @default(uuid())
   invoiceId     String
   type          AdjustmentType
+  invoiceItemId String?
   amountKobo    BigInt
   reason        String
   status        InvoiceAdjustmentStatus @default(PENDING)
@@ -791,10 +793,12 @@ model InvoiceAdjustment {
   createdAt     DateTime                @default(now())
   updatedAt     DateTime                @updatedAt
 
-  invoice FeeInvoice    @relation(fields: [invoiceId], references: [id], onDelete: Restrict)
-  journal JournalEntry? @relation(fields: [journalId], references: [id], onDelete: Restrict)
+  invoice     FeeInvoice      @relation(fields: [invoiceId], references: [id], onDelete: Restrict)
+  invoiceItem FeeInvoiceItem? @relation(fields: [invoiceItemId], references: [id], onDelete: Restrict)
+  journal     JournalEntry?   @relation(fields: [journalId], references: [id], onDelete: Restrict)
 
   @@index([invoiceId])
+  @@index([invoiceItemId])
   @@index([status])
 }
 

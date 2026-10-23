@@ -293,7 +293,7 @@ describe("fees permissions", () => {
             assert.ok(reg, p.key);
             assert.deepEqual([...reg.personas], ["STAFF"]);
         }
-        assert.deepEqual(FEES_PERMISSIONS.filter(p => "isSensitive" in p && p.isSensitive).map(p => p.key), ["fees.discounts.manage", "fees.invoices.void"]);
+        assert.deepEqual(FEES_PERMISSIONS.filter(p => "isSensitive" in p && p.isSensitive).map(p => p.key), ["fees.discounts.manage", "fees.invoices.void", "fees.adjustments.approve"]);
     });
 
     it("go to the right roles", () => {

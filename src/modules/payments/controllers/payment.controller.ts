@@ -3,11 +3,17 @@ import { RecordPaymentUseCase, ConfirmPaymentUseCase, RejectPaymentUseCase, Prev
 import { ListPaymentsUseCase, GetPaymentUseCase, GetReceiptUseCase } from "../usecases/payment-queries.usecases";
 import { sendSuccess, sendCreated } from "../../../shared/utils/api-response";
 import { UnauthorizedError } from "../../../shared/errors/domain.errors";
-import { ListPaymentsQuery } from "../dtos/payment.dto";
+import { ListPaymentsQuery, ListRefundsQuery } from "../dtos/payment.dto";
+import { GetCreditUseCase, ApplyCreditUseCase } from "../usecases/credit.usecases";
+import { ListRefundsUseCase, GetRefundUseCase, RequestRefundUseCase, DecideRefundUseCase, PayRefundUseCase } from "../usecases/refund.usecases";
+import { ReversePaymentUseCase } from "../usecases/payment-reverse.usecase";
 
 interface Dependencies {
     recordPaymentUseCase: RecordPaymentUseCase; confirmPaymentUseCase: ConfirmPaymentUseCase; rejectPaymentUseCase: RejectPaymentUseCase;
     previewAllocationUseCase: PreviewAllocationUseCase; listPaymentsUseCase: ListPaymentsUseCase; getPaymentUseCase: GetPaymentUseCase; getReceiptUseCase: GetReceiptUseCase;
+    getCreditUseCase: GetCreditUseCase; applyCreditUseCase: ApplyCreditUseCase;
+    listRefundsUseCase: ListRefundsUseCase; getRefundUseCase: GetRefundUseCase; requestRefundUseCase: RequestRefundUseCase;
+    decideRefundUseCase: DecideRefundUseCase; payRefundUseCase: PayRefundUseCase; reversePaymentUseCase: ReversePaymentUseCase;
 }
 
 /* PAYMENT CONTROLLER (school realm, /payments). Bodies are already validated and converted by the route; queries are parsed here. */
@@ -44,5 +50,36 @@ export class PaymentController {
     };
     reject = async (req: Request, res: Response, next: NextFunction) => {
         try { sendSuccess(res, await this.d.rejectPaymentUseCase.execute(idOf(req), schoolIdOf(req), userIdOf(req), req.body), "Payment rejected successfully"); } catch (e) { next(e); }
+    };
+    credit = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.getCreditUseCase.execute(String(req.params.studentId)), "Credit retrieved successfully"); } catch (e) { next(e); }
+    };
+    applyCredit = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.applyCreditUseCase.execute(schoolIdOf(req), userIdOf(req), req.body), "Credit applied successfully"); } catch (e) { next(e); }
+    };
+    reverse = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.reversePaymentUseCase.execute(idOf(req), schoolIdOf(req), userIdOf(req), req.body), "Payment reversed successfully"); } catch (e) { next(e); }
+    };
+
+    listRefunds = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const r = await this.d.listRefundsUseCase.execute(ListRefundsQuery.parse(req.query));
+            res.status(200).json({ success: true, message: "Refunds retrieved successfully", data: r.data, meta: r.meta });
+        } catch (e) { next(e); }
+    };
+    getRefund = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.getRefundUseCase.execute(idOf(req)), "Refund retrieved successfully"); } catch (e) { next(e); }
+    };
+    requestRefund = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendCreated(res, await this.d.requestRefundUseCase.execute(schoolIdOf(req), userIdOf(req), req.body), "Refund requested successfully"); } catch (e) { next(e); }
+    };
+    approveRefund = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.decideRefundUseCase.approve(idOf(req), schoolIdOf(req), userIdOf(req), req.body), "Refund approved successfully"); } catch (e) { next(e); }
+    };
+    rejectRefund = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.decideRefundUseCase.reject(idOf(req), schoolIdOf(req), userIdOf(req), req.body), "Refund rejected successfully"); } catch (e) { next(e); }
+    };
+    payRefund = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.payRefundUseCase.execute(idOf(req), schoolIdOf(req), userIdOf(req), req.body), "Refund paid successfully"); } catch (e) { next(e); }
     };
 }

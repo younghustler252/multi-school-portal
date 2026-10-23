@@ -19,10 +19,14 @@ import { InvoiceGenerationRepositoryImpl } from "./repositories/invoice-generati
 import { ListInvoicesUseCase, GetInvoiceUseCase } from "./usecases/invoice-queries.usecases";
 import { GenerateInvoicesUseCase, CreateInvoiceUseCase, UpdateDraftInvoiceUseCase, DeleteDraftInvoiceUseCase } from "./usecases/invoice-drafts.usecases";
 import { IssueInvoiceUseCase, BulkIssueInvoicesUseCase, VoidInvoiceUseCase } from "./usecases/invoice-issue.usecases";
+import { FeeAdjustmentMapper } from "./mappers/fee-adjustment.mapper";
+import { FeeAdjustmentRepositoryImpl } from "./repositories/fee-adjustment.repository.impl";
+import { ListAdjustmentsUseCase, GetAdjustmentUseCase, RequestAdjustmentUseCase, DecideAdjustmentUseCase } from "./usecases/fee-adjustment.usecases";
+import { FeeAdjustmentController } from "./controllers/fee-adjustment.controller";
 import { FeeInvoiceController } from "./controllers/fee-invoice.controller";
 
 /*
-| Requires: the audit module (auditService) and the ledger module (ledgerAccountRepository to check income accounts;
+| Requires: the payments module (paymentRepository, creditService), the audit module (auditService) and the ledger module (ledgerAccountRepository to check income accounts;
 | postingService and numberSequenceService to issue invoices).
 | Invoices, payments and the rest of fees v2 register here as they are built.
 */
@@ -72,5 +76,13 @@ export const registerFees = (container: AwilixContainer): void => {
         bulkIssueInvoicesUseCase:      asClass(BulkIssueInvoicesUseCase).scoped(),
         voidInvoiceUseCase:            asClass(VoidInvoiceUseCase).scoped(),
         feeInvoiceController:          asClass(FeeInvoiceController).scoped(),
+
+        feeAdjustmentMapper:           asClass(FeeAdjustmentMapper).singleton(),
+        feeAdjustmentRepository:       asClass(FeeAdjustmentRepositoryImpl).scoped(),
+        listAdjustmentsUseCase:        asClass(ListAdjustmentsUseCase).scoped(),
+        getAdjustmentUseCase:          asClass(GetAdjustmentUseCase).scoped(),
+        requestAdjustmentUseCase:      asClass(RequestAdjustmentUseCase).scoped(),
+        decideAdjustmentUseCase:       asClass(DecideAdjustmentUseCase).scoped(),
+        feeAdjustmentController:       asClass(FeeAdjustmentController).scoped(),
     });
 };

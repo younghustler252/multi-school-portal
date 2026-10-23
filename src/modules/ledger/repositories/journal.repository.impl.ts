@@ -36,6 +36,10 @@ export class JournalRepositoryImpl extends BaseTenantRepository<JournalEntity> i
         return rows.map((r: { status: JournalStatus }) => r.status);
     }
 
+    listBySource(sourceType: string, sourceId: string): Promise<JournalEntity[]> {
+        return this.findMany({ sourceType, sourceId }, undefined, [{ postedAt: "asc" }] as never);
+    }
+
     saveWithLines(j: NewJournal): Promise<JournalEntity> {
         const { lines, ...header } = j;
         return this.create(

@@ -6,6 +6,9 @@ import { DiscountInput, FeeInvoiceEntity, InvoiceStatus, NewInvoiceDiscount, Stu
 | Invoice rules that need no database.
 */
 
+/* Until the settings service exists (finance.auto_apply_credit): credit a student already holds is used on each new invoice when it is issued. */
+export const AUTO_APPLY_CREDIT = true;
+
 export interface InvoiceTotals { subtotalKobo: bigint; discountKobo: bigint; adjustmentsKobo: bigint; totalKobo: bigint; paidKobo: bigint; balanceKobo: bigint }
 
 export function totalsOf(items: { amountKobo: bigint }[], discountKobo: bigint): InvoiceTotals {
