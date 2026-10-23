@@ -5,6 +5,9 @@ export interface NewAllocation { paymentId: string; invoiceId: string | null; st
 
 export interface IPaymentRepository {
     findById(id: string): Promise<PaymentEntity | null>;                                                 // with allocations and receipt number
+    findByReference(reference: string): Promise<PaymentEntity | null>;
+    setGatewayResult(id: string, data: Record<string, any>): Promise<void>;                              // channel, provider answer, paid time
+    markFailed(id: string, version: number, data: Record<string, any>): Promise<boolean>;                 // from PENDING or AWAITING_CONFIRMATION; false when it changed meanwhile
     findByClientRequestId(clientRequestId: string): Promise<PaymentEntity | null>;
     list(filters: PaymentFilters, page?: number, limit?: number): Promise<PaginatedResult<PaymentEntity>>;
     createPayment(data: Record<string, any>): Promise<PaymentEntity>;

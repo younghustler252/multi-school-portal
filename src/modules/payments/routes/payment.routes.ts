@@ -7,7 +7,7 @@ import { requireTenant } from "../../../infrastructure/middleware/tenant-resolve
 import { requirePermission } from "../../../infrastructure/middleware/rbac.middleware";
 import { requireFeature } from "../../../infrastructure/middleware/feature-gate.middleware";
 import {
-    RecordPaymentDto, ConfirmPaymentDto, RejectPaymentDto, AllocationPreviewDto, ApplyCreditDto, RequestRefundDto, ApproveRefundDto, RejectRefundDto, PayRefundDto, ReversePaymentDto,
+    RecordPaymentDto, ConfirmPaymentDto, RejectPaymentDto, AllocationPreviewDto, ApplyCreditDto, InitializeOnlinePaymentDto, RecordSettlementDto, RequestRefundDto, ApproveRefundDto, RejectRefundDto, PayRefundDto, ReversePaymentDto,
 } from "../dtos/payment.dto";
 
 /*
@@ -15,6 +15,9 @@ import {
 |   GET  /                       payments.view     (?status, ?method, ?guardianId, ?studentId, ?branchId, ?from, ?to, ?page, ?limit)
 |   POST /                       payments.record   cash and POS are confirmed at once; transfers and cheques wait for a second person
 |   POST /allocation-preview     payments.record   how an amount would be applied, nothing saved
+|   POST /online/initialize       payments.pay      a guardian starts paying a child's invoice online
+|   GET  /online/verify/:reference  payments.pay    the guardian's return visit: asks the gateway and confirms
+|   POST /online/settlements     payments.settle   the gateway paid the bank: clearing account to bank, less the fee
 |   GET  /credit/:studentId       payments.view     the credit a student holds
 |   POST /credit/apply            payments.record   use a student's credit on one of their open invoices
 |   GET  /refunds                 payments.view     (?status, ?paymentId, ?studentId, ?page, ?limit)
@@ -36,6 +39,9 @@ const guard = (permission: string) => [authenticate, requireTenant, requirePermi
 router.get("/", ...guard("payments.view"), (q, s, n) => ctrl().list(q, s, n));
 router.post("/", ...guard("payments.record"), validate(RecordPaymentDto), (q, s, n) => ctrl().record(q, s, n));
 router.post("/allocation-preview", ...guard("payments.record"), validate(AllocationPreviewDto), (q, s, n) => ctrl().preview(q, s, n));
+router.post("/online/initialize", ...guard("payments.pay"), validate(InitializeOnlinePaymentDto), (q, s, n) => ctrl().initializeOnline(q, s, n));
+router.get("/online/verify/:reference", ...guard("payments.pay"), (q, s, n) => ctrl().verifyOnline(q, s, n));
+router.post("/online/settlements", ...guard("payments.settle"), validate(RecordSettlementDto), (q, s, n) => ctrl().settle(q, s, n));
 router.get("/credit/:studentId", ...guard("payments.view"), (q, s, n) => ctrl().credit(q, s, n));
 router.post("/credit/apply", ...guard("payments.record"), validate(ApplyCreditDto), (q, s, n) => ctrl().applyCredit(q, s, n));
 router.get("/refunds", ...guard("payments.view"), (q, s, n) => ctrl().listRefunds(q, s, n));

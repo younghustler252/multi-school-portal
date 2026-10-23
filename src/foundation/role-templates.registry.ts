@@ -69,7 +69,7 @@ export const ROLE_TEMPLATES: RoleTemplateDef[] = [
             { key: "fees.setup.view", scope: "ALL" }, { key: "fees.types.manage", scope: "ALL" }, { key: "fees.structures.manage", scope: "ALL" },
             { key: "fees.invoices.view", scope: "ALL" }, { key: "fees.invoices.create", scope: "ALL" }, { key: "fees.invoices.issue", scope: "ALL" },
             { key: "payments.view", scope: "ALL" }, { key: "payments.record", scope: "ALL" }, { key: "payments.confirm", scope: "ALL" },
-            { key: "fees.adjustments.request", scope: "ALL" }, { key: "payments.refund.request", scope: "ALL" },
+            { key: "fees.adjustments.request", scope: "ALL" }, { key: "payments.refund.request", scope: "ALL" }, { key: "payments.settle", scope: "ALL" },
             { key: "finance.accounts.view", scope: "ALL" }, { key: "finance.journals.view", scope: "ALL" }, { key: "finance.periods.view", scope: "ALL" }, { key: "finance.reports.view", scope: "ALL" },
         ],
     },
@@ -84,7 +84,7 @@ export const ROLE_TEMPLATES: RoleTemplateDef[] = [
         key: "guardian", name: "Guardian", persona: "GUARDIAN", locked: true, grantsAll: false, defaultForPersona: "GUARDIAN", sortOrder: 110,
         description: "The records of the guardian's own children only. Assigned automatically.",
         permissions: [
-            { key: "students.view", scope: "OWN" }, { key: "attendance.view", scope: "OWN" }, { key: "fees.view", scope: "OWN" },
+            { key: "students.view", scope: "OWN" }, { key: "attendance.view", scope: "OWN" }, { key: "fees.view", scope: "OWN" }, { key: "payments.pay", scope: "OWN" },
         ],
     },
 ];

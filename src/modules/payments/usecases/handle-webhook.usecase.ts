@@ -1,7 +1,7 @@
 import { PrismaClient } from "../../../generated/public/client";
 import { IPaymentProvider } from "../../../infrastructure/payments/interfaces/payment.provider.interface";
 import { TenantContext } from "../../../infrastructure/database/prisma/tenant.context";
-import { VerifyPaymentUseCase } from "./verify-payment.usecase";
+import { ConfirmOnlinePaymentUseCase } from "./online-payment.usecases";
 import { BillingEngine } from "../../subscriptions/services/billing-engine.service";
 import { BadRequestError } from "../../../shared/errors/domain.errors";
 import { PaymentErrorMessage } from "../domain/payment.enums";
@@ -9,7 +9,7 @@ import { PaymentErrorMessage } from "../domain/payment.enums";
 interface Dependencies {
     prismaClient:         PrismaClient;
     paymentProvider:      IPaymentProvider;
-    verifyPaymentUseCase: VerifyPaymentUseCase;
+    confirmOnlinePaymentUseCase: ConfirmOnlinePaymentUseCase;
     billingEngine:        BillingEngine;
 }
 
@@ -22,7 +22,7 @@ interface Dependencies {
 |     ignored (Paystack retries), unless the first try failed, in which case it is processed again
 |  3. routing by what the payment is for:
 |       subscription invoice -> BillingEngine.reconcile(reference)        (same road as every other trigger)
-|       school fee           -> VerifyPaymentUseCase, run INSIDE that school's own database context
+|       school fee           -> ConfirmOnlinePaymentUseCase, run INSIDE that school's own database context
 |  Fixes: fee payments used to be verified with NO school context (the webhook arrives on the platform host), so
 |  they failed silently and only the 15-minute reconciliation job ever settled them. The school is now found from
 |  the payment's own metadata.
@@ -82,7 +82,7 @@ export class HandleWebhookUseCase {
 
         await new Promise<void>((resolve, reject) =>
             TenantContext.run({ tenantSchema: school.schemaName!, schoolId: school.id }, () => {
-                this.d.verifyPaymentUseCase.execute({ reference }).then(() => resolve(), reject);
+                this.d.confirmOnlinePaymentUseCase.execute(reference, school.id).then(() => resolve(), reject);
             }),
         );
     }

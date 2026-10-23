@@ -6,6 +6,8 @@
 | payments.refund.request  ask for a refund of a student's credit
 | payments.refund.approve  approve, reject and pay a refund (sensitive; never the person who asked)
 | payments.reverse         reverse a confirmed payment (sensitive)
+| payments.settle          record the gateway paying the school (online payments clearing account to the bank)
+| payments.pay             a guardian pays their own children's fees online (guardians only)
 */
 const ALL_SCOPE = ["ALL"] as const;
 const staffOnly = ["STAFF"] as const;
@@ -16,5 +18,7 @@ export const PAYMENTS_PERMISSIONS = [
     { key: "payments.confirm", realm: "SCHOOL", module: "payments", scopes: ALL_SCOPE, personas: staffOnly, label: "Confirm or reject payments" },
     { key: "payments.refund.request", realm: "SCHOOL", module: "payments", scopes: ALL_SCOPE, personas: staffOnly, label: "Request refunds" },
     { key: "payments.refund.approve", realm: "SCHOOL", module: "payments", scopes: ALL_SCOPE, personas: staffOnly, label: "Approve and pay refunds", isSensitive: true },
+    { key: "payments.settle", realm: "SCHOOL", module: "payments", scopes: ALL_SCOPE, personas: staffOnly, label: "Record online payment settlements" },
+    { key: "payments.pay", realm: "SCHOOL", module: "payments", scopes: ["OWN"] as const, personas: ["GUARDIAN"] as const, label: "Pay fees online" },
     { key: "payments.reverse", realm: "SCHOOL", module: "payments", scopes: ALL_SCOPE, personas: staffOnly, label: "Reverse payments", isSensitive: true },
 ] as const;

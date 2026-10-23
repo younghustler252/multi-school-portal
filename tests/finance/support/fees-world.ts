@@ -10,6 +10,8 @@ import { RecordPaymentUseCase } from "../../../src/modules/payments/usecases/pay
 import { ApplyCreditUseCase, GetCreditUseCase } from "../../../src/modules/payments/usecases/credit.usecases";
 import { RequestRefundUseCase, DecideRefundUseCase, PayRefundUseCase } from "../../../src/modules/payments/usecases/refund.usecases";
 import { ReversePaymentUseCase } from "../../../src/modules/payments/usecases/payment-reverse.usecase";
+import { PaymentProviderError } from "../../../src/infrastructure/payments/interfaces/payment.provider.interface";
+import { InitializeOnlinePaymentUseCase, ConfirmOnlinePaymentUseCase, RecordSettlementUseCase } from "../../../src/modules/payments/usecases/online-payment.usecases";
 import { RequestAdjustmentUseCase, DecideAdjustmentUseCase } from "../../../src/modules/fees/usecases/fee-adjustment.usecases";
 import { IssueInvoiceUseCase, VoidInvoiceUseCase } from "../../../src/modules/fees/usecases/invoice-issue.usecases";
 import { PaymentMapper } from "../../../src/modules/payments/mappers/payment.mapper";
@@ -33,7 +35,7 @@ export function feesWorld() {
         acct("a-cash", { systemKey: "CASH_DEFAULT", subtype: "CASH", isMoneyAccount: true }), acct("a-bank", { systemKey: "BANK_DEFAULT", subtype: "BANK", isMoneyAccount: true }),
         acct("a-clearing", { systemKey: "ONLINE_CLEARING", subtype: "ONLINE_CLEARING", isMoneyAccount: true }),
         acct("a-recv", { systemKey: "FEES_RECEIVABLE" }), acct("a-advance", { systemKey: "ADVANCE_PAYMENTS", type: "LIABILITY" }),
-        acct("a-disc", { systemKey: "DISCOUNTS_ALLOWED", type: "EXPENSE" }), acct("a-bad", { systemKey: "BAD_DEBT", type: "EXPENSE" }),
+        acct("a-disc", { systemKey: "DISCOUNTS_ALLOWED", type: "EXPENSE" }), acct("a-fees", { systemKey: "BANK_CHARGES", type: "EXPENSE" }), acct("a-bad", { systemKey: "BAD_DEBT", type: "EXPENSE" }),
         acct("a-tuition", { type: "INCOME" }), acct("a-books", { type: "INCOME" }), acct("a-rent", { type: "EXPENSE" }),
     ];
     books.deps.ledgerAccountRepository.findPostable = async (ids: string[], keys: string[]) => accounts.filter(a => a.isActive && (ids.includes(a.id) || (a.systemKey && keys.includes(a.systemKey))));
@@ -62,9 +64,10 @@ export function feesWorld() {
         return inv;
     };
     const feeInvoiceRepository: any = {
-        async findById(id: string) { return invoices.get(id) ?? null; },
-        async findManyByIds(ids: string[]) { return ids.map(i => invoices.get(i)).filter(Boolean); },
-        async findOpenForStudents(ids: string[]) { return [...invoices.values()].filter(i => ids.includes(i.studentId) && (i.status === "unpaid" || i.status === "partial") && i.balanceKobo > 0n); },
+        // copies, as a database returns: a caller must not see another caller's changes through a shared object
+        async findById(id: string) { const i = invoices.get(id); return i ? { ...i } : null; },
+        async findManyByIds(ids: string[]) { return ids.map(i => invoices.get(i)).filter(Boolean).map(i => ({ ...i! })); },
+        async findOpenForStudents(ids: string[]) { return [...invoices.values()].filter(i => ids.includes(i.studentId) && (i.status === "unpaid" || i.status === "partial") && i.balanceKobo > 0n).map(i => ({ ...i })); },
         async applyPayment(id: string, version: number, amount: bigint, status: "partial" | "paid") {
             const inv = invoices.get(id)!;
             if (inv.version !== version || inv.balanceKobo < amount || !["unpaid", "partial"].includes(inv.status)) return false;
@@ -97,6 +100,9 @@ export function feesWorld() {
     const paymentRepository: any = {
         async findById(id: string) { const p = payments.get(id); return p ? view(p) : null; },
         async findByClientRequestId() { return null; },
+        async findByReference(reference: string) { const p = [...payments.values()].find(x => x.reference === reference); return p ? view(p) : null; },
+        async setGatewayResult(id: string, data: any) { Object.assign(payments.get(id), data); },
+        async markFailed(id: string, version: number, data: any) { const p = payments.get(id); if (p.version !== version || !["PENDING", "AWAITING_CONFIRMATION"].includes(p.status)) return false; Object.assign(p, data, { status: "FAILED", version: version + 1 }); return true; },
         async createPayment(data: any) {
             const p = { id: `pay-${++payN}`, version: 1, unallocatedKobo: 0n, confirmedById: null, confirmedAt: null, journalId: null, reversedAt: null, createdAt: NOW, ...data };
             payments.set(p.id, p); return view(p);
@@ -128,6 +134,8 @@ export function feesWorld() {
         async guardianChildIds(id: string) { return guardians.get(id) ?? []; },
         async students(ids: string[]) { return ids.filter(i => people.has(i)).map(i => ({ id: i, name: people.get(i)! })); },
         async attachmentExists() { return true; },
+        async guardianContact(id: string) { return guardians.has(id) ? { email: "parent@example.com", name: "Mr Obi", phone: "0800" } : null; },
+        async subaccountCode() { return "ACCT_sub1"; },
         async schoolHeader() { return { name: "Greenfield College", address: null, logoUrl: null, principalName: null }; },
     };
 
@@ -163,6 +171,16 @@ export function feesWorld() {
         async countApprovedForInvoice(invoiceId: string) { return [...adjustments.values()].filter(a => a.invoiceId === invoiceId && a.status === "APPROVED").length; },
     };
 
+    // the gateway: what it was asked, and what it will say when asked about a reference
+    const provider = {
+        started: [] as any[], failToStart: false, answer: null as null | ((reference: string) => any),
+        async initializeTransaction(p: any) { if (provider.failToStart) throw new PaymentProviderError("down", false); provider.started.push(p); return { authorizationUrl: `https://pay.test/${p.reference}`, accessCode: "ac", reference: p.reference }; },
+        async verifyTransaction(reference: string) {
+            const pay = [...payments.values()].find(x => x.reference === reference)!;
+            return provider.answer ? provider.answer(reference) : { status: "success", reference, amountKobo: Number(pay.amountKobo), paidAt: NOW, channel: "card", customerEmail: "parent@example.com" };
+        },
+    };
+    const mails: any[] = [];
     const paymentMapper = new PaymentMapper();
     const refundMapper = new RefundMapper();
     const feeAdjustmentMapper = new FeeAdjustmentMapper();
@@ -174,6 +192,7 @@ export function feesWorld() {
     const creditService = new CreditService({ paymentRepository, refundRepository, feeInvoiceRepository, postingService: posting } as any, { now: () => NOW });
     const d: any = {
         paymentRepository, paymentContextRepository, paymentConfirmationService: confirmation, ledgerAccountRepository, paymentMapper, auditService, refundRepository, refundMapper,
+        paymentProvider: provider, mailService: { async sendPaymentReceipt(p: any) { mails.push(p); } },
         creditService, feeInvoiceRepository, postingService: posting, feeAdjustmentRepository, feeAdjustmentMapper, feeInvoiceMapper, numberSequenceService: books.deps.numberSequenceService,
     };
 
@@ -181,7 +200,8 @@ export function feesWorld() {
         d, books, accounts, invoices, payments, allocations, receipts, refunds, adjustments, audit, addInvoice, people,
         record: new RecordPaymentUseCase(d, opts), applyCredit: new ApplyCreditUseCase(d, { transaction: tx }), getCredit: new GetCreditUseCase(d),
         requestRefund: new RequestRefundUseCase(d), decideRefund: new DecideRefundUseCase(d, { now: () => NOW }), payRefund: new PayRefundUseCase(d, opts),
-        reverse: new ReversePaymentUseCase(d, opts),
+        reverse: new ReversePaymentUseCase(d, opts), provider, mails,
+        initOnline: new InitializeOnlinePaymentUseCase(d), confirmOnline: new ConfirmOnlinePaymentUseCase(d, { now: () => NOW }), settle: new RecordSettlementUseCase(d, { now: () => NOW }),
         requestAdjustment: new RequestAdjustmentUseCase(d), decideAdjustment: new DecideAdjustmentUseCase(d, opts),
         issue: new IssueInvoiceUseCase(d, opts), voider: new VoidInvoiceUseCase(d, opts),
 

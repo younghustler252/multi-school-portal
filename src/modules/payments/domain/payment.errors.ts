@@ -40,6 +40,14 @@ export const paymentErrors = {
         "This payment has refunds. A payment with refunds cannot be reversed", 409, true, "PAYMENT_HAS_REFUNDS"),
     invoiceNotPayable: (invoiceId: string) => new AppError("That invoice is not open for payment", 409, true, "INVOICE_NOT_PAYABLE", { invoiceId }),
     nothingToApply:   () => new AppError("There is no credit to apply, or nothing owing on the invoice", 409, true, "NOTHING_TO_APPLY"),
+    notYourChild:     () => new AppError("That student is not linked to you", 403, true, "NOT_YOUR_CHILD"),
+    notYourPayment:   () => new AppError("That payment is not yours", 403, true, "NOT_YOUR_PAYMENT"),
+    guardianRequired: () => new AppError("Only a guardian can pay fees online", 403, true, "GUARDIAN_REQUIRED"),
+    gatewayFailed:    (message: string) => new AppError(message, 502, true, "GATEWAY_ERROR"),
+    amountMismatch:   (paid: bigint, expected: bigint) => new AppError(
+        "The gateway reports a different amount from the one that was asked for. The payment is held for a person to check", 409, true, "ONLINE_AMOUNT_MISMATCH",
+        { paidKobo: paid.toString(), expectedKobo: expected.toString() }),
+    settlementInvalid: (message: string) => new AppError(message, 400, true, "SETTLEMENT_INVALID"),
     allocationsAtConfirmation: () => new AppError(
         "This payment waits for confirmation. Choose the allocation when it is confirmed", 400, true, "ALLOCATION_AT_CONFIRMATION"),
 };

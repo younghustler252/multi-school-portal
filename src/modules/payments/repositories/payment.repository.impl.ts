@@ -17,6 +17,15 @@ export class PaymentRepositoryImpl extends BaseTenantRepository<PaymentEntity, P
     private readonly mapperRef: PaymentMapper;
 
     findById(id: string) { return super.findById(id, WITH_DETAIL); }
+    findByReference(reference: string) { return this.findOne({ reference }, WITH_DETAIL); }
+
+    async setGatewayResult(id: string, data: Record<string, any>) { await this.model().update({ where: { id }, data }); }
+
+    async markFailed(id: string, version: number, data: Record<string, any>) {
+        const r = await this.model().updateMany({ where: { id, version, status: { in: WAITING } }, data: { ...data, status: "FAILED", version: { increment: 1 } } });
+        return r.count === 1;
+    }
+
     findByClientRequestId(clientRequestId: string) { return this.findOne({ clientRequestId }, WITH_DETAIL); }
 
     list(f: PaymentFilters, page?: number, limit?: number) {

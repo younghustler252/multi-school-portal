@@ -3,7 +3,7 @@ import { redisConnection } from "../connection";
 import { prisma, getTenantClient } from "../../database/prisma/prisma.client";
 import { TenantContext } from "../../database/prisma/tenant.context";
 import { container } from "../../../container";
-import { VerifyPaymentUseCase } from "../../../modules/payments/usecases/verify-payment.usecase";
+import { ConfirmOnlinePaymentUseCase } from "../../../modules/payments/usecases/online-payment.usecases";
 import { BillingEngine } from "../../../../billing-module-v1 (1)/modules/subscriptions/services/billing-engine.service";
 
 /*
@@ -16,7 +16,7 @@ import { BillingEngine } from "../../../../billing-module-v1 (1)/modules/subscri
 export const paymentReconciliationWorker = new Worker(
     "payment-reconciliation",
     async () => {
-        const verifyPaymentUseCase = container.resolve<VerifyPaymentUseCase>("verifyPaymentUseCase");
+        const confirmOnlinePayment = container.resolve<ConfirmOnlinePaymentUseCase>("confirmOnlinePaymentUseCase");
         const billingEngine        = container.resolve<BillingEngine>("billingEngine");
         const cutoff = new Date(Date.now() - 15 * 60 * 1000);
 
@@ -30,11 +30,11 @@ export const paymentReconciliationWorker = new Worker(
             if (!school.schemaName) continue;
             try {
                 await TenantContext.run({ schoolId: school.id, tenantSchema: school.schemaName }, async () => {
-                    const stale = await getTenantClient().payment.findMany({ where: { status: "pending", createdAt: { lt: cutoff } } });
+                    const stale = await getTenantClient().payment.findMany({ where: { status: "PENDING", method: "paystack", createdAt: { lt: cutoff } } });
                     for (const payment of stale) {
                         if (!payment.reference) continue;
                         try {
-                            await verifyPaymentUseCase.execute({ reference: payment.reference });
+                            await confirmOnlinePayment.execute(payment.reference, school.id);
                             console.log(`🔁 Reconciled fee payment: ${payment.reference} (school: ${school.id})`);
                         } catch (err) {
                             console.error(`⚠️ Reconciliation failed for ${payment.reference} (school: ${school.id}):`, err);

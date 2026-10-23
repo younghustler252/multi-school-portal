@@ -12,7 +12,7 @@ import {
 import { TenantContext } from "../../database/prisma/tenant.context";
 
 import { container } from "../../../container";
-import { VerifyPaymentUseCase } from "../../../modules/payments/usecases/verify-payment.usecase";
+import { ConfirmOnlinePaymentUseCase } from "../../../modules/payments/usecases/online-payment.usecases";
 import { VerifySubscriptionUpgradeUseCase } from "../../../modules/subscriptions/usecases/school-admin/verify-subscription-upgrade";
 
 /*
@@ -31,9 +31,9 @@ export const paymentReconciliationWorker =
                 `💳 Processing payment reconciliation job: ${job.id}`,
             );
 
-            const verifyPaymentUseCase =
-                container.resolve<VerifyPaymentUseCase>(
-                    "verifyPaymentUseCase",
+            const confirmOnlinePayment =
+                container.resolve<ConfirmOnlinePaymentUseCase>(
+                    "confirmOnlinePaymentUseCase",
                 );
 
             const verifySubscriptionUpgradeUseCase =
@@ -85,7 +85,8 @@ export const paymentReconciliationWorker =
                             const staleFeePayments =
                                 await tenantPrisma.payment.findMany({
                                     where: {
-                                        status: "pending",
+                                        status: "PENDING",
+                                        method: "paystack",
                                         createdAt: {
                                             lt: staleBefore,
                                         },
@@ -105,9 +106,10 @@ export const paymentReconciliationWorker =
                                 if (!payment.reference) continue;
 
                                 try {
-                                    await verifyPaymentUseCase.execute({
-                                        reference: payment.reference,
-                                    });
+                                    await confirmOnlinePayment.execute(
+                                        payment.reference,
+                                        school.id,
+                                    );
 
                                     console.log(
                                         `🔁 Reconciled fee payment: ${payment.reference} ` +

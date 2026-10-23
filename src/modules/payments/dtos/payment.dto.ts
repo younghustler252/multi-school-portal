@@ -82,3 +82,19 @@ export type RejectRefundDtoType = z.infer<typeof RejectRefundDto>;
 export type PayRefundDtoType = z.infer<typeof PayRefundDto>;
 export type ReversePaymentDtoType = z.infer<typeof ReversePaymentDto>;
 export type ListRefundsQueryType = z.infer<typeof ListRefundsQuery>;
+
+/* A guardian pays online for one child's invoice. The amount is the invoice's balance when omitted; any amount can be paid, and extra becomes credit. */
+export const InitializeOnlinePaymentDto = z.object({ invoiceId: id, amountKobo: positiveKobo.optional(), callbackUrl: z.string().url().max(500).optional() }).strict();
+
+/* The gateway paid the school: money moves from the online clearing account to the bank, less the gateway's fee. */
+export const RecordSettlementDto = z.object({
+    grossKobo:   positiveKobo,                       // what the online payments came to
+    feeKobo:     kobo.default(0),                    // what the gateway kept
+    accountId:   id.optional(),                      // the bank account that received it; the default bank account when omitted
+    settledOn:   day.optional(),
+    reference:   text(100).optional(),               // the gateway's settlement reference; the same one never posts twice
+    note:        text(300).optional(),
+}).strict().refine(d => d.feeKobo < d.grossKobo, { message: "The fee must be less than the amount settled", path: ["feeKobo"] });
+
+export type InitializeOnlinePaymentDtoType = z.infer<typeof InitializeOnlinePaymentDto>;
+export type RecordSettlementDtoType = z.infer<typeof RecordSettlementDto>;

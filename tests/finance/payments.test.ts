@@ -395,11 +395,11 @@ describe("preview, queries, requests and permissions", () => {
     });
 
     it("payment permissions are staff only; bursar records and confirms; principal only views; others nothing", () => {
-        const keys = PAYMENTS_PERMISSIONS.map(p => p.key);
+        const keys = PAYMENTS_PERMISSIONS.map(p => p.key).filter(k => k !== "payments.pay");      // paying online is the guardians' own key
         for (const k of keys) assert.deepEqual([...PERMISSION_REGISTRY.find(p => p.key === k)!.personas], ["STAFF"]);
         const granted = (r: string) => ROLE_TEMPLATES.find(t => t.key === r)!.permissions.map(p => p.key);
-        assert.deepEqual(keys.filter(k => granted("bursar").includes(k)), ["payments.view", "payments.record", "payments.confirm", "payments.refund.request"]);
+        assert.deepEqual(keys.filter(k => granted("bursar").includes(k)), ["payments.view", "payments.record", "payments.confirm", "payments.refund.request", "payments.settle"]);
         assert.deepEqual(keys.filter(k => granted("principal").includes(k)), ["payments.view"]);
-        for (const r of ["student", "guardian", "teacher"]) assert.ok(!granted(r).some(k => k.startsWith("payments.")));
+        for (const r of ["student", "guardian", "teacher"]) assert.ok(!granted(r).some(k => k.startsWith("payments.") && k !== "payments.pay"));
     });
 });

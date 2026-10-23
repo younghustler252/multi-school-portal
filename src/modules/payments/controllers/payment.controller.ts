@@ -6,6 +6,8 @@ import { UnauthorizedError } from "../../../shared/errors/domain.errors";
 import { ListPaymentsQuery, ListRefundsQuery } from "../dtos/payment.dto";
 import { GetCreditUseCase, ApplyCreditUseCase } from "../usecases/credit.usecases";
 import { ListRefundsUseCase, GetRefundUseCase, RequestRefundUseCase, DecideRefundUseCase, PayRefundUseCase } from "../usecases/refund.usecases";
+import { InitializeOnlinePaymentUseCase, ConfirmOnlinePaymentUseCase, RecordSettlementUseCase } from "../usecases/online-payment.usecases";
+import { paymentErrors } from "../domain/payment.errors";
 import { ReversePaymentUseCase } from "../usecases/payment-reverse.usecase";
 
 interface Dependencies {
@@ -14,12 +16,18 @@ interface Dependencies {
     getCreditUseCase: GetCreditUseCase; applyCreditUseCase: ApplyCreditUseCase;
     listRefundsUseCase: ListRefundsUseCase; getRefundUseCase: GetRefundUseCase; requestRefundUseCase: RequestRefundUseCase;
     decideRefundUseCase: DecideRefundUseCase; payRefundUseCase: PayRefundUseCase; reversePaymentUseCase: ReversePaymentUseCase;
+    initializeOnlinePaymentUseCase: InitializeOnlinePaymentUseCase; confirmOnlinePaymentUseCase: ConfirmOnlinePaymentUseCase; recordSettlementUseCase: RecordSettlementUseCase;
 }
 
 /* PAYMENT CONTROLLER (school realm, /payments). Bodies are already validated and converted by the route; queries are parsed here. */
 const schoolIdOf = (req: Request): string => req.schoolId as string;
 const userIdOf   = (req: Request): string => { if (!req.auth) throw new UnauthorizedError("No token provided", "TOKEN_MISSING"); return req.auth.userId; };
 const idOf       = (req: Request): string => String(req.params.id);
+const guardianIdOf = (req: Request): string => {            // the guardian record behind this login
+    const a = req.access;
+    if (!a || a.persona !== "GUARDIAN" || !a.personaEntityId) throw paymentErrors.guardianRequired();
+    return a.personaEntityId;
+};
 
 export class PaymentController {
     constructor(private readonly d: Dependencies) {}
@@ -50,6 +58,15 @@ export class PaymentController {
     };
     reject = async (req: Request, res: Response, next: NextFunction) => {
         try { sendSuccess(res, await this.d.rejectPaymentUseCase.execute(idOf(req), schoolIdOf(req), userIdOf(req), req.body), "Payment rejected successfully"); } catch (e) { next(e); }
+    };
+    initializeOnline = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendCreated(res, await this.d.initializeOnlinePaymentUseCase.execute(schoolIdOf(req), guardianIdOf(req), req.body), "Payment started successfully"); } catch (e) { next(e); }
+    };
+    verifyOnline = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.confirmOnlinePaymentUseCase.execute(String(req.params.reference), schoolIdOf(req), guardianIdOf(req)), "Payment checked successfully"); } catch (e) { next(e); }
+    };
+    settle = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendCreated(res, await this.d.recordSettlementUseCase.execute(schoolIdOf(req), userIdOf(req), req.body), "Settlement recorded successfully"); } catch (e) { next(e); }
     };
     credit = async (req: Request, res: Response, next: NextFunction) => {
         try { sendSuccess(res, await this.d.getCreditUseCase.execute(String(req.params.studentId)), "Credit retrieved successfully"); } catch (e) { next(e); }
