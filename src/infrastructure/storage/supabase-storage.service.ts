@@ -83,4 +83,26 @@ export class SupabaseStorageService implements IStorageProvider {
 
         return data.signedUrl;
     }
+
+    /** Several private files in ONE call (a list page). Files that cannot be signed are simply missing from the result. */
+    async getSignedUrls(
+        filePaths:         string[],
+        bucket?:           string,
+        expiresInSeconds = 300,
+    ): Promise<Map<string, string>> {
+        const out = new Map<string, string>();
+        if (filePaths.length === 0) return out;
+
+        const { data, error } = await this.client.storage
+            .from(bucket ?? this.bucket)
+            .createSignedUrls(filePaths, expiresInSeconds);
+
+        if (error) {
+            throw new Error(`Storage signed URLs failed: ${error.message}`);
+        }
+        for (const item of data ?? []) {
+            if (item.path && item.signedUrl && !item.error) out.set(item.path, item.signedUrl);
+        }
+        return out;
+    }
 }

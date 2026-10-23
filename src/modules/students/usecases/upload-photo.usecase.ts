@@ -1,14 +1,14 @@
-import { env } from "../../../config/env";
 import { SupabaseStorageService } from "../../../infrastructure/storage/supabase-storage.service";
 import { AuditService } from "../../audit/services/audit.service";
 import { IStudentRepository } from "../repositories/student.repository";
-import { StudentMapper, StudentResponseData } from "../mappers/student.mapper";
+import { StudentResponseData } from "../mappers/student.mapper";
+import { StudentPhotoService } from "../services/student-photo.service";
 import { studentErrors } from "../domain/student.errors";
-import { MAX_PHOTO_BYTES } from "../domain/student.policy";
+import { MAX_PHOTO_BYTES, isOwnPhotoPath, photoFolder } from "../domain/student.policy";
 import { StudentActor } from "../domain/student.types";
 
 interface Dependencies {
-    studentRepository: IStudentRepository; studentMapper: StudentMapper;
+    studentRepository: IStudentRepository; studentPhotoService: StudentPhotoService;
     storageService: SupabaseStorageService; auditService: AuditService;
 }
 
@@ -22,8 +22,12 @@ export function sniffImage(buf: Buffer): "image/jpeg" | "image/png" | "image/web
 const EXT = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" } as const;
 
 /*
-| UPLOAD STUDENT PHOTO. The file is checked by its real content, saved under a name we choose (never the
-| uploaded name), and if the database update fails the new file is removed again.
+| UPLOAD STUDENT PHOTO. Photos are PRIVATE: the file goes to the private bucket and the database keeps its storage
+| path; a short-lived link is made whenever the student is read (StudentPhotoService).
+|  - the file is checked by its real content and saved under a name we choose (never the uploaded name)
+|  - if the database update fails, the new file is removed again
+|  - after a successful replacement the previous file is removed (best effort: if that delete fails the new photo
+|    still works, and the leftover is private and unreachable)
 */
 export class UploadStudentPhotoUseCase {
     constructor(private readonly d: Dependencies) {}
@@ -37,19 +41,22 @@ export class UploadStudentPhotoUseCase {
         const type = sniffImage(file.buffer);
         if (!type) throw studentErrors.invalidImage();
 
-        const result = await d.storageService.upload({
-            bucket: env.supabase.publicBucket, folder: `students/${schoolId}/photos`,
-            file: file.buffer, mimetype: type, filename: `${id}-${Date.now()}.${EXT[type]}`,
+        const result = await d.storageService.upload({            // no bucket given = the private bucket
+            folder: photoFolder(schoolId), file: file.buffer, mimetype: type, filename: `${id}-${Date.now()}.${EXT[type]}`,
         });
 
         let updated;
-        try { updated = await d.studentRepository.update(id, { photoUrl: result.url }); }
+        try { updated = await d.studentRepository.update(id, { photoUrl: result.path }); }
         catch (err) {
             await d.storageService.delete(result.path, result.bucket).catch(() => undefined);   // do not leave an unused file behind
             throw err;
         }
 
+        if (isOwnPhotoPath(schoolId, student.photoUrl) && student.photoUrl !== result.path) {
+            await d.storageService.delete(student.photoUrl).catch(err => console.warn("Old student photo was not removed:", (err as Error).message));
+        }
+
         await d.auditService.log({ userId: actor.userId, schoolId, action: "student.photo_changed", entity: "Student", entityId: id });
-        return d.studentMapper.toResponse(updated);
+        return d.studentPhotoService.toResponse(updated);
     }
 }

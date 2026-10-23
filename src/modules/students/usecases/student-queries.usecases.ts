@@ -2,11 +2,12 @@ import type { Access } from "../../../foundation/access.service";
 import { PaginatedResult } from "../../../infrastructure/repository/base.repository";
 import { IStudentRepository } from "../repositories/student.repository";
 import { StudentMapper, StudentResponseData } from "../mappers/student.mapper";
+import { StudentPhotoService } from "../services/student-photo.service";
 import { studentErrors } from "../domain/student.errors";
 import { studentScopeWhere } from "../services/student-scope";
 import { ListStudentsQueryType } from "../dtos/student.dto";
 
-interface Dependencies { studentRepository: IStudentRepository; studentMapper: StudentMapper; }
+interface Dependencies { studentRepository: IStudentRepository; studentMapper: StudentMapper; studentPhotoService: StudentPhotoService; }
 
 /*
 | READS. Every read is limited to what the viewer may see (student-scope.ts). A student outside the viewer's
@@ -16,7 +17,7 @@ export class ListStudentsUseCase {
     constructor(private readonly d: Dependencies) {}
 
     async execute(query: ListStudentsQueryType, access: Access): Promise<PaginatedResult<StudentResponseData>> {
-        const { studentRepository: repo, studentMapper: mapper } = this.d;
+        const { studentRepository: repo, studentPhotoService: photos } = this.d;
         const where = {
             AND: [
                 studentScopeWhere(access),
@@ -26,7 +27,7 @@ export class ListStudentsUseCase {
         };
         const params = { page: query.page, limit: query.limit, where, orderBy: { createdAt: "desc" } };
         const result = query.search ? await repo.searchStudents(query.search, params) : await repo.paginate(params);
-        return { data: result.data.map(s => mapper.toResponse(s)), meta: result.meta };
+        return { data: await photos.toResponses(result.data), meta: result.meta };
     }
 }
 
@@ -36,7 +37,7 @@ export class GetStudentUseCase {
     async execute(id: string, access: Access): Promise<StudentResponseData> {
         const student = await this.d.studentRepository.findOne({ AND: [{ id }, studentScopeWhere(access)] });
         if (!student) throw studentErrors.notFound();
-        return this.d.studentMapper.toResponse(student);
+        return this.d.studentPhotoService.toResponse(student);
     }
 }
 
@@ -48,6 +49,6 @@ export class GetMyStudentProfileUseCase {
         if (access.persona !== "STUDENT" || !access.personaEntityId) throw studentErrors.notFound();
         const student = await this.d.studentRepository.findById(access.personaEntityId);
         if (!student) throw studentErrors.notFound();
-        return this.d.studentMapper.toResponse(student);
+        return this.d.studentPhotoService.toResponse(student);
     }
 }

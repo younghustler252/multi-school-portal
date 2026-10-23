@@ -1,11 +1,12 @@
 import { AuditService } from "../../audit/services/audit.service";
 import { IStudentRepository } from "../repositories/student.repository";
 import { StudentMapper, StudentResponseData } from "../mappers/student.mapper";
+import { StudentPhotoService } from "../services/student-photo.service";
 import { studentErrors } from "../domain/student.errors";
 import { StudentActor } from "../domain/student.types";
 import { DeactivateStudentDtoType } from "../dtos/student.dto";
 
-interface Dependencies { studentRepository: IStudentRepository; studentMapper: StudentMapper; auditService: AuditService; }
+interface Dependencies { studentRepository: IStudentRepository; studentMapper: StudentMapper; studentPhotoService: StudentPhotoService; auditService: AuditService; }
 
 /*
 | DEACTIVATE. A student is never erased: enrolments, grades, attendance and invoices stay linked.
@@ -25,6 +26,6 @@ export class DeactivateStudentUseCase {
             userId: actor.userId, schoolId, action: "student.deactivated", entity: "Student", entityId: id,
             newValue: { name: `${student.firstName} ${student.lastName}`, reason: dto?.reason ?? null },
         });
-        return d.studentMapper.toResponse(updated);
+        return d.studentPhotoService.toResponse(updated);
     }
 }

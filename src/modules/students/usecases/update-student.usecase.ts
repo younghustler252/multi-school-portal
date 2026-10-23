@@ -1,11 +1,12 @@
 import { AuditService } from "../../audit/services/audit.service";
 import { IStudentRepository } from "../repositories/student.repository";
 import { StudentMapper, StudentResponseData } from "../mappers/student.mapper";
+import { StudentPhotoService } from "../services/student-photo.service";
 import { studentErrors } from "../domain/student.errors";
 import { StudentActor } from "../domain/student.types";
 import { UpdateStudentDtoType } from "../dtos/student.dto";
 
-interface Dependencies { studentRepository: IStudentRepository; studentMapper: StudentMapper; auditService: AuditService; }
+interface Dependencies { studentRepository: IStudentRepository; studentMapper: StudentMapper; studentPhotoService: StudentPhotoService; auditService: AuditService; }
 
 const DATE_FIELDS = new Set(["dateOfBirth", "admittedAt"]);
 // Compare values the way a person would: dates by day, nothing and null are the same
@@ -38,7 +39,7 @@ export class UpdateStudentUseCase {
             before[key] = plain(key, current);
             after[key] = plain(key, value);
         }
-        if (Object.keys(data).length === 0) return d.studentMapper.toResponse(student);   // nothing changed
+        if (Object.keys(data).length === 0) return d.studentPhotoService.toResponse(student);   // nothing changed
 
         if (typeof data.admissionNumber === "string") {
             const other = await d.studentRepository.findByAdmissionNumber(data.admissionNumber);
@@ -53,6 +54,6 @@ export class UpdateStudentUseCase {
             userId: actor.userId, schoolId, action: "student.updated", entity: "Student", entityId: id,
             oldValue: before, newValue: after,
         });
-        return d.studentMapper.toResponse(updated);
+        return d.studentPhotoService.toResponse(updated);
     }
 }

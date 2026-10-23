@@ -3,6 +3,7 @@ import type { AwilixContainer } from "awilix";
 import { StudentMapper } from "./mappers/student.mapper";
 import { StudentRepositoryImpl } from "./repositories/student.repository.impl";
 import { NumberSequenceService } from "../../shared/services/number-sequence.service";
+import { StudentPhotoService } from "./services/student-photo.service";
 import { CreateStudentUseCase } from "./usecases/create-student.usecase";
 import { UpdateStudentUseCase } from "./usecases/update-student.usecase";
 import { DeactivateStudentUseCase } from "./usecases/deactivate-student.usecase";
@@ -21,6 +22,7 @@ export const registerStudents = (container: AwilixContainer): void => {
         studentMapper:         asClass(StudentMapper).singleton(),
         studentRepository:     asClass(StudentRepositoryImpl).scoped(),
         numberSequenceService: asClass(NumberSequenceService).singleton(),
+        studentPhotoService:   asClass(StudentPhotoService).scoped(),
 
         listStudentsUseCase:         asClass(ListStudentsUseCase).scoped(),
         getStudentUseCase:           asClass(GetStudentUseCase).scoped(),

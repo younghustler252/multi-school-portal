@@ -1,6 +1,6 @@
 # Students Module Notes (first slice)
 
-> Branch `refactor/modules`. Follows `docs/STUDENTS_MODULE_AUDIT.md`. Build: no new TypeScript errors (the 83 existing ones are in other modules). Tests: 22 new unit tests pass; no database or API test was run.
+> Branch `refactor/modules`. Follows `docs/STUDENTS_MODULE_AUDIT.md`. Build: no new TypeScript errors (the 83 existing ones are in other modules). Tests: 24 student unit tests pass; no database or API test was run.
 
 ## What is switched on
 `registerStudents` is in the container list and `/students` is mounted. Only the core student record is live.
@@ -24,7 +24,7 @@
 - **Duplicates**: same name + same date of birth returns 409 `POSSIBLE_DUPLICATE_STUDENT`; resend with `confirmNotDuplicate: true`.
 - **No login on create.** The old temporary-password flow is removed. A portal login comes later through an invitation, like Staff.
 - **Deactivate** keeps the record and all history. **Audit** entries: `student.created`, `.updated` (old and new values), `.deactivated`, `.reactivated`, `.photo_changed`.
-- **Photo**: checked by real file content, stored under a generated name in the public bucket, removed again if the database update fails.
+- **Photo (private)**: checked by real file content, stored under a generated name in the PRIVATE bucket (`SUPABASE_BUCKET`, the same one used for school documents and report cards). The database keeps the storage path, never a web address. Every time a student is read, `StudentPhotoService` makes a link that works for 1 hour (one call signs a whole page); only people who pass the student scope get a link. If the database update fails the new file is removed; after a successful replacement the old file is removed (best effort). If signing fails the student is still returned with `photoUrl: null`.
 - **DTOs are strict**: unknown fields are rejected (for example `email` and guardian fields on create). Blank strings count as "not sent" on create and "clear it" on update.
 
 ## Error codes
@@ -36,11 +36,13 @@
 - Student detail no longer includes `guardians` (comes back with Guardians).
 - Removed for now: `POST /students/batch`, `/students/import`, `/students/bulk-create`.
 - Create and update no longer accept `email` or guardian fields.
+- `photoUrl` is now a link that expires after 1 hour. Do not store it; reload the student to get a fresh one. Photos uploaded before this change (old public web addresses) still show, but stay public: upload them again.
 
 ## Left for later
 - `usecases/import-students.usecase.ts` and `get-students-batch.usecase.ts` stay in the folder but are not registered or routed (import needs Guardians, Classes, Sessions, Enrolment). Import will need its own `students.import` permission.
 - Guardians on the student detail, class and attendance on the list, student portal invitation, branch/assigned scopes.
-- Old photo files are not deleted from storage when a photo is replaced. Photos go to the public bucket (random file names); a private bucket with signed links is stricter.
+- A scheduled sweep for photo files left behind when the best-effort delete fails (they are private, so only wasted space).
+- Other modules (Guardians, report cards...) get `photoUrl: null` from `StudentMapper.toResponse`. When they are converted they must use `StudentPhotoService` to show photos.
 - Student has no `createdById` column, so the actor is recorded in the audit log only.
 
 ## Known issue found in Staff (not changed)

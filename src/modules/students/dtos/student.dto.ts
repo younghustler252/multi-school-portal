@@ -13,9 +13,9 @@ const GENDERS      = ["male", "female"] as const;
 const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"] as const;
 
 const validDate = (v: string) => !Number.isNaN(Date.parse(v));
-const birthDate = z.string().refine(v => validDate(v) && new Date(v) < new Date() && new Date(v).getUTCFullYear() >= 1980, "Enter a valid date of birth");
-// An admission date may be a little ahead of today (a place accepted for next term), not years ahead
-const admitDate = z.string().refine(v => validDate(v) && new Date(v).getTime() < Date.now() + 366 * 24 * 3600 * 1000 && new Date(v).getUTCFullYear() >= 2000, "Enter a valid admission date");
+const birthDate = z.string().refine(v => validDate(v) && new Date(v) < new Date(), "Enter a valid date of birth in the past");
+// Any past date is allowed (old records, corrections). An admission date may be a little ahead of today (a place accepted for next term), not years ahead
+const admitDate = z.string().refine(v => validDate(v) && new Date(v).getTime() < Date.now() + 366 * 24 * 3600 * 1000, "Enter a valid admission date");
 
 const admissionNumber = z.string().trim().regex(/^[A-Za-z0-9\-\/._]{2,30}$/, "Use letters, numbers, - / . or _ (2 to 30 characters)");
 

@@ -9,6 +9,8 @@ import { sniffImage } from "../../src/modules/students/usecases/upload-photo.use
 import { UpdateStudentUseCase } from "../../src/modules/students/usecases/update-student.usecase";
 import { DeactivateStudentUseCase } from "../../src/modules/students/usecases/deactivate-student.usecase";
 import { StudentMapper } from "../../src/modules/students/mappers/student.mapper";
+import { StudentPhotoService } from "../../src/modules/students/services/student-photo.service";
+import { isOwnPhotoPath } from "../../src/modules/students/domain/student.policy";
 
 const access = (scope: string | null, persona: "STAFF" | "STUDENT" | "GUARDIAN", entityId: string | null, grantsAll = false) =>
     new Access("school", "u1", "m1", persona, entityId, new Set(), grantsAll, new Map(scope ? [["students.view", scope as any]] : []));
@@ -47,6 +49,9 @@ describe("student DTOs", () => {
         assert.equal(ok.firstName, "Ada"); assert.equal(ok.middleName, undefined); assert.equal(ok.gender, undefined);
         assert.equal(CreateStudentDto.safeParse({ firstName: "A", lastName: "B", email: "a@b.com" }).success, false);
     });
+    it("old birth and admission dates are accepted (no historical cutoff)", () => {
+        assert.equal(CreateStudentDto.safeParse({ firstName: "A", lastName: "B", dateOfBirth: "1965-03-01", admittedAt: "1990-09-10" }).success, true);
+    });
     it("create rejects a future birth date and a bad admission number", () => {
         assert.equal(CreateStudentDto.safeParse({ firstName: "A", lastName: "B", dateOfBirth: "2999-01-01" }).success, false);
         assert.equal(CreateStudentDto.safeParse({ firstName: "A", lastName: "B", admissionNumber: "x y" }).success, false);
@@ -84,7 +89,9 @@ function fakes(initial = row, other: any = null) {
         update: async (_id: string, data: any) => { state.updates.push(data); state.student = { ...state.student, ...data }; return mapper.toDomain(state.student); },
     };
     const auditService: any = { log: async (p: any) => { state.audits.push(p); } };
-    return { state, d: { studentRepository, studentMapper: mapper, auditService } };
+    const storageService: any = { getSignedUrls: async (paths: string[]) => new Map(paths.map(p => [p, `https://signed.test/${p}?t=1`])) };
+    const studentPhotoService = new StudentPhotoService({ storageService, studentMapper: mapper });
+    return { state, d: { studentRepository, studentMapper: mapper, studentPhotoService, auditService } };
 }
 const actor = { userId: "u1" };
 
@@ -120,5 +127,27 @@ describe("deactivate student", () => {
         assert.equal(state.audits[0].action, "student.deactivated");
         assert.equal(state.audits[0].newValue.reason, "Left the school");
         await assert.rejects(uc.execute("sch", "s1", {}, actor), { statusCode: 409 });
+    });
+});
+
+describe("private photos", () => {
+    const withPhoto = { ...row, photoUrl: "students/sch/photos/s1-1.jpg" };
+    it("the stored path is never sent out; a short-lived link is", async () => {
+        const { d } = fakes(withPhoto);
+        const plain = mapper.toResponse(mapper.toDomain(withPhoto));
+        assert.equal(plain.photoUrl, null);
+        const signed = await d.studentPhotoService.toResponse(mapper.toDomain(withPhoto));
+        assert.equal(signed.photoUrl, "https://signed.test/students/sch/photos/s1-1.jpg?t=1");
+    });
+    it("a student with no photo gets null, and signing failure never breaks the read", async () => {
+        const broken = new StudentPhotoService({ storageService: { getSignedUrls: async () => { throw new Error("down"); } } as any, studentMapper: mapper });
+        assert.equal((await broken.toResponse(mapper.toDomain(withPhoto))).photoUrl, null);
+        assert.equal((await broken.toResponse(mapper.toDomain(row))).photoUrl, null);
+    });
+    it("only this school's own photo paths may be deleted", () => {
+        assert.equal(isOwnPhotoPath("sch", "students/sch/photos/a.jpg"), true);
+        assert.equal(isOwnPhotoPath("sch", "students/other/photos/a.jpg"), false);
+        assert.equal(isOwnPhotoPath("sch", "students/sch/photos/../../x"), false);
+        assert.equal(isOwnPhotoPath("sch", null), false);
     });
 });

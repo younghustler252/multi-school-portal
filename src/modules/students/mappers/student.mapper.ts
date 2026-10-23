@@ -65,7 +65,8 @@ export class StudentMapper implements IMapper<any, StudentEntity> {
             gender:          entity.gender,
             bloodGroup:      entity.bloodGroup,
             address:         entity.address,
-            photoUrl:        entity.photoUrl,
+            // The stored value is a private storage path, never sent out. StudentPhotoService fills in a short-lived link.
+            photoUrl:        null,
             religion:        entity.religion,
             nationality:     entity.nationality,
             stateOfOrigin:   entity.stateOfOrigin,
