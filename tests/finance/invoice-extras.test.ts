@@ -7,6 +7,7 @@ import { validatePlan, scheduleOf } from "../../src/modules/fees/domain/instalme
 import { buildAgeing, expandByPlan } from "../../src/modules/fees/domain/report.policy";
 import { SaveInstalmentPlanUseCase, OpeningBalancesUseCase, RunLateFeesUseCase } from "../../src/modules/fees/usecases/invoice-extras.usecases";
 import { SaveInstalmentPlanDto, RunLateFeesDto } from "../../src/modules/fees/dtos/instalment.dto";
+import { AppError } from "../../src/shared/errors/domain.errors";
 import { NOW, N, day, code } from "./support/fees-world";
 
 const d = (s: string) => day(s);
@@ -49,7 +50,7 @@ describe("ageing with an instalment plan", () => {
         assert.equal(r.students.length, 1);
         assert.equal(r.students[0].invoices, 1);
         assert.equal(r.students[0].totalKobo, N(50_000));
-        assert.equal(r.students[0].buckets.current, N(30_000));
+        assert.equal(r.students[0].buckets.CURRENT, N(30_000));
     });
 });
 
@@ -71,7 +72,7 @@ function extrasWorld(openRows: any[] = []) {
         feeReportRepository: { openInvoices: async () => openRows },
         ledgerAccountRepository: { findPostable: async () => [{ id: "a-eq" }] },
         issueInvoiceUseCase: { execute: async (id: string, _s: string, _u: string, dto: any) => {
-            if (failIssueFor && drafts.get(id)?.data.studentId === failIssueFor) throw Object.assign(new Error("boom"), { code: "X", statusCode: 400, isOperational: true, name: "AppError" });
+            if (failIssueFor && drafts.get(id)?.data.studentId === failIssueFor) throw new AppError("boom", 400, true, "X");
             issued.push(id); const x = drafts.get(id); if (x.data.lateFeeOfInvoiceId) charged.add(x.data.lateFeeOfInvoiceId);
             return { invoiceNumber: `INV-${id}`, issueDate: dto.issueDate };
         } },
