@@ -17,11 +17,12 @@ export class FeeReportRepositoryImpl implements IFeeReportRepository {
                 ...(f.branchId && { branchId: f.branchId }), ...(f.classId && { classId: f.classId }), ...(f.termId && { termId: f.termId }),
                 ...(f.studentIds && { studentId: { in: f.studentIds } }),
             },
-            select: { id: true, invoiceNumber: true, studentId: true, classId: true, branchId: true, termId: true, issueDate: true, dueDate: true, totalKobo: true, balanceKobo: true, ...WITH_PEOPLE },
+            select: { id: true, invoiceNumber: true, studentId: true, classId: true, branchId: true, termId: true, issueDate: true, dueDate: true, totalKobo: true, balanceKobo: true, paidKobo: true, ...WITH_PEOPLE, instalmentPlan: { select: { status: true, lines: { orderBy: { lineNumber: "asc" }, select: { dueDate: true, amountKobo: true } } } } },
         });
         return rows.map(r => ({
             id: r.id, invoiceNumber: r.invoiceNumber, studentId: r.studentId, studentName: fullName(r.student), admissionNumber: r.student.admissionNumber,
             classId: r.classId, className: r.class?.name ?? null, branchId: r.branchId, termId: r.termId, issueDate: r.issueDate, dueDate: r.dueDate, totalKobo: r.totalKobo, balanceKobo: r.balanceKobo,
+            paidKobo: r.paidKobo, plan: r.instalmentPlan?.status === "ACTIVE" ? r.instalmentPlan.lines : undefined,
         }));
     }
 

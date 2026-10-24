@@ -40,6 +40,13 @@ export const feeErrors = {
         "This invoice has adjustments. Use a credit note instead of voiding it", 409, true, "INVOICE_HAS_ADJUSTMENTS"),
     studentRequired:   () => new AppError("Choose a student for the invoice", 400, true, "STUDENT_REQUIRED"),
     notYourChild: () => new AppError("That student is not linked to you", 403, true, "NOT_YOUR_CHILD"),
+    // opening balances, instalments, late fees
+    openingEquityMissing: () => new AppError("The opening balance equity account is missing from the chart of accounts", 400, true, "OPENING_EQUITY_MISSING"),
+    asOfInFuture: () => new AppError("An opening balance cannot be dated in the future", 400, true, "OPENING_DATE_IN_FUTURE"),
+    instalmentsInvalid: (message: string, details?: Record<string, unknown>) => new AppError(message, 400, true, "INSTALMENTS_INVALID", details),
+    instalmentPlanNotFound: () => new NotFoundError("Instalment plan"),
+    invoiceNotOpen: (status: string) => new AppError("Only an issued invoice that still owes money can have an instalment plan", 409, true, "INVOICE_NOT_OPEN", { status }),
+    lateFeeTypeInvalid: (message: string) => new AppError(message, 400, true, "LATE_FEE_TYPE_INVALID"),
     // adjustments
     adjustmentNotFound: () => new NotFoundError("Adjustment"),
     adjustmentAmountInvalid: () => new AppError("The amount must be above zero", 400, true, "ADJUSTMENT_AMOUNT_INVALID"),

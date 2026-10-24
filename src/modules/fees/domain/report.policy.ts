@@ -26,11 +26,29 @@ export function bucketOf(days: number): AgeingBucket {
     return "OVER_90";
 }
 
+/* With an instalment plan, the unpaid money is cut into one row per part, each aging from its own due date. Money paid covers the parts in order;
+   if the total fell below the parts (an adjustment) the last parts shrink; anything left after the parts keeps the invoice's own due date. */
+export function expandByPlan(r: OpenInvoiceRow): OpenInvoiceRow[] {
+    if (!r.plan || r.plan.length === 0 || r.paidKobo === undefined) return [r];
+    const out: OpenInvoiceRow[] = [];
+    let room = r.totalKobo, paidLeft = r.paidKobo;
+    for (const line of r.plan) {
+        const amount = line.amountKobo < room ? line.amountKobo : room > 0n ? room : 0n;
+        room -= amount;
+        const covered = paidLeft < amount ? paidLeft : amount;
+        paidLeft -= covered;
+        if (amount - covered > 0n) out.push({ ...r, dueDate: line.dueDate, balanceKobo: amount - covered, plan: undefined });
+    }
+    if (room > 0n) { const rest = room - paidLeft; if (rest > 0n) out.push({ ...r, balanceKobo: rest, plan: undefined }); }
+    return out;
+}
+
 /* AGEING: what each student owes, split by how late it is. Sorted by what is overdue, biggest first. */
 export function buildAgeing(rows: OpenInvoiceRow[], asOf: string): AgeingReport {
     const byStudent = new Map<string, AgeingStudent>();
+    const seen = new Map<string, Set<string>>();
     const totals = emptyBuckets();
-    for (const r of rows) {
+    for (const r of rows.flatMap(expandByPlan)) {
         if (r.balanceKobo <= 0n) continue;
         const days = daysOverdue(asOf, r.dueDate, r.issueDate);
         const bucket = bucketOf(days);
@@ -39,7 +57,8 @@ export function buildAgeing(rows: OpenInvoiceRow[], asOf: string): AgeingReport 
             s = { studentId: r.studentId, studentName: r.studentName, admissionNumber: r.admissionNumber, classId: r.classId, className: r.className, buckets: emptyBuckets(), totalKobo: 0n, overdueKobo: 0n, oldestDaysOverdue: 0, invoices: 0 };
             byStudent.set(r.studentId, s);
         }
-        s.buckets[bucket] += r.balanceKobo; s.totalKobo += r.balanceKobo; s.invoices++;
+        s.buckets[bucket] += r.balanceKobo; s.totalKobo += r.balanceKobo;
+        const ids = seen.get(r.studentId) ?? new Set<string>(); ids.add(r.id); seen.set(r.studentId, ids); s.invoices = ids.size;
         if (bucket !== "CURRENT") s.overdueKobo += r.balanceKobo;
         if (days > s.oldestDaysOverdue) s.oldestDaysOverdue = days;
         totals[bucket] += r.balanceKobo;

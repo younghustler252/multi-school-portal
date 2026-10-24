@@ -650,6 +650,7 @@ model FeeInvoice {
   classId           String?
   branchId          String?
   sourceStructureId String?
+  lateFeeOfInvoiceId String?       @unique
   status            InvoiceStatus @default(draft)
   issueDate         DateTime?     @db.Date
   dueDate           DateTime?     @db.Date
@@ -682,6 +683,8 @@ model FeeInvoice {
   adjustments     InvoiceAdjustment[]
   allocations     PaymentAllocation[]
   instalmentPlan  InstalmentPlan?
+  lateFeeOf       FeeInvoice?        @relation("LateFee", fields: [lateFeeOfInvoiceId], references: [id], onDelete: Restrict)
+  lateFee         FeeInvoice?        @relation("LateFee")
 
   @@index([studentId, status])
   @@index([termId, status])

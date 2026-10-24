@@ -6,6 +6,7 @@ export interface OpenInvoiceRow {
     id: string; invoiceNumber: string | null; studentId: string; studentName: string; admissionNumber: string | null;
     classId: string | null; className: string | null; branchId: string | null; termId: string | null;
     issueDate: Date | null; dueDate: Date | null; totalKobo: bigint; balanceKobo: bigint;
+    paidKobo?: bigint; plan?: { dueDate: Date; amountKobo: bigint }[];      // an active instalment plan: each unpaid part ages on its own due date
 }
 
 export interface AgeingStudent {

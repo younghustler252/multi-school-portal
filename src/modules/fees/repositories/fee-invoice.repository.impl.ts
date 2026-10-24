@@ -105,5 +105,14 @@ export class FeeInvoiceRepositoryImpl extends BaseTenantRepository<FeeInvoiceEnt
         await this.prisma.feeInvoiceDiscount.create({ data: { invoiceId, ruleId: null, feeTypeId: null, label, amountKobo } });
     }
 
+    async lateFeeLinks(ids: string[]) {
+        if (ids.length === 0) return { charged: new Set<string>(), areLateFees: new Set<string>() };
+        const [charged, mine] = await Promise.all([
+            this.model().findMany({ where: { lateFeeOfInvoiceId: { in: ids } }, select: { lateFeeOfInvoiceId: true } }),
+            this.model().findMany({ where: { id: { in: ids }, lateFeeOfInvoiceId: { not: null } }, select: { id: true } }),
+        ]);
+        return { charged: new Set<string>(charged.map((r: { lateFeeOfInvoiceId: string }) => r.lateFeeOfInvoiceId)), areLateFees: new Set<string>(mine.map((r: { id: string }) => r.id)) };
+    }
+
     countPayments(id: string): Promise<number> { return this.prisma.paymentAllocation.count({ where: { invoiceId: id, reversedAt: null } }); }
 }

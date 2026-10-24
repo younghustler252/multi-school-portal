@@ -16,5 +16,6 @@ export interface IFeeInvoiceRepository {
     applyPayment(id: string, version: number, amountKobo: bigint, status: "partial" | "paid"): Promise<boolean>;   // false when it changed meanwhile
     updateAmounts(id: string, version: number, data: { adjustmentsKobo?: bigint; discountKobo?: bigint; totalKobo: bigint; paidKobo: bigint; balanceKobo: bigint; status: "unpaid" | "partial" | "paid" | "waived" }): Promise<boolean>;   // absolute values on an issued invoice; false when it changed meanwhile
     addDiscountLine(invoiceId: string, label: string, amountKobo: bigint): Promise<void>;                    // an extra discount shown on the invoice
+    lateFeeLinks(ids: string[]): Promise<{ charged: Set<string>; areLateFees: Set<string> }>;                 // which of these were already charged a late fee, and which ARE late fees
     countPayments(id: string): Promise<number>;                                                           // live allocations against it
 }

@@ -26,6 +26,9 @@ import { FeeAdjustmentController } from "./controllers/fee-adjustment.controller
 import { FeeReportRepositoryImpl } from "./repositories/fee-report.repository.impl";
 import { AgeingReportUseCase, DefaultersReportUseCase, CollectionsReportUseCase, StatementUseCase, MyChildrenUseCase, MyInvoicesUseCase, MyStatementUseCase } from "./usecases/fee-report.usecases";
 import { FeeReportController } from "./controllers/fee-report.controller";
+import { InstalmentRepositoryImpl } from "./repositories/instalment.repository.impl";
+import { SaveInstalmentPlanUseCase, GetInstalmentPlanUseCase, CancelInstalmentPlanUseCase, OpeningBalancesUseCase, RunLateFeesUseCase } from "./usecases/invoice-extras.usecases";
+import { InvoiceExtrasController } from "./controllers/invoice-extras.controller";
 import { FeeInvoiceController } from "./controllers/fee-invoice.controller";
 
 /*
@@ -97,5 +100,13 @@ export const registerFees = (container: AwilixContainer): void => {
         myInvoicesUseCase:             asClass(MyInvoicesUseCase).scoped(),
         myStatementUseCase:            asClass(MyStatementUseCase).scoped(),
         feeReportController:           asClass(FeeReportController).scoped(),
+
+        instalmentRepository:          asClass(InstalmentRepositoryImpl).scoped(),
+        saveInstalmentPlanUseCase:     asClass(SaveInstalmentPlanUseCase).scoped(),
+        getInstalmentPlanUseCase:      asClass(GetInstalmentPlanUseCase).scoped(),
+        cancelInstalmentPlanUseCase:   asClass(CancelInstalmentPlanUseCase).scoped(),
+        openingBalancesUseCase:        asClass(OpeningBalancesUseCase).scoped(),
+        runLateFeesUseCase:            asClass(RunLateFeesUseCase).scoped(),
+        invoiceExtrasController:       asClass(InvoiceExtrasController).scoped(),
     });
 };
