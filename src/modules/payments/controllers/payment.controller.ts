@@ -59,6 +59,12 @@ export class PaymentController {
     reject = async (req: Request, res: Response, next: NextFunction) => {
         try { sendSuccess(res, await this.d.rejectPaymentUseCase.execute(idOf(req), schoolIdOf(req), userIdOf(req), req.body), "Payment rejected successfully"); } catch (e) { next(e); }
     };
+    myPayments = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const r = await this.d.listPaymentsUseCase.execute({ ...ListPaymentsQuery.parse(req.query), guardianId: guardianIdOf(req) });     // a guardian sees only their own
+            res.status(200).json({ success: true, message: "Payments retrieved successfully", data: r.data, meta: r.meta });
+        } catch (e) { next(e); }
+    };
     initializeOnline = async (req: Request, res: Response, next: NextFunction) => {
         try { sendCreated(res, await this.d.initializeOnlinePaymentUseCase.execute(schoolIdOf(req), guardianIdOf(req), req.body), "Payment started successfully"); } catch (e) { next(e); }
     };

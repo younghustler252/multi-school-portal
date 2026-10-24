@@ -10,6 +10,8 @@
 | fees.invoices.void      void an issued invoice (sensitive)
 | fees.adjustments.request  ask for a waiver, write-off, credit note or extra discount on an issued invoice
 | fees.adjustments.approve  approve or reject one (sensitive; never the person who asked)
+| fees.reports.view         ageing, defaulters, collections (staff)
+| fees.view                 (platform key) a family sees their own children's invoices and statements
 */
 const ALL_SCOPE = ["ALL"] as const;
 const staffOnly = ["STAFF"] as const;
@@ -25,4 +27,5 @@ export const FEES_PERMISSIONS = [
     { key: "fees.invoices.void",       realm: "SCHOOL", module: "fees", scopes: ALL_SCOPE, personas: staffOnly, label: "Void invoices", isSensitive: true },
     { key: "fees.adjustments.request", realm: "SCHOOL", module: "fees", scopes: ALL_SCOPE, personas: staffOnly, label: "Request invoice adjustments" },
     { key: "fees.adjustments.approve", realm: "SCHOOL", module: "fees", scopes: ALL_SCOPE, personas: staffOnly, label: "Approve invoice adjustments", isSensitive: true },
+    { key: "fees.reports.view",      realm: "SCHOOL", module: "fees", scopes: ALL_SCOPE, personas: staffOnly, label: "View fee reports" },
 ] as const;

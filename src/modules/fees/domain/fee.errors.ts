@@ -39,6 +39,7 @@ export const feeErrors = {
     invoiceHasAdjustments: () => new AppError(
         "This invoice has adjustments. Use a credit note instead of voiding it", 409, true, "INVOICE_HAS_ADJUSTMENTS"),
     studentRequired:   () => new AppError("Choose a student for the invoice", 400, true, "STUDENT_REQUIRED"),
+    notYourChild: () => new AppError("That student is not linked to you", 403, true, "NOT_YOUR_CHILD"),
     // adjustments
     adjustmentNotFound: () => new NotFoundError("Adjustment"),
     adjustmentAmountInvalid: () => new AppError("The amount must be above zero", 400, true, "ADJUSTMENT_AMOUNT_INVALID"),

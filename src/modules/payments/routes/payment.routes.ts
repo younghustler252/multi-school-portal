@@ -15,6 +15,7 @@ import {
 |   GET  /                       payments.view     (?status, ?method, ?guardianId, ?studentId, ?branchId, ?from, ?to, ?page, ?limit)
 |   POST /                       payments.record   cash and POS are confirmed at once; transfers and cheques wait for a second person
 |   POST /allocation-preview     payments.record   how an amount would be applied, nothing saved
+|   GET  /my                     payments.pay      a guardian's own payments
 |   POST /online/initialize       payments.pay      a guardian starts paying a child's invoice online
 |   GET  /online/verify/:reference  payments.pay    the guardian's return visit: asks the gateway and confirms
 |   POST /online/settlements     payments.settle   the gateway paid the bank: clearing account to bank, less the fee
@@ -39,6 +40,7 @@ const guard = (permission: string) => [authenticate, requireTenant, requirePermi
 router.get("/", ...guard("payments.view"), (q, s, n) => ctrl().list(q, s, n));
 router.post("/", ...guard("payments.record"), validate(RecordPaymentDto), (q, s, n) => ctrl().record(q, s, n));
 router.post("/allocation-preview", ...guard("payments.record"), validate(AllocationPreviewDto), (q, s, n) => ctrl().preview(q, s, n));
+router.get("/my", ...guard("payments.pay"), (q, s, n) => ctrl().myPayments(q, s, n));
 router.post("/online/initialize", ...guard("payments.pay"), validate(InitializeOnlinePaymentDto), (q, s, n) => ctrl().initializeOnline(q, s, n));
 router.get("/online/verify/:reference", ...guard("payments.pay"), (q, s, n) => ctrl().verifyOnline(q, s, n));
 router.post("/online/settlements", ...guard("payments.settle"), validate(RecordSettlementDto), (q, s, n) => ctrl().settle(q, s, n));
