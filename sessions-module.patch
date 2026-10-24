@@ -1,0 +1,2328 @@
+diff --git a/docs/ACADEMIC_STRUCTURE_AUDIT.md b/docs/ACADEMIC_STRUCTURE_AUDIT.md
+new file mode 100644
+index 0000000..5e013a5
+--- /dev/null
++++ b/docs/ACADEMIC_STRUCTURE_AUDIT.md
+@@ -0,0 +1,80 @@
++# Sessions, Classes and Enrolment: Audit & Plan
++
++> Branch `refactor/modules`, commit `7ca53b2`. Source inspection only: no code changed, no build or test run. Recheck against the working tree before implementing.
++
++## 1. Decision
++Do these three modules next, one patch each, in this order: **Sessions, then Classes, then Enrolment** (each one needs the one before it). None of them can be switched on as they are: they use the old role checks, have no permissions, return raw ids, and several write paths are unsafe.
++
++## 2. Why now (current problems outside these modules)
++1. **Staff's two assignment endpoints already break.** `GET /staff/me/classes` and the staff-assignments endpoint need `sessionRepository` and `classRepository`, which are not registered, so they fail with a container error at request time.
++2. **Students scopes are waiting for Enrolment.** BRANCH and ASSIGNED see nobody until enrolments and class assignments are available. `Class` has no branch field in the schema, so BRANCH needs a decision (section 6).
++3. Other modules already call these repositories (staff, attendance, grades, report cards, students import): `findCurrentTerm` (10 uses), `findClassById` (9), `findClassSubject`, `assignSubject`, `findByStudentAndTerm`... Keep those method names.
++
++## 3. Responses: no raw ids
++Your concern is right for these modules, and partly for what we already built.
++
++| Where | Now | Problem |
++|---|---|---|
++| Enrolment (list, enrol, bulk, update) | `{ studentId, classId, termId, status }` | Ids only. The frontend must fetch every student, class and term to show a row |
++| Enrolment bulk `skipped`, promotion `results` | arrays of student ids | Ids only |
++| Classes create/update/delete | `classTeacherName: null`, `studentCount: 0` | Wrong placeholder values |
++| Class-subject assign/update | `classId, subjectId, staffId, termId` | Ids only (the GET versions are enriched with names) |
++| Term | `sessionId` only | No session name |
++| Guardians link, update-link, unlink (my pass) | `guardianId, studentId` | Ids only: **I will fix this too** |
++
++**Convention to adopt:** every reference becomes an object with its name, filled in with ONE batch query per page, never one query per row:
++- student: `{ id, name, admissionNumber, photoUrl }` (photo through `StudentPhotoService`)
++- class: `{ id, name }`; term: `{ id, name, session: { id, name } }`; staff: `{ id, name }`
++Raw ids stay only as the `id` of the object itself (needed for links and actions).
++Staff names live in the public login table, so I would add one shared "names lookup" for staff (two queries for a whole page) instead of the copy that sits inside `get-classes` today.
++
++## 4. Findings
++
++### Sessions
++1. Not wired. Routes use `requireStaff` / `requireSchoolAdmin`.
++2. DTOs are loose: dates are plain strings, no check that end is after start, term dates may lie outside the session or overlap another term, session name format ("2025/2026") unchecked, duplicates allowed. `UpdateSessionDto` exists but there is no update-session route.
++3. **Set current session / term are two separate writes** (clear old, set new). A failure in between leaves no current session or term. Setting a term current does not check it belongs to the current session.
++4. **Set current term does the term roll-over inside the request, one student at a time**: for every active enrolment of the previous term it runs 2 to 3 queries, creates enrolments with no capacity check, then seeds class subjects class by class. Not transactional (the term is already switched if it fails halfway), not audited, and it re-runs if an older term is set current.
++5. **Calendar events cannot be created**: the use case writes `calendarId`, which is not a column (Prisma error). The controller and use cases exist but no routes are mounted. It also saves the login id as `createdById` while naming it `staffId`.
++6. No audit entries. Repository file is named `calendar.repository,impl.ts` (comma).
++
++### Classes
++1. Not wired; legacy guards. `GET /classes/:id` is open to any staff.
++2. Uses the old model: `Staff.role` ("teacher" or "principal") to decide who may be class teacher (breaks for custom roles and the field is being removed), and `SchoolSettings.teachingModel` (moving to a setting).
++3. **Delete class is a hard delete** with no check. With enrolments, fee structures or invoices it fails with a raw database error; the use case returns the deleted class.
++4. Name uniqueness is a check only (no database rule, no case handling).
++5. DTOs not strict; `level` is free text (planned: levels and arms); capacity cannot be cleared and can be lowered below the current student count.
++6. Responses: see section 3. Teacher names are looked up with a copy of the same two-query code in several use cases.
++7. Progression: not checked for loops or for pointing at itself (verify in the pass).
++8. No audit, no tests.
++
++### Enrolment
++1. Not wired; `GET /enrolments` is open to any staff (every student's class).
++2. Enrol: does not check the term exists, the student is active, or the term is open. The capacity check and the insert are separate, so two requests can overfill a class. No audit.
++3. Bulk: one student at a time (several queries each), no transaction (half done if it fails), no upper limit on the list, the capacity check counts students who will be skipped, and a withdrawn student is quietly put back into the new class.
++4. Update status: any status to any status, including re-activating with no capacity check; "transferred" does not move the student; no reason, no audit.
++5. **Promote trusts the client**: it accepts `fromClassId` and `toClassId` from the request instead of using the class progression, never checks the student was in that class, ignores capacity, does not mark the old enrolment `completed`, does not record graduation, is not transactional, counts "already enrolled" as "excluded". No audit.
++6. Filters in the list are plain strings with no validation or page-size cap.
++7. No tests.
++
++## 5. Proposed plan
++
++**Permissions** (all in each module's own `*.permissions.ts`, sensitive ones marked):
++- `sessions.view` (ALL; every persona), `sessions.manage`
++- `classes.view` (ALL; staff), `classes.manage`
++- `enrolment.view` (ALL, ASSIGNED, OWN), `enrolment.manage`, `enrolment.promote`
++School Admin holds all. Teacher template: `sessions.view`, `classes.view`, `enrolment.view` ASSIGNED (needs a decision on templates, section 6).
++
++**Sessions pass:** strict DTOs with date rules (end after start, terms inside the session and not overlapping, unique session name); update session; set current session/term in ONE transaction (and a term must belong to the current session); term roll-over made set-based (a few queries, not one per student), capacity-aware, audited and returning a summary; calendar events fixed, routed and permission-protected; audit entries; tests.
++
++**Classes pass:** permissions; class teacher must be an active teaching-category staff member (no `Staff.role`); delete refused when the class is in use; case-insensitive unique name; strict DTOs; filled-in responses; progression loop check; audit; tests.
++
++**Enrolment pass:** permissions with ASSIGNED scope (students in classes the teacher teaches or leads this term, which then unlocks Students and Guardians ASSIGNED views); filled-in responses; enrol, bulk, update and promote in transactions with a capacity check inside the transaction; promote driven by the saved class progression, not by ids from the client; old enrolment marked `completed`; audit; tests. Class names and attendance then return on "my children" and the student list.
++
++**Not in scope:** levels and arms (D7), per-period timetable, changing Fees, Grades or Attendance.
++
++## 6. Decisions needed
++1. **Term roll-over on "set current term"**: keep it automatic, but make it fast and safe (recommended), or turn it into a separate button.
++2. **Branch scope for students**: needs `Class.branchId` (a small migration). Recommend: unlock ASSIGNED now, add the class-to-branch link in its own small pass later.
++3. **Teacher role template**: give teachers `classes.view`, `sessions.view` and `enrolment.view` (ASSIGNED)? Recommend yes.
++4. **Delete a class that is in use**: refuse (recommended) versus archive.
+diff --git a/docs/SCHOOLOS_PLATFORM_DOCUMENTATION.md b/docs/SCHOOLOS_PLATFORM_DOCUMENTATION.md
+index 3171e08..63549c1 100644
+--- a/docs/SCHOOLOS_PLATFORM_DOCUMENTATION.md
++++ b/docs/SCHOOLOS_PLATFORM_DOCUMENTATION.md
+@@ -110,7 +110,8 @@ Status terms used here:
+ | Fees v2 | `registerFees` and `/fees` are enabled. Latest commits on this branch implement phase 2 pieces 1–2: schema/migration groundwork, fee types, fee structures, and discount rules | **Partial/in progress.** The container comment explicitly says invoices, payments, and the rest of Fees v2 are to be added as built. Do not describe the entire fee lifecycle as complete |
+ | Students | `registerStudents` and `/students` are enabled; see `docs/STUDENTS_MODULE_NOTES.md` | **First slice implemented** (create, get, list/search, update, deactivate, reactivate, photo). Bulk import, guardians on the detail, class/attendance on the list and student login are deferred. Build and unit tests checked; database/API tests not run |
+ | Guardians | `registerGuardians` and `/guardians` are enabled; see `docs/GUARDIANS_MODULE_NOTES.md` | **First slice implemented** (create+link, get, list, update, link, unlink, invite through Auth, my children). Needs the `20261023150000_guardian_primary_unique` tenant migration and `npm run sync:registries`. Class details on my-children, deactivate and merge are deferred. Build and unit tests checked; database/API tests not run |
+-| Classes / Sessions / Enrolment | Student import references these modules; route/container registrations are commented out | Not integrated; treat as dependencies, not completed functionality |
++| Sessions | `registerSessions` and `/sessions` are enabled; see `docs/SESSIONS_MODULE_NOTES.md` | **First pass implemented** (sessions, terms, atomic current switch, set-based term roll-over, calendar). Existing schools' editable roles need `sessions.view` added. Build and unit tests checked; database/API tests not run |
++| Classes / Enrolment | Code exists; container and route registrations are commented out | Not integrated; next passes (see `docs/ACADEMIC_STRUCTURE_AUDIT.md`). Staff's assignment endpoints need Classes registered |
+ | Attendance / Grades / Report Cards | Models/references and some module files exist; route/container registrations are commented out | Not integrated; audit each module before enabling |
+ | Payments / Notifications / Settings / Platform admin / Feedback | Some imports/files may exist, but current container/routes have registrations commented out | Not integrated as a whole; inspect individual scope before starting or re-enabling |
+ | Tests / CI status | `npm test` and `npm run build` scripts exist; `docs/TESTING_GUIDE.md` documents test setup | **Not run as part of this documentation update.** Never claim green build/tests without executing them on the current checkout |
+@@ -203,6 +204,7 @@ Read the relevant notes before modifying the associated area:
+ - `docs/PLANS_MODULE_NOTES.md` — plans, entitlements, plan permissions, registry sync, pricing rules.
+ - `docs/BILLING_MODULE_NOTES.md` + `docs/BILLING_SCHEMA.md` — subscription billing engine, invoices, attempts, webhooks, workers and migration requirements.
+ - `docs/BRANCHES_NOTES.md` — branch model, branch scope, branch entitlements, migrations and role templates.
++- `docs/SESSIONS_MODULE_NOTES.md` — sessions, terms, term roll-over, calendar, roles in existing schools, frontend changes.
+ - `docs/GUARDIANS_MODULE_NOTES.md` — guardians first slice: routes, permissions, primary-guardian rule, invites through Auth, frontend changes.
+ - `docs/STUDENTS_MODULE_NOTES.md` — students first slice: routes, permissions, admission numbers, frontend changes, deferred items.
+ - `docs/STAFF_AND_AUDIT_NOTES.md` — staff lifecycle, invites, staff branches, audit upgrade, permissions, deferred bulk import.
+@@ -243,4 +245,4 @@ Use `docs/TESTING_GUIDE.md` before database tests. Database tests must use the d
+ 
+ ## 9. Current next action
+ 
+-**Classes, Sessions and Enrolment next.** Audit them the same way as Students and Guardians: trace dependencies, compare routes to the permission system, then make the smallest change set. They unlock class names on Guardians' "my children" and the BRANCH and ASSIGNED scopes for Students. Apply the Guardians migration and run `npm run sync:registries` first. Update this document and the module notes after each pass.
++**Classes pass next, then Enrolment** (plan in `docs/ACADEMIC_STRUCTURE_AUDIT.md`). Responses carry names (`{ id, name }`), not bare ids. Run `npm run sync:registries` after pulling the Sessions pass. Update this document and the module notes after each pass.
+diff --git a/docs/SESSIONS_MODULE_NOTES.md b/docs/SESSIONS_MODULE_NOTES.md
+new file mode 100644
+index 0000000..2f0ca7b
+--- /dev/null
++++ b/docs/SESSIONS_MODULE_NOTES.md
+@@ -0,0 +1,53 @@
++# Sessions Module Notes (first of three: Sessions, then Classes, then Enrolment)
++
++> Branch `refactor/modules`. Follows `docs/ACADEMIC_STRUCTURE_AUDIT.md`. Build: no new TypeScript errors (126 before, 126 after, none in sessions). Tests: 20 new unit tests pass; no database or API test was run.
++
++## What is switched on
++`registerSessions` is in the container list and `/sessions` is mounted.
++
++| Method and path | Permission | What it does |
++|---|---|---|
++| GET `/sessions` | `sessions.view` | All sessions, newest first, with their terms |
++| GET `/sessions/current` | `sessions.view` | `{ session, currentTerm }`; either may be null until chosen |
++| POST `/sessions` | `sessions.manage` | Create a session |
++| PUT `/sessions/:id` | `sessions.manage` | Edit name or dates (new) |
++| PUT `/sessions/:id/set-current` | `sessions.manage` | Make a session current |
++| POST `/sessions/terms` | `sessions.manage` | Create a term (body has `sessionId`) |
++| PUT `/sessions/terms/:termId` | `sessions.manage` | Change a term's dates (the name cannot change) |
++| PUT `/sessions/terms/:termId/set-current` | `sessions.manage` | Make a term (and its session) current; optional body `{ carryForward }` (default true) |
++| GET / POST `/sessions/calendar/events` | view / manage | List (filters `termId`, `sessionId`, `type`, `from`, `to`) and create |
++| PUT / DELETE `/sessions/calendar/events/:eventId` | `sessions.manage` | Edit and delete (new) |
++
++## Rules
++- **Permissions** (`sessions.permissions.ts`): `sessions.view` (ALL, every persona) and `sessions.manage` (staff, sensitive). `sessions.view` is on every default role template (admin gets it by grants-all). Run `npm run sync:registries`.
++- **Session name** must look like `2025/2026` (the second year follows the first); unique in any capitals. Dates: end after start; a session may not overlap another (`SESSION_DATES_OVERLAP`, with the other session's name in `details`).
++- **Terms**: one `first`, `second`, `third` per session; dates must lie inside the session and may not overlap another term (`TERM_OUTSIDE_SESSION`, `TERM_DATES_OVERLAP`, `TERM_NAME_TAKEN`). A session cannot be shrunk past one of its terms (`SESSION_EXCLUDES_TERMS`).
++- **Current session / term are always switched in ONE transaction** (never "no current term"). Making a term current also makes its session current. Making a session current clears the current term if it belongs to another session.
++- **Term roll-over** (when a term becomes current and `carryForward` is not false), in the same transaction, set-based (a handful of queries for the whole school, not one per student):
++  - every ACTIVE student enrolled last term in the same session is enrolled in the same class (capacity is not re-checked: same class as before)
++  - last term's subject teachers are copied as they were, then missing class and subject pairs get the subject's default teacher, or (homeroom schools) the class teacher
++  - safe to repeat: anything already there is skipped, nothing is overwritten. Calling set-current on the term that is already current only repeats this step ("carry forward again")
++  - the planning rules are in `classes/services/class-subject-plan.ts` (pure, tested) and are reused by the Classes pass
++  - it reads `SchoolSettings.teachingModel` until the settings service exists
++- **Calendar**: an event belongs to a term, a session, or the whole school. Giving a term sets its session; a term and a different session is refused (`EVENT_SCOPE_MISMATCH`). A `holiday` event is always a holiday. The old create wrote a column that does not exist; that is fixed.
++- **Audit**: `session.created / updated / set_current`, `term.created / updated / set_current` (with roll-over counts), `calendar_event.created / updated / deleted`, written after the change succeeds, with names (not only ids) in the values.
++- **Repository**: method names unchanged for other modules. `setCurrentSession` and `setCurrentTerm` are now atomic. `calendar.repository,impl.ts` is renamed `calendar.repository.impl.ts`.
++
++## Error codes
++`SESSION_NAME_TAKEN`, `SESSION_DATES_OVERLAP`, `TERM_NAME_TAKEN`, `TERM_DATES_OVERLAP`, `TERM_OUTSIDE_SESSION`, `SESSION_EXCLUDES_TERMS`, `END_BEFORE_START`, `EVENT_SCOPE_MISMATCH`, plus the shared `NOT_FOUND`, `VALIDATION_ERROR`, `PERMISSION_DENIED`.
++
++## Roles in schools that already exist
++`student`, `guardian` and `school_admin` are locked templates, so the sync gives them the new permission. `principal`, `branch_principal`, `teacher` and `bursar` are EDITABLE templates that are created once and then owned by the platform: schools that already exist will NOT get `sessions.view` for them automatically. Until a platform role console (or a manual change) adds it, those staff roles get `PERMISSION_DENIED` on `/sessions/current`. New schools get it through provisioning.
++
++## Frontend changes
++- `GET /sessions/current` returns `{ session, currentTerm }` (before: the session).
++- Terms carry `session: { id, name }` instead of `sessionId` (terms listed inside a session omit it). Calendar events carry `term: { id, name }` and `session: { id, name }` instead of `termId` and `sessionId`.
++- `PUT /sessions/terms/:termId/set-current` returns `{ term, rollover: { enrolmentsCarried, assignmentsCarried, assignmentsSeeded } | null }` and also makes the term's session current. Send `{ "carryForward": false }` to switch without copying.
++- Calendar routes are new, under `/sessions/calendar/events`.
++- Bodies are strict: unknown fields (for example `isCurrent`) are rejected. Session names must look like `2025/2026`.
++
++## Left for later
++Deleting sessions, terms; term "locking" when records exist; the Classes and Enrolment passes (they will reuse the plan and add the permission scopes); `createdBy` name on calendar events.
++
++## Next step
++Classes pass (permissions, class teacher rules, safe delete, filled-in responses, audit).
+diff --git a/src/container/index.ts b/src/container/index.ts
+index 844ccc5..137c623 100644
+--- a/src/container/index.ts
++++ b/src/container/index.ts
+@@ -33,7 +33,7 @@ import { registerLedger } from "../modules/ledger/ledger.container";
+ import { registerStudents }      from "../modules/students/students.container";
+ import { registerGuardians }     from "../modules/guardians/guardians.container";
+ // import { registerClasses }       from "../modules/classes/classes.container";
+-// import { registerSessions } from "../modules/sessions/sessions.container";
++import { registerSessions } from "../modules/sessions/sessions.container";
+ // import { registerEnrolment }     from "../modules/enrolment/enrolment.container";
+ // import { registerAttendance }    from "../modules/attendance/attendance.container";
+ // import { registerGrades }        from "../modules/grades/grades.container";
+@@ -60,7 +60,7 @@ const modules: Array<(c: AwilixContainer) => void> = [
+     registerStudents,
+     registerGuardians,
+     // registerClasses,
+-    // registerSessions,
++    registerSessions,
+     // registerEnrolment,
+     // registerAttendance,
+     // registerGrades,
+diff --git a/src/foundation/permissions.registry.ts b/src/foundation/permissions.registry.ts
+index 4bd7b14..60e3103 100644
+--- a/src/foundation/permissions.registry.ts
++++ b/src/foundation/permissions.registry.ts
+@@ -7,6 +7,7 @@ import { BRANCH_PERMISSIONS } from "../modules/branches/branches.permissions";
+ import { STAFF_PERMISSIONS } from "../modules/staff/staff.permissions";
+ import { STUDENT_PERMISSIONS } from "../modules/students/students.permissions";
+ import { GUARDIAN_PERMISSIONS } from "../modules/guardians/guardians.permissions";
++import { SESSION_PERMISSIONS } from "../modules/sessions/sessions.permissions";
+ import { AUDIT_PERMISSIONS } from "../modules/audit/audit.permissions";
+ import { LEDGER_PERMISSIONS } from "../modules/ledger/ledger.permissions";
+ import { FEES_PERMISSIONS } from "../modules/fees/fees.permissions";
+@@ -60,6 +61,7 @@ const ALL: readonly PermissionDef[] = [
+     ...STAFF_PERMISSIONS,
+     ...STUDENT_PERMISSIONS,
+     ...GUARDIAN_PERMISSIONS,
++    ...SESSION_PERMISSIONS,
+     ...AUDIT_PERMISSIONS,
+     ...LEDGER_PERMISSIONS,
+     ...FEES_PERMISSIONS,
+diff --git a/src/foundation/role-templates.registry.ts b/src/foundation/role-templates.registry.ts
+index b4c9b85..bdb560c 100644
+--- a/src/foundation/role-templates.registry.ts
++++ b/src/foundation/role-templates.registry.ts
+@@ -37,7 +37,7 @@ export const ROLE_TEMPLATES: RoleTemplateDef[] = [
+         description: "Oversees the whole school: profile, people, attendance and fees (view).",
+         permissions: [
+             { key: "school.view", scope: "ALL" }, { key: "school.update", scope: "ALL" }, { key: "school.dashboard.view", scope: "ALL" },
+-            { key: "students.view", scope: "ALL" }, { key: "attendance.view", scope: "ALL" },
++            { key: "sessions.view", scope: "ALL" }, { key: "students.view", scope: "ALL" }, { key: "attendance.view", scope: "ALL" },
+             { key: "fees.view", scope: "ALL" }, { key: "fees.setup.view", scope: "ALL" }, { key: "fees.invoices.view", scope: "ALL" }, { key: "fees.reports.view", scope: "ALL" }, { key: "payments.view", scope: "ALL" }, { key: "staff.view", scope: "ALL" },
+             { key: "branches.view", scope: "ALL" },
+             { key: "finance.accounts.view", scope: "ALL" }, { key: "finance.journals.view", scope: "ALL" }, { key: "finance.periods.view", scope: "ALL" }, { key: "finance.reports.view", scope: "ALL" },
+@@ -48,7 +48,7 @@ export const ROLE_TEMPLATES: RoleTemplateDef[] = [
+         description: "Runs one campus: sees only the branches they are assigned to.",
+         permissions: [
+             { key: "school.view", scope: "ALL" }, { key: "branches.view", scope: "BRANCH" },
+-            { key: "students.view", scope: "BRANCH" }, { key: "attendance.view", scope: "BRANCH" },
++            { key: "sessions.view", scope: "ALL" }, { key: "students.view", scope: "BRANCH" }, { key: "attendance.view", scope: "BRANCH" },
+             { key: "fees.view", scope: "BRANCH" }, { key: "staff.view", scope: "BRANCH" }, { key: "staff.manage", scope: "BRANCH" },
+         ],
+     },
+@@ -57,7 +57,7 @@ export const ROLE_TEMPLATES: RoleTemplateDef[] = [
+         description: "Works with the students and classes assigned to them.",
+         permissions: [
+             { key: "school.view", scope: "ALL" },
+-            { key: "students.view", scope: "ASSIGNED" }, { key: "attendance.view", scope: "ASSIGNED" },
++            { key: "sessions.view", scope: "ALL" }, { key: "students.view", scope: "ASSIGNED" }, { key: "attendance.view", scope: "ASSIGNED" },
+         ],
+     },
+     {
+@@ -65,7 +65,7 @@ export const ROLE_TEMPLATES: RoleTemplateDef[] = [
+         description: "Handles fees, invoices and payments, and views the books and finance reports.",
+         permissions: [
+             { key: "school.view", scope: "ALL" }, { key: "school.dashboard.view", scope: "ALL" },
+-            { key: "students.view", scope: "ALL" }, { key: "fees.view", scope: "ALL" },
++            { key: "sessions.view", scope: "ALL" }, { key: "students.view", scope: "ALL" }, { key: "fees.view", scope: "ALL" },
+             { key: "fees.setup.view", scope: "ALL" }, { key: "fees.types.manage", scope: "ALL" }, { key: "fees.structures.manage", scope: "ALL" },
+             { key: "fees.invoices.view", scope: "ALL" }, { key: "fees.invoices.create", scope: "ALL" }, { key: "fees.invoices.issue", scope: "ALL" },
+             { key: "payments.view", scope: "ALL" }, { key: "payments.record", scope: "ALL" }, { key: "payments.confirm", scope: "ALL" },
+@@ -77,14 +77,14 @@ export const ROLE_TEMPLATES: RoleTemplateDef[] = [
+         key: "student", name: "Student", persona: "STUDENT", locked: true, grantsAll: false, defaultForPersona: "STUDENT", sortOrder: 100,
+         description: "A student's own records only. Assigned automatically.",
+         permissions: [
+-            { key: "students.view", scope: "OWN" }, { key: "attendance.view", scope: "OWN" }, { key: "fees.view", scope: "OWN" },
++            { key: "sessions.view", scope: "ALL" }, { key: "students.view", scope: "OWN" }, { key: "attendance.view", scope: "OWN" }, { key: "fees.view", scope: "OWN" },
+         ],
+     },
+     {
+         key: "guardian", name: "Guardian", persona: "GUARDIAN", locked: true, grantsAll: false, defaultForPersona: "GUARDIAN", sortOrder: 110,
+         description: "The records of the guardian's own children only. Assigned automatically.",
+         permissions: [
+-            { key: "students.view", scope: "OWN" }, { key: "attendance.view", scope: "OWN" }, { key: "fees.view", scope: "OWN" }, { key: "payments.pay", scope: "OWN" },
++            { key: "sessions.view", scope: "ALL" }, { key: "students.view", scope: "OWN" }, { key: "attendance.view", scope: "OWN" }, { key: "fees.view", scope: "OWN" }, { key: "payments.pay", scope: "OWN" },
+         ],
+     },
+ ];
+diff --git a/src/modules/classes/services/class-subject-plan.ts b/src/modules/classes/services/class-subject-plan.ts
+new file mode 100644
+index 0000000..e9ada59
+--- /dev/null
++++ b/src/modules/classes/services/class-subject-plan.ts
+@@ -0,0 +1,36 @@
++/*
++| WHO TEACHES WHAT IN A NEW TERM, worked out in memory (no database), so a whole school is planned in a few queries
++| instead of one query per class and subject. Same rules the old per-class code used:
++|  1. last term's assignments are copied as they were (assignedVia is kept)
++|  2. any class + subject pair still without a teacher gets one: the subject's default teacher,
++|     else (homeroom schools only) the class teacher
++| The Classes pass reuses this for its own seeding.
++*/
++export interface PlanClass      { id: string; classTeacherId: string | null }
++export interface PlanSubject    { id: string; defaultTeacherId: string | null }
++export interface PlanAssignment { classId: string; subjectId: string; staffId: string; assignedVia: string }
++
++export function planTermAssignments(p: {
++    classes: PlanClass[]; subjects: PlanSubject[]; previous: PlanAssignment[];
++    existing: Array<{ classId: string; subjectId: string }>; teachingModel: string | null;
++}): { carried: PlanAssignment[]; seeded: PlanAssignment[] } {
++    const key = (classId: string, subjectId: string) => `${classId}:${subjectId}`;
++    const taken = new Set(p.existing.map(e => key(e.classId, e.subjectId)));
++    const classIds = new Set(p.classes.map(c => c.id));
++    const subjectIds = new Set(p.subjects.map(s => s.id));
++
++    const carried: PlanAssignment[] = [];
++    for (const a of p.previous) {
++        if (!classIds.has(a.classId) || !subjectIds.has(a.subjectId) || taken.has(key(a.classId, a.subjectId))) continue;
++        taken.add(key(a.classId, a.subjectId));
++        carried.push(a);
++    }
++
++    const seeded: PlanAssignment[] = [];
++    for (const c of p.classes) for (const s of p.subjects) {
++        if (taken.has(key(c.id, s.id))) continue;
++        if (s.defaultTeacherId) seeded.push({ classId: c.id, subjectId: s.id, staffId: s.defaultTeacherId, assignedVia: "auto_subject_default" });
++        else if (p.teachingModel === "homeroom" && c.classTeacherId) seeded.push({ classId: c.id, subjectId: s.id, staffId: c.classTeacherId, assignedVia: "auto_homeroom" });
++    }
++    return { carried, seeded };
++}
+diff --git a/src/modules/sessions/controllers/session.controller.ts b/src/modules/sessions/controllers/session.controller.ts
+index 4994ac7..d997432 100644
+--- a/src/modules/sessions/controllers/session.controller.ts
++++ b/src/modules/sessions/controllers/session.controller.ts
+@@ -1,169 +1,47 @@
+ import { Request, Response, NextFunction } from "express";
+-import { GetSessionsUseCase }        from "../usecases/get-sessions.usecase";
+-import { GetCurrentSessionUseCase }  from "../usecases/get-current-session.usecase";
+-import { CreateSessionUseCase }      from "../usecases/create-session.usecase";
+-import { SetCurrentSessionUseCase }  from "../usecases/set-current-session.usecase";
+-import { CreateTermUseCase }         from "../usecases/create-term.usecase";
+-import { UpdateTermUseCase }         from "../usecases/update-term.usecase";
+-import { SetCurrentTermUseCase }     from "../usecases/set-current-term.usecase";
+-
+-import { CreateCalendarEventUseCase } from "../usecases/create-calendar-event.usecase";
+-import { GetCalendarEventsUseCase }   from "../usecases/get-calendar-events.usecase";
+-import {
+-    sendSuccess,
+-    sendCreated,
+-}                                    from "../../../shared/utils/api-response";
++import { ListSessionsUseCase, GetCurrentAcademicYearUseCase } from "../usecases/session-queries.usecases";
++import { CreateSessionUseCase, UpdateSessionUseCase, CreateTermUseCase, UpdateTermUseCase } from "../usecases/session-commands.usecases";
++import { SetCurrentSessionUseCase, SetCurrentTermUseCase } from "../usecases/set-current.usecases";
++import { ListCalendarEventsUseCase, CreateCalendarEventUseCase, UpdateCalendarEventUseCase, DeleteCalendarEventUseCase } from "../usecases/calendar.usecases";
++import { sendSuccess, sendCreated } from "../../../shared/utils/api-response";
++import { ListCalendarEventsQuery } from "../dtos/calendar.dto";
++import { sessionErrors } from "../domain/session.errors";
++import { SessionActor } from "../domain/session.types";
+ 
+ interface Dependencies {
+-    getSessionsUseCase:       GetSessionsUseCase;
+-    getCurrentSessionUseCase: GetCurrentSessionUseCase;
+-    createSessionUseCase:     CreateSessionUseCase;
+-    setCurrentSessionUseCase: SetCurrentSessionUseCase;
+-    createTermUseCase:        CreateTermUseCase;
+-    updateTermUseCase:        UpdateTermUseCase;
+-    setCurrentTermUseCase:    SetCurrentTermUseCase;
+-    
+-    getCalendarEventsUseCase: GetCalendarEventsUseCase;
+-    createCalendarEventUseCase: CreateCalendarEventUseCase;
++    listSessionsUseCase: ListSessionsUseCase; getCurrentAcademicYearUseCase: GetCurrentAcademicYearUseCase;
++    createSessionUseCase: CreateSessionUseCase; updateSessionUseCase: UpdateSessionUseCase;
++    createTermUseCase: CreateTermUseCase; updateTermUseCase: UpdateTermUseCase;
++    setCurrentSessionUseCase: SetCurrentSessionUseCase; setCurrentTermUseCase: SetCurrentTermUseCase;
++    listCalendarEventsUseCase: ListCalendarEventsUseCase; createCalendarEventUseCase: CreateCalendarEventUseCase;
++    updateCalendarEventUseCase: UpdateCalendarEventUseCase; deleteCalendarEventUseCase: DeleteCalendarEventUseCase;
+ }
+ 
+-export class SessionController {
+-    private readonly getSessionsUseCase:       GetSessionsUseCase;
+-    private readonly getCurrentSessionUseCase: GetCurrentSessionUseCase;
+-    private readonly createSessionUseCase:     CreateSessionUseCase;
+-    private readonly setCurrentSessionUseCase: SetCurrentSessionUseCase;
+-    private readonly createTermUseCase:        CreateTermUseCase;
+-    private readonly updateTermUseCase:        UpdateTermUseCase;
+-    private readonly setCurrentTermUseCase:    SetCurrentTermUseCase;
+-
+-    private readonly getCalendarEventsUseCase: GetCalendarEventsUseCase;
+-    private readonly createCalendarEventUseCase: CreateCalendarEventUseCase;
+-
+-    constructor({
+-        getSessionsUseCase,
+-        getCurrentSessionUseCase,
+-        createSessionUseCase,
+-        setCurrentSessionUseCase,
+-        createTermUseCase,
+-        updateTermUseCase,
+-        setCurrentTermUseCase,
+-        getCalendarEventsUseCase,
+-        createCalendarEventUseCase,
+-    }: Dependencies) {
+-        this.getSessionsUseCase       = getSessionsUseCase;
+-        this.getCurrentSessionUseCase = getCurrentSessionUseCase;
+-        this.createSessionUseCase     = createSessionUseCase;
+-        this.setCurrentSessionUseCase = setCurrentSessionUseCase;
+-        this.createTermUseCase        = createTermUseCase;
+-        this.updateTermUseCase        = updateTermUseCase;
+-        this.setCurrentTermUseCase    = setCurrentTermUseCase;
+-
+-        this.getCalendarEventsUseCase = getCalendarEventsUseCase;
+-        this.createCalendarEventUseCase = createCalendarEventUseCase;
+-    }
+-
+-    // ── Get all sessions ──────────────────────────────────────────────────
+-    getSessions = async (
+-        req: Request, res: Response, next: NextFunction,
+-    ): Promise<void> => {
+-        try {
+-            const result = await this.getSessionsUseCase.execute();
+-            sendSuccess(res, result, "Sessions retrieved successfully");
+-        } catch (err) { next(err); }
+-    };
+-
+-    // ── Get current session + term ────────────────────────────────────────
+-    getCurrentSession = async (
+-        req: Request, res: Response, next: NextFunction,
+-    ): Promise<void> => {
+-        try {
+-            const result = await this.getCurrentSessionUseCase.execute();
+-            sendSuccess(res, result, "Current session retrieved successfully");
+-        } catch (err) { next(err); }
+-    };
++/*
++| SESSION CONTROLLER (school realm, /sessions). The school is the host's school; the acting person comes ONLY
++| from the verified session (req.auth), never from the body or URL.
++*/
++const schoolIdOf = (req: Request): string => req.schoolId as string;
++const param = (req: Request, name: string): string => String(req.params[name]);
++const actorOf = (req: Request): SessionActor => { if (!req.auth) throw sessionErrors.sessionNotFound(); return { userId: req.auth.userId }; };
+ 
+-    // ── Create session ────────────────────────────────────────────────────
+-    createSession = async (
+-        req: Request, res: Response, next: NextFunction,
+-    ): Promise<void> => {
+-        try {
+-            const result = await this.createSessionUseCase.execute(req.body);
+-            sendCreated(res, result, "Session created successfully");
+-        } catch (err) { next(err); }
+-    };
+-
+-    // ── Set current session ───────────────────────────────────────────────
+-    setCurrentSession = async (
+-        req: Request, res: Response, next: NextFunction,
+-    ): Promise<void> => {
+-        try {
+-            const result = await this.setCurrentSessionUseCase.execute(
+-                req.params.id as string,
+-            );
+-            sendSuccess(res, result, "Current session updated successfully");
+-        } catch (err) { next(err); }
+-    };
+-
+-    // ── Create term ───────────────────────────────────────────────────────
+-    createTerm = async (
+-        req: Request, res: Response, next: NextFunction,
+-    ): Promise<void> => {
+-        try {
+-            const result = await this.createTermUseCase.execute(req.body);
+-            sendCreated(res, result, "Term created successfully");
+-        } catch (err) { next(err); }
+-    };
+-
+-    // ── Update term ───────────────────────────────────────────────────────
+-    updateTerm = async (
+-        req: Request, res: Response, next: NextFunction,
+-    ): Promise<void> => {
+-        try {
+-            const result = await this.updateTermUseCase.execute(
+-                req.params.termId as string,
+-                req.body,
+-            );
+-            sendSuccess(res, result, "Term updated successfully");
+-        } catch (err) { next(err); }
+-    };
+-
+-    // ── Set current term ──────────────────────────────────────────────────
+-    setCurrentTerm = async (
+-        req: Request, res: Response, next: NextFunction,
+-    ): Promise<void> => {
+-        try {
+-            const result = await this.setCurrentTermUseCase.execute(
+-                req.params.termId as string,
+-            );
+-            sendSuccess(res, result, "Current term updated successfully");
+-        } catch (err) { next(err); }
+-    };
++export class SessionController {
++    constructor(private readonly d: Dependencies) {}
+ 
++    list    = async (_q: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.listSessionsUseCase.execute(), "Sessions retrieved successfully"); } catch (e) { next(e); } };
++    current = async (_q: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.getCurrentAcademicYearUseCase.execute(), "Current session retrieved successfully"); } catch (e) { next(e); } };
+ 
+-    getCalendarEvents = async (
+-        req: Request, res: Response, next: NextFunction,
+-    ): Promise<void> => {
+-        try {
+-            const result = await this.getCalendarEventsUseCase.execute(
+-                req.query as any,
+-            );
+-            sendSuccess(res, result, "Calendar events retrieved successfully");
+-        } catch (err) { next(err); }
+-    };
+-    
+-    createCalendarEvent = async (
+-        req: Request, res: Response, next: NextFunction,
+-    ): Promise<void> => {
+-        try {
+-            const result = await this.createCalendarEventUseCase.execute(
+-                req.body,
+-                req.user!.id,
+-            );
+-            sendCreated(res, result, "Calendar event created successfully");
+-        } catch (err) { next(err); }
+-    };
++    createSession = async (req: Request, res: Response, next: NextFunction) => { try { sendCreated(res, await this.d.createSessionUseCase.execute(schoolIdOf(req), req.body, actorOf(req)), "Session created successfully"); } catch (e) { next(e); } };
++    updateSession = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.updateSessionUseCase.execute(schoolIdOf(req), param(req, "id"), req.body, actorOf(req)), "Session updated successfully"); } catch (e) { next(e); } };
++    setCurrentSession = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.setCurrentSessionUseCase.execute(schoolIdOf(req), param(req, "id"), actorOf(req)), "Current session updated successfully"); } catch (e) { next(e); } };
+ 
++    createTerm = async (req: Request, res: Response, next: NextFunction) => { try { sendCreated(res, await this.d.createTermUseCase.execute(schoolIdOf(req), req.body, actorOf(req)), "Term created successfully"); } catch (e) { next(e); } };
++    updateTerm = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.updateTermUseCase.execute(schoolIdOf(req), param(req, "termId"), req.body, actorOf(req)), "Term updated successfully"); } catch (e) { next(e); } };
++    setCurrentTerm = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.setCurrentTermUseCase.execute(schoolIdOf(req), param(req, "termId"), req.body ?? { carryForward: true }, actorOf(req)), "Current term updated successfully"); } catch (e) { next(e); } };
+ 
++    // The validate middleware does not write query values back, so the calendar query is parsed here
++    listEvents = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.listCalendarEventsUseCase.execute(ListCalendarEventsQuery.parse(req.query)), "Calendar events retrieved successfully"); } catch (e) { next(e); } };
++    createEvent = async (req: Request, res: Response, next: NextFunction) => { try { sendCreated(res, await this.d.createCalendarEventUseCase.execute(schoolIdOf(req), req.body, actorOf(req)), "Calendar event created successfully"); } catch (e) { next(e); } };
++    updateEvent = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.updateCalendarEventUseCase.execute(schoolIdOf(req), param(req, "eventId"), req.body, actorOf(req)), "Calendar event updated successfully"); } catch (e) { next(e); } };
++    deleteEvent = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.deleteCalendarEventUseCase.execute(schoolIdOf(req), param(req, "eventId"), actorOf(req)), "Calendar event deleted successfully"); } catch (e) { next(e); } };
+ }
+-
+-
+diff --git a/src/modules/sessions/domain/session.errors.ts b/src/modules/sessions/domain/session.errors.ts
+new file mode 100644
+index 0000000..ec0529c
+--- /dev/null
++++ b/src/modules/sessions/domain/session.errors.ts
+@@ -0,0 +1,20 @@
++import { AppError, NotFoundError } from "../../../shared/errors/domain.errors";
++
++/* The only place the sessions module builds domain errors. Codes are stable; the frontend switches on them. */
++const conflict = (message: string, code: string, details?: Record<string, unknown>) => new AppError(message, 409, true, code, details);
++const invalid  = (message: string, code: string) => new AppError(message, 400, true, code);
++
++export const sessionErrors = {
++    sessionNotFound:  () => new NotFoundError("Session"),
++    termNotFound:     () => new NotFoundError("Term"),
++    eventNotFound:    () => new NotFoundError("Calendar event"),
++    sessionNameTaken: () => conflict("A session with this name already exists", "SESSION_NAME_TAKEN"),
++    termNameTaken:    () => conflict("This session already has that term", "TERM_NAME_TAKEN"),
++    sessionOverlap:   (otherName: string) => conflict(`These dates overlap the session ${otherName}`, "SESSION_DATES_OVERLAP", { session: otherName }),
++    termOverlap:      (otherName: string) => conflict(`These dates overlap the ${otherName} term`, "TERM_DATES_OVERLAP", { term: otherName }),
++    termOutsideSession: () => invalid("A term must start and end inside its session", "TERM_OUTSIDE_SESSION"),
++    sessionExcludesTerms: () => conflict("These dates would leave a term outside the session", "SESSION_EXCLUDES_TERMS"),
++    endBeforeStart:   () => invalid("The end date must be after the start date", "END_BEFORE_START"),
++    badEventScope:    () => invalid("Choose a term or a session for the event, not two different ones", "EVENT_SCOPE_MISMATCH"),
++    termInUse:        () => conflict("This term already has records, so its name cannot change", "TERM_IN_USE"),
++};
+diff --git a/src/modules/sessions/domain/session.policy.ts b/src/modules/sessions/domain/session.policy.ts
+new file mode 100644
+index 0000000..2c7ba2b
+--- /dev/null
++++ b/src/modules/sessions/domain/session.policy.ts
+@@ -0,0 +1,35 @@
++/*
++| PURE RULES for school years and terms (no database, so they are easy to test).
++| A "range" is a start and end date, both days included.
++*/
++export interface DateRange { startDate: Date; endDate: Date }
++
++export const isBefore = (a: Date, b: Date): boolean => a.getTime() < b.getTime();
++
++/** Two ranges overlap when each starts on or before the day the other ends. */
++export const rangesOverlap = (a: DateRange, b: DateRange): boolean =>
++    a.startDate.getTime() <= b.endDate.getTime() && b.startDate.getTime() <= a.endDate.getTime();
++
++export const rangeInside = (inner: DateRange, outer: DateRange): boolean =>
++    inner.startDate.getTime() >= outer.startDate.getTime() && inner.endDate.getTime() <= outer.endDate.getTime();
++
++/** The first range in `others` that overlaps `range`, ignoring the one with `ignoreId` (used when editing). */
++export function firstOverlap<T extends DateRange & { id: string }>(range: DateRange, others: T[], ignoreId?: string): T | undefined {
++    return others.find(o => o.id !== ignoreId && rangesOverlap(range, o));
++}
++
++/** "2025/2026": two four-digit years, the second one year after the first. */
++export const SESSION_NAME = /^(\d{4})\/(\d{4})$/;
++export function isValidSessionName(name: string): boolean {
++    const m = SESSION_NAME.exec(name);
++    return !!m && Number(m[2]) === Number(m[1]) + 1;
++}
++
++export const TERM_NAMES = ["first", "second", "third"] as const;
++export type TermNameValue = typeof TERM_NAMES[number];
++
++/** Parses a date sent as "YYYY-MM-DD" or a full ISO date. Returns null when it is not a real date. */
++export function parseDate(value: string): Date | null {
++    const d = new Date(value);
++    return Number.isNaN(d.getTime()) ? null : d;
++}
+diff --git a/src/modules/sessions/domain/session.types.ts b/src/modules/sessions/domain/session.types.ts
+new file mode 100644
+index 0000000..112dfd0
+--- /dev/null
++++ b/src/modules/sessions/domain/session.types.ts
+@@ -0,0 +1,2 @@
++// Who is doing the action. Comes ONLY from the verified session, never from the request body.
++export interface SessionActor { userId: string }
+diff --git a/src/modules/sessions/dtos/calendar.dto.ts b/src/modules/sessions/dtos/calendar.dto.ts
+index 22dc3b4..19f1b54 100644
+--- a/src/modules/sessions/dtos/calendar.dto.ts
++++ b/src/modules/sessions/dtos/calendar.dto.ts
+@@ -1,26 +1,42 @@
+ import { z } from "zod";
++import { parseDate } from "../domain/session.policy";
+ 
++/* CALENDAR DTOs. Strict. An event belongs to a term OR a session (a term already implies its session) or to neither (whole school). */
++const date = z.string().trim().refine(v => parseDate(v) !== null, "Enter a valid date");
++const EVENT_TYPES = ["holiday", "event", "exam", "break", "other"] as const;
++const blank = (v: unknown) => (typeof v === "string" && v.trim() === "" ? undefined : v);
++const endNotBefore = (o: { startDate?: string; endDate?: string | null }) =>
++    !o.startDate || !o.endDate || new Date(o.endDate).getTime() >= new Date(o.startDate).getTime();
++const NOT_BEFORE = { message: "The end date cannot be before the start date", path: ["endDate"] };
+ 
+ export const CreateCalendarEventDto = z.object({
+-    title:       z.string().min(1).max(100),
+-    description: z.string().optional(),
+-    startDate:   z.string(),
+-    endDate:     z.string().optional(),
+-    type:        z.enum(["holiday", "event", "exam", "break", "other"])
+-                    .default("event"),
+-    isHoliday:   z.boolean().default(false),
++    title:       z.string().trim().min(1).max(120),
++    description: z.preprocess(blank, z.string().trim().max(500).optional()),
++    startDate:   date,
++    endDate:     z.preprocess(blank, date.optional()),
++    type:        z.enum(EVENT_TYPES).default("event"),
++    isHoliday:   z.boolean().optional(),            // a "holiday" event is always a holiday
+     termId:      z.string().uuid().optional(),
+     sessionId:   z.string().uuid().optional(),
+-    calendarId: z.string().uuid().optional(), //
+-});
++}).strict().refine(endNotBefore, NOT_BEFORE);
++
++export const UpdateCalendarEventDto = z.object({
++    title:       z.string().trim().min(1).max(120).optional(),
++    description: z.preprocess(v => (typeof v === "string" && v.trim() === "" ? null : v), z.string().trim().max(500).nullable().optional()),
++    startDate:   date.optional(),
++    endDate:     z.preprocess(v => (typeof v === "string" && v.trim() === "" ? null : v), date.nullable().optional()),
++    type:        z.enum(EVENT_TYPES).optional(),
++    isHoliday:   z.boolean().optional(),
++}).strict().refine(o => Object.keys(o).length > 0, "Send at least one field to change").refine(endNotBefore, NOT_BEFORE);
+ 
+-export const ListCalendarEventsDto = z.object({
+-    termId:    z.string().optional(),
+-    sessionId: z.string().optional(),
+-    startDate: z.string().optional(),
+-    endDate:   z.string().optional(),
+-    type:      z.string().optional(),
++export const ListCalendarEventsQuery = z.object({
++    termId:    z.string().uuid().optional(),
++    sessionId: z.string().uuid().optional(),
++    type:      z.enum(EVENT_TYPES).optional(),
++    from:      date.optional(),
++    to:        date.optional(),
+ });
+ 
+ export type CreateCalendarEventDtoType = z.infer<typeof CreateCalendarEventDto>;
+-export type ListCalendarEventsDtoType  = z.infer<typeof ListCalendarEventsDto>;
+\ No newline at end of file
++export type UpdateCalendarEventDtoType = z.infer<typeof UpdateCalendarEventDto>;
++export type ListCalendarEventsQueryType = z.infer<typeof ListCalendarEventsQuery>;
+diff --git a/src/modules/sessions/dtos/session.dto.ts b/src/modules/sessions/dtos/session.dto.ts
+index 1ba75d7..4383c7b 100644
+--- a/src/modules/sessions/dtos/session.dto.ts
++++ b/src/modules/sessions/dtos/session.dto.ts
+@@ -1,36 +1,37 @@
+ import { z } from "zod";
++import { TERM_NAMES, isValidSessionName, parseDate } from "../domain/session.policy";
++
++/* SESSION / TERM DTOs. Strict (unknown fields are rejected). Dates are "YYYY-MM-DD" or a full ISO date. */
++const date = z.string().trim().refine(v => parseDate(v) !== null, "Enter a valid date");
++const sessionName = z.string().trim().refine(isValidSessionName, "Use the form 2025/2026 (the second year follows the first)");
++const termName = z.enum(TERM_NAMES);
++const endAfterStart = (o: { startDate?: string; endDate?: string }) =>
++    !o.startDate || !o.endDate || new Date(o.endDate).getTime() > new Date(o.startDate).getTime();
++const AFTER = { message: "The end date must be after the start date", path: ["endDate"] };
+ 
+-// ── Create session ────────────────────────────────────────────────────────
+ export const CreateSessionDto = z.object({
+-    name:      z.string().min(1), // e.g. "2024/2025"
+-    startDate: z.string(),
+-    endDate:   z.string(),
+-});
++    name: sessionName, startDate: date, endDate: date,
++}).strict().refine(endAfterStart, AFTER);
+ 
+-// ── Update session ────────────────────────────────────────────────────────
+ export const UpdateSessionDto = z.object({
+-    name:      z.string().min(1).optional(),
+-    startDate: z.string().optional(),
+-    endDate:   z.string().optional(),
+-});
++    name: sessionName.optional(), startDate: date.optional(), endDate: date.optional(),
++}).strict().refine(o => Object.keys(o).length > 0, "Send at least one field to change").refine(endAfterStart, AFTER);
+ 
+-// ── Create term ───────────────────────────────────────────────────────────
+ export const CreateTermDto = z.object({
+-    sessionId: z.string().uuid(),
+-    name:      z.enum(["first", "second", "third"]),
+-    startDate: z.string(),
+-    endDate:   z.string(),
+-});
++    sessionId: z.string().uuid(), name: termName, startDate: date, endDate: date,
++}).strict().refine(endAfterStart, AFTER);
+ 
+-// ── Update term ───────────────────────────────────────────────────────────
++// A term's name cannot change (records are saved against it); only its dates can
+ export const UpdateTermDto = z.object({
+-    startDate: z.string().optional(),
+-    endDate:   z.string().optional(),
+-});
+-
+-export type CreateSessionDtoType = z.infer<typeof CreateSessionDto>;
+-export type UpdateSessionDtoType = z.infer<typeof UpdateSessionDto>;
+-export type CreateTermDtoType    = z.infer<typeof CreateTermDto>;
+-export type UpdateTermDtoType    = z.infer<typeof UpdateTermDto>;
++    startDate: date.optional(), endDate: date.optional(),
++}).strict().refine(o => Object.keys(o).length > 0, "Send at least one field to change").refine(endAfterStart, AFTER);
+ 
++// carryForward (default true): when this term becomes current, copy last term's student classes and subject
++// teachers into it. Send false to switch the term without copying anything.
++export const SetCurrentTermDto = z.object({ carryForward: z.boolean().default(true) }).strict().default({ carryForward: true });
+ 
++export type CreateSessionDtoType   = z.infer<typeof CreateSessionDto>;
++export type UpdateSessionDtoType   = z.infer<typeof UpdateSessionDto>;
++export type CreateTermDtoType      = z.infer<typeof CreateTermDto>;
++export type UpdateTermDtoType      = z.infer<typeof UpdateTermDto>;
++export type SetCurrentTermDtoType  = z.infer<typeof SetCurrentTermDto>;
+diff --git a/src/modules/sessions/mappers/calendar.mapper.ts b/src/modules/sessions/mappers/calendar.mapper.ts
+index b72bb9c..2c6a5be 100644
+--- a/src/modules/sessions/mappers/calendar.mapper.ts
++++ b/src/modules/sessions/mappers/calendar.mapper.ts
+@@ -1,54 +1,35 @@
+ import { IMapper } from "../../../infrastructure/repository/base.repository";
+ import { CalendarEventEntity } from "../domain/calendar.entity";
+-// import
+-
+ 
++// An event shows its term and session by NAME ({ id, name }), not by bare ids. `null` = the whole school.
++export interface NameRef { id: string; name: string }
+ 
+ export interface CalendarEventResponseData {
+     id:          string;
+-    termId:      string | null;
+-    sessionId:   string | null;
+     title:       string;
+     description: string | null;
+     startDate:   Date;
+     endDate:     Date | null;
+     type:        string;
+     isHoliday:   boolean;
++    term:        NameRef | null;
++    session:     NameRef | null;
+     createdAt:   Date;
+ }
+ 
+-export class CalendarEventMapper
+-    implements IMapper<any, CalendarEventEntity>
+-{
++export class CalendarEventMapper implements IMapper<any, CalendarEventEntity> {
+     toDomain(raw: any): CalendarEventEntity {
+         return {
+-            id:          raw.id,
+-            termId:      raw.termId      ?? null,
+-            sessionId:   raw.sessionId   ?? null,
+-            title:       raw.title,
+-            description: raw.description ?? null,
+-            startDate:   raw.startDate,
+-            endDate:     raw.endDate     ?? null,
+-            type:        raw.type,
+-            isHoliday:   raw.isHoliday,
+-            createdById: raw.createdById ?? null,
+-            createdAt:   raw.createdAt,
+-            updatedAt:   raw.updatedAt,
++            id: raw.id, termId: raw.termId ?? null, sessionId: raw.sessionId ?? null, title: raw.title,
++            description: raw.description ?? null, startDate: raw.startDate, endDate: raw.endDate ?? null,
++            type: raw.type, isHoliday: raw.isHoliday, createdById: raw.createdById ?? null,
++            createdAt: raw.createdAt, updatedAt: raw.updatedAt,
+         };
+     }
+-
+-    toResponse(entity: CalendarEventEntity): CalendarEventResponseData {
++    toResponse(entity: CalendarEventEntity, term: NameRef | null = null, session: NameRef | null = null): CalendarEventResponseData {
+         return {
+-            id:          entity.id,
+-            termId:      entity.termId,
+-            sessionId:   entity.sessionId,
+-            title:       entity.title,
+-            description: entity.description,
+-            startDate:   entity.startDate,
+-            endDate:     entity.endDate,
+-            type:        entity.type,
+-            isHoliday:   entity.isHoliday,
+-            createdAt:   entity.createdAt,
++            id: entity.id, title: entity.title, description: entity.description, startDate: entity.startDate, endDate: entity.endDate,
++            type: entity.type, isHoliday: entity.isHoliday, term, session, createdAt: entity.createdAt,
+         };
+     }
+-}
+\ No newline at end of file
++}
+diff --git a/src/modules/sessions/mappers/session.mapper.ts b/src/modules/sessions/mappers/session.mapper.ts
+index 91becdd..2b07b7c 100644
+--- a/src/modules/sessions/mappers/session.mapper.ts
++++ b/src/modules/sessions/mappers/session.mapper.ts
+@@ -1,79 +1,61 @@
+-import { IMapper }         from "../../../infrastructure/repository/base.repository";
+-import {
+-    SessionEntity,
+-    TermEntity,
+-}                          from "../domain/session.entity";
++import { IMapper } from "../../../infrastructure/repository/base.repository";
++import { SessionEntity, TermEntity } from "../domain/session.entity";
+ 
+-export interface SessionResponseData {
++/*
++| Responses carry NAMES, not just ids: a term comes with its session ({ id, name }). Terms listed inside a
++| session omit it (they would repeat their parent).
++*/
++export interface SessionRef { id: string; name: string }
++
++export interface TermResponseData {
+     id:        string;
+     name:      string;
+     startDate: Date;
+     endDate:   Date;
+     isCurrent: boolean;
+     createdAt: Date;
+-    terms?:    TermResponseData[];
++    session?:  SessionRef;
+ }
+ 
+-export interface TermResponseData {
++export interface SessionResponseData {
+     id:        string;
+-    sessionId: string;
+     name:      string;
+     startDate: Date;
+     endDate:   Date;
+     isCurrent: boolean;
+     createdAt: Date;
++    terms:     TermResponseData[];
+ }
+ 
+-export class SessionMapper implements IMapper<any, SessionEntity> {
+-    toDomain(raw: any): SessionEntity {
++export class TermMapper implements IMapper<any, TermEntity> {
++    toDomain(raw: any): TermEntity {
+         return {
+-            id:        raw.id,
+-            name:      raw.name,
+-            startDate: raw.startDate,
+-            endDate:   raw.endDate,
+-            isCurrent: raw.isCurrent,
+-            createdAt: raw.createdAt,
+-            updatedAt: raw.updatedAt,
+-            terms:     raw.terms?.map((t: any) => new TermMapper().toDomain(t)),
++            id: raw.id, sessionId: raw.sessionId, name: raw.name, startDate: raw.startDate, endDate: raw.endDate,
++            isCurrent: raw.isCurrent, createdAt: raw.createdAt, updatedAt: raw.updatedAt,
+         };
+     }
+-
+-    toResponse(entity: SessionEntity): SessionResponseData {
++    toResponse(entity: TermEntity, session?: SessionRef): TermResponseData {
+         return {
+-            id:        entity.id,
+-            name:      entity.name,
+-            startDate: entity.startDate,
+-            endDate:   entity.endDate,
+-            isCurrent: entity.isCurrent,
+-            createdAt: entity.createdAt,
+-            terms:     entity.terms?.map(t => new TermMapper().toResponse(t)),
++            id: entity.id, name: entity.name, startDate: entity.startDate, endDate: entity.endDate,
++            isCurrent: entity.isCurrent, createdAt: entity.createdAt, ...(session ? { session } : {}),
+         };
+     }
+ }
+ 
+-export class TermMapper implements IMapper<any, TermEntity> {
+-    toDomain(raw: any): TermEntity {
++export class SessionMapper implements IMapper<any, SessionEntity> {
++    private readonly terms = new TermMapper();
++
++    toDomain(raw: any): SessionEntity {
+         return {
+-            id:        raw.id,
+-            sessionId: raw.sessionId,
+-            name:      raw.name,
+-            startDate: raw.startDate,
+-            endDate:   raw.endDate,
+-            isCurrent: raw.isCurrent,
+-            createdAt: raw.createdAt,
+-            updatedAt: raw.updatedAt,
++            id: raw.id, name: raw.name, startDate: raw.startDate, endDate: raw.endDate, isCurrent: raw.isCurrent,
++            createdAt: raw.createdAt, updatedAt: raw.updatedAt,
++            terms: raw.terms ? raw.terms.map((t: any) => this.terms.toDomain(t)) : undefined,
+         };
+     }
+-
+-    toResponse(entity: TermEntity): TermResponseData {
++    toResponse(entity: SessionEntity): SessionResponseData {
+         return {
+-            id:        entity.id,
+-            sessionId: entity.sessionId,
+-            name:      entity.name,
+-            startDate: entity.startDate,
+-            endDate:   entity.endDate,
+-            isCurrent: entity.isCurrent,
+-            createdAt: entity.createdAt,
++            id: entity.id, name: entity.name, startDate: entity.startDate, endDate: entity.endDate, isCurrent: entity.isCurrent,
++            createdAt: entity.createdAt, terms: (entity.terms ?? []).map(t => this.terms.toResponse(t)),
+         };
+     }
+-}
+\ No newline at end of file
++}
+diff --git a/src/modules/sessions/repositories/calendar.repository,impl.ts b/src/modules/sessions/repositories/calendar.repository.impl.ts
+similarity index 82%
+rename from src/modules/sessions/repositories/calendar.repository,impl.ts
+rename to src/modules/sessions/repositories/calendar.repository.impl.ts
+index e4187ae..626204c 100644
+--- a/src/modules/sessions/repositories/calendar.repository,impl.ts
++++ b/src/modules/sessions/repositories/calendar.repository.impl.ts
+@@ -17,6 +17,10 @@ export class CalendarRepositoryImpl
+         return this.create(data);
+     }
+ 
++    async findCalendarEventById(id: string): Promise<CalendarEventEntity | null> { return this.findById(id); }
++
++    async updateCalendarEvent(id: string, data: Record<string, any>): Promise<CalendarEventEntity> { return this.update(id, data); }
++
+     async findCalendarEvents(where: Record<string, any>): Promise<CalendarEventEntity[]> {
+         return this.findMany(where, undefined, { startDate: "asc" });
+     }
+diff --git a/src/modules/sessions/repositories/calendar.repository.ts b/src/modules/sessions/repositories/calendar.repository.ts
+index cf20c2f..64f0815 100644
+--- a/src/modules/sessions/repositories/calendar.repository.ts
++++ b/src/modules/sessions/repositories/calendar.repository.ts
+@@ -1,13 +1,10 @@
+-
+ import { CalendarEventEntity } from "../domain/calendar.entity";
+ 
+ export interface ICalendarRepository {
+-    // ── Calendar Events ───────────────────────────────────────────────────────
+-    createCalendarEvent(data: Record<string, any>):     Promise<CalendarEventEntity>;
+-    findCalendarEvents(
+-        where: Record<string, any>,
+-    ):                                                  Promise<CalendarEventEntity[]>;
+-    deleteCalendarEvent(id: string):                    Promise<void>;
+-    findUpcomingEvents(termId: string):                 Promise<CalendarEventEntity[]>;
+-
+-}
+\ No newline at end of file
++    createCalendarEvent(data: Record<string, any>): Promise<CalendarEventEntity>;
++    findCalendarEventById(id: string): Promise<CalendarEventEntity | null>;
++    findCalendarEvents(where: Record<string, any>): Promise<CalendarEventEntity[]>;
++    updateCalendarEvent(id: string, data: Record<string, any>): Promise<CalendarEventEntity>;
++    deleteCalendarEvent(id: string): Promise<void>;
++    findUpcomingEvents(termId: string): Promise<CalendarEventEntity[]>;
++}
+diff --git a/src/modules/sessions/repositories/session.repository.impl.ts b/src/modules/sessions/repositories/session.repository.impl.ts
+index 0e03af0..71f9a4c 100644
+--- a/src/modules/sessions/repositories/session.repository.impl.ts
++++ b/src/modules/sessions/repositories/session.repository.impl.ts
+@@ -49,13 +49,15 @@ export class SessionRepositoryImpl
+         return this.update(id, data);
+     }
+ 
++    /** Makes one session current. The old one is cleared in the SAME transaction, so there is never no current session. */
+     async setCurrentSession(id: string): Promise<SessionEntity> {
+-        await this.model().updateMany({
+-            where: { isCurrent: true },
+-            data: { isCurrent: false },
++        await this.prisma.$transaction(async tx => {
++            await tx.session.updateMany({ where: { isCurrent: true, NOT: { id } }, data: { isCurrent: false } });
++            await tx.session.update({ where: { id }, data: { isCurrent: true } });
++            // a current term must belong to the current session
++            await tx.term.updateMany({ where: { isCurrent: true, NOT: { sessionId: id } }, data: { isCurrent: false } });
+         });
+-
+-        return this.update(id, { isCurrent: true }, { terms: true });
++        return (await this.findSessionById(id))!;
+     }
+ 
+     async findTermById(id: string): Promise<TermEntity | null> {
+@@ -86,15 +88,14 @@ export class SessionRepositoryImpl
+         return this.termMapper.toDomain(raw);
+     }
+ 
++    /** Makes one term current (and its session current too) in ONE transaction. */
+     async setCurrentTerm(id: string): Promise<TermEntity> {
+-        await this.prisma.term.updateMany({
+-            where: { isCurrent: true },
+-            data: { isCurrent: false },
+-        });
+-
+-        const raw = await this.prisma.term.update({
+-            where: { id },
+-            data: { isCurrent: true },
++        const raw = await this.prisma.$transaction(async tx => {
++            const term = await tx.term.findUniqueOrThrow({ where: { id } });
++            await tx.term.updateMany({ where: { isCurrent: true, NOT: { id } }, data: { isCurrent: false } });
++            await tx.session.updateMany({ where: { isCurrent: true, NOT: { id: term.sessionId } }, data: { isCurrent: false } });
++            await tx.session.update({ where: { id: term.sessionId }, data: { isCurrent: true } });
++            return tx.term.update({ where: { id }, data: { isCurrent: true } });
+         });
+         return this.termMapper.toDomain(raw);
+     }
+diff --git a/src/modules/sessions/routes/session.routes.ts b/src/modules/sessions/routes/session.routes.ts
+index 598f54e..5d0d0bd 100644
+--- a/src/modules/sessions/routes/session.routes.ts
++++ b/src/modules/sessions/routes/session.routes.ts
+@@ -1,87 +1,37 @@
+-    import { Router }              from "express";
+-    import { container }           from "../../../container";
+-    import { SessionController }   from "../controllers/session.controller";
+-    import { validate }            from "../../../infrastructure/middleware/validate.middleware";
+-    import { authenticate }        from "../../../infrastructure/middleware/auth.middleware";
+-    import {
+-        requireSchoolAdmin,
+-        requireStaff,
+-    }                              from "../../../infrastructure/middleware/rbac.middleware";
+-    import { requireTenant }       from "../../../infrastructure/middleware/tenant-resolver.middleware";
+-    import {
+-        CreateSessionDto,
+-        UpdateSessionDto,
+-        CreateTermDto,
+-        UpdateTermDto,
+-    }                              from "../dtos/session.dto";
+-
+-    const router = Router();
+-    const ctrl   = () => container.resolve<SessionController>("sessionController");
+-
+-    // ── Get all sessions ──────────────────────────────────────────────────────
+-    router.get(
+-        "/",
+-        authenticate,
+-        requireTenant,
+-        requireStaff,
+-        (req, res, next) => ctrl().getSessions(req, res, next),
+-    );
+-
+-    // ── Get current session + active term ─────────────────────────────────────
+-    router.get(
+-        "/current",
+-        authenticate,
+-        requireTenant,
+-        // requireStaff,
+-        (req, res, next) => ctrl().getCurrentSession(req, res, next),
+-    );
+-
+-    // ── Create new session ────────────────────────────────────────────────────
+-    router.post(
+-        "/",
+-        authenticate,
+-        requireTenant,
+-        requireSchoolAdmin,
+-        validate(CreateSessionDto),
+-        (req, res, next) => ctrl().createSession(req, res, next),
+-    );
+-
+-    // ── Set current session ───────────────────────────────────────────────────
+-    router.put(
+-        "/:id/set-current",
+-        authenticate,
+-        requireTenant,
+-        requireSchoolAdmin,
+-        (req, res, next) => ctrl().setCurrentSession(req, res, next),
+-    );
+-
+-    // ── Create term inside session ────────────────────────────────────────────
+-    router.post(
+-        "/terms",
+-        authenticate,
+-        requireTenant,
+-        requireSchoolAdmin,
+-        validate(CreateTermDto),
+-        (req, res, next) => ctrl().createTerm(req, res, next),
+-    );
+-
+-    // ── Update term dates ─────────────────────────────────────────────────────
+-    router.put(
+-        "/terms/:termId",
+-        authenticate,
+-        requireTenant,
+-        requireSchoolAdmin,
+-        validate(UpdateTermDto),
+-        (req, res, next) => ctrl().updateTerm(req, res, next),
+-    );
+-
+-    // ── Set current term ──────────────────────────────────────────────────────
+-    router.put(
+-        "/terms/:termId/set-current",
+-        authenticate,
+-        requireTenant,
+-        requireSchoolAdmin,
+-        (req, res, next) => ctrl().setCurrentTerm(req, res, next),
+-    );
+-
+-    export default router;
+\ No newline at end of file
++import { Router } from "express";
++import { container } from "../../../container";
++import { SessionController } from "../controllers/session.controller";
++import { validate } from "../../../infrastructure/middleware/validate.middleware";
++import { authenticate } from "../../../infrastructure/middleware/auth.middleware";
++import { requireTenant } from "../../../infrastructure/middleware/tenant-resolver.middleware";
++import { requirePermission } from "../../../infrastructure/middleware/rbac.middleware";
++import { CreateSessionDto, UpdateSessionDto, CreateTermDto, UpdateTermDto, SetCurrentTermDto } from "../dtos/session.dto";
++import { CreateCalendarEventDto, UpdateCalendarEventDto } from "../dtos/calendar.dto";
++
++/*
++| SESSION ROUTES (school realm, mounted at /sessions on the school's host).
++| sessions.view   = see sessions, terms, the current term and the calendar (on every default role)
++| sessions.manage = create and edit sessions, terms and calendar events, choose the current session / term
++| Fixed paths ("/current", "/terms...", "/calendar/events...") come before "/:id".
++*/
++const router = Router();
++const ctrl   = () => container.resolve<SessionController>("sessionController");
++const view   = [authenticate, requireTenant, requirePermission("sessions.view")] as const;
++const manage = [authenticate, requireTenant, requirePermission("sessions.manage")] as const;
++
++router.get("/current", ...view, (q, s, n) => ctrl().current(q, s, n));
++router.get("/calendar/events", ...view, (q, s, n) => ctrl().listEvents(q, s, n));
++router.post("/calendar/events", ...manage, validate(CreateCalendarEventDto), (q, s, n) => ctrl().createEvent(q, s, n));
++router.put("/calendar/events/:eventId", ...manage, validate(UpdateCalendarEventDto), (q, s, n) => ctrl().updateEvent(q, s, n));
++router.delete("/calendar/events/:eventId", ...manage, (q, s, n) => ctrl().deleteEvent(q, s, n));
++
++router.post("/terms", ...manage, validate(CreateTermDto), (q, s, n) => ctrl().createTerm(q, s, n));
++router.put("/terms/:termId", ...manage, validate(UpdateTermDto), (q, s, n) => ctrl().updateTerm(q, s, n));
++router.put("/terms/:termId/set-current", ...manage, validate(SetCurrentTermDto), (q, s, n) => ctrl().setCurrentTerm(q, s, n));
++
++router.get("/", ...view, (q, s, n) => ctrl().list(q, s, n));
++router.post("/", ...manage, validate(CreateSessionDto), (q, s, n) => ctrl().createSession(q, s, n));
++router.put("/:id", ...manage, validate(UpdateSessionDto), (q, s, n) => ctrl().updateSession(q, s, n));
++router.put("/:id/set-current", ...manage, (q, s, n) => ctrl().setCurrentSession(q, s, n));
++
++export default router;
+diff --git a/src/modules/sessions/services/term-rollover.ts b/src/modules/sessions/services/term-rollover.ts
+new file mode 100644
+index 0000000..e8528ae
+--- /dev/null
++++ b/src/modules/sessions/services/term-rollover.ts
+@@ -0,0 +1,47 @@
++import { planTermAssignments } from "../../classes/services/class-subject-plan";
++
++/*
++| TERM ROLL-OVER: what happens when a new term becomes current.
++|  - students: every ACTIVE student enrolled last term (in the same session) is enrolled in the same class
++|  - teachers: last term's subject teachers are copied, then missing ones are filled by the default rules
++| Set-based: a handful of queries for the whole school, inside the caller's transaction (so a failure also undoes
++| the term switch). Safe to run again: anything already there is skipped, nothing is overwritten.
++*/
++export interface RolloverTx {
++    enrolment:      { findMany(a: any): Promise<any[]>; createMany(a: any): Promise<{ count: number }> };
++    class:          { findMany(a: any): Promise<any[]> };
++    subject:        { findMany(a: any): Promise<any[]> };
++    classSubject:   { findMany(a: any): Promise<any[]>; createMany(a: any): Promise<{ count: number }> };
++    schoolSettings: { findFirst(a: any): Promise<any> };
++}
++
++export interface RolloverResult { enrolmentsCarried: number; assignmentsCarried: number; assignmentsSeeded: number }
++
++/** Students who were active last term and are not yet enrolled this term. */
++export function planEnrolmentCarryForward(previous: Array<{ studentId: string; classId: string }>, alreadyEnrolled: Set<string>) {
++    return previous.filter(p => !alreadyEnrolled.has(p.studentId));
++}
++
++export async function rolloverInTx(tx: RolloverTx, fromTermId: string | null, toTermId: string): Promise<RolloverResult> {
++    let enrolmentsCarried = 0;
++    if (fromTermId) {
++        const previous = await tx.enrolment.findMany({ where: { termId: fromTermId, status: "active", student: { isActive: true } }, select: { studentId: true, classId: true } });
++        const now = await tx.enrolment.findMany({ where: { termId: toTermId }, select: { studentId: true } });
++        const rows = planEnrolmentCarryForward(previous, new Set(now.map((e: any) => e.studentId)));
++        if (rows.length) enrolmentsCarried = (await tx.enrolment.createMany({
++            data: rows.map(r => ({ studentId: r.studentId, classId: r.classId, termId: toTermId, status: "active" })), skipDuplicates: true,
++        })).count;
++    }
++
++    const classes  = await tx.class.findMany({ select: { id: true, classTeacherId: true } });
++    const subjects = await tx.subject.findMany({ select: { id: true, defaultTeacherId: true } });
++    const existing = await tx.classSubject.findMany({ where: { termId: toTermId }, select: { classId: true, subjectId: true } });
++    const settings = await tx.schoolSettings.findFirst({ select: { teachingModel: true } });
++    const previous = fromTermId ? await tx.classSubject.findMany({ where: { termId: fromTermId }, select: { classId: true, subjectId: true, staffId: true, assignedVia: true } }) : [];
++
++    const { carried, seeded } = planTermAssignments({ classes, subjects, previous, existing, teachingModel: settings?.teachingModel ?? null });
++    const rows = [...carried, ...seeded].map(a => ({ ...a, termId: toTermId }));
++    if (rows.length) await tx.classSubject.createMany({ data: rows, skipDuplicates: true });
++
++    return { enrolmentsCarried, assignmentsCarried: carried.length, assignmentsSeeded: seeded.length };
++}
+diff --git a/src/modules/sessions/sessions.container.ts b/src/modules/sessions/sessions.container.ts
+index 9bdcf6f..62ae6f8 100644
+--- a/src/modules/sessions/sessions.container.ts
++++ b/src/modules/sessions/sessions.container.ts
+@@ -1,47 +1,40 @@
+-import { asClass }                    from "awilix";
+-import type { AwilixContainer }       from "awilix";
+-
+-import { SessionMapper, TermMapper }  from "./mappers/session.mapper";
++import { asClass } from "awilix";
++import type { AwilixContainer } from "awilix";
++import { SessionMapper, TermMapper } from "./mappers/session.mapper";
+ import { CalendarEventMapper } from "./mappers/calendar.mapper";
+-
+-import { SessionRepositoryImpl }      from "./repositories/session.repository.impl";
+-import { CalendarRepositoryImpl } from "./repositories/calendar.repository,impl";
+-
+-import { GetSessionsUseCase }         from "./usecases/get-sessions.usecase";
+-import { GetCurrentSessionUseCase }   from "./usecases/get-current-session.usecase";
+-import { CreateSessionUseCase }       from "./usecases/create-session.usecase";
+-import { SetCurrentSessionUseCase }   from "./usecases/set-current-session.usecase";
+-import { CreateTermUseCase }          from "./usecases/create-term.usecase";
+-import { UpdateTermUseCase }          from "./usecases/update-term.usecase";
+-import { SetCurrentTermUseCase }      from "./usecases/set-current-term.usecase";
+-
+-import { GetCalendarEventsUseCase }  from "./usecases/get-calendar-events.usecase";
+-import { CreateCalendarEventUseCase } from "./usecases/create-calendar-event.usecase";
+-
+-import { SessionController }          from "./controllers/session.controller";
+-
++import { SessionRepositoryImpl } from "./repositories/session.repository.impl";
++import { CalendarRepositoryImpl } from "./repositories/calendar.repository.impl";
++import { ListSessionsUseCase, GetCurrentAcademicYearUseCase } from "./usecases/session-queries.usecases";
++import { CreateSessionUseCase, UpdateSessionUseCase, CreateTermUseCase, UpdateTermUseCase } from "./usecases/session-commands.usecases";
++import { SetCurrentSessionUseCase, SetCurrentTermUseCase } from "./usecases/set-current.usecases";
++import { ListCalendarEventsUseCase, CreateCalendarEventUseCase, UpdateCalendarEventUseCase, DeleteCalendarEventUseCase } from "./usecases/calendar.usecases";
++import { SessionController } from "./controllers/session.controller";
++
++/*
++| SESSIONS CONTAINER. Requires: registerAudit (auditService), registerFoundation (accessService).
++| `sessionRepository` is also used by Staff, Students, Fees and other modules: keep its method names.
++*/
+ export const registerSessions = (container: AwilixContainer): void => {
+     container.register({
+-        sessionMapper:           asClass(SessionMapper).singleton(),
+-        termMapper:              asClass(TermMapper).singleton(),
+-        calendarEventMapper:     asClass(CalendarEventMapper).singleton(),
+-
+-        sessionRepository:       asClass(SessionRepositoryImpl).scoped(),
+-        calendarRepository:      asClass(CalendarRepositoryImpl).scoped(),
+-
+-        getSessionsUseCase:      asClass(GetSessionsUseCase).scoped(),
+-        getCurrentSessionUseCase: asClass(GetCurrentSessionUseCase).scoped(),
+-        createSessionUseCase:    asClass(CreateSessionUseCase).scoped(),
+-        setCurrentSessionUseCase: asClass(SetCurrentSessionUseCase).scoped(),
+-        createTermUseCase:       asClass(CreateTermUseCase).scoped(),
+-        updateTermUseCase:       asClass(UpdateTermUseCase).scoped(),
+-        setCurrentTermUseCase:   asClass(SetCurrentTermUseCase).scoped(),
+-
+-
+-        getCalendarEventsUseCase: asClass(GetCalendarEventsUseCase).scoped(),
+-        createCalendarEventUseCase: asClass(CreateCalendarEventUseCase).scoped(),
+-
+-        
+-        sessionController:       asClass(SessionController).scoped(),
++        sessionMapper:       asClass(SessionMapper).singleton(),
++        termMapper:          asClass(TermMapper).singleton(),
++        calendarEventMapper: asClass(CalendarEventMapper).singleton(),
++        sessionRepository:   asClass(SessionRepositoryImpl).scoped(),
++        calendarRepository:  asClass(CalendarRepositoryImpl).scoped(),
++
++        listSessionsUseCase:             asClass(ListSessionsUseCase).scoped(),
++        getCurrentAcademicYearUseCase:   asClass(GetCurrentAcademicYearUseCase).scoped(),
++        createSessionUseCase:            asClass(CreateSessionUseCase).scoped(),
++        updateSessionUseCase:            asClass(UpdateSessionUseCase).scoped(),
++        createTermUseCase:               asClass(CreateTermUseCase).scoped(),
++        updateTermUseCase:               asClass(UpdateTermUseCase).scoped(),
++        setCurrentSessionUseCase:        asClass(SetCurrentSessionUseCase).scoped(),
++        setCurrentTermUseCase:           asClass(SetCurrentTermUseCase).scoped(),
++        listCalendarEventsUseCase:       asClass(ListCalendarEventsUseCase).scoped(),
++        createCalendarEventUseCase:      asClass(CreateCalendarEventUseCase).scoped(),
++        updateCalendarEventUseCase:      asClass(UpdateCalendarEventUseCase).scoped(),
++        deleteCalendarEventUseCase:      asClass(DeleteCalendarEventUseCase).scoped(),
++
++        sessionController:               asClass(SessionController).scoped(),
+     });
+-};
+\ No newline at end of file
++};
+diff --git a/src/modules/sessions/sessions.permissions.ts b/src/modules/sessions/sessions.permissions.ts
+new file mode 100644
+index 0000000..5940f58
+--- /dev/null
++++ b/src/modules/sessions/sessions.permissions.ts
+@@ -0,0 +1,10 @@
++/*
++| SESSION / TERM / CALENDAR PERMISSION KEYS.
++| sessions.view    see the school years, terms, the current term and the calendar. Everyone who signs in needs this
++|                  (staff, students, guardians), so it is on every default role.
++| sessions.manage  create and edit sessions, terms and calendar events, and choose the current session / term
++*/
++export const SESSION_PERMISSIONS = [
++    { key: "sessions.view",   realm: "SCHOOL", module: "sessions", scopes: ["ALL"], personas: ["STAFF", "STUDENT", "GUARDIAN"], label: "View sessions, terms and the school calendar" },
++    { key: "sessions.manage", realm: "SCHOOL", module: "sessions", scopes: ["ALL"], personas: ["STAFF"], label: "Manage sessions, terms and the school calendar", isSensitive: true },
++] as const;
+diff --git a/src/modules/sessions/usecases/calendar.usecases.ts b/src/modules/sessions/usecases/calendar.usecases.ts
+new file mode 100644
+index 0000000..d417bd7
+--- /dev/null
++++ b/src/modules/sessions/usecases/calendar.usecases.ts
+@@ -0,0 +1,99 @@
++import { AuditService } from "../../audit/services/audit.service";
++import { ICalendarRepository } from "../repositories/calendar.repository";
++import { ISessionRepository } from "../repositories/session.repository";
++import { CalendarEventMapper, CalendarEventResponseData, NameRef } from "../mappers/calendar.mapper";
++import { CalendarEventEntity } from "../domain/calendar.entity";
++import { sessionErrors } from "../domain/session.errors";
++import { SessionActor } from "../domain/session.types";
++import { CreateCalendarEventDtoType, UpdateCalendarEventDtoType, ListCalendarEventsQueryType } from "../dtos/calendar.dto";
++
++interface Dependencies { calendarRepository: ICalendarRepository; sessionRepository: ISessionRepository; calendarEventMapper: CalendarEventMapper; auditService: AuditService }
++const day = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : null);
++
++/** Fills in term and session NAMES for a list of events with ONE lookup (sessions come with their terms). */
++async function present(d: Dependencies, events: CalendarEventEntity[]): Promise<CalendarEventResponseData[]> {
++    const sessions = await d.sessionRepository.findAllSessions();
++    const sessionRef = new Map<string, NameRef>(sessions.map(s => [s.id, { id: s.id, name: s.name }]));
++    const termRef = new Map<string, NameRef & { sessionId: string }>(sessions.flatMap(s => (s.terms ?? []).map(t => [t.id, { id: t.id, name: t.name, sessionId: s.id }] as const)));
++    return events.map(e => {
++        const t = e.termId ? termRef.get(e.termId) : undefined;
++        const sessionId = e.sessionId ?? t?.sessionId ?? null;
++        return d.calendarEventMapper.toResponse(e, t ? { id: t.id, name: t.name } : null, sessionId ? sessionRef.get(sessionId) ?? null : null);
++    });
++}
++
++export class ListCalendarEventsUseCase {
++    constructor(private readonly d: Dependencies) {}
++    async execute(q: ListCalendarEventsQueryType): Promise<CalendarEventResponseData[]> {
++        const where: Record<string, unknown> = {};
++        if (q.termId) where.termId = q.termId;
++        if (q.sessionId) where.sessionId = q.sessionId;
++        if (q.type) where.type = q.type;
++        if (q.from || q.to) where.startDate = { ...(q.from ? { gte: new Date(q.from) } : {}), ...(q.to ? { lte: new Date(q.to) } : {}) };
++        return present(this.d, await this.d.calendarRepository.findCalendarEvents(where));
++    }
++}
++
++/* CREATE EVENT. An event belongs to a term OR a session OR the whole school. (The old version wrote a column that does not exist.) */
++export class CreateCalendarEventUseCase {
++    constructor(private readonly d: Dependencies) {}
++    async execute(schoolId: string, dto: CreateCalendarEventDtoType, actor: SessionActor): Promise<CalendarEventResponseData> {
++        const { sessionRepository: sessions, calendarRepository: repo } = this.d;
++        let sessionId: string | null = dto.sessionId ?? null;
++        if (dto.termId) {
++            const term = await sessions.findTermById(dto.termId);
++            if (!term) throw sessionErrors.termNotFound();
++            if (sessionId && sessionId !== term.sessionId) throw sessionErrors.badEventScope();
++            sessionId = term.sessionId;
++        }
++        if (sessionId && !(await sessions.findSessionById(sessionId))) throw sessionErrors.sessionNotFound();
++
++        const created = await repo.createCalendarEvent({
++            title: dto.title, description: dto.description, startDate: new Date(dto.startDate), endDate: dto.endDate ? new Date(dto.endDate) : undefined,
++            type: dto.type, isHoliday: dto.type === "holiday" || !!dto.isHoliday, termId: dto.termId ?? null, sessionId, createdById: actor.userId,
++        });
++        await this.d.auditService.log({ userId: actor.userId, schoolId, action: "calendar_event.created", entity: "CalendarEvent", entityId: created.id, newValue: { title: dto.title, type: dto.type, startDate: dto.startDate } });
++        return (await present(this.d, [created]))[0];
++    }
++}
++
++/* UPDATE EVENT. Only changed fields are written and audited. */
++export class UpdateCalendarEventUseCase {
++    constructor(private readonly d: Dependencies) {}
++    async execute(schoolId: string, id: string, dto: UpdateCalendarEventDtoType, actor: SessionActor): Promise<CalendarEventResponseData> {
++        const { calendarRepository: repo } = this.d;
++        const event = await repo.findCalendarEventById(id);
++        if (!event) throw sessionErrors.eventNotFound();
++
++        const start = dto.startDate ? new Date(dto.startDate) : event.startDate;
++        const end = dto.endDate === undefined ? event.endDate : dto.endDate ? new Date(dto.endDate) : null;
++        if (end && end.getTime() < start.getTime()) throw sessionErrors.endBeforeStart();
++
++        const data: Record<string, unknown> = {}, before: Record<string, unknown> = {}, after: Record<string, unknown> = {};
++        const set = (k: string, now: unknown, was: unknown) => { if (now !== was) { data[k] = now; before[k] = was; after[k] = now; } };
++        if (dto.title !== undefined) set("title", dto.title, event.title);
++        if (dto.description !== undefined) set("description", dto.description, event.description);
++        if (dto.type !== undefined) set("type", dto.type, event.type);
++        if (dto.startDate !== undefined && day(start) !== day(event.startDate)) { data.startDate = start; before.startDate = day(event.startDate); after.startDate = day(start); }
++        if (dto.endDate !== undefined && day(end) !== day(event.endDate)) { data.endDate = end; before.endDate = day(event.endDate); after.endDate = day(end); }
++        const type = (dto.type ?? event.type) as string;
++        const holiday = type === "holiday" || (dto.isHoliday ?? event.isHoliday);
++        set("isHoliday", holiday, event.isHoliday);
++        if (Object.keys(data).length === 0) return (await present(this.d, [event]))[0];
++
++        const updated = await repo.updateCalendarEvent(id, data);
++        await this.d.auditService.log({ userId: actor.userId, schoolId, action: "calendar_event.updated", entity: "CalendarEvent", entityId: id, oldValue: before, newValue: after });
++        return (await present(this.d, [updated]))[0];
++    }
++}
++
++export class DeleteCalendarEventUseCase {
++    constructor(private readonly d: Dependencies) {}
++    async execute(schoolId: string, id: string, actor: SessionActor): Promise<{ deleted: true; title: string }> {
++        const event = await this.d.calendarRepository.findCalendarEventById(id);
++        if (!event) throw sessionErrors.eventNotFound();
++        await this.d.calendarRepository.deleteCalendarEvent(id);
++        await this.d.auditService.log({ userId: actor.userId, schoolId, action: "calendar_event.deleted", entity: "CalendarEvent", entityId: id, oldValue: { title: event.title, startDate: day(event.startDate) } });
++        return { deleted: true, title: event.title };
++    }
++}
+diff --git a/src/modules/sessions/usecases/create-calendar-event.usecase.ts b/src/modules/sessions/usecases/create-calendar-event.usecase.ts
+deleted file mode 100644
+index 7aa7ed7..0000000
+--- a/src/modules/sessions/usecases/create-calendar-event.usecase.ts
++++ /dev/null
+@@ -1,43 +0,0 @@
+-import { ICalendarRepository } from "../repositories/calendar.repository";
+-import {
+-    CalendarEventMapper,
+-    CalendarEventResponseData,
+-} from "../mappers/calendar.mapper";
+-import { CreateCalendarEventDtoType }  from "../dtos/calendar.dto";
+-
+-interface Dependencies {
+-    calendarRepository: ICalendarRepository;
+-    calendarEventMapper: CalendarEventMapper;
+-}
+-
+-export class CreateCalendarEventUseCase {
+-    private readonly calendarRepository: ICalendarRepository;
+-    private readonly calendarEventMapper: CalendarEventMapper;
+-
+-    constructor({
+-        calendarRepository,
+-        calendarEventMapper,
+-    }: Dependencies) {
+-        this.calendarRepository = calendarRepository;
+-        this.calendarEventMapper = calendarEventMapper;
+-    }
+-
+-    async execute(
+-        dto:     CreateCalendarEventDtoType,
+-        staffId: string,
+-    ): Promise<CalendarEventResponseData> {
+-        const event = await this.calendarRepository.createCalendarEvent({
+-            title:       dto.title,
+-            description: dto.description,
+-            startDate:   new Date(dto.startDate),
+-            endDate:     dto.endDate ? new Date(dto.endDate) : null,
+-            type:        dto.type,
+-            isHoliday:   dto.isHoliday,
+-            termId:      dto.termId      ?? null,
+-            calendarId:   dto.calendarId   ?? null,
+-            createdById: staffId,
+-        });
+-
+-        return this.calendarEventMapper.toResponse(event);
+-    }
+-}
+\ No newline at end of file
+diff --git a/src/modules/sessions/usecases/create-session.usecase.ts b/src/modules/sessions/usecases/create-session.usecase.ts
+deleted file mode 100644
+index 067790d..0000000
+--- a/src/modules/sessions/usecases/create-session.usecase.ts
++++ /dev/null
+@@ -1,45 +0,0 @@
+-import { ISessionRepository }    from "../repositories/session.repository";
+-import { SessionMapper }         from "../mappers/session.mapper";
+-import { SessionResponseData }   from "../mappers/session.mapper";
+-import { ConflictError }         from "../../../shared/errors/domain.errors";
+-import { SessionErrorMessage }   from "../domain/session.enums";
+-import { CreateSessionDtoType }  from "../dtos/session.dto";
+-
+-interface Dependencies {
+-    sessionRepository: ISessionRepository;
+-    sessionMapper:     SessionMapper;
+-}
+-
+-export class CreateSessionUseCase {
+-    private readonly sessionRepository: ISessionRepository;
+-    private readonly sessionMapper:     SessionMapper;
+-
+-    constructor({ sessionRepository, sessionMapper }: Dependencies) {
+-        this.sessionRepository = sessionRepository;
+-        this.sessionMapper     = sessionMapper;
+-    }
+-
+-    async execute(dto: CreateSessionDtoType): Promise<SessionResponseData> {
+-        // ── Validate sessions don't overlap ───────────────────────────────
+-        const allSessions = await this.sessionRepository.findAllSessions();
+-        const newStart    = new Date(dto.startDate);
+-        const newEnd      = new Date(dto.endDate);
+-
+-        const overlaps = allSessions.some(s =>
+-            newStart <= s.endDate && newEnd >= s.startDate,
+-        );
+-
+-        if (overlaps) {
+-            throw new ConflictError(SessionErrorMessage.OVERLAPPING_DATES);
+-        }
+-
+-        const session = await this.sessionRepository.createSession({
+-            name:      dto.name,
+-            startDate: newStart,
+-            endDate:   newEnd,
+-            isCurrent: false,
+-        });
+-
+-        return this.sessionMapper.toResponse(session);
+-    }
+-}
+\ No newline at end of file
+diff --git a/src/modules/sessions/usecases/create-term.usecase.ts b/src/modules/sessions/usecases/create-term.usecase.ts
+deleted file mode 100644
+index ec89cb4..0000000
+--- a/src/modules/sessions/usecases/create-term.usecase.ts
++++ /dev/null
+@@ -1,48 +0,0 @@
+-import { ISessionRepository }  from "../repositories/session.repository";
+-import { TermMapper }          from "../mappers/session.mapper";
+-import { TermResponseData }    from "../mappers/session.mapper";
+-import {
+-    NotFoundError,
+-    ConflictError,
+-}                              from "../../../shared/errors/domain.errors";
+-import { SessionErrorMessage } from "../domain/session.enums";
+-import { CreateTermDtoType }   from "../dtos/session.dto";
+-
+-interface Dependencies {
+-    sessionRepository: ISessionRepository;
+-    termMapper:        TermMapper;
+-}
+-
+-export class CreateTermUseCase {
+-    private readonly sessionRepository: ISessionRepository;
+-    private readonly termMapper:        TermMapper;
+-
+-    constructor({ sessionRepository, termMapper }: Dependencies) {
+-        this.sessionRepository = sessionRepository;
+-        this.termMapper        = termMapper;
+-    }
+-
+-    async execute(dto: CreateTermDtoType): Promise<TermResponseData> {
+-        // ── Check session exists ──────────────────────────────────────────
+-        const session = await this.sessionRepository
+-            .findSessionById(dto.sessionId);
+-        if (!session) throw new NotFoundError(SessionErrorMessage.NOT_FOUND);
+-
+-        // ── Check term name not taken in this session ─────────────────────
+-        const existingTerms = await this.sessionRepository
+-            .findTermsBySession(dto.sessionId);
+-
+-        const nameTaken = existingTerms.some(t => t.name === dto.name);
+-        if (nameTaken) throw new ConflictError(SessionErrorMessage.TERM_NAME_TAKEN);
+-
+-        const term = await this.sessionRepository.createTerm({
+-            sessionId: dto.sessionId,
+-            name:      dto.name,
+-            startDate: new Date(dto.startDate),
+-            endDate:   new Date(dto.endDate),
+-            isCurrent: false,
+-        });
+-
+-        return this.termMapper.toResponse(term);
+-    }
+-}
+\ No newline at end of file
+diff --git a/src/modules/sessions/usecases/get-calendar-events.usecase.ts b/src/modules/sessions/usecases/get-calendar-events.usecase.ts
+deleted file mode 100644
+index 9412f35..0000000
+--- a/src/modules/sessions/usecases/get-calendar-events.usecase.ts
++++ /dev/null
+@@ -1,47 +0,0 @@
+-import { ICalendarRepository } from "../repositories/calendar.repository";
+-import {
+-    CalendarEventMapper,
+-    CalendarEventResponseData,
+-} from "../mappers/calendar.mapper";
+-import { ListCalendarEventsDtoType } from "../dtos/calendar.dto";
+-
+-interface Dependencies {
+-    calendarRepository: ICalendarRepository;
+-    calendarEventMapper: CalendarEventMapper;
+-}
+-
+-export class GetCalendarEventsUseCase {
+-    private readonly calendarRepository: ICalendarRepository;
+-    private readonly calendarEventMapper: CalendarEventMapper;
+-
+-    constructor({
+-        calendarRepository,
+-        calendarEventMapper,
+-    }: Dependencies) {
+-        this.calendarRepository = calendarRepository;
+-        this.calendarEventMapper = calendarEventMapper;
+-    }
+-
+-    async execute(
+-        dto: ListCalendarEventsDtoType,
+-    ): Promise<CalendarEventResponseData[]> {
+-        const where: Record<string, any> = {};
+-
+-        if (dto.termId) where.termId = dto.termId;
+-        if (dto.sessionId) where.sessionId = dto.sessionId;
+-        if (dto.type) where.type = dto.type;
+-
+-        if (dto.startDate && dto.endDate) {
+-            where.startDate = {
+-                gte: new Date(dto.startDate),
+-                lte: new Date(dto.endDate),
+-            };
+-        }
+-
+-        const events = await this.calendarRepository.findCalendarEvents(where);
+-
+-        return events.map((event) =>
+-            this.calendarEventMapper.toResponse(event),
+-        );
+-    }
+-}
+\ No newline at end of file
+diff --git a/src/modules/sessions/usecases/get-current-session.usecase.ts b/src/modules/sessions/usecases/get-current-session.usecase.ts
+deleted file mode 100644
+index 8abd17f..0000000
+--- a/src/modules/sessions/usecases/get-current-session.usecase.ts
++++ /dev/null
+@@ -1,47 +0,0 @@
+-import { ISessionRepository }  from "../repositories/session.repository";
+-import { SessionMapper }       from "../mappers/session.mapper";
+-import { TermMapper }          from "../mappers/session.mapper";
+-import { SessionResponseData } from "../mappers/session.mapper";
+-import { TermResponseData }    from "../mappers/session.mapper";
+-import { NotFoundError }       from "../../../shared/errors/domain.errors";
+-
+-interface Dependencies {
+-    sessionRepository: ISessionRepository;
+-    sessionMapper:     SessionMapper;
+-    termMapper:        TermMapper;
+-}
+-
+-export interface CurrentAcademicContext {
+-    session:     SessionResponseData;
+-    currentTerm: TermResponseData | null;
+-    allTerms:    TermResponseData[];
+-}
+-
+-export class GetCurrentSessionUseCase {
+-    private readonly sessionRepository: ISessionRepository;
+-    private readonly sessionMapper:     SessionMapper;
+-    private readonly termMapper:        TermMapper;
+-
+-    constructor({ sessionRepository, sessionMapper, termMapper }: Dependencies) {
+-        this.sessionRepository = sessionRepository;
+-        this.sessionMapper     = sessionMapper;
+-        this.termMapper        = termMapper;
+-    }
+-
+-    async execute(): Promise<CurrentAcademicContext> {
+-        const session = await this.sessionRepository.findCurrentSession();
+-        if (!session) throw new NotFoundError("No current session set");
+-
+-        const currentTerm = await this.sessionRepository.findCurrentTerm();
+-        const allTerms    = await this.sessionRepository
+-            .findTermsBySession(session.id);
+-
+-        return {
+-            session:     this.sessionMapper.toResponse(session),
+-            currentTerm: currentTerm
+-                ? this.termMapper.toResponse(currentTerm)
+-                : null,
+-            allTerms:    allTerms.map(t => this.termMapper.toResponse(t)),
+-        };
+-    }
+-}
+\ No newline at end of file
+diff --git a/src/modules/sessions/usecases/get-sessions.usecase.ts b/src/modules/sessions/usecases/get-sessions.usecase.ts
+deleted file mode 100644
+index 07a9b1b..0000000
+--- a/src/modules/sessions/usecases/get-sessions.usecase.ts
++++ /dev/null
+@@ -1,23 +0,0 @@
+-import { ISessionRepository }   from "../repositories/session.repository";
+-import { SessionMapper }        from "../mappers/session.mapper";
+-import { SessionResponseData }  from "../mappers/session.mapper";
+-
+-interface Dependencies {
+-    sessionRepository: ISessionRepository;
+-    sessionMapper:     SessionMapper;
+-}
+-
+-export class GetSessionsUseCase {
+-    private readonly sessionRepository: ISessionRepository;
+-    private readonly sessionMapper:     SessionMapper;
+-
+-    constructor({ sessionRepository, sessionMapper }: Dependencies) {
+-        this.sessionRepository = sessionRepository;
+-        this.sessionMapper     = sessionMapper;
+-    }
+-
+-    async execute(): Promise<SessionResponseData[]> {
+-        const sessions = await this.sessionRepository.findAllSessions();
+-        return sessions.map(s => this.sessionMapper.toResponse(s));
+-    }
+-}
+\ No newline at end of file
+diff --git a/src/modules/sessions/usecases/session-commands.usecases.ts b/src/modules/sessions/usecases/session-commands.usecases.ts
+new file mode 100644
+index 0000000..3c7c143
+--- /dev/null
++++ b/src/modules/sessions/usecases/session-commands.usecases.ts
+@@ -0,0 +1,104 @@
++import { AuditService } from "../../audit/services/audit.service";
++import { ISessionRepository } from "../repositories/session.repository";
++import { SessionMapper, TermMapper, SessionResponseData, TermResponseData } from "../mappers/session.mapper";
++import { sessionErrors } from "../domain/session.errors";
++import { firstOverlap, rangeInside } from "../domain/session.policy";
++import { SessionActor } from "../domain/session.types";
++import { CreateSessionDtoType, UpdateSessionDtoType, CreateTermDtoType, UpdateTermDtoType } from "../dtos/session.dto";
++
++interface Dependencies { sessionRepository: ISessionRepository; sessionMapper: SessionMapper; termMapper: TermMapper; auditService: AuditService }
++const sameName = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
++const day = (d: Date) => d.toISOString().slice(0, 10);
++
++/* CREATE SESSION. Name "2025/2026" is unique (any capitals); its dates may not overlap another session. */
++export class CreateSessionUseCase {
++    constructor(private readonly d: Dependencies) {}
++    async execute(schoolId: string, dto: CreateSessionDtoType, actor: SessionActor): Promise<SessionResponseData> {
++        const { sessionRepository: repo } = this.d;
++        const all = await repo.findAllSessions();
++        if (all.some(s => sameName(s.name, dto.name))) throw sessionErrors.sessionNameTaken();
++        const range = { startDate: new Date(dto.startDate), endDate: new Date(dto.endDate) };
++        const clash = firstOverlap(range, all);
++        if (clash) throw sessionErrors.sessionOverlap(clash.name);
++
++        const created = await repo.createSession({ name: dto.name, ...range });
++        await this.d.auditService.log({ userId: actor.userId, schoolId, action: "session.created", entity: "Session", entityId: created.id, newValue: { name: dto.name, startDate: dto.startDate, endDate: dto.endDate } });
++        return this.d.sessionMapper.toResponse({ ...created, terms: [] });
++    }
++}
++
++/* UPDATE SESSION. The new dates must still contain every term of the session, and must not overlap another session. */
++export class UpdateSessionUseCase {
++    constructor(private readonly d: Dependencies) {}
++    async execute(schoolId: string, id: string, dto: UpdateSessionDtoType, actor: SessionActor): Promise<SessionResponseData> {
++        const { sessionRepository: repo } = this.d;
++        const session = await repo.findSessionById(id);
++        if (!session) throw sessionErrors.sessionNotFound();
++
++        const range = { startDate: dto.startDate ? new Date(dto.startDate) : session.startDate, endDate: dto.endDate ? new Date(dto.endDate) : session.endDate };
++        if (range.endDate.getTime() <= range.startDate.getTime()) throw sessionErrors.endBeforeStart();
++        const others = (await repo.findAllSessions()).filter(s => s.id !== id);
++        if (dto.name && others.some(s => sameName(s.name, dto.name!))) throw sessionErrors.sessionNameTaken();
++        const clash = firstOverlap(range, others);
++        if (clash) throw sessionErrors.sessionOverlap(clash.name);
++        if ((session.terms ?? []).some(t => !rangeInside(t, range))) throw sessionErrors.sessionExcludesTerms();
++
++        const data: Record<string, unknown> = {};
++        const before: Record<string, unknown> = {}, after: Record<string, unknown> = {};
++        if (dto.name && dto.name !== session.name) { data.name = dto.name; before.name = session.name; after.name = dto.name; }
++        if (dto.startDate && day(range.startDate) !== day(session.startDate)) { data.startDate = range.startDate; before.startDate = day(session.startDate); after.startDate = day(range.startDate); }
++        if (dto.endDate && day(range.endDate) !== day(session.endDate)) { data.endDate = range.endDate; before.endDate = day(session.endDate); after.endDate = day(range.endDate); }
++        if (Object.keys(data).length === 0) return this.d.sessionMapper.toResponse(session);
++
++        await repo.updateSession(id, data);
++        await this.d.auditService.log({ userId: actor.userId, schoolId, action: "session.updated", entity: "Session", entityId: id, oldValue: before, newValue: after });
++        return this.d.sessionMapper.toResponse((await repo.findSessionById(id))!);
++    }
++}
++
++/* CREATE TERM. One of each name per session, inside the session's dates, not overlapping another term. */
++export class CreateTermUseCase {
++    constructor(private readonly d: Dependencies) {}
++    async execute(schoolId: string, dto: CreateTermDtoType, actor: SessionActor): Promise<TermResponseData> {
++        const { sessionRepository: repo } = this.d;
++        const session = await repo.findSessionById(dto.sessionId);
++        if (!session) throw sessionErrors.sessionNotFound();
++        const terms = session.terms ?? [];
++        if (terms.some(t => t.name === dto.name)) throw sessionErrors.termNameTaken();
++        const range = { startDate: new Date(dto.startDate), endDate: new Date(dto.endDate) };
++        if (!rangeInside(range, session)) throw sessionErrors.termOutsideSession();
++        const clash = firstOverlap(range, terms);
++        if (clash) throw sessionErrors.termOverlap(clash.name);
++
++        const created = await repo.createTerm({ sessionId: dto.sessionId, name: dto.name, ...range });
++        await this.d.auditService.log({ userId: actor.userId, schoolId, action: "term.created", entity: "Term", entityId: created.id, newValue: { session: session.name, name: dto.name, startDate: dto.startDate, endDate: dto.endDate } });
++        return this.d.termMapper.toResponse(created, { id: session.id, name: session.name });
++    }
++}
++
++/* UPDATE TERM. Only the dates can change (records are saved against the term). Same date rules as create. */
++export class UpdateTermUseCase {
++    constructor(private readonly d: Dependencies) {}
++    async execute(schoolId: string, id: string, dto: UpdateTermDtoType, actor: SessionActor): Promise<TermResponseData> {
++        const { sessionRepository: repo } = this.d;
++        const term = await repo.findTermById(id);
++        if (!term) throw sessionErrors.termNotFound();
++        const session = (await repo.findSessionById(term.sessionId))!;
++
++        const range = { startDate: dto.startDate ? new Date(dto.startDate) : term.startDate, endDate: dto.endDate ? new Date(dto.endDate) : term.endDate };
++        if (range.endDate.getTime() <= range.startDate.getTime()) throw sessionErrors.endBeforeStart();
++        if (!rangeInside(range, session)) throw sessionErrors.termOutsideSession();
++        const clash = firstOverlap(range, session.terms ?? [], id);
++        if (clash) throw sessionErrors.termOverlap(clash.name);
++
++        const data: Record<string, unknown> = {}, before: Record<string, unknown> = {}, after: Record<string, unknown> = {};
++        if (dto.startDate && day(range.startDate) !== day(term.startDate)) { data.startDate = range.startDate; before.startDate = day(term.startDate); after.startDate = day(range.startDate); }
++        if (dto.endDate && day(range.endDate) !== day(term.endDate)) { data.endDate = range.endDate; before.endDate = day(term.endDate); after.endDate = day(range.endDate); }
++        const ref = { id: session.id, name: session.name };
++        if (Object.keys(data).length === 0) return this.d.termMapper.toResponse(term, ref);
++
++        const updated = await repo.updateTerm(id, data);
++        await this.d.auditService.log({ userId: actor.userId, schoolId, action: "term.updated", entity: "Term", entityId: id, oldValue: { session: session.name, term: term.name, ...before }, newValue: after });
++        return this.d.termMapper.toResponse(updated, ref);
++    }
++}
+diff --git a/src/modules/sessions/usecases/session-queries.usecases.ts b/src/modules/sessions/usecases/session-queries.usecases.ts
+new file mode 100644
+index 0000000..bc041fa
+--- /dev/null
++++ b/src/modules/sessions/usecases/session-queries.usecases.ts
+@@ -0,0 +1,32 @@
++import { ISessionRepository } from "../repositories/session.repository";
++import { SessionMapper, TermMapper, SessionResponseData, TermResponseData } from "../mappers/session.mapper";
++
++interface Dependencies { sessionRepository: ISessionRepository; sessionMapper: SessionMapper; termMapper: TermMapper }
++
++/** All sessions, newest first, each with its terms. */
++export class ListSessionsUseCase {
++    constructor(private readonly d: Dependencies) {}
++    async execute(): Promise<SessionResponseData[]> {
++        return (await this.d.sessionRepository.findAllSessions()).map(s => this.d.sessionMapper.toResponse(s));
++    }
++}
++
++export interface CurrentAcademicYear { session: SessionResponseData | null; currentTerm: TermResponseData | null }
++
++/**
++ * The current session (with its terms) and the current term (with its session's name).
++ * Either is null until the school has chosen one. Used by every screen, so it is open to everyone who signs in.
++ */
++export class GetCurrentAcademicYearUseCase {
++    constructor(private readonly d: Dependencies) {}
++    async execute(): Promise<CurrentAcademicYear> {
++        const { sessionRepository: repo, sessionMapper, termMapper } = this.d;
++        const [session, term] = await Promise.all([repo.findCurrentSession(), repo.findCurrentTerm()]);
++        const full = session ? await repo.findSessionById(session.id) : null;
++        const owner = term && full && term.sessionId === full.id ? full : term ? await repo.findSessionById(term.sessionId) : null;
++        return {
++            session: full ? sessionMapper.toResponse(full) : null,
++            currentTerm: term ? termMapper.toResponse(term, owner ? { id: owner.id, name: owner.name } : undefined) : null,
++        };
++    }
++}
+diff --git a/src/modules/sessions/usecases/set-current-session.usecase.ts b/src/modules/sessions/usecases/set-current-session.usecase.ts
+deleted file mode 100644
+index 8f8f308..0000000
+--- a/src/modules/sessions/usecases/set-current-session.usecase.ts
++++ /dev/null
+@@ -1,29 +0,0 @@
+-import { ISessionRepository }  from "../repositories/session.repository";
+-import { SessionMapper }       from "../mappers/session.mapper";
+-import { SessionResponseData } from "../mappers/session.mapper";
+-import { NotFoundError }       from "../../../shared/errors/domain.errors";
+-import { SessionErrorMessage } from "../domain/session.enums";
+-
+-interface Dependencies {
+-    sessionRepository: ISessionRepository;
+-    sessionMapper:     SessionMapper;
+-}
+-
+-export class SetCurrentSessionUseCase {
+-    private readonly sessionRepository: ISessionRepository;
+-    private readonly sessionMapper:     SessionMapper;
+-
+-    constructor({ sessionRepository, sessionMapper }: Dependencies) {
+-        this.sessionRepository = sessionRepository;
+-        this.sessionMapper     = sessionMapper;
+-    }
+-
+-    async execute(sessionId: string): Promise<SessionResponseData> {
+-        const session = await this.sessionRepository.findSessionById(sessionId);
+-        if (!session) throw new NotFoundError(SessionErrorMessage.NOT_FOUND);
+-
+-        const updated = await this.sessionRepository
+-            .setCurrentSession(sessionId);
+-        return this.sessionMapper.toResponse(updated);
+-    }
+-}
+\ No newline at end of file
+diff --git a/src/modules/sessions/usecases/set-current-term.usecase.ts b/src/modules/sessions/usecases/set-current-term.usecase.ts
+deleted file mode 100644
+index 332a540..0000000
+--- a/src/modules/sessions/usecases/set-current-term.usecase.ts
++++ /dev/null
+@@ -1,105 +0,0 @@
+-import { ISessionRepository }   from "../repositories/session.repository";
+-import { TermMapper }           from "../mappers/session.mapper";
+-import { TermResponseData }     from "../mappers/session.mapper";
+-import { IEnrolmentRepository } from "../../enrolment/repositories/enrolment.repository";
+-import { IStudentRepository }   from "../../students/repositories/student.repository";
+-import { IClassRepository } from "../../classes/repositories/class.repository";
+-import { ClassSubjectResolutionService } from "../../classes/services/class-subject-resolution-service";
+-import { NotFoundError }         from "../../../shared/errors/domain.errors";
+-import { SessionErrorMessage }   from "../domain/session.enums";
+-
+-interface Dependencies {
+-    sessionRepository:             ISessionRepository;
+-    enrolmentRepository:           IEnrolmentRepository;
+-    studentRepository:             IStudentRepository;
+-    classRepository:               IClassRepository;
+-    classSubjectResolutionService: ClassSubjectResolutionService;
+-    termMapper:                    TermMapper;
+-}
+-
+-export class SetCurrentTermUseCase {
+-    private readonly sessionRepository:             ISessionRepository;
+-    private readonly enrolmentRepository:           IEnrolmentRepository;
+-    private readonly studentRepository:             IStudentRepository;
+-    private readonly classRepository:               IClassRepository;
+-    private readonly classSubjectResolutionService: ClassSubjectResolutionService;
+-    private readonly termMapper:                    TermMapper;
+-
+-    constructor({
+-        sessionRepository,
+-        enrolmentRepository,
+-        studentRepository,
+-        classRepository,
+-        classSubjectResolutionService,
+-        termMapper,
+-    }: Dependencies) {
+-        this.sessionRepository             = sessionRepository;
+-        this.enrolmentRepository           = enrolmentRepository;
+-        this.studentRepository             = studentRepository;
+-        this.classRepository               = classRepository;
+-        this.classSubjectResolutionService = classSubjectResolutionService;
+-        this.termMapper                    = termMapper;
+-    }
+-
+-    async execute(termId: string): Promise<TermResponseData> {
+-        const term = await this.sessionRepository.findTermById(termId);
+-
+-        if (!term) {
+-            throw new NotFoundError(
+-                SessionErrorMessage.TERM_NOT_FOUND,
+-            );
+-        }
+-
+-        const updated = await this.sessionRepository.setCurrentTerm(termId);
+-
+-        const previousTerm =
+-            await this.sessionRepository.findPreviousTermInSession(
+-                updated.sessionId,
+-                updated.id,
+-            );
+-
+-        if (previousTerm) {
+-            const previousEnrolments =
+-                await this.enrolmentRepository.findMany({
+-                    termId: previousTerm.id,
+-                    status: "active",
+-                });
+-
+-            for (const enrolment of previousEnrolments) {
+-                const exists =
+-                    await this.enrolmentRepository.findByStudentAndTerm(
+-                        enrolment.studentId,
+-                        updated.id,
+-                    );
+-
+-                if (exists) continue;
+-
+-                const student =
+-                    await this.studentRepository.findById(
+-                        enrolment.studentId,
+-                    );
+-
+-                if (!student?.isActive) continue;
+-
+-                await this.enrolmentRepository.create({
+-                    studentId: enrolment.studentId,
+-                    classId: enrolment.classId,
+-                    termId: updated.id,
+-                    status: "active",
+-                });
+-            }
+-        }
+-
+-        const classes = await this.classRepository.findAllClasses();
+-
+-        for (const cls of classes) {
+-            await this.classSubjectResolutionService.carryForwardAndSeed(
+-                cls.id,
+-                previousTerm?.id ?? null,
+-                updated.id,
+-            );
+-        }
+-
+-        return this.termMapper.toResponse(updated);
+-    }
+-}
+diff --git a/src/modules/sessions/usecases/set-current.usecases.ts b/src/modules/sessions/usecases/set-current.usecases.ts
+new file mode 100644
+index 0000000..1b62fa9
+--- /dev/null
++++ b/src/modules/sessions/usecases/set-current.usecases.ts
+@@ -0,0 +1,69 @@
++import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
++import { AuditService } from "../../audit/services/audit.service";
++import { ISessionRepository } from "../repositories/session.repository";
++import { SessionMapper, TermMapper, SessionResponseData, TermResponseData } from "../mappers/session.mapper";
++import { sessionErrors } from "../domain/session.errors";
++import { SessionActor } from "../domain/session.types";
++import { SetCurrentTermDtoType } from "../dtos/session.dto";
++import { rolloverInTx, RolloverResult } from "../services/term-rollover";
++
++interface Dependencies { sessionRepository: ISessionRepository; sessionMapper: SessionMapper; termMapper: TermMapper; auditService: AuditService }
++
++/*
++| SET CURRENT SESSION. One transaction (never "no current session"). If the current term belongs to another
++| session it is cleared, so the school then chooses a term of the new session.
++*/
++export class SetCurrentSessionUseCase {
++    constructor(private readonly d: Dependencies) {}
++    async execute(schoolId: string, id: string, actor: SessionActor): Promise<SessionResponseData> {
++        const { sessionRepository: repo } = this.d;
++        const session = await repo.findSessionById(id);
++        if (!session) throw sessionErrors.sessionNotFound();
++        if (session.isCurrent) return this.d.sessionMapper.toResponse(session);
++
++        const previous = await repo.findCurrentSession();
++        const updated = await repo.setCurrentSession(id);
++        await this.d.auditService.log({ userId: actor.userId, schoolId, action: "session.set_current", entity: "Session", entityId: id, oldValue: { current: previous?.name ?? null }, newValue: { current: session.name } });
++        return this.d.sessionMapper.toResponse(updated);
++    }
++}
++
++export interface SetCurrentTermResult { term: TermResponseData; rollover: RolloverResult | null }
++
++/*
++| SET CURRENT TERM (also makes its session current), in ONE transaction:
++|   1. the term (and its session) become current, the old ones stop being current
++|   2. unless carryForward is false: last term's students and subject teachers are carried into this term
++|      (set-based, a few queries for the whole school; see services/term-rollover.ts)
++| If anything fails nothing changes. Running it again on the current term only repeats step 2 and skips
++| everything already there, so it is also the way to "carry forward again" after adding classes.
++*/
++export class SetCurrentTermUseCase {
++    constructor(private readonly d: Dependencies) {}
++
++    async execute(schoolId: string, id: string, dto: SetCurrentTermDtoType, actor: SessionActor): Promise<SetCurrentTermResult> {
++        const { sessionRepository: repo, termMapper } = this.d;
++        const term = await repo.findTermById(id);
++        if (!term) throw sessionErrors.termNotFound();
++        const session = (await repo.findSessionById(term.sessionId))!;
++        const previousCurrent = await repo.findCurrentTerm();
++        const previousTerm = await repo.findPreviousTermInSession(term.sessionId, term.id);
++
++        let rollover: RolloverResult | null = null;
++        await getTenantClient().$transaction(async tx => {
++            await tx.term.updateMany({ where: { isCurrent: true, NOT: { id } }, data: { isCurrent: false } });
++            await tx.session.updateMany({ where: { isCurrent: true, NOT: { id: term.sessionId } }, data: { isCurrent: false } });
++            await tx.session.update({ where: { id: term.sessionId }, data: { isCurrent: true } });
++            await tx.term.update({ where: { id }, data: { isCurrent: true } });
++            if (dto.carryForward) rollover = await rolloverInTx(tx as any, previousTerm?.id ?? null, id);
++        }, { maxWait: 5000, timeout: 30000 });
++
++        await this.d.auditService.log({
++            userId: actor.userId, schoolId, action: "term.set_current", entity: "Term", entityId: id,
++            oldValue: { current: previousCurrent ? previousCurrent.name : null },
++            newValue: { session: session.name, term: term.name, carryForward: dto.carryForward, ...(rollover ?? {}) },
++        });
++        const fresh = (await repo.findTermById(id))!;
++        return { term: termMapper.toResponse(fresh, { id: session.id, name: session.name }), rollover };
++    }
++}
+diff --git a/src/modules/sessions/usecases/update-term.usecase.ts b/src/modules/sessions/usecases/update-term.usecase.ts
+deleted file mode 100644
+index 9db2558..0000000
+--- a/src/modules/sessions/usecases/update-term.usecase.ts
++++ /dev/null
+@@ -1,36 +0,0 @@
+-import { ISessionRepository } from "../repositories/session.repository";
+-import { TermMapper }         from "../mappers/session.mapper";
+-import { TermResponseData }   from "../mappers/session.mapper";
+-import { NotFoundError }      from "../../../shared/errors/domain.errors";
+-import { SessionErrorMessage } from "../domain/session.enums";
+-import { UpdateTermDtoType }  from "../dtos/session.dto";
+-
+-interface Dependencies {
+-    sessionRepository: ISessionRepository;
+-    termMapper:        TermMapper;
+-}
+-
+-export class UpdateTermUseCase {
+-    private readonly sessionRepository: ISessionRepository;
+-    private readonly termMapper:        TermMapper;
+-
+-    constructor({ sessionRepository, termMapper }: Dependencies) {
+-        this.sessionRepository = sessionRepository;
+-        this.termMapper        = termMapper;
+-    }
+-
+-    async execute(
+-        id:  string,
+-        dto: UpdateTermDtoType,
+-    ): Promise<TermResponseData> {
+-        const term = await this.sessionRepository.findTermById(id);
+-        if (!term) throw new NotFoundError(SessionErrorMessage.TERM_NOT_FOUND);
+-
+-        const updateData: Record<string, any> = {};
+-        if (dto.startDate) updateData.startDate = new Date(dto.startDate);
+-        if (dto.endDate)   updateData.endDate   = new Date(dto.endDate);
+-
+-        const updated = await this.sessionRepository.updateTerm(id, updateData);
+-        return this.termMapper.toResponse(updated);
+-    }
+-}
+\ No newline at end of file
+diff --git a/src/routes/index.ts b/src/routes/index.ts
+index c3bc0a2..26ba821 100644
+--- a/src/routes/index.ts
++++ b/src/routes/index.ts
+@@ -19,7 +19,7 @@ import feesRouter from "../modules/fees/routes/fee-setup.routes";
+ import feeInvoiceRouter from "../modules/fees/routes/fee-invoice.routes";
+ import feeReportRouter from "../modules/fees/routes/fee-report.routes";
+ import feeAdjustmentRouter from "../modules/fees/routes/fee-adjustment.routes";
+-// import sessionRouter from "../modules/sessions/routes/session.routes"
++import sessionRouter from "../modules/sessions/routes/session.routes"
+ import paymentRouter from "../modules/payments/routes/payment.routes";
+ // import superAdminRouter from "../modules/super-admin/routes/super-admin.routes";
+ import auditRouter from "../modules/audit/routes/audit.routes"
+@@ -46,7 +46,7 @@ router.use("/guardians", guardianRouter);
+ // router.use("/enrolments", enrolmentRouter);
+ // router.use("/attendance", attendanceRouter);
+ // router.use("/grades", gradeRouter)
+-// router.use("/sessions", sessionRouter)
++router.use("/sessions", sessionRouter)
+ // router.use("/report-cards", reportCardRouter)
+ router.use("/fees/invoices", feeInvoiceRouter);
+ router.use("/fees/adjustments", feeAdjustmentRouter);
+diff --git a/tests/sessions/sessions.test.ts b/tests/sessions/sessions.test.ts
+new file mode 100644
+index 0000000..e44f7df
+--- /dev/null
++++ b/tests/sessions/sessions.test.ts
+@@ -0,0 +1,189 @@
++import { describe, it } from "node:test";
++import assert from "node:assert/strict";
++import { validatePermissionRegistry, PERMISSION_REGISTRY } from "../../src/foundation/permissions.registry";
++import { ROLE_TEMPLATES } from "../../src/foundation/role-templates.registry";
++import { rangesOverlap, rangeInside, firstOverlap, isValidSessionName } from "../../src/modules/sessions/domain/session.policy";
++import { CreateSessionDto, UpdateSessionDto, CreateTermDto, UpdateTermDto, SetCurrentTermDto } from "../../src/modules/sessions/dtos/session.dto";
++import { CreateCalendarEventDto, UpdateCalendarEventDto, ListCalendarEventsQuery } from "../../src/modules/sessions/dtos/calendar.dto";
++import { planTermAssignments } from "../../src/modules/classes/services/class-subject-plan";
++import { planEnrolmentCarryForward, rolloverInTx } from "../../src/modules/sessions/services/term-rollover";
++import { CreateSessionUseCase, UpdateSessionUseCase, CreateTermUseCase, UpdateTermUseCase } from "../../src/modules/sessions/usecases/session-commands.usecases";
++import { CreateCalendarEventUseCase } from "../../src/modules/sessions/usecases/calendar.usecases";
++import { SessionMapper, TermMapper } from "../../src/modules/sessions/mappers/session.mapper";
++import { CalendarEventMapper } from "../../src/modules/sessions/mappers/calendar.mapper";
++
++const d = (s: string) => new Date(s);
++const r = (a: string, b: string) => ({ startDate: d(a), endDate: d(b) });
++const SID = "11111111-1111-4111-8111-111111111111";
++const TID = "22222222-2222-4222-8222-222222222222";
++
++describe("session permissions and templates", () => {
++    it("registry is valid; both keys exist once; every default role can view sessions", () => {
++        assert.deepEqual(validatePermissionRegistry(), []);
++        assert.equal(PERMISSION_REGISTRY.filter(p => p.key === "sessions.view").length, 1);
++        assert.equal(PERMISSION_REGISTRY.find(p => p.key === "sessions.manage")?.isSensitive, true);
++        for (const t of ROLE_TEMPLATES.filter(t => !t.grantsAll)) assert.ok(t.permissions.some(p => p.key === "sessions.view"), `${t.key} cannot view sessions`);
++        for (const t of ROLE_TEMPLATES) assert.ok(!t.permissions.some(p => p.key === "sessions.manage"), "only the admin manages sessions by default");
++    });
++});
++
++describe("date rules", () => {
++    it("overlap includes the shared day; inside includes the edges", () => {
++        assert.equal(rangesOverlap(r("2025-09-01", "2025-12-15"), r("2025-12-15", "2026-01-01")), true);
++        assert.equal(rangesOverlap(r("2025-09-01", "2025-12-14"), r("2025-12-15", "2026-01-01")), false);
++        assert.equal(rangeInside(r("2025-09-01", "2025-12-15"), r("2025-09-01", "2026-07-20")), true);
++        assert.equal(rangeInside(r("2025-08-31", "2025-12-15"), r("2025-09-01", "2026-07-20")), false);
++    });
++    it("firstOverlap ignores the item being edited", () => {
++        const items = [{ id: "a", ...r("2025-09-01", "2025-12-15") }, { id: "b", ...r("2026-01-05", "2026-04-01") }];
++        assert.equal(firstOverlap(r("2025-10-01", "2025-11-01"), items)?.id, "a");
++        assert.equal(firstOverlap(r("2025-10-01", "2025-11-01"), items, "a"), undefined);
++    });
++    it("session name must be two consecutive years", () => {
++        assert.equal(isValidSessionName("2025/2026"), true);
++        for (const bad of ["2025/2027", "2025-2026", "25/26", "2026/2025", ""]) assert.equal(isValidSessionName(bad), false, bad);
++    });
++});
++
++describe("session DTOs", () => {
++    it("create checks name, dates and unknown fields", () => {
++        assert.equal(CreateSessionDto.safeParse({ name: "2025/2026", startDate: "2025-09-01", endDate: "2026-07-20" }).success, true);
++        assert.equal(CreateSessionDto.safeParse({ name: "2025/2026", startDate: "2026-07-20", endDate: "2025-09-01" }).success, false);
++        assert.equal(CreateSessionDto.safeParse({ name: "2025/2026", startDate: "soon", endDate: "2026-07-20" }).success, false);
++        assert.equal(CreateSessionDto.safeParse({ name: "2025/2026", startDate: "2025-09-01", endDate: "2026-07-20", isCurrent: true }).success, false);
++    });
++    it("updates need one field; a term cannot be renamed", () => {
++        assert.equal(UpdateSessionDto.safeParse({}).success, false);
++        assert.equal(UpdateTermDto.safeParse({}).success, false);
++        assert.equal(UpdateTermDto.safeParse({ name: "second" }).success, false);
++        assert.equal(CreateTermDto.safeParse({ sessionId: SID, name: "fourth", startDate: "2025-09-01", endDate: "2025-12-15" }).success, false);
++    });
++    it("carryForward defaults to true, also with no body", () => {
++        assert.deepEqual(SetCurrentTermDto.parse(undefined), { carryForward: true });
++        assert.deepEqual(SetCurrentTermDto.parse({}), { carryForward: true });
++        assert.deepEqual(SetCurrentTermDto.parse({ carryForward: false }), { carryForward: false });
++    });
++    it("calendar dto: end not before start, holiday type, blank clears", () => {
++        assert.equal(CreateCalendarEventDto.safeParse({ title: "Sports day", startDate: "2025-11-10", endDate: "2025-11-09" }).success, false);
++        assert.equal(CreateCalendarEventDto.parse({ title: "Sports day", startDate: "2025-11-10", endDate: "" }).endDate, undefined);
++        assert.equal((UpdateCalendarEventDto.parse({ description: "" }) as any).description, null);
++        assert.equal(UpdateCalendarEventDto.safeParse({}).success, false);
++        assert.equal(ListCalendarEventsQuery.safeParse({ type: "party" }).success, false);
++    });
++});
++
++describe("term roll-over planning", () => {
++    const classes = [{ id: "c1", classTeacherId: "t1" }, { id: "c2", classTeacherId: null }];
++    const subjects = [{ id: "math", defaultTeacherId: "tm" }, { id: "eng", defaultTeacherId: null }];
++    it("copies last term's teachers as they were, then fills the rest by the default rules", () => {
++        const previous = [{ classId: "c1", subjectId: "eng", staffId: "tx", assignedVia: "manual" }];
++        const { carried, seeded } = planTermAssignments({ classes, subjects, previous, existing: [], teachingModel: "homeroom" });
++        assert.deepEqual(carried, previous);
++        assert.deepEqual(seeded.map(s => `${s.classId}:${s.subjectId}:${s.staffId}:${s.assignedVia}`).sort(),
++            ["c1:math:tm:auto_subject_default", "c2:math:tm:auto_subject_default"]);   // c2 has no class teacher, so "eng" stays empty
++    });
++    it("a homeroom school uses the class teacher; other schools leave it empty", () => {
++        const a = planTermAssignments({ classes, subjects: [subjects[1]], previous: [], existing: [], teachingModel: "homeroom" });
++        assert.deepEqual(a.seeded.map(s => `${s.classId}:${s.staffId}`), ["c1:t1"]);
++        const b = planTermAssignments({ classes, subjects: [subjects[1]], previous: [], existing: [], teachingModel: "subject_specialist" });
++        assert.equal(b.seeded.length, 0);
++    });
++    it("never touches what already exists, and ignores deleted classes or subjects", () => {
++        const p = planTermAssignments({ classes, subjects, existing: [{ classId: "c1", subjectId: "math" }],
++            previous: [{ classId: "c1", subjectId: "math", staffId: "old", assignedVia: "manual" }, { classId: "gone", subjectId: "math", staffId: "s", assignedVia: "manual" }], teachingModel: null });
++        assert.equal(p.carried.length, 0);
++        assert.ok(!p.seeded.some(s => s.classId === "c1" && s.subjectId === "math"));
++    });
++    it("only students not yet enrolled are carried", () => {
++        const out = planEnrolmentCarryForward([{ studentId: "a", classId: "c1" }, { studentId: "b", classId: "c1" }], new Set(["a"]));
++        assert.deepEqual(out, [{ studentId: "b", classId: "c1" }]);
++    });
++    it("rolloverInTx uses a few set-based queries and reports counts; no previous term still seeds", async () => {
++        const calls: string[] = [];
++        const tx: any = {
++            enrolment: { findMany: async (a: any) => { calls.push("enrol.find"); return a.where.termId === "old" ? [{ studentId: "a", classId: "c1" }, { studentId: "b", classId: "c1" }] : [{ studentId: "a" }]; },
++                         createMany: async (a: any) => { calls.push(`enrol.create:${a.data.length}`); return { count: a.data.length }; } },
++            class: { findMany: async () => classes }, subject: { findMany: async () => subjects },
++            classSubject: { findMany: async () => [], createMany: async (a: any) => { calls.push(`cs.create:${a.data.length}`); return { count: a.data.length }; } },
++            schoolSettings: { findFirst: async () => ({ teachingModel: "homeroom" }) },
++        };
++        const res = await rolloverInTx(tx, "old", "new");
++        assert.equal(res.enrolmentsCarried, 1);
++        assert.deepEqual(calls.filter(c => c.startsWith("enrol.create") || c.startsWith("cs.create")), ["enrol.create:1", "cs.create:3"]);
++        const none = await rolloverInTx(tx, null, "new");
++        assert.equal(none.enrolmentsCarried, 0);
++    });
++});
++
++// ── use cases with in-memory fakes ───────────────────────────────────────────
++const sm = new SessionMapper(), tm = new TermMapper();
++const session = { id: SID, name: "2025/2026", ...r("2025-09-01", "2026-07-20"), isCurrent: false, createdAt: d("2025-01-01"), updatedAt: d("2025-01-01"),
++    terms: [{ id: TID, sessionId: SID, name: "first", ...r("2025-09-08", "2025-12-12"), isCurrent: false, createdAt: d("2025-01-01"), updatedAt: d("2025-01-01") }] };
++function fakes() {
++    const state = { created: [] as any[], updated: [] as any[], audits: [] as any[] };
++    const sessionRepository: any = {
++        findAllSessions: async () => [session], findSessionById: async (id: string) => (id === SID ? session : null), findTermById: async (id: string) => (id === TID ? session.terms[0] : null),
++        createSession: async (x: any) => { state.created.push(x); return { id: "new", isCurrent: false, createdAt: d("2025-01-01"), updatedAt: d("2025-01-01"), ...x }; },
++        createTerm: async (x: any) => { state.created.push(x); return { id: "newterm", isCurrent: false, createdAt: d("2025-01-01"), updatedAt: d("2025-01-01"), ...x }; },
++        updateSession: async (_i: string, x: any) => { state.updated.push(x); return session; }, updateTerm: async (_i: string, x: any) => { state.updated.push(x); return { ...session.terms[0], ...x }; },
++    };
++    const auditService: any = { log: async (p: any) => { state.audits.push(p); } };
++    return { state, deps: { sessionRepository, sessionMapper: sm, termMapper: tm, auditService } };
++}
++const actor = { userId: "u1" };
++
++describe("session commands", () => {
++    it("create session refuses a name already used (any capitals) and overlapping dates, naming the clash", async () => {
++        const { deps } = fakes();
++        await assert.rejects(new CreateSessionUseCase(deps).execute("s", { name: "2025/2026", startDate: "2030-09-01", endDate: "2031-07-01" }, actor), { code: "SESSION_NAME_TAKEN" });
++        await assert.rejects(new CreateSessionUseCase(deps).execute("s", { name: "2026/2027", startDate: "2026-07-01", endDate: "2027-07-01" }, actor), { code: "SESSION_DATES_OVERLAP", details: { session: "2025/2026" } });
++    });
++    it("create session saves and audits a clear year", async () => {
++        const { deps, state } = fakes();
++        const out = await new CreateSessionUseCase(deps).execute("s", { name: "2026/2027", startDate: "2026-09-01", endDate: "2027-07-20" }, actor);
++        assert.equal(out.name, "2026/2027"); assert.deepEqual(out.terms, []);
++        assert.equal(state.audits[0].action, "session.created");
++    });
++    it("a term must be inside its session, unique by name, and not overlap another term", async () => {
++        const { deps } = fakes();
++        const mk = (name: any, a: string, b: string) => new CreateTermUseCase(deps).execute("s", { sessionId: SID, name, startDate: a, endDate: b }, actor);
++        await assert.rejects(mk("second", "2026-07-01", "2026-09-01"), { code: "TERM_OUTSIDE_SESSION" });
++        await assert.rejects(mk("first", "2026-01-05", "2026-04-01"), { code: "TERM_NAME_TAKEN" });
++        await assert.rejects(mk("second", "2025-12-01", "2026-04-01"), { code: "TERM_DATES_OVERLAP" });
++        const ok = await mk("second", "2026-01-05", "2026-04-01");
++        assert.equal(ok.session?.name, "2025/2026");   // the term comes with its session's name, not only an id
++    });
++    it("shrinking a session below one of its terms is refused", async () => {
++        const { deps } = fakes();
++        await assert.rejects(new UpdateSessionUseCase(deps).execute("s", SID, { endDate: "2025-11-30" }, actor), { code: "SESSION_EXCLUDES_TERMS" });
++    });
++    it("update term writes and audits only the date that changed, with names in the audit", async () => {
++        const { deps, state } = fakes();
++        const out = await new UpdateTermUseCase(deps).execute("s", TID, { startDate: "2025-09-08", endDate: "2025-12-10" }, actor);
++        assert.deepEqual(Object.keys(state.updated[0]), ["endDate"]);
++        assert.equal(state.audits[0].oldValue.session, "2025/2026"); assert.equal(out.session?.name, "2025/2026");
++        await assert.rejects(new UpdateTermUseCase(deps).execute("s", "nope", { endDate: "2025-12-10" }, actor), { code: "NOT_FOUND" });
++    });
++});
++
++describe("calendar events", () => {
++    function calFakes() {
++        const created: any[] = [];
++        const sessionRepository: any = { findAllSessions: async () => [session], findSessionById: async (id: string) => (id === SID ? session : null), findTermById: async (id: string) => (id === TID ? session.terms[0] : null) };
++        const calendarRepository: any = { createCalendarEvent: async (x: any) => { created.push(x); return { id: "e1", createdAt: d("2025-01-01"), updatedAt: d("2025-01-01"), description: null, endDate: null, ...x }; } };
++        const audits: any[] = []; const auditService: any = { log: async (p: any) => audits.push(p) };
++        return { created, deps: { calendarRepository, sessionRepository, calendarEventMapper: new CalendarEventMapper(), auditService } };
++    }
++    it("saves only real columns (no calendarId), derives the session from the term, and answers with names", async () => {
++        const { deps, created } = calFakes();
++        const out = await new CreateCalendarEventUseCase(deps).execute("s", { title: "Mid-term break", type: "holiday", startDate: "2025-10-20", termId: TID } as any, actor);
++        assert.equal(created[0].isHoliday, true); assert.equal(created[0].sessionId, SID); assert.equal(created[0].createdById, "u1");
++        assert.ok(!("calendarId" in created[0]));
++        assert.deepEqual(out.term, { id: TID, name: "first" }); assert.deepEqual(out.session, { id: SID, name: "2025/2026" });
++    });
++    it("refuses a term and a session that do not match, and unknown terms", async () => {
++        const { deps } = calFakes();
++        await assert.rejects(new CreateCalendarEventUseCase(deps).execute("s", { title: "x", type: "event", startDate: "2025-10-20", termId: TID, sessionId: "33333333-3333-4333-8333-333333333333" } as any, actor), { code: "EVENT_SCOPE_MISMATCH" });
++        await assert.rejects(new CreateCalendarEventUseCase(deps).execute("s", { title: "x", type: "event", startDate: "2025-10-20", termId: "44444444-4444-4444-8444-444444444444" } as any, actor), { code: "NOT_FOUND" });
++    });
++});

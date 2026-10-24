@@ -1,169 +1,47 @@
 import { Request, Response, NextFunction } from "express";
-import { GetSessionsUseCase }        from "../usecases/get-sessions.usecase";
-import { GetCurrentSessionUseCase }  from "../usecases/get-current-session.usecase";
-import { CreateSessionUseCase }      from "../usecases/create-session.usecase";
-import { SetCurrentSessionUseCase }  from "../usecases/set-current-session.usecase";
-import { CreateTermUseCase }         from "../usecases/create-term.usecase";
-import { UpdateTermUseCase }         from "../usecases/update-term.usecase";
-import { SetCurrentTermUseCase }     from "../usecases/set-current-term.usecase";
-
-import { CreateCalendarEventUseCase } from "../usecases/create-calendar-event.usecase";
-import { GetCalendarEventsUseCase }   from "../usecases/get-calendar-events.usecase";
-import {
-    sendSuccess,
-    sendCreated,
-}                                    from "../../../shared/utils/api-response";
+import { ListSessionsUseCase, GetCurrentAcademicYearUseCase } from "../usecases/session-queries.usecases";
+import { CreateSessionUseCase, UpdateSessionUseCase, CreateTermUseCase, UpdateTermUseCase } from "../usecases/session-commands.usecases";
+import { SetCurrentSessionUseCase, SetCurrentTermUseCase } from "../usecases/set-current.usecases";
+import { ListCalendarEventsUseCase, CreateCalendarEventUseCase, UpdateCalendarEventUseCase, DeleteCalendarEventUseCase } from "../usecases/calendar.usecases";
+import { sendSuccess, sendCreated } from "../../../shared/utils/api-response";
+import { ListCalendarEventsQuery } from "../dtos/calendar.dto";
+import { sessionErrors } from "../domain/session.errors";
+import { SessionActor } from "../domain/session.types";
 
 interface Dependencies {
-    getSessionsUseCase:       GetSessionsUseCase;
-    getCurrentSessionUseCase: GetCurrentSessionUseCase;
-    createSessionUseCase:     CreateSessionUseCase;
-    setCurrentSessionUseCase: SetCurrentSessionUseCase;
-    createTermUseCase:        CreateTermUseCase;
-    updateTermUseCase:        UpdateTermUseCase;
-    setCurrentTermUseCase:    SetCurrentTermUseCase;
-    
-    getCalendarEventsUseCase: GetCalendarEventsUseCase;
-    createCalendarEventUseCase: CreateCalendarEventUseCase;
+    listSessionsUseCase: ListSessionsUseCase; getCurrentAcademicYearUseCase: GetCurrentAcademicYearUseCase;
+    createSessionUseCase: CreateSessionUseCase; updateSessionUseCase: UpdateSessionUseCase;
+    createTermUseCase: CreateTermUseCase; updateTermUseCase: UpdateTermUseCase;
+    setCurrentSessionUseCase: SetCurrentSessionUseCase; setCurrentTermUseCase: SetCurrentTermUseCase;
+    listCalendarEventsUseCase: ListCalendarEventsUseCase; createCalendarEventUseCase: CreateCalendarEventUseCase;
+    updateCalendarEventUseCase: UpdateCalendarEventUseCase; deleteCalendarEventUseCase: DeleteCalendarEventUseCase;
 }
+
+/*
+| SESSION CONTROLLER (school realm, /sessions). The school is the host's school; the acting person comes ONLY
+| from the verified session (req.auth), never from the body or URL.
+*/
+const schoolIdOf = (req: Request): string => req.schoolId as string;
+const param = (req: Request, name: string): string => String(req.params[name]);
+const actorOf = (req: Request): SessionActor => { if (!req.auth) throw sessionErrors.sessionNotFound(); return { userId: req.auth.userId }; };
 
 export class SessionController {
-    private readonly getSessionsUseCase:       GetSessionsUseCase;
-    private readonly getCurrentSessionUseCase: GetCurrentSessionUseCase;
-    private readonly createSessionUseCase:     CreateSessionUseCase;
-    private readonly setCurrentSessionUseCase: SetCurrentSessionUseCase;
-    private readonly createTermUseCase:        CreateTermUseCase;
-    private readonly updateTermUseCase:        UpdateTermUseCase;
-    private readonly setCurrentTermUseCase:    SetCurrentTermUseCase;
+    constructor(private readonly d: Dependencies) {}
 
-    private readonly getCalendarEventsUseCase: GetCalendarEventsUseCase;
-    private readonly createCalendarEventUseCase: CreateCalendarEventUseCase;
+    list    = async (_q: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.listSessionsUseCase.execute(), "Sessions retrieved successfully"); } catch (e) { next(e); } };
+    current = async (_q: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.getCurrentAcademicYearUseCase.execute(), "Current session retrieved successfully"); } catch (e) { next(e); } };
 
-    constructor({
-        getSessionsUseCase,
-        getCurrentSessionUseCase,
-        createSessionUseCase,
-        setCurrentSessionUseCase,
-        createTermUseCase,
-        updateTermUseCase,
-        setCurrentTermUseCase,
-        getCalendarEventsUseCase,
-        createCalendarEventUseCase,
-    }: Dependencies) {
-        this.getSessionsUseCase       = getSessionsUseCase;
-        this.getCurrentSessionUseCase = getCurrentSessionUseCase;
-        this.createSessionUseCase     = createSessionUseCase;
-        this.setCurrentSessionUseCase = setCurrentSessionUseCase;
-        this.createTermUseCase        = createTermUseCase;
-        this.updateTermUseCase        = updateTermUseCase;
-        this.setCurrentTermUseCase    = setCurrentTermUseCase;
+    createSession = async (req: Request, res: Response, next: NextFunction) => { try { sendCreated(res, await this.d.createSessionUseCase.execute(schoolIdOf(req), req.body, actorOf(req)), "Session created successfully"); } catch (e) { next(e); } };
+    updateSession = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.updateSessionUseCase.execute(schoolIdOf(req), param(req, "id"), req.body, actorOf(req)), "Session updated successfully"); } catch (e) { next(e); } };
+    setCurrentSession = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.setCurrentSessionUseCase.execute(schoolIdOf(req), param(req, "id"), actorOf(req)), "Current session updated successfully"); } catch (e) { next(e); } };
 
-        this.getCalendarEventsUseCase = getCalendarEventsUseCase;
-        this.createCalendarEventUseCase = createCalendarEventUseCase;
-    }
+    createTerm = async (req: Request, res: Response, next: NextFunction) => { try { sendCreated(res, await this.d.createTermUseCase.execute(schoolIdOf(req), req.body, actorOf(req)), "Term created successfully"); } catch (e) { next(e); } };
+    updateTerm = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.updateTermUseCase.execute(schoolIdOf(req), param(req, "termId"), req.body, actorOf(req)), "Term updated successfully"); } catch (e) { next(e); } };
+    setCurrentTerm = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.setCurrentTermUseCase.execute(schoolIdOf(req), param(req, "termId"), req.body ?? { carryForward: true }, actorOf(req)), "Current term updated successfully"); } catch (e) { next(e); } };
 
-    // ── Get all sessions ──────────────────────────────────────────────────
-    getSessions = async (
-        req: Request, res: Response, next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.getSessionsUseCase.execute();
-            sendSuccess(res, result, "Sessions retrieved successfully");
-        } catch (err) { next(err); }
-    };
-
-    // ── Get current session + term ────────────────────────────────────────
-    getCurrentSession = async (
-        req: Request, res: Response, next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.getCurrentSessionUseCase.execute();
-            sendSuccess(res, result, "Current session retrieved successfully");
-        } catch (err) { next(err); }
-    };
-
-    // ── Create session ────────────────────────────────────────────────────
-    createSession = async (
-        req: Request, res: Response, next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.createSessionUseCase.execute(req.body);
-            sendCreated(res, result, "Session created successfully");
-        } catch (err) { next(err); }
-    };
-
-    // ── Set current session ───────────────────────────────────────────────
-    setCurrentSession = async (
-        req: Request, res: Response, next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.setCurrentSessionUseCase.execute(
-                req.params.id as string,
-            );
-            sendSuccess(res, result, "Current session updated successfully");
-        } catch (err) { next(err); }
-    };
-
-    // ── Create term ───────────────────────────────────────────────────────
-    createTerm = async (
-        req: Request, res: Response, next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.createTermUseCase.execute(req.body);
-            sendCreated(res, result, "Term created successfully");
-        } catch (err) { next(err); }
-    };
-
-    // ── Update term ───────────────────────────────────────────────────────
-    updateTerm = async (
-        req: Request, res: Response, next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.updateTermUseCase.execute(
-                req.params.termId as string,
-                req.body,
-            );
-            sendSuccess(res, result, "Term updated successfully");
-        } catch (err) { next(err); }
-    };
-
-    // ── Set current term ──────────────────────────────────────────────────
-    setCurrentTerm = async (
-        req: Request, res: Response, next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.setCurrentTermUseCase.execute(
-                req.params.termId as string,
-            );
-            sendSuccess(res, result, "Current term updated successfully");
-        } catch (err) { next(err); }
-    };
-
-
-    getCalendarEvents = async (
-        req: Request, res: Response, next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.getCalendarEventsUseCase.execute(
-                req.query as any,
-            );
-            sendSuccess(res, result, "Calendar events retrieved successfully");
-        } catch (err) { next(err); }
-    };
-    
-    createCalendarEvent = async (
-        req: Request, res: Response, next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.createCalendarEventUseCase.execute(
-                req.body,
-                req.user!.id,
-            );
-            sendCreated(res, result, "Calendar event created successfully");
-        } catch (err) { next(err); }
-    };
-
-
+    // The validate middleware does not write query values back, so the calendar query is parsed here
+    listEvents = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.listCalendarEventsUseCase.execute(ListCalendarEventsQuery.parse(req.query)), "Calendar events retrieved successfully"); } catch (e) { next(e); } };
+    createEvent = async (req: Request, res: Response, next: NextFunction) => { try { sendCreated(res, await this.d.createCalendarEventUseCase.execute(schoolIdOf(req), req.body, actorOf(req)), "Calendar event created successfully"); } catch (e) { next(e); } };
+    updateEvent = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.updateCalendarEventUseCase.execute(schoolIdOf(req), param(req, "eventId"), req.body, actorOf(req)), "Calendar event updated successfully"); } catch (e) { next(e); } };
+    deleteEvent = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.deleteCalendarEventUseCase.execute(schoolIdOf(req), param(req, "eventId"), actorOf(req)), "Calendar event deleted successfully"); } catch (e) { next(e); } };
 }
-
-

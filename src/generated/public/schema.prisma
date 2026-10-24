@@ -1177,3 +1177,35 @@ model Feedback {
   @@index([schoolId, createdAt])
   @@index([status])
 }
+
+// ===== FINANCE: DEFAULT CHART OF ACCOUNTS =====
+// (Finance workspace) The starting chart of accounts every new school gets a copy of.
+// Platform staff can adjust the editable rows without a deploy; the system rows (isSystem) are
+// enforced by the registry sync because the posting rules need them. Copied into each school
+// by the provisioning worker. LedgerAccountType is declared the same way in tenant.prisma
+// (identical duplicates are fine; never change the values of one without the other).
+
+enum LedgerAccountType {
+  ASSET
+  LIABILITY
+  EQUITY
+  INCOME
+  EXPENSE
+}
+
+model LedgerAccountTemplate {
+  id         String            @id @default(uuid())
+  code       String            @unique
+  name       String
+  type       LedgerAccountType
+  subtype    String            @default("GENERAL")
+  systemKey  String?           @unique
+  parentCode String?
+  isSystem   Boolean           @default(false)
+  isActive   Boolean           @default(true)
+  sortOrder  Int               @default(0)
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+
+  @@index([isActive])
+}

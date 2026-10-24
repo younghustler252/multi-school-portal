@@ -7,6 +7,7 @@ import { BRANCH_PERMISSIONS } from "../modules/branches/branches.permissions";
 import { STAFF_PERMISSIONS } from "../modules/staff/staff.permissions";
 import { STUDENT_PERMISSIONS } from "../modules/students/students.permissions";
 import { GUARDIAN_PERMISSIONS } from "../modules/guardians/guardians.permissions";
+import { SESSION_PERMISSIONS } from "../modules/sessions/sessions.permissions";
 import { AUDIT_PERMISSIONS } from "../modules/audit/audit.permissions";
 import { LEDGER_PERMISSIONS } from "../modules/ledger/ledger.permissions";
 import { FEES_PERMISSIONS } from "../modules/fees/fees.permissions";
@@ -60,6 +61,7 @@ const ALL: readonly PermissionDef[] = [
     ...STAFF_PERMISSIONS,
     ...STUDENT_PERMISSIONS,
     ...GUARDIAN_PERMISSIONS,
+    ...SESSION_PERMISSIONS,
     ...AUDIT_PERMISSIONS,
     ...LEDGER_PERMISSIONS,
     ...FEES_PERMISSIONS,

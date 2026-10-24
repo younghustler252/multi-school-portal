@@ -49,13 +49,15 @@ export class SessionRepositoryImpl
         return this.update(id, data);
     }
 
+    /** Makes one session current. The old one is cleared in the SAME transaction, so there is never no current session. */
     async setCurrentSession(id: string): Promise<SessionEntity> {
-        await this.model().updateMany({
-            where: { isCurrent: true },
-            data: { isCurrent: false },
+        await this.prisma.$transaction(async tx => {
+            await tx.session.updateMany({ where: { isCurrent: true, NOT: { id } }, data: { isCurrent: false } });
+            await tx.session.update({ where: { id }, data: { isCurrent: true } });
+            // a current term must belong to the current session
+            await tx.term.updateMany({ where: { isCurrent: true, NOT: { sessionId: id } }, data: { isCurrent: false } });
         });
-
-        return this.update(id, { isCurrent: true }, { terms: true });
+        return (await this.findSessionById(id))!;
     }
 
     async findTermById(id: string): Promise<TermEntity | null> {
@@ -86,15 +88,14 @@ export class SessionRepositoryImpl
         return this.termMapper.toDomain(raw);
     }
 
+    /** Makes one term current (and its session current too) in ONE transaction. */
     async setCurrentTerm(id: string): Promise<TermEntity> {
-        await this.prisma.term.updateMany({
-            where: { isCurrent: true },
-            data: { isCurrent: false },
-        });
-
-        const raw = await this.prisma.term.update({
-            where: { id },
-            data: { isCurrent: true },
+        const raw = await this.prisma.$transaction(async tx => {
+            const term = await tx.term.findUniqueOrThrow({ where: { id } });
+            await tx.term.updateMany({ where: { isCurrent: true, NOT: { id } }, data: { isCurrent: false } });
+            await tx.session.updateMany({ where: { isCurrent: true, NOT: { id: term.sessionId } }, data: { isCurrent: false } });
+            await tx.session.update({ where: { id: term.sessionId }, data: { isCurrent: true } });
+            return tx.term.update({ where: { id }, data: { isCurrent: true } });
         });
         return this.termMapper.toDomain(raw);
     }

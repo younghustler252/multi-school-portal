@@ -193,6 +193,11 @@ export type PlatformSettings = $Result.DefaultSelection<Prisma.$PlatformSettings
  * 
  */
 export type Feedback = $Result.DefaultSelection<Prisma.$FeedbackPayload>
+/**
+ * Model LedgerAccountTemplate
+ * 
+ */
+export type LedgerAccountTemplate = $Result.DefaultSelection<Prisma.$LedgerAccountTemplatePayload>
 
 /**
  * Enums
@@ -579,6 +584,17 @@ export const FeedbackStatus: {
 
 export type FeedbackStatus = (typeof FeedbackStatus)[keyof typeof FeedbackStatus]
 
+
+export const LedgerAccountType: {
+  ASSET: 'ASSET',
+  LIABILITY: 'LIABILITY',
+  EQUITY: 'EQUITY',
+  INCOME: 'INCOME',
+  EXPENSE: 'EXPENSE'
+};
+
+export type LedgerAccountType = (typeof LedgerAccountType)[keyof typeof LedgerAccountType]
+
 }
 
 export type LegacyPlatformRole = $Enums.LegacyPlatformRole
@@ -732,6 +748,10 @@ export const FeedbackType: typeof $Enums.FeedbackType
 export type FeedbackStatus = $Enums.FeedbackStatus
 
 export const FeedbackStatus: typeof $Enums.FeedbackStatus
+
+export type LedgerAccountType = $Enums.LedgerAccountType
+
+export const LedgerAccountType: typeof $Enums.LedgerAccountType
 
 /**
  * ##  Prisma Client ʲˢ
@@ -1213,6 +1233,16 @@ export class PrismaClient<
     * ```
     */
   get feedback(): Prisma.FeedbackDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.ledgerAccountTemplate`: Exposes CRUD operations for the **LedgerAccountTemplate** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more LedgerAccountTemplates
+    * const ledgerAccountTemplates = await prisma.ledgerAccountTemplate.findMany()
+    * ```
+    */
+  get ledgerAccountTemplate(): Prisma.LedgerAccountTemplateDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1263,8 +1293,8 @@ export namespace Prisma {
   export import Exact = $Public.Exact
 
   /**
-   * Prisma Client JS version: 7.9.0
-   * Query Engine version: e922089b7d7502aff4249d5da3420f6fa55fc6ad
+   * Prisma Client JS version: 7.10.1
+   * Query Engine version: d1b3f377ca835d73fd50954a5e22128b9ebdd6b8
    */
   export type PrismaVersion = {
     client: string
@@ -1695,7 +1725,8 @@ export namespace Prisma {
     PlatformNotification: 'PlatformNotification',
     PlatformNotificationRecipient: 'PlatformNotificationRecipient',
     PlatformSettings: 'PlatformSettings',
-    Feedback: 'Feedback'
+    Feedback: 'Feedback',
+    LedgerAccountTemplate: 'LedgerAccountTemplate'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1711,7 +1742,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "school" | "schoolDocument" | "user" | "userSchool" | "otp" | "refreshToken" | "invite" | "plan" | "subscription" | "coupon" | "billingHistory" | "subscriptionInvoice" | "subscriptionInvoiceItem" | "paymentAttempt" | "paymentMethod" | "webhookEvent" | "billingNotice" | "platformSequence" | "platformRole" | "platformRolePermission" | "platformMember" | "platformMemberRole" | "permissionDefinition" | "roleTemplate" | "roleTemplatePermission" | "featureDefinition" | "planEntitlement" | "schoolEntitlementOverride" | "settingDefinition" | "automationRuleDefinition" | "messageTemplate" | "auditLog" | "platformNotification" | "platformNotificationRecipient" | "platformSettings" | "feedback"
+      modelProps: "school" | "schoolDocument" | "user" | "userSchool" | "otp" | "refreshToken" | "invite" | "plan" | "subscription" | "coupon" | "billingHistory" | "subscriptionInvoice" | "subscriptionInvoiceItem" | "paymentAttempt" | "paymentMethod" | "webhookEvent" | "billingNotice" | "platformSequence" | "platformRole" | "platformRolePermission" | "platformMember" | "platformMemberRole" | "permissionDefinition" | "roleTemplate" | "roleTemplatePermission" | "featureDefinition" | "planEntitlement" | "schoolEntitlementOverride" | "settingDefinition" | "automationRuleDefinition" | "messageTemplate" | "auditLog" | "platformNotification" | "platformNotificationRecipient" | "platformSettings" | "feedback" | "ledgerAccountTemplate"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -4379,6 +4410,80 @@ export namespace Prisma {
           }
         }
       }
+      LedgerAccountTemplate: {
+        payload: Prisma.$LedgerAccountTemplatePayload<ExtArgs>
+        fields: Prisma.LedgerAccountTemplateFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.LedgerAccountTemplateFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LedgerAccountTemplatePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.LedgerAccountTemplateFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LedgerAccountTemplatePayload>
+          }
+          findFirst: {
+            args: Prisma.LedgerAccountTemplateFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LedgerAccountTemplatePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.LedgerAccountTemplateFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LedgerAccountTemplatePayload>
+          }
+          findMany: {
+            args: Prisma.LedgerAccountTemplateFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LedgerAccountTemplatePayload>[]
+          }
+          create: {
+            args: Prisma.LedgerAccountTemplateCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LedgerAccountTemplatePayload>
+          }
+          createMany: {
+            args: Prisma.LedgerAccountTemplateCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.LedgerAccountTemplateCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LedgerAccountTemplatePayload>[]
+          }
+          delete: {
+            args: Prisma.LedgerAccountTemplateDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LedgerAccountTemplatePayload>
+          }
+          update: {
+            args: Prisma.LedgerAccountTemplateUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LedgerAccountTemplatePayload>
+          }
+          deleteMany: {
+            args: Prisma.LedgerAccountTemplateDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.LedgerAccountTemplateUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.LedgerAccountTemplateUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LedgerAccountTemplatePayload>[]
+          }
+          upsert: {
+            args: Prisma.LedgerAccountTemplateUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LedgerAccountTemplatePayload>
+          }
+          aggregate: {
+            args: Prisma.LedgerAccountTemplateAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateLedgerAccountTemplate>
+          }
+          groupBy: {
+            args: Prisma.LedgerAccountTemplateGroupByArgs<ExtArgs>
+            result: $Utils.Optional<LedgerAccountTemplateGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.LedgerAccountTemplateCountArgs<ExtArgs>
+            result: $Utils.Optional<LedgerAccountTemplateCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -4538,6 +4643,7 @@ export namespace Prisma {
     platformNotificationRecipient?: PlatformNotificationRecipientOmit
     platformSettings?: PlatformSettingsOmit
     feedback?: FeedbackOmit
+    ledgerAccountTemplate?: LedgerAccountTemplateOmit
   }
 
   /* Types for Logging */
@@ -48493,6 +48599,1131 @@ export namespace Prisma {
 
 
   /**
+   * Model LedgerAccountTemplate
+   */
+
+  export type AggregateLedgerAccountTemplate = {
+    _count: LedgerAccountTemplateCountAggregateOutputType | null
+    _avg: LedgerAccountTemplateAvgAggregateOutputType | null
+    _sum: LedgerAccountTemplateSumAggregateOutputType | null
+    _min: LedgerAccountTemplateMinAggregateOutputType | null
+    _max: LedgerAccountTemplateMaxAggregateOutputType | null
+  }
+
+  export type LedgerAccountTemplateAvgAggregateOutputType = {
+    sortOrder: number | null
+  }
+
+  export type LedgerAccountTemplateSumAggregateOutputType = {
+    sortOrder: number | null
+  }
+
+  export type LedgerAccountTemplateMinAggregateOutputType = {
+    id: string | null
+    code: string | null
+    name: string | null
+    type: $Enums.LedgerAccountType | null
+    subtype: string | null
+    systemKey: string | null
+    parentCode: string | null
+    isSystem: boolean | null
+    isActive: boolean | null
+    sortOrder: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type LedgerAccountTemplateMaxAggregateOutputType = {
+    id: string | null
+    code: string | null
+    name: string | null
+    type: $Enums.LedgerAccountType | null
+    subtype: string | null
+    systemKey: string | null
+    parentCode: string | null
+    isSystem: boolean | null
+    isActive: boolean | null
+    sortOrder: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type LedgerAccountTemplateCountAggregateOutputType = {
+    id: number
+    code: number
+    name: number
+    type: number
+    subtype: number
+    systemKey: number
+    parentCode: number
+    isSystem: number
+    isActive: number
+    sortOrder: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type LedgerAccountTemplateAvgAggregateInputType = {
+    sortOrder?: true
+  }
+
+  export type LedgerAccountTemplateSumAggregateInputType = {
+    sortOrder?: true
+  }
+
+  export type LedgerAccountTemplateMinAggregateInputType = {
+    id?: true
+    code?: true
+    name?: true
+    type?: true
+    subtype?: true
+    systemKey?: true
+    parentCode?: true
+    isSystem?: true
+    isActive?: true
+    sortOrder?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type LedgerAccountTemplateMaxAggregateInputType = {
+    id?: true
+    code?: true
+    name?: true
+    type?: true
+    subtype?: true
+    systemKey?: true
+    parentCode?: true
+    isSystem?: true
+    isActive?: true
+    sortOrder?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type LedgerAccountTemplateCountAggregateInputType = {
+    id?: true
+    code?: true
+    name?: true
+    type?: true
+    subtype?: true
+    systemKey?: true
+    parentCode?: true
+    isSystem?: true
+    isActive?: true
+    sortOrder?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type LedgerAccountTemplateAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LedgerAccountTemplate to aggregate.
+     */
+    where?: LedgerAccountTemplateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LedgerAccountTemplates to fetch.
+     */
+    orderBy?: LedgerAccountTemplateOrderByWithRelationInput | LedgerAccountTemplateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: LedgerAccountTemplateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LedgerAccountTemplates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LedgerAccountTemplates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned LedgerAccountTemplates
+    **/
+    _count?: true | LedgerAccountTemplateCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: LedgerAccountTemplateAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: LedgerAccountTemplateSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: LedgerAccountTemplateMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: LedgerAccountTemplateMaxAggregateInputType
+  }
+
+  export type GetLedgerAccountTemplateAggregateType<T extends LedgerAccountTemplateAggregateArgs> = {
+        [P in keyof T & keyof AggregateLedgerAccountTemplate]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateLedgerAccountTemplate[P]>
+      : GetScalarType<T[P], AggregateLedgerAccountTemplate[P]>
+  }
+
+
+
+
+  export type LedgerAccountTemplateGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LedgerAccountTemplateWhereInput
+    orderBy?: LedgerAccountTemplateOrderByWithAggregationInput | LedgerAccountTemplateOrderByWithAggregationInput[]
+    by: LedgerAccountTemplateScalarFieldEnum[] | LedgerAccountTemplateScalarFieldEnum
+    having?: LedgerAccountTemplateScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: LedgerAccountTemplateCountAggregateInputType | true
+    _avg?: LedgerAccountTemplateAvgAggregateInputType
+    _sum?: LedgerAccountTemplateSumAggregateInputType
+    _min?: LedgerAccountTemplateMinAggregateInputType
+    _max?: LedgerAccountTemplateMaxAggregateInputType
+  }
+
+  export type LedgerAccountTemplateGroupByOutputType = {
+    id: string
+    code: string
+    name: string
+    type: $Enums.LedgerAccountType
+    subtype: string
+    systemKey: string | null
+    parentCode: string | null
+    isSystem: boolean
+    isActive: boolean
+    sortOrder: number
+    createdAt: Date
+    updatedAt: Date
+    _count: LedgerAccountTemplateCountAggregateOutputType | null
+    _avg: LedgerAccountTemplateAvgAggregateOutputType | null
+    _sum: LedgerAccountTemplateSumAggregateOutputType | null
+    _min: LedgerAccountTemplateMinAggregateOutputType | null
+    _max: LedgerAccountTemplateMaxAggregateOutputType | null
+  }
+
+  type GetLedgerAccountTemplateGroupByPayload<T extends LedgerAccountTemplateGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<LedgerAccountTemplateGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof LedgerAccountTemplateGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], LedgerAccountTemplateGroupByOutputType[P]>
+            : GetScalarType<T[P], LedgerAccountTemplateGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type LedgerAccountTemplateSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    code?: boolean
+    name?: boolean
+    type?: boolean
+    subtype?: boolean
+    systemKey?: boolean
+    parentCode?: boolean
+    isSystem?: boolean
+    isActive?: boolean
+    sortOrder?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["ledgerAccountTemplate"]>
+
+  export type LedgerAccountTemplateSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    code?: boolean
+    name?: boolean
+    type?: boolean
+    subtype?: boolean
+    systemKey?: boolean
+    parentCode?: boolean
+    isSystem?: boolean
+    isActive?: boolean
+    sortOrder?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["ledgerAccountTemplate"]>
+
+  export type LedgerAccountTemplateSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    code?: boolean
+    name?: boolean
+    type?: boolean
+    subtype?: boolean
+    systemKey?: boolean
+    parentCode?: boolean
+    isSystem?: boolean
+    isActive?: boolean
+    sortOrder?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["ledgerAccountTemplate"]>
+
+  export type LedgerAccountTemplateSelectScalar = {
+    id?: boolean
+    code?: boolean
+    name?: boolean
+    type?: boolean
+    subtype?: boolean
+    systemKey?: boolean
+    parentCode?: boolean
+    isSystem?: boolean
+    isActive?: boolean
+    sortOrder?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type LedgerAccountTemplateOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "code" | "name" | "type" | "subtype" | "systemKey" | "parentCode" | "isSystem" | "isActive" | "sortOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["ledgerAccountTemplate"]>
+
+  export type $LedgerAccountTemplatePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "LedgerAccountTemplate"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      code: string
+      name: string
+      type: $Enums.LedgerAccountType
+      subtype: string
+      systemKey: string | null
+      parentCode: string | null
+      isSystem: boolean
+      isActive: boolean
+      sortOrder: number
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["ledgerAccountTemplate"]>
+    composites: {}
+  }
+
+  type LedgerAccountTemplateGetPayload<S extends boolean | null | undefined | LedgerAccountTemplateDefaultArgs> = $Result.GetResult<Prisma.$LedgerAccountTemplatePayload, S>
+
+  type LedgerAccountTemplateCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<LedgerAccountTemplateFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: LedgerAccountTemplateCountAggregateInputType | true
+    }
+
+  export interface LedgerAccountTemplateDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['LedgerAccountTemplate'], meta: { name: 'LedgerAccountTemplate' } }
+    /**
+     * Find zero or one LedgerAccountTemplate that matches the filter.
+     * @param {LedgerAccountTemplateFindUniqueArgs} args - Arguments to find a LedgerAccountTemplate
+     * @example
+     * // Get one LedgerAccountTemplate
+     * const ledgerAccountTemplate = await prisma.ledgerAccountTemplate.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends LedgerAccountTemplateFindUniqueArgs>(args: SelectSubset<T, LedgerAccountTemplateFindUniqueArgs<ExtArgs>>): Prisma__LedgerAccountTemplateClient<$Result.GetResult<Prisma.$LedgerAccountTemplatePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one LedgerAccountTemplate that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {LedgerAccountTemplateFindUniqueOrThrowArgs} args - Arguments to find a LedgerAccountTemplate
+     * @example
+     * // Get one LedgerAccountTemplate
+     * const ledgerAccountTemplate = await prisma.ledgerAccountTemplate.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends LedgerAccountTemplateFindUniqueOrThrowArgs>(args: SelectSubset<T, LedgerAccountTemplateFindUniqueOrThrowArgs<ExtArgs>>): Prisma__LedgerAccountTemplateClient<$Result.GetResult<Prisma.$LedgerAccountTemplatePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LedgerAccountTemplate that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LedgerAccountTemplateFindFirstArgs} args - Arguments to find a LedgerAccountTemplate
+     * @example
+     * // Get one LedgerAccountTemplate
+     * const ledgerAccountTemplate = await prisma.ledgerAccountTemplate.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends LedgerAccountTemplateFindFirstArgs>(args?: SelectSubset<T, LedgerAccountTemplateFindFirstArgs<ExtArgs>>): Prisma__LedgerAccountTemplateClient<$Result.GetResult<Prisma.$LedgerAccountTemplatePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LedgerAccountTemplate that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LedgerAccountTemplateFindFirstOrThrowArgs} args - Arguments to find a LedgerAccountTemplate
+     * @example
+     * // Get one LedgerAccountTemplate
+     * const ledgerAccountTemplate = await prisma.ledgerAccountTemplate.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends LedgerAccountTemplateFindFirstOrThrowArgs>(args?: SelectSubset<T, LedgerAccountTemplateFindFirstOrThrowArgs<ExtArgs>>): Prisma__LedgerAccountTemplateClient<$Result.GetResult<Prisma.$LedgerAccountTemplatePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more LedgerAccountTemplates that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LedgerAccountTemplateFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all LedgerAccountTemplates
+     * const ledgerAccountTemplates = await prisma.ledgerAccountTemplate.findMany()
+     * 
+     * // Get first 10 LedgerAccountTemplates
+     * const ledgerAccountTemplates = await prisma.ledgerAccountTemplate.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const ledgerAccountTemplateWithIdOnly = await prisma.ledgerAccountTemplate.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends LedgerAccountTemplateFindManyArgs>(args?: SelectSubset<T, LedgerAccountTemplateFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LedgerAccountTemplatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a LedgerAccountTemplate.
+     * @param {LedgerAccountTemplateCreateArgs} args - Arguments to create a LedgerAccountTemplate.
+     * @example
+     * // Create one LedgerAccountTemplate
+     * const LedgerAccountTemplate = await prisma.ledgerAccountTemplate.create({
+     *   data: {
+     *     // ... data to create a LedgerAccountTemplate
+     *   }
+     * })
+     * 
+     */
+    create<T extends LedgerAccountTemplateCreateArgs>(args: SelectSubset<T, LedgerAccountTemplateCreateArgs<ExtArgs>>): Prisma__LedgerAccountTemplateClient<$Result.GetResult<Prisma.$LedgerAccountTemplatePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many LedgerAccountTemplates.
+     * @param {LedgerAccountTemplateCreateManyArgs} args - Arguments to create many LedgerAccountTemplates.
+     * @example
+     * // Create many LedgerAccountTemplates
+     * const ledgerAccountTemplate = await prisma.ledgerAccountTemplate.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends LedgerAccountTemplateCreateManyArgs>(args?: SelectSubset<T, LedgerAccountTemplateCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many LedgerAccountTemplates and returns the data saved in the database.
+     * @param {LedgerAccountTemplateCreateManyAndReturnArgs} args - Arguments to create many LedgerAccountTemplates.
+     * @example
+     * // Create many LedgerAccountTemplates
+     * const ledgerAccountTemplate = await prisma.ledgerAccountTemplate.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many LedgerAccountTemplates and only return the `id`
+     * const ledgerAccountTemplateWithIdOnly = await prisma.ledgerAccountTemplate.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends LedgerAccountTemplateCreateManyAndReturnArgs>(args?: SelectSubset<T, LedgerAccountTemplateCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LedgerAccountTemplatePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a LedgerAccountTemplate.
+     * @param {LedgerAccountTemplateDeleteArgs} args - Arguments to delete one LedgerAccountTemplate.
+     * @example
+     * // Delete one LedgerAccountTemplate
+     * const LedgerAccountTemplate = await prisma.ledgerAccountTemplate.delete({
+     *   where: {
+     *     // ... filter to delete one LedgerAccountTemplate
+     *   }
+     * })
+     * 
+     */
+    delete<T extends LedgerAccountTemplateDeleteArgs>(args: SelectSubset<T, LedgerAccountTemplateDeleteArgs<ExtArgs>>): Prisma__LedgerAccountTemplateClient<$Result.GetResult<Prisma.$LedgerAccountTemplatePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one LedgerAccountTemplate.
+     * @param {LedgerAccountTemplateUpdateArgs} args - Arguments to update one LedgerAccountTemplate.
+     * @example
+     * // Update one LedgerAccountTemplate
+     * const ledgerAccountTemplate = await prisma.ledgerAccountTemplate.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends LedgerAccountTemplateUpdateArgs>(args: SelectSubset<T, LedgerAccountTemplateUpdateArgs<ExtArgs>>): Prisma__LedgerAccountTemplateClient<$Result.GetResult<Prisma.$LedgerAccountTemplatePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more LedgerAccountTemplates.
+     * @param {LedgerAccountTemplateDeleteManyArgs} args - Arguments to filter LedgerAccountTemplates to delete.
+     * @example
+     * // Delete a few LedgerAccountTemplates
+     * const { count } = await prisma.ledgerAccountTemplate.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends LedgerAccountTemplateDeleteManyArgs>(args?: SelectSubset<T, LedgerAccountTemplateDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LedgerAccountTemplates.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LedgerAccountTemplateUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many LedgerAccountTemplates
+     * const ledgerAccountTemplate = await prisma.ledgerAccountTemplate.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends LedgerAccountTemplateUpdateManyArgs>(args: SelectSubset<T, LedgerAccountTemplateUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LedgerAccountTemplates and returns the data updated in the database.
+     * @param {LedgerAccountTemplateUpdateManyAndReturnArgs} args - Arguments to update many LedgerAccountTemplates.
+     * @example
+     * // Update many LedgerAccountTemplates
+     * const ledgerAccountTemplate = await prisma.ledgerAccountTemplate.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more LedgerAccountTemplates and only return the `id`
+     * const ledgerAccountTemplateWithIdOnly = await prisma.ledgerAccountTemplate.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends LedgerAccountTemplateUpdateManyAndReturnArgs>(args: SelectSubset<T, LedgerAccountTemplateUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LedgerAccountTemplatePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one LedgerAccountTemplate.
+     * @param {LedgerAccountTemplateUpsertArgs} args - Arguments to update or create a LedgerAccountTemplate.
+     * @example
+     * // Update or create a LedgerAccountTemplate
+     * const ledgerAccountTemplate = await prisma.ledgerAccountTemplate.upsert({
+     *   create: {
+     *     // ... data to create a LedgerAccountTemplate
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the LedgerAccountTemplate we want to update
+     *   }
+     * })
+     */
+    upsert<T extends LedgerAccountTemplateUpsertArgs>(args: SelectSubset<T, LedgerAccountTemplateUpsertArgs<ExtArgs>>): Prisma__LedgerAccountTemplateClient<$Result.GetResult<Prisma.$LedgerAccountTemplatePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of LedgerAccountTemplates.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LedgerAccountTemplateCountArgs} args - Arguments to filter LedgerAccountTemplates to count.
+     * @example
+     * // Count the number of LedgerAccountTemplates
+     * const count = await prisma.ledgerAccountTemplate.count({
+     *   where: {
+     *     // ... the filter for the LedgerAccountTemplates we want to count
+     *   }
+     * })
+    **/
+    count<T extends LedgerAccountTemplateCountArgs>(
+      args?: Subset<T, LedgerAccountTemplateCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], LedgerAccountTemplateCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a LedgerAccountTemplate.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LedgerAccountTemplateAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends LedgerAccountTemplateAggregateArgs>(args: Subset<T, LedgerAccountTemplateAggregateArgs>): Prisma.PrismaPromise<GetLedgerAccountTemplateAggregateType<T>>
+
+    /**
+     * Group by LedgerAccountTemplate.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LedgerAccountTemplateGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends LedgerAccountTemplateGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: LedgerAccountTemplateGroupByArgs['orderBy'] }
+        : { orderBy?: LedgerAccountTemplateGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, LedgerAccountTemplateGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetLedgerAccountTemplateGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the LedgerAccountTemplate model
+   */
+  readonly fields: LedgerAccountTemplateFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for LedgerAccountTemplate.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__LedgerAccountTemplateClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the LedgerAccountTemplate model
+   */
+  interface LedgerAccountTemplateFieldRefs {
+    readonly id: FieldRef<"LedgerAccountTemplate", 'String'>
+    readonly code: FieldRef<"LedgerAccountTemplate", 'String'>
+    readonly name: FieldRef<"LedgerAccountTemplate", 'String'>
+    readonly type: FieldRef<"LedgerAccountTemplate", 'LedgerAccountType'>
+    readonly subtype: FieldRef<"LedgerAccountTemplate", 'String'>
+    readonly systemKey: FieldRef<"LedgerAccountTemplate", 'String'>
+    readonly parentCode: FieldRef<"LedgerAccountTemplate", 'String'>
+    readonly isSystem: FieldRef<"LedgerAccountTemplate", 'Boolean'>
+    readonly isActive: FieldRef<"LedgerAccountTemplate", 'Boolean'>
+    readonly sortOrder: FieldRef<"LedgerAccountTemplate", 'Int'>
+    readonly createdAt: FieldRef<"LedgerAccountTemplate", 'DateTime'>
+    readonly updatedAt: FieldRef<"LedgerAccountTemplate", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * LedgerAccountTemplate findUnique
+   */
+  export type LedgerAccountTemplateFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerAccountTemplate
+     */
+    select?: LedgerAccountTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerAccountTemplate
+     */
+    omit?: LedgerAccountTemplateOmit<ExtArgs> | null
+    /**
+     * Filter, which LedgerAccountTemplate to fetch.
+     */
+    where: LedgerAccountTemplateWhereUniqueInput
+  }
+
+  /**
+   * LedgerAccountTemplate findUniqueOrThrow
+   */
+  export type LedgerAccountTemplateFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerAccountTemplate
+     */
+    select?: LedgerAccountTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerAccountTemplate
+     */
+    omit?: LedgerAccountTemplateOmit<ExtArgs> | null
+    /**
+     * Filter, which LedgerAccountTemplate to fetch.
+     */
+    where: LedgerAccountTemplateWhereUniqueInput
+  }
+
+  /**
+   * LedgerAccountTemplate findFirst
+   */
+  export type LedgerAccountTemplateFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerAccountTemplate
+     */
+    select?: LedgerAccountTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerAccountTemplate
+     */
+    omit?: LedgerAccountTemplateOmit<ExtArgs> | null
+    /**
+     * Filter, which LedgerAccountTemplate to fetch.
+     */
+    where?: LedgerAccountTemplateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LedgerAccountTemplates to fetch.
+     */
+    orderBy?: LedgerAccountTemplateOrderByWithRelationInput | LedgerAccountTemplateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LedgerAccountTemplates.
+     */
+    cursor?: LedgerAccountTemplateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LedgerAccountTemplates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LedgerAccountTemplates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LedgerAccountTemplates.
+     */
+    distinct?: LedgerAccountTemplateScalarFieldEnum | LedgerAccountTemplateScalarFieldEnum[]
+  }
+
+  /**
+   * LedgerAccountTemplate findFirstOrThrow
+   */
+  export type LedgerAccountTemplateFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerAccountTemplate
+     */
+    select?: LedgerAccountTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerAccountTemplate
+     */
+    omit?: LedgerAccountTemplateOmit<ExtArgs> | null
+    /**
+     * Filter, which LedgerAccountTemplate to fetch.
+     */
+    where?: LedgerAccountTemplateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LedgerAccountTemplates to fetch.
+     */
+    orderBy?: LedgerAccountTemplateOrderByWithRelationInput | LedgerAccountTemplateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LedgerAccountTemplates.
+     */
+    cursor?: LedgerAccountTemplateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LedgerAccountTemplates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LedgerAccountTemplates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LedgerAccountTemplates.
+     */
+    distinct?: LedgerAccountTemplateScalarFieldEnum | LedgerAccountTemplateScalarFieldEnum[]
+  }
+
+  /**
+   * LedgerAccountTemplate findMany
+   */
+  export type LedgerAccountTemplateFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerAccountTemplate
+     */
+    select?: LedgerAccountTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerAccountTemplate
+     */
+    omit?: LedgerAccountTemplateOmit<ExtArgs> | null
+    /**
+     * Filter, which LedgerAccountTemplates to fetch.
+     */
+    where?: LedgerAccountTemplateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LedgerAccountTemplates to fetch.
+     */
+    orderBy?: LedgerAccountTemplateOrderByWithRelationInput | LedgerAccountTemplateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing LedgerAccountTemplates.
+     */
+    cursor?: LedgerAccountTemplateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LedgerAccountTemplates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LedgerAccountTemplates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LedgerAccountTemplates.
+     */
+    distinct?: LedgerAccountTemplateScalarFieldEnum | LedgerAccountTemplateScalarFieldEnum[]
+  }
+
+  /**
+   * LedgerAccountTemplate create
+   */
+  export type LedgerAccountTemplateCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerAccountTemplate
+     */
+    select?: LedgerAccountTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerAccountTemplate
+     */
+    omit?: LedgerAccountTemplateOmit<ExtArgs> | null
+    /**
+     * The data needed to create a LedgerAccountTemplate.
+     */
+    data: XOR<LedgerAccountTemplateCreateInput, LedgerAccountTemplateUncheckedCreateInput>
+  }
+
+  /**
+   * LedgerAccountTemplate createMany
+   */
+  export type LedgerAccountTemplateCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many LedgerAccountTemplates.
+     */
+    data: LedgerAccountTemplateCreateManyInput | LedgerAccountTemplateCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * LedgerAccountTemplate createManyAndReturn
+   */
+  export type LedgerAccountTemplateCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerAccountTemplate
+     */
+    select?: LedgerAccountTemplateSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerAccountTemplate
+     */
+    omit?: LedgerAccountTemplateOmit<ExtArgs> | null
+    /**
+     * The data used to create many LedgerAccountTemplates.
+     */
+    data: LedgerAccountTemplateCreateManyInput | LedgerAccountTemplateCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * LedgerAccountTemplate update
+   */
+  export type LedgerAccountTemplateUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerAccountTemplate
+     */
+    select?: LedgerAccountTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerAccountTemplate
+     */
+    omit?: LedgerAccountTemplateOmit<ExtArgs> | null
+    /**
+     * The data needed to update a LedgerAccountTemplate.
+     */
+    data: XOR<LedgerAccountTemplateUpdateInput, LedgerAccountTemplateUncheckedUpdateInput>
+    /**
+     * Choose, which LedgerAccountTemplate to update.
+     */
+    where: LedgerAccountTemplateWhereUniqueInput
+  }
+
+  /**
+   * LedgerAccountTemplate updateMany
+   */
+  export type LedgerAccountTemplateUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update LedgerAccountTemplates.
+     */
+    data: XOR<LedgerAccountTemplateUpdateManyMutationInput, LedgerAccountTemplateUncheckedUpdateManyInput>
+    /**
+     * Filter which LedgerAccountTemplates to update
+     */
+    where?: LedgerAccountTemplateWhereInput
+    /**
+     * Limit how many LedgerAccountTemplates to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * LedgerAccountTemplate updateManyAndReturn
+   */
+  export type LedgerAccountTemplateUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerAccountTemplate
+     */
+    select?: LedgerAccountTemplateSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerAccountTemplate
+     */
+    omit?: LedgerAccountTemplateOmit<ExtArgs> | null
+    /**
+     * The data used to update LedgerAccountTemplates.
+     */
+    data: XOR<LedgerAccountTemplateUpdateManyMutationInput, LedgerAccountTemplateUncheckedUpdateManyInput>
+    /**
+     * Filter which LedgerAccountTemplates to update
+     */
+    where?: LedgerAccountTemplateWhereInput
+    /**
+     * Limit how many LedgerAccountTemplates to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * LedgerAccountTemplate upsert
+   */
+  export type LedgerAccountTemplateUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerAccountTemplate
+     */
+    select?: LedgerAccountTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerAccountTemplate
+     */
+    omit?: LedgerAccountTemplateOmit<ExtArgs> | null
+    /**
+     * The filter to search for the LedgerAccountTemplate to update in case it exists.
+     */
+    where: LedgerAccountTemplateWhereUniqueInput
+    /**
+     * In case the LedgerAccountTemplate found by the `where` argument doesn't exist, create a new LedgerAccountTemplate with this data.
+     */
+    create: XOR<LedgerAccountTemplateCreateInput, LedgerAccountTemplateUncheckedCreateInput>
+    /**
+     * In case the LedgerAccountTemplate was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<LedgerAccountTemplateUpdateInput, LedgerAccountTemplateUncheckedUpdateInput>
+  }
+
+  /**
+   * LedgerAccountTemplate delete
+   */
+  export type LedgerAccountTemplateDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerAccountTemplate
+     */
+    select?: LedgerAccountTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerAccountTemplate
+     */
+    omit?: LedgerAccountTemplateOmit<ExtArgs> | null
+    /**
+     * Filter which LedgerAccountTemplate to delete.
+     */
+    where: LedgerAccountTemplateWhereUniqueInput
+  }
+
+  /**
+   * LedgerAccountTemplate deleteMany
+   */
+  export type LedgerAccountTemplateDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LedgerAccountTemplates to delete
+     */
+    where?: LedgerAccountTemplateWhereInput
+    /**
+     * Limit how many LedgerAccountTemplates to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * LedgerAccountTemplate without action
+   */
+  export type LedgerAccountTemplateDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LedgerAccountTemplate
+     */
+    select?: LedgerAccountTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LedgerAccountTemplate
+     */
+    omit?: LedgerAccountTemplateOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -49198,6 +50429,24 @@ export namespace Prisma {
   export type FeedbackScalarFieldEnum = (typeof FeedbackScalarFieldEnum)[keyof typeof FeedbackScalarFieldEnum]
 
 
+  export const LedgerAccountTemplateScalarFieldEnum: {
+    id: 'id',
+    code: 'code',
+    name: 'name',
+    type: 'type',
+    subtype: 'subtype',
+    systemKey: 'systemKey',
+    parentCode: 'parentCode',
+    isSystem: 'isSystem',
+    isActive: 'isActive',
+    sortOrder: 'sortOrder',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type LedgerAccountTemplateScalarFieldEnum = (typeof LedgerAccountTemplateScalarFieldEnum)[keyof typeof LedgerAccountTemplateScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -49843,6 +51092,20 @@ export namespace Prisma {
    * Reference to a field of type 'FeedbackStatus[]'
    */
   export type ListEnumFeedbackStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FeedbackStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'LedgerAccountType'
+   */
+  export type EnumLedgerAccountTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LedgerAccountType'>
+    
+
+
+  /**
+   * Reference to a field of type 'LedgerAccountType[]'
+   */
+  export type ListEnumLedgerAccountTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LedgerAccountType[]'>
     
 
 
@@ -53461,6 +54724,95 @@ export namespace Prisma {
     response?: StringNullableWithAggregatesFilter<"Feedback"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Feedback"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Feedback"> | Date | string
+  }
+
+  export type LedgerAccountTemplateWhereInput = {
+    AND?: LedgerAccountTemplateWhereInput | LedgerAccountTemplateWhereInput[]
+    OR?: LedgerAccountTemplateWhereInput[]
+    NOT?: LedgerAccountTemplateWhereInput | LedgerAccountTemplateWhereInput[]
+    id?: StringFilter<"LedgerAccountTemplate"> | string
+    code?: StringFilter<"LedgerAccountTemplate"> | string
+    name?: StringFilter<"LedgerAccountTemplate"> | string
+    type?: EnumLedgerAccountTypeFilter<"LedgerAccountTemplate"> | $Enums.LedgerAccountType
+    subtype?: StringFilter<"LedgerAccountTemplate"> | string
+    systemKey?: StringNullableFilter<"LedgerAccountTemplate"> | string | null
+    parentCode?: StringNullableFilter<"LedgerAccountTemplate"> | string | null
+    isSystem?: BoolFilter<"LedgerAccountTemplate"> | boolean
+    isActive?: BoolFilter<"LedgerAccountTemplate"> | boolean
+    sortOrder?: IntFilter<"LedgerAccountTemplate"> | number
+    createdAt?: DateTimeFilter<"LedgerAccountTemplate"> | Date | string
+    updatedAt?: DateTimeFilter<"LedgerAccountTemplate"> | Date | string
+  }
+
+  export type LedgerAccountTemplateOrderByWithRelationInput = {
+    id?: SortOrder
+    code?: SortOrder
+    name?: SortOrder
+    type?: SortOrder
+    subtype?: SortOrder
+    systemKey?: SortOrderInput | SortOrder
+    parentCode?: SortOrderInput | SortOrder
+    isSystem?: SortOrder
+    isActive?: SortOrder
+    sortOrder?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LedgerAccountTemplateWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    code?: string
+    systemKey?: string
+    AND?: LedgerAccountTemplateWhereInput | LedgerAccountTemplateWhereInput[]
+    OR?: LedgerAccountTemplateWhereInput[]
+    NOT?: LedgerAccountTemplateWhereInput | LedgerAccountTemplateWhereInput[]
+    name?: StringFilter<"LedgerAccountTemplate"> | string
+    type?: EnumLedgerAccountTypeFilter<"LedgerAccountTemplate"> | $Enums.LedgerAccountType
+    subtype?: StringFilter<"LedgerAccountTemplate"> | string
+    parentCode?: StringNullableFilter<"LedgerAccountTemplate"> | string | null
+    isSystem?: BoolFilter<"LedgerAccountTemplate"> | boolean
+    isActive?: BoolFilter<"LedgerAccountTemplate"> | boolean
+    sortOrder?: IntFilter<"LedgerAccountTemplate"> | number
+    createdAt?: DateTimeFilter<"LedgerAccountTemplate"> | Date | string
+    updatedAt?: DateTimeFilter<"LedgerAccountTemplate"> | Date | string
+  }, "id" | "code" | "systemKey">
+
+  export type LedgerAccountTemplateOrderByWithAggregationInput = {
+    id?: SortOrder
+    code?: SortOrder
+    name?: SortOrder
+    type?: SortOrder
+    subtype?: SortOrder
+    systemKey?: SortOrderInput | SortOrder
+    parentCode?: SortOrderInput | SortOrder
+    isSystem?: SortOrder
+    isActive?: SortOrder
+    sortOrder?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: LedgerAccountTemplateCountOrderByAggregateInput
+    _avg?: LedgerAccountTemplateAvgOrderByAggregateInput
+    _max?: LedgerAccountTemplateMaxOrderByAggregateInput
+    _min?: LedgerAccountTemplateMinOrderByAggregateInput
+    _sum?: LedgerAccountTemplateSumOrderByAggregateInput
+  }
+
+  export type LedgerAccountTemplateScalarWhereWithAggregatesInput = {
+    AND?: LedgerAccountTemplateScalarWhereWithAggregatesInput | LedgerAccountTemplateScalarWhereWithAggregatesInput[]
+    OR?: LedgerAccountTemplateScalarWhereWithAggregatesInput[]
+    NOT?: LedgerAccountTemplateScalarWhereWithAggregatesInput | LedgerAccountTemplateScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"LedgerAccountTemplate"> | string
+    code?: StringWithAggregatesFilter<"LedgerAccountTemplate"> | string
+    name?: StringWithAggregatesFilter<"LedgerAccountTemplate"> | string
+    type?: EnumLedgerAccountTypeWithAggregatesFilter<"LedgerAccountTemplate"> | $Enums.LedgerAccountType
+    subtype?: StringWithAggregatesFilter<"LedgerAccountTemplate"> | string
+    systemKey?: StringNullableWithAggregatesFilter<"LedgerAccountTemplate"> | string | null
+    parentCode?: StringNullableWithAggregatesFilter<"LedgerAccountTemplate"> | string | null
+    isSystem?: BoolWithAggregatesFilter<"LedgerAccountTemplate"> | boolean
+    isActive?: BoolWithAggregatesFilter<"LedgerAccountTemplate"> | boolean
+    sortOrder?: IntWithAggregatesFilter<"LedgerAccountTemplate"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"LedgerAccountTemplate"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"LedgerAccountTemplate"> | Date | string
   }
 
   export type SchoolCreateInput = {
@@ -57651,6 +59003,111 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type LedgerAccountTemplateCreateInput = {
+    id?: string
+    code: string
+    name: string
+    type: $Enums.LedgerAccountType
+    subtype?: string
+    systemKey?: string | null
+    parentCode?: string | null
+    isSystem?: boolean
+    isActive?: boolean
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type LedgerAccountTemplateUncheckedCreateInput = {
+    id?: string
+    code: string
+    name: string
+    type: $Enums.LedgerAccountType
+    subtype?: string
+    systemKey?: string | null
+    parentCode?: string | null
+    isSystem?: boolean
+    isActive?: boolean
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type LedgerAccountTemplateUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    type?: EnumLedgerAccountTypeFieldUpdateOperationsInput | $Enums.LedgerAccountType
+    subtype?: StringFieldUpdateOperationsInput | string
+    systemKey?: NullableStringFieldUpdateOperationsInput | string | null
+    parentCode?: NullableStringFieldUpdateOperationsInput | string | null
+    isSystem?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LedgerAccountTemplateUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    type?: EnumLedgerAccountTypeFieldUpdateOperationsInput | $Enums.LedgerAccountType
+    subtype?: StringFieldUpdateOperationsInput | string
+    systemKey?: NullableStringFieldUpdateOperationsInput | string | null
+    parentCode?: NullableStringFieldUpdateOperationsInput | string | null
+    isSystem?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LedgerAccountTemplateCreateManyInput = {
+    id?: string
+    code: string
+    name: string
+    type: $Enums.LedgerAccountType
+    subtype?: string
+    systemKey?: string | null
+    parentCode?: string | null
+    isSystem?: boolean
+    isActive?: boolean
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type LedgerAccountTemplateUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    type?: EnumLedgerAccountTypeFieldUpdateOperationsInput | $Enums.LedgerAccountType
+    subtype?: StringFieldUpdateOperationsInput | string
+    systemKey?: NullableStringFieldUpdateOperationsInput | string | null
+    parentCode?: NullableStringFieldUpdateOperationsInput | string | null
+    isSystem?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LedgerAccountTemplateUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    type?: EnumLedgerAccountTypeFieldUpdateOperationsInput | $Enums.LedgerAccountType
+    subtype?: StringFieldUpdateOperationsInput | string
+    systemKey?: NullableStringFieldUpdateOperationsInput | string | null
+    parentCode?: NullableStringFieldUpdateOperationsInput | string | null
+    isSystem?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -60893,6 +62350,76 @@ export namespace Prisma {
     _max?: NestedEnumFeedbackStatusFilter<$PrismaModel>
   }
 
+  export type EnumLedgerAccountTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.LedgerAccountType | EnumLedgerAccountTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.LedgerAccountType[] | ListEnumLedgerAccountTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.LedgerAccountType[] | ListEnumLedgerAccountTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumLedgerAccountTypeFilter<$PrismaModel> | $Enums.LedgerAccountType
+  }
+
+  export type LedgerAccountTemplateCountOrderByAggregateInput = {
+    id?: SortOrder
+    code?: SortOrder
+    name?: SortOrder
+    type?: SortOrder
+    subtype?: SortOrder
+    systemKey?: SortOrder
+    parentCode?: SortOrder
+    isSystem?: SortOrder
+    isActive?: SortOrder
+    sortOrder?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LedgerAccountTemplateAvgOrderByAggregateInput = {
+    sortOrder?: SortOrder
+  }
+
+  export type LedgerAccountTemplateMaxOrderByAggregateInput = {
+    id?: SortOrder
+    code?: SortOrder
+    name?: SortOrder
+    type?: SortOrder
+    subtype?: SortOrder
+    systemKey?: SortOrder
+    parentCode?: SortOrder
+    isSystem?: SortOrder
+    isActive?: SortOrder
+    sortOrder?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LedgerAccountTemplateMinOrderByAggregateInput = {
+    id?: SortOrder
+    code?: SortOrder
+    name?: SortOrder
+    type?: SortOrder
+    subtype?: SortOrder
+    systemKey?: SortOrder
+    parentCode?: SortOrder
+    isSystem?: SortOrder
+    isActive?: SortOrder
+    sortOrder?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LedgerAccountTemplateSumOrderByAggregateInput = {
+    sortOrder?: SortOrder
+  }
+
+  export type EnumLedgerAccountTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.LedgerAccountType | EnumLedgerAccountTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.LedgerAccountType[] | ListEnumLedgerAccountTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.LedgerAccountType[] | ListEnumLedgerAccountTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumLedgerAccountTypeWithAggregatesFilter<$PrismaModel> | $Enums.LedgerAccountType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumLedgerAccountTypeFilter<$PrismaModel>
+    _max?: NestedEnumLedgerAccountTypeFilter<$PrismaModel>
+  }
+
   export type UserCreateNestedManyWithoutSchoolInput = {
     create?: XOR<UserCreateWithoutSchoolInput, UserUncheckedCreateWithoutSchoolInput> | UserCreateWithoutSchoolInput[] | UserUncheckedCreateWithoutSchoolInput[]
     connectOrCreate?: UserCreateOrConnectWithoutSchoolInput | UserCreateOrConnectWithoutSchoolInput[]
@@ -62982,6 +64509,10 @@ export namespace Prisma {
     update?: XOR<XOR<SchoolUpdateToOneWithWhereWithoutFeedbackInput, SchoolUpdateWithoutFeedbackInput>, SchoolUncheckedUpdateWithoutFeedbackInput>
   }
 
+  export type EnumLedgerAccountTypeFieldUpdateOperationsInput = {
+    set?: $Enums.LedgerAccountType
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -63903,6 +65434,23 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumFeedbackStatusFilter<$PrismaModel>
     _max?: NestedEnumFeedbackStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumLedgerAccountTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.LedgerAccountType | EnumLedgerAccountTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.LedgerAccountType[] | ListEnumLedgerAccountTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.LedgerAccountType[] | ListEnumLedgerAccountTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumLedgerAccountTypeFilter<$PrismaModel> | $Enums.LedgerAccountType
+  }
+
+  export type NestedEnumLedgerAccountTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.LedgerAccountType | EnumLedgerAccountTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.LedgerAccountType[] | ListEnumLedgerAccountTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.LedgerAccountType[] | ListEnumLedgerAccountTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumLedgerAccountTypeWithAggregatesFilter<$PrismaModel> | $Enums.LedgerAccountType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumLedgerAccountTypeFilter<$PrismaModel>
+    _max?: NestedEnumLedgerAccountTypeFilter<$PrismaModel>
   }
 
   export type UserCreateWithoutSchoolInput = {

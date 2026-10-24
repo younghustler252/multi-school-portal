@@ -17,6 +17,10 @@ export class CalendarRepositoryImpl
         return this.create(data);
     }
 
+    async findCalendarEventById(id: string): Promise<CalendarEventEntity | null> { return this.findById(id); }
+
+    async updateCalendarEvent(id: string, data: Record<string, any>): Promise<CalendarEventEntity> { return this.update(id, data); }
+
     async findCalendarEvents(where: Record<string, any>): Promise<CalendarEventEntity[]> {
         return this.findMany(where, undefined, { startDate: "asc" });
     }
