@@ -114,3 +114,9 @@ export type TransferDtoType       = z.infer<typeof TransferDto>;
 export type ManualJournalDtoType  = z.infer<typeof ManualJournalDto>;
 export type ReverseJournalDtoType = z.infer<typeof ReverseJournalDto>;
 export type ListJournalsQueryType = z.infer<typeof ListJournalsQuery>;
+
+/* Closing a month: confirm knowingly when the checklist still shows open items. Reopening always needs a reason. */
+export const ClosePeriodDto = z.object({ acknowledgeWarnings: z.boolean().optional(), note: text(300).optional() }).strict();
+export const ReopenPeriodDto = z.object({ reason: text(300) }).strict();
+export type ClosePeriodDtoType = z.infer<typeof ClosePeriodDto>;
+export type ReopenPeriodDtoType = z.infer<typeof ReopenPeriodDto>;

@@ -18,6 +18,8 @@ import { ListAccountsUseCase, GetAccountUseCase } from "./usecases/account-queri
 import { CreateAccountUseCase, UpdateAccountUseCase, SetAccountActiveUseCase, DeleteAccountUseCase } from "./usecases/account-commands.usecases";
 import { RunLedgerIntegrityCheckUseCase, RunLedgerIntegrityForAllSchoolsUseCase } from "./usecases/ledger-integrity.usecases";
 import { LedgerIntegrityRepositoryImpl } from "./repositories/ledger-integrity.repository.impl";
+import { GetCloseChecklistUseCase, ClosePeriodUseCase, ReopenPeriodUseCase } from "./usecases/period-close.usecases";
+import { PeriodCloseRepositoryImpl } from "./repositories/period-close.repository.impl";
 import { LedgerController } from "./controllers/ledger.controller";
 
 /*
@@ -36,6 +38,7 @@ export const registerLedger = (container: AwilixContainer): void => {
         ledgerAccountRepository: asClass(LedgerAccountRepositoryImpl).scoped(),
         ledgerReportRepository:  asClass(LedgerReportRepositoryImpl).scoped(),
         ledgerIntegrityRepository: asClass(LedgerIntegrityRepositoryImpl).scoped(),
+        periodCloseRepository:     asClass(PeriodCloseRepositoryImpl).scoped(),
 
         numberSequenceService: asClass(NumberSequenceService).singleton(),
         postingService:        asClass(PostingService).scoped(),
@@ -56,6 +59,10 @@ export const registerLedger = (container: AwilixContainer): void => {
         updateAccountUseCase:      asClass(UpdateAccountUseCase).scoped(),
         setAccountActiveUseCase:   asClass(SetAccountActiveUseCase).scoped(),
         deleteAccountUseCase:      asClass(DeleteAccountUseCase).scoped(),
+
+        getCloseChecklistUseCase:  asClass(GetCloseChecklistUseCase).scoped(),
+        closePeriodUseCase:        asClass(ClosePeriodUseCase).scoped(),
+        reopenPeriodUseCase:       asClass(ReopenPeriodUseCase).scoped(),
 
         runLedgerIntegrityCheckUseCase:         asClass(RunLedgerIntegrityCheckUseCase).scoped(),
         runLedgerIntegrityForAllSchoolsUseCase: asClass(RunLedgerIntegrityForAllSchoolsUseCase).scoped(),

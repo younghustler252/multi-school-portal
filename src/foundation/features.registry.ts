@@ -61,6 +61,7 @@ export const FEATURE_REGISTRY: FeatureDef[] = [
     { key: "fees.online_payments",     kind: "BOOLEAN", module: "finance", name: "Online fee payments",     legacyFlag: "paymentCollection", requires: ["modules.fees"] },
     { key: "fees.receipts",            kind: "BOOLEAN", module: "finance", name: "Payment receipts",        legacyFlag: "paymentReceipts",   requires: ["modules.fees"] },
     { key: "modules.expenses",         kind: "BOOLEAN", module: "finance", name: "Expenses and bills" },
+    { key: "finance.reports.accountant", kind: "BOOLEAN", module: "finance", name: "Accountant reports (ledger, trial balance, statements)", requires: ["modules.fees"] },
     { key: "finance.budgets",          kind: "BOOLEAN", module: "finance", name: "Budgets", requires: ["modules.expenses"] },
 
     // ── Platform ──

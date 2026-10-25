@@ -6,7 +6,7 @@ import { authenticate } from "../../../infrastructure/middleware/auth.middleware
 import { requireTenant } from "../../../infrastructure/middleware/tenant-resolver.middleware";
 import { requirePermission } from "../../../infrastructure/middleware/rbac.middleware";
 import { requireFeature } from "../../../infrastructure/middleware/feature-gate.middleware";
-import { OpeningBalanceDto, TransferDto, ManualJournalDto, ReverseJournalDto, CreateAccountDto, UpdateAccountDto } from "../dtos/ledger.dto";
+import { ClosePeriodDto, ReopenPeriodDto, OpeningBalanceDto, TransferDto, ManualJournalDto, ReverseJournalDto, CreateAccountDto, UpdateAccountDto } from "../dtos/ledger.dto";
 
 /*
 | LEDGER ROUTES (school realm, mounted at /finance on the school's host).
@@ -20,6 +20,9 @@ import { OpeningBalanceDto, TransferDto, ManualJournalDto, ReverseJournalDto, Cr
 |   POST /journals/:id/reverse             finance.journals.reverse
 |   POST /opening-balances, /transfers     finance.journals.post
 |   GET  /periods                          finance.periods.view
+|   GET  /periods/:id/close-checklist      finance.periods.view      what stands in the way of closing the month
+|   POST /periods/:id/close                finance.periods.close     (acknowledgeWarnings when open items remain)
+|   POST /periods/:id/reopen               finance.periods.reopen    needs a written reason
 |   GET  /reports/account-balances         finance.reports.view
 |   GET  /reports/cash-book                finance.reports.view
 */
@@ -44,6 +47,9 @@ router.post("/opening-balances", ...guard("finance.journals.post"), validate(Ope
 router.post("/transfers", ...guard("finance.journals.post"), validate(TransferDto), (q, s, n) => ctrl().transfer(q, s, n));
 
 router.get("/periods", ...guard("finance.periods.view"), (q, s, n) => ctrl().periods(q, s, n));
+router.get("/periods/:id/close-checklist", ...guard("finance.periods.view"), (q, s, n) => ctrl().closeChecklist(q, s, n));
+router.post("/periods/:id/close", ...guard("finance.periods.close"), validate(ClosePeriodDto), (q, s, n) => ctrl().closePeriod(q, s, n));
+router.post("/periods/:id/reopen", ...guard("finance.periods.reopen"), validate(ReopenPeriodDto), (q, s, n) => ctrl().reopenPeriod(q, s, n));
 
 router.get("/reports/account-balances", ...guard("finance.reports.view"), (q, s, n) => ctrl().accountBalances(q, s, n));
 router.get("/reports/cash-book", ...guard("finance.reports.view"), (q, s, n) => ctrl().cashBook(q, s, n));

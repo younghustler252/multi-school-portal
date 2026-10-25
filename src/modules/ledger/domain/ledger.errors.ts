@@ -45,4 +45,15 @@ export const ledgerErrors = {
     accountInvalid:     (message: string) => new AppError(message, 400, true, "INVALID_ACCOUNT"),
     accountAlreadyActive:   (account: string) => new AppError(`${account} is already active`, 409, true, "ACCOUNT_ALREADY_ACTIVE", { account }),
     accountAlreadyInactive: (account: string) => new AppError(`${account} is already inactive`, 409, true, "ACCOUNT_ALREADY_INACTIVE", { account }),
+    periodNotFound:    () => new NotFoundError("Accounting period"),
+    periodAlreadyClosed: (period: string) => new AppError(`${period} is already closed`, 409, true, "PERIOD_ALREADY_CLOSED", { period }),
+    periodNotClosed:   (period: string) => new AppError(`${period} is not closed`, 409, true, "PERIOD_NOT_CLOSED", { period }),
+    periodNotEnded:    (period: string, endDate: string, today: string) => new AppError(
+        `${period} has not ended yet. It can be closed after ${endDate}`, 409, true, "PERIOD_NOT_ENDED", { period, endDate, today }),
+    closeBlocked:      (period: string, items: unknown[]) => new AppError(
+        `${period} cannot be closed until the problems on its checklist are fixed`, 409, true, "PERIOD_CLOSE_BLOCKED", { period, items }),
+    closeNeedsAcknowledgement: (period: string, items: unknown[]) => new AppError(
+        `${period} still has open items. Confirm that you want to close it anyway`, 409, true, "CLOSE_WARNINGS_UNACKNOWLEDGED", { period, items }),
+    reopenReasonRequired: () => new BadRequestError("A written reason is required to reopen a period"),
+    periodChanged:     () => new AppError("The period was changed by someone else. Reload and try again", 409, true, "STALE_VERSION"),
 };

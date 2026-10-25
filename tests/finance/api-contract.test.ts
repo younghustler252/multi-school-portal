@@ -18,9 +18,9 @@ describe("finance permissions", () => {
 
     it("registry is still valid with the books keys", () => assert.deepEqual(validatePermissionRegistry(), []));
 
-    it("has the 7 books keys, posting and reversing are sensitive", () => {
-        assert.equal(finance.length, 7);
-        assert.deepEqual(finance.filter(p => p.isSensitive).map(p => p.key).sort(), ["finance.journals.post", "finance.journals.reverse"]);
+    it("has the 11 books and reports keys; posting, reversing, closing and reopening are sensitive", () => {
+        assert.equal(finance.length, 11);
+        assert.deepEqual(finance.filter(p => p.isSensitive).map(p => p.key).sort(), ["finance.journals.post", "finance.journals.reverse", "finance.periods.close", "finance.periods.reopen"]);
     });
 
     it("every key a role template grants exists in the registry", () => {
@@ -33,6 +33,7 @@ describe("finance permissions", () => {
             const granted = ROLE_TEMPLATES.find(r => r.key === key)!.permissions.map(p => p.key);
             for (const k of ["finance.accounts.view", "finance.journals.view", "finance.periods.view", "finance.reports.view"]) assert.ok(granted.includes(k), `${key} lacks ${k}`);
             assert.ok(!granted.includes("finance.journals.post") && !granted.includes("finance.journals.reverse"));
+            assert.ok(!granted.includes("finance.periods.close") && !granted.includes("finance.periods.reopen"));
         }
     });
 

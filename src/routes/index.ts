@@ -19,6 +19,7 @@ import feesRouter from "../modules/fees/routes/fee-setup.routes";
 import feeInvoiceRouter from "../modules/fees/routes/fee-invoice.routes";
 import feeReportRouter from "../modules/fees/routes/fee-report.routes";
 import feeAdjustmentRouter from "../modules/fees/routes/fee-adjustment.routes";
+import financeReportRouter from "../modules/finance-reports/routes/report.routes";
 import expenseRouter from "../modules/expenses/routes/expense.routes";
 import vendorRouter from "../modules/expenses/routes/vendor.routes";
 import budgetRouter from "../modules/expenses/routes/budget.routes";
@@ -52,6 +53,7 @@ router.use("/classes", classRouter);
 // router.use("/grades", gradeRouter)
 router.use("/sessions", sessionRouter)
 // router.use("/report-cards", reportCardRouter)
+router.use("/finance", financeReportRouter);
 router.use("/expenses", expenseRouter);
 router.use("/vendors", vendorRouter);
 router.use("/budgets", budgetRouter);

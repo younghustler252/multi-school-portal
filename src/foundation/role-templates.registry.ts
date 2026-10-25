@@ -41,7 +41,7 @@ export const ROLE_TEMPLATES: RoleTemplateDef[] = [
             { key: "fees.view", scope: "ALL" }, { key: "fees.setup.view", scope: "ALL" }, { key: "fees.invoices.view", scope: "ALL" }, { key: "fees.reports.view", scope: "ALL" }, { key: "payments.view", scope: "ALL" }, { key: "staff.view", scope: "ALL" },
             { key: "expenses.view", scope: "ALL" }, { key: "expenses.approve", scope: "ALL" }, { key: "budgets.view", scope: "ALL" },
             { key: "branches.view", scope: "ALL" },
-            { key: "finance.accounts.view", scope: "ALL" }, { key: "finance.journals.view", scope: "ALL" }, { key: "finance.periods.view", scope: "ALL" }, { key: "finance.reports.view", scope: "ALL" },
+            { key: "finance.accounts.view", scope: "ALL" }, { key: "finance.journals.view", scope: "ALL" }, { key: "finance.periods.view", scope: "ALL" }, { key: "finance.reports.view", scope: "ALL" }, { key: "finance.reports.export", scope: "ALL" }, { key: "finance.reports.accountant", scope: "ALL" },
         ],
     },
     {
@@ -72,7 +72,7 @@ export const ROLE_TEMPLATES: RoleTemplateDef[] = [
             { key: "payments.view", scope: "ALL" }, { key: "payments.record", scope: "ALL" }, { key: "payments.confirm", scope: "ALL" },
             { key: "fees.adjustments.request", scope: "ALL" }, { key: "fees.reports.view", scope: "ALL" }, { key: "payments.refund.request", scope: "ALL" }, { key: "payments.settle", scope: "ALL" },
             { key: "expenses.view", scope: "ALL" }, { key: "expenses.create", scope: "ALL" }, { key: "expenses.pay", scope: "ALL" }, { key: "vendors.manage", scope: "ALL" }, { key: "budgets.view", scope: "ALL" }, { key: "budgets.manage", scope: "ALL" },
-            { key: "finance.accounts.view", scope: "ALL" }, { key: "finance.journals.view", scope: "ALL" }, { key: "finance.periods.view", scope: "ALL" }, { key: "finance.reports.view", scope: "ALL" },
+            { key: "finance.accounts.view", scope: "ALL" }, { key: "finance.journals.view", scope: "ALL" }, { key: "finance.periods.view", scope: "ALL" }, { key: "finance.reports.view", scope: "ALL" }, { key: "finance.reports.export", scope: "ALL" }, { key: "finance.reports.accountant", scope: "ALL" },
         ],
     },
     {

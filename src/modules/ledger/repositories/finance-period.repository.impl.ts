@@ -22,4 +22,16 @@ export class FinancePeriodRepositoryImpl extends BaseTenantRepository<FinancePer
     }
 
     listAll(): Promise<FinancePeriodEntity[]> { return this.findMany({}, undefined, { startDate: "desc" }); }
+
+    findById(id: string): Promise<FinancePeriodEntity | null> { return this.findOne({ id }); }
+
+    async close(id: string, userId: string, at: Date): Promise<boolean> {
+        const r = await this.model().updateMany({ where: { id, status: "OPEN" }, data: { status: "CLOSED", closedAt: at, closedById: userId } });
+        return r.count === 1;
+    }
+
+    async reopen(id: string, userId: string, reason: string, at: Date): Promise<boolean> {
+        const r = await this.model().updateMany({ where: { id, status: "CLOSED" }, data: { status: "OPEN", reopenedAt: at, reopenedById: userId, reopenReason: reason } });
+        return r.count === 1;
+    }
 }

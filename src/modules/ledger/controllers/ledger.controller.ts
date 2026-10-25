@@ -3,6 +3,7 @@ import { ListJournalsUseCase, GetJournalUseCase, ListPeriodsUseCase } from "../u
 import { PostManualJournalUseCase, ReverseJournalUseCase } from "../usecases/journal-commands.usecases";
 import { SetOpeningBalanceUseCase, RecordTransferUseCase } from "../usecases/books-commands.usecases";
 import { AccountBalancesUseCase, CashBookUseCase } from "../usecases/ledger-report.usecases";
+import { GetCloseChecklistUseCase, ClosePeriodUseCase, ReopenPeriodUseCase } from "../usecases/period-close.usecases";
 import { ListAccountsUseCase, GetAccountUseCase } from "../usecases/account-queries.usecases";
 import { CreateAccountUseCase, UpdateAccountUseCase, SetAccountActiveUseCase, DeleteAccountUseCase } from "../usecases/account-commands.usecases";
 import { sendSuccess, sendCreated } from "../../../shared/utils/api-response";
@@ -14,6 +15,7 @@ interface Dependencies {
     postManualJournalUseCase: PostManualJournalUseCase; reverseJournalUseCase: ReverseJournalUseCase;
     setOpeningBalanceUseCase: SetOpeningBalanceUseCase; recordTransferUseCase: RecordTransferUseCase;
     accountBalancesUseCase: AccountBalancesUseCase; cashBookUseCase: CashBookUseCase;
+    getCloseChecklistUseCase: GetCloseChecklistUseCase; closePeriodUseCase: ClosePeriodUseCase; reopenPeriodUseCase: ReopenPeriodUseCase;
     listAccountsUseCase: ListAccountsUseCase; getAccountUseCase: GetAccountUseCase; createAccountUseCase: CreateAccountUseCase;
     updateAccountUseCase: UpdateAccountUseCase; setAccountActiveUseCase: SetAccountActiveUseCase; deleteAccountUseCase: DeleteAccountUseCase;
 }
@@ -67,6 +69,18 @@ export class LedgerController {
 
     periods = async (_req: Request, res: Response, next: NextFunction) => {
         try { sendSuccess(res, await this.d.listPeriodsUseCase.execute(), "Periods retrieved successfully"); } catch (e) { next(e); }
+    };
+
+    closeChecklist = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.getCloseChecklistUseCase.execute(idOf(req)), "Close checklist retrieved successfully"); } catch (e) { next(e); }
+    };
+
+    closePeriod = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.closePeriodUseCase.execute(idOf(req), schoolIdOf(req), userIdOf(req), req.body), "Period closed successfully"); } catch (e) { next(e); }
+    };
+
+    reopenPeriod = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.reopenPeriodUseCase.execute(idOf(req), schoolIdOf(req), userIdOf(req), req.body), "Period reopened successfully"); } catch (e) { next(e); }
     };
 
     accountBalances = async (req: Request, res: Response, next: NextFunction) => {
