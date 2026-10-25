@@ -25,6 +25,8 @@ export type IntegrityCheck =
     | "ADVANCE_CONTROL"             // advance payments in the books is not the unallocated money on confirmed payments
     | "INVOICE_PAID_MISMATCH"       // an invoice shows paid money that its live payment allocations do not add up to
     | "CREDIT_MISMATCH"             // a confirmed payment's unallocated amount is not what its credit rows add up to
+    | "PAYABLE_CONTROL"             // accounts payable in the books is not what approved bills still owe (school total, or one supplier)
+    | "EXPENSE_PAID_MISMATCH"        // an expense shows paid money that its payments (not reversed) do not add up to
     | "SYSTEM_ACCOUNT";             // a system account is missing, inactive, deleted or unlocked
 
 export interface IntegrityFinding {

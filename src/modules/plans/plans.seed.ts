@@ -36,6 +36,7 @@ const STARTER: Grants = {
 const STANDARD: Grants = {
     ...STARTER, "students.max": 1000, "staff.max": 100,
     "grading.custom": true, "notifications.bulk_sms": true, "reports.advanced": true, "report_cards.letterhead": true,
+    "modules.expenses": true, "finance.budgets": true,        // expenses and budgets start on Standard (change in the console)
 };
 const PREMIUM: Grants = {
     ...STANDARD, "students.max": null, "staff.max": null,

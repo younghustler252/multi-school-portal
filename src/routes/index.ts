@@ -19,6 +19,10 @@ import feesRouter from "../modules/fees/routes/fee-setup.routes";
 import feeInvoiceRouter from "../modules/fees/routes/fee-invoice.routes";
 import feeReportRouter from "../modules/fees/routes/fee-report.routes";
 import feeAdjustmentRouter from "../modules/fees/routes/fee-adjustment.routes";
+import expenseRouter from "../modules/expenses/routes/expense.routes";
+import vendorRouter from "../modules/expenses/routes/vendor.routes";
+import budgetRouter from "../modules/expenses/routes/budget.routes";
+import recurringExpenseRouter from "../modules/expenses/routes/recurring.routes";
 import sessionRouter from "../modules/sessions/routes/session.routes"
 import paymentRouter from "../modules/payments/routes/payment.routes";
 // import superAdminRouter from "../modules/super-admin/routes/super-admin.routes";
@@ -48,6 +52,10 @@ router.use("/classes", classRouter);
 // router.use("/grades", gradeRouter)
 router.use("/sessions", sessionRouter)
 // router.use("/report-cards", reportCardRouter)
+router.use("/expenses", expenseRouter);
+router.use("/vendors", vendorRouter);
+router.use("/budgets", budgetRouter);
+router.use("/recurring-expenses", recurringExpenseRouter);
 router.use("/fees/invoices", feeInvoiceRouter);
 router.use("/fees/adjustments", feeAdjustmentRouter);
 router.use("/fees", feeReportRouter);

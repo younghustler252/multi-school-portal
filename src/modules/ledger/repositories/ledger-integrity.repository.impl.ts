@@ -124,6 +124,30 @@ export class LedgerIntegrityRepositoryImpl implements ILedgerIntegrityRepository
         return out;
     }
 
+    /* EXPENSES CONTROLS (brief section 14, rule 6): accounts payable must equal what approved bills still owe. */
+    async expensesControls(): Promise<IntegrityFinding[]> {
+        const open = `"kind" = 'BILL' AND "status" IN ('APPROVED', 'PARTIALLY_PAID')`;
+        const [total] = await this.rows(
+            `SELECT (SELECT COALESCE(SUM(l."creditKobo") - SUM(l."debitKobo"), 0) FROM "JournalLine" l JOIN "LedgerAccount" a ON a.id = l."ledgerAccountId" WHERE a."systemKey" = 'ACCOUNTS_PAYABLE')::text AS ledger,
+                    (SELECT COALESCE(SUM("totalKobo" - "paidKobo"), 0) FROM "Expense" WHERE ${open})::text AS bills`);
+        const perVendor = await this.rows(
+            `SELECT COALESCE(g."partyId", b."vendorId") AS vendor, COALESCE(g.amount, 0)::text AS ledger, COALESCE(b.amount, 0)::text AS bills
+               FROM (SELECT l."partyId", SUM(l."creditKobo") - SUM(l."debitKobo") AS amount FROM "JournalLine" l JOIN "LedgerAccount" a ON a.id = l."ledgerAccountId"
+                      WHERE a."systemKey" = 'ACCOUNTS_PAYABLE' AND l."partyType" = 'VENDOR' GROUP BY l."partyId") g
+               FULL JOIN (SELECT "vendorId", SUM("totalKobo" - "paidKobo") AS amount FROM "Expense" WHERE ${open} GROUP BY "vendorId") b ON b."vendorId" = g."partyId"
+              WHERE COALESCE(g.amount, 0) <> COALESCE(b.amount, 0) ORDER BY 1 LIMIT ${MAX_ROWS_PER_CHECK}`);
+        const paid = await this.rows(
+            `SELECT e.id, e."expenseNumber" AS number, e."paidKobo"::text AS paid, COALESCE(SUM(p."amountKobo"), 0)::text AS payments
+               FROM "Expense" e LEFT JOIN "ExpensePayment" p ON p."expenseId" = e.id AND p."reversedAt" IS NULL
+              WHERE e."status" IN ('APPROVED', 'PARTIALLY_PAID', 'PAID') GROUP BY e.id HAVING e."paidKobo" <> COALESCE(SUM(p."amountKobo"), 0) ORDER BY e."expenseNumber" LIMIT ${MAX_ROWS_PER_CHECK}`);
+
+        const out: IntegrityFinding[] = [];
+        if (total.ledger !== total.bills) out.push({ check: "PAYABLE_CONTROL", message: "Accounts payable in the books does not equal what approved bills still owe", details: { ledgerKobo: total.ledger, billsKobo: total.bills } });
+        for (const r of perVendor) out.push({ check: "PAYABLE_CONTROL", message: `Supplier ${r.vendor}: payable in the books differs from the bills`, details: { vendorId: r.vendor, ledgerKobo: r.ledger, billsKobo: r.bills } });
+        for (const r of paid) out.push({ check: "EXPENSE_PAID_MISMATCH", message: `Expense ${r.number} shows ${r.paid} paid but its payments add up to ${r.payments}`, details: { expenseId: r.id, paidKobo: r.paid, paymentsKobo: r.payments } });
+        return out;
+    }
+
     async systemAccounts(): Promise<SystemAccountRow[]> {
         return this.rows(`SELECT "systemKey", "isActive", "isLocked", "deletedAt" FROM "LedgerAccount" WHERE "systemKey" IS NOT NULL`);
     }

@@ -1341,6 +1341,12 @@ model LedgerAccount {
   payments     Payment[]
   refundPayouts Refund[] @relation("RefundPayoutAccount")
 
+  expenseLines    ExpenseLine[]
+  expensePayFrom  Expense[]          @relation("ExpensePayFrom")
+  expensePayments ExpensePayment[]
+  budgetLines     BudgetLine[]
+  recurringPayFrom RecurringExpense[] @relation("RecurringPayFrom")
+
   @@index([type])
   @@index([parentId])
   @@index([isActive])
@@ -1402,6 +1408,8 @@ model JournalEntry {
   payment     Payment?
   adjustment  InvoiceAdjustment?
   refund      Refund?
+  expense        Expense?
+  expensePayment ExpensePayment?
 
   @@index([periodId])
   @@index([entryDate])
@@ -1429,4 +1437,220 @@ model JournalLine {
   @@unique([journalId, lineNumber])
   @@index([ledgerAccountId, journalId])
   @@index([partyType, partyId])
+}
+
+// ===== FINANCE: EXPENSES, BILLS AND BUDGETS (phase 3) =====
+
+enum ExpenseKind {
+  DIRECT // paid at once, when approved
+  BILL   // owed to a supplier; paid later, in one or more payments
+}
+
+enum ExpenseStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  PARTIALLY_PAID
+  PAID
+  REJECTED
+  VOID
+}
+
+enum RecurrenceFrequency {
+  WEEKLY
+  MONTHLY
+  TERMLY
+  YEARLY
+}
+
+enum BudgetStatus {
+  DRAFT
+  ACTIVE
+  CLOSED
+}
+
+// A supplier. The bank account number is stored encrypted; only the last four digits are shown.
+model Vendor {
+  id                     String    @id @default(uuid())
+  name                   String
+  contactName            String?
+  phone                  String?
+  email                  String?
+  address                String?
+  bankName               String?
+  accountName            String?
+  accountNumberEncrypted String?
+  accountNumberLast4     String?
+  taxId                  String?
+  notes                  String?
+  isActive               Boolean   @default(true)
+  createdById            String?
+  updatedById            String?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  deletedAt              DateTime?
+
+  expenses          Expense[]
+  recurringExpenses RecurringExpense[]
+
+  @@index([name])
+  @@index([isActive])
+  @@index([deletedAt])
+}
+
+// Money the school spends. DIRECT is paid when approved; BILL is owed to the supplier (accounts payable) until paid.
+// The number is given when it is submitted, so drafts leave no gaps. Amounts are whole kobo.
+model Expense {
+  id                 String        @id @default(uuid())
+  expenseNumber      String?       @unique
+  kind               ExpenseKind
+  vendorId           String?
+  reference          String?
+  description        String
+  expenseDate        DateTime      @db.Date
+  dueDate            DateTime?     @db.Date
+  totalKobo          BigInt
+  paidKobo           BigInt        @default(0)
+  status             ExpenseStatus @default(DRAFT)
+  payFromAccountId   String?
+  termId             String?
+  branchId           String?
+  recurringExpenseId String?
+  requestedById      String
+  submittedAt        DateTime?
+  approvedById       String?
+  approvedAt         DateTime?
+  autoApproved       Boolean       @default(false)
+  rejectedById       String?
+  rejectedAt         DateTime?
+  rejectionReason    String?
+  voidReason         String?
+  voidedById         String?
+  voidedAt           DateTime?
+  journalId          String?       @unique
+  version            Int           @default(1)
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  vendor         Vendor?            @relation(fields: [vendorId], references: [id], onDelete: Restrict)
+  payFromAccount LedgerAccount?     @relation("ExpensePayFrom", fields: [payFromAccountId], references: [id], onDelete: Restrict)
+  recurring      RecurringExpense?  @relation(fields: [recurringExpenseId], references: [id], onDelete: Restrict)
+  journal        JournalEntry?      @relation(fields: [journalId], references: [id], onDelete: Restrict)
+  lines          ExpenseLine[]
+  payments       ExpensePayment[]
+
+  @@index([status])
+  @@index([kind])
+  @@index([vendorId])
+  @@index([expenseDate])
+  @@index([dueDate])
+  @@index([requestedById])
+  @@index([recurringExpenseId])
+  @@unique([recurringExpenseId, expenseDate]) // a repeat run never makes the same expense twice
+}
+
+model ExpenseLine {
+  id              String @id @default(uuid())
+  expenseId       String
+  ledgerAccountId String
+  description     String
+  amountKobo      BigInt
+  sortOrder       Int    @default(0)
+
+  expense       Expense       @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  ledgerAccount LedgerAccount @relation(fields: [ledgerAccountId], references: [id], onDelete: Restrict)
+
+  @@index([expenseId])
+  @@index([ledgerAccountId])
+}
+
+// One payment out for an expense (a DIRECT expense has exactly one). A reversed payment keeps its row.
+model ExpensePayment {
+  id            String        @id @default(uuid())
+  expenseId     String
+  amountKobo    BigInt
+  paidOn        DateTime      @db.Date
+  accountId     String
+  method        PaymentMethod
+  reference     String?
+  paidById      String
+  journalId     String        @unique
+  reversedAt    DateTime?
+  reversedById  String?
+  reverseReason String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  expense Expense       @relation(fields: [expenseId], references: [id], onDelete: Restrict)
+  account LedgerAccount @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  journal JournalEntry  @relation(fields: [journalId], references: [id], onDelete: Restrict)
+
+  @@index([expenseId])
+  @@index([paidOn])
+  @@index([accountId])
+}
+
+// A bill or expense that repeats. A daily job makes a draft (or an approved one) when nextRunDate arrives.
+// lines is a list of { ledgerAccountId, description, amountKobo (digit string) }.
+model RecurringExpense {
+  id               String              @id @default(uuid())
+  vendorId         String?
+  kind             ExpenseKind         @default(BILL)
+  payFromAccountId String?
+  description      String
+  lines            Json
+  frequency        RecurrenceFrequency
+  startDate        DateTime            @db.Date
+  endDate          DateTime?           @db.Date
+  nextRunDate      DateTime            @db.Date
+  lastRunAt        DateTime?
+  autoApprove      Boolean             @default(false)
+  isActive         Boolean             @default(true)
+  createdById      String
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+
+  vendor         Vendor?        @relation(fields: [vendorId], references: [id], onDelete: Restrict)
+  payFromAccount LedgerAccount? @relation("RecurringPayFrom", fields: [payFromAccountId], references: [id], onDelete: Restrict)
+  expenses       Expense[]
+
+  @@index([isActive, nextRunDate])
+}
+
+// What the school plans to earn and spend, to compare with what the books show.
+model Budget {
+  id          String       @id @default(uuid())
+  name        String
+  sessionId   String?
+  startDate   DateTime     @db.Date
+  endDate     DateTime     @db.Date
+  status      BudgetStatus @default(DRAFT)
+  createdById String
+  updatedById String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  deletedAt   DateTime?
+
+  lines BudgetLine[]
+
+  @@index([status])
+  @@index([startDate, endDate])
+  @@index([deletedAt])
+}
+
+model BudgetLine {
+  id              String   @id @default(uuid())
+  budgetId        String
+  ledgerAccountId String
+  termId          String?
+  plannedKobo     BigInt
+  note            String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  budget        Budget        @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  ledgerAccount LedgerAccount @relation(fields: [ledgerAccountId], references: [id], onDelete: Restrict)
+
+  @@index([budgetId])
+  @@index([ledgerAccountId])
 }

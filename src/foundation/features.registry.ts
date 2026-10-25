@@ -60,6 +60,8 @@ export const FEATURE_REGISTRY: FeatureDef[] = [
     { key: "modules.fees",             kind: "BOOLEAN", module: "finance", name: "Fee management",          legacyFlag: "feeManagement" },
     { key: "fees.online_payments",     kind: "BOOLEAN", module: "finance", name: "Online fee payments",     legacyFlag: "paymentCollection", requires: ["modules.fees"] },
     { key: "fees.receipts",            kind: "BOOLEAN", module: "finance", name: "Payment receipts",        legacyFlag: "paymentReceipts",   requires: ["modules.fees"] },
+    { key: "modules.expenses",         kind: "BOOLEAN", module: "finance", name: "Expenses and bills" },
+    { key: "finance.budgets",          kind: "BOOLEAN", module: "finance", name: "Budgets", requires: ["modules.expenses"] },
 
     // ── Platform ──
     { key: "portal.guardian",          kind: "BOOLEAN", module: "platform", name: "Guardian portal",       legacyFlag: "parentPortal" },
