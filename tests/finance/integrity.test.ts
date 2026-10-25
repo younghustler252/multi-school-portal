@@ -22,7 +22,7 @@ const fakeRepo = (over: Partial<Record<string, IntegrityFinding[]>> = {}, accoun
         repo: {
             unbalancedJournals: list("unbalancedJournals"), trialBalance: list("trialBalance"), reversalProblems: list("reversalProblems"),
             periodProblems: async (tz: string) => { calls.push(`periodProblems:${tz}`); return over.periodProblems ?? []; },
-            duplicateOpeningBalances: list("duplicateOpeningBalances"), linesOnDeletedAccounts: list("linesOnDeletedAccounts"), feesControls: list("feesControls"), expensesControls: list("expensesControls"),
+            duplicateOpeningBalances: list("duplicateOpeningBalances"), linesOnDeletedAccounts: list("linesOnDeletedAccounts"), feesControls: list("feesControls"), expensesControls: list("expensesControls"), payrollControls: list("payrollControls"),
             systemAccounts: async () => { calls.push("systemAccounts"); return accounts; },
         } as any,
     };
@@ -63,7 +63,7 @@ describe("integrity check for one school", () => {
         const { repo, calls } = fakeRepo();
         const r = await new RunLedgerIntegrityCheckUseCase({ ledgerIntegrityRepository: repo }, () => new Date("2026-10-22T01:00:00Z")).execute();
         assert.equal(r.ok, true);
-        assert.deepEqual(calls, ["unbalancedJournals", "trialBalance", "reversalProblems", "periodProblems:Africa/Lagos", "duplicateOpeningBalances", "linesOnDeletedAccounts", "feesControls", "expensesControls", "systemAccounts"]);
+        assert.deepEqual(calls, ["unbalancedJournals", "trialBalance", "reversalProblems", "periodProblems:Africa/Lagos", "duplicateOpeningBalances", "linesOnDeletedAccounts", "feesControls", "expensesControls", "payrollControls", "systemAccounts"]);
     });
 
     it("gathers findings from every check", async () => {

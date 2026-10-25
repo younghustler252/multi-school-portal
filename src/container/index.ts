@@ -41,6 +41,7 @@ import { registerSessions } from "../modules/sessions/sessions.container";
 import { registerFees }          from "../modules/fees/fees.container";
 import { registerPayments }      from "../modules/payments/payments.container";
 import { registerExpenses }      from "../modules/expenses/expenses.container";
+import { registerPayroll }       from "../modules/payroll/payroll.container";
 import { registerFinanceReports } from "../modules/finance-reports/finance-reports.container";
 // import { registerNotifications } from "../modules/notifications/notifications.container";
 // import { registerSuperAdmin }    from "../modules/super-admin/super-admin.container";
@@ -70,6 +71,7 @@ const modules: Array<(c: AwilixContainer) => void> = [
     registerFees,
     registerPayments,
     registerExpenses,
+    registerPayroll,
     registerFinanceReports,
     registerAudit,
     // registerNotifications,

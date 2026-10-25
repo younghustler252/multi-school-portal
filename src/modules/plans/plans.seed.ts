@@ -40,7 +40,7 @@ const STANDARD: Grants = {
 };
 const PREMIUM: Grants = {
     ...STANDARD, "students.max": null, "staff.max": null,
-    "domain.custom": true, "support.priority": true,
+    "domain.custom": true, "support.priority": true, "modules.payroll": true,        // payroll starts on Premium (change in the console)
     "branches.max": 3,              // multiple branches: the headline Premium feature (change in the console; extra branches can become an add-on)
 };
 

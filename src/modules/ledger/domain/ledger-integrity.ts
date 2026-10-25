@@ -27,6 +27,8 @@ export type IntegrityCheck =
     | "CREDIT_MISMATCH"             // a confirmed payment's unallocated amount is not what its credit rows add up to
     | "PAYABLE_CONTROL"             // accounts payable in the books is not what approved bills still owe (school total, or one supplier)
     | "EXPENSE_PAID_MISMATCH"        // an expense shows paid money that its payments (not reversed) do not add up to
+    | "PAYROLL_CONTROL"             // salaries payable in the books is not what approved, unpaid payslips still owe (school total, or one staff member)
+    | "LOAN_CONTROL"                // staff loans receivable in the books is not what active loans still owe (school total, or one staff member)
     | "SYSTEM_ACCOUNT";             // a system account is missing, inactive, deleted or unlocked
 
 export interface IntegrityFinding {

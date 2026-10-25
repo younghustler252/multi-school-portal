@@ -148,6 +148,34 @@ export class LedgerIntegrityRepositoryImpl implements ILedgerIntegrityRepository
         return out;
     }
 
+    /* PAYROLL CONTROLS: salaries payable must equal what approved, unpaid payslips owe; staff loans receivable must equal what active loans still owe. */
+    async payrollControls(): Promise<IntegrityFinding[]> {
+        const side = (key: string, sign: string) => `SELECT l."partyId", SUM(${sign}) AS amount FROM "JournalLine" l JOIN "LedgerAccount" a ON a.id = l."ledgerAccountId"
+                      WHERE a."systemKey" = '${key}' AND l."partyType" = 'STAFF' GROUP BY l."partyId"`;
+        const unpaid = `SELECT "staffId", SUM("netKobo") AS amount FROM "Payslip" WHERE "status" = 'FINAL' GROUP BY "staffId"`;
+        const active = `SELECT "staffId", SUM("balanceKobo") AS amount FROM "StaffLoan" WHERE "status" = 'ACTIVE' GROUP BY "staffId"`;
+        const [totals] = await this.rows(
+            `SELECT (SELECT COALESCE(SUM(l."creditKobo") - SUM(l."debitKobo"), 0) FROM "JournalLine" l JOIN "LedgerAccount" a ON a.id = l."ledgerAccountId" WHERE a."systemKey" = 'SALARIES_PAYABLE')::text AS salaries_ledger,
+                    (SELECT COALESCE(SUM("netKobo"), 0) FROM "Payslip" WHERE "status" = 'FINAL')::text AS salaries_slips,
+                    (SELECT COALESCE(SUM(l."debitKobo") - SUM(l."creditKobo"), 0) FROM "JournalLine" l JOIN "LedgerAccount" a ON a.id = l."ledgerAccountId" WHERE a."systemKey" = 'STAFF_LOANS_RECEIVABLE')::text AS loans_ledger,
+                    (SELECT COALESCE(SUM("balanceKobo"), 0) FROM "StaffLoan" WHERE "status" = 'ACTIVE')::text AS loans_active`);
+        const perSalary = await this.rows(
+            `SELECT COALESCE(g."partyId", s."staffId") AS staff, COALESCE(g.amount, 0)::text AS ledger, COALESCE(s.amount, 0)::text AS slips
+               FROM (${side("SALARIES_PAYABLE", `l."creditKobo" - l."debitKobo"`)}) g FULL JOIN (${unpaid}) s ON s."staffId" = g."partyId"
+              WHERE COALESCE(g.amount, 0) <> COALESCE(s.amount, 0) ORDER BY 1 LIMIT ${MAX_ROWS_PER_CHECK}`);
+        const perLoan = await this.rows(
+            `SELECT COALESCE(g."partyId", s."staffId") AS staff, COALESCE(g.amount, 0)::text AS ledger, COALESCE(s.amount, 0)::text AS loans
+               FROM (${side("STAFF_LOANS_RECEIVABLE", `l."debitKobo" - l."creditKobo"`)}) g FULL JOIN (${active}) s ON s."staffId" = g."partyId"
+              WHERE COALESCE(g.amount, 0) <> COALESCE(s.amount, 0) ORDER BY 1 LIMIT ${MAX_ROWS_PER_CHECK}`);
+
+        const out: IntegrityFinding[] = [];
+        if (totals.salaries_ledger !== totals.salaries_slips) out.push({ check: "PAYROLL_CONTROL", message: "Salaries payable in the books does not equal what approved, unpaid payslips owe", details: { ledgerKobo: totals.salaries_ledger, payslipsKobo: totals.salaries_slips } });
+        for (const r of perSalary) out.push({ check: "PAYROLL_CONTROL", message: `Staff ${r.staff}: salaries payable in the books differs from the payslips`, details: { staffId: r.staff, ledgerKobo: r.ledger, payslipsKobo: r.slips } });
+        if (totals.loans_ledger !== totals.loans_active) out.push({ check: "LOAN_CONTROL", message: "Staff loans receivable in the books does not equal what active loans still owe", details: { ledgerKobo: totals.loans_ledger, loansKobo: totals.loans_active } });
+        for (const r of perLoan) out.push({ check: "LOAN_CONTROL", message: `Staff ${r.staff}: loans receivable in the books differ from the loans`, details: { staffId: r.staff, ledgerKobo: r.ledger, loansKobo: r.loans } });
+        return out;
+    }
+
     async systemAccounts(): Promise<SystemAccountRow[]> {
         return this.rows(`SELECT "systemKey", "isActive", "isLocked", "deletedAt" FROM "LedgerAccount" WHERE "systemKey" IS NOT NULL`);
     }

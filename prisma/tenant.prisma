@@ -1410,6 +1410,10 @@ model JournalEntry {
   refund      Refund?
   expense        Expense?
   expensePayment ExpensePayment?
+  runAccrual     PayrollRun? @relation("RunAccrual")
+  runPayment     PayrollRun? @relation("RunPayment")
+  loanDisbursed  StaffLoan?
+  remittance     PayrollRemittance?
 
   @@index([periodId])
   @@index([entryDate])
@@ -1653,4 +1657,263 @@ model BudgetLine {
 
   @@index([budgetId])
   @@index([ledgerAccountId])
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// FINANCE PHASE 5: PAYROLL (sensitive). Amounts are whole kobo; rates are basis points (1000 = 10.00%).
+// The school's accountant sets the rules as data; nothing statutory is hardcoded. Staff and ledger accounts are
+// referenced by plain id and checked in code (Finance only reads Staff and adds nothing to it).
+// ──────────────────────────────────────────────────────────────────────────
+
+enum PayComponentType {
+  EARNING
+  DEDUCTION
+  EMPLOYER_CONTRIBUTION
+}
+
+enum PayCalcType {
+  FIXED
+  PERCENT_OF_BASIC
+  PERCENT_OF_GROSS
+  BANDED
+}
+
+enum PayrollRunStatus {
+  DRAFT
+  CALCULATED
+  PENDING_APPROVAL
+  APPROVED
+  PAID
+  CANCELLED
+}
+
+enum PayslipStatus {
+  DRAFT
+  FINAL
+  PAID
+  VOID
+}
+
+enum LoanStatus {
+  ACTIVE
+  CLEARED
+  CANCELLED
+}
+
+// An earning, deduction or employer contribution. defaultValue is kobo for FIXED and basis points for the percent types.
+// bands (BANDED only): [{ "upToKobo": "30000000" | null, "rateBp": 700 }, ...] applied progressively to the month's taxable pay.
+model PayComponent {
+  id                 String           @id @default(uuid())
+  name               String
+  code               String           @unique
+  type               PayComponentType
+  calcType           PayCalcType
+  defaultValue       BigInt           @default(0)
+  bands              Json?
+  isTaxable          Boolean          @default(false)
+  isStatutory        Boolean          @default(false)
+  expenseAccountId   String?
+  liabilityAccountId String?
+  isActive           Boolean          @default(true)
+  createdById        String?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  deletedAt          DateTime?
+
+  staffComponents StaffPayComponent[]
+
+  @@index([type])
+  @@index([isActive])
+  @@index([deletedAt])
+}
+
+// What one staff member is paid, from a date. History is kept as dated rows; the current row has no end date.
+model StaffPayProfile {
+  id                     String    @id @default(uuid())
+  staffId                String
+  effectiveFrom          DateTime  @db.Date
+  effectiveTo            DateTime? @db.Date
+  basicSalaryKobo        BigInt
+  payFrequency           String    @default("MONTHLY")
+  bankCode               String?
+  bankName               String?
+  accountName            String?
+  accountNumberEncrypted String?
+  accountNumberLast4     String?
+  taxId                  String?
+  pensionId              String?
+  isActive               Boolean   @default(true)
+  createdById            String
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  components StaffPayComponent[]
+
+  @@index([staffId, effectiveFrom])
+}
+
+model StaffPayComponent {
+  id            String  @id @default(uuid())
+  profileId     String
+  componentId   String
+  valueOverride BigInt?
+  isActive      Boolean @default(true)
+
+  profile   StaffPayProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  component PayComponent    @relation(fields: [componentId], references: [id], onDelete: Restrict)
+
+  @@unique([profileId, componentId])
+  @@index([componentId])
+}
+
+// One month's pay for everyone. Only one run per month that is not cancelled (checked in code). Money is posted when it is approved and when it is paid.
+model PayrollRun {
+  id                 String           @id @default(uuid())
+  runNumber          String           @unique
+  periodYear         Int
+  periodMonth        Int
+  payDate            DateTime         @db.Date
+  status             PayrollRunStatus @default(DRAFT)
+  grossKobo          BigInt           @default(0)
+  deductionsKobo     BigInt           @default(0)
+  employerCostKobo   BigInt           @default(0)
+  netKobo            BigInt           @default(0)
+  staffCount         Int              @default(0)
+  calculatedAt       DateTime?
+  createdById        String
+  submittedAt        DateTime?
+  approvedById       String?
+  approvedAt         DateTime?
+  rejectedById       String?
+  rejectedAt         DateTime?
+  rejectionReason    String?
+  paidAt             DateTime?
+  paidById           String?
+  paidOn             DateTime?        @db.Date
+  paidFromAccountId  String?
+  paymentReference   String?
+  accrualJournalId   String?          @unique
+  paymentJournalId   String?          @unique
+  cancelledAt        DateTime?
+  cancelledById      String?
+  cancelReason       String?
+  notes              String?
+  version            Int              @default(1)
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  accrualJournal JournalEntry? @relation("RunAccrual", fields: [accrualJournalId], references: [id], onDelete: Restrict)
+  paymentJournal JournalEntry? @relation("RunPayment", fields: [paymentJournalId], references: [id], onDelete: Restrict)
+  payslips       Payslip[]
+
+  @@index([periodYear, periodMonth])
+  @@index([status])
+}
+
+// One staff member's pay for a run. Numbered and frozen (snapshot) when the run is approved.
+model Payslip {
+  id                        String        @id @default(uuid())
+  runId                     String
+  staffId                   String
+  payslipNumber             String?       @unique
+  grossKobo                 BigInt
+  totalDeductionsKobo       BigInt
+  netKobo                   BigInt
+  employerContributionKobo  BigInt        @default(0)
+  status                    PayslipStatus @default(DRAFT)
+  paidAt                    DateTime?
+  paymentReference          String?
+  snapshot                  Json?
+  emailedAt                 DateTime?
+  createdAt                 DateTime      @default(now())
+  updatedAt                 DateTime      @updatedAt
+
+  run   PayrollRun    @relation(fields: [runId], references: [id], onDelete: Cascade)
+  lines PayslipLine[]
+
+  @@unique([runId, staffId])
+  @@index([staffId])
+}
+
+// kind: BASIC (the basic salary), COMPONENT (a pay component) or LOAN (a loan repayment). The accounts are copied from the component when pay is calculated.
+model PayslipLine {
+  id                 String           @id @default(uuid())
+  payslipId          String
+  kind               String           @default("COMPONENT")
+  componentId        String?
+  loanId             String?
+  label              String
+  type               PayComponentType
+  amountKobo         BigInt
+  expenseAccountId   String?
+  liabilityAccountId String?
+  sortOrder          Int              @default(0)
+
+  payslip Payslip @relation(fields: [payslipId], references: [id], onDelete: Cascade)
+
+  @@index([payslipId])
+}
+
+model StaffLoan {
+  id                    String     @id @default(uuid())
+  staffId               String
+  principalKobo         BigInt
+  balanceKobo           BigInt
+  monthlyRepaymentKobo  BigInt
+  startYear             Int
+  startMonth            Int
+  status                LoanStatus @default(ACTIVE)
+  reason                String?
+  approvedById          String
+  disbursedOn           DateTime   @db.Date
+  paidFromAccountId     String
+  disbursementJournalId String     @unique
+  cancelledAt           DateTime?
+  cancelledById         String?
+  cancelReason          String?
+  version               Int        @default(1)
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime   @updatedAt
+
+  disbursementJournal JournalEntry       @relation(fields: [disbursementJournalId], references: [id], onDelete: Restrict)
+  repayments          StaffLoanRepayment[]
+
+  @@index([staffId])
+  @@index([status])
+}
+
+model StaffLoanRepayment {
+  id         String    @id @default(uuid())
+  loanId     String
+  payslipId  String
+  amountKobo BigInt
+  reversedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  loan StaffLoan @relation(fields: [loanId], references: [id], onDelete: Restrict)
+
+  @@unique([loanId, payslipId])
+}
+
+// Tax or pension paid over to the authority: debit the liability account, credit the money account.
+model PayrollRemittance {
+  id                 String    @id @default(uuid())
+  liabilityAccountId String
+  periodYear         Int
+  periodMonth        Int
+  amountKobo         BigInt
+  paidOn             DateTime  @db.Date
+  fromAccountId      String
+  reference          String?
+  note               String?
+  journalId          String    @unique
+  createdById        String
+  reversedAt         DateTime?
+  reversedById       String?
+  reverseReason      String?
+  createdAt          DateTime  @default(now())
+
+  journal JournalEntry @relation(fields: [journalId], references: [id], onDelete: Restrict)
+
+  @@index([periodYear, periodMonth])
 }

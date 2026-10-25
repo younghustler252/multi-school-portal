@@ -29,6 +29,7 @@ export interface ReportContext {
     creditorsReportUseCase: { execute(q: any): Promise<any> };
     ageingReportUseCase: { execute(q: any): Promise<any> };
     collectionsReportUseCase: { execute(q: any): Promise<any> };
+    payrollSummaryUseCase: { execute(year?: number): Promise<any> };
 }
 
 export interface ReportDefinition {
@@ -225,6 +226,18 @@ export const REPORTS: ReportDefinition[] = [
                 columns: [text("label", "Group"), num("count", "Payments"), money("totalKobo", "Total")],
                 rows: r.lines.map((l: any) => ({ label: l.label, count: l.count, totalKobo: l.totalKobo })),
                 summary: { from: r.from, to: r.to, groupBy: r.groupBy, payments: r.payments, totalKobo: r.totalKobo, creditKobo: r.creditKobo },
+            };
+        },
+    },
+    {
+        key: "payroll-summary", title: "Payroll summary", description: "A year of payroll, month by month: gross pay, deductions, net pay and the full cost to the school.", permission: "payroll.runs.view", feature: "modules.payroll",
+        params: ReportParams.payrollSummary,
+        async run(p, ctx) {
+            const r = await ctx.payrollSummaryUseCase.execute(p.year);
+            return {
+                columns: [text("run", "Run"), text("period", "Month"), text("status", "Status"), num("staff", "Staff"), money("grossKobo", "Gross"), money("deductionsKobo", "Deductions"), money("netKobo", "Net pay"), money("employerCostKobo", "Cost to school")],
+                rows: r.rows.map((x: any) => ({ run: x.run, period: x.period, status: x.status, staff: x.staff, grossKobo: k(x.gross), deductionsKobo: k(x.deductions), netKobo: k(x.net), employerCostKobo: k(x.employerCost) })),
+                summary: { year: r.year, grossKobo: k(r.total.gross), deductionsKobo: k(r.total.deductions), netKobo: k(r.total.net), employerCostKobo: k(r.total.employerCost) },
             };
         },
     },

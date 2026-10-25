@@ -24,6 +24,8 @@ import expenseRouter from "../modules/expenses/routes/expense.routes";
 import vendorRouter from "../modules/expenses/routes/vendor.routes";
 import budgetRouter from "../modules/expenses/routes/budget.routes";
 import recurringExpenseRouter from "../modules/expenses/routes/recurring.routes";
+import payrollRouter from "../modules/payroll/routes/payroll.routes";
+import myPayslipsRouter from "../modules/payroll/routes/my-payslips.routes";
 import sessionRouter from "../modules/sessions/routes/session.routes"
 import paymentRouter from "../modules/payments/routes/payment.routes";
 // import superAdminRouter from "../modules/super-admin/routes/super-admin.routes";
@@ -58,6 +60,8 @@ router.use("/expenses", expenseRouter);
 router.use("/vendors", vendorRouter);
 router.use("/budgets", budgetRouter);
 router.use("/recurring-expenses", recurringExpenseRouter);
+router.use("/payroll", payrollRouter);
+router.use("/my/payslips", myPayslipsRouter);
 router.use("/fees/invoices", feeInvoiceRouter);
 router.use("/fees/adjustments", feeAdjustmentRouter);
 router.use("/fees", feeReportRouter);

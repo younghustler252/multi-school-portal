@@ -10,5 +10,6 @@ export interface ILedgerIntegrityRepository {
     linesOnDeletedAccounts(): Promise<IntegrityFinding[]>;
     expensesControls(): Promise<IntegrityFinding[]>;                       // payable = open bills (also per supplier); expense paid = its live payments
     feesControls(): Promise<IntegrityFinding[]>;                          // receivable = open invoices, advance = unallocated payments, invoices and credit = allocations
+    payrollControls(): Promise<IntegrityFinding[]>;                       // salaries payable = unpaid approved payslips, staff loans receivable = active loans (also per person)
     systemAccounts(): Promise<SystemAccountRow[]>;
 }

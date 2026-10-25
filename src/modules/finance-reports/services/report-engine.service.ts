@@ -29,7 +29,7 @@ export class ReportEngine {
             now: this.now(),
             ledgerReportRepository: d.ledgerReportRepository, statementRepository: d.statementRepository, accountBalancesUseCase: d.accountBalancesUseCase,
             cashBookUseCase: d.cashBookUseCase, expenseReportUseCase: d.expenseReportUseCase, creditorsReportUseCase: d.creditorsReportUseCase,
-            ageingReportUseCase: d.ageingReportUseCase, collectionsReportUseCase: d.collectionsReportUseCase,
+            ageingReportUseCase: d.ageingReportUseCase, collectionsReportUseCase: d.collectionsReportUseCase, payrollSummaryUseCase: d.payrollSummaryUseCase,
         };
     }
 

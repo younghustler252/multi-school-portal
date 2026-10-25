@@ -15,6 +15,7 @@ export const ReportParams = {
     expenseReport:  z.object({ from: day, to: day, groupBy: z.enum(["account", "vendor", "month", "term"]).default("account"), vendorId: id.optional(), termId: id.optional() }).strict(),
     creditors:      z.object({ asOf: day.optional(), vendorId: id.optional() }).strict(),
     ageing:         z.object({ asOf: day.optional(), branchId: id.optional(), classId: id.optional(), termId: id.optional() }).strict(),
+    payrollSummary: z.object({ year: z.coerce.number().int().min(2000).max(2100).optional() }).strict(),
     collections:    z.object({ from: day, to: day, groupBy: z.enum(["method", "day", "month", "branch", "class"]).default("method"), branchId: id.optional() }).strict(),
 };
 

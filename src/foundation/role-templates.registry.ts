@@ -40,6 +40,7 @@ export const ROLE_TEMPLATES: RoleTemplateDef[] = [
             { key: "classes.view", scope: "ALL" }, { key: "sessions.view", scope: "ALL" }, { key: "students.view", scope: "ALL" }, { key: "attendance.view", scope: "ALL" },
             { key: "fees.view", scope: "ALL" }, { key: "fees.setup.view", scope: "ALL" }, { key: "fees.invoices.view", scope: "ALL" }, { key: "fees.reports.view", scope: "ALL" }, { key: "payments.view", scope: "ALL" }, { key: "staff.view", scope: "ALL" },
             { key: "expenses.view", scope: "ALL" }, { key: "expenses.approve", scope: "ALL" }, { key: "budgets.view", scope: "ALL" },
+            { key: "payroll.runs.view", scope: "ALL" }, { key: "payroll.runs.approve", scope: "ALL" }, { key: "payroll.payslips.view", scope: "OWN" },
             { key: "branches.view", scope: "ALL" },
             { key: "finance.accounts.view", scope: "ALL" }, { key: "finance.journals.view", scope: "ALL" }, { key: "finance.periods.view", scope: "ALL" }, { key: "finance.reports.view", scope: "ALL" }, { key: "finance.reports.export", scope: "ALL" }, { key: "finance.reports.accountant", scope: "ALL" },
         ],
@@ -59,6 +60,7 @@ export const ROLE_TEMPLATES: RoleTemplateDef[] = [
         permissions: [
             { key: "school.view", scope: "ALL" },
             { key: "classes.view", scope: "ALL" }, { key: "sessions.view", scope: "ALL" }, { key: "students.view", scope: "ASSIGNED" }, { key: "attendance.view", scope: "ASSIGNED" },
+            { key: "payroll.payslips.view", scope: "OWN" },
         ],
     },
     {
@@ -72,6 +74,7 @@ export const ROLE_TEMPLATES: RoleTemplateDef[] = [
             { key: "payments.view", scope: "ALL" }, { key: "payments.record", scope: "ALL" }, { key: "payments.confirm", scope: "ALL" },
             { key: "fees.adjustments.request", scope: "ALL" }, { key: "fees.reports.view", scope: "ALL" }, { key: "payments.refund.request", scope: "ALL" }, { key: "payments.settle", scope: "ALL" },
             { key: "expenses.view", scope: "ALL" }, { key: "expenses.create", scope: "ALL" }, { key: "expenses.pay", scope: "ALL" }, { key: "vendors.manage", scope: "ALL" }, { key: "budgets.view", scope: "ALL" }, { key: "budgets.manage", scope: "ALL" },
+            { key: "payroll.runs.view", scope: "ALL" }, { key: "payroll.runs.create", scope: "ALL" }, { key: "payroll.payslips.view", scope: "OWN" },
             { key: "finance.accounts.view", scope: "ALL" }, { key: "finance.journals.view", scope: "ALL" }, { key: "finance.periods.view", scope: "ALL" }, { key: "finance.reports.view", scope: "ALL" }, { key: "finance.reports.export", scope: "ALL" }, { key: "finance.reports.accountant", scope: "ALL" },
         ],
     },
