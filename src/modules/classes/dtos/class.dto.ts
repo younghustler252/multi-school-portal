@@ -7,18 +7,26 @@ import { z } from "zod";
 */
 
 // ── Create class ──────────────────────────────────────────────────────────
-export const CreateClassDto = z.object({
-    name:     z.string().min(1).max(50),
-    level:    z.string().optional(),
-    capacity: z.number().int().positive().optional(),
-});
+// Strict (unknown fields are rejected); text is trimmed; a blank value counts as "not sent" (create) or "clear it" (update).
+const blank = (to: undefined | null) => (v: unknown) => (typeof v === "string" && v.trim() === "" ? to : v);
+const capacity = z.number().int().min(1).max(500);
 
-// ── Update class ──────────────────────────────────────────────────────────
+export const CreateClassDto = z.object({
+    name:     z.string().trim().min(1).max(50),
+    level:    z.preprocess(blank(undefined), z.string().trim().max(30).optional()),
+    capacity: capacity.optional(),
+}).strict();
+
+// ── Update class (send only what changes; null or "" clears level, null clears capacity) ──
 export const UpdateClassDto = z.object({
-    name:     z.string().min(1).max(50).optional(),
-    level:    z.string().optional(),
-    capacity: z.number().int().positive().optional(),
-});
+    name:     z.string().trim().min(1).max(50).optional(),
+    level:    z.preprocess(blank(null), z.string().trim().max(30).nullable().optional()),
+    capacity: capacity.nullable().optional(),
+}).strict().refine(o => Object.keys(o).length > 0, "Send at least one field to change");
+
+// ── Class teacher and progression ─────────────────────────────────────────
+export const SetClassTeacherDto = z.object({ staffId: z.string().uuid().nullable() }).strict();
+export const SetClassProgressionDto = z.object({ toClassId: z.string().uuid().nullable() }).strict();   // null = the class graduates
 
 // ── Create subject ────────────────────────────────────────────────────────
 export const CreateSubjectDto = z.object({
@@ -61,6 +69,8 @@ export const UpdateClassSubjectDto = z.object({
 
 export type CreateClassDtoType         = z.infer<typeof CreateClassDto>;
 export type UpdateClassDtoType         = z.infer<typeof UpdateClassDto>;
+export type SetClassTeacherDtoType     = z.infer<typeof SetClassTeacherDto>;
+export type SetClassProgressionDtoType = z.infer<typeof SetClassProgressionDto>;
 export type CreateSubjectDtoType       = z.infer<typeof CreateSubjectDto>;
 export type UpdateSubjectDtoType       = z.infer<typeof UpdateSubjectDto>;
 export type AssignSubjectDtoType       = z.infer<typeof AssignSubjectDto>;

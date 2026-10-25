@@ -1,79 +1,50 @@
+import { AuditService } from "../../../audit/services/audit.service";
 import { IClassRepository } from "../../repositories/class.repository";
 import { IStaffRepository } from "../../../staff/repositories/staff.repository";
 import { ISessionRepository } from "../../../sessions/repositories/session.repository";
-import { ISchoolSettingsRepository } from "../../../school-settings/repositories/school-settings.repository";
-import { NotFoundError, BadRequestError } from "../../../../shared/errors/domain.errors";
-import { ClassErrorMessage } from "../../domain/class.enums";
 import { ClassSubjectResolutionService } from "../../services/class-subject-resolution-service";
+import { TeachingModelReader } from "../../services/teaching-model";
+import { StaffNameLookup } from "../../services/staff-names";
+import { ClassPresenter, ClassResponse } from "../../services/class-presenter";
+import { classErrors } from "../../domain/class.errors";
+import { ClassActor } from "../../domain/class.types";
 
 interface Dependencies {
-    classRepository: IClassRepository;
-    staffRepository: IStaffRepository;
-    sessionRepository: ISessionRepository;
-    schoolSettingsRepository: ISchoolSettingsRepository;
-    classSubjectResolutionService: ClassSubjectResolutionService;
+    classRepository: IClassRepository; staffRepository: IStaffRepository; sessionRepository: ISessionRepository;
+    teachingModelReader: TeachingModelReader; classSubjectResolutionService: ClassSubjectResolutionService;
+    staffNameLookup: StaffNameLookup; classPresenter: ClassPresenter; auditService: AuditService;
 }
 
+/*
+| SET CLASS TEACHER. The teacher must be an ACTIVE staff member in the TEACHING category (the old rule looked at
+| `Staff.role`, which is going away and broke custom roles). Send null to clear. In a homeroom school the class
+| teacher also takes this term's subjects that have no other teacher.
+*/
 export class SetClassTeacherUseCase {
-    private readonly classRepository: IClassRepository;
-    private readonly staffRepository: IStaffRepository;
-    private readonly sessionRepository: ISessionRepository;
-    private readonly schoolSettingsRepository: ISchoolSettingsRepository;
-    private readonly classSubjectResolutionService: ClassSubjectResolutionService;
+    constructor(private readonly d: Dependencies) {}
 
-    constructor({
-        classRepository,
-        staffRepository,
-        sessionRepository,
-        schoolSettingsRepository,
-        classSubjectResolutionService,
-    }: Dependencies) {
-        this.classRepository = classRepository;
-        this.staffRepository = staffRepository;
-        this.sessionRepository = sessionRepository;
-        this.schoolSettingsRepository = schoolSettingsRepository;
-        this.classSubjectResolutionService = classSubjectResolutionService;
-    }
-
-    async execute(classId: string, staffId: string | null) {
-        const cls = await this.classRepository.findClassById(classId);
-
-        if (!cls) {
-            throw new NotFoundError(ClassErrorMessage.NOT_FOUND);
-        }
-
+    async execute(schoolId: string, classId: string, staffId: string | null, actor: ClassActor): Promise<ClassResponse> {
+        const d = this.d;
+        const cls = await d.classRepository.findClassById(classId);
+        if (!cls) throw classErrors.notFound();
         if (staffId) {
-            const staff = await this.staffRepository.findById(staffId);
-
-            if (!staff) {
-                throw new NotFoundError("Staff member not found");
-            }
-
-            if (staff.role !== "teacher" && staff.role !== "principal") {
-                throw new BadRequestError(
-                    "Class teacher must be a teacher or principal.",
-                );
-            }
+            const staff = await d.staffRepository.findById(staffId);
+            if (!staff) throw classErrors.staffNotFound();
+            if (!staff.isActive || staff.category !== "teaching") throw classErrors.teacherInvalid();
         }
 
-        const updatedClass = await this.classRepository.updateClass(classId, {
-            classTeacherId: staffId,
+        const names = await d.staffNameLookup.byIds([cls.classTeacherId, staffId]);
+        await d.classRepository.updateClass(classId, { classTeacherId: staffId });
+
+        const currentTerm = await d.sessionRepository.findCurrentTerm();
+        if (currentTerm && (await d.teachingModelReader.get()) === "homeroom") {
+            await d.classSubjectResolutionService.recascadeHomeroom(classId, currentTerm.id);
+        }
+        await d.auditService.log({
+            userId: actor.userId, schoolId, action: "class.teacher_set", entity: "Class", entityId: classId,
+            oldValue: { class: cls.name, teacher: cls.classTeacherId ? names.get(cls.classTeacherId)?.name ?? null : null },
+            newValue: { teacher: staffId ? names.get(staffId)?.name ?? null : null },
         });
-
-        const settings = await this.schoolSettingsRepository.find();
-
-        if (settings?.teachingModel === "homeroom") {
-            const currentTerm =
-                await this.sessionRepository.findCurrentTerm();
-
-            if (currentTerm) {
-                await this.classSubjectResolutionService.recascadeHomeroom(
-                    classId,
-                    currentTerm.id,
-                );
-            }
-        }
-
-        return updatedClass;
+        return d.classPresenter.one((await d.classRepository.findClassByIdEnriched(classId, currentTerm?.id ?? null))!);
     }
 }

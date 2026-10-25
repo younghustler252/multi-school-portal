@@ -89,11 +89,9 @@ export class GetClassSubjectsUseCase {
             id: { in: staffIds },
         });
 
-        const userIds = staffRecords.map(s => s.userId);
+        const userIds = staffRecords.map(s => s.userId).filter((id): id is string => !!id);
 
-        const userRecords = await this.userRepository.findMany({
-            id: { in: userIds },
-        });
+        const userRecords = userIds.length ? await this.userRepository.findByIds(userIds) : [];
 
         const userByStaffId = new Map(
             staffRecords.map(staff => [

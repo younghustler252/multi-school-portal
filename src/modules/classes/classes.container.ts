@@ -24,11 +24,16 @@ import { BulkAssignSubjectsUseCase }  from "./usecases/school-admin/bulk-assign-
 import { ClearSubjectOverrideUseCase } from "./usecases/school-admin/clear-subject-override.usecase";
 import { ClassSubjectResolutionService } from "./services/class-subject-resolution-service";
 import { ApplyDefaultsUseCase } from "./usecases/school-admin/apply-default-usecase";
+import { StaffNameLookup } from "./services/staff-names";
+import { TeachingModelReader } from "./services/teaching-model";
+import { ClassPresenter } from "./services/class-presenter";
 import { ClassController }             from "./controllers/class.controller";
 
 /*
 |--------------------------------------------------------------------------
 | CLASSES CONTAINER
+| Requires: registerStaff (staffRepository), registerAuth (userRepository), registerSessions (sessionRepository),
+|           registerAudit (auditService), registerFoundation (accessService).
 |--------------------------------------------------------------------------
 */
 
@@ -40,6 +45,9 @@ export const registerClasses = (container: AwilixContainer): void => {
         classSubjectMapper:             asClass(ClassSubjectMapper).singleton(),
 
         classRepository:                asClass(ClassRepositoryImpl).scoped(),
+        staffNameLookup:                asClass(StaffNameLookup).scoped(),
+        teachingModelReader:            asClass(TeachingModelReader).singleton(),
+        classPresenter:                 asClass(ClassPresenter).scoped(),
 
         classSubjectResolutionService:  asClass(ClassSubjectResolutionService).scoped(),
 

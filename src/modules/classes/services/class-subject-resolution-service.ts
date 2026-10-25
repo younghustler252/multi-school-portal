@@ -1,8 +1,7 @@
 // modules/classes/services/class-subject-resolution.service.ts
 import { IClassRepository } from "../repositories/class.repository";
-import { ISchoolSettingsRepository } from "../../school-settings/repositories/school-settings.repository";
+import { TeachingModelReader } from "./teaching-model";
 import { ClassSubjectAssignmentSource } from "../domain/class.enums";
-import { TeachingModel } from "../../school-settings/domain/school-settings.enums";
 
 
 export interface ResolvedAssignment {
@@ -11,17 +10,17 @@ export interface ResolvedAssignment {
 }
 
 interface Dependencies {
-    classRepository:          IClassRepository;
-    schoolSettingsRepository: ISchoolSettingsRepository;
+    classRepository:     IClassRepository;
+    teachingModelReader: TeachingModelReader;
 }
 
 export class ClassSubjectResolutionService {
-    private readonly classRepository:          IClassRepository;
-    private readonly schoolSettingsRepository: ISchoolSettingsRepository;
+    private readonly classRepository:     IClassRepository;
+    private readonly teachingModelReader: TeachingModelReader;
 
-    constructor({ classRepository, schoolSettingsRepository }: Dependencies) {
-        this.classRepository          = classRepository;
-        this.schoolSettingsRepository = schoolSettingsRepository;
+    constructor({ classRepository, teachingModelReader }: Dependencies) {
+        this.classRepository     = classRepository;
+        this.teachingModelReader = teachingModelReader;
     }
 
     async resolve(
@@ -37,9 +36,7 @@ export class ClassSubjectResolutionService {
             };
         }
 
-        const settings = await this.schoolSettingsRepository.find();
-
-        if (settings?.teachingModel === TeachingModel.HOMEROOM) {
+        if ((await this.teachingModelReader.get()) === "homeroom") {
             const cls = await this.classRepository.findClassById(classId);
 
             if (cls?.classTeacherId) {

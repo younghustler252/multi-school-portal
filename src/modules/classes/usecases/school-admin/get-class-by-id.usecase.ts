@@ -1,71 +1,20 @@
-import { IClassRepository }   from "../../repositories/class.repository";
-import { IStaffRepository }   from "../../../staff/repositories/staff.repository";
-import { IUserRepository }    from "../../../auth/repositories/user.repository";
+import { IClassRepository } from "../../repositories/class.repository";
 import { ISessionRepository } from "../../../sessions/repositories/session.repository";
-import { NotFoundError }      from "../../../../shared/errors/domain.errors";
-import { ClassErrorMessage }  from "../../domain/class.enums";
+import { ClassPresenter, ClassResponse } from "../../services/class-presenter";
+import { classErrors } from "../../domain/class.errors";
 
-interface Dependencies {
-    classRepository:   IClassRepository;
-    staffRepository:   IStaffRepository;
-    userRepository:    IUserRepository;
-    sessionRepository: ISessionRepository;
-}
+interface Dependencies { classRepository: IClassRepository; sessionRepository: ISessionRepository; classPresenter: ClassPresenter }
 
-export interface EnrichedClass {
-    id:               string;
-    name:             string;
-    level:            string | null;
-    capacity:         number | null;
-    classTeacherId:   string | null;
-    classTeacherName: string | null;
-    studentCount:     number;
-    toClassId:        string | null;
-    toClassName:      string | null;
-    createdAt:        Date;
-}
-
+/* ONE CLASS with its teacher's name, student count and the class it is promoted into ({ id, name }, or null = graduates). */
 export class GetClassByIdUseCase {
-    private readonly classRepository:   IClassRepository;
-    private readonly staffRepository:   IStaffRepository;
-    private readonly userRepository:    IUserRepository;
-    private readonly sessionRepository: ISessionRepository;
+    constructor(private readonly d: Dependencies) {}
 
-    constructor({
-        classRepository,
-        staffRepository,
-        userRepository,
-        sessionRepository,
-    }: Dependencies) {
-        this.classRepository   = classRepository;
-        this.staffRepository   = staffRepository;
-        this.userRepository    = userRepository;
-        this.sessionRepository = sessionRepository;
-    }
-
-    async execute(id: string, termId?: string): Promise<EnrichedClass> {
-        const resolvedTermId = termId ?? (await this.sessionRepository.findCurrentTerm())?.id ?? null;
-
-        const cls = await this.classRepository.findClassByIdEnriched(id, resolvedTermId);
-        if (!cls) throw new NotFoundError(ClassErrorMessage.NOT_FOUND);
-
-        let classTeacherName: string | null = null;
-
-        if (cls.classTeacherId) {
-            const staff = await this.staffRepository.findById(cls.classTeacherId);
-            if (staff) {
-                const user = await this.userRepository.findById(staff.userId);
-                classTeacherName = user ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() : "Unknown";
-            }
-        }
-
-        const progression = await this.classRepository.findClassProgressionEnriched(id);
-
-        return {
-            ...cls,
-            classTeacherName,
-            toClassId:   progression?.toClassId   ?? null,
-            toClassName: progression?.toClassName ?? null,
-        };
+    async execute(id: string, termId?: string): Promise<ClassResponse> {
+        const resolved = termId ?? (await this.d.sessionRepository.findCurrentTerm())?.id ?? null;
+        const row = await this.d.classRepository.findClassByIdEnriched(id, resolved);
+        if (!row) throw classErrors.notFound();
+        const progression = await this.d.classRepository.findClassProgressionEnriched(id);
+        const next = progression?.toClassId ? { id: progression.toClassId, name: progression.toClassName ?? "" } : null;
+        return this.d.classPresenter.one(row, next);
     }
 }

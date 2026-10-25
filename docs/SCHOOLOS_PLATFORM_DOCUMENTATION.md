@@ -111,7 +111,8 @@ Status terms used here:
 | Students | `registerStudents` and `/students` are enabled; see `docs/STUDENTS_MODULE_NOTES.md` | **First slice implemented** (create, get, list/search, update, deactivate, reactivate, photo). Bulk import, guardians on the detail, class/attendance on the list and student login are deferred. Build and unit tests checked; database/API tests not run |
 | Guardians | `registerGuardians` and `/guardians` are enabled; see `docs/GUARDIANS_MODULE_NOTES.md` | **First slice implemented** (create+link, get, list, update, link, unlink, invite through Auth, my children). Needs the `20261023150000_guardian_primary_unique` tenant migration and `npm run sync:registries`. Class details on my-children, deactivate and merge are deferred. Build and unit tests checked; database/API tests not run |
 | Sessions | `registerSessions` and `/sessions` are enabled; see `docs/SESSIONS_MODULE_NOTES.md` | **First pass implemented** (sessions, terms, atomic current switch, set-based term roll-over, calendar). Existing schools' editable roles need `sessions.view` added. Build and unit tests checked; database/API tests not run |
-| Classes / Enrolment | Code exists; container and route registrations are commented out | Not integrated; next passes (see `docs/ACADEMIC_STRUCTURE_AUDIT.md`). Staff's assignment endpoints need Classes registered |
+| Classes | `registerClasses` and `/classes` are enabled; see `docs/CLASSES_MODULE_NOTES.md` | **Part A implemented** (classes, class teacher, progression, safe delete, names in responses). Subjects and subject teachers (part B) still need their hardening pass. Existing schools' editable roles need `classes.view`. Build and unit tests checked; database/API tests not run |
+| Enrolment | Code exists; container and route registrations are commented out | Not integrated; next pass (see `docs/ACADEMIC_STRUCTURE_AUDIT.md`) |
 | Attendance / Grades / Report Cards | Models/references and some module files exist; route/container registrations are commented out | Not integrated; audit each module before enabling |
 | Payments / Notifications / Settings / Platform admin / Feedback | Some imports/files may exist, but current container/routes have registrations commented out | Not integrated as a whole; inspect individual scope before starting or re-enabling |
 | Tests / CI status | `npm test` and `npm run build` scripts exist; `docs/TESTING_GUIDE.md` documents test setup | **Not run as part of this documentation update.** Never claim green build/tests without executing them on the current checkout |
@@ -204,6 +205,7 @@ Read the relevant notes before modifying the associated area:
 - `docs/PLANS_MODULE_NOTES.md` — plans, entitlements, plan permissions, registry sync, pricing rules.
 - `docs/BILLING_MODULE_NOTES.md` + `docs/BILLING_SCHEMA.md` — subscription billing engine, invoices, attempts, webhooks, workers and migration requirements.
 - `docs/BRANCHES_NOTES.md` — branch model, branch scope, branch entitlements, migrations and role templates.
+- `docs/CLASSES_MODULE_NOTES.md` — classes part A: permissions, teacher rule, safe delete, progression, names in responses.
 - `docs/SESSIONS_MODULE_NOTES.md` — sessions, terms, term roll-over, calendar, roles in existing schools, frontend changes.
 - `docs/GUARDIANS_MODULE_NOTES.md` — guardians first slice: routes, permissions, primary-guardian rule, invites through Auth, frontend changes.
 - `docs/STUDENTS_MODULE_NOTES.md` — students first slice: routes, permissions, admission numbers, frontend changes, deferred items.
@@ -245,4 +247,4 @@ Use `docs/TESTING_GUIDE.md` before database tests. Database tests must use the d
 
 ## 9. Current next action
 
-**Classes pass next, then Enrolment** (plan in `docs/ACADEMIC_STRUCTURE_AUDIT.md`). Responses carry names (`{ id, name }`), not bare ids. Run `npm run sync:registries` after pulling the Sessions pass. Update this document and the module notes after each pass.
+**Classes part B (subjects and subject teachers), then Enrolment** (plan in `docs/ACADEMIC_STRUCTURE_AUDIT.md`). Responses carry names (`{ id, name }`), not bare ids. Run `npm run sync:registries` after pulling the Classes pass. Update this document and the module notes after each pass.

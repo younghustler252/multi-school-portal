@@ -1,169 +1,45 @@
-import { Router }             from "express";
-import { container }          from "../../../container";
-import { ClassController }    from "../controllers/class.controller";
-import { validate }           from "../../../infrastructure/middleware/validate.middleware";
-import { authenticate }       from "../../../infrastructure/middleware/auth.middleware";
+import { Router } from "express";
+import { container } from "../../../container";
+import { ClassController } from "../controllers/class.controller";
+import { validate } from "../../../infrastructure/middleware/validate.middleware";
+import { authenticate } from "../../../infrastructure/middleware/auth.middleware";
+import { requireTenant } from "../../../infrastructure/middleware/tenant-resolver.middleware";
+import { requirePermission } from "../../../infrastructure/middleware/rbac.middleware";
 import {
-    requireSchoolAdmin,
-    requireStaff,
-}                             from "../../../infrastructure/middleware/rbac.middleware";
-import { requireTenant }      from "../../../infrastructure/middleware/tenant-resolver.middleware";
-import {
-    CreateClassDto,
-    UpdateClassDto,
-    CreateSubjectDto,
-    AssignSubjectDto,
-    BulkAssignSubjectsDto,
-    SetSubjectDefaultTeacherDto
-}                             from "../dtos/class.dto";
+    CreateClassDto, UpdateClassDto, SetClassTeacherDto, SetClassProgressionDto,
+    CreateSubjectDto, AssignSubjectDto, BulkAssignSubjectsDto, SetSubjectDefaultTeacherDto,
+} from "../dtos/class.dto";
 
 /*
-|--------------------------------------------------------------------------
-| CLASS ROUTES
-|--------------------------------------------------------------------------
+| CLASS ROUTES (school realm, mounted at /classes on the school's host).
+| classes.view   = see classes, subjects and who teaches what (staff roles)
+| classes.manage = create, edit and delete classes and subjects; class teachers; promotion order; subject teachers
+| Fixed paths ("/subjects...", "/apply-teaching-defaults") come before "/:id".
+| (The subject and teacher-assignment routes only got their permission guards in this pass; their use cases are hardened next.)
 */
-
 const router = Router();
 const ctrl   = () => container.resolve<ClassController>("classController");
+const view   = [authenticate, requireTenant, requirePermission("classes.view")] as const;
+const manage = [authenticate, requireTenant, requirePermission("classes.manage")] as const;
 
-// ── Classes ───────────────────────────────────────────────────────────────
-router.get(
-    "/",
-    authenticate,
-    requireTenant,
-    requireStaff,
-    (req, res, next) => ctrl().getClasses(req, res, next),
-);
+router.get("/", ...view, (q, s, n) => ctrl().getClasses(q, s, n));
+router.post("/", ...manage, validate(CreateClassDto), (q, s, n) => ctrl().createClass(q, s, n));
+router.post("/apply-teaching-defaults", ...manage, (q, s, n) => ctrl().applyTeachingDefaults(q, s, n));
 
-router.post(
-    "/",
-    authenticate,
-    requireTenant,
-    requireSchoolAdmin,
-    validate(CreateClassDto),
-    (req, res, next) => ctrl().createClass(req, res, next),
-);
+router.get("/subjects/all", ...view, (q, s, n) => ctrl().getSubjects(q, s, n));
+router.post("/subjects", ...manage, validate(CreateSubjectDto), (q, s, n) => ctrl().createSubject(q, s, n));
+router.put("/subjects/:id/default-teacher", ...manage, validate(SetSubjectDefaultTeacherDto), (q, s, n) => ctrl().setSubjectDefaultTeacher(q, s, n));
 
-router.post(
-    "/apply-teaching-defaults",
-    authenticate,
-    requireTenant,
-    requireSchoolAdmin,
-    (req, res, next) => ctrl().applyTeachingDefaults(req, res, next),
-);
+router.get("/:id", ...view, (q, s, n) => ctrl().getClassById(q, s, n));
+router.put("/:id", ...manage, validate(UpdateClassDto), (q, s, n) => ctrl().updateClass(q, s, n));
+router.delete("/:id", ...manage, (q, s, n) => ctrl().deleteClass(q, s, n));
+router.put("/:id/class-teacher", ...manage, validate(SetClassTeacherDto), (q, s, n) => ctrl().setClassTeacher(q, s, n));
+router.put("/:id/progression", ...manage, validate(SetClassProgressionDto), (q, s, n) => ctrl().setClassProgression(q, s, n));
 
-// ── Subjects (standalone) ─────────────────────────────────────────────────
-router.get(
-    "/subjects/all",
-    authenticate,
-    requireTenant,
-    requireStaff,
-    (req, res, next) => ctrl().getSubjects(req, res, next),
-);
-
-router.post(
-    "/subjects",
-    authenticate,
-    requireTenant,
-    requireSchoolAdmin,
-    validate(CreateSubjectDto),
-    (req, res, next) => ctrl().createSubject(req, res, next),
-);
-
-router.put(
-    "/subjects/:id/default-teacher",
-    authenticate,
-    requireTenant,
-    requireSchoolAdmin,
-    validate(SetSubjectDefaultTeacherDto),
-    (req, res, next) => ctrl().setSubjectDefaultTeacher(req, res, next),
-);
-
-// ── Class by ID ───────────────────────────────────────────────────────────
-router.get(
-    "/:id",
-    authenticate,
-    requireTenant,
-    requireStaff,
-    (req, res, next) => ctrl().getClassById(req, res, next),
-);
-
-router.put(
-    "/:id/class-teacher",
-    authenticate,
-    requireTenant,
-    requireSchoolAdmin,
-    (req, res, next) => ctrl().setClassTeacher(req, res, next),
-);
-
-
-
-router.put(
-    "/:id/progression",
-    authenticate,
-    requireTenant,
-    requireSchoolAdmin,
-    (req, res, next) => ctrl().setClassProgression(req, res, next),
-);
-
-router.put(
-    "/:id",
-    authenticate,
-    requireTenant,
-    requireSchoolAdmin,
-    validate(UpdateClassDto),
-    (req, res, next) => ctrl().updateClass(req, res, next),
-);
-
-router.delete(
-    "/:id",
-    authenticate,
-    requireTenant,
-    requireSchoolAdmin,
-    (req, res, next) => ctrl().deleteClass(req, res, next),
-);
-
-// ── Class subjects ────────────────────────────────────────────────────────
-router.get(
-    "/:id/subjects",
-    authenticate,
-    requireTenant,
-    requireStaff,
-    (req, res, next) => ctrl().getClassSubjects(req, res, next),
-);
-
-router.post(
-    "/:id/subjects",
-    authenticate,
-    requireTenant,
-    requireSchoolAdmin,
-    validate(AssignSubjectDto),
-    (req, res, next) => ctrl().assignSubject(req, res, next),
-);
-
-router.post(
-    "/:id/subjects/bulk-assign",
-    authenticate,
-    requireTenant,
-    requireSchoolAdmin,
-    validate(BulkAssignSubjectsDto),
-    (req, res, next) => ctrl().bulkAssignSubjects(req, res, next),
-);
-
-router.patch(
-    "/:id/subjects/:classSubjectId/clear-override",
-    authenticate,
-    requireTenant,
-    requireSchoolAdmin,
-    (req, res, next) => ctrl().clearSubjectOverride(req, res, next),
-);
-
-router.delete(
-    "/:id/subjects/:classSubjectId",
-    authenticate,
-    requireTenant,
-    requireSchoolAdmin,
-    (req, res, next) => ctrl().removeSubject(req, res, next),
-);
+router.get("/:id/subjects", ...view, (q, s, n) => ctrl().getClassSubjects(q, s, n));
+router.post("/:id/subjects", ...manage, validate(AssignSubjectDto), (q, s, n) => ctrl().assignSubject(q, s, n));
+router.post("/:id/subjects/bulk-assign", ...manage, validate(BulkAssignSubjectsDto), (q, s, n) => ctrl().bulkAssignSubjects(q, s, n));
+router.patch("/:id/subjects/:classSubjectId/clear-override", ...manage, (q, s, n) => ctrl().clearSubjectOverride(q, s, n));
+router.delete("/:id/subjects/:classSubjectId", ...manage, (q, s, n) => ctrl().removeSubject(q, s, n));
 
 export default router;

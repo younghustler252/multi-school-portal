@@ -49,9 +49,9 @@ export class UpdateSubjectUseCase {
                 throw new NotFoundError("Staff member not found");
             }
 
-            if (staff.role !== "teacher" && staff.role !== "principal") {
+            if (!staff.isActive || staff.category !== "teaching") {
                 throw new BadRequestError(
-                    "Subject default teacher must be a teacher or principal.",
+                    "Subject default teacher must be an active teaching staff member.",
                 );
             }
         }

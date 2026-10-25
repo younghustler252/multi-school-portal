@@ -15,6 +15,8 @@ import { RemoveSubjectUseCase }     from "../usecases/school-admin/remove-subjec
 import { ApplyDefaultsUseCase } from "../usecases/school-admin/apply-default-usecase";
 import { SetClassProgressionUseCase } from "../usecases/school-admin/set-class-progression.usecase";
 import { ClearSubjectOverrideUseCase } from "../usecases/school-admin/clear-subject-override.usecase";
+import { classErrors } from "../domain/class.errors";
+import { ClassActor } from "../domain/class.types";
 import {
     sendSuccess,
     sendCreated,
@@ -25,6 +27,13 @@ import {
 | CLASS CONTROLLER
 |--------------------------------------------------------------------------
 */
+
+// The school is the host's school; the acting person comes ONLY from the verified session (req.auth).
+const schoolIdOf = (req: Request): string => req.schoolId as string;
+const actorOf = (req: Request): ClassActor => {
+    if (!req.auth) throw classErrors.notFound();
+    return { userId: req.auth.userId };
+};
 
 interface Dependencies {
     createClassUseCase:      CreateClassUseCase;
@@ -100,84 +109,38 @@ export class ClassController {
     }
 
     // ── Classes ───────────────────────────────────────────────────────────
-    getClasses = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
+    getClasses = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const { termId } = req.query;
-
-            const result = await this.getClassesUseCase.execute(
-                termId as string,
-            );
-
-            sendSuccess(res, result, "Classes retrieved successfully");
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    createClass = async (
-        req: Request, res: Response, next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.createClassUseCase.execute(req.body);
-            sendCreated(res, result, "Class created successfully");
+            const termId = typeof req.query.termId === "string" ? req.query.termId : undefined;
+            sendSuccess(res, await this.getClassesUseCase.execute(termId), "Classes retrieved successfully");
         } catch (err) { next(err); }
     };
 
-    getClassById = async (
-        req: Request, res: Response, next: NextFunction,
-    ): Promise<void> => {
-        const result = await this.getClassByIdUseCase.execute(
-            req.params?.id as string
-        )
-        sendSuccess(res, result, "class retrieved successful" )
-    }
-
-    setClassTeacher = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.setClassTeacherUseCase.execute(
-                req.params.id as string,
-                req.body.staffId ?? null,
-            );
-
-            sendSuccess(
-                res,
-                result,
-                "Class teacher updated successfully",
-            );
-        } catch (err) {
-            next(err);
-        }
+    createClass = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try { sendCreated(res, await this.createClassUseCase.execute(schoolIdOf(req), req.body, actorOf(req)), "Class created successfully"); }
+        catch (err) { next(err); }
     };
 
-    updateClass = async (
-        req: Request, res: Response, next: NextFunction,
-    ): Promise<void> => {
+    getClassById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const result = await this.updateClassUseCase.execute(
-                req.params.id as string,
-                req.body,
-            );
-            sendSuccess(res, result, "Class updated successfully");
+            const termId = typeof req.query.termId === "string" ? req.query.termId : undefined;
+            sendSuccess(res, await this.getClassByIdUseCase.execute(String(req.params.id), termId), "Class retrieved successfully");
         } catch (err) { next(err); }
     };
 
-    deleteClass = async (
-        req: Request, res: Response, next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.deleteClassUseCase.execute(
-                req.params.id as string,
-            );
-            sendSuccess(res, result, "Class deleted successfully");
-        } catch (err) { next(err); }
+    setClassTeacher = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try { sendSuccess(res, await this.setClassTeacherUseCase.execute(schoolIdOf(req), String(req.params.id), req.body.staffId, actorOf(req)), "Class teacher updated successfully"); }
+        catch (err) { next(err); }
+    };
+
+    updateClass = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try { sendSuccess(res, await this.updateClassUseCase.execute(schoolIdOf(req), String(req.params.id), req.body, actorOf(req)), "Class updated successfully"); }
+        catch (err) { next(err); }
+    };
+
+    deleteClass = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try { sendSuccess(res, await this.deleteClassUseCase.execute(schoolIdOf(req), String(req.params.id), actorOf(req)), "Class deleted successfully"); }
+        catch (err) { next(err); }
     };
 
     // ── Subjects ──────────────────────────────────────────────────────────
@@ -277,25 +240,9 @@ export class ClassController {
         } catch (err) { next(err); }
     };
 
-    setClassProgression = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.setClassProgressionUseCase.execute(
-                req.params.id as string,
-                req.body.toClassId ?? null,
-            );
-
-            sendSuccess(
-                res,
-                result,
-                "Class progression updated successfully",
-            );
-        } catch (err) {
-            next(err);
-        }
+    setClassProgression = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try { sendSuccess(res, await this.setClassProgressionUseCase.execute(schoolIdOf(req), String(req.params.id), req.body.toClassId ?? null, actorOf(req)), "Class progression updated successfully"); }
+        catch (err) { next(err); }
     };
 
     applyTeachingDefaults = async (
