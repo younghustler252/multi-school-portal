@@ -1,34 +1,36 @@
-# SchoolOS — Multi-School Portal API
+# CORE — Multi-School Portal API
 
-A multi-tenant school-management SaaS backend for Nigerian primary and secondary schools.
+A multi-tenant school-management SaaS backend, initially focused on Nigerian primary and secondary schools.
 
 ## Start here
 
-**Before changing code, read [`docs/SCHOOLOS_PLATFORM_DOCUMENTATION.md`](docs/SCHOOLOS_PLATFORM_DOCUMENTATION.md).** It is the current architecture overview, module integration/status map, and AI/developer handoff guide.
+Read [Platform Documentation](docs/PLATFORM_DOCUMENTATION.md) before changing architecture or starting work in a module. It describes the observed application architecture, active container registrations, API mounts, tenant boundaries, and development rules.
 
-Then read the relevant module notes under `docs/` before working in that area. Those notes describe implementation decisions and API contracts, but always compare them against the current source branch before applying historical instructions.
+Use [Testing Guide](docs/TESTING_GUIDE.md) for test commands and database-test safety. Remaining module notes are interim references; verify their claims against the current source before relying on them.
 
-## Current stack
+## Stack
 
 - Node.js + TypeScript
-- Express
-- PostgreSQL with Prisma
+- Express 5
+- PostgreSQL + Prisma 7
 - Separate public and per-school tenant schemas
 - Awilix dependency injection
 - Redis + BullMQ background jobs
-- Shared authorization, plan entitlements, audit, and finance-ledger foundations
+- Shared authorization, subscription entitlements, audit, and finance-ledger foundations
 
 ## Key code locations
 
 - `src/modules/` — feature modules
 - `src/foundation/` — shared access, permissions, entitlements, and registry sync
-- `src/container/index.ts` — module dependency-injection registration
+- `src/container/index.ts` — dependency-injection registrations
 - `src/routes/index.ts` — API route mounts
+- `src/app.ts` — application middleware and route lifecycle
 - `prisma/public.prisma` — platform schema
-- `prisma/tenant.prisma` — school tenant schema
-- `prisma/migrations/` and `prisma/tenant-migrations/` — migration history
+- `prisma/tenant.prisma` — school-owned schema
+- `prisma/migrations/` — public-schema migrations
+- `prisma/tenant-migrations/` — tenant-schema migrations
 - `src/infrastructure/jobs/` and `src/worker.ts` — background jobs and worker startup
-- `docs/TESTING_GUIDE.md` — test setup and database-test safety
+- `tests/` — automated tests
 
 ## Common commands
 
@@ -39,8 +41,10 @@ npm run sync:registries
 npm run prisma:generate
 ```
 
-Database tests require the separate test database described in `docs/TESTING_GUIDE.md`. Never run destructive tests against development or production data.
+Database tests require a dedicated disposable database as described in [Testing Guide](docs/TESTING_GUIDE.md). Never run destructive tests against development or production data.
 
-## Development rule
+## Development rules
 
-A module's files existing does not mean it is registered, routed, tested, or production-ready. Check its use cases, dependencies, permissions, entitlements, tenant boundaries, container registration, route mount, migrations, workers, and tests before marking it complete. Keep changes scoped to the module being worked on and update its documentation as part of the same pass.
+A module's files existing does not mean it is registered, routed, tested, or production-ready. Check dependencies, permissions, scopes, entitlements, tenant boundaries, container registration, route mounts, migrations, workers, and tests before marking it complete.
+
+Keep changes scoped, follow the established route → controller → use case → repository layering, and update durable documentation in the same change set as the implementation.
