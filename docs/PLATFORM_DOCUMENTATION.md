@@ -56,7 +56,7 @@ The application-level order in `src/app.ts` is:
 
 Route-specific middleware remains responsible for enforcing authentication, tenant requirements, permissions/scopes, plan entitlements, and validation. Check each route rather than assuming those checks are global.
 
-**Deployment configuration to revisit:** `src/app.ts` currently allows production CORS origins only when they match `https://.*\\.yourapp.com`. Confirm and replace that placeholder-domain policy with the intended production origins before deploying the frontend. Development mode currently allows any origin.
+**Deployment configuration to revisit:** `src/app.ts` currently allows production CORS origins only when they match `https://.*\.yourapp.com`. Confirm and replace that placeholder-domain policy with the intended production origins before deploying the frontend. Development mode currently allows any origin.
 
 The intended module layering is:
 
