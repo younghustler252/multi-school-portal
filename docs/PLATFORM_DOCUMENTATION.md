@@ -56,6 +56,8 @@ The application-level order in `src/app.ts` is:
 
 Route-specific middleware remains responsible for enforcing authentication, tenant requirements, permissions/scopes, plan entitlements, and validation. Check each route rather than assuming those checks are global.
 
+**Deployment configuration to revisit:** `src/app.ts` currently allows production CORS origins only when they match `https://.*\\.yourapp.com`. Confirm and replace that placeholder-domain policy with the intended production origins before deploying the frontend. Development mode currently allows any origin.
+
 The intended module layering is:
 
 - **Routes:** compose middleware and map HTTP methods/paths.
@@ -159,4 +161,4 @@ After changing permissions or role templates, review whether `npm run sync:regis
 
 - [Testing Guide](TESTING_GUIDE.md): test commands, database setup, safety, and writing tests.
 - Module notes that remain in `docs/` are interim reference material. Treat source code as authoritative and replace stale implementation-history notes with current module contracts as each module is reviewed.
-- Auth is the next module audit after this platform/testing documentation pass. The Auth audit should be based on current routes, controllers, use cases, repositories, DTOs, middleware, token/session persistence, configuration, migrations, and tests.
+- [Auth Audit](AUTH_AUDIT.md): source-based findings for the Auth module. It records security/correctness issues and verification gaps; findings remain open until fixed and tested.
