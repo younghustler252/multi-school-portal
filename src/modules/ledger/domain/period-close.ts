@@ -22,6 +22,13 @@ export interface CloseCounts {
     pendingPayments: number;
     pendingExpenses: number;
     earlierOpenPeriods: number;
+    /** Bank accounts that have imported statements but are not signed off through this month. Left out when bank reconciliation is not in use. */
+    unreconciledAccounts?: number;
+}
+
+export interface ChecklistOptions {
+    /** finance.reconciliation_blocks_close: an unreconciled bank account stops the close instead of warning. */
+    reconciliationBlocksClose?: boolean;
 }
 
 export interface CloseChecklist {
@@ -39,7 +46,7 @@ const WARNING_ITEMS: { key: keyof CloseCounts; label: string }[] = [
     { key: "earlierOpenPeriods", label: "Earlier months that are still open" },
 ];
 
-export function buildChecklist(counts: CloseCounts, integrity: IntegrityReport): CloseChecklist {
+export function buildChecklist(counts: CloseCounts, integrity: IntegrityReport, options: ChecklistOptions = {}): CloseChecklist {
     const items: ChecklistItem[] = [];
 
     const byCheck = integrity.byCheck as Record<string, number>;
@@ -58,8 +65,16 @@ export function buildChecklist(counts: CloseCounts, integrity: IntegrityReport):
     });
 
     for (const w of WARNING_ITEMS) {
-        const n = counts[w.key];
+        const n = counts[w.key] ?? 0;
         items.push({ key: w.key, label: w.label, severity: n > 0 ? "warning" : "ok", count: n });
+    }
+
+    if (counts.unreconciledAccounts !== undefined) {
+        const n = counts.unreconciledAccounts;
+        items.push({
+            key: "unreconciledAccounts", label: "Bank accounts not yet reconciled with their statement for this month",
+            severity: n > 0 ? (options.reconciliationBlocksClose ? "blocker" : "warning") : "ok", count: n,
+        });
     }
 
     const blockers = items.filter(i => i.severity === "blocker").length;

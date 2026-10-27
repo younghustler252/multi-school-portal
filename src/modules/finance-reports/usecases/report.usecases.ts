@@ -3,8 +3,8 @@ import { ILedgerReportRepository } from "../../ledger/repositories/ledger-report
 import { IFinancePeriodRepository } from "../../ledger/repositories/finance-period.repository";
 import { IStatementRepository } from "../repositories/statement.repository";
 import { dayString, todayInFinanceZone } from "../../ledger/domain/ledger.dates";
-import { DEFAULT_FISCAL_YEAR_START_MONTH } from "../../ledger/domain/ledger.constants";
 import { koboOut } from "../../ledger/mappers/kobo";
+import { FinanceSettingsReader, settingsOf } from "../../finance-settings/domain/finance-settings";
 import { buildIncomeStatement } from "../domain/statements";
 import { ExportFormat } from "../dtos/report.dto";
 
@@ -27,7 +27,10 @@ export class ExportReportUseCase {
     }
 }
 
-interface DashboardDeps { ledgerReportRepository: ILedgerReportRepository; statementRepository: IStatementRepository; financePeriodRepository: IFinancePeriodRepository }
+interface DashboardDeps {
+    ledgerReportRepository: ILedgerReportRepository; statementRepository: IStatementRepository; financePeriodRepository: IFinancePeriodRepository;
+    financeSettingsService?: FinanceSettingsReader;      // finance.fiscal_year_start_month; absent in hand-built tests (default: January)
+}
 
 /*
 | THE PROPRIETOR DASHBOARD (brief section 9): the few numbers an owner wants first. All from posted journals, so it always agrees with
@@ -44,8 +47,9 @@ export class FinanceDashboardUseCase {
         const today = todayInFinanceZone(this.now());
         const monthStart = `${today.slice(0, 7)}-01`;
         const todayMonth = Number(today.slice(5, 7)), todayYear = Number(today.slice(0, 4));
-        const fiscalYear = todayMonth >= DEFAULT_FISCAL_YEAR_START_MONTH ? todayYear : todayYear - 1;
-        const yearStart = `${fiscalYear}-${String(DEFAULT_FISCAL_YEAR_START_MONTH).padStart(2, "0")}-01`;
+        const startMonth = (await settingsOf(this.d)).fiscalYearStartMonth;
+        const fiscalYear = todayMonth >= startMonth ? todayYear : todayYear - 1;
+        const yearStart = `${fiscalYear}-${String(startMonth).padStart(2, "0")}-01`;
 
         const balances = await this.d.ledgerReportRepository.balancesAsOf(today, false);
         const byKey = (key: string) => balances.find(b => b.systemKey === key)?.balanceKobo ?? 0n;

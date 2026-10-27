@@ -6,13 +6,15 @@ import { FeeAdjustmentMapper } from "../mappers/fee-adjustment.mapper";
 import { AuditService } from "../../audit/services/audit.service";
 import { todayInFinanceZone } from "../../ledger/domain/ledger.dates";
 import { feeErrors } from "../domain/fee.errors";
-import { ADJUSTMENT_LABEL, ALLOW_SELF_APPROVAL, planAdjustment } from "../domain/adjustment.policy";
+import { ADJUSTMENT_LABEL, planAdjustment } from "../domain/adjustment.policy";
+import { FinanceSettingsReader, settingsOf } from "../../finance-settings/domain/finance-settings";
 import { ApproveAdjustmentDtoType, ListAdjustmentsQueryType, RejectAdjustmentDtoType, RequestAdjustmentDtoType } from "../dtos/adjustment.dto";
 import type { FeeInvoiceEntity } from "../domain/invoice.entity";
 
 interface Dependencies {
     feeInvoiceRepository: IFeeInvoiceRepository; feeAdjustmentRepository: IFeeAdjustmentRepository; paymentRepository: IPaymentRepository;
     postingService: PostingService; feeAdjustmentMapper: FeeAdjustmentMapper; auditService: AuditService;
+    financeSettingsService?: FinanceSettingsReader;      // finance.allow_self_approval; absent in hand-built tests (default: not allowed)
 }
 
 export interface AdjustmentOptions {
@@ -128,7 +130,7 @@ export class DecideAdjustmentUseCase {
         const a = await this.d.feeAdjustmentRepository.findById(id);
         if (!a) throw feeErrors.adjustmentNotFound();
         if (a.status !== "PENDING") throw feeErrors.adjustmentNotPending(a.status);
-        if (a.requestedById === actorUserId && !ALLOW_SELF_APPROVAL) throw feeErrors.adjustmentSelfApproval();
+        if (a.requestedById === actorUserId && !(await settingsOf(this.d)).allowSelfApproval) throw feeErrors.adjustmentSelfApproval();
         return a;
     }
 

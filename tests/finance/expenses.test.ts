@@ -133,7 +133,7 @@ describe("expenses: paying a bill", () => {
         const w = expensesWorld();
         const x: any = await w.owed();
         const p1: any = await w.pay.execute(x.id, "school-1", "bursar-1", { amountKobo: N(30_000), method: "bank_transfer" });
-        assert.equal(p1.status, "PARTIALLY_PAID"); assert.equal(p1.balanceKobo, N(50_000));
+        assert.equal(p1.status, "PARTIALLY_PAID"); assert.equal(p1.balanceKobo, Number(N(50_000)));   // responses carry kobo as a JSON number
         assert.equal(w.balance("a-bank"), -N(30_000));
         const p2: any = await w.pay.execute(x.id, "school-1", "bursar-1", { amountKobo: N(50_000), method: "cash" });
         assert.equal(p2.status, "PAID"); assert.equal(p2.balanceKobo, 0);
@@ -161,7 +161,7 @@ describe("expenses: paying a bill", () => {
         const body = { amountKobo: N(20_000), method: "cash" as const, requestId: "click-0001" };
         await w.pay.execute(x.id, "school-1", "bursar-1", body);
         const again: any = await w.pay.execute(x.id, "school-1", "bursar-1", body);
-        assert.equal(again.paidKobo, N(20_000));
+        assert.equal(again.paidKobo, Number(N(20_000)));
         assert.equal(w.balance("a-cash"), -N(20_000));
         w.assertControl(assert);
     });
@@ -221,7 +221,7 @@ describe("expenses: budgets", () => {
         const a: any = await w.approve.execute(second.id, "school-1", "principal-1", {});
         assert.equal(a.status, "APPROVED");
         assert.equal(a.budgetWarnings.length, 1);
-        assert.equal(a.budgetWarnings[0].overByKobo, N(60_000));
+        assert.equal(a.budgetWarnings[0].overByKobo, Number(N(60_000)));
     });
 
     it("blocks, and nothing is posted, when enforcement is block", async () => {

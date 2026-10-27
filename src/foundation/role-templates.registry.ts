@@ -43,6 +43,7 @@ export const ROLE_TEMPLATES: RoleTemplateDef[] = [
             { key: "payroll.runs.view", scope: "ALL" }, { key: "payroll.runs.approve", scope: "ALL" }, { key: "payroll.payslips.view", scope: "OWN" },
             { key: "branches.view", scope: "ALL" },
             { key: "finance.accounts.view", scope: "ALL" }, { key: "finance.journals.view", scope: "ALL" }, { key: "finance.periods.view", scope: "ALL" }, { key: "finance.reports.view", scope: "ALL" }, { key: "finance.reports.export", scope: "ALL" }, { key: "finance.reports.accountant", scope: "ALL" },
+            { key: "finance.settings.view", scope: "ALL" }, { key: "finance.bank_reconciliation.view", scope: "ALL" },
         ],
     },
     {
@@ -76,6 +77,8 @@ export const ROLE_TEMPLATES: RoleTemplateDef[] = [
             { key: "expenses.view", scope: "ALL" }, { key: "expenses.create", scope: "ALL" }, { key: "expenses.pay", scope: "ALL" }, { key: "vendors.manage", scope: "ALL" }, { key: "budgets.view", scope: "ALL" }, { key: "budgets.manage", scope: "ALL" },
             { key: "payroll.runs.view", scope: "ALL" }, { key: "payroll.runs.create", scope: "ALL" }, { key: "payroll.payslips.view", scope: "OWN" },
             { key: "finance.accounts.view", scope: "ALL" }, { key: "finance.journals.view", scope: "ALL" }, { key: "finance.periods.view", scope: "ALL" }, { key: "finance.reports.view", scope: "ALL" }, { key: "finance.reports.export", scope: "ALL" }, { key: "finance.reports.accountant", scope: "ALL" },
+            { key: "finance.settings.view", scope: "ALL" },
+            { key: "finance.bank_reconciliation.view", scope: "ALL" }, { key: "finance.bank_reconciliation.import", scope: "ALL" }, { key: "finance.bank_reconciliation.match", scope: "ALL" },
         ],
     },
     {

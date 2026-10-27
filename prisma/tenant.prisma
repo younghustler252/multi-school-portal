@@ -1347,6 +1347,10 @@ model LedgerAccount {
   budgetLines     BudgetLine[]
   recurringPayFrom RecurringExpense[] @relation("RecurringPayFrom")
 
+  bankStatements      BankStatement[]
+  bankMatchGroups     BankMatchGroup[]
+  bankReconciliations BankReconciliation[]
+
   @@index([type])
   @@index([parentId])
   @@index([isActive])
@@ -1368,7 +1372,8 @@ model FinancePeriod {
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
-  journals JournalEntry[]
+  journals            JournalEntry[]
+  bankReconciliations BankReconciliation[]
 }
 
 // One money event. Immutable once posted; only status may change (POSTED to REVERSED).
@@ -1437,6 +1442,7 @@ model JournalLine {
 
   journal       JournalEntry  @relation(fields: [journalId], references: [id], onDelete: Restrict)
   ledgerAccount LedgerAccount @relation(fields: [ledgerAccountId], references: [id], onDelete: Restrict)
+  bankMatch     BankMatchedJournalLine?
 
   @@unique([journalId, lineNumber])
   @@index([ledgerAccountId, journalId])
@@ -1916,4 +1922,106 @@ model PayrollRemittance {
   journal JournalEntry @relation(fields: [journalId], references: [id], onDelete: Restrict)
 
   @@index([periodYear, periodMonth])
+}
+
+// ===== FINANCE: BANK RECONCILIATION (phase 6) =====
+// A bank statement is imported as signed lines (money in is positive, money out is negative) and each line is paired with the
+// journal line(s) that record the same money. A month is signed off per money account with BankReconciliation.
+
+enum BankMatchKind {
+  AUTO    // paired by the system: same amount, close dates, no other candidate as good
+  MANUAL  // paired by a person
+  CREATED // the books did not have it: a journal was made from the bank line (a charge, interest)
+  CLEARED // a book entry with no bank line, set aside with a reason (an opening balance from before the statements start)
+}
+
+// One uploaded file. The same file cannot be imported twice for one account.
+model BankStatement {
+  id                 String   @id @default(uuid())
+  ledgerAccountId    String
+  fileName           String?
+  fileHash           String
+  startDate          DateTime @db.Date
+  endDate            DateTime @db.Date
+  openingBalanceKobo BigInt?
+  closingBalanceKobo BigInt?
+  lineCount          Int
+  importedById       String?
+  importedAt         DateTime @default(now())
+
+  ledgerAccount LedgerAccount        @relation(fields: [ledgerAccountId], references: [id], onDelete: Restrict)
+  lines         BankStatementLine[]
+
+  @@unique([ledgerAccountId, fileHash])
+  @@index([ledgerAccountId, endDate])
+}
+
+// One transaction as the bank printed it. dedupeKey stops an overlapping upload creating it twice.
+model BankStatementLine {
+  id              String   @id @default(uuid())
+  statementId     String
+  ledgerAccountId String
+  lineNumber      Int
+  txnDate         DateTime @db.Date
+  description     String
+  reference       String?
+  amountKobo      BigInt
+  balanceKobo     BigInt?
+  dedupeKey       String
+  matchGroupId    String?
+  createdAt       DateTime @default(now())
+
+  statement  BankStatement   @relation(fields: [statementId], references: [id], onDelete: Cascade)
+  matchGroup BankMatchGroup? @relation(fields: [matchGroupId], references: [id], onDelete: SetNull)
+
+  @@unique([ledgerAccountId, dedupeKey])
+  @@index([ledgerAccountId, txnDate])
+  @@index([statementId])
+  @@index([matchGroupId])
+}
+
+// A pairing: the bank lines and the journal lines in it add up to the same amount.
+model BankMatchGroup {
+  id              String        @id @default(uuid())
+  ledgerAccountId String
+  kind            BankMatchKind
+  note            String?
+  createdById     String?
+  createdAt       DateTime      @default(now())
+
+  ledgerAccount LedgerAccount            @relation(fields: [ledgerAccountId], references: [id], onDelete: Restrict)
+  bankLines     BankStatementLine[]
+  journalLines  BankMatchedJournalLine[]
+
+  @@index([ledgerAccountId, createdAt])
+}
+
+// A journal line can be in at most one pairing (the primary key), so it can never be counted twice.
+model BankMatchedJournalLine {
+  journalLineId String @id
+  groupId       String
+
+  group       BankMatchGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  journalLine JournalLine    @relation(fields: [journalLineId], references: [id], onDelete: Restrict)
+
+  @@index([groupId])
+}
+
+// The sign-off: this money account agreed with its bank at the end of this month. Reopening deletes the row (the audit trail keeps why).
+model BankReconciliation {
+  id                   String   @id @default(uuid())
+  ledgerAccountId      String
+  periodId             String
+  statementBalanceKobo BigInt
+  bookBalanceKobo      BigInt
+  outstandingBookKobo  BigInt
+  note                 String?
+  completedById        String?
+  completedAt          DateTime @default(now())
+
+  ledgerAccount LedgerAccount @relation(fields: [ledgerAccountId], references: [id], onDelete: Restrict)
+  period        FinancePeriod @relation(fields: [periodId], references: [id], onDelete: Restrict)
+
+  @@unique([ledgerAccountId, periodId])
+  @@index([periodId])
 }

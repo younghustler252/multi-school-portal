@@ -8,10 +8,12 @@ import { FinancePeriodEntity } from "../domain/ledger.entity";
 import { ledgerErrors } from "../domain/ledger.errors";
 import { dayString, todayInFinanceZone } from "../domain/ledger.dates";
 import { ClosePeriodDtoType, ReopenPeriodDtoType } from "../dtos/ledger.dto";
+import { FinanceSettingsReader, settingsOf } from "../../finance-settings/domain/finance-settings";
 
 interface Dependencies {
     financePeriodRepository: IFinancePeriodRepository; periodCloseRepository: IPeriodCloseRepository; financePeriodMapper: FinancePeriodMapper;
     runLedgerIntegrityCheckUseCase: RunLedgerIntegrityCheckUseCase; auditService: AuditService;
+    financeSettingsService?: FinanceSettingsReader;      // finance.reconciliation_blocks_close; absent in hand-built tests (default: only a warning)
 }
 interface Options { now?: () => Date }
 
@@ -23,7 +25,8 @@ async function loadPeriod(d: Dependencies, id: string): Promise<FinancePeriodEnt
 
 async function checklistFor(d: Dependencies, p: FinancePeriodEntity): Promise<CloseChecklist> {
     const counts = await d.periodCloseRepository.counts(dayString(p.startDate), dayString(p.endDate));
-    return buildChecklist(counts, await d.runLedgerIntegrityCheckUseCase.execute());
+    const settings = await settingsOf(d);
+    return buildChecklist(counts, await d.runLedgerIntegrityCheckUseCase.execute(), { reconciliationBlocksClose: settings.reconciliationBlocksClose });
 }
 
 /* The checklist for one month, so the bursar sees what stands in the way before pressing close. Read-only. */

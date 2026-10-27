@@ -7,7 +7,8 @@ import { AuditService } from "../../audit/services/audit.service";
 import { calculatePay, LoanDue } from "../domain/payroll-calc";
 import { PayrollRunEntity, PayslipSnapshot } from "../domain/payroll.entity";
 import { payrollErrors } from "../domain/payroll.errors";
-import { ALLOW_SELF_APPROVAL, accrualLines, firstDayOfMonth, lastDayOfMonth, monthLabel, paymentLines, payslipNumber, runNumber } from "../domain/payroll.policy";
+import { accrualLines, firstDayOfMonth, lastDayOfMonth, monthLabel, paymentLines, payslipNumber, runNumber } from "../domain/payroll.policy";
+import { FinanceSettingsReader, settingsOf } from "../../finance-settings/domain/finance-settings";
 import { dayString, parseDay, todayInFinanceZone } from "../../ledger/domain/ledger.dates";
 import { CreateRunDtoType, ApproveRunDtoType, RejectRunDtoType, CancelRunDtoType, ReverseRunDtoType, PayRunDtoType, ListRunsQueryType } from "../dtos/payroll.dto";
 import { PayrollOptions, defaultTransaction, namesOf, resolveMoneyAccount } from "./payroll-shared";
@@ -17,6 +18,7 @@ interface Dependencies {
     payrollContextRepository: IPayrollContextRepository; ledgerAccountRepository: ILedgerAccountRepository; postingService: PostingService;
     numberSequenceService: NumberSequenceService; runMapper: RunMapper; auditService: AuditService;
     paymentContextRepository: { schoolHeader(schoolId: string): Promise<{ name: string | null; address: string | null; logoUrl: string | null }> };
+    financeSettingsService?: FinanceSettingsReader;      // finance.allow_self_approval; absent in hand-built tests (default: not allowed)
 }
 
 async function loadRun(d: Pick<Dependencies, "payrollRunRepository">, id: string): Promise<PayrollRunEntity> {
@@ -144,7 +146,7 @@ export class ApproveRunUseCase extends Base {
         const d = this.d;
         const run = await loadRun(d, id);
         if (run.status !== "PENDING_APPROVAL") throw payrollErrors.runState(run.status, "approved");
-        if (run.createdById === actorUserId && !ALLOW_SELF_APPROVAL) throw payrollErrors.selfApproval();
+        if (run.createdById === actorUserId && !(await settingsOf(d)).allowSelfApproval) throw payrollErrors.selfApproval();
 
         const today = todayInFinanceZone(this.now());
         const lastDay = lastDayOfMonth(run.periodYear, run.periodMonth);
@@ -195,7 +197,7 @@ export class RejectRunUseCase extends Base {
         const d = this.d;
         const run = await loadRun(d, id);
         if (run.status !== "PENDING_APPROVAL") throw payrollErrors.runState(run.status, "rejected");
-        if (run.createdById === actorUserId && !ALLOW_SELF_APPROVAL) throw payrollErrors.selfApproval();
+        if (run.createdById === actorUserId && !(await settingsOf(d)).allowSelfApproval) throw payrollErrors.selfApproval();
         const reason = dto.reason.trim();
         if (!reason) throw payrollErrors.reasonRequired();
         if (!(await d.payrollRunRepository.transition(id, ["PENDING_APPROVAL"], run.version, { status: "CALCULATED", rejectedById: actorUserId, rejectedAt: this.now(), rejectionReason: reason }))) throw payrollErrors.runChanged();

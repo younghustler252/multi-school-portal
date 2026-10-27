@@ -5,7 +5,8 @@ import type { PostLine } from "../../ledger/services/posting.service";
 /*
 | EXPENSE RULES (brief sections 7 and 8.8) in plain functions: no database, no clock.
 |
-| Until the settings service exists these values are constants (each names the setting that will replace it):
+| These constants are the DEFAULTS. A school's own values come from the finance settings service (finance-settings module),
+| which the use cases ask first; each constant names the setting that overrides it.
 */
 export const EXPENSE_APPROVAL_REQUIRED = true;                 // finance.expense_approval_required
 export const EXPENSE_APPROVAL_THRESHOLD_KOBO = 5_000_000n;     // finance.expense_approval_threshold_kobo (N50,000)
@@ -17,7 +18,10 @@ export const MONTHS_PER_TERM = 4;                              // a term is trea
 export const MAX_CATCH_UP_RUNS = 12;                           // a recurring expense that was off for a long time makes at most this many at once
 
 /* Under the threshold (or with approval switched off) an expense approves itself when it is submitted. */
-export const needsApproval = (totalKobo: bigint): boolean => EXPENSE_APPROVAL_REQUIRED && totalKobo >= EXPENSE_APPROVAL_THRESHOLD_KOBO;
+export const needsApproval = (
+    totalKobo: bigint,
+    rule: { required?: boolean; thresholdKobo?: bigint } = {},
+): boolean => (rule.required ?? EXPENSE_APPROVAL_REQUIRED) && totalKobo >= (rule.thresholdKobo ?? EXPENSE_APPROVAL_THRESHOLD_KOBO);
 
 export const expenseNumber = (year: string, n: number): string => `${EXPENSE_PREFIX}-${year}-${String(n).padStart(6, "0")}`;
 

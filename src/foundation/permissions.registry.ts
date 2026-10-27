@@ -16,6 +16,8 @@ import { FEES_PERMISSIONS } from "../modules/fees/fees.permissions";
 import { PAYMENTS_PERMISSIONS } from "../modules/payments/payments.permissions";
 import { EXPENSES_PERMISSIONS } from "../modules/expenses/expenses.permissions";
 import { PAYROLL_PERMISSIONS } from "../modules/payroll/payroll.permissions";
+import { FINANCE_SETTINGS_PERMISSIONS } from "../modules/finance-settings/finance-settings.permissions";
+import { BANK_RECONCILIATION_PERMISSIONS } from "../modules/bank-reconciliation/bank-reconciliation.permissions";
 
 /*
 |--------------------------------------------------------------------------
@@ -74,6 +76,8 @@ const ALL: readonly PermissionDef[] = [
     ...PAYMENTS_PERMISSIONS,
     ...EXPENSES_PERMISSIONS,
     ...PAYROLL_PERMISSIONS,
+    ...FINANCE_SETTINGS_PERMISSIONS,
+    ...BANK_RECONCILIATION_PERMISSIONS,
     ...CORE_PERMISSIONS,
 ];
 

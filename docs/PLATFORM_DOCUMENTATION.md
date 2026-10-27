@@ -91,6 +91,8 @@ All paths below are mounted under `/api/v1`, except the separately mounted healt
 | `/subscriptions` | Subscription billing routes |
 | `/audit` | Audit |
 | `/staff` | Staff |
+| `/finance/settings` | Finance settings (approval threshold, self-approval, budget enforcement, fiscal year start, grace days, reconciliation rules) |
+| `/finance/reconciliation` | Bank reconciliation (statement import, matching, month sign-off) |
 | `/finance` | Ledger |
 | `/students` | Students |
 | `/guardians` | Guardians |

@@ -7,12 +7,13 @@ import { RefundMapper } from "../mappers/refund.mapper";
 import { AuditService } from "../../audit/services/audit.service";
 import { parseDay, todayInFinanceZone } from "../../ledger/domain/ledger.dates";
 import { paymentErrors } from "../domain/payment.errors";
-import { ALLOW_SELF_APPROVAL } from "../domain/payment.policy";
+import { FinanceSettingsReader, settingsOf } from "../../finance-settings/domain/finance-settings";
 import { ApproveRefundDtoType, ListRefundsQueryType, PayRefundDtoType, RejectRefundDtoType, RequestRefundDtoType } from "../dtos/payment.dto";
 
 interface Dependencies {
     paymentRepository: IPaymentRepository; refundRepository: IRefundRepository; paymentContextRepository: IPaymentContextRepository;
     ledgerAccountRepository: ILedgerAccountRepository; postingService: PostingService; refundMapper: RefundMapper; auditService: AuditService;
+    financeSettingsService?: FinanceSettingsReader;      // finance.allow_self_approval; absent in hand-built tests (default: not allowed)
 }
 
 export interface RefundOptions {
@@ -90,7 +91,7 @@ export class DecideRefundUseCase {
         const r = await this.d.refundRepository.findById(id);
         if (!r) throw paymentErrors.refundNotFound();
         if (r.status !== "REQUESTED") throw paymentErrors.refundNotRequested(r.status);
-        if (r.requestedById === actorUserId && !ALLOW_SELF_APPROVAL) throw paymentErrors.selfApproval();
+        if (r.requestedById === actorUserId && !(await settingsOf(this.d)).allowSelfApproval) throw paymentErrors.selfApproval();
         if (!(await this.d.refundRepository.markDecided(id, { decidedById: actorUserId, decidedAt: this.now(), decisionNote: note ?? null }, status))) throw paymentErrors.refundChanged();
 
         await this.d.auditService.log({
