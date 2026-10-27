@@ -6,10 +6,11 @@ import { guardianErrors } from "../domain/guardian.errors";
 import { GuardianActor } from "../domain/guardian.types";
 import { LinkGuardianDtoType, UpdateGuardianLinkDtoType } from "../dtos/guardian.dto";
 import { linkInTx } from "../services/guardian-linking";
+import { GuardianLinkData, GuardianRef, StudentRef, linkData, guardianRef, studentRef } from "../services/guardian-link.presenter";
 
 interface Dependencies { guardianRepository: IGuardianRepository; studentRepository: IStudentRepository; auditService: AuditService }
 
-export interface GuardianLinkData { guardianId: string; studentId: string; relation: string; isPrimary: boolean }
+export type { GuardianLinkData };
 
 const asPrimaryOrAlreadyLinked = (err: any, isPrimary: boolean) => {
     if (err?.code === "P2002") return isPrimary ? guardianErrors.primaryConflict() : guardianErrors.alreadyLinked();
@@ -22,8 +23,10 @@ export class LinkGuardianUseCase {
 
     async execute(schoolId: string, guardianId: string, dto: LinkGuardianDtoType, actor: GuardianActor): Promise<GuardianLinkData> {
         const d = this.d;
-        if (!(await d.guardianRepository.findById(guardianId))) throw guardianErrors.notFound();
-        if (!(await d.studentRepository.findById(dto.studentId))) throw guardianErrors.studentNotFound();
+        const guardian = await d.guardianRepository.findById(guardianId);
+        if (!guardian) throw guardianErrors.notFound();
+        const student = await d.studentRepository.findById(dto.studentId);
+        if (!student) throw guardianErrors.studentNotFound();
 
         let result;
         try { result = await getTenantClient().$transaction(tx => linkInTx(tx as any, { guardianId, studentId: dto.studentId, relation: dto.relation, isPrimary: dto.isPrimary })); }
@@ -31,8 +34,8 @@ export class LinkGuardianUseCase {
         if (result === "already_linked") throw guardianErrors.alreadyLinked();
 
         await d.auditService.log({ userId: actor.userId, schoolId, action: "guardian.linked", entity: "Guardian", entityId: guardianId,
-            newValue: { studentId: dto.studentId, relation: dto.relation, isPrimary: dto.isPrimary } });
-        return { guardianId, studentId: dto.studentId, relation: dto.relation, isPrimary: dto.isPrimary };
+            newValue: { guardian: guardianRef(guardian).name, student: studentRef(student).name, studentId: dto.studentId, relation: dto.relation, isPrimary: dto.isPrimary } });
+        return linkData(guardian, student, dto);
     }
 }
 
@@ -44,11 +47,14 @@ export class UpdateGuardianLinkUseCase {
         const d = this.d;
         const link = (await d.guardianRepository.findStudentLinksByGuardianId(guardianId)).find(l => l.studentId === studentId);
         if (!link) throw guardianErrors.notLinked();
+        const [guardian, student] = await Promise.all([d.guardianRepository.findById(guardianId), d.studentRepository.findById(studentId)]);
+        if (!guardian) throw guardianErrors.notFound();
+        if (!student) throw guardianErrors.studentNotFound();
 
         const data: Record<string, unknown> = {};
         if (dto.relation !== undefined && dto.relation !== link.relation) data.relation = dto.relation;
         if (dto.isPrimary !== undefined && dto.isPrimary !== link.isPrimary) data.isPrimary = dto.isPrimary;
-        if (Object.keys(data).length === 0) return { guardianId, studentId, relation: link.relation, isPrimary: link.isPrimary };
+        if (Object.keys(data).length === 0) return linkData(guardian, student, link);
 
         try {
             await getTenantClient().$transaction(async tx => {
@@ -59,8 +65,9 @@ export class UpdateGuardianLinkUseCase {
 
         const now = { relation: (data.relation as string) ?? link.relation, isPrimary: (data.isPrimary as boolean) ?? link.isPrimary };
         await d.auditService.log({ userId: actor.userId, schoolId, action: "guardian.link_updated", entity: "Guardian", entityId: guardianId,
-            oldValue: { studentId, relation: link.relation, isPrimary: link.isPrimary }, newValue: { studentId, ...now } });
-        return { guardianId, studentId, ...now };
+            oldValue: { guardian: guardianRef(guardian).name, student: studentRef(student).name, studentId, relation: link.relation, isPrimary: link.isPrimary },
+            newValue: { guardian: guardianRef(guardian).name, student: studentRef(student).name, studentId, ...now } });
+        return linkData(guardian, student, now);
     }
 }
 
@@ -68,11 +75,14 @@ export class UpdateGuardianLinkUseCase {
 export class UnlinkGuardianUseCase {
     constructor(private readonly d: Dependencies) {}
 
-    async execute(schoolId: string, guardianId: string, studentId: string, actor: GuardianActor): Promise<{ guardianId: string; studentId: string }> {
+    async execute(schoolId: string, guardianId: string, studentId: string, actor: GuardianActor): Promise<{ guardian: GuardianRef; student: StudentRef }> {
         const d = this.d;
         if (!(await d.guardianRepository.isLinked(guardianId, studentId))) throw guardianErrors.notLinked();
+        const [guardian, student] = await Promise.all([d.guardianRepository.findById(guardianId), d.studentRepository.findById(studentId)]);
+        if (!guardian) throw guardianErrors.notFound();
+        if (!student) throw guardianErrors.studentNotFound();
         await d.guardianRepository.unlinkFromStudent(guardianId, studentId);
-        await d.auditService.log({ userId: actor.userId, schoolId, action: "guardian.unlinked", entity: "Guardian", entityId: guardianId, oldValue: { studentId } });
-        return { guardianId, studentId };
+        await d.auditService.log({ userId: actor.userId, schoolId, action: "guardian.unlinked", entity: "Guardian", entityId: guardianId, oldValue: { guardian: guardianRef(guardian).name, student: studentRef(student).name, studentId } });
+        return { guardian: guardianRef(guardian), student: studentRef(student) };
     }
 }

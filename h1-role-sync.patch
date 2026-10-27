@@ -1,0 +1,527 @@
+diff --git a/docs/CLASSES_MODULE_NOTES.md b/docs/CLASSES_MODULE_NOTES.md
+index bbb9be9..595f70e 100644
+--- a/docs/CLASSES_MODULE_NOTES.md
++++ b/docs/CLASSES_MODULE_NOTES.md
+@@ -46,7 +46,7 @@ progression: { class: { id, name }, nextClass: { id, name } | null }
+ `CLASS_NAME_TAKEN`, `CLASS_IN_USE`, `CAPACITY_BELOW_STUDENT_COUNT`, `CLASS_TEACHER_INVALID`, `PROGRESSION_SAME_CLASS`, `PROGRESSION_LOOP`, plus the shared `NOT_FOUND`, `VALIDATION_ERROR`, `PERMISSION_DENIED`.
+ 
+ ## Roles in schools that already exist
+-Same as Sessions: the principal, branch principal, teacher and bursar templates are created once and then owned by the platform, so existing schools will NOT get `classes.view` for them automatically; until it is added, those roles get `PERMISSION_DENIED` on `/classes`. New schools get it through provisioning.
++Permission `classes.view` for the principal, branch principal, teacher and bursar. Roles in existing environments are brought up to date in two steps on every deploy: `npm run sync:registries` (updates the platform's role templates: locked ones are made exact, editable ones only gain missing permissions) and then `npm run sync:school-roles` (updates each school's own copy; roles a school has customised are skipped and listed). See `ROLE_SYNC_NOTES.md`. Until both have run, the affected roles get `PERMISSION_DENIED` on `/classes`.
+ 
+ ## Frontend changes
+ - Class responses use `classTeacher` and `nextClass` objects (above).
+diff --git a/docs/ENROLMENT_MODULE_NOTES.md b/docs/ENROLMENT_MODULE_NOTES.md
+index 95ef0b0..d3aa1f7 100644
+--- a/docs/ENROLMENT_MODULE_NOTES.md
++++ b/docs/ENROLMENT_MODULE_NOTES.md
+@@ -41,7 +41,7 @@ promote:   { total, promoted, repeated, graduated, excluded, alreadyEnrolled, re
+ `ENROLMENT_ALREADY_EXISTS`, `STUDENT_INACTIVE`, `CLASS_FULL`, `ENROLMENT_SAME_CLASS`, `ENROLMENT_NOT_ACTIVE`, `ENROLMENT_STATUS_INVALID`, `PROMOTION_SAME_TERM`, `PROMOTION_TERM_ORDER`, `PROMOTION_UNKNOWN_STUDENT`, `PROMOTION_NEEDS_DECISIONS`, plus the shared `NOT_FOUND`, `VALIDATION_ERROR`, `PERMISSION_DENIED`.
+ 
+ ## Roles in schools that already exist
+-`student` and `guardian` are locked templates, so the sync gives them `enrolment.view` (OWN). `principal`, `branch_principal`, `teacher` and `bursar` are editable templates created once and then owned by the platform: existing schools will NOT get `enrolment.view` for them automatically (same as `sessions.view` and `classes.view`). Until it is added, those roles get `PERMISSION_DENIED` on `/enrolments`.
++Permission `enrolment.view` for student, guardian, principal, branch principal, teacher and bursar. Roles in existing environments are brought up to date in two steps on every deploy: `npm run sync:registries` (updates the platform's role templates: locked ones are made exact, editable ones only gain missing permissions) and then `npm run sync:school-roles` (updates each school's own copy; roles a school has customised are skipped and listed). See `ROLE_SYNC_NOTES.md`. Until both have run, the affected roles get `PERMISSION_DENIED` on `/enrolments`.
+ 
+ ## Frontend changes
+ - Enrolment responses use `student`, `class` and `term` objects.
+diff --git a/docs/ROLE_SYNC_NOTES.md b/docs/ROLE_SYNC_NOTES.md
+new file mode 100644
+index 0000000..fd19205
+--- /dev/null
++++ b/docs/ROLE_SYNC_NOTES.md
+@@ -0,0 +1,27 @@
++# Role sync notes
++
++How new permissions reach the roles in existing schools.
++
++## The problem this fixes
++Permissions added to the default roles in code (for example `sessions.view`, `classes.view`, `enrolment.view`) only reached brand-new databases. Templates were created once and never updated, and a school copies its roles from the templates when it is provisioned. In existing environments every role except the School Admin got `PERMISSION_DENIED` on those routes.
++
++## Deploy order
++1. `npm run migrate:apply-to-existing-schools` (database changes; `:dry-run` only lists what would be applied)
++2. `npm run sync:registries` (permissions, then role templates, and the rest)
++3. `npm run sync:school-roles` (each school's own roles). Run `npm run sync:school-roles:dry-run` first to preview.
++
++## Rules
++- Locked templates / roles are made EXACTLY equal to the code: missing added, wrong scope fixed, extras removed, all-access flag matched.
++- Editable templates / roles only GAIN missing permissions. Nothing is changed or removed. `--prune` makes school copies exact too.
++- A template's `version` goes up by 1 whenever its permissions change. A school role records the version it last matched.
++- Skipped: custom roles, roles marked `isCustomized` (listed at the end of the run so an admin can add permissions by hand), roles whose template is missing or inactive.
++- One transaction per school. A failed school is rolled back and the run continues; the exit code is 1 if any school failed.
++
++## Known limits
++- Until the platform role console records deliberate removals, an editable template cannot keep a grant the code lists (the next deploy adds it back).
++- Nothing in the app marks a school role `isCustomized` yet. The flag is only honoured by the sync; set it where school role editing is built.
++
++## Tests
++- `tests/foundation/role-sync.planner.test.ts`: the pure planners.
++- Checked on a scratch Postgres (22 tenant migrations applied to a fresh schema, roles seeded as an old environment): dry run writes nothing; editable role gains permissions and keeps its own extras; locked role made exact; customised role untouched; second run changes nothing; prune removes extras.
++- NOT run: the template sync (`syncRoleTemplates`) against a database, because Prisma's engine cannot be downloaded in the sandbox. It compiles with no new errors; run `npm run sync:registries` on a copy first and read the `grantsChanged` line in its output.
+diff --git a/docs/SESSIONS_MODULE_NOTES.md b/docs/SESSIONS_MODULE_NOTES.md
+index 2f0ca7b..ae03617 100644
+--- a/docs/SESSIONS_MODULE_NOTES.md
++++ b/docs/SESSIONS_MODULE_NOTES.md
+@@ -37,7 +37,7 @@
+ `SESSION_NAME_TAKEN`, `SESSION_DATES_OVERLAP`, `TERM_NAME_TAKEN`, `TERM_DATES_OVERLAP`, `TERM_OUTSIDE_SESSION`, `SESSION_EXCLUDES_TERMS`, `END_BEFORE_START`, `EVENT_SCOPE_MISMATCH`, plus the shared `NOT_FOUND`, `VALIDATION_ERROR`, `PERMISSION_DENIED`.
+ 
+ ## Roles in schools that already exist
+-`student`, `guardian` and `school_admin` are locked templates, so the sync gives them the new permission. `principal`, `branch_principal`, `teacher` and `bursar` are EDITABLE templates that are created once and then owned by the platform: schools that already exist will NOT get `sessions.view` for them automatically. Until a platform role console (or a manual change) adds it, those staff roles get `PERMISSION_DENIED` on `/sessions/current`. New schools get it through provisioning.
++Permission `sessions.view` for student, guardian, principal, branch principal, teacher and bursar. Roles in existing environments are brought up to date in two steps on every deploy: `npm run sync:registries` (updates the platform's role templates: locked ones are made exact, editable ones only gain missing permissions) and then `npm run sync:school-roles` (updates each school's own copy; roles a school has customised are skipped and listed). See `ROLE_SYNC_NOTES.md`. Until both have run, the affected roles get `PERMISSION_DENIED` on `/sessions/current`.
+ 
+ ## Frontend changes
+ - `GET /sessions/current` returns `{ session, currentTerm }` (before: the session).
+diff --git a/package.json b/package.json
+index 2807b5d..01ab69a 100644
+--- a/package.json
++++ b/package.json
+@@ -20,6 +20,8 @@
+     "prisma:migrate:deploy:public": "prisma migrate deploy --config=prisma.public.config.ts",
+     "prisma:migrate:deploy:tenant": "prisma migrate deploy --config=prisma.tenant.config.ts",
+     "migrate:apply-to-existing-schools": "ts-node scripts/apply-migration-to-existing-schools.ts",
++    "sync:school-roles": "ts-node scripts/sync-school-roles.ts",
++    "sync:school-roles:dry-run": "ts-node scripts/sync-school-roles.ts --dry-run",
+     "migrate:apply-to-existing-schools:dry-run": "ts-node scripts/apply-migration-to-existing-schools.ts --dry-run"
+   },
+   "keywords": [],
+diff --git a/scripts/apply-migration-to-existing-schools.ts b/scripts/apply-migration-to-existing-schools.ts
+index af41286..73eb906 100644
+--- a/scripts/apply-migration-to-existing-schools.ts
++++ b/scripts/apply-migration-to-existing-schools.ts
+@@ -5,6 +5,7 @@ import { readdirSync, readFileSync } from "fs";
+ import { join } from "path";
+ import { prisma } from "../src/infrastructure/database/prisma/prisma.client";
+ 
++const DRY_RUN = process.argv.includes("--dry-run");
+ const TENANT_MIGRATIONS_DIR = join(process.cwd(), "prisma", "tenant-migrations");
+ 
+ async function getAppliedMigrations(client: any): Promise<Set<string>> {
+@@ -15,6 +16,7 @@ async function getAppliedMigrations(client: any): Promise<Set<string>> {
+         return new Set(result.rows.map((r: any) => r.name));
+     } catch {
+         // Table doesn't exist yet on this schema — first run
++        if (DRY_RUN) return new Set();   // a dry run writes nothing, not even this table
+         await client.query(`
+             CREATE TABLE "_tenant_migrations_applied" (
+                 name       TEXT PRIMARY KEY,
+@@ -26,6 +28,7 @@ async function getAppliedMigrations(client: any): Promise<Set<string>> {
+ }
+ 
+ async function main() {
++    if (DRY_RUN) console.log("DRY RUN: nothing will be changed");
+     const migrationFolders = readdirSync(TENANT_MIGRATIONS_DIR, { withFileTypes: true })
+         .filter(e => e.isDirectory())
+         .map(e => e.name)
+@@ -53,6 +56,11 @@ async function main() {
+                 continue;
+             }
+ 
++            if (DRY_RUN) {
++                console.log(`🔎 ${school.name} — would apply: ${pending.join(", ")}`);
++                continue;
++            }
++
+             for (const folder of pending) {
+                 const sql = readFileSync(
+                     join(TENANT_MIGRATIONS_DIR, folder, "migration.sql"),
+diff --git a/scripts/sync-school-roles.ts b/scripts/sync-school-roles.ts
+new file mode 100644
+index 0000000..df837d9
+--- /dev/null
++++ b/scripts/sync-school-roles.ts
+@@ -0,0 +1,52 @@
++// scripts/sync-school-roles.ts
++// Usage: npm run sync:school-roles [-- --dry-run] [-- --prune]
++import { env } from "../src/config/env";
++import { Pool } from "pg";
++import { prisma } from "../src/infrastructure/database/prisma/prisma.client";
++import { loadTemplateViews, syncSchoolRoles } from "../src/foundation/sync-school-roles";
++
++const DRY_RUN = process.argv.includes("--dry-run");
++const PRUNE   = process.argv.includes("--prune");
++const quote = (s: string) => `"${s.replace(/"/g, '""')}"`;
++
++async function main() {
++    console.log(`School role sync${DRY_RUN ? " (DRY RUN: nothing is written)" : ""}${PRUNE ? " (prune on)" : ""}`);
++    const templates = await loadTemplateViews(prisma);
++    const schools = await prisma.school.findMany({
++        where:  { schemaProvisionedAt: { not: null } },
++        select: { name: true, schemaName: true },
++    });
++
++    const pool = new Pool({ connectionString: env.DATABASE_URL });
++    let failed = 0;
++    const customised: string[] = [];
++
++    for (const school of schools) {
++        if (!school.schemaName) continue;
++        const client = await pool.connect();
++        try {
++            await client.query("BEGIN");
++            await client.query(`SET LOCAL search_path TO ${quote(school.schemaName)}`);
++            const r = await syncSchoolRoles(client, templates, { prune: PRUNE, dryRun: DRY_RUN });
++            await client.query(DRY_RUN ? "ROLLBACK" : "COMMIT");
++
++            const changed = r.updated.length + r.versionOnly.length;
++            console.log(`${changed ? "✅" : "⏭️ "} ${school.name}: ${r.updated.length} updated, ${r.versionOnly.length} version-only, ${r.unchanged} unchanged, ${r.skipped.length} skipped`);
++            for (const u of r.updated) console.log(`     ${u.role}: +${u.added} ~${u.rescoped} -${u.removed}${u.grantsAll === null ? "" : ` grantsAll→${u.grantsAll}`}`);
++            for (const s of r.skipped) if (s.reason === "customised") customised.push(`${school.name} / ${s.role}`);
++            else if (s.reason !== "custom_role") console.log(`     skipped ${s.role} (${s.reason})`);
++        } catch (err) {
++            failed++;
++            await client.query("ROLLBACK").catch(() => undefined);
++            console.error(`❌ ${school.name} failed:`, (err as Error).message);
++        } finally {
++            client.release();
++        }
++    }
++
++    if (customised.length) console.log(`\nCustomised roles left alone (add permissions by hand):\n - ${customised.join("\n - ")}`);
++    await pool.end();
++    process.exit(failed ? 1 : 0);
++}
++
++main();
+diff --git a/src/foundation/role-grants.planner.ts b/src/foundation/role-grants.planner.ts
+new file mode 100644
+index 0000000..86c0229
+--- /dev/null
++++ b/src/foundation/role-grants.planner.ts
+@@ -0,0 +1,90 @@
++/*
++|--------------------------------------------------------------------------
++| ROLE GRANT PLANNER (pure: no database, easy to test)
++| Works out what has to change to bring a set of permission grants in line with the wanted set.
++|   exact = true   -> add what is missing, fix wrong scopes, remove extras  (locked roles)
++|   exact = false  -> only add what is missing; never change or remove      (editable roles)
++|--------------------------------------------------------------------------
++*/
++
++export interface Grant { key: string; scope: string }
++
++export interface GrantPlan {
++    add:    Grant[];      // grants to insert
++    rescope: Grant[];     // grants to update to the wanted scope (exact only)
++    remove: string[];     // permission keys to delete (exact only)
++}
++
++export function planTemplateGrants(current: Grant[], wanted: Grant[], exact: boolean): GrantPlan {
++    const have = new Map(current.map(g => [g.key, g.scope]));
++    const want = new Map(wanted.map(g => [g.key, g.scope]));
++
++    const add: Grant[] = [];
++    const rescope: Grant[] = [];
++    const remove: string[] = [];
++
++    for (const [key, scope] of want) {
++        if (!have.has(key)) add.push({ key, scope });
++        else if (exact && have.get(key) !== scope) rescope.push({ key, scope });
++    }
++    if (exact) for (const key of have.keys()) if (!want.has(key)) remove.push(key);
++
++    return { add, rescope, remove };
++}
++
++export function isEmptyPlan(p: GrantPlan): boolean {
++    return p.add.length === 0 && p.rescope.length === 0 && p.remove.length === 0;
++}
++
++/* ---------- a school's copy of a role ---------- */
++
++export interface SchoolRoleView {
++    id: string;
++    name: string;
++    kind: "SYSTEM_LOCKED" | "SYSTEM_EDITABLE" | "CUSTOM";
++    grantsAll: boolean;
++    isCustomized: boolean;
++    sourceTemplateKey: string | null;
++    sourceTemplateVersion: number | null;
++    grants: Grant[];
++}
++
++export interface TemplateView {
++    key: string;
++    version: number;
++    isActive: boolean;
++    grantsAll: boolean;
++    grants: Grant[];
++}
++
++export type RoleAction =
++    | { type: "skip"; reason: "custom_role" | "no_template" | "template_inactive" | "customised" }
++    | { type: "none" }
++    | { type: "update"; plan: GrantPlan; grantsAll: boolean | null; version: number; versionOnly: boolean };
++
++/**
++ * Decide what to do with ONE school role.
++ *  - locked role   -> made exact (grants and grantsAll)
++ *  - editable role -> additive only, unless prune is on (then exact)
++ *  - customised role, custom role, or a role whose template is gone/inactive -> skipped
++ */
++export function planSchoolRole(role: SchoolRoleView, template: TemplateView | undefined, prune: boolean): RoleAction {
++    if (role.kind === "CUSTOM" || !role.sourceTemplateKey) return { type: "skip", reason: "custom_role" };
++    if (role.isCustomized)                                 return { type: "skip", reason: "customised" };
++    if (!template)                                         return { type: "skip", reason: "no_template" };
++    if (!template.isActive)                                return { type: "skip", reason: "template_inactive" };
++
++    const exact = role.kind === "SYSTEM_LOCKED" || prune;
++    const plan = planTemplateGrants(role.grants, template.grants, exact);
++
++    // all-access flag: locked (or prune) follows the template exactly; editable only gains it
++    let grantsAll: boolean | null = null;
++    if (exact) { if (role.grantsAll !== template.grantsAll) grantsAll = template.grantsAll; }
++    else if (template.grantsAll && !role.grantsAll) grantsAll = true;
++
++    const changed = !isEmptyPlan(plan) || grantsAll !== null;
++    const versionBehind = role.sourceTemplateVersion !== template.version;
++
++    if (!changed && !versionBehind) return { type: "none" };
++    return { type: "update", plan, grantsAll, version: template.version, versionOnly: !changed };
++}
+diff --git a/src/foundation/sync-role-templates.ts b/src/foundation/sync-role-templates.ts
+index 5440eec..d5e6bb0 100644
+--- a/src/foundation/sync-role-templates.ts
++++ b/src/foundation/sync-role-templates.ts
+@@ -1,23 +1,29 @@
+ import type { PrismaClient } from "../generated/public/client";
+ import { ROLE_TEMPLATES } from "./role-templates.registry";
+ import { permissionByKey } from "./permissions.registry";
++import { planTemplateGrants, isEmptyPlan } from "./role-grants.planner";
+ 
+ /*
+ |--------------------------------------------------------------------------
+ | ROLE TEMPLATE SYNC (run AFTER the permission sync: templates reference permission keys)
+ |  - new template      -> created with its starting permissions
+-|  - LOCKED template   -> its locked / all-access / persona / default-for-persona settings are enforced every
+-|                         deploy; its permissions are not touched
+-|  - editable template -> created once, then never overwritten (the platform owns it)
++|  - LOCKED template   -> its settings AND its permissions are made to equal the code every deploy
++|                         (missing added, wrong scopes fixed, extras removed)
++|  - editable template -> permissions the code lists but the template lacks are ADDED; nothing is ever
++|                         changed or removed (the platform owns it). Known limit: until the platform role
++|                         console records deliberate removals, an editable template cannot keep a grant
++|                         the code lists.
++| Whenever a template's permissions change, its version goes up by 1. Schools' copies of roles are updated
++| from the templates by `npm run sync:school-roles`.
+ | A template that grants an unknown key, a scope the key does not allow, or a key the template's persona
+ | cannot hold is reported as a conflict and not created.
+ |--------------------------------------------------------------------------
+ */
+ 
+-export interface RoleTemplateSyncReport { created: string[]; enforced: string[]; kept: string[]; conflicts: string[] }
++export interface RoleTemplateSyncReport { created: string[]; enforced: string[]; kept: string[]; grantsChanged: string[]; conflicts: string[] }
+ 
+ export async function syncRoleTemplates(prisma: PrismaClient): Promise<RoleTemplateSyncReport> {
+-    const report: RoleTemplateSyncReport = { created: [], enforced: [], kept: [], conflicts: [] };
++    const report: RoleTemplateSyncReport = { created: [], enforced: [], kept: [], grantsChanged: [], conflicts: [] };
+ 
+     for (const t of ROLE_TEMPLATES) {
+         // validate the grants against the registry
+@@ -33,7 +39,7 @@ export async function syncRoleTemplates(prisma: PrismaClient): Promise<RoleTempl
+         }
+         if (problems.length) { report.conflicts.push(...problems); continue; }
+ 
+-        const row = await prisma.roleTemplate.findUnique({ where: { key: t.key } });
++        const row = await prisma.roleTemplate.findUnique({ where: { key: t.key }, include: { permissions: true } });
+ 
+         if (!row) {
+             await prisma.roleTemplate.create({
+@@ -48,8 +54,27 @@ export async function syncRoleTemplates(prisma: PrismaClient): Promise<RoleTempl
+             continue;
+         }
+ 
+-        if (!t.locked) { report.kept.push(t.key); continue; }
++        // ---- permissions: locked = exact, editable = additive only ----
++        const plan = planTemplateGrants(
++            row.permissions.map(p => ({ key: p.permissionKey, scope: p.scope })),
++            t.permissions.map(g => ({ key: g.key, scope: g.scope })),
++            t.locked,
++        );
++        let grantsChanged = false;
++        if (!isEmptyPlan(plan)) {
++            await prisma.$transaction(async (tx) => {
++                if (plan.add.length)    await tx.roleTemplatePermission.createMany({ data: plan.add.map(g => ({ templateId: row.id, permissionKey: g.key, scope: g.scope as any })) });
++                for (const g of plan.rescope) await tx.roleTemplatePermission.update({ where: { templateId_permissionKey: { templateId: row.id, permissionKey: g.key } }, data: { scope: g.scope as any } });
++                if (plan.remove.length) await tx.roleTemplatePermission.deleteMany({ where: { templateId: row.id, permissionKey: { in: plan.remove } } });
++                await tx.roleTemplate.update({ where: { id: row.id }, data: { version: { increment: 1 } } });
++            });
++            grantsChanged = true;
++            report.grantsChanged.push(`${t.key}: +${plan.add.length} ~${plan.rescope.length} -${plan.remove.length}`);
++        }
++
++        if (!t.locked) { if (!grantsChanged) report.kept.push(t.key); continue; }
+ 
++        // ---- locked template settings ----
+         const patch: Record<string, unknown> = {};
+         if (!row.isLocked)                                        patch.isLocked = true;
+         if (row.grantsAll !== t.grantsAll)                        patch.grantsAll = t.grantsAll;
+@@ -59,7 +84,7 @@ export async function syncRoleTemplates(prisma: PrismaClient): Promise<RoleTempl
+         if (!row.autoProvision)                                   patch.autoProvision = true;
+ 
+         if (Object.keys(patch).length) { await prisma.roleTemplate.update({ where: { key: t.key }, data: patch }); report.enforced.push(t.key); }
+-        else report.kept.push(t.key);
++        else if (!grantsChanged) report.kept.push(t.key);
+     }
+     return report;
+ }
+diff --git a/src/foundation/sync-school-roles.ts b/src/foundation/sync-school-roles.ts
+new file mode 100644
+index 0000000..5acaa1a
+--- /dev/null
++++ b/src/foundation/sync-school-roles.ts
+@@ -0,0 +1,80 @@
++import { planSchoolRole, type Grant, type SchoolRoleView, type TemplateView, type RoleAction } from "./role-grants.planner";
++
++/*
++|--------------------------------------------------------------------------
++| SCHOOL ROLE SYNC
++| Brings each school's copy of a default role up to date with its platform template.
++| Run after `npm run sync:registries`:  npm run sync:school-roles  (add :dry-run to preview)
++|  - locked roles        -> made exactly equal to the template
++|  - editable roles      -> only gain missing permissions (nothing removed) unless --prune
++|  - customised roles    -> skipped and listed in the report
++| One transaction per school; a failure rolls that school back and the run continues.
++|--------------------------------------------------------------------------
++*/
++
++/** The smallest slice of a pg client we need (so tests can pass a real one). */
++export interface SqlClient { query(sql: string, params?: unknown[]): Promise<{ rows: any[]; rowCount?: number | null }> }
++
++export interface SchoolRoleSyncReport {
++    updated:  { role: string; added: number; rescoped: number; removed: number; grantsAll: boolean | null }[];
++    versionOnly: string[];
++    unchanged: number;
++    skipped:  { role: string; reason: string }[];
++}
++
++export async function loadTemplateViews(prisma: any): Promise<Map<string, TemplateView>> {
++    const rows = await prisma.roleTemplate.findMany({ include: { permissions: true } });
++    return new Map(rows.map((t: any) => [t.key, {
++        key: t.key, version: t.version, isActive: t.isActive, grantsAll: t.grantsAll,
++        grants: t.permissions.map((p: any) => ({ key: p.permissionKey, scope: p.scope })),
++    } as TemplateView]));
++}
++
++async function loadRoles(client: SqlClient): Promise<SchoolRoleView[]> {
++    const roles = await client.query(
++        `SELECT id, name, kind::text AS kind, "grantsAll", "isCustomized", "sourceTemplateKey", "sourceTemplateVersion"
++           FROM "SchoolRole" WHERE "deletedAt" IS NULL AND "sourceTemplateKey" IS NOT NULL`);
++    const perms = await client.query(`SELECT "roleId", "permissionKey", scope::text AS scope FROM "SchoolRolePermission"`);
++    const byRole = new Map<string, Grant[]>();
++    for (const p of perms.rows) {
++        if (!byRole.has(p.roleId)) byRole.set(p.roleId, []);
++        byRole.get(p.roleId)!.push({ key: p.permissionKey, scope: p.scope });
++    }
++    return roles.rows.map((r: any) => ({ ...r, grants: byRole.get(r.id) ?? [] }));
++}
++
++/** Plan only (no writes): what would happen to every role in this school. */
++export async function planSchool(client: SqlClient, templates: Map<string, TemplateView>, prune: boolean) {
++    const roles = await loadRoles(client);
++    return roles.map(role => ({ role, action: planSchoolRole(role, templates.get(role.sourceTemplateKey!), prune) }));
++}
++
++async function applyAction(client: SqlClient, roleId: string, a: Extract<RoleAction, { type: "update" }>) {
++    for (const g of a.plan.add) {
++        await client.query(
++            `INSERT INTO "SchoolRolePermission" ("roleId","permissionKey",scope) VALUES ($1,$2,$3::"PermissionScope")
++             ON CONFLICT ("roleId","permissionKey") DO NOTHING`, [roleId, g.key, g.scope]);
++    }
++    for (const g of a.plan.rescope) {
++        await client.query(`UPDATE "SchoolRolePermission" SET scope = $3::"PermissionScope" WHERE "roleId" = $1 AND "permissionKey" = $2`, [roleId, g.key, g.scope]);
++    }
++    if (a.plan.remove.length) {
++        await client.query(`DELETE FROM "SchoolRolePermission" WHERE "roleId" = $1 AND "permissionKey" = ANY($2::text[])`, [roleId, a.plan.remove]);
++    }
++    await client.query(
++        `UPDATE "SchoolRole" SET "sourceTemplateVersion" = $2, "grantsAll" = COALESCE($3, "grantsAll"), "updatedAt" = now() WHERE id = $1`,
++        [roleId, a.version, a.grantsAll]);
++}
++
++/** Sync ONE school (client already pointed at the school's schema). Caller handles BEGIN/COMMIT. */
++export async function syncSchoolRoles(client: SqlClient, templates: Map<string, TemplateView>, opts: { prune: boolean; dryRun: boolean }): Promise<SchoolRoleSyncReport> {
++    const report: SchoolRoleSyncReport = { updated: [], versionOnly: [], unchanged: 0, skipped: [] };
++    for (const { role, action } of await planSchool(client, templates, opts.prune)) {
++        if (action.type === "skip")  { report.skipped.push({ role: role.name, reason: action.reason }); continue; }
++        if (action.type === "none")  { report.unchanged++; continue; }
++        if (!opts.dryRun) await applyAction(client, role.id, action);
++        if (action.versionOnly) report.versionOnly.push(role.name);
++        else report.updated.push({ role: role.name, added: action.plan.add.length, rescoped: action.plan.rescope.length, removed: action.plan.remove.length, grantsAll: action.grantsAll });
++    }
++    return report;
++}
+diff --git a/tests/foundation/role-sync.planner.test.ts b/tests/foundation/role-sync.planner.test.ts
+new file mode 100644
+index 0000000..51ecdc5
+--- /dev/null
++++ b/tests/foundation/role-sync.planner.test.ts
+@@ -0,0 +1,70 @@
++import { describe, it } from "node:test";
++import assert from "node:assert/strict";
++import { planTemplateGrants, planSchoolRole, type SchoolRoleView, type TemplateView } from "../../src/foundation/role-grants.planner";
++
++const g = (key: string, scope = "ALL") => ({ key, scope });
++
++describe("planTemplateGrants", () => {
++    it("exact: adds missing, fixes scope, removes extras", () => {
++        const p = planTemplateGrants([g("a"), g("b", "OWN"), g("x")], [g("a"), g("b", "ALL"), g("c")], true);
++        assert.deepEqual(p.add, [g("c")]);
++        assert.deepEqual(p.rescope, [g("b", "ALL")]);
++        assert.deepEqual(p.remove, ["x"]);
++    });
++    it("additive: only adds, never changes or removes", () => {
++        const p = planTemplateGrants([g("a", "OWN"), g("x")], [g("a", "ALL"), g("c")], false);
++        assert.deepEqual(p.add, [g("c")]);
++        assert.deepEqual(p.rescope, []);
++        assert.deepEqual(p.remove, []);
++    });
++    it("same grants give an empty plan", () => {
++        const p = planTemplateGrants([g("a")], [g("a")], true);
++        assert.equal(p.add.length + p.rescope.length + p.remove.length, 0);
++    });
++});
++
++const tpl = (over: Partial<TemplateView> = {}): TemplateView => ({ key: "teacher", version: 3, isActive: true, grantsAll: false, grants: [g("classes.view", "ASSIGNED"), g("sessions.view")], ...over });
++const role = (over: Partial<SchoolRoleView> = {}): SchoolRoleView => ({
++    id: "r1", name: "Teacher", kind: "SYSTEM_EDITABLE", grantsAll: false, isCustomized: false,
++    sourceTemplateKey: "teacher", sourceTemplateVersion: 2, grants: [g("classes.view", "ASSIGNED")], ...over,
++});
++
++describe("planSchoolRole", () => {
++    it("editable role gains the missing permission and moves to the new version", () => {
++        const a = planSchoolRole(role(), tpl(), false);
++        assert.equal(a.type, "update");
++        if (a.type === "update") { assert.deepEqual(a.plan.add, [g("sessions.view")]); assert.equal(a.version, 3); assert.equal(a.versionOnly, false); }
++    });
++    it("editable role keeps its own extras and own scopes (no prune)", () => {
++        const a = planSchoolRole(role({ grants: [g("classes.view", "ALL"), g("custom.thing")] }), tpl(), false);
++        assert.equal(a.type, "update");
++        if (a.type === "update") { assert.deepEqual(a.plan.remove, []); assert.deepEqual(a.plan.rescope, []); }
++    });
++    it("editable role with prune is made exact", () => {
++        const a = planSchoolRole(role({ grants: [g("classes.view", "ALL"), g("custom.thing")] }), tpl(), true);
++        if (a.type !== "update") assert.fail();
++        else { assert.deepEqual(a.plan.remove, ["custom.thing"]); assert.deepEqual(a.plan.rescope, [g("classes.view", "ASSIGNED")]); }
++    });
++    it("locked role is always made exact, including grantsAll", () => {
++        const a = planSchoolRole(role({ kind: "SYSTEM_LOCKED", grantsAll: true, grants: [g("old")] }), tpl(), false);
++        if (a.type !== "update") assert.fail();
++        else { assert.deepEqual(a.plan.remove, ["old"]); assert.equal(a.grantsAll, false); }
++    });
++    it("editable role gains grantsAll but never loses it", () => {
++        const gain = planSchoolRole(role({ grants: tpl().grants }), tpl({ grantsAll: true }), false);
++        if (gain.type !== "update") assert.fail(); else assert.equal(gain.grantsAll, true);
++        const keep = planSchoolRole(role({ grantsAll: true, grants: tpl().grants, sourceTemplateVersion: 3 }), tpl({ grantsAll: false }), false);
++        assert.equal(keep.type, "none");
++    });
++    it("nothing to change and same version -> none; only the version behind -> version-only update", () => {
++        assert.equal(planSchoolRole(role({ grants: tpl().grants, sourceTemplateVersion: 3 }), tpl(), false).type, "none");
++        const v = planSchoolRole(role({ grants: tpl().grants, sourceTemplateVersion: 1 }), tpl(), false);
++        if (v.type !== "update") assert.fail(); else assert.equal(v.versionOnly, true);
++    });
++    it("skips customised, custom, missing-template and inactive-template roles", () => {
++        assert.deepEqual(planSchoolRole(role({ isCustomized: true }), tpl(), false), { type: "skip", reason: "customised" });
++        assert.deepEqual(planSchoolRole(role({ kind: "CUSTOM", sourceTemplateKey: null }), tpl(), false), { type: "skip", reason: "custom_role" });
++        assert.deepEqual(planSchoolRole(role(), undefined, false), { type: "skip", reason: "no_template" });
++        assert.deepEqual(planSchoolRole(role(), tpl({ isActive: false }), false), { type: "skip", reason: "template_inactive" });
++    });
++});

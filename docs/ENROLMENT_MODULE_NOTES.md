@@ -41,7 +41,7 @@ promote:   { total, promoted, repeated, graduated, excluded, alreadyEnrolled, re
 `ENROLMENT_ALREADY_EXISTS`, `STUDENT_INACTIVE`, `CLASS_FULL`, `ENROLMENT_SAME_CLASS`, `ENROLMENT_NOT_ACTIVE`, `ENROLMENT_STATUS_INVALID`, `PROMOTION_SAME_TERM`, `PROMOTION_TERM_ORDER`, `PROMOTION_UNKNOWN_STUDENT`, `PROMOTION_NEEDS_DECISIONS`, plus the shared `NOT_FOUND`, `VALIDATION_ERROR`, `PERMISSION_DENIED`.
 
 ## Roles in schools that already exist
-`student` and `guardian` are locked templates, so the sync gives them `enrolment.view` (OWN). `principal`, `branch_principal`, `teacher` and `bursar` are editable templates created once and then owned by the platform: existing schools will NOT get `enrolment.view` for them automatically (same as `sessions.view` and `classes.view`). Until it is added, those roles get `PERMISSION_DENIED` on `/enrolments`.
+Permission `enrolment.view` for student, guardian, principal, branch principal, teacher and bursar. Roles in existing environments are brought up to date in two steps on every deploy: `npm run sync:registries` (updates the platform's role templates: locked ones are made exact, editable ones only gain missing permissions) and then `npm run sync:school-roles` (updates each school's own copy; roles a school has customised are skipped and listed). See `ROLE_SYNC_NOTES.md`. Until both have run, the affected roles get `PERMISSION_DENIED` on `/enrolments`.
 
 ## Frontend changes
 - Enrolment responses use `student`, `class` and `term` objects.

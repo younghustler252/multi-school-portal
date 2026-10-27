@@ -3,7 +3,7 @@ import { AuditService } from "../../audit/services/audit.service";
 import { IStudentRepository } from "../../students/repositories/student.repository";
 import { GuardianMapper, GuardianResponseData } from "../mappers/guardian.mapper";
 import { guardianErrors } from "../domain/guardian.errors";
-import { normalizeEmail } from "../domain/guardian.policy";
+import { normalizeEmail, isGuardianEmailConflict } from "../domain/guardian.policy";
 import { GuardianActor, GuardianOutcome, InviteStatus } from "../domain/guardian.types";
 import { CreateGuardianDtoType } from "../dtos/guardian.dto";
 import { createOrReuseGuardianInTx } from "../services/guardian-linking";
@@ -35,14 +35,20 @@ export class CreateGuardianUseCase {
         const d = this.d;
         if (!(await d.studentRepository.findById(dto.studentId))) throw guardianErrors.studentNotFound();
 
+        const attempt = () => getTenantClient().$transaction(tx => createOrReuseGuardianInTx(
+            tx as any,
+            { firstName: dto.firstName, lastName: dto.lastName, email: normalizeEmail(dto.email), phone: dto.phone, occupation: dto.occupation, address: dto.address },
+            { studentId: dto.studentId, relation: dto.relation, isPrimary: dto.isPrimary },
+        ));
+
         let saved;
         try {
-            saved = await getTenantClient().$transaction(tx => createOrReuseGuardianInTx(
-                tx as any,
-                { firstName: dto.firstName, lastName: dto.lastName, email: normalizeEmail(dto.email), phone: dto.phone, occupation: dto.occupation, address: dto.address },
-                { studentId: dto.studentId, relation: dto.relation, isPrimary: dto.isPrimary },
-            ));
+            try { saved = await attempt(); }
+            // Another request created this same email a moment ago: the database refused the second copy.
+            // Start again; this time the guardian is found and reused.
+            catch (err: any) { if (!isGuardianEmailConflict(err)) throw err; saved = await attempt(); }
         } catch (err: any) {
+            if (isGuardianEmailConflict(err)) throw guardianErrors.emailTaken();
             if (err?.code === "P2002") throw dto.isPrimary ? guardianErrors.primaryConflict() : guardianErrors.alreadyLinked();
             throw err;
         }

@@ -46,7 +46,7 @@ progression: { class: { id, name }, nextClass: { id, name } | null }
 `CLASS_NAME_TAKEN`, `CLASS_IN_USE`, `CAPACITY_BELOW_STUDENT_COUNT`, `CLASS_TEACHER_INVALID`, `PROGRESSION_SAME_CLASS`, `PROGRESSION_LOOP`, plus the shared `NOT_FOUND`, `VALIDATION_ERROR`, `PERMISSION_DENIED`.
 
 ## Roles in schools that already exist
-Same as Sessions: the principal, branch principal, teacher and bursar templates are created once and then owned by the platform, so existing schools will NOT get `classes.view` for them automatically; until it is added, those roles get `PERMISSION_DENIED` on `/classes`. New schools get it through provisioning.
+Permission `classes.view` for the principal, branch principal, teacher and bursar. Roles in existing environments are brought up to date in two steps on every deploy: `npm run sync:registries` (updates the platform's role templates: locked ones are made exact, editable ones only gain missing permissions) and then `npm run sync:school-roles` (updates each school's own copy; roles a school has customised are skipped and listed). See `ROLE_SYNC_NOTES.md`. Until both have run, the affected roles get `PERMISSION_DENIED` on `/classes`.
 
 ## Frontend changes
 - Class responses use `classTeacher` and `nextClass` objects (above).

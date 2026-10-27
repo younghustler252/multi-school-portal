@@ -37,7 +37,7 @@
 `SESSION_NAME_TAKEN`, `SESSION_DATES_OVERLAP`, `TERM_NAME_TAKEN`, `TERM_DATES_OVERLAP`, `TERM_OUTSIDE_SESSION`, `SESSION_EXCLUDES_TERMS`, `END_BEFORE_START`, `EVENT_SCOPE_MISMATCH`, plus the shared `NOT_FOUND`, `VALIDATION_ERROR`, `PERMISSION_DENIED`.
 
 ## Roles in schools that already exist
-`student`, `guardian` and `school_admin` are locked templates, so the sync gives them the new permission. `principal`, `branch_principal`, `teacher` and `bursar` are EDITABLE templates that are created once and then owned by the platform: schools that already exist will NOT get `sessions.view` for them automatically. Until a platform role console (or a manual change) adds it, those staff roles get `PERMISSION_DENIED` on `/sessions/current`. New schools get it through provisioning.
+Permission `sessions.view` for student, guardian, principal, branch principal, teacher and bursar. Roles in existing environments are brought up to date in two steps on every deploy: `npm run sync:registries` (updates the platform's role templates: locked ones are made exact, editable ones only gain missing permissions) and then `npm run sync:school-roles` (updates each school's own copy; roles a school has customised are skipped and listed). See `ROLE_SYNC_NOTES.md`. Until both have run, the affected roles get `PERMISSION_DENIED` on `/sessions/current`.
 
 ## Frontend changes
 - `GET /sessions/current` returns `{ session, currentTerm }` (before: the session).

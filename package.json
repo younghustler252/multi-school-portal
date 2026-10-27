@@ -20,6 +20,8 @@
     "prisma:migrate:deploy:public": "prisma migrate deploy --config=prisma.public.config.ts",
     "prisma:migrate:deploy:tenant": "prisma migrate deploy --config=prisma.tenant.config.ts",
     "migrate:apply-to-existing-schools": "ts-node scripts/apply-migration-to-existing-schools.ts",
+    "sync:school-roles": "ts-node scripts/sync-school-roles.ts",
+    "sync:school-roles:dry-run": "ts-node scripts/sync-school-roles.ts --dry-run",
     "migrate:apply-to-existing-schools:dry-run": "ts-node scripts/apply-migration-to-existing-schools.ts --dry-run"
   },
   "keywords": [],

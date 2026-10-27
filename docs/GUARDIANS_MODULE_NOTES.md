@@ -35,12 +35,16 @@
 `GUARDIAN_ALREADY_LINKED`, `GUARDIAN_NOT_LINKED`, `GUARDIAN_HAS_LOGIN`, `GUARDIAN_EMAIL_TAKEN`, `GUARDIAN_ALREADY_HAS_ACCESS`, `PRIMARY_GUARDIAN_CONFLICT`, plus the shared `NOT_FOUND`, `VALIDATION_ERROR`, `PERMISSION_DENIED`.
 
 ## Migration
+
+**`20261027090000_guardian_email_unique`**: one guardian per email in a school, enforced by the database (unique index on `lower(email)`; Prisma cannot declare it, so it exists only in the SQL). Before building the index it lower-cases emails and merges existing duplicates: the keeper is the guardian with a portal login, else the oldest; blank phone/occupation/address are filled from the duplicates; student links and payments move to the keeper (if the removed guardian was a student's primary, the keeper becomes primary); then the duplicates are deleted. If two guardians with the same email BOTH have a login, the migration stops with a clear message and nothing is guessed: fix those by hand, then run it again. Invitations already sent to a removed duplicate point at a record that no longer exists: send them again from the keeper.
+Two requests creating the same new email at the same moment: the second is refused by the database, the create runs once more, and the guardian made by the first request is reused. A changed email that hits the rule answers `409 GUARDIAN_EMAIL_TAKEN`.
+Tested: unit tests (`tests/guardians/guardian-hardening.test.ts`) and, on a scratch Postgres, the merge (links, primary hand-over, payments, login holder kept, two logins refused) and a real race (second insert refused with the index name). NOT run: the create retry against the real app (needs the Prisma engine); it is covered by the error-recognition tests only.
 Apply `20261023150000_guardian_primary_unique` to every existing school schema (new schemas get it through provisioning). It first clears extra primaries (keeps the earliest per student), then adds the index.
 
 ## Frontend changes
 - `POST /guardians` now returns `{ guardian, outcome, invite? }` instead of the guardian alone. It no longer creates a login or emails a password.
 - Create and update bodies are strict (unknown fields rejected); `email` is lower-cased; `phone` must look like a phone number.
-- `POST /guardians/:id/link` returns the link `{ guardianId, studentId, relation, isPrimary }`; a repeat link is `409 GUARDIAN_ALREADY_LINKED`.
+- `POST /guardians/:id/link`, `PUT` and `DELETE /guardians/:id/students/:studentId` now return names, not bare ids. Link and update: `{ guardian: { id, name }, student: { id, name, admissionNumber }, relation, isPrimary }`. Unlink: `{ guardian: { id, name }, student: { id, name, admissionNumber } }`. (Before: `{ guardianId, studentId, relation, isPrimary }`.) A repeat link is still `409 GUARDIAN_ALREADY_LINKED`.
 - New: `PUT` and `DELETE /guardians/:id/students/:studentId`.
 - `GET /guardians/me/children` no longer has `classId` and `className` (they return with Classes and Enrolment). `photoUrl` is a link that expires after 1 hour.
 - Guardian detail `students[]` items are student responses (with signed `photoUrl`) plus `relation` and `isPrimary`.

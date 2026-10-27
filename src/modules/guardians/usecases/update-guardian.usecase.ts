@@ -2,7 +2,7 @@ import { AuditService } from "../../audit/services/audit.service";
 import { IGuardianRepository } from "../repositories/guardian.repository";
 import { GuardianMapper, GuardianResponseData } from "../mappers/guardian.mapper";
 import { guardianErrors } from "../domain/guardian.errors";
-import { normalizeEmail } from "../domain/guardian.policy";
+import { normalizeEmail, isGuardianEmailConflict } from "../domain/guardian.policy";
 import { GuardianActor } from "../domain/guardian.types";
 import { UpdateGuardianDtoType } from "../dtos/guardian.dto";
 
@@ -37,7 +37,9 @@ export class UpdateGuardianUseCase {
             if (other && other.id !== id) throw guardianErrors.emailTaken();
         }
 
-        const updated = await d.guardianRepository.update(id, data);
+        let updated;
+        try { updated = await d.guardianRepository.update(id, data); }
+        catch (err) { if (isGuardianEmailConflict(err)) throw guardianErrors.emailTaken(); throw err; }
         await d.auditService.log({ userId: actor.userId, schoolId, action: "guardian.updated", entity: "Guardian", entityId: id, oldValue: before, newValue: after });
         return d.guardianMapper.toResponse(updated);
     }

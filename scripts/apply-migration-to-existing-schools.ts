@@ -5,6 +5,7 @@ import { readdirSync, readFileSync } from "fs";
 import { join } from "path";
 import { prisma } from "../src/infrastructure/database/prisma/prisma.client";
 
+const DRY_RUN = process.argv.includes("--dry-run");
 const TENANT_MIGRATIONS_DIR = join(process.cwd(), "prisma", "tenant-migrations");
 
 async function getAppliedMigrations(client: any): Promise<Set<string>> {
@@ -15,6 +16,7 @@ async function getAppliedMigrations(client: any): Promise<Set<string>> {
         return new Set(result.rows.map((r: any) => r.name));
     } catch {
         // Table doesn't exist yet on this schema — first run
+        if (DRY_RUN) return new Set();   // a dry run writes nothing, not even this table
         await client.query(`
             CREATE TABLE "_tenant_migrations_applied" (
                 name       TEXT PRIMARY KEY,
@@ -26,6 +28,7 @@ async function getAppliedMigrations(client: any): Promise<Set<string>> {
 }
 
 async function main() {
+    if (DRY_RUN) console.log("DRY RUN: nothing will be changed");
     const migrationFolders = readdirSync(TENANT_MIGRATIONS_DIR, { withFileTypes: true })
         .filter(e => e.isDirectory())
         .map(e => e.name)
@@ -50,6 +53,11 @@ async function main() {
 
             if (pending.length === 0) {
                 console.log(`⏭️  ${school.name} — already up to date`);
+                continue;
+            }
+
+            if (DRY_RUN) {
+                console.log(`🔎 ${school.name} — would apply: ${pending.join(", ")}`);
                 continue;
             }
 
