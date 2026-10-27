@@ -26,3 +26,11 @@ Main error codes: STATEMENT_ROWS_UNREADABLE, STATEMENT_ALREADY_IMPORTED, RECONCI
 
 ## Tests
 `bank-reconciliation-domain.test.ts` (30), `bank-reconciliation.test.ts` (31, in-memory world over the real PostingService), `finance-settings.test.ts`. All finance suites pass here except `books-schema.test.ts` (needs Postgres). The raw SQL repositories and the new Prisma models have not been run against a database.
+
+## Gateway settlements (`/finance/settlements`, feature `modules.fees`, permissions `payments.view` / `payments.settle`)
+Migration `20261028090000_gateway_settlements` (tables `GatewaySettlement`, `GatewaySettlementItem`).
+Flow: upload Paystack's settlement report as CSV text -> `POST /report/preview` shows, per settlement, what matched and what did not -> `POST /report` records every CLEAN settlement (Dr bank net, Dr bank charges fee, Cr online clearing gross) and marks its payments paid out. A settlement with any problem is skipped and reported, never half recorded. `POST /` settles chosen payments by hand (one fee figure shared out by amount). `POST /:id/reverse` (reason required) reverses the journal and frees the payments.
+Matching is by transaction reference (ours or the gateway's). A row is a problem when: NOT_FOUND, REVERSED, NOT_CONFIRMED, ALREADY_SETTLED, AMOUNT_DIFFERS, FEE_MISSING (no fee or net column) or DUPLICATE_IN_FILE. Report columns are found by name: settlement id (or send `settlementReference`), date, reference, amount, and fee or net.
+`GET /unsettled` lists confirmed online payments not yet paid out and the control: clearing account balance minus unsettled payments should be 0. A non-zero difference means a lump settlement was recorded by hand through the older `POST /payments/online/settlements`, or a payment was refunded after settling.
+Codes: SETTLEMENT_REPORT_COLUMNS, SETTLEMENT_REPORT_UNREADABLE, SETTLEMENT_REPORT_EMPTY, SETTLEMENT_ALREADY_RECORDED, SETTLEMENT_PAYMENTS_INVALID, SETTLEMENT_NOT_CLEAN, SETTLEMENT_FEE_INVALID, SETTLEMENT_ALREADY_REVERSED, SETTLEMENT_INVALID.
+Known gaps: a reference cannot be reused after a reversal (unique per provider); reversing a settlement whose bank line is already reconciled leaves the reversal as an unmatched book line to clear; the report layout is matched by header names, so check a real Paystack export once.

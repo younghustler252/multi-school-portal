@@ -33,6 +33,7 @@ import auditRouter from "../modules/audit/routes/audit.routes"
 import ledgerRouter from "../modules/ledger/routes/ledger.routes";
 import financeSettingsRouter from "../modules/finance-settings/routes/finance-settings.routes";
 import bankReconciliationRouter from "../modules/bank-reconciliation/routes/bank-reconciliation.routes";
+import gatewaySettlementsRouter from "../modules/gateway-settlements/routes/settlement.routes";
 // import notificationRouter from "../modules/notifications/routes/notification.routes";
 // import schoolSettingRouter from "../modules/school-settings/routes/school-settings.routes"
 // import platformsettingsRouter from "../modules/platform-settings/routes/platform-settings.route"
@@ -50,6 +51,7 @@ router.use("/audit", auditRouter)
 router.use("/staff", staffRouter);
 router.use("/finance/settings", financeSettingsRouter);
 router.use("/finance/reconciliation", bankReconciliationRouter);
+router.use("/finance/settlements", gatewaySettlementsRouter);
 router.use("/finance", ledgerRouter);
 router.use("/students", studentRouter);
 router.use("/guardians", guardianRouter);

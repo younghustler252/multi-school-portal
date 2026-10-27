@@ -873,6 +873,7 @@ model Payment {
   allocations     PaymentAllocation[]
   refunds         Refund[]
   receipt         Receipt?
+  settlementItem  GatewaySettlementItem?
 
   @@index([status])
   @@index([guardianId])
@@ -1350,6 +1351,7 @@ model LedgerAccount {
   bankStatements      BankStatement[]
   bankMatchGroups     BankMatchGroup[]
   bankReconciliations BankReconciliation[]
+  gatewaySettlements  GatewaySettlement[]
 
   @@index([type])
   @@index([parentId])
@@ -1411,6 +1413,7 @@ model JournalEntry {
 
   feeInvoice  FeeInvoice?
   payment     Payment?
+  gatewaySettlement GatewaySettlement?
   adjustment  InvoiceAdjustment?
   refund      Refund?
   expense        Expense?
@@ -2024,4 +2027,49 @@ model BankReconciliation {
 
   @@unique([ledgerAccountId, periodId])
   @@index([periodId])
+}
+
+// ============================================================================
+// FINANCE: GATEWAY SETTLEMENTS (phase 6)
+// ============================================================================
+
+// One payout from the payment gateway to the school's bank. The journal is Dr bank (net) + Dr bank charges (fee) / Cr online clearing (gross).
+model GatewaySettlement {
+  id           String   @id @default(uuid())
+  provider     String   @default("paystack")
+  reference    String
+  settledOn    DateTime @db.Date
+  grossKobo    BigInt
+  feeKobo      BigInt
+  netKobo      BigInt
+  accountId    String
+  journalId    String   @unique
+  itemCount    Int
+  note         String?
+  recordedById String?
+  createdAt    DateTime @default(now())
+  reversedAt   DateTime?
+  reversedById String?
+  reverseReason String?
+
+  account LedgerAccount          @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  journal JournalEntry           @relation(fields: [journalId], references: [id], onDelete: Restrict)
+  items   GatewaySettlementItem[]
+
+  @@unique([provider, reference])
+  @@index([settledOn])
+}
+
+// An online payment that a settlement paid out. A payment can be in at most one live settlement (reversing the settlement deletes these rows).
+model GatewaySettlementItem {
+  id           String @id @default(uuid())
+  settlementId String
+  paymentId    String @unique
+  amountKobo   BigInt
+  feeKobo      BigInt
+
+  settlement GatewaySettlement @relation(fields: [settlementId], references: [id], onDelete: Cascade)
+  payment    Payment           @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+
+  @@index([settlementId])
 }
