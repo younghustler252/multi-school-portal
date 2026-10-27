@@ -21,6 +21,8 @@ export interface FinanceSettings {
     graceDays:                    number;
     reconciliationBlocksClose:    boolean;
     reconciliationToleranceDays:  number;
+    vatEnabled:                   boolean;
+    vatRateBps:                   number;
 }
 
 export type SettingKind = "boolean" | "integer" | "enum";
@@ -81,6 +83,16 @@ export const FINANCE_SETTING_DEFS: readonly FinanceSettingDef[] = [
         key: "finance.reconciliation_tolerance_days", field: "reconciliationToleranceDays", kind: "integer", group: "Bank reconciliation", default: 3, min: 0, max: 14,
         label: "Days between the books and the bank",
         description: "Automatic matching pairs a bank line with a book entry of the same amount dated within this many days.",
+    },
+    {
+        key: "finance.vat_enabled", field: "vatEnabled", kind: "boolean", group: "Tax", default: false,
+        label: "Track VAT on expenses",
+        description: "Off (most schools): bills carry no VAT. On: each bill line can carry the input VAT the supplier charged, kept in the VAT receivable account so it can be claimed.",
+    },
+    {
+        key: "finance.vat_rate_bps", field: "vatRateBps", kind: "integer", group: "Tax", default: 750, min: 0, max: 5000,
+        label: "VAT rate (basis points)",
+        description: "Used when a bill line is marked vatable without an exact VAT amount. 750 is 7.5%. A line can always carry the exact VAT from the supplier's invoice instead.",
     },
 ];
 

@@ -11,7 +11,7 @@ export interface VendorEntity {
 
 export interface ExpenseLineEntity {
     id: string; ledgerAccountId: string; accountCode: string | null; accountName: string | null;
-    description: string; amountKobo: bigint; sortOrder: number;
+    description: string; amountKobo: bigint; vatKobo: bigint; sortOrder: number;
 }
 
 export interface ExpensePaymentEntity {

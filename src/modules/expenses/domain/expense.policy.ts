@@ -25,7 +25,17 @@ export const needsApproval = (
 
 export const expenseNumber = (year: string, n: number): string => `${EXPENSE_PREFIX}-${year}-${String(n).padStart(6, "0")}`;
 
-export const totalOf = (lines: { amountKobo: bigint }[]): bigint => lines.reduce((s, l) => s + l.amountKobo, 0n);
+/** What the expense costs in all: every line's amount plus its VAT. */
+export const totalOf = (lines: { amountKobo: bigint; vatKobo?: bigint }[]): bigint => lines.reduce((s, l) => s + l.amountKobo + (l.vatKobo ?? 0n), 0n);
+
+/** VAT on an amount at a rate in basis points (750 = 7.5%), rounded to the nearest kobo (halves up). */
+export const vatOn = (amountKobo: bigint, rateBps: number): bigint => (amountKobo * BigInt(rateBps) + 5_000n) / 10_000n;
+
+/** The input VAT on an expense, as one extra debit line (none when there is no VAT). */
+const vatLine = (lines: { vatKobo?: bigint }[]): PostLine[] => {
+    const vat = lines.reduce((s, l) => s + (l.vatKobo ?? 0n), 0n);
+    return vat > 0n ? [{ systemKey: "VAT_RECEIVABLE" as const, debitKobo: vat }] : [];
+};
 
 /* Where a bill stands after money is paid or a payment is reversed. */
 export function statusAfterPayment(totalKobo: bigint, paidKobo: bigint): ExpenseStatus {
@@ -49,6 +59,7 @@ export function checkExpenseAccounts(wanted: string[], found: AccountFacts[]): v
 export function accrualLines(e: Pick<ExpenseEntity, "lines" | "totalKobo" | "vendorId">): PostLine[] {
     return [
         ...e.lines.map(l => ({ accountId: l.ledgerAccountId, debitKobo: l.amountKobo })),
+        ...vatLine(e.lines),
         { systemKey: "ACCOUNTS_PAYABLE" as const, creditKobo: e.totalKobo, ...(e.vendorId && { partyType: "VENDOR" as const, partyId: e.vendorId }) },
     ];
 }
@@ -56,6 +67,7 @@ export function accrualLines(e: Pick<ExpenseEntity, "lines" | "totalKobo" | "ven
 export function directLines(e: Pick<ExpenseEntity, "lines" | "totalKobo">, moneyAccountId: string): PostLine[] {
     return [
         ...e.lines.map(l => ({ accountId: l.ledgerAccountId, debitKobo: l.amountKobo })),
+        ...vatLine(e.lines),
         { accountId: moneyAccountId, creditKobo: e.totalKobo },
     ];
 }

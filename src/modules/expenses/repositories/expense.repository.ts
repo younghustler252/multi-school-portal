@@ -1,7 +1,7 @@
 import { ExpenseEntity, ExpenseFilters, ExpenseStatus } from "../domain/expense.entity";
 import type { PaginatedResult } from "../../../infrastructure/repository/base.repository";
 
-export interface NewExpenseLine { ledgerAccountId: string; description: string; amountKobo: bigint; sortOrder: number }
+export interface NewExpenseLine { ledgerAccountId: string; description: string; amountKobo: bigint; vatKobo: bigint; sortOrder: number }
 
 export interface IExpenseRepository {
     findById(id: string): Promise<ExpenseEntity | null>;                                                    // with lines and payments

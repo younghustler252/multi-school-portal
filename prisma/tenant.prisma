@@ -1568,6 +1568,7 @@ model ExpenseLine {
   ledgerAccountId String
   description     String
   amountKobo      BigInt
+  vatKobo         BigInt @default(0)
   sortOrder       Int    @default(0)
 
   expense       Expense       @relation(fields: [expenseId], references: [id], onDelete: Cascade)

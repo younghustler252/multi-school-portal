@@ -46,6 +46,7 @@ const DRAFTS: Draft[] = [
     system("1030", "Online payments clearing",        "ASSET", "ONLINE_CLEARING", "ONLINE_CLEARING"),
     system("1100", "Fees receivable",                 "ASSET", "RECEIVABLE",      "FEES_RECEIVABLE"),
     system("1110", "Staff loans receivable",          "ASSET", "RECEIVABLE",      "STAFF_LOANS_RECEIVABLE"),
+    system("1120", "VAT receivable (input VAT)",      "ASSET", "RECEIVABLE",      "VAT_RECEIVABLE"),
 
     // ── Liabilities ─────────────────────────────────────────────────────
     system("2000", "Accounts payable",                "LIABILITY", "PAYABLE",          "ACCOUNTS_PAYABLE"),

@@ -57,7 +57,7 @@ describe("finance settings: update", () => {
     });
     it("get lists every setting with its default", async () => {
         const g = await store().get.execute();
-        assert.equal(g.settings.length, 8);
+        assert.equal(g.settings.length, 10);
     });
 });
 
@@ -95,5 +95,58 @@ describe("close checklist: bank reconciliation", () => {
         const block = buildChecklist({ ...counts, unreconciledAccounts: 2 }, clean, { reconciliationBlocksClose: true });
         assert.equal(block.canClose, false); assert.equal(block.blockers, 1);
         assert.equal(buildChecklist({ ...counts, unreconciledAccounts: 0 }, clean, { reconciliationBlocksClose: true }).canClose, true);
+    });
+});
+
+describe("VAT on expenses (optional)", () => {
+    const vatLines = (over: any = {}) => [{ ledgerAccountId: "a-stationery", amountKobo: N(100_000), ...over }];
+    const on = async (w: any, extra: any = {}) => {
+        const s = store(); w.d.financeSettingsService = s.reader;
+        await s.update.execute("school-1", "u1", { values: { "finance.vat_enabled": true, ...extra } } as any);
+        return s;
+    };
+
+    it("is off by default: asking for VAT is refused and nothing changes for a normal bill", async () => {
+        const w = expensesWorld(); w.d.financeSettingsService = store().reader;
+        await assert.rejects(w.draft({ lines: vatLines({ vatable: true }) }), code("VAT_NOT_ENABLED"));
+        await assert.rejects(w.draft({ lines: vatLines({ vatKobo: N(7_500) }) }), code("VAT_NOT_ENABLED"));
+        const x: any = await w.owed({ lines: vatLines() });
+        assert.equal(Number(x.vatKobo), 0);
+        assert.equal(w.balance("a-vat"), 0n);
+    });
+
+    it("a vatable line gets the school's rate; the bill owes cost plus VAT, and VAT sits in the receivable account", async () => {
+        const w = expensesWorld(); await on(w);
+        const x: any = await w.owed({ lines: vatLines({ vatable: true }) });
+        assert.equal(Number(x.vatKobo), Number(N(7_500)));
+        assert.equal(Number(x.totalKobo), Number(N(107_500)));
+        assert.equal(w.balance("a-vat"), N(7_500));
+        assert.equal(w.balance("a-stationery"), N(100_000));
+        w.assertControl(assert);
+    });
+
+    it("an exact VAT from the invoice wins, a changed rate applies, and rounding is to the nearest kobo", async () => {
+        const w = expensesWorld(); await on(w, { "finance.vat_rate_bps": 500 });
+        const exact: any = await w.draft({ lines: vatLines({ vatKobo: N(7_000) }) });
+        assert.equal(Number(exact.vatKobo), Number(N(7_000)));
+        const rate: any = await w.draft({ lines: vatLines({ amountKobo: 333n, vatable: true }) });
+        assert.equal(Number(rate.vatKobo), 17);          // 333 * 5% = 16.65 kobo
+    });
+
+    it("paying the bill and reversing the payment keep the books balanced", async () => {
+        const w = expensesWorld(); await on(w);
+        const x: any = await w.owed({ lines: vatLines({ vatable: true }) });
+        await w.pay.execute(x.id, "school-1", "bursar-1", { amountKobo: N(107_500), method: "bank_transfer", accountId: "a-bank" } as any);
+        w.assertControl(assert);
+        assert.equal(w.balance("a-bank"), -N(107_500));
+    });
+
+    it("a direct expense with VAT pays cost plus VAT from the money account", async () => {
+        const w = expensesWorld(); await on(w);
+        const x: any = await w.draft({ kind: "DIRECT", vendorId: undefined, payFromAccountId: "a-cash", lines: vatLines({ amountKobo: N(10_000), vatable: true }) });
+        const s: any = await w.submit.execute(x.id, "school-1", "clerk-1", {});
+        assert.equal(s.status, "PAID");
+        assert.equal(w.balance("a-cash"), -N(10_750));
+        assert.equal(w.balance("a-vat"), N(750));
     });
 });

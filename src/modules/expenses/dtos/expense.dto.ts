@@ -16,8 +16,10 @@ export const EXPENSE_METHODS = ["cash", "bank_transfer", "cheque", "pos", "other
 const Line = z.object({
     ledgerAccountId: id,
     description:     text(200).optional(),             // the expense's own description when left out
-    amountKobo:      positiveKobo,
-}).strict();
+    amountKobo:      positiveKobo,                      // the cost WITHOUT VAT
+    vatKobo:         kobo.optional(),                   // the exact VAT on the supplier's invoice (needs the VAT setting on)
+    vatable:         z.boolean().optional(),            // or: work the VAT out at the school's VAT rate
+}).strict().refine(l => !(l.vatKobo !== undefined && l.vatable), { message: "Send either vatKobo or vatable, not both", path: ["vatable"] });
 
 const expenseBody = {
     vendorId:         id.optional(),

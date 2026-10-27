@@ -9,7 +9,7 @@ export interface ExpenseRow {
     approvedById: string | null; approvedAt: Date | null; autoApproved: boolean; rejectedById: string | null; rejectedAt: Date | null; rejectionReason: string | null; voidReason: string | null;
     voidedById: string | null; voidedAt: Date | null; journalId: string | null; version: number; createdAt: Date;
     vendor?: { name: string } | null;
-    lines?: { id: string; ledgerAccountId: string; description: string; amountKobo: bigint; sortOrder: number; ledgerAccount?: { code: string; name: string } | null }[];
+    lines?: { id: string; ledgerAccountId: string; description: string; amountKobo: bigint; vatKobo?: bigint; sortOrder: number; ledgerAccount?: { code: string; name: string } | null }[];
     payments?: {
         id: string; expenseId: string; amountKobo: bigint; paidOn: Date; accountId: string; method: string; reference: string | null; paidById: string;
         journalId: string; reversedAt: Date | null; reversedById: string | null; reverseReason: string | null; createdAt: Date; account?: { name: string } | null;
@@ -20,7 +20,7 @@ export class ExpenseMapper implements IMapper<ExpenseRow, ExpenseEntity> {
     toDomain(raw: ExpenseRow): ExpenseEntity {
         const lines: ExpenseLineEntity[] = [...(raw.lines ?? [])].sort((a, b) => a.sortOrder - b.sortOrder).map(l => ({
             id: l.id, ledgerAccountId: l.ledgerAccountId, accountCode: l.ledgerAccount?.code ?? null, accountName: l.ledgerAccount?.name ?? null,
-            description: l.description, amountKobo: l.amountKobo, sortOrder: l.sortOrder,
+            description: l.description, amountKobo: l.amountKobo, vatKobo: l.vatKobo ?? 0n, sortOrder: l.sortOrder,
         }));
         const payments: ExpensePaymentEntity[] = [...(raw.payments ?? [])].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()).map(p => ({
             id: p.id, expenseId: p.expenseId, amountKobo: p.amountKobo, paidOn: p.paidOn, accountId: p.accountId, accountName: p.account?.name ?? null,
@@ -54,7 +54,8 @@ export class ExpenseMapper implements IMapper<ExpenseRow, ExpenseEntity> {
             payFromAccountId: e.payFromAccountId, termId: e.termId, branchId: e.branchId, recurringExpenseId: e.recurringExpenseId,
             submittedAt: e.submittedAt, approvedById: e.approvedById, approvedAt: e.approvedAt, rejectedById: e.rejectedById, rejectedAt: e.rejectedAt, rejectionReason: e.rejectionReason,
             voidReason: e.voidReason, voidedById: e.voidedById, voidedAt: e.voidedAt, journalId: e.journalId, version: e.version,
-            lines: e.lines.map(l => ({ id: l.id, ledgerAccountId: l.ledgerAccountId, accountCode: l.accountCode, accountName: l.accountName, description: l.description, amountKobo: koboOut(l.amountKobo) })),
+            lines: e.lines.map(l => ({ id: l.id, ledgerAccountId: l.ledgerAccountId, accountCode: l.accountCode, accountName: l.accountName, description: l.description, amountKobo: koboOut(l.amountKobo), vatKobo: koboOut(l.vatKobo ?? 0n) })),
+            vatKobo: koboOut(e.lines.reduce((s, l) => s + (l.vatKobo ?? 0n), 0n)),
             payments: e.payments.map(p => ({
                 id: p.id, amountKobo: koboOut(p.amountKobo), paidOn: dayOut(p.paidOn), accountId: p.accountId, accountName: p.accountName, method: p.method,
                 reference: p.reference, paidById: p.paidById, journalId: p.journalId, reversed: p.reversedAt !== null, reversedAt: p.reversedAt, reverseReason: p.reverseReason,

@@ -23,7 +23,7 @@ export function expensesWorld(opts: { enforcement?: BudgetEnforcement } = {}) {
     const accounts = [
         acct("a-cash", { systemKey: "CASH_DEFAULT", subtype: "CASH", isMoneyAccount: true }), acct("a-bank", { systemKey: "BANK_DEFAULT", subtype: "BANK", isMoneyAccount: true }),
         acct("a-petty", { subtype: "PETTY_CASH", isMoneyAccount: true }), acct("a-clearing", { subtype: "ONLINE_CLEARING", isMoneyAccount: true }),
-        acct("a-ap", { systemKey: "ACCOUNTS_PAYABLE", type: "LIABILITY" }), acct("a-tuition", { type: "INCOME" }),
+        acct("a-ap", { systemKey: "ACCOUNTS_PAYABLE", type: "LIABILITY" }), acct("a-vat", { systemKey: "VAT_RECEIVABLE", subtype: "RECEIVABLE", isLocked: true }), acct("a-tuition", { type: "INCOME" }),
         acct("a-stationery", { type: "EXPENSE" }), acct("a-fuel", { type: "EXPENSE" }), acct("a-old-exp", { type: "EXPENSE", isActive: false }),
     ];
     const findPostable = async (ids: string[], keys: string[]) => accounts.filter(a => a.isActive && (ids.includes(a.id) || (a.systemKey && keys.includes(a.systemKey))));

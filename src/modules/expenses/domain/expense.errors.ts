@@ -21,6 +21,7 @@ export const expenseErrors = {
     expenseAccountInvalid: (message: string, accountId?: string) => new AppError(message, 400, true, "EXPENSE_ACCOUNT_INVALID", accountId ? { accountId } : undefined),
     payAccountInvalid: (message: string) => new AppError(message, 400, true, "PAYMENT_ACCOUNT_INVALID"),
     payAccountRequired: () => new AppError("Choose the cash or bank account this expense is paid from", 400, true, "PAY_ACCOUNT_REQUIRED"),
+    vatNotEnabled:     () => new AppError("VAT is not switched on for this school. Turn on \"Track VAT on expenses\" in finance settings first", 400, true, "VAT_NOT_ENABLED"),
     expenseEmpty:      () => new AppError("An expense needs at least one line above zero", 400, true, "EXPENSE_HAS_NO_LINES"),
     refNotFound:       (what: string) => new AppError(`${what} does not exist`, 400, true, "REFERENCE_NOT_FOUND", { what }),
 

@@ -3,7 +3,8 @@ import { IVendorRepository } from "../repositories/vendor.repository";
 import { ILedgerAccountRepository } from "../../ledger/repositories/ledger-account.repository";
 import { ExpenseEntity, ExpenseKind } from "../domain/expense.entity";
 import { expenseErrors } from "../domain/expense.errors";
-import { checkExpenseAccounts, totalOf } from "../domain/expense.policy";
+import { checkExpenseAccounts, totalOf, vatOn } from "../domain/expense.policy";
+import { FinanceSettingsReader, settingsOf } from "../../finance-settings/domain/finance-settings";
 import { parseDay, todayInFinanceZone } from "../../ledger/domain/ledger.dates";
 import { resolveMoneyAccount } from "../services/expense-approval.service";
 
@@ -20,10 +21,10 @@ export const defaultTransaction = async <T>(fn: () => Promise<T>): Promise<T> =>
 export interface ExpenseInput {
     kind: ExpenseKind; vendorId?: string; reference?: string; description: string; expenseDate: string; dueDate?: string;
     payFromAccountId?: string; termId?: string; branchId?: string;
-    lines: { ledgerAccountId: string; description?: string; amountKobo: bigint }[];
+    lines: { ledgerAccountId: string; description?: string; amountKobo: bigint; vatKobo?: bigint; vatable?: boolean }[];
 }
 
-interface PrepareDeps { expenseRepository: IExpenseRepository; vendorRepository: IVendorRepository; ledgerAccountRepository: ILedgerAccountRepository }
+interface PrepareDeps { expenseRepository: IExpenseRepository; vendorRepository: IVendorRepository; ledgerAccountRepository: ILedgerAccountRepository; financeSettingsService?: FinanceSettingsReader }
 
 export async function loadExpense(repo: IExpenseRepository, id: string): Promise<ExpenseEntity> {
     const e = await repo.findById(id);
@@ -53,7 +54,14 @@ export async function prepareExpense(d: PrepareDeps, input: ExpenseInput, now: D
     if (input.termId && !(await d.expenseRepository.termExists(input.termId))) throw expenseErrors.refNotFound("The term");
     if (input.branchId && !(await d.expenseRepository.branchExists(input.branchId))) throw expenseErrors.refNotFound("The branch");
 
-    const lines: NewExpenseLine[] = input.lines.map((l, i) => ({ ledgerAccountId: l.ledgerAccountId, description: l.description ?? input.description, amountKobo: l.amountKobo, sortOrder: i }));
+    // VAT: only when the school turned it on. A line carries the exact VAT from the invoice, or is marked vatable and gets the school's rate.
+    const asksForVat = input.lines.some(l => (l.vatKobo ?? 0n) > 0n || l.vatable);
+    const settings = await settingsOf(d);
+    if (asksForVat && !settings.vatEnabled) throw expenseErrors.vatNotEnabled();
+    const lines: NewExpenseLine[] = input.lines.map((l, i) => ({
+        ledgerAccountId: l.ledgerAccountId, description: l.description ?? input.description, amountKobo: l.amountKobo, sortOrder: i,
+        vatKobo: l.vatKobo !== undefined ? l.vatKobo : l.vatable ? vatOn(l.amountKobo, settings.vatRateBps) : 0n,
+    }));
     const totalKobo = totalOf(lines);
     return {
         totalKobo, lines,
