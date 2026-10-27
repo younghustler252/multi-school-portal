@@ -3,6 +3,7 @@ import { IClassRepository } from "../../repositories/class.repository";
 import { ISessionRepository } from "../../../sessions/repositories/session.repository";
 import { ClassPresenter, ClassResponse } from "../../services/class-presenter";
 import { classErrors } from "../../domain/class.errors";
+import { classWriteError } from "../../domain/class.conflicts";
 import { ClassActor } from "../../domain/class.types";
 import { UpdateClassDtoType } from "../../dtos/class.dto";
 import { sameName } from "./create-class.usecase";
@@ -33,7 +34,7 @@ export class UpdateClassUseCase {
         }
 
         if (Object.keys(data).length > 0) {
-            await repo.updateClass(id, data);
+            await repo.updateClass(id, data).catch(err => { throw classWriteError(err); });
             await this.d.auditService.log({ userId: actor.userId, schoolId, action: "class.updated", entity: "Class", entityId: id, oldValue: { class: cls.name, ...before }, newValue: after });
         }
         return this.d.classPresenter.one((await repo.findClassByIdEnriched(id, termId))!);

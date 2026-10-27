@@ -1,3 +1,4 @@
+import { isUniqueViolation } from "../../../shared/errors/unique-violation";
 import { AuditService } from "../../audit/services/audit.service";
 import { ISessionRepository } from "../repositories/session.repository";
 import { SessionMapper, TermMapper, SessionResponseData, TermResponseData } from "../mappers/session.mapper";
@@ -21,7 +22,7 @@ export class CreateSessionUseCase {
         const clash = firstOverlap(range, all);
         if (clash) throw sessionErrors.sessionOverlap(clash.name);
 
-        const created = await repo.createSession({ name: dto.name, ...range });
+        const created = await repo.createSession({ name: dto.name, ...range }).catch(err => { throw isUniqueViolation(err) ? sessionErrors.sessionNameTaken() : err; });
         await this.d.auditService.log({ userId: actor.userId, schoolId, action: "session.created", entity: "Session", entityId: created.id, newValue: { name: dto.name, startDate: dto.startDate, endDate: dto.endDate } });
         return this.d.sessionMapper.toResponse({ ...created, terms: [] });
     }
@@ -50,7 +51,7 @@ export class UpdateSessionUseCase {
         if (dto.endDate && day(range.endDate) !== day(session.endDate)) { data.endDate = range.endDate; before.endDate = day(session.endDate); after.endDate = day(range.endDate); }
         if (Object.keys(data).length === 0) return this.d.sessionMapper.toResponse(session);
 
-        await repo.updateSession(id, data);
+        await repo.updateSession(id, data).catch(err => { throw isUniqueViolation(err) ? sessionErrors.sessionNameTaken() : err; });
         await this.d.auditService.log({ userId: actor.userId, schoolId, action: "session.updated", entity: "Session", entityId: id, oldValue: before, newValue: after });
         return this.d.sessionMapper.toResponse((await repo.findSessionById(id))!);
     }
@@ -70,7 +71,7 @@ export class CreateTermUseCase {
         const clash = firstOverlap(range, terms);
         if (clash) throw sessionErrors.termOverlap(clash.name);
 
-        const created = await repo.createTerm({ sessionId: dto.sessionId, name: dto.name, ...range });
+        const created = await repo.createTerm({ sessionId: dto.sessionId, name: dto.name, ...range }).catch(err => { throw isUniqueViolation(err) ? sessionErrors.termNameTaken() : err; });
         await this.d.auditService.log({ userId: actor.userId, schoolId, action: "term.created", entity: "Term", entityId: created.id, newValue: { session: session.name, name: dto.name, startDate: dto.startDate, endDate: dto.endDate } });
         return this.d.termMapper.toResponse(created, { id: session.id, name: session.name });
     }

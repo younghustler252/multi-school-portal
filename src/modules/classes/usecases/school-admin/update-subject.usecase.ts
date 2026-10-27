@@ -2,6 +2,7 @@ import { AuditService } from "../../../audit/services/audit.service";
 import { IClassRepository } from "../../repositories/class.repository";
 import { SubjectPresenter, SubjectResponse } from "../../services/subject-presenter";
 import { classErrors } from "../../domain/class.errors";
+import { subjectWriteError } from "../../domain/class.conflicts";
 import { ClassActor } from "../../domain/class.types";
 import { UpdateSubjectDtoType } from "../../dtos/class.dto";
 
@@ -28,7 +29,7 @@ export class UpdateSubjectUseCase {
         if (typeof data.name === "string" && others.some(s => same(s.name, data.name as string))) throw classErrors.subjectNameTaken();
         if (typeof data.code === "string" && others.some(s => s.code && same(s.code, data.code as string))) throw classErrors.subjectCodeTaken();
 
-        const updated = await repo.updateSubject(id, data);
+        const updated = await repo.updateSubject(id, data).catch(err => { throw subjectWriteError(err); });
         await this.d.auditService.log({ userId: actor.userId, schoolId, action: "subject.updated", entity: "Subject", entityId: id, oldValue: { subject: subject.name, ...before }, newValue: after });
         return (await this.d.subjectPresenter.subjects([updated]))[0];
     }

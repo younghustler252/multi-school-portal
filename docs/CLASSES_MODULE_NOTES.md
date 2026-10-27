@@ -48,6 +48,9 @@ progression: { class: { id, name }, nextClass: { id, name } | null }
 ## Roles in schools that already exist
 Permission `classes.view` for the principal, branch principal, teacher and bursar. Roles in existing environments are brought up to date in two steps on every deploy: `npm run sync:registries` (updates the platform's role templates: locked ones are made exact, editable ones only gain missing permissions) and then `npm run sync:school-roles` (updates each school's own copy; roles a school has customised are skipped and listed). See `ROLE_SYNC_NOTES.md`. Until both have run, the affected roles get `PERMISSION_DENIED` on `/classes`.
 
+## Unique names are database rules (migration `20261027100000_unique_names`)
+Class name and subject name (ignoring capitals and spaces at the ends) are now enforced by the database, next to the subject code rule that already existed. A race that gets past the app check is turned into the same `CLASS_NAME_TAKEN` / `SUBJECT_NAME_TAKEN` / `SUBJECT_CODE_TAKEN` as before (the subject code and name are told apart by the column the database names). Existing duplicates: the oldest keeps its name, later ones become `<name> (duplicate 2)`... so no class or subject is lost; a school can rename them afterwards.
+
 ## Frontend changes
 - Class responses use `classTeacher` and `nextClass` objects (above).
 - `PUT /classes/:id/class-teacher` and `PUT /classes/:id/progression` now return the class and `{ class, nextClass }`; their bodies are strict.

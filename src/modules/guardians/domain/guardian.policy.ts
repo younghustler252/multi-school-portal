@@ -1,3 +1,4 @@
+import { violatesColumn } from "../../../shared/errors/unique-violation";
 export const GUARDIAN_RELATIONS = ["father", "mother", "uncle", "aunt", "grandparent", "sibling", "guardian", "other"] as const;
 export type GuardianRelation = typeof GUARDIAN_RELATIONS[number];
 
@@ -7,9 +8,9 @@ export const normalizeEmail = (email: string): string => email.trim().toLowerCas
 /**
  * True when a database "already exists" error (P2002) came from the one-guardian-per-email rule
  * (index `Guardian_email_lower_key`), not from the primary-guardian or already-linked rules.
+ * The adapter reports only the column text (`lower(email`), never the index name, so we look for the column.
  */
 export function isGuardianEmailConflict(err: any): boolean {
     if (err?.code !== "P2002") return false;
-    const where = `${JSON.stringify(err?.meta?.target ?? "")} ${err?.meta?.constraint ?? ""} ${err?.message ?? ""}`.toLowerCase();
-    return where.includes("guardian_email_lower_key") || /["\[,]email["\],]/.test(where) && !where.includes("studentguardian");
+    return violatesColumn(err, "email") || `${JSON.stringify(err?.meta ?? "")} ${err?.message ?? ""}`.toLowerCase().includes("guardian_email_lower_key");
 }

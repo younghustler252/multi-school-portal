@@ -41,6 +41,9 @@ Two requests creating the same new email at the same moment: the second is refus
 Tested: unit tests (`tests/guardians/guardian-hardening.test.ts`) and, on a scratch Postgres, the merge (links, primary hand-over, payments, login holder kept, two logins refused) and a real race (second insert refused with the index name). NOT run: the create retry against the real app (needs the Prisma engine); it is covered by the error-recognition tests only.
 Apply `20261023150000_guardian_primary_unique` to every existing school schema (new schemas get it through provisioning). It first clears extra primaries (keeps the earliest per student), then adds the index.
 
+## Correction to the first version of the email rule
+The first version looked for the index name in the database error. Through the Postgres adapter the error carries only the column text (for example `lower(email`), never the index name, so that check could miss the real error. It now looks for the column (`src/shared/errors/unique-violation.ts`, shared with Sessions and Classes) and the tests use the real error shape.
+
 ## Frontend changes
 - `POST /guardians` now returns `{ guardian, outcome, invite? }` instead of the guardian alone. It no longer creates a login or emails a password.
 - Create and update bodies are strict (unknown fields rejected); `email` is lower-cased; `phone` must look like a phone number.

@@ -39,6 +39,10 @@
 ## Roles in schools that already exist
 Permission `sessions.view` for student, guardian, principal, branch principal, teacher and bursar. Roles in existing environments are brought up to date in two steps on every deploy: `npm run sync:registries` (updates the platform's role templates: locked ones are made exact, editable ones only gain missing permissions) and then `npm run sync:school-roles` (updates each school's own copy; roles a school has customised are skipped and listed). See `ROLE_SYNC_NOTES.md`. Until both have run, the affected roles get `PERMISSION_DENIED` on `/sessions/current`.
 
+## Unique names are database rules (migration `20261027100000_unique_names`)
+Session name (ignoring capitals and spaces at the ends) and one term of each name per session are now enforced by the database, so two requests at the same moment cannot both succeed. The app check stays (it gives the friendly error first); when a race gets past it, the database refuses the second and the API answers the same `SESSION_NAME_TAKEN` / `TERM_NAME_TAKEN` as before. The indexes exist only in the SQL (Prisma cannot declare the case-insensitive one); `Term_sessionId_name_key` is the same rule Prisma would name.
+Existing data: later duplicate sessions are renamed `<name> (duplicate 2)`, `(duplicate 3)`... (the oldest keeps its name). Duplicate terms in one session cannot be renamed or merged safely, so the migration stops with a message naming the session and term: fix by hand, then run it again. Date-overlap rules stay app-only (admin-only, rare).
+
 ## Frontend changes
 - `GET /sessions/current` returns `{ session, currentTerm }` (before: the session).
 - Terms carry `session: { id, name }` instead of `sessionId` (terms listed inside a session omit it). Calendar events carry `term: { id, name }` and `session: { id, name }` instead of `termId` and `sessionId`.

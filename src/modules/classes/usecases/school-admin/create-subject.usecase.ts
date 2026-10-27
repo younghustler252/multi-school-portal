@@ -2,6 +2,7 @@ import { AuditService } from "../../../audit/services/audit.service";
 import { IClassRepository } from "../../repositories/class.repository";
 import { SubjectPresenter, SubjectResponse } from "../../services/subject-presenter";
 import { classErrors } from "../../domain/class.errors";
+import { subjectWriteError } from "../../domain/class.conflicts";
 import { ClassActor } from "../../domain/class.types";
 import { CreateSubjectDtoType } from "../../dtos/class.dto";
 
@@ -17,7 +18,7 @@ export class CreateSubjectUseCase {
         if (all.some(s => same(s.name, dto.name))) throw classErrors.subjectNameTaken();
         if (dto.code && all.some(s => s.code && same(s.code, dto.code!))) throw classErrors.subjectCodeTaken();
 
-        const created = await this.d.classRepository.createSubject({ name: dto.name, code: dto.code, description: dto.description });
+        const created = await this.d.classRepository.createSubject({ name: dto.name, code: dto.code, description: dto.description }).catch(err => { throw subjectWriteError(err); });
         await this.d.auditService.log({ userId: actor.userId, schoolId, action: "subject.created", entity: "Subject", entityId: created.id, newValue: { name: created.name, code: created.code } });
         return (await this.d.subjectPresenter.subjects([created]))[0];
     }
