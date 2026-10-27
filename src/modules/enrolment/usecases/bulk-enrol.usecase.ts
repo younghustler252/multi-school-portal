@@ -1,104 +1,66 @@
-import { IEnrolmentRepository }  from "../repositories/enrolment.repository";
-import { IStudentRepository }    from "../../students/repositories/student.repository";
-import { IClassRepository }      from "../../classes/repositories/class.repository";
-import { EnrolmentMapper }       from "../mappers/enrolment.mapper";
-import { EnrolmentResponseData } from "../mappers/enrolment.mapper";
-import {
-    NotFoundError,
-    BadRequestError,
-}                                from "../../../shared/errors/domain.errors";
-import { EnrolmentErrorMessage } from "../domain/enrolment.enums";
-import { BulkEnrolDtoType }      from "../dtos/enrolment.dto";
-
-/*
-|--------------------------------------------------------------------------
-| BULK ENROL USE CASE
-| Enrols multiple students into a class at once
-|--------------------------------------------------------------------------
-*/
+import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
+import { AuditService } from "../../audit/services/audit.service";
+import { IEnrolmentRepository } from "../repositories/enrolment.repository";
+import { IStudentRepository } from "../../students/repositories/student.repository";
+import { IClassRepository } from "../../classes/repositories/class.repository";
+import { EnrolmentPresenter, NameRef, StudentLite, TermRef } from "../services/enrolment-presenter";
+import { lockClass, activeInClass, wouldOverflow } from "../services/class-seats";
+import { enrolmentErrors } from "../domain/enrolment.errors";
+import { EnrolmentActor } from "../domain/enrolment.types";
+import { BulkEnrolDtoType } from "../dtos/enrolment.dto";
 
 interface Dependencies {
-    enrolmentRepository: IEnrolmentRepository;
-    studentRepository:   IStudentRepository;
-    classRepository:     IClassRepository;
-    enrolmentMapper:     EnrolmentMapper;
+    enrolmentRepository: IEnrolmentRepository; studentRepository: IStudentRepository; classRepository: IClassRepository;
+    enrolmentPresenter: EnrolmentPresenter; auditService: AuditService;
 }
 
+export type SkipReason = "not_found" | "inactive" | "already_enrolled";
+export interface BulkEnrolResult {
+    class: NameRef; term: TermRef | null;
+    enrolled: StudentLite[];
+    skipped: Array<{ student: { id: string; name: string | null; admissionNumber?: string | null }; reason: SkipReason }>;
+}
+
+/*
+| ENROL A LIST into one class. Students who cannot be enrolled are skipped and reported by NAME with a reason
+| (not found, not active, already enrolled this term); the rest are saved together in ONE transaction. If the
+| class cannot hold all of them the whole request is refused (CLASS_FULL) and nothing is saved.
+*/
 export class BulkEnrolUseCase {
-    private readonly enrolmentRepository: IEnrolmentRepository;
-    private readonly studentRepository:   IStudentRepository;
-    private readonly classRepository:     IClassRepository;
-    private readonly enrolmentMapper:     EnrolmentMapper;
+    constructor(private readonly d: Dependencies) {}
 
-    constructor({
-        enrolmentRepository,
-        studentRepository,
-        classRepository,
-        enrolmentMapper,
-    }: Dependencies) {
-        this.enrolmentRepository = enrolmentRepository;
-        this.studentRepository   = studentRepository;
-        this.classRepository     = classRepository;
-        this.enrolmentMapper     = enrolmentMapper;
-    }
+    async execute(schoolId: string, dto: BulkEnrolDtoType, actor: EnrolmentActor): Promise<BulkEnrolResult> {
+        const d = this.d;
+        const cls = await d.classRepository.findClassById(dto.classId);
+        if (!cls) throw enrolmentErrors.classNotFound();
+        const term = (await d.enrolmentPresenter.termMap()).get(dto.termId);
+        if (!term) throw enrolmentErrors.termNotFound();
 
-    async execute(dto: BulkEnrolDtoType): Promise<{
-        enrolled: EnrolmentResponseData[];
-        skipped:  string[];
-    }> {
+        const ids = [...new Set(dto.studentIds)];
+        const students = new Map((await d.studentRepository.findMany({ id: { in: ids } })).map(s => [s.id, s]));
+        const taken = new Set((await d.enrolmentRepository.findMany({ termId: dto.termId, studentId: { in: ids } })).map(e => e.studentId));
+        const lite = (id: string): StudentLite => { const s = students.get(id)!; return { id, name: [s.firstName, s.lastName].filter(Boolean).join(" "), admissionNumber: s.admissionNumber }; };
 
-        // ── Check class exists ────────────────────────────────────────────
-        const cls = await this.classRepository.findClassById(dto.classId);
-        if (!cls) {
-            throw new NotFoundError(EnrolmentErrorMessage.CLASS_NOT_FOUND);
+        const skipped: BulkEnrolResult["skipped"] = [];
+        const toEnrol: string[] = [];
+        for (const id of ids) {
+            if (!students.has(id)) skipped.push({ student: { id, name: null }, reason: "not_found" });
+            else if (!students.get(id)!.isActive) skipped.push({ student: lite(id), reason: "inactive" });
+            else if (taken.has(id)) skipped.push({ student: lite(id), reason: "already_enrolled" });
+            else toEnrol.push(id);
         }
 
-        // ── Check capacity ────────────────────────────────────────────────
-        if (cls.capacity) {
-            const currentCount = await this.enrolmentRepository
-                .countByClass(dto.classId, dto.termId);
+        if (toEnrol.length) await getTenantClient().$transaction(async tx => {
+            await lockClass(tx as any, dto.classId);
+            const enrolled = await activeInClass(tx as any, dto.classId, dto.termId);
+            if (wouldOverflow(cls.capacity, enrolled, toEnrol.length)) throw enrolmentErrors.classFull({ capacity: cls.capacity!, enrolled, requested: toEnrol.length });
+            await tx.enrolment.createMany({ data: toEnrol.map(studentId => ({ studentId, classId: dto.classId, termId: dto.termId, status: "active" as const })), skipDuplicates: true });
+        }, { maxWait: 5000, timeout: 30000 });
 
-            const available = cls.capacity - currentCount;
-
-            if (available < dto.studentIds.length) {
-                throw new BadRequestError(
-                    `Class can only take ${available} more student(s). You are trying to enrol ${dto.studentIds.length}.`,
-                );
-            }
-        }
-
-        const enrolled: EnrolmentResponseData[] = [];
-        const skipped:  string[]                = [];
-
-        for (const studentId of dto.studentIds) {
-            const existing = await this.enrolmentRepository
-                .findByStudentAndTerm(studentId, dto.termId);
-
-            if (existing?.status === "active") {
-                skipped.push(studentId);
-                continue;
-            }
-
-            if (existing) {
-                const enrolment = await this.enrolmentRepository.update(existing.id, {
-                    classId: dto.classId,
-                    status:  "active",
-                });
-
-                enrolled.push(this.enrolmentMapper.toResponse(enrolment));
-                continue;
-            }
-
-            const enrolment = await this.enrolmentRepository.create({
-                studentId,
-                classId: dto.classId,
-                termId:  dto.termId,
-                status:  "active",
-            });
-
-            enrolled.push(this.enrolmentMapper.toResponse(enrolment));
-        }
-
-        return { enrolled, skipped };
+        if (toEnrol.length) await d.auditService.log({
+            userId: actor.userId, schoolId, action: "enrolment.bulk_created", entity: "Class", entityId: dto.classId,
+            newValue: { class: cls.name, term: `${term.session?.name ?? ""} ${term.name}`.trim(), students: toEnrol.map(id => lite(id).name), skipped: skipped.length },
+        });
+        return { class: { id: cls.id, name: cls.name }, term, enrolled: toEnrol.map(lite), skipped };
     }
 }

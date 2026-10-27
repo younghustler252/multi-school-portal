@@ -1,37 +1,24 @@
-import { IClassRepository }     from "../../repositories/class.repository";
-import { SubjectMapper }        from "../../mappers/class.mapper";
-import { SubjectResponseData } from "../../types/class.types";
-import { ConflictError }        from "../../../../shared/errors/domain.errors";
-import { ClassErrorMessage }    from "../../domain/class.enums";
+import { AuditService } from "../../../audit/services/audit.service";
+import { IClassRepository } from "../../repositories/class.repository";
+import { SubjectPresenter, SubjectResponse } from "../../services/subject-presenter";
+import { classErrors } from "../../domain/class.errors";
+import { ClassActor } from "../../domain/class.types";
 import { CreateSubjectDtoType } from "../../dtos/class.dto";
 
-interface Dependencies {
-    classRepository: IClassRepository;
-    subjectMapper:   SubjectMapper;
-}
+interface Dependencies { classRepository: IClassRepository; subjectPresenter: SubjectPresenter; auditService: AuditService }
+const same = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
 
+/* CREATE SUBJECT. The name is unique whatever the capitals; the code (saved in capitals) is unique too. */
 export class CreateSubjectUseCase {
-    private readonly classRepository: IClassRepository;
-    private readonly subjectMapper:   SubjectMapper;
+    constructor(private readonly d: Dependencies) {}
 
-    constructor({ classRepository, subjectMapper }: Dependencies) {
-        this.classRepository = classRepository;
-        this.subjectMapper   = subjectMapper;
-    }
+    async execute(schoolId: string, dto: CreateSubjectDtoType, actor: ClassActor): Promise<SubjectResponse> {
+        const all = await this.d.classRepository.findAllSubjects();
+        if (all.some(s => same(s.name, dto.name))) throw classErrors.subjectNameTaken();
+        if (dto.code && all.some(s => s.code && same(s.code, dto.code!))) throw classErrors.subjectCodeTaken();
 
-    async execute(
-        dto: CreateSubjectDtoType,
-    ): Promise<SubjectResponseData> {
-        if (dto.code) {
-            const existing = await this.classRepository
-                .findSubjectByCode(dto.code);
-
-            if (existing) {
-                throw new ConflictError(ClassErrorMessage.SUBJECT_CODE_TAKEN);
-            }
-        }
-
-        const subject = await this.classRepository.createSubject(dto);
-        return this.subjectMapper.toResponse(subject);
+        const created = await this.d.classRepository.createSubject({ name: dto.name, code: dto.code, description: dto.description });
+        await this.d.auditService.log({ userId: actor.userId, schoolId, action: "subject.created", entity: "Subject", entityId: created.id, newValue: { name: created.name, code: created.code } });
+        return (await this.d.subjectPresenter.subjects([created]))[0];
     }
 }

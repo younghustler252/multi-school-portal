@@ -6,6 +6,7 @@ import { SetClassTeacherUseCase } from "../usecases/school-admin/set-classteache
 import { GetClassByIdUseCase } from "../usecases/school-admin/get-class-by-id.usecase";
 import { CreateSubjectUseCase }     from "../usecases/school-admin/create-subject.usecase";
 import { DeleteClassUseCase } from "../usecases/school-admin/delete-class.usecase";
+import { UpdateSubjectUseCase }     from "../usecases/school-admin/update-subject.usecase";
 import { GetSubjectsUseCase }       from "../usecases/school-admin/get-subjects.usecase";
 import { AssignSubjectUseCase }     from "../usecases/school-admin/assign-subject.usecase";
 import { SetSubjectDefaultTeacherUseCase } from "../usecases/school-admin/set-subject-default-teacher.usecase";
@@ -43,6 +44,7 @@ interface Dependencies {
     deleteClassUseCase:      DeleteClassUseCase;
     createSubjectUseCase:    CreateSubjectUseCase;
     getSubjectsUseCase:      GetSubjectsUseCase;
+    updateSubjectUseCase:    UpdateSubjectUseCase;
     assignSubjectUseCase:    AssignSubjectUseCase;
     setSubjectDefaultTeacherUseCase: SetSubjectDefaultTeacherUseCase;
     bulkAssignSubjectsUseCase: BulkAssignSubjectsUseCase;
@@ -63,6 +65,7 @@ export class ClassController {
     private readonly deleteClassUseCase:      DeleteClassUseCase;
     private readonly createSubjectUseCase:    CreateSubjectUseCase;
     private readonly getSubjectsUseCase:      GetSubjectsUseCase;
+    private readonly updateSubjectUseCase:    UpdateSubjectUseCase;
     private readonly assignSubjectUseCase:    AssignSubjectUseCase;
     private readonly setSubjectDefaultTeacherUseCase: SetSubjectDefaultTeacherUseCase;
     private readonly bulkAssignSubjectsUseCase: BulkAssignSubjectsUseCase;
@@ -81,6 +84,7 @@ export class ClassController {
         deleteClassUseCase,
         createSubjectUseCase,
         getSubjectsUseCase,
+        updateSubjectUseCase,
         assignSubjectUseCase,
         setSubjectDefaultTeacherUseCase,
         bulkAssignSubjectsUseCase,
@@ -98,6 +102,7 @@ export class ClassController {
         this.deleteClassUseCase         = deleteClassUseCase;
         this.createSubjectUseCase       = createSubjectUseCase;
         this.getSubjectsUseCase         = getSubjectsUseCase;
+        this.updateSubjectUseCase       = updateSubjectUseCase;
         this.assignSubjectUseCase       = assignSubjectUseCase;
         this.setSubjectDefaultTeacherUseCase = setSubjectDefaultTeacherUseCase;
         this.bulkAssignSubjectsUseCase  = bulkAssignSubjectsUseCase,
@@ -144,100 +149,47 @@ export class ClassController {
     };
 
     // ── Subjects ──────────────────────────────────────────────────────────
-    getSubjects = async (
-        req: Request, res: Response, next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.getSubjectsUseCase.execute();
-            sendSuccess(res, result, "Subjects retrieved successfully");
-        } catch (err) { next(err); }
+    updateSubject = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try { sendSuccess(res, await this.updateSubjectUseCase.execute(schoolIdOf(req), String(req.params.id), req.body, actorOf(req)), "Subject updated successfully"); }
+        catch (err) { next(err); }
     };
 
-    createSubject = async (
-        req: Request, res: Response, next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.createSubjectUseCase.execute(req.body);
-            sendCreated(res, result, "Subject created successfully");
-        } catch (err) { next(err); }
+    getSubjects = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try { sendSuccess(res, await this.getSubjectsUseCase.execute(), "Subjects retrieved successfully"); }
+        catch (err) { next(err); }
+    };
+
+    createSubject = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try { sendCreated(res, await this.createSubjectUseCase.execute(schoolIdOf(req), req.body, actorOf(req)), "Subject created successfully"); }
+        catch (err) { next(err); }
     };
 
     // ── Class Subjects ────────────────────────────────────────────────────
-    getClassSubjects = async (
-        req: Request, res: Response, next: NextFunction,
-    ): Promise<void> => {
+    getClassSubjects = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const result = await this.getClassSubjectsUseCase.execute(
-                req.params.id as string,
-            );
-            sendSuccess(res, result, "Class subjects retrieved successfully");
+            const termId = typeof req.query.termId === "string" ? req.query.termId : undefined;
+            sendSuccess(res, await this.getClassSubjectsUseCase.execute(String(req.params.id), termId), "Class subjects retrieved successfully");
         } catch (err) { next(err); }
     };
 
-    assignSubject = async (
-        req: Request, res: Response, next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.assignSubjectUseCase.execute(
-                req.params.id as string,
-                req.body,
-            );
-            sendCreated(res, result, "Subject assigned successfully");
-        } catch (err) { next(err); }
+    assignSubject = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try { sendCreated(res, await this.assignSubjectUseCase.execute(schoolIdOf(req), String(req.params.id), req.body, actorOf(req)), "Subject assigned successfully"); }
+        catch (err) { next(err); }
     };
 
-    async setSubjectDefaultTeacher(
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ) {
-        try {
-            const subjectId = req.params.id as string;
-            const { staffId } = req.body;
-
-            const result = await this.setSubjectDefaultTeacherUseCase.execute(
-                subjectId,
-                staffId,
-            );
-
-            return res.status(200).json({
-                success: true,
-                data: result,
-            });
-        } catch (error) {
-            next(error);
-        }
-    }
-
-
-   bulkAssignSubjects = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.bulkAssignSubjectsUseCase.execute(
-                req.params.id as string,
-                req.body,
-            );
-
-            sendCreated(res, result, "Subjects assigned successfully");
-        } catch (err) {
-            next(err);
-        }
+    setSubjectDefaultTeacher = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try { sendSuccess(res, await this.setSubjectDefaultTeacherUseCase.execute(schoolIdOf(req), String(req.params.id), req.body.staffId, actorOf(req)), "Subject default teacher updated successfully"); }
+        catch (err) { next(err); }
     };
 
+    bulkAssignSubjects = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try { sendSuccess(res, await this.bulkAssignSubjectsUseCase.execute(schoolIdOf(req), String(req.params.id), req.body, actorOf(req)), "Subjects assigned successfully"); }
+        catch (err) { next(err); }
+    };
 
-
-    removeSubject = async (
-        req: Request, res: Response, next: NextFunction,
-    ): Promise<void> => {
-        try {
-            await this.removeSubjectUseCase.execute(
-                req.params.classSubjectId as string,
-            );
-            sendSuccess(res, null, "Subject removed successfully");
-        } catch (err) { next(err); }
+    removeSubject = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try { sendSuccess(res, await this.removeSubjectUseCase.execute(schoolIdOf(req), String(req.params.classSubjectId), actorOf(req)), "Subject removed from class"); }
+        catch (err) { next(err); }
     };
 
     setClassProgression = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -245,43 +197,14 @@ export class ClassController {
         catch (err) { next(err); }
     };
 
-    applyTeachingDefaults = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.applyDefaultsUseCase.execute();
-
-            sendSuccess(
-                res,
-                result,
-                "Teaching defaults applied successfully",
-            );
-        } catch (err) {
-            next(err);
-        }
+    applyTeachingDefaults = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try { sendSuccess(res, await this.applyDefaultsUseCase.execute(schoolIdOf(req), actorOf(req)), "Teaching defaults applied"); }
+        catch (err) { next(err); }
     };
 
-    clearSubjectOverride = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.clearSubjectOverrideUseCase.execute(
-                req.params.classSubjectId as string,
-            );
-
-            sendSuccess(
-                res,
-                result,
-                "Subject override cleared successfully",
-            );
-        } catch (err) {
-            next(err);
-        }
+    clearSubjectOverride = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try { sendSuccess(res, await this.clearSubjectOverrideUseCase.execute(schoolIdOf(req), String(req.params.classSubjectId), actorOf(req)), "Teacher override cleared"); }
+        catch (err) { next(err); }
     };
-
 
 }

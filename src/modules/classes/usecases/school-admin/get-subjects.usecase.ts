@@ -1,23 +1,12 @@
-import { IClassRepository }   from "../../repositories/class.repository";
-import { SubjectMapper }      from "../../mappers/class.mapper";
-import { SubjectResponseData } from "../../types/class.types";
+import { IClassRepository } from "../../repositories/class.repository";
+import { SubjectPresenter, SubjectResponse } from "../../services/subject-presenter";
 
-interface Dependencies {
-    classRepository: IClassRepository;
-    subjectMapper:   SubjectMapper;
-}
+interface Dependencies { classRepository: IClassRepository; subjectPresenter: SubjectPresenter }
 
+/* ALL SUBJECTS with their default teacher's name. */
 export class GetSubjectsUseCase {
-    private readonly classRepository: IClassRepository;
-    private readonly subjectMapper:   SubjectMapper;
-
-    constructor({ classRepository, subjectMapper }: Dependencies) {
-        this.classRepository = classRepository;
-        this.subjectMapper   = subjectMapper;
-    }
-
-    async execute(): Promise<SubjectResponseData[]> {
-        const subjects = await this.classRepository.findAllSubjects();
-        return subjects.map(s => this.subjectMapper.toResponse(s));
+    constructor(private readonly d: Dependencies) {}
+    async execute(): Promise<SubjectResponse[]> {
+        return this.d.subjectPresenter.subjects(await this.d.classRepository.findAllSubjects());
     }
 }

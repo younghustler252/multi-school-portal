@@ -7,7 +7,7 @@ import { requireTenant } from "../../../infrastructure/middleware/tenant-resolve
 import { requirePermission } from "../../../infrastructure/middleware/rbac.middleware";
 import {
     CreateClassDto, UpdateClassDto, SetClassTeacherDto, SetClassProgressionDto,
-    CreateSubjectDto, AssignSubjectDto, BulkAssignSubjectsDto, SetSubjectDefaultTeacherDto,
+    CreateSubjectDto, UpdateSubjectDto, AssignSubjectDto, BulkAssignSubjectsDto, SetSubjectDefaultTeacherDto,
 } from "../dtos/class.dto";
 
 /*
@@ -15,7 +15,6 @@ import {
 | classes.view   = see classes, subjects and who teaches what (staff roles)
 | classes.manage = create, edit and delete classes and subjects; class teachers; promotion order; subject teachers
 | Fixed paths ("/subjects...", "/apply-teaching-defaults") come before "/:id".
-| (The subject and teacher-assignment routes only got their permission guards in this pass; their use cases are hardened next.)
 */
 const router = Router();
 const ctrl   = () => container.resolve<ClassController>("classController");
@@ -28,6 +27,7 @@ router.post("/apply-teaching-defaults", ...manage, (q, s, n) => ctrl().applyTeac
 
 router.get("/subjects/all", ...view, (q, s, n) => ctrl().getSubjects(q, s, n));
 router.post("/subjects", ...manage, validate(CreateSubjectDto), (q, s, n) => ctrl().createSubject(q, s, n));
+router.put("/subjects/:id", ...manage, validate(UpdateSubjectDto), (q, s, n) => ctrl().updateSubject(q, s, n));
 router.put("/subjects/:id/default-teacher", ...manage, validate(SetSubjectDefaultTeacherDto), (q, s, n) => ctrl().setSubjectDefaultTeacher(q, s, n));
 
 router.get("/:id", ...view, (q, s, n) => ctrl().getClassById(q, s, n));

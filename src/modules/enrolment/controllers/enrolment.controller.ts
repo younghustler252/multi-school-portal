@@ -1,183 +1,41 @@
 import { Request, Response, NextFunction } from "express";
-import { EnrolStudentUseCase }       from "../usecases/enrol-student.usecase";
-import { BulkEnrolUseCase }          from "../usecases/bulk-enrol.usecase";
-import { GetEnrolmentsUseCase }      from "../usecases/get-enrolments.usecase";
-import { UpdateEnrolmentUseCase }    from "../usecases/update-enrolment.usecase";
-import { PreviewPromotionUseCase }   from "../usecases/preview-promotion.usecase";
-import { PromoteStudentsUseCase }   from "../usecases/promote-student.usecase";
-import {
-    sendSuccess,
-    sendCreated,
-    sendPaginated,
-} from "../../../shared/utils/api-response";
-
-/*
-|--------------------------------------------------------------------------
-| ENROLMENT CONTROLLER
-|--------------------------------------------------------------------------
-*/
+import { ListEnrolmentsUseCase } from "../usecases/list-enrolments.usecase";
+import { EnrolStudentUseCase } from "../usecases/enrol-student.usecase";
+import { BulkEnrolUseCase } from "../usecases/bulk-enrol.usecase";
+import { UpdateEnrolmentUseCase } from "../usecases/update-enrolment.usecase";
+import { PreviewPromotionUseCase, PromoteStudentsUseCase } from "../usecases/promotion.usecases";
+import { sendSuccess, sendCreated } from "../../../shared/utils/api-response";
+import { getAccess } from "../../../infrastructure/middleware/rbac.middleware";
+import { ListEnrolmentsQuery, PromotionPreviewQuery } from "../dtos/enrolment.dto";
+import { enrolmentErrors } from "../domain/enrolment.errors";
+import { EnrolmentActor } from "../domain/enrolment.types";
 
 interface Dependencies {
-    enrolStudentUseCase:       EnrolStudentUseCase;
-    bulkEnrolUseCase:          BulkEnrolUseCase;
-    getEnrolmentsUseCase:      GetEnrolmentsUseCase;
-    updateEnrolmentUseCase:    UpdateEnrolmentUseCase;
-    previewPromotionUseCase:  PreviewPromotionUseCase;
-    promoteStudentsUseCase:   PromoteStudentsUseCase;
+    listEnrolmentsUseCase: ListEnrolmentsUseCase; enrolStudentUseCase: EnrolStudentUseCase; bulkEnrolUseCase: BulkEnrolUseCase;
+    updateEnrolmentUseCase: UpdateEnrolmentUseCase; previewPromotionUseCase: PreviewPromotionUseCase; promoteStudentsUseCase: PromoteStudentsUseCase;
 }
 
+/*
+| ENROLMENT CONTROLLER (school realm, /enrolments). The school is the host's school; the acting person comes ONLY
+| from the verified session (req.auth), never from the body or URL.
+*/
+const schoolIdOf = (req: Request): string => req.schoolId as string;
+const actorOf = (req: Request): EnrolmentActor => { if (!req.auth) throw enrolmentErrors.notFound(); return { userId: req.auth.userId }; };
+
 export class EnrolmentController {
-    private readonly enrolStudentUseCase:      EnrolStudentUseCase;
-    private readonly bulkEnrolUseCase:         BulkEnrolUseCase;
-    private readonly getEnrolmentsUseCase:     GetEnrolmentsUseCase;
-    private readonly updateEnrolmentUseCase:   UpdateEnrolmentUseCase;
-    private readonly previewPromotionUseCase:  PreviewPromotionUseCase;
-    private readonly promoteStudentsUseCase:   PromoteStudentsUseCase;
+    constructor(private readonly d: Dependencies) {}
 
-    constructor({
-        enrolStudentUseCase,
-        bulkEnrolUseCase,
-        getEnrolmentsUseCase,
-        updateEnrolmentUseCase,
-        previewPromotionUseCase,
-        promoteStudentsUseCase,
-    }: Dependencies) {
-        this.enrolStudentUseCase     = enrolStudentUseCase;
-        this.bulkEnrolUseCase        = bulkEnrolUseCase;
-        this.getEnrolmentsUseCase    = getEnrolmentsUseCase;
-        this.updateEnrolmentUseCase  = updateEnrolmentUseCase;
-        this.previewPromotionUseCase = previewPromotionUseCase;
-        this.promoteStudentsUseCase  = promoteStudentsUseCase;
-    }
-
-    // ── List enrolments ───────────────────────────────────────────────────
-
-    getEnrolments = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
+    // The validate middleware does not write query values back, so queries are parsed here
+    list = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const result = await this.getEnrolmentsUseCase.execute(
-                req.query as any,
-            );
-
-            sendPaginated(res, result.data, result.meta);
-        } catch (err) {
-            next(err);
-        }
+            const r = await this.d.listEnrolmentsUseCase.execute(ListEnrolmentsQuery.parse(req.query), getAccess(req));
+            res.status(200).json({ success: true, message: "Enrolments retrieved successfully", data: r.data, meta: r.meta });
+        } catch (e) { next(e); }
     };
 
-    // ── Enrol single student ──────────────────────────────────────────────
-
-    enrolStudent = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.enrolStudentUseCase.execute(
-                req.body,
-            );
-
-            sendCreated(
-                res,
-                result,
-                "Student enrolled successfully",
-            );
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    // ── Bulk enrol students ───────────────────────────────────────────────
-
-    bulkEnrol = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.bulkEnrolUseCase.execute(
-                req.body,
-            );
-
-            sendCreated(
-                res,
-                result,
-                `Enrolled ${result.enrolled.length} student(s). Skipped ${result.skipped.length}.`,
-            );
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    // ── Update enrolment status ───────────────────────────────────────────
-
-    updateEnrolment = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.updateEnrolmentUseCase.execute(
-                req.params.id as string,
-                req.body,
-            );
-
-            sendSuccess(
-                res,
-                result,
-                "Enrolment updated successfully",
-            );
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    // ── Preview student promotions ────────────────────────────────────────
-
-    previewPromotion = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.previewPromotionUseCase.execute(
-                req.query.termId as string,
-            );
-
-            sendSuccess(res, result, "Promotion preview generated successfully");
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    // ── Promote students ──────────────────────────────────────────────────
-
-    promoteStudents = async (
-        req:  Request,
-        res:  Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const {
-                currentTermId,
-                newTermId,
-                rows,
-                overrides = [],
-            } = req.body;
-
-            const result = await this.promoteStudentsUseCase.execute(
-                currentTermId,
-                newTermId,
-                rows,
-                overrides,
-            );
-
-            sendSuccess(res, result, "Student promotion completed successfully");
-        } catch (err) {
-            next(err);
-        }
-    };
+    enrol = async (req: Request, res: Response, next: NextFunction) => { try { sendCreated(res, await this.d.enrolStudentUseCase.execute(schoolIdOf(req), req.body, actorOf(req)), "Student enrolled successfully"); } catch (e) { next(e); } };
+    bulkEnrol = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.bulkEnrolUseCase.execute(schoolIdOf(req), req.body, actorOf(req)), "Enrolment completed"); } catch (e) { next(e); } };
+    update = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.updateEnrolmentUseCase.execute(schoolIdOf(req), String(req.params.id), req.body, actorOf(req)), "Enrolment updated successfully"); } catch (e) { next(e); } };
+    previewPromotion = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.previewPromotionUseCase.execute(PromotionPreviewQuery.parse(req.query)), "Promotion preview retrieved successfully"); } catch (e) { next(e); } };
+    promote = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.promoteStudentsUseCase.execute(schoolIdOf(req), req.body, actorOf(req)), "Promotion completed"); } catch (e) { next(e); } };
 }

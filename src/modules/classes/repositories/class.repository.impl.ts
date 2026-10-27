@@ -382,6 +382,10 @@ export class ClassRepositoryImpl
         };
     }
 
+    async findAllClassProgressions(): Promise<Array<{ fromClassId: string; toClassId: string | null }>> {
+        return this.prisma.classProgression.findMany({ select: { fromClassId: true, toClassId: true } });
+    }
+
     async findClassProgression(
         fromClassId: string,
     ): Promise<ClassProgressionEntity | null> {

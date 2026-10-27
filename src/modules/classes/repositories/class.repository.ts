@@ -87,6 +87,7 @@ export interface IClassRepository {
         createdAt:      Date;
     } | null>;
 
+    findAllClassProgressions(): Promise<Array<{ fromClassId: string; toClassId: string | null }>>;
     findClassProgression(fromClassId: string):      Promise<ClassProgressionEntity | null>;
     setClassProgression(data: { fromClassId: string; toClassId: string | null }): Promise<ClassProgressionEntity>;
     findClassProgressionEnriched(fromClassId: string): Promise<ClassProgressionResponseData | null>;

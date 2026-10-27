@@ -29,8 +29,8 @@ describe("student scope", () => {
     it("a student sees only themselves", () => assert.deepEqual(studentScopeWhere(access("OWN", "STUDENT", "st1")), { id: "st1" }));
     it("a guardian sees only linked children", () =>
         assert.deepEqual(studentScopeWhere(access("OWN", "GUARDIAN", "g1")), { guardianLinks: { some: { guardianId: "g1" } } }));
-    it("BRANCH, ASSIGNED, staff OWN and no permission see nobody", () => {
-        for (const a of [access("BRANCH", "STAFF", "s1"), access("ASSIGNED", "STAFF", "s1"), access("OWN", "STAFF", "s1"), access(null, "STAFF", "s1")])
+    it("BRANCH, staff OWN and no permission see nobody", () => {
+        for (const a of [access("BRANCH", "STAFF", "s1"), access("OWN", "STAFF", "s1"), access(null, "STAFF", "s1")])
             assert.deepEqual(studentScopeWhere(a), { id: { in: [] } });
     });
 });

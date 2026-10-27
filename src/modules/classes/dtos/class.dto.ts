@@ -28,44 +28,37 @@ export const UpdateClassDto = z.object({
 export const SetClassTeacherDto = z.object({ staffId: z.string().uuid().nullable() }).strict();
 export const SetClassProgressionDto = z.object({ toClassId: z.string().uuid().nullable() }).strict();   // null = the class graduates
 
-// ── Create subject ────────────────────────────────────────────────────────
+// ── Subjects ──────────────────────────────────────────────────────────────
+// Codes are saved in capitals ("math" and "MATH" are the same code).
+const subjectCode = z.string().trim().toUpperCase().regex(/^[A-Z0-9][A-Z0-9_-]{0,19}$/, "Use letters, numbers, - or _ (up to 20 characters)");
+
 export const CreateSubjectDto = z.object({
-    name:        z.string().min(1).max(100),
-    code:        z.string().optional(),
-    description: z.string().optional(),
-});
+    name:        z.string().trim().min(1).max(100),
+    code:        z.preprocess(blank(undefined), subjectCode.optional()),
+    description: z.preprocess(blank(undefined), z.string().trim().max(300).optional()),
+}).strict();
 
-// ── Update subject ────────────────────────────────────────────────────────
 export const UpdateSubjectDto = z.object({
-    name:        z.string().min(1).max(100).optional(),
-    code:        z.string().optional(),
-    description: z.string().optional(),
-});
+    name:        z.string().trim().min(1).max(100).optional(),
+    code:        z.preprocess(blank(null), subjectCode.nullable().optional()),
+    description: z.preprocess(blank(null), z.string().trim().max(300).nullable().optional()),
+}).strict().refine(o => Object.keys(o).length > 0, "Send at least one field to change");
 
+export const SetSubjectDefaultTeacherDto = z.object({ staffId: z.string().uuid().nullable() }).strict();
+
+// ── Who teaches a subject in a class, for a term ──────────────────────────
 export const AssignSubjectDto = z.object({
     subjectId: z.string().uuid(),
     staffId:   z.string().uuid(),
     termId:    z.string().uuid(),
-});
+}).strict();
 
-// ── Bulk assign subjects to class ─────────────────────────────────────────
+// One teacher for several subjects at once (at most 50 per request)
 export const BulkAssignSubjectsDto = z.object({
-    staffId: z.uuid(),
-    termId: z.uuid(),
-    subjectIds: z.array(z.uuid()).min(1),
-});
-
-export const SetSubjectDefaultTeacherDto = z.object({
-	staffId: z.uuid().nullable(),
-});
-
-
-
-
-// ── Update class subject assignment ───────────────────────────────────────
-export const UpdateClassSubjectDto = z.object({
-    staffId: z.string().uuid(),
-});
+    staffId:    z.string().uuid(),
+    termId:     z.string().uuid(),
+    subjectIds: z.array(z.string().uuid()).min(1).max(50),
+}).strict();
 
 export type CreateClassDtoType         = z.infer<typeof CreateClassDto>;
 export type UpdateClassDtoType         = z.infer<typeof UpdateClassDto>;
@@ -75,5 +68,4 @@ export type CreateSubjectDtoType       = z.infer<typeof CreateSubjectDto>;
 export type UpdateSubjectDtoType       = z.infer<typeof UpdateSubjectDto>;
 export type AssignSubjectDtoType       = z.infer<typeof AssignSubjectDto>;
 export type BulkAssignSubjectsDtoType  = z.infer<typeof BulkAssignSubjectsDto>;
-export type UpdateClassSubjectDtoType  = z.infer<typeof UpdateClassSubjectDto>;
 export type SetSubjectDefaultTeacherDtoType = z.infer<typeof SetSubjectDefaultTeacherDto>;

@@ -1,77 +1,35 @@
+import { AuditService } from "../../../audit/services/audit.service";
 import { IClassRepository } from "../../repositories/class.repository";
-import { IStaffRepository } from "../../../staff/repositories/staff.repository";
-import { ISessionRepository } from "../../../sessions/repositories/session.repository";
-import { ClassSubjectResolutionService } from "../../services/class-subject-resolution-service";
-import { NotFoundError, BadRequestError } from "../../../../shared/errors/domain.errors";
+import { SubjectPresenter, SubjectResponse } from "../../services/subject-presenter";
+import { classErrors } from "../../domain/class.errors";
+import { ClassActor } from "../../domain/class.types";
+import { UpdateSubjectDtoType } from "../../dtos/class.dto";
 
+interface Dependencies { classRepository: IClassRepository; subjectPresenter: SubjectPresenter; auditService: AuditService }
+const same = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
 
-interface Dependencies {
-    classRepository: IClassRepository;
-    staffRepository: IStaffRepository;
-    sessionRepository: ISessionRepository;
-    classSubjectResolutionService: ClassSubjectResolutionService;
-}
-
-interface UpdateSubjectDTO {
-    name?: string;
-    code?: string | null;
-    defaultTeacherId?: string | null;
-}
-
+/* UPDATE SUBJECT (name, code, description). Only changed fields are written and audited. The default teacher has its own route. */
 export class UpdateSubjectUseCase {
-    private readonly classRepository: IClassRepository;
-    private readonly staffRepository: IStaffRepository;
-    private readonly sessionRepository: ISessionRepository;
-    private readonly classSubjectResolutionService: ClassSubjectResolutionService;
+    constructor(private readonly d: Dependencies) {}
 
-    constructor({
-        classRepository,
-        staffRepository,
-        sessionRepository,
-        classSubjectResolutionService,
-    }: Dependencies) {
-        this.classRepository = classRepository;
-        this.staffRepository = staffRepository;
-        this.sessionRepository = sessionRepository;
-        this.classSubjectResolutionService = classSubjectResolutionService;
-    }
+    async execute(schoolId: string, id: string, dto: UpdateSubjectDtoType, actor: ClassActor): Promise<SubjectResponse> {
+        const { classRepository: repo } = this.d;
+        const subject = await repo.findSubjectById(id);
+        if (!subject) throw classErrors.subjectNotFound();
 
-    async execute(subjectId: string, dto: UpdateSubjectDTO) {
-        const subject = await this.classRepository.findSubjectById(subjectId);
-        if (!subject) {
-            throw new NotFoundError("Subject not found");
+        const data: Record<string, unknown> = {}, before: Record<string, unknown> = {}, after: Record<string, unknown> = {};
+        for (const k of ["name", "code", "description"] as const) {
+            const now = dto[k];
+            if (now !== undefined && now !== subject[k]) { data[k] = now; before[k] = subject[k]; after[k] = now; }
         }
+        if (Object.keys(data).length === 0) return (await this.d.subjectPresenter.subjects([subject]))[0];
 
-        if (dto.defaultTeacherId) {
-            const staff = await this.staffRepository.findById(dto.defaultTeacherId);
+        const others = (await repo.findAllSubjects()).filter(s => s.id !== id);
+        if (typeof data.name === "string" && others.some(s => same(s.name, data.name as string))) throw classErrors.subjectNameTaken();
+        if (typeof data.code === "string" && others.some(s => s.code && same(s.code, data.code as string))) throw classErrors.subjectCodeTaken();
 
-            if (!staff) {
-                throw new NotFoundError("Staff member not found");
-            }
-
-            if (!staff.isActive || staff.category !== "teaching") {
-                throw new BadRequestError(
-                    "Subject default teacher must be an active teaching staff member.",
-                );
-            }
-        }
-
-        const updatedSubject = await this.classRepository.updateSubject(
-            subjectId,
-            dto,
-        );
-
-        if (dto.defaultTeacherId !== undefined) {
-            const currentTerm = await this.sessionRepository.findCurrentTerm();
-
-            if (currentTerm) {
-                await this.classSubjectResolutionService.recascadeSubjectDefault(
-                    subjectId,
-                    currentTerm.id,
-                );
-            }
-        }
-
-        return updatedSubject;
+        const updated = await repo.updateSubject(id, data);
+        await this.d.auditService.log({ userId: actor.userId, schoolId, action: "subject.updated", entity: "Subject", entityId: id, oldValue: { subject: subject.name, ...before }, newValue: after });
+        return (await this.d.subjectPresenter.subjects([updated]))[0];
     }
 }
