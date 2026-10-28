@@ -16,6 +16,7 @@ export interface FinanceSettings {
     expenseApprovalRequired:      boolean;
     expenseApprovalThresholdKobo: bigint;
     allowSelfApproval:            boolean;
+    secondApprovalThresholdKobo:  bigint;
     budgetEnforcement:            BudgetEnforcementSetting;
     fiscalYearStartMonth:         number;
     graceDays:                    number;
@@ -52,6 +53,12 @@ export const FINANCE_SETTING_DEFS: readonly FinanceSettingDef[] = [
         min: 0, max: Number.MAX_SAFE_INTEGER,
         label: "Expense approval threshold (kobo)",
         description: "An expense at or above this amount waits for someone else to approve it. Below it, the expense approves itself. 5000000 kobo is N50,000.",
+    },
+    {
+        key: "finance.second_approval_threshold_kobo", field: "secondApprovalThresholdKobo", kind: "integer", group: "Approvals", default: 0,
+        min: 0, max: Number.MAX_SAFE_INTEGER,
+        label: "Second approver above (kobo)",
+        description: "0 turns this off. An expense or payroll run at or above this amount needs two different people to approve it; the second one posts it. 50000000 kobo is N500,000.",
     },
     {
         key: "finance.allow_self_approval", field: "allowSelfApproval", kind: "boolean", group: "Approvals", default: false,
@@ -138,7 +145,7 @@ export function resolveFinanceSettings(overrides: Record<string, unknown>): Fina
     for (const def of FINANCE_SETTING_DEFS) {
         const stored = Object.prototype.hasOwnProperty.call(overrides, def.key) ? coerceStored(def, overrides[def.key]) : null;
         const value = stored && stored.ok ? stored.value : def.default;
-        out[def.field] = def.field === "expenseApprovalThresholdKobo" ? BigInt(value as number) : value;
+        out[def.field] = def.field.endsWith("Kobo") ? BigInt(value as number) : value;
     }
     return out as unknown as FinanceSettings;
 }
@@ -167,3 +174,7 @@ export interface FinanceSettingsReader { get(): Promise<FinanceSettings> }
 export async function settingsOf(d: { financeSettingsService?: FinanceSettingsReader }): Promise<FinanceSettings> {
     return d.financeSettingsService ? d.financeSettingsService.get() : defaultFinanceSettings();
 }
+
+/** How many different people must approve an amount: 2 at or above the school's second approval threshold (when it is set), else 1. */
+export const approvalsRequired = (amountKobo: bigint, s: { secondApprovalThresholdKobo: bigint }): 1 | 2 =>
+    s.secondApprovalThresholdKobo > 0n && amountKobo >= s.secondApprovalThresholdKobo ? 2 : 1;

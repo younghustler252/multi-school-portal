@@ -1533,6 +1533,8 @@ model Expense {
   submittedAt        DateTime?
   approvedById       String?
   approvedAt         DateTime?
+  firstApprovedById  String?
+  firstApprovedAt    DateTime?
   autoApproved       Boolean       @default(false)
   rejectedById       String?
   rejectedAt         DateTime?
@@ -1792,6 +1794,8 @@ model PayrollRun {
   calculatedAt       DateTime?
   createdById        String
   submittedAt        DateTime?
+  firstApprovedById  String?
+  firstApprovedAt    DateTime?
   approvedById       String?
   approvedAt         DateTime?
   rejectedById       String?

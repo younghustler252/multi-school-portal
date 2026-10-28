@@ -23,7 +23,7 @@ export interface ExpenseEntity {
     id: string; expenseNumber: string | null; kind: ExpenseKind; vendorId: string | null; vendorName: string | null; reference: string | null;
     description: string; expenseDate: Date; dueDate: Date | null; totalKobo: bigint; paidKobo: bigint; status: ExpenseStatus;
     payFromAccountId: string | null; termId: string | null; branchId: string | null; recurringExpenseId: string | null;
-    requestedById: string; submittedAt: Date | null; approvedById: string | null; approvedAt: Date | null; autoApproved: boolean;
+    requestedById: string; submittedAt: Date | null; approvedById: string | null; approvedAt: Date | null; firstApprovedById: string | null; firstApprovedAt: Date | null; autoApproved: boolean;
     rejectedById: string | null; rejectedAt: Date | null; rejectionReason: string | null; voidReason: string | null; voidedById: string | null; voidedAt: Date | null;
     journalId: string | null; version: number; createdAt: Date;
     lines: ExpenseLineEntity[]; payments: ExpensePaymentEntity[];

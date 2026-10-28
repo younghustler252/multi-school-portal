@@ -47,7 +47,7 @@ export interface PayslipSnapshot {
 export interface PayrollRunEntity {
     id: string; runNumber: string; periodYear: number; periodMonth: number; payDate: Date; status: PayrollRunStatus;
     grossKobo: bigint; deductionsKobo: bigint; employerCostKobo: bigint; netKobo: bigint; staffCount: number; calculatedAt: Date | null;
-    createdById: string; submittedAt: Date | null; approvedById: string | null; approvedAt: Date | null;
+    createdById: string; submittedAt: Date | null; firstApprovedById: string | null; firstApprovedAt: Date | null; approvedById: string | null; approvedAt: Date | null;
     rejectedById: string | null; rejectedAt: Date | null; rejectionReason: string | null;
     paidAt: Date | null; paidById: string | null; paidOn: Date | null; paidFromAccountId: string | null; paymentReference: string | null;
     accrualJournalId: string | null; paymentJournalId: string | null; cancelledAt: Date | null; cancelledById: string | null; cancelReason: string | null;

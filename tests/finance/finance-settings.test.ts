@@ -1,6 +1,9 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { expensesWorld, N, code } from "./support/expenses-world";
+import { payrollWorld } from "./support/payroll-world";
+import { ApproveRunDto } from "../../src/modules/payroll/dtos/payroll.dto";
+import { approvalsRequired } from "../../src/modules/finance-settings/domain/finance-settings";
 import { resolveFinanceSettings, defaultFinanceSettings, validateSettingValue, FINANCE_SETTING_BY_KEY } from "../../src/modules/finance-settings/domain/finance-settings";
 import { GetFinanceSettingsUseCase, UpdateFinanceSettingsUseCase } from "../../src/modules/finance-settings/usecases/finance-settings.usecases";
 import { buildChecklist } from "../../src/modules/ledger/domain/period-close";
@@ -57,7 +60,7 @@ describe("finance settings: update", () => {
     });
     it("get lists every setting with its default", async () => {
         const g = await store().get.execute();
-        assert.equal(g.settings.length, 10);
+        assert.equal(g.settings.length, 11);
     });
 });
 
@@ -148,5 +151,75 @@ describe("VAT on expenses (optional)", () => {
         assert.equal(s.status, "PAID");
         assert.equal(w.balance("a-cash"), -N(10_750));
         assert.equal(w.balance("a-vat"), N(750));
+    });
+});
+
+describe("second approver above an amount (optional)", () => {
+    const setup = async (w: any, threshold: number) => {
+        const s = store(); w.d.financeSettingsService = s.reader;
+        await s.update.execute("school-1", "u1", { values: { "finance.second_approval_threshold_kobo": threshold } } as any);
+    };
+
+    it("the rule: off at 0, two people at or above the amount", () => {
+        assert.equal(approvalsRequired(N(1_000_000), { secondApprovalThresholdKobo: 0n }), 1);
+        assert.equal(approvalsRequired(N(499), { secondApprovalThresholdKobo: N(500) }), 1);
+        assert.equal(approvalsRequired(N(500), { secondApprovalThresholdKobo: N(500) }), 2);
+    });
+
+    it("expenses: nothing changes while it is off", async () => {
+        const w = expensesWorld(); w.d.financeSettingsService = store().reader;
+        const x: any = await w.pending();
+        const a: any = await w.approve.execute(x.id, "school-1", "principal-1", {});
+        assert.equal(a.status, "APPROVED");
+        assert.equal(a.approvalsRequired, 1);
+    });
+
+    it("expenses: the first approval posts nothing, the second (a different person) does", async () => {
+        const w = expensesWorld(); await setup(w, Number(N(50_000)));
+        const x: any = await w.pending();                                   // 80,000: above the second approval amount
+        const first: any = await w.approve.execute(x.id, "school-1", "principal-1", {});
+        assert.equal(first.status, "PENDING_APPROVAL");
+        assert.equal(first.approvalsReceived, 1);
+        assert.equal(first.firstApprovedById, "principal-1");
+        assert.equal(w.books.journals.length, 0, "nothing is posted by the first approval");
+        await assert.rejects(w.approve.execute(x.id, "school-1", "principal-1", {}), code("SECOND_APPROVER_MUST_DIFFER"));
+        const second: any = await w.approve.execute(x.id, "school-1", "principal-2", {});
+        assert.equal(second.status, "APPROVED");
+        assert.equal(second.approvalsReceived, 2);
+        assert.equal(w.books.journals.length, 1);
+        w.assertControl(assert);
+    });
+
+    it("expenses: the requester still cannot be an approver, and a rejection clears the first approval", async () => {
+        const w = expensesWorld(); await setup(w, Number(N(50_000)));
+        const x: any = await w.pending();
+        await assert.rejects(w.approve.execute(x.id, "school-1", "clerk-1", {}), code("SELF_APPROVAL_NOT_ALLOWED"));
+        await w.approve.execute(x.id, "school-1", "principal-1", {});
+        await w.reject.execute(x.id, "school-1", "principal-2", { reason: "Wrong supplier" });
+        assert.equal(w.expenses.get(x.id).firstApprovedById, null);
+    });
+
+    it("expenses: a small bill still approves itself, but a large one can no longer skip approval", async () => {
+        const w = expensesWorld(); await setup(w, Number(N(50_000)));
+        const small: any = await w.pending({ lines: [{ ledgerAccountId: "a-stationery", amountKobo: N(10_000) }] });
+        assert.equal(small.status, "APPROVED");
+        const s = store(); w.d.financeSettingsService = s.reader;
+        await s.update.execute("school-1", "u1", { values: { "finance.second_approval_threshold_kobo": Number(N(50_000)), "finance.expense_approval_required": false } } as any);
+        const big: any = await w.pending();
+        assert.equal(big.status, "PENDING_APPROVAL");
+    });
+
+    it("payroll: a large run needs two different approvers", async () => {
+        const w: any = payrollWorld(); await setup(w, 1);
+        await w.profile("s1", 200_000, { components: [], bankName: "GTB", accountName: "Ada Obi", accountNumber: "0123456789" });
+        const run: any = await w.pending();
+        const first: any = await w.approve.execute(run.id, "school-1", "principal-1", ApproveRunDto.parse({}));
+        assert.equal(first.status, "PENDING_APPROVAL");
+        assert.equal(first.approvalsReceived, 1);
+        assert.equal(w.books.journals.length, 0);
+        await assert.rejects(w.approve.execute(run.id, "school-1", "principal-1", ApproveRunDto.parse({})), code("SECOND_APPROVER_MUST_DIFFER"));
+        const second: any = await w.approve.execute(run.id, "school-1", "principal-2", ApproveRunDto.parse({}));
+        assert.equal(second.status, "APPROVED");
+        assert.equal(w.books.journals.length, 1);
     });
 });

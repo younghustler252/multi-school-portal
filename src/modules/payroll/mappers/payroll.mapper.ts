@@ -70,7 +70,7 @@ export class RunMapper implements IMapper<Row, PayrollRunEntity> {
         return {
             id: r.id, runNumber: r.runNumber, periodYear: r.periodYear, periodMonth: r.periodMonth, payDate: r.payDate, status: r.status as PayrollRunStatus,
             grossKobo: r.grossKobo, deductionsKobo: r.deductionsKobo, employerCostKobo: r.employerCostKobo, netKobo: r.netKobo, staffCount: r.staffCount,
-            calculatedAt: r.calculatedAt, createdById: r.createdById, submittedAt: r.submittedAt, approvedById: r.approvedById, approvedAt: r.approvedAt,
+            calculatedAt: r.calculatedAt, createdById: r.createdById, submittedAt: r.submittedAt, firstApprovedById: (r as any).firstApprovedById ?? null, firstApprovedAt: (r as any).firstApprovedAt ?? null, approvedById: r.approvedById, approvedAt: r.approvedAt,
             rejectedById: r.rejectedById, rejectedAt: r.rejectedAt, rejectionReason: r.rejectionReason, paidAt: r.paidAt, paidById: r.paidById, paidOn: r.paidOn,
             paidFromAccountId: r.paidFromAccountId, paymentReference: r.paymentReference, accrualJournalId: r.accrualJournalId, paymentJournalId: r.paymentJournalId,
             cancelledAt: r.cancelledAt, cancelledById: r.cancelledById, cancelReason: r.cancelReason, notes: r.notes, version: r.version, createdAt: r.createdAt,
@@ -89,7 +89,7 @@ export class RunMapper implements IMapper<Row, PayrollRunEntity> {
     toResponse(r: PayrollRunEntity, names: Map<string, string> = new Map()) {
         return {
             ...this.toSummary(r),
-            calculatedAt: r.calculatedAt, submittedAt: r.submittedAt, approvedById: r.approvedById, approvedAt: r.approvedAt,
+            calculatedAt: r.calculatedAt, submittedAt: r.submittedAt, firstApprovedById: r.firstApprovedById, firstApprovedAt: r.firstApprovedAt, approvedById: r.approvedById, approvedAt: r.approvedAt,
             rejectedById: r.rejectedById, rejectedAt: r.rejectedAt, rejectionReason: r.rejectionReason,
             paidAt: r.paidAt, paidById: r.paidById, paidOn: r.paidOn ? dayOut(r.paidOn) : null, paidFromAccountId: r.paidFromAccountId, paymentReference: r.paymentReference,
             accrualJournalId: r.accrualJournalId, paymentJournalId: r.paymentJournalId, cancelledAt: r.cancelledAt, cancelReason: r.cancelReason, notes: r.notes, version: r.version,

@@ -29,6 +29,7 @@ export const expenseErrors = {
     notEditable:       (status: string) => new AppError("Only a draft or a rejected expense can be changed or deleted", 409, true, "EXPENSE_NOT_EDITABLE", { status }),
     notSubmittable:    (status: string) => new AppError("Only a draft expense can be submitted", 409, true, "EXPENSE_NOT_DRAFT", { status }),
     notPending:        (status: string) => new AppError("This expense is not waiting for a decision", 409, true, "EXPENSE_NOT_PENDING", { status }),
+    secondApproverMustDiffer: () => new AppError("A second, different person must approve this expense", 403, true, "SECOND_APPROVER_MUST_DIFFER"),
     selfApproval:      () => new AppError("You cannot approve or reject an expense you requested", 403, true, "SELF_APPROVAL_NOT_ALLOWED"),
     rejectionReasonRequired: () => new AppError("Say why the expense is rejected", 400, true, "REASON_REQUIRED"),
     expenseChanged:    () => new AppError("Someone else changed this expense. Reload it and try again", 409, true, "STALE_VERSION"),

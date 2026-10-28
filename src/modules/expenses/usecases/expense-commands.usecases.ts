@@ -9,7 +9,7 @@ import { NumberSequenceService } from "../../../shared/services/number-sequence.
 import { AuditService } from "../../audit/services/audit.service";
 import { expenseErrors } from "../domain/expense.errors";
 import { expenseNumber, needsApproval } from "../domain/expense.policy";
-import { FinanceSettingsReader, settingsOf } from "../../finance-settings/domain/finance-settings";
+import { FinanceSettingsReader, approvalsRequired, settingsOf } from "../../finance-settings/domain/finance-settings";
 import { todayInFinanceZone } from "../../ledger/domain/ledger.dates";
 import {
     CreateExpenseDtoType, UpdateExpenseDtoType, SubmitExpenseDtoType, ApproveExpenseDtoType, RejectExpenseDtoType, VoidExpenseDtoType,
@@ -111,7 +111,7 @@ export class SubmitExpenseUseCase {
         }
 
         const settings = await settingsOf(d);
-        const approvalNeeded = needsApproval(e.totalKobo, { required: settings.expenseApprovalRequired, thresholdKobo: settings.expenseApprovalThresholdKobo });
+        const approvalNeeded = needsApproval(e.totalKobo, { required: settings.expenseApprovalRequired, thresholdKobo: settings.expenseApprovalThresholdKobo }) || approvalsRequired(e.totalKobo, settings) === 2;
 
         const warnings = await this.transaction(async () => {
             const year = todayInFinanceZone(this.now()).slice(0, 4);
@@ -133,21 +133,44 @@ export class SubmitExpenseUseCase {
     }
 }
 
-/* APPROVE: never the person who asked, unless the school allows self approval (finance.allow_self_approval). Posts to the books (see ExpenseApprovalService). */
+/*
+| APPROVE: never the person who asked, unless the school allows self approval (finance.allow_self_approval).
+| At or above the school's second approval amount, TWO different people must approve: the first approval only records who it was (the expense
+| stays pending); the second one posts to the books (see ExpenseApprovalService). A rejection by anyone clears the first approval.
+*/
 export class ApproveExpenseUseCase {
+    private readonly now: () => Date;
     private readonly transaction: <T>(fn: () => Promise<T>) => Promise<T>;
-    constructor(private readonly d: Dependencies, options: ExpenseOptions = {}) { this.transaction = options.transaction ?? defaultTransaction; }
+    constructor(private readonly d: Dependencies, options: ExpenseOptions = {}) {
+        this.now = options.now ?? (() => new Date());
+        this.transaction = options.transaction ?? defaultTransaction;
+    }
 
     async execute(id: string, schoolId: string, actorUserId: string, dto: ApproveExpenseDtoType) {
         const d = this.d;
         const e = await loadExpense(d.expenseRepository, id);
         if (e.status !== "PENDING_APPROVAL") throw expenseErrors.notPending(e.status);
-        if (e.requestedById === actorUserId && !(await settingsOf(d)).allowSelfApproval) throw expenseErrors.selfApproval();
+        const settings = await settingsOf(d);
+        if (e.requestedById === actorUserId && !settings.allowSelfApproval) throw expenseErrors.selfApproval();
+
+        const steps = approvalsRequired(e.totalKobo, settings);
+        if (steps === 2) {
+            if (!e.firstApprovedById) {
+                const ok = await d.expenseRepository.transition(id, ["PENDING_APPROVAL"], e.version, { firstApprovedById: actorUserId, firstApprovedAt: this.now() });
+                if (!ok) throw expenseErrors.expenseChanged();
+                await d.auditService.log({
+                    userId: actorUserId, schoolId, action: "expenses.first_approved", entity: "Expense", entityId: id,
+                    oldValue: { status: "PENDING_APPROVAL" }, newValue: { status: "PENDING_APPROVAL", approvalsReceived: 1, approvalsRequired: 2, note: dto.note ?? null },
+                });
+                return { ...d.expenseMapper.toResponse(await loadExpense(d.expenseRepository, id)), approvalsRequired: 2, approvalsReceived: 1 };
+            }
+            if (e.firstApprovedById === actorUserId) throw expenseErrors.secondApproverMustDiffer();
+        }
 
         const { warnings } = await this.transaction(() => d.expenseApprovalService.approve(e, {
             schoolId, actorUserId, auto: false, note: dto.note, payFromAccountId: dto.payFromAccountId, paidOn: dto.paidOn,
         }));
-        return withWarnings(d.expenseMapper.toResponse(await loadExpense(d.expenseRepository, id)), warnings);
+        return { ...withWarnings(d.expenseMapper.toResponse(await loadExpense(d.expenseRepository, id)), warnings), approvalsRequired: steps, approvalsReceived: steps };
     }
 }
 
@@ -163,7 +186,7 @@ export class RejectExpenseUseCase {
         if (!dto.reason.trim()) throw expenseErrors.rejectionReasonRequired();
 
         const ok = await d.expenseRepository.transition(id, ["PENDING_APPROVAL"], e.version, {
-            status: "REJECTED", rejectedById: actorUserId, rejectedAt: this.now(), rejectionReason: dto.reason,
+            status: "REJECTED", rejectedById: actorUserId, rejectedAt: this.now(), rejectionReason: dto.reason, firstApprovedById: null, firstApprovedAt: null,
         });
         if (!ok) throw expenseErrors.expenseChanged();
         await d.auditService.log({

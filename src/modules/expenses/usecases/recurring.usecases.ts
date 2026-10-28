@@ -15,11 +15,13 @@ import { MAX_CATCH_UP_RUNS, checkExpenseAccounts, expenseNumber, needsApproval, 
 import { dayString, parseDay, todayInFinanceZone } from "../../ledger/domain/ledger.dates";
 import { CreateRecurringDtoType, UpdateRecurringDtoType, ListRecurringQueryType } from "../dtos/recurring.dto";
 import { ExpenseOptions, defaultTransaction, prepareExpense, loadExpense } from "./expense-shared";
+import { FinanceSettingsReader, approvalsRequired, settingsOf } from "../../finance-settings/domain/finance-settings";
 
 interface Dependencies {
     recurringRepository: IRecurringRepository; expenseRepository: IExpenseRepository; vendorRepository: IVendorRepository;
     ledgerAccountRepository: ILedgerAccountRepository; expenseApprovalService: ExpenseApprovalService; numberSequenceService: NumberSequenceService;
     recurringMapper: RecurringMapper; expenseMapper: ExpenseMapper; auditService: AuditService;
+    financeSettingsService?: FinanceSettingsReader;
 }
 
 async function load(repo: IRecurringRepository, id: string): Promise<RecurringEntity> {
@@ -190,7 +192,10 @@ export class RunRecurringExpensesUseCase {
             });
             if (!ok) throw expenseErrors.expenseChanged();
 
-            const autoApprove = r.autoApprove || !needsApproval(p.totalKobo);
+            const settings = await settingsOf(d);
+            // A school that wants two approvers above an amount gets them here too: a repeating bill that large is never approved by the template
+            const autoApprove = approvalsRequired(p.totalKobo, settings) === 1
+                && (r.autoApprove || !needsApproval(p.totalKobo, { required: settings.expenseApprovalRequired, thresholdKobo: settings.expenseApprovalThresholdKobo }));
             if (autoApprove) {
                 await d.expenseApprovalService.approve(await loadExpense(d.expenseRepository, draft.id), { schoolId, actorUserId: r.createdById, auto: true });
             }

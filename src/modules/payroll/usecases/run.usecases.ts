@@ -8,7 +8,7 @@ import { calculatePay, LoanDue } from "../domain/payroll-calc";
 import { PayrollRunEntity, PayslipSnapshot } from "../domain/payroll.entity";
 import { payrollErrors } from "../domain/payroll.errors";
 import { accrualLines, firstDayOfMonth, lastDayOfMonth, monthLabel, paymentLines, payslipNumber, runNumber } from "../domain/payroll.policy";
-import { FinanceSettingsReader, settingsOf } from "../../finance-settings/domain/finance-settings";
+import { FinanceSettingsReader, approvalsRequired, settingsOf } from "../../finance-settings/domain/finance-settings";
 import { dayString, parseDay, todayInFinanceZone } from "../../ledger/domain/ledger.dates";
 import { CreateRunDtoType, ApproveRunDtoType, RejectRunDtoType, CancelRunDtoType, ReverseRunDtoType, PayRunDtoType, ListRunsQueryType } from "../dtos/payroll.dto";
 import { PayrollOptions, defaultTransaction, namesOf, resolveMoneyAccount } from "./payroll-shared";
@@ -146,7 +146,19 @@ export class ApproveRunUseCase extends Base {
         const d = this.d;
         const run = await loadRun(d, id);
         if (run.status !== "PENDING_APPROVAL") throw payrollErrors.runState(run.status, "approved");
-        if (run.createdById === actorUserId && !(await settingsOf(d)).allowSelfApproval) throw payrollErrors.selfApproval();
+        const settings = await settingsOf(d);
+        if (run.createdById === actorUserId && !settings.allowSelfApproval) throw payrollErrors.selfApproval();
+
+        // Above the school's second approval amount two different people approve: the first only records who, the second posts the run
+        const steps = approvalsRequired(run.grossKobo + run.employerCostKobo, settings);
+        if (steps === 2) {
+            if (!run.firstApprovedById) {
+                if (!(await d.payrollRunRepository.transition(id, ["PENDING_APPROVAL"], run.version, { firstApprovedById: actorUserId, firstApprovedAt: this.now() }))) throw payrollErrors.runChanged();
+                await d.auditService.log({ userId: actorUserId, schoolId, action: "payroll.run.first_approved", entity: "PayrollRun", entityId: id, oldValue: { status: "PENDING_APPROVAL" }, newValue: { status: "PENDING_APPROVAL", approvalsReceived: 1, approvalsRequired: 2 } });
+                return { ...(await respond(d, await loadRun(d, id))), approvalsRequired: 2, approvalsReceived: 1 };
+            }
+            if (run.firstApprovedById === actorUserId) throw payrollErrors.secondApproverMustDiffer();
+        }
 
         const today = todayInFinanceZone(this.now());
         const lastDay = lastDayOfMonth(run.periodYear, run.periodMonth);
@@ -200,7 +212,7 @@ export class RejectRunUseCase extends Base {
         if (run.createdById === actorUserId && !(await settingsOf(d)).allowSelfApproval) throw payrollErrors.selfApproval();
         const reason = dto.reason.trim();
         if (!reason) throw payrollErrors.reasonRequired();
-        if (!(await d.payrollRunRepository.transition(id, ["PENDING_APPROVAL"], run.version, { status: "CALCULATED", rejectedById: actorUserId, rejectedAt: this.now(), rejectionReason: reason }))) throw payrollErrors.runChanged();
+        if (!(await d.payrollRunRepository.transition(id, ["PENDING_APPROVAL"], run.version, { status: "CALCULATED", rejectedById: actorUserId, rejectedAt: this.now(), rejectionReason: reason, firstApprovedById: null, firstApprovedAt: null }))) throw payrollErrors.runChanged();
         await d.auditService.log({ userId: actorUserId, schoolId, action: "payroll.run.rejected", entity: "PayrollRun", entityId: id, oldValue: { status: "PENDING_APPROVAL" }, newValue: { status: "CALCULATED", reason } });
         return respond(d, await loadRun(d, id));
     }
