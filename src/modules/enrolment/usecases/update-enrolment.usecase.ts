@@ -65,8 +65,8 @@ export class UpdateEnrolmentUseCase {
         const after = await d.enrolmentPresenter.one(saved);
         await d.auditService.log({
             userId: actor.userId, schoolId, action, entity: "Enrolment", entityId: id,
-            oldValue: { student: before.student.name, class: before.class.name, status: before.status },
-            newValue: { class: after.class.name, status: after.status, ...(dto.reason ? { reason: dto.reason } : {}) },
+            oldValue: { student: before.student?.name ?? null, class: before.class?.name ?? null, status: before.status },
+            newValue: { class: after.class?.name ?? null, status: after.status, ...(dto.reason ? { reason: dto.reason } : {}) },
         });
         return after;
     }

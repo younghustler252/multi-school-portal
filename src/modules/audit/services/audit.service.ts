@@ -1,6 +1,7 @@
 import { IAuditRepository } from "../repositories/audit.repository";
 import { ActorType }        from "../domain/audit.enums";
 import { RequestContext } from "../../../shared/context/request-context";
+import { auditFailureSink } from "./audit-failure-reporter";
 
 /*
 |--------------------------------------------------------------------------
@@ -18,7 +19,8 @@ import { RequestContext } from "../../../shared/context/request-context";
 | Explicit values always win over the automatic ones. Entries made by background jobs have no request,
 | so they carry only what the job passes (use actorType: ActorType.SYSTEM and a SYSTEM_* userId).
 |
-| Logging never breaks the main request, but a failure is no longer silent: the reason is printed.
+| Logging never breaks the main request, but a failure is never silent: the reason is printed AND reported to
+| Sentry (tag `audit_failed`, identifiers only) so a lost entry can be found and acted on.
 |--------------------------------------------------------------------------
 */
 
@@ -79,6 +81,10 @@ export class AuditService {
         } catch (err) {
             // Never let audit logging crash the main request, but say why it failed
             console.error(`⚠️  Audit log failed (${params.action}): ${(err as Error).message}`);
+            auditFailureSink.report(err, {
+                source: "audit", action: params.action, entity: params.entity, entityId: params.entityId,
+                schoolId: params.schoolId, userId: params.userId, requestId: params.requestId ?? RequestContext.get()?.requestId,
+            });
         }
     }
 

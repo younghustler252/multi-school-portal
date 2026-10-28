@@ -25,7 +25,7 @@ async function loadPlan(d: Dependencies, termId: string, overrides: PromotionOve
 }
 
 export interface PromotionPreviewRow {
-    student: StudentLite; fromClass: NameRef; toClass: NameRef | null;
+    student: StudentLite | null; fromClass: NameRef | null; toClass: NameRef | null;
     action: "promote" | "graduate" | "needs_decision"; alreadyEnrolled: boolean;
 }
 export interface PromotionPreview {
@@ -53,10 +53,10 @@ export class PreviewPromotionUseCase {
         const placed = q.newTermId
             ? new Set((await d.enrolmentRepository.findMany({ termId: q.newTermId, studentId: { in: plan.rows.map(r => r.studentId) } })).map(e => e.studentId))
             : new Set<string>();
-        const nameOf = (id: string): NameRef => classes.get(id) ?? { id, name: "Unknown" };
+        const nameOf = (id: string): NameRef | null => classes.get(id) ?? null;
 
         const rows: PromotionPreviewRow[] = plan.rows.map(r => ({
-            student: students.get(r.studentId) ?? { id: r.studentId, name: "Unknown", admissionNumber: null },
+            student: students.get(r.studentId) ?? null,
             fromClass: nameOf(r.fromClassId), toClass: r.toClassId ? nameOf(r.toClassId) : null,
             action: r.action as PromotionPreviewRow["action"], alreadyEnrolled: placed.has(r.studentId),
         }));
@@ -64,7 +64,7 @@ export class PreviewPromotionUseCase {
         return {
             term: terms.get(q.termId) ?? null, newTerm: q.newTermId ? terms.get(q.newTermId) ?? null : null,
             summary: { total: rows.length, promote: count("promote"), graduate: count("graduate"), needsDecision: count("needs_decision"), alreadyEnrolled: rows.filter(r => r.alreadyEnrolled).length },
-            classesWithoutNextClass: plan.needsDecisionClassIds.map(nameOf), rows,
+            classesWithoutNextClass: plan.needsDecisionClassIds.map(nameOf).filter((c): c is NameRef => !!c), rows,
         };
     }
 }
@@ -72,7 +72,7 @@ export class PreviewPromotionUseCase {
 export type PromotionOutcome = "promoted" | "repeated" | "graduated" | "excluded" | "already_enrolled";
 export interface PromotionResult {
     total: number; promoted: number; repeated: number; graduated: number; excluded: number; alreadyEnrolled: number;
-    results: Array<{ student: StudentLite; outcome: PromotionOutcome; fromClass: NameRef; toClass: NameRef | null }>;
+    results: Array<{ student: StudentLite | null; outcome: PromotionOutcome; fromClass: NameRef | null; toClass: NameRef | null }>;
 }
 
 /*
@@ -96,8 +96,8 @@ export class PromoteStudentsUseCase {
         const plan = await loadPlan(d, dto.currentTermId, dto.overrides);
         if (plan.unknownOverrides.length) throw enrolmentErrors.promotionUnknownStudent(plan.unknownOverrides.length);
         const classes = await d.enrolmentPresenter.classMap();
-        const nameOf = (id: string): NameRef => classes.get(id) ?? { id, name: "Unknown" };
-        if (plan.needsDecisionClassIds.length) throw enrolmentErrors.promotionNeedsDecisions(plan.needsDecisionClassIds.map(id => nameOf(id).name));
+        const nameOf = (id: string): NameRef | null => classes.get(id) ?? null;
+        if (plan.needsDecisionClassIds.length) throw enrolmentErrors.promotionNeedsDecisions(plan.needsDecisionClassIds.map(id => nameOf(id)?.name ?? id));
         for (const r of plan.rows) if (r.toClassId && !classes.has(r.toClassId)) throw enrolmentErrors.classNotFound();
 
         const placed = new Set((await d.enrolmentRepository.findMany({ termId: dto.newTermId, studentId: { in: plan.rows.map(r => r.studentId) } })).map(e => e.studentId));
@@ -112,7 +112,7 @@ export class PromoteStudentsUseCase {
             for (const classId of [...incoming.keys()].sort()) {
                 await lockClass(tx as any, classId);
                 const enrolled = await activeInClass(tx as any, classId, dto.newTermId);
-                if (wouldOverflow(capacity.get(classId), enrolled, incoming.get(classId)!)) full.push({ name: nameOf(classId).name, capacity: capacity.get(classId)!, enrolled, incoming: incoming.get(classId)! });
+                if (wouldOverflow(capacity.get(classId), enrolled, incoming.get(classId)!)) full.push({ name: nameOf(classId)?.name ?? classId, capacity: capacity.get(classId)!, enrolled, incoming: incoming.get(classId)! });
             }
             if (full.length) throw enrolmentErrors.promotionClassesFull(full);
             if (movers.length) await tx.enrolment.createMany({ data: movers.map(r => ({ studentId: r.studentId, classId: r.toClassId!, termId: dto.newTermId, status: "active" as const })), skipDuplicates: true });
@@ -123,7 +123,7 @@ export class PromoteStudentsUseCase {
         const outcomeOf = (r: PlanRow): PromotionOutcome =>
             r.action === "exclude" ? "excluded" : r.action === "graduate" ? "graduated" : placed.has(r.studentId) ? "already_enrolled" : r.action === "repeat" ? "repeated" : "promoted";
         const results = plan.rows.map(r => ({
-            student: students.get(r.studentId) ?? { id: r.studentId, name: "Unknown", admissionNumber: null },
+            student: students.get(r.studentId) ?? null,
             outcome: outcomeOf(r), fromClass: nameOf(r.fromClassId), toClass: r.toClassId ? nameOf(r.toClassId) : null,
         }));
         const n = (o: PromotionOutcome) => results.filter(r => r.outcome === o).length;

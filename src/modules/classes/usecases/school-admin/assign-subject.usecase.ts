@@ -42,8 +42,8 @@ export class AssignSubjectUseCase {
         const old = existing ? (await d.staffNameLookup.one(existing.staffId))?.name ?? null : null;
         await d.auditService.log({
             userId: actor.userId, schoolId, action: "class_subject.assigned", entity: "ClassSubject", entityId: row.id,
-            ...(existing ? { oldValue: { class: result.class.name, subject: result.subject.name, teacher: old } } : {}),
-            newValue: { class: result.class.name, subject: result.subject.name, teacher: result.teacher?.name ?? null, term: result.term ? `${result.term.session?.name ?? ""} ${result.term.name}`.trim() : null },
+            ...(existing ? { oldValue: { class: result.class?.name ?? null, subject: result.subject?.name ?? null, teacher: old } } : {}),
+            newValue: { class: result.class?.name ?? null, subject: result.subject?.name ?? null, teacher: result.teacher?.name ?? null, term: result.term ? `${result.term.session?.name ?? ""} ${result.term.name}`.trim() : null },
         });
         return result;
     }

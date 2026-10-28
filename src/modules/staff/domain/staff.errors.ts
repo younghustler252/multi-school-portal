@@ -5,6 +5,7 @@ export const staffErrors = {
     notFound:        () => new NotFoundError("Staff member"),
     emailTaken:      () => new ConflictError("A staff member with this email already exists"),
     employeeIdTaken: () => new ConflictError("A staff member with this employee ID already exists"),
+    employeeIdFailed: () => new AppError("Could not create an employee ID. Please try again", 409, true, "EMPLOYEE_ID_FAILED"),
     possibleDuplicate: (id: string) => new AppError(
         "A staff member with the same name and phone already exists. If this is a different person, confirm and try again",
         409, true, "POSSIBLE_DUPLICATE_STAFF", { existingStaffId: id }),

@@ -12,7 +12,7 @@ export interface SubjectRef { id: string; name: string; code: string | null }
 export interface TermRef extends NameRef { session: NameRef | null }
 
 export interface SubjectResponse { id: string; name: string; code: string | null; description: string | null; defaultTeacher: StaffRef | null }
-export interface AssignmentResponse { id: string; class: NameRef; subject: SubjectRef; teacher: StaffRef | null; term: TermRef | null; assignedVia: string }
+export interface AssignmentResponse { id: string; class: NameRef | null; subject: SubjectRef | null; teacher: StaffRef | null; term: TermRef | null; assignedVia: string }
 
 interface Deps { classRepository: IClassRepository; sessionRepository: ISessionRepository; staffNameLookup: StaffNameLookup }
 
@@ -46,8 +46,8 @@ export class SubjectPresenter {
         return rows.map(r => {
             const s = subjectById.get(r.subjectId);
             return {
-                id: r.id, class: classNames.get(r.classId) ?? { id: r.classId, name: "Unknown" },
-                subject: { id: r.subjectId, name: s?.name ?? "Unknown", code: s?.code ?? null },
+                id: r.id, class: classNames.get(r.classId) ?? null,
+                subject: s ? { id: r.subjectId, name: s.name, code: s.code ?? null } : null,
                 teacher: teachers.get(r.staffId) ?? null, term: terms.get(r.termId) ?? null, assignedVia: r.assignedVia,
             };
         });

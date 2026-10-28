@@ -187,3 +187,33 @@ describe("calendar events", () => {
         await assert.rejects(new CreateCalendarEventUseCase(deps).execute("s", { title: "x", type: "event", startDate: "2025-10-20", termId: "44444444-4444-4444-8444-444444444444" } as any, actor), { code: "NOT_FOUND" });
     });
 });
+
+// ── roll-over: classes that end up over capacity ─────────────────────────────
+import { planOverCapacity } from "../../src/modules/sessions/services/term-rollover";
+
+describe("roll-over over-capacity report", () => {
+    it("lists only classes above their capacity, worst first; no capacity means never over; exactly full is fine", () => {
+        const cls = [{ id: "a", name: "JSS 1", capacity: 2 }, { id: "b", name: "JSS 2", capacity: 1 }, { id: "c", name: "JSS 3", capacity: null }, { id: "d", name: "JSS 4", capacity: 2 }];
+        const out = planOverCapacity(cls, ["a", "a", "a", "b", "b", "b", "c", "c", "c", "d", "d", null, undefined]);
+        assert.deepEqual(out, [{ classId: "b", name: "JSS 2", capacity: 1, enrolled: 3 }, { classId: "a", name: "JSS 1", capacity: 2, enrolled: 3 }]);
+    });
+    it("rolloverInTx carries everyone anyway and reports the full class; nothing extra is queried when no one is carried", async () => {
+        const enrolFinds: any[] = [];
+        const tx: any = {
+            enrolment: {
+                findMany: async (a: any) => { enrolFinds.push(a); return a.where.termId === "old" ? [{ studentId: "a", classId: "c1" }, { studentId: "b", classId: "c1" }, { studentId: "c", classId: "c1" }]
+                    : a.select?.classId ? [{ classId: "c1" }, { classId: "c1" }, { classId: "c1" }] : []; },
+                createMany: async (a: any) => ({ count: a.data.length }),
+            },
+            class: { findMany: async () => [{ id: "c1", name: "JSS 1", capacity: 2, classTeacherId: null }] }, subject: { findMany: async () => [] },
+            classSubject: { findMany: async () => [], createMany: async () => ({ count: 0 }) }, schoolSettings: { findFirst: async () => null },
+        };
+        const res = await rolloverInTx(tx, "old", "new");
+        assert.equal(res.enrolmentsCarried, 3);
+        assert.deepEqual(res.overCapacity, [{ classId: "c1", name: "JSS 1", capacity: 2, enrolled: 3 }]);
+        const before = enrolFinds.length;
+        const none = await rolloverInTx(tx, null, "new");
+        assert.deepEqual(none.overCapacity, []);
+        assert.equal(enrolFinds.length, before, "no enrolment queries when there is no previous term");
+    });
+});

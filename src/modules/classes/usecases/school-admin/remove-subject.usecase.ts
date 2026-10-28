@@ -16,7 +16,7 @@ export async function removeAssignment(d: Dependencies, schoolId: string, classS
 
     const shown = (await d.subjectPresenter.assignments([existing]))[0];
     await d.classRepository.removeSubject(classSubjectId);
-    await d.auditService.log({ userId: actor.userId, schoolId, action, entity: "ClassSubject", entityId: classSubjectId, oldValue: { class: shown.class.name, subject: shown.subject.name, teacher: shown.teacher?.name ?? null } });
+    await d.auditService.log({ userId: actor.userId, schoolId, action, entity: "ClassSubject", entityId: classSubjectId, oldValue: { class: shown.class?.name ?? null, subject: shown.subject?.name ?? null, teacher: shown.teacher?.name ?? null } });
     return shown;
 }
 

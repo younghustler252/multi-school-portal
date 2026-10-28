@@ -13,7 +13,7 @@ export interface NameRef { id: string; name: string }
 export interface StudentRef { id: string; name: string; admissionNumber: string | null; photoUrl: string | null }
 export interface StudentLite { id: string; name: string; admissionNumber: string | null }
 export interface TermRef extends NameRef { session: NameRef | null }
-export interface EnrolmentResponse { id: string; student: StudentRef; class: NameRef; term: TermRef | null; status: string; createdAt: Date }
+export interface EnrolmentResponse { id: string; student: StudentRef | null; class: NameRef | null; term: TermRef | null; status: string; createdAt: Date }
 
 export interface EnrolmentRow { id: string; studentId: string; classId: string; termId: string; status: string; createdAt: Date }
 interface Deps { studentRepository: IStudentRepository; studentPhotoService: StudentPhotoService; classRepository: IClassRepository; sessionRepository: ISessionRepository }
@@ -50,8 +50,8 @@ export class EnrolmentPresenter {
             const s = byId.get(r.studentId);
             return {
                 id: r.id,
-                student: { id: r.studentId, name: s ? [s.firstName, s.lastName].filter(Boolean).join(" ") : "Unknown", admissionNumber: s?.admissionNumber ?? null, photoUrl: s?.photoUrl ?? null },
-                class: classes.get(r.classId) ?? { id: r.classId, name: "Unknown" },
+                student: s ? { id: r.studentId, name: [s.firstName, s.lastName].filter(Boolean).join(" "), admissionNumber: s.admissionNumber ?? null, photoUrl: s.photoUrl ?? null } : null,
+                class: classes.get(r.classId) ?? null,
                 term: terms.get(r.termId) ?? null, status: r.status, createdAt: r.createdAt,
             };
         });

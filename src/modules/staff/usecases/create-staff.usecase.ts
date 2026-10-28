@@ -7,7 +7,7 @@ import { StaffMapper, StaffResponseData } from "../mappers/staff.mapper";
 import { StaffPortalService } from "../services/staff-portal.service";
 import { InviteStaffUseCase } from "./staff-portal.usecases";
 import { staffErrors } from "../domain/staff.errors";
-import { EMPLOYEE_ID_SEQUENCE, formatEmployeeId } from "../domain/staff.policy";
+import { nextEmployeeId } from "../services/employee-id";
 import { StaffActor } from "../domain/staff.types";
 import { CreateStaffDtoType } from "../dtos/staff.dto";
 import type { Access } from "../../../foundation/access.service";
@@ -72,10 +72,12 @@ export class CreateStaffUseCase {
 
         const db = getTenantClient();
         let created: { id: string } | null = null;
-        for (let attempt = 0; attempt < 5 && !created; attempt++) {
+        // One attempt is normally enough: the number is the next FREE one, chosen inside the transaction.
+        // A second attempt only covers two requests that picked the same free number at the same moment.
+        for (let attempt = 0; attempt < 3 && !created; attempt++) {
             try {
                 created = await db.$transaction(async tx => {
-                    const employeeId = dto.employeeId ?? formatEmployeeId(await d.numberSequenceService.next(EMPLOYEE_ID_SEQUENCE, "", tx));
+                    const employeeId = dto.employeeId ?? await nextEmployeeId(d.numberSequenceService, tx as any);
                     const s = await tx.staff.create({
                         data: {
                             employeeId, firstName: dto.firstName, lastName: dto.lastName, middleName: dto.middleName, email: dto.email, phone: dto.phone,
@@ -90,7 +92,7 @@ export class CreateStaffUseCase {
                     return s;
                 });
             } catch (err: any) {
-                // An automatic number collided with a hand-typed one: the counter has moved on, try the next number
+                // Two requests chose the same free number at the same moment: the loser starts again and gets the next one
                 if (err?.code === "P2002" && !dto.employeeId) continue;
                 if (err?.code === "P2002") throw staffErrors.employeeIdTaken();
                 throw err;

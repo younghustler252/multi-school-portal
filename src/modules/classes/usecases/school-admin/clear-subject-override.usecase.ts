@@ -31,7 +31,7 @@ export class ClearSubjectOverrideUseCase {
         const assignment = (await d.subjectPresenter.assignments([updated]))[0];
         await d.auditService.log({
             userId: actor.userId, schoolId, action: "class_subject.override_cleared", entity: "ClassSubject", entityId: classSubjectId,
-            oldValue: { class: assignment.class.name, subject: assignment.subject.name, teacher: before }, newValue: { teacher: assignment.teacher?.name ?? null, assignedVia: resolved.assignedVia },
+            oldValue: { class: assignment.class?.name ?? null, subject: assignment.subject?.name ?? null, teacher: before }, newValue: { teacher: assignment.teacher?.name ?? null, assignedVia: resolved.assignedVia },
         });
         return { removed: false, assignment };
     }

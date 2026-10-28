@@ -57,7 +57,7 @@ export class EnrolStudentUseCase {
         const shown = await d.enrolmentPresenter.one(created);
         await d.auditService.log({
             userId: actor.userId, schoolId, action: "enrolment.created", entity: "Enrolment", entityId: created.id,
-            newValue: { student: shown.student.name, class: shown.class.name, term: shown.term ? `${shown.term.session?.name ?? ""} ${shown.term.name}`.trim() : null },
+            newValue: { student: shown.student?.name ?? null, class: shown.class?.name ?? null, term: shown.term ? `${shown.term.session?.name ?? ""} ${shown.term.name}`.trim() : null },
         });
         return shown;
     }

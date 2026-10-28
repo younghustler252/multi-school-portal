@@ -49,6 +49,7 @@ router.use("/plans", plansRouter);
 router.use("/subscriptions", subscriptionRouter);
 router.use("/audit", auditRouter)   
 router.use("/staff", staffRouter);
+router.use("/branches", branchRouter);
 router.use("/finance/settings", financeSettingsRouter);
 router.use("/finance/reconciliation", bankReconciliationRouter);
 router.use("/finance/settlements", gatewaySettlementsRouter);

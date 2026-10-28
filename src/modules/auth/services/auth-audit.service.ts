@@ -1,3 +1,4 @@
+import { auditFailureSink } from "../../audit/services/audit-failure-reporter";
 import { PrismaClient } from "../../../generated/public/client";
 
 export interface AuthAuditEntry {
@@ -51,6 +52,7 @@ export class AuthAuditService {
             });
         } catch (err) {
             console.error("[auth-audit] failed to write audit entry:", (err as Error).message);
+            auditFailureSink.report(err, { source: "auth-audit", action: e.action, entity: e.entity ?? "auth", entityId: e.entityId, schoolId: e.schoolId, userId: e.userId });
         }
     }
 }
