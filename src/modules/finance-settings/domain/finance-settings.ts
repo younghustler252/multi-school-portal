@@ -22,6 +22,9 @@ export interface FinanceSettings {
     graceDays:                    number;
     reconciliationBlocksClose:    boolean;
     reconciliationToleranceDays:  number;
+    payrollTransfersEnabled:      boolean;
+    transferMaxKobo:              bigint;
+    transferBatchMaxKobo:         bigint;
     vatEnabled:                   boolean;
     vatRateBps:                   number;
 }
@@ -90,6 +93,21 @@ export const FINANCE_SETTING_DEFS: readonly FinanceSettingDef[] = [
         key: "finance.reconciliation_tolerance_days", field: "reconciliationToleranceDays", kind: "integer", group: "Bank reconciliation", default: 3, min: 0, max: 14,
         label: "Days between the books and the bank",
         description: "Automatic matching pairs a bank line with a book entry of the same amount dated within this many days.",
+    },
+    {
+        key: "finance.payroll_transfers_enabled", field: "payrollTransfersEnabled", kind: "boolean", group: "Payroll transfers", default: false,
+        label: "Pay salaries by bank transfer from the system",
+        description: "Off (default): payroll is only recorded as paid. On: an approved run can be sent to each staff member's bank through the payment provider. The platform must also have transfers switched on.",
+    },
+    {
+        key: "finance.transfer_max_kobo", field: "transferMaxKobo", kind: "integer", group: "Payroll transfers", default: 0, min: 0, max: Number.MAX_SAFE_INTEGER,
+        label: "Largest single salary transfer (kobo)",
+        description: "0 means no limit. A run with a salary above this amount cannot be sent.",
+    },
+    {
+        key: "finance.transfer_batch_max_kobo", field: "transferBatchMaxKobo", kind: "integer", group: "Payroll transfers", default: 0, min: 0, max: Number.MAX_SAFE_INTEGER,
+        label: "Largest batch of salary transfers (kobo)",
+        description: "0 means no limit. The total of the transfers started together cannot be above this amount.",
     },
     {
         key: "finance.vat_enabled", field: "vatEnabled", kind: "boolean", group: "Tax", default: false,

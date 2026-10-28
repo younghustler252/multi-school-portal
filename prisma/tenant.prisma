@@ -1352,6 +1352,7 @@ model LedgerAccount {
   bankMatchGroups     BankMatchGroup[]
   bankReconciliations BankReconciliation[]
   gatewaySettlements  GatewaySettlement[]
+  salaryTransfersFrom SalaryTransfer[]        @relation("SalaryTransferFrom")
 
   @@index([type])
   @@index([parentId])
@@ -1414,6 +1415,7 @@ model JournalEntry {
   feeInvoice  FeeInvoice?
   payment     Payment?
   gatewaySettlement GatewaySettlement?
+  salaryTransfer    SalaryTransfer?       @relation("SalaryTransferJournal")
   adjustment  InvoiceAdjustment?
   refund      Refund?
   expense        Expense?
@@ -1819,6 +1821,7 @@ model PayrollRun {
   accrualJournal JournalEntry? @relation("RunAccrual", fields: [accrualJournalId], references: [id], onDelete: Restrict)
   paymentJournal JournalEntry? @relation("RunPayment", fields: [paymentJournalId], references: [id], onDelete: Restrict)
   payslips       Payslip[]
+  salaryTransfers SalaryTransfer[]
 
   @@index([periodYear, periodMonth])
   @@index([status])
@@ -1847,6 +1850,7 @@ model Payslip {
 
   @@unique([runId, staffId])
   @@index([staffId])
+  salaryTransfers SalaryTransfer[]
 }
 
 // kind: BASIC (the basic salary), COMPONENT (a pay component) or LOAN (a loan repayment). The accounts are copied from the component when pay is calculated.
@@ -2077,4 +2081,56 @@ model GatewaySettlementItem {
   payment    Payment           @relation(fields: [paymentId], references: [id], onDelete: Restrict)
 
   @@index([settlementId])
+}
+
+// ============================================================================
+// PAYROLL: SALARY TRANSFERS (phase 6). One row per attempt to pay one payslip by bank transfer.
+// The row exists BEFORE the provider is called; only a confirmed outcome (webhook or verify) makes it SUCCESS and posts the books.
+// ============================================================================
+
+enum SalaryTransferStatus {
+  PENDING      // created, nothing sent
+  SENDING      // claimed by a sender, the provider call is in flight
+  PROCESSING   // the provider accepted it and is still moving the money
+  UNKNOWN      // the provider call ended without an answer: never resend, verify
+  SUCCESS      // confirmed paid
+  FAILED       // confirmed not paid (a retry makes a new attempt)
+  REVERSED     // paid, then returned by the bank
+  CANCELLED    // stopped before sending
+}
+
+model SalaryTransfer {
+  id                     String               @id @default(uuid())
+  runId                  String
+  payslipId              String
+  staffId                String
+  attempt                Int                  @default(1)
+  reference              String               @unique
+  amountKobo             BigInt
+  status                 SalaryTransferStatus @default(PENDING)
+  bankCode               String
+  bankName               String?
+  accountName            String
+  accountNumberEncrypted String
+  accountLast4           String
+  recipientCode          String?
+  transferCode           String?
+  fromAccountId          String
+  failureReason          String?
+  initiatedById          String
+  sentAt                 DateTime?
+  confirmedAt            DateTime?
+  journalId              String?              @unique
+  reversalJournalId      String?
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @updatedAt
+
+  run         PayrollRun    @relation(fields: [runId], references: [id], onDelete: Restrict)
+  payslip     Payslip       @relation(fields: [payslipId], references: [id], onDelete: Restrict)
+  fromAccount LedgerAccount @relation("SalaryTransferFrom", fields: [fromAccountId], references: [id], onDelete: Restrict)
+  journal     JournalEntry? @relation("SalaryTransferJournal", fields: [journalId], references: [id], onDelete: Restrict)
+
+  @@unique([payslipId, attempt])
+  @@index([runId])
+  @@index([status])
 }

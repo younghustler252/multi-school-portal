@@ -2,6 +2,8 @@ import { PrismaClient } from "../../../generated/public/client";
 import { IPaymentProvider } from "../../../infrastructure/payments/interfaces/payment.provider.interface";
 import { TenantContext } from "../../../infrastructure/database/prisma/tenant.context";
 import { ConfirmOnlinePaymentUseCase } from "./online-payment.usecases";
+import type { HandleTransferEventUseCase } from "../../payroll-transfers/usecases/transfer.usecases";
+import { parseReference } from "../../payroll-transfers/domain/transfer.policy";
 import { BillingEngine } from "../../subscriptions/services/billing-engine.service";
 import { BadRequestError } from "../../../shared/errors/domain.errors";
 import { PaymentErrorMessage } from "../domain/payment.enums";
@@ -11,6 +13,7 @@ interface Dependencies {
     paymentProvider:      IPaymentProvider;
     confirmOnlinePaymentUseCase: ConfirmOnlinePaymentUseCase;
     billingEngine:        BillingEngine;
+    handleTransferEventUseCase?: HandleTransferEventUseCase;
 }
 
 /*
@@ -57,6 +60,15 @@ export class HandleWebhookUseCase {
         const finish = (status: "processed" | "ignored" | "failed", error?: string) =>
             this.prisma.webhookEvent.update({ where: { id: logId }, data: { status, error: error?.slice(0, 300) ?? null, processedAt: new Date() } });
 
+        // Salary transfers (money OUT): found by our own reference, applied inside that school's database
+        if (type.startsWith("transfer.")) {
+            try {
+                const handled = await this.settleTransferEvent(type, data as Record<string, any>);
+                await finish(handled ? "processed" : "ignored");
+                return { processed: handled };
+            } catch (err) { await finish("failed", (err as Error).message); throw err; }
+        }
+
         if (type !== "charge.success" || !reference) { await finish("ignored"); return { processed: false }; }
 
         try {
@@ -72,6 +84,21 @@ export class HandleWebhookUseCase {
             await finish("failed", (err as Error).message);
             throw err;
         }
+    }
+
+    /* A transfer event carries no metadata, so the school is read from our reference (sal-<school key>-...). A reference that is not ours is ignored. */
+    private async settleTransferEvent(type: string, data: Record<string, any>): Promise<boolean> {
+        const parsed = typeof data.reference === "string" ? parseReference(data.reference) : null;
+        if (!parsed || !this.d.handleTransferEventUseCase) return false;
+        const rows = await this.prisma.$queryRawUnsafe<{ id: string; schemaName: string | null; schemaProvisionedAt: Date | null }[]>(
+            `SELECT id, "schemaName", "schemaProvisionedAt" FROM "School" WHERE replace(id, '-', '') LIKE $1`, `${parsed.schoolKey}%`);
+        if (rows.length !== 1) throw new Error(`Transfer ${data.reference}: ${rows.length === 0 ? "no school" : "more than one school"} matches its reference`);
+        const school = rows[0];
+        if (!school.schemaName || !school.schemaProvisionedAt) throw new Error(`Transfer ${data.reference}: school ${school.id} has no built schema`);
+        const use = this.d.handleTransferEventUseCase;
+        const r = await new Promise<{ handled: boolean }>((resolve, reject) =>
+            TenantContext.run({ tenantSchema: school.schemaName!, schoolId: school.id }, () => { use.execute(school.id, type, data).then(resolve, reject); }));
+        return r.handled;
     }
 
     // A school fee: find the school from the payment's metadata and verify inside that school's own schema

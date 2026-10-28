@@ -19,6 +19,7 @@ interface Dependencies {
     numberSequenceService: NumberSequenceService; runMapper: RunMapper; auditService: AuditService;
     paymentContextRepository: { schoolHeader(schoolId: string): Promise<{ name: string | null; address: string | null; logoUrl: string | null }> };
     financeSettingsService?: FinanceSettingsReader;      // finance.allow_self_approval; absent in hand-built tests (default: not allowed)
+    salaryTransferRepository?: { hasLiveTransfers(runId: string): Promise<boolean> };      // set when salary transfers exist: a run with transfers started is not paid by hand too
 }
 
 async function loadRun(d: Pick<Dependencies, "payrollRunRepository">, id: string): Promise<PayrollRunEntity> {
@@ -262,6 +263,7 @@ export class PayRunUseCase extends Base {
         const d = this.d;
         const run = await loadRun(d, id);
         if (run.status !== "APPROVED") throw payrollErrors.notApproved(run.status);
+        if (await d.salaryTransferRepository?.hasLiveTransfers(id)) throw payrollErrors.hasTransfers();
 
         const today = todayInFinanceZone(this.now());
         const paidOn = dto.paidOn ?? today;

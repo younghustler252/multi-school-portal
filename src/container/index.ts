@@ -46,6 +46,7 @@ import { registerFinanceReports } from "../modules/finance-reports/finance-repor
 import { registerFinanceSettings } from "../modules/finance-settings/finance-settings.container";
 import { registerBankReconciliation } from "../modules/bank-reconciliation/bank-reconciliation.container";
 import { registerGatewaySettlements } from "../modules/gateway-settlements/gateway-settlements.container";
+import { registerPayrollTransfers } from "../modules/payroll-transfers/payroll-transfers.container";
 // import { registerNotifications } from "../modules/notifications/notifications.container";
 // import { registerSuperAdmin }    from "../modules/super-admin/super-admin.container";
 // import { registerSchoolSettings } from "../modules/school-settings/school-settings.container";
@@ -79,6 +80,7 @@ const modules: Array<(c: AwilixContainer) => void> = [
     registerFinanceSettings,
     registerBankReconciliation,
     registerGatewaySettlements,
+    registerPayrollTransfers,
     registerAudit,
     // registerNotifications,
     // registerSuperAdmin, 

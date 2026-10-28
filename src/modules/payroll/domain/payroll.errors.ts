@@ -32,6 +32,7 @@ export const payrollErrors = {
     calcProblems:      (problems: unknown[]) => new AppError("Some staff pay cannot be worked out. Fix these and calculate again", 409, true, "PAYROLL_CALC_PROBLEMS", { problems }),
     notCalculated:     () => new AppError("Calculate the run before sending it for approval", 409, true, "PAYROLL_NOT_CALCULATED"),
     secondApproverMustDiffer: () => new AppError("A second, different person must approve this payroll run", 403, true, "SECOND_APPROVER_MUST_DIFFER"),
+    hasTransfers:     () => new AppError("This run has bank transfers started. Finish or cancel them instead of recording a manual payment", 409, true, "RUN_HAS_TRANSFERS"),
     selfApproval:      () => new AppError("You cannot decide a payroll run you created", 403, true, "SELF_APPROVAL_NOT_ALLOWED"),
     reasonRequired:    () => new AppError("A reason is required", 400, true, "REASON_REQUIRED"),
     runChanged:        () => new AppError("The run was changed by someone else. Reload and try again", 409, true, "STALE_VERSION"),

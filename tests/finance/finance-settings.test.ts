@@ -60,7 +60,7 @@ describe("finance settings: update", () => {
     });
     it("get lists every setting with its default", async () => {
         const g = await store().get.execute();
-        assert.equal(g.settings.length, 11);
+        assert.equal(g.settings.length, 14);
     });
 });
 

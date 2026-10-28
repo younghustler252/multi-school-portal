@@ -34,6 +34,7 @@ import ledgerRouter from "../modules/ledger/routes/ledger.routes";
 import financeSettingsRouter from "../modules/finance-settings/routes/finance-settings.routes";
 import bankReconciliationRouter from "../modules/bank-reconciliation/routes/bank-reconciliation.routes";
 import gatewaySettlementsRouter from "../modules/gateway-settlements/routes/settlement.routes";
+import payrollTransfersRouter from "../modules/payroll-transfers/routes/transfer.routes";
 // import notificationRouter from "../modules/notifications/routes/notification.routes";
 // import schoolSettingRouter from "../modules/school-settings/routes/school-settings.routes"
 // import platformsettingsRouter from "../modules/platform-settings/routes/platform-settings.route"
@@ -67,6 +68,7 @@ router.use("/expenses", expenseRouter);
 router.use("/vendors", vendorRouter);
 router.use("/budgets", budgetRouter);
 router.use("/recurring-expenses", recurringExpenseRouter);
+router.use("/payroll/transfers", payrollTransfersRouter);
 router.use("/payroll", payrollRouter);
 router.use("/my/payslips", myPayslipsRouter);
 router.use("/fees/invoices", feeInvoiceRouter);

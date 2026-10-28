@@ -45,3 +45,21 @@ The VAT receivable balance in the ledger is the input VAT the school can claim. 
 Setting `finance.second_approval_threshold_kobo` (default 0 = off). At or above it, two DIFFERENT people must approve: the first call to the approve endpoint only records who approved (`firstApprovedById/At`, audit `expenses.first_approved` / `payroll.run.first_approved`, status stays PENDING_APPROVAL, response has `approvalsRequired: 2, approvalsReceived: 1`); the second approver posts to the books. The same person twice gives `SECOND_APPROVER_MUST_DIFFER`. The requester still cannot approve unless `finance.allow_self_approval` is on. A rejection by anyone clears the first approval.
 Amount tested: an expense's total (VAT included); a payroll run's gross plus employer cost. A large expense can no longer approve itself at submit, even when "require approval" is off, and recurring expense templates no longer auto-approve above the amount (recurring also now follows the approval threshold settings).
 Migration `20261030090000_second_approval` (`firstApprovedById/At` on `Expense` and `PayrollRun`). Not covered yet: refunds, fee adjustments and loans (they keep a single approver); more than two steps or approval by role/amount ladders.
+
+## Salary transfers by Paystack (`/payroll/transfers`)
+Pays an APPROVED payroll run to staff bank accounts. Off by default, twice: env `PAYSTACK_TRANSFERS_ENABLED=true` AND school setting `finance.payroll_transfers_enabled`. Either off gives `TRANSFERS_DISABLED`.
+Migration `20261031090000_salary_transfers`. Permissions `payroll.transfers.send` and `payroll.transfers.reconcile` (module `payroll_transfers`, sensitive, NOT auto-granted: add to roles by hand for existing schools).
+Routes: GET `/`, GET `/runs/:runId`, POST `/runs/:runId/start`, POST `/runs/:runId/send`, POST `/reconcile`, POST `/:id/retry`, POST `/:id/cancel`. Webhook events `transfer.success|failed|reversed` are handled in the existing Paystack webhook; the school is found from the reference prefix.
+Flow: Start (creates one PENDING row per payslip with net pay > 0, freezes an encrypted copy of the bank details, sends nothing) -> Send (claims rows, creates the Paystack recipient, initiates) -> provider/webhook/verify confirm.
+States: PENDING -> SENDING -> PROCESSING | SUCCESS | FAILED | UNKNOWN (plus CANCELLED, REVERSED).
+Safety rules:
+- A durable row exists BEFORE the provider is contacted; every attempt has its own reference (`sal-<school>-<random>-<attempt>`).
+- Only a confirmed outcome (provider says success, signed webhook, or verify) books Dr salaries payable / Cr bank and counts as paid. A timeout is UNKNOWN: never resent, only verified. "No record" at the provider is trusted only after 30 minutes.
+- Amounts come only from the approved run; a profile edit after Start cannot redirect money.
+- Whoever starts or sends cannot be the run's approver unless `finance.allow_self_approval`.
+- Per-transfer and per-batch limits (`finance.transfer_max_kobo`, `finance.transfer_batch_max_kobo`, 0 = none) are checked before any row exists.
+- Late success after FAILED is accepted and flagged; failure after success is refused and audited; success after REVERSED is refused. Repeated webhooks change nothing.
+- A run with transfers cannot be paid by hand (`RUN_HAS_TRANSFERS`). The run becomes PAID when every transfer is SUCCESS. Account numbers never appear in responses.
+Known gaps: a reversal after the run is PAID needs a manual correction; Paystack transfer fees are not booked; no scheduled reconcile job (call POST /reconcile); accounts that require OTP approval for transfers are not supported; a reference cannot be reused.
+Open decision: the platform uses ONE Paystack key, so transfers would draw on the platform's Paystack balance, not the school's. Decide whose balance funds salaries before enabling in production.
+Tests: `payroll-transfers.test.ts` (in-memory world, no real Paystack or database).

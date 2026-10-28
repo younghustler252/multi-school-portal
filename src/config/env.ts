@@ -62,6 +62,8 @@ const envSchema = z.object({
     // ── Paystack ─────────────────────────────────────────────────────────
     PAYSTACK_SECRET_KEY: z.string(),
     PAYSTACK_PUBLIC_KEY: z.string(),
+    // Salary transfers spend the balance behind the secret key above. Leave "false" until it is decided whose balance funds them.
+    PAYSTACK_TRANSFERS_ENABLED: z.enum(["true", "false"]).default("false"),
 
     // ── Redis ────────────────────────────────────────────────────────────
     REDIS_HOST: z.string().default("localhost"),
@@ -144,6 +146,7 @@ export const env = {
     paystack: {
         secretKey: parsed.data.PAYSTACK_SECRET_KEY,
         publicKey: parsed.data.PAYSTACK_PUBLIC_KEY,
+        transfersEnabled: parsed.data.PAYSTACK_TRANSFERS_ENABLED === "true",
     },
 
     // ── Redis ────────────────────────────────────────────────────────────
