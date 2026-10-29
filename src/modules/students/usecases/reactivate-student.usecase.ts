@@ -19,7 +19,8 @@ export class ReactivateStudentUseCase {
         const student = await d.studentRepository.findById(id);
         if (!student) throw studentErrors.notFound();
         if (student.isActive) throw studentErrors.alreadyActive();
-        await assertWithinPlanLimit(schoolId, "student", 1);
+        // A graduate does not count toward the plan, so bringing one back onto the books adds nothing to the count.
+        if (!student.graduatedAt) await assertWithinPlanLimit(schoolId, "student", 1);
 
         const updated = await d.studentRepository.update(id, { isActive: true });
         await d.auditService.log({

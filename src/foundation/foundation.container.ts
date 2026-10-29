@@ -2,6 +2,7 @@ import { AwilixContainer, asFunction } from "awilix";
 import { prisma, getTenantClient } from "../infrastructure/database/prisma/prisma.client";
 import { AccessDb, AccessService } from "./access.service";
 import { EntitlementsDb, EntitlementsService } from "./entitlements.service";
+import { ACTIVE_STUDENT_WHERE } from "../modules/students/domain/student-eligibility";
 
 /*
 |--------------------------------------------------------------------------
@@ -18,6 +19,13 @@ import { EntitlementsDb, EntitlementsService } from "./entitlements.service";
 
 type Cradle = { prismaClient: typeof prisma };
 
+/** meterKey -> how much the school is using right now (runs inside the request's tenant context). Exported so tests call the real thing. */
+export const tenantMeters = () => ({
+    "students.active": () => getTenantClient().student.count({ where: ACTIVE_STUDENT_WHERE }),
+    "staff.active":    () => getTenantClient().staff.count({ where: { isActive: true } }),
+    "branches.active": () => getTenantClient().branch.count({ where: { isActive: true, deletedAt: null } }),
+});
+
 export const registerFoundation = (container: AwilixContainer): void => {
     container.register({
 
@@ -31,11 +39,7 @@ export const registerFoundation = (container: AwilixContainer): void => {
         entitlementsService: asFunction(({ prismaClient }: Cradle) =>
             new EntitlementsService(prismaClient as unknown as EntitlementsDb, {
                 // meterKey -> how much the school is using right now (runs inside the request's tenant context)
-                meters: {
-                    "students.active": () => getTenantClient().student.count({ where: { isActive: true } }),
-                    "staff.active":    () => getTenantClient().staff.count({ where: { isActive: true } }),
-                    "branches.active": () => getTenantClient().branch.count({ where: { isActive: true, deletedAt: null } }),
-                },
+                meters: tenantMeters(),
             }),
         ).singleton(),
     });

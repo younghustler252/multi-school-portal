@@ -8,6 +8,7 @@ import { CreateStudentUseCase } from "./usecases/create-student.usecase";
 import { UpdateStudentUseCase } from "./usecases/update-student.usecase";
 import { DeactivateStudentUseCase } from "./usecases/deactivate-student.usecase";
 import { ReactivateStudentUseCase } from "./usecases/reactivate-student.usecase";
+import { UndoGraduationUseCase } from "./usecases/undo-graduation.usecase";
 import { ListStudentsUseCase, GetStudentUseCase, GetMyStudentProfileUseCase } from "./usecases/student-queries.usecases";
 import { UploadStudentPhotoUseCase } from "./usecases/upload-photo.usecase";
 import { StudentController } from "./controllers/student.controller";
@@ -31,6 +32,7 @@ export const registerStudents = (container: AwilixContainer): void => {
         updateStudentUseCase:        asClass(UpdateStudentUseCase).scoped(),
         deactivateStudentUseCase:    asClass(DeactivateStudentUseCase).scoped(),
         reactivateStudentUseCase:    asClass(ReactivateStudentUseCase).scoped(),
+        undoGraduationUseCase:       asClass(UndoGraduationUseCase).scoped(),
         uploadStudentPhotoUseCase:   asClass(UploadStudentPhotoUseCase).scoped(),
 
         studentController:           asClass(StudentController).scoped(),

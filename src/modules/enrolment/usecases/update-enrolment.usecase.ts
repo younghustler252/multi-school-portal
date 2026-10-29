@@ -47,6 +47,7 @@ export class UpdateEnrolmentUseCase {
             if (reopening) {
                 const student = await d.studentRepository.findById(enrolment.studentId);
                 if (!student?.isActive) throw enrolmentErrors.studentInactive();
+                if (student.graduatedAt) throw enrolmentErrors.studentGraduated();   // reopening a graduate's old enrolment is not a way back in
             }
             data = { status: dto.status };
         }

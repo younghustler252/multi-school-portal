@@ -21,6 +21,8 @@ export interface StudentEntity {
     nationality:     string | null;
     stateOfOrigin:   string | null;
     isActive:        boolean;
+    graduatedAt:     Date | null;       // set only by the promotion run; separate from isActive
+    graduatedTermId: string | null;
     admittedAt:      Date | null;
     createdAt:       Date;
     updatedAt:       Date;

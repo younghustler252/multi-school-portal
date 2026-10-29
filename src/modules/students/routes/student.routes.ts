@@ -10,12 +10,12 @@ import { requirePermission, requirePersona } from "../../../infrastructure/middl
 import { reestablishTenantContext } from "../../../infrastructure/middleware/reestablish-tenant-context";
 import { AppError } from "../../../shared/errors/domain.errors";
 import { MAX_PHOTO_BYTES } from "../domain/student.policy";
-import { CreateStudentDto, UpdateStudentDto, DeactivateStudentDto } from "../dtos/student.dto";
+import { CreateStudentDto, UpdateStudentDto, DeactivateStudentDto, UndoGraduationDto } from "../dtos/student.dto";
 
 /*
 | STUDENT ROUTES (school realm, mounted at /students on the school's host).
 | students.view   = see students (all of them, or only yourself / your own children, depending on the role's scope)
-| students.manage = create, edit, deactivate, reactivate, change photo
+| students.manage = create, edit, deactivate, reactivate, undo graduation, change photo
 | The plan's student limit is checked inside create and reactivate.
 | Fixed paths ("/me") come before "/:id".
 | Upload route: authenticate -> permission -> limiter -> multer -> reestablishTenantContext -> controller.
@@ -45,6 +45,7 @@ router.get("/:id", ...view, (q, s, n) => ctrl().get(q, s, n));
 router.put("/:id", ...manage, validate(UpdateStudentDto), (q, s, n) => ctrl().update(q, s, n));
 router.post("/:id/deactivate", ...manage, validate(DeactivateStudentDto), (q, s, n) => ctrl().deactivate(q, s, n));
 router.post("/:id/reactivate", ...manage, (q, s, n) => ctrl().reactivate(q, s, n));
+router.post("/:id/undo-graduation", ...manage, validate(UndoGraduationDto), (q, s, n) => ctrl().undoGraduation(q, s, n));
 router.post("/:id/photo", ...manage, uploadLimiter, photo, reestablishTenantContext, (q, s, n) => ctrl().uploadPhoto(q, s, n));
 
 export default router;

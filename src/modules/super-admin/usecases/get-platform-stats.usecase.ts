@@ -3,6 +3,7 @@ import { IUserRepository }         from "../../auth/repositories/user.repository
 import { ISubscriptionRepository } from "../../subscriptions/repositories/subscription.repository";
 import { TenantContext }           from "../../../infrastructure/database/prisma/tenant.context";
 import { getTenantClient }         from "../../../infrastructure/database/prisma/prisma.client";
+import { ACTIVE_STUDENT_WHERE } from "../../students/domain/student-eligibility";
 
 interface Dependencies {
     schoolRepository:       ISchoolRepository;
@@ -141,7 +142,7 @@ export class GetPlatformStatsUseCase {
             try {
                 const count = await TenantContext.run(
                     { tenantSchema: school.schemaName, schoolId: school.id },
-                    () => getTenantClient().student.count({ where: { isActive: true } }),
+                    () => getTenantClient().student.count({ where: ACTIVE_STUDENT_WHERE }),
                 );
                 total += count;
             } catch {

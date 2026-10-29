@@ -126,6 +126,7 @@ function world(over: any = {}) {
     const studentRepository: any = {
         findById: async (id: string) => students[id] ?? null,
         findMany: async (w: any) => (w.id?.in ?? []).map((id: string) => students[id]).filter(Boolean),
+        count: async () => 4,   // students counting toward the plan
     };
     const classRepository: any = {
         findClassById: async (id: string) => classes.find(c => c.id === id) ?? null, findAllClasses: async () => classes,
@@ -208,8 +209,10 @@ describe("promotion", () => {
         const { deps } = world({ progression, findMany: active });
         const out = await new PreviewPromotionUseCase(deps).execute({ termId: T1, newTermId: T2 });
         assert.deepEqual(out.summary, { total: 2, promote: 1, graduate: 1, needsDecision: 0, alreadyEnrolled: 1 });
-        assert.deepEqual(out.rows[0], { student: { id: S1, name: "Ada Obi", admissionNumber: "2026/0001" }, fromClass: { id: C1, name: "JSS 1" }, toClass: { id: C2, name: "JSS 2" }, action: "promote", alreadyEnrolled: true });
+        assert.deepEqual(out.rows[0], { student: { id: S1, name: "Ada Obi", admissionNumber: "2026/0001" }, fromClass: { id: C1, name: "JSS 1" }, toClass: { id: C2, name: "JSS 2" }, action: "promote", alreadyEnrolled: true, outcome: "already_enrolled" });
         assert.equal(out.rows[1].toClass, null);
+        assert.equal(out.rows[1].outcome, "graduated");
+        assert.deepEqual(out.planImpact, { activeStudentsNow: 4, graduating: 1, activeStudentsAfter: 3 });
         const none = await new PreviewPromotionUseCase(world({ progression: [], findMany: active }).deps).execute({ termId: T1 });
         assert.deepEqual(none.classesWithoutNextClass.map(c => c.name), ["JSS 1", "JSS 2"]); assert.equal(none.summary.needsDecision, 2);
     });

@@ -5,6 +5,7 @@ import { ISubscriptionRepository } from "../../subscriptions/repositories/subscr
 import { IPlanRepository } from "../../plans/repositories/plan.repository";
 import { schoolErrors } from "../domain/school.errors";
 import { schoolState } from "../domain/school.policy";
+import { ACTIVE_STUDENT_WHERE } from "../../students/domain/student-eligibility";
 
 interface Dependencies {
     prismaClient: PrismaClient; schoolRepository: ISchoolRepository;
@@ -70,11 +71,11 @@ export class GetDashboardUseCase {
 
         const showPeople = can("students.view") || can("staff.view");
         const people = showPeople ? await (async () => {
-            const [totalStaff, activeStaff, totalStudents, activeStudents, totalGuardians] = await Promise.all([
+            const [totalStaff, activeStaff, totalStudents, activeStudents, graduatedStudents, totalGuardians] = await Promise.all([
                 db.staff.count(), db.staff.count({ where: { isActive: true } }),
-                db.student.count(), db.student.count({ where: { isActive: true } }), db.guardian.count(),
+                db.student.count(), db.student.count({ where: ACTIVE_STUDENT_WHERE }), db.student.count({ where: { graduatedAt: { not: null } } }), db.guardian.count(),
             ]);
-            return { totalStaff, activeStaff, totalStudents, activeStudents, totalGuardians };
+            return { totalStaff, activeStaff, totalStudents, activeStudents, graduatedStudents, totalGuardians };
         })() : null;
 
         const academics = can("students.view") ? await (async () => {

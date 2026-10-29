@@ -40,3 +40,21 @@ export function planPromotion({ enrolments, progression, overrides }: PlanInput)
 }
 
 export const moves = (r: PlanRow): boolean => r.action === "promote" || r.action === "repeat";
+
+/*
+| WHAT HAPPENS TO ONE STUDENT: the single rule behind both the preview and the run, so they cannot disagree.
+|  - a student who already has a place in the new term is left completely alone (never graduated, never moved)
+|  - graduating = the final class has no next class: the student is marked graduated, the final-term enrolment is
+|    closed, and no place is made in the new term
+*/
+export type PromotionOutcome = "promoted" | "repeated" | "graduated" | "excluded" | "already_enrolled";
+
+export function promotionOutcome(action: Exclude<PlanAction, "needs_decision">, placedInNewTerm: boolean): PromotionOutcome {
+    if (action === "exclude") return "excluded";
+    if (placedInNewTerm) return "already_enrolled";
+    if (action === "graduate") return "graduated";
+    return action === "repeat" ? "repeated" : "promoted";
+}
+
+export const willGraduate = (r: Pick<PlanRow, "action">, placedInNewTerm: boolean): boolean =>
+    r.action !== "needs_decision" && promotionOutcome(r.action, placedInNewTerm) === "graduated";

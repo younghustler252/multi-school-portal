@@ -10,6 +10,7 @@ export const enrolmentErrors = {
     classNotFound:   () => new NotFoundError("Class"),
     termNotFound:    () => new NotFoundError("Term"),
     studentInactive: () => invalid("This student is not active, so they cannot be enrolled", "STUDENT_INACTIVE"),
+    studentGraduated: () => invalid("This student has graduated, so they cannot be enrolled. If the graduation was a mistake, undo it first", "STUDENT_GRADUATED"),
     alreadyEnrolled: (details: { status: string; class: string }) => conflict(`This student already has an enrolment for this term (${details.class}, ${details.status})`, "ENROLMENT_ALREADY_EXISTS", details),
     classFull:       (details: { capacity: number; enrolled: number; requested: number }) =>
         conflict(`The class has room for ${Math.max(details.capacity - details.enrolled, 0)} more student(s), but ${details.requested} were requested`, "CLASS_FULL", details),

@@ -42,7 +42,7 @@ export function planEnrolmentCarryForward(previous: Array<{ studentId: string; c
 export async function rolloverInTx(tx: RolloverTx, fromTermId: string | null, toTermId: string): Promise<RolloverResult> {
     let enrolmentsCarried = 0;
     if (fromTermId) {
-        const previous = await tx.enrolment.findMany({ where: { termId: fromTermId, status: "active", student: { isActive: true } }, select: { studentId: true, classId: true } });
+        const previous = await tx.enrolment.findMany({ where: { termId: fromTermId, status: "active", student: { isActive: true, graduatedAt: null } }, select: { studentId: true, classId: true } });
         const now = await tx.enrolment.findMany({ where: { termId: toTermId }, select: { studentId: true } });
         const rows = planEnrolmentCarryForward(previous, new Set(now.map((e: any) => e.studentId)));
         if (rows.length) enrolmentsCarried = (await tx.enrolment.createMany({

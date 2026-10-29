@@ -1,6 +1,7 @@
 import { PrismaClient } from "../../../generated/public/client";
 import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
 import { TenantContext } from "../../../infrastructure/database/prisma/tenant.context";
+import { ACTIVE_STUDENT_WHERE } from "../students/domain/student-eligibility";
 
 export interface UsageViolation { feature: string; name: string; limit: number; usage: number }
 
@@ -8,7 +9,7 @@ type TenantDb = ReturnType<typeof getTenantClient>;
 
 // meterKey -> how much the school uses right now (the same meters the entitlements service reads)
 const METERS: Record<string, (db: TenantDb) => Promise<number>> = {
-    "students.active": db => db.student.count({ where: { isActive: true } }),
+    "students.active": db => db.student.count({ where: ACTIVE_STUDENT_WHERE }),
     "staff.active":    db => db.staff.count({ where: { isActive: true } }),
     "branches.active": db => db.branch.count({ where: { isActive: true, deletedAt: null } }),
 };

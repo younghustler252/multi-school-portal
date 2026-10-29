@@ -14,7 +14,7 @@ interface Dependencies {
     enrolmentPresenter: EnrolmentPresenter; auditService: AuditService;
 }
 
-export type SkipReason = "not_found" | "inactive" | "already_enrolled";
+export type SkipReason = "not_found" | "inactive" | "graduated" | "already_enrolled";
 export interface BulkEnrolResult {
     class: NameRef; term: TermRef | null;
     enrolled: StudentLite[];
@@ -46,6 +46,7 @@ export class BulkEnrolUseCase {
         for (const id of ids) {
             if (!students.has(id)) skipped.push({ student: { id, name: null }, reason: "not_found" });
             else if (!students.get(id)!.isActive) skipped.push({ student: lite(id), reason: "inactive" });
+            else if (students.get(id)!.graduatedAt) skipped.push({ student: lite(id), reason: "graduated" });
             else if (taken.has(id)) skipped.push({ student: lite(id), reason: "already_enrolled" });
             else toEnrol.push(id);
         }

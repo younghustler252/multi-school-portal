@@ -28,6 +28,7 @@ export class EnrolStudentUseCase {
         const student = await d.studentRepository.findById(dto.studentId);
         if (!student) throw enrolmentErrors.studentNotFound();
         if (!student.isActive) throw enrolmentErrors.studentInactive();
+        if (student.graduatedAt) throw enrolmentErrors.studentGraduated();
         const cls = await d.classRepository.findClassById(dto.classId);
         if (!cls) throw enrolmentErrors.classNotFound();
         if (!(await d.sessionRepository.findTermById(dto.termId))) throw enrolmentErrors.termNotFound();

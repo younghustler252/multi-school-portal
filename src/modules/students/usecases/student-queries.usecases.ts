@@ -6,6 +6,7 @@ import { StudentPhotoService } from "../services/student-photo.service";
 import { studentErrors } from "../domain/student.errors";
 import { studentScopeWhere } from "../services/student-scope";
 import { ListStudentsQueryType } from "../dtos/student.dto";
+import { ACTIVE_STUDENT_WHERE } from "../domain/student-eligibility";
 
 interface Dependencies { studentRepository: IStudentRepository; studentMapper: StudentMapper; studentPhotoService: StudentPhotoService; }
 
@@ -13,6 +14,13 @@ interface Dependencies { studentRepository: IStudentRepository; studentMapper: S
 | READS. Every read is limited to what the viewer may see (student-scope.ts). A student outside the viewer's
 | scope is reported as "not found", so nobody can learn that an id exists by guessing.
 */
+/** active = counts toward the plan; inactive = off the books (not graduated); graduated = finished the last class. */
+export const statusWhere = (status: "active" | "inactive" | "graduated" | "all") =>
+    status === "all" ? {}
+    : status === "active" ? { ...ACTIVE_STUDENT_WHERE }
+    : status === "inactive" ? { isActive: false, graduatedAt: null }
+    : { graduatedAt: { not: null } };
+
 export class ListStudentsUseCase {
     constructor(private readonly d: Dependencies) {}
 
@@ -21,7 +29,7 @@ export class ListStudentsUseCase {
         const where = {
             AND: [
                 studentScopeWhere(access),
-                query.status === "all" ? {} : { isActive: query.status === "active" },
+                statusWhere(query.status),
                 query.gender ? { gender: query.gender } : {},
             ],
         };

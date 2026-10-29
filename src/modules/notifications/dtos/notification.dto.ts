@@ -27,6 +27,9 @@ export const SendSchoolNotificationDto = z.object({
     channels:   z.array(z.enum(["IN_APP", "EMAIL", "SMS"])).min(1),
     metadata: z.record(z.string(), z.any()).optional(),
 
+    // General (school-wide) messages skip graduates and the families of graduates only; set true to include them.
+    includeGraduates: z.boolean().default(false),
+
     // Specific recipients (optional)
     studentIds:  z.array(z.string().uuid()).optional(),
     guardianIds: z.array(z.string().uuid()).optional(),

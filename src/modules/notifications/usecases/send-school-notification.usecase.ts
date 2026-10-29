@@ -7,6 +7,7 @@ import { SchoolNotificationMapper }       from "../mappers/notification.mapper";
 import { SchoolNotificationResponseData } from "../mappers/notification.mapper";
 import { SendSchoolNotificationDtoType }  from "../dtos/notification.dto";
 import { addNotificationJob }             from "../../../infrastructure/jobs/queues/notification.queue";
+import { ACTIVE_STUDENT_WHERE, guardianAnnouncementWhere } from "../../students/domain/student-eligibility";
 
 interface Dependencies {
     notificationRepository:   INotificationRepository;
@@ -110,7 +111,7 @@ export class SendSchoolNotificationUseCase {
         if (wantsStudents) {
             const students = dto.studentIds && dto.studentIds.length > 0
                 ? await this.studentRepository.findMany({ id: { in: dto.studentIds } })
-                : await this.studentRepository.findMany({ isActive: true });
+                : await this.studentRepository.findMany(dto.includeGraduates ? { isActive: true } : { ...ACTIVE_STUDENT_WHERE });
 
             const userIds = students.map(s => s.userId).filter(Boolean) as string[];
             const users = userIds.length > 0
@@ -131,7 +132,7 @@ export class SendSchoolNotificationUseCase {
         if (wantsGuardians) {
             const guardians = dto.guardianIds && dto.guardianIds.length > 0
                 ? await this.guardianRepository.findMany({ id: { in: dto.guardianIds } })
-                : await this.guardianRepository.findMany({ isActive: true });
+                : await this.guardianRepository.findMany(guardianAnnouncementWhere(!!dto.includeGraduates));
 
             for (const guardian of guardians) {
                 recipients.push({

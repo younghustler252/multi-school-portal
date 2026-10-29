@@ -52,6 +52,12 @@ export const UpdateStudentDto = z.object({
     admittedAt:      z.preprocess(blank(null), admitDate.nullable().optional()),
 }).strict().refine(o => Object.keys(o).length > 0, "Send at least one field to change");
 
+// Undoing a graduation always needs a reason (it is audited). `reopenEnrolment` also puts the student back in their final class.
+export const UndoGraduationDto = z.object({
+    reason: z.string().trim().min(5, "Please say why (at least 5 characters)").max(500),
+    reopenEnrolment: z.boolean().default(false),
+}).strict();
+
 export const DeactivateStudentDto = z.object({
     reason: optText(300),
 }).strict().default({});
@@ -62,7 +68,7 @@ export const ListStudentsQuery = z.object({
     limit:  z.coerce.number().int().min(1).max(100).default(20),
     search: z.string().trim().max(100).optional(),
     gender: z.enum(GENDERS).optional(),
-    status: z.enum(["active", "inactive", "all"]).default("active"),
+    status: z.enum(["active", "inactive", "graduated", "all"]).default("active"),
 });
 
 // ── CSV import row (used by the import use case, which is not switched on yet) ──
@@ -84,4 +90,5 @@ export const ImportStudentRowSchema = z.object({
 export type CreateStudentDtoType     = z.infer<typeof CreateStudentDto>;
 export type UpdateStudentDtoType     = z.infer<typeof UpdateStudentDto>;
 export type DeactivateStudentDtoType = z.infer<typeof DeactivateStudentDto>;
+export type UndoGraduationDtoType    = z.infer<typeof UndoGraduationDto>;
 export type ListStudentsQueryType    = z.infer<typeof ListStudentsQuery>;

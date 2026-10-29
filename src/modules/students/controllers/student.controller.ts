@@ -3,6 +3,7 @@ import { CreateStudentUseCase } from "../usecases/create-student.usecase";
 import { UpdateStudentUseCase } from "../usecases/update-student.usecase";
 import { DeactivateStudentUseCase } from "../usecases/deactivate-student.usecase";
 import { ReactivateStudentUseCase } from "../usecases/reactivate-student.usecase";
+import { UndoGraduationUseCase } from "../usecases/undo-graduation.usecase";
 import { ListStudentsUseCase, GetStudentUseCase, GetMyStudentProfileUseCase } from "../usecases/student-queries.usecases";
 import { UploadStudentPhotoUseCase } from "../usecases/upload-photo.usecase";
 import { sendSuccess, sendCreated } from "../../../shared/utils/api-response";
@@ -15,6 +16,7 @@ interface Dependencies {
     listStudentsUseCase: ListStudentsUseCase; getStudentUseCase: GetStudentUseCase; getMyStudentProfileUseCase: GetMyStudentProfileUseCase;
     createStudentUseCase: CreateStudentUseCase; updateStudentUseCase: UpdateStudentUseCase;
     deactivateStudentUseCase: DeactivateStudentUseCase; reactivateStudentUseCase: ReactivateStudentUseCase;
+    undoGraduationUseCase: UndoGraduationUseCase;
     uploadStudentPhotoUseCase: UploadStudentPhotoUseCase;
 }
 
@@ -46,6 +48,7 @@ export class StudentController {
     update = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.updateStudentUseCase.execute(schoolIdOf(req), idOf(req), req.body, actorOf(req)), "Student updated successfully"); } catch (e) { next(e); } };
     deactivate = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.deactivateStudentUseCase.execute(schoolIdOf(req), idOf(req), req.body ?? {}, actorOf(req)), "Student deactivated successfully"); } catch (e) { next(e); } };
     reactivate = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.reactivateStudentUseCase.execute(schoolIdOf(req), idOf(req), actorOf(req)), "Student reactivated successfully"); } catch (e) { next(e); } };
+    undoGraduation = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.undoGraduationUseCase.execute(schoolIdOf(req), idOf(req), req.body, actorOf(req)), "Graduation undone"); } catch (e) { next(e); } };
 
     uploadPhoto = async (req: Request, res: Response, next: NextFunction) => {
         try {

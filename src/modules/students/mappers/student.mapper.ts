@@ -1,5 +1,6 @@
 import { IMapper }        from "../../../infrastructure/repository/base.repository";
 import { StudentEntity }  from "../domain/student.entity";
+import { StudentLifecycle, studentLifecycle } from "../domain/student-eligibility";
 /*
 |--------------------------------------------------------------------------
 | STUDENT MAPPER
@@ -24,6 +25,8 @@ export interface StudentResponseData {
     nationality:     string | null;
     stateOfOrigin:   string | null;
     isActive:        boolean;
+    lifecycle:       StudentLifecycle;     // active | graduated | inactive
+    graduatedAt:     Date | null;
     admittedAt:      Date | null;
     createdAt:       Date;
 }
@@ -47,6 +50,8 @@ export class StudentMapper implements IMapper<any, StudentEntity> {
             nationality:     raw.nationality     ?? null,
             stateOfOrigin:   raw.stateOfOrigin   ?? null,
             isActive:        raw.isActive,
+            graduatedAt:     raw.graduatedAt     ?? null,
+            graduatedTermId: raw.graduatedTermId ?? null,
             admittedAt:      raw.admittedAt      ?? null,
             createdAt:       raw.createdAt,
             updatedAt:       raw.updatedAt,
@@ -71,6 +76,8 @@ export class StudentMapper implements IMapper<any, StudentEntity> {
             nationality:     entity.nationality,
             stateOfOrigin:   entity.stateOfOrigin,
             isActive:        entity.isActive,
+            lifecycle:       studentLifecycle(entity),
+            graduatedAt:     entity.graduatedAt,
             admittedAt:      entity.admittedAt,
             createdAt:       entity.createdAt,
         };

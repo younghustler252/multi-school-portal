@@ -133,6 +133,8 @@ model Student {
   nationality     String?   @default("Nigerian")
   stateOfOrigin   String?
   isActive        Boolean   @default(true)
+  graduatedAt     DateTime?
+  graduatedTermId String?
   admittedAt      DateTime?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
@@ -146,6 +148,8 @@ model Student {
   discounts     StudentDiscount[]
   allocations   PaymentAllocation[]
   refunds       Refund[]
+
+  @@index([graduatedAt])
 }
 
 model Guardian {

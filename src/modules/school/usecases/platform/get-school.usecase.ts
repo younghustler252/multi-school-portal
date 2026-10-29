@@ -4,6 +4,7 @@ import { getTenantClient } from "../../../../infrastructure/database/prisma/pris
 import { TenantContext } from "../../../../infrastructure/database/prisma/tenant.context";
 import { schoolErrors } from "../../domain/school.errors";
 import { schoolState } from "../../domain/school.policy";
+import { ACTIVE_STUDENT_WHERE } from "../../../students/domain/student-eligibility";
 
 interface Dependencies { schoolRepository: ISchoolRepository; schoolMapper: SchoolMapper }
 
@@ -20,7 +21,7 @@ export class GetPlatformSchoolUseCase {
             try {
                 [studentCount, staffCount] = await TenantContext.run(
                     { tenantSchema: row.school.schemaName, schoolId: row.school.id },
-                    async () => { const db = getTenantClient(); return Promise.all([db.student.count({ where: { isActive: true } }), db.staff.count({ where: { isActive: true } })]); },
+                    async () => { const db = getTenantClient(); return Promise.all([db.student.count({ where: ACTIVE_STUDENT_WHERE }), db.staff.count({ where: { isActive: true } })]); },
                 );
             } catch { /* the school's schema may be unavailable: counts stay null */ }
         }
