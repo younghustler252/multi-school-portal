@@ -1,104 +1,52 @@
-import { Request, Response, NextFunction }  from "express";
-import { GetSchoolSettingsUseCase }         from "../usecases/get-school-settings.usecase";
-import { UpdateSchoolSettingsUseCase }      from "../usecases/update-school-settings.usecase";
-import { UploadStampUseCase }              from "../usecases/upload-stamp.usecase";
-import { sendSuccess }                     from "../../../shared/utils/api-response";
+import { Request, Response, NextFunction } from "express";
+import { GetSchoolSettingsUseCase }    from "../usecases/get-school-settings.usecase";
+import { UpdateSchoolSettingsUseCase } from "../usecases/update-school-settings.usecase";
+import { UploadStampUseCase }          from "../usecases/upload-stamp.usecase";
+import { GetSchoolPreferencesUseCase, UpdateSchoolPreferencesUseCase } from "../usecases/school-preferences.usecases";
+import { schoolSettingsErrors }        from "../domain/school-settings.errors";
+import { sendSuccess }                 from "../../../shared/utils/api-response";
+import { UnauthorizedError }           from "../../../shared/errors/domain.errors";
 
 interface Dependencies {
-    getSchoolSettingsUseCase:    GetSchoolSettingsUseCase;
-    updateSchoolSettingsUseCase: UpdateSchoolSettingsUseCase;
-    uploadStampUseCase:          UploadStampUseCase;
+    getSchoolSettingsUseCase:        GetSchoolSettingsUseCase;
+    updateSchoolSettingsUseCase:     UpdateSchoolSettingsUseCase;
+    uploadStampUseCase:              UploadStampUseCase;
+    getSchoolPreferencesUseCase:     GetSchoolPreferencesUseCase;
+    updateSchoolPreferencesUseCase:  UpdateSchoolPreferencesUseCase;
 }
 
-export class SchoolSettingsController {
-    private readonly getSchoolSettingsUseCase:    GetSchoolSettingsUseCase;
-    private readonly updateSchoolSettingsUseCase: UpdateSchoolSettingsUseCase;
-    private readonly uploadStampUseCase:          UploadStampUseCase;
+const schoolIdOf = (req: Request): string => req.schoolId as string;
+const userIdOf   = (req: Request): string => { if (!req.auth) throw new UnauthorizedError("No token provided", "TOKEN_MISSING"); return req.auth.userId; };
 
-    constructor({
-        getSchoolSettingsUseCase,
-        updateSchoolSettingsUseCase,
-        uploadStampUseCase,
-    }: Dependencies) {
-        this.getSchoolSettingsUseCase    = getSchoolSettingsUseCase;
-        this.updateSchoolSettingsUseCase = updateSchoolSettingsUseCase;
-        this.uploadStampUseCase          = uploadStampUseCase;
+export class SchoolSettingsController {
+    constructor(private readonly d: Dependencies) {}
+
+    getSettings = async (_req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.getSchoolSettingsUseCase.execute(), "Settings retrieved successfully"); } catch (e) { next(e); }
+    };
+
+    updateSettings = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.updateSchoolSettingsUseCase.execute(req.body, schoolIdOf(req), userIdOf(req)), "Settings updated successfully"); }
+        catch (e) { next(e); }
+    };
+
+    uploadStamp     = (req: Request, res: Response, next: NextFunction) => this.upload("stamp", req, res, next);
+    uploadSignature = (req: Request, res: Response, next: NextFunction) => this.upload("signature", req, res, next);
+
+    private async upload(type: "stamp" | "signature", req: Request, res: Response, next: NextFunction) {
+        try {
+            if (!req.file) throw schoolSettingsErrors.noFile();
+            const result = await this.d.uploadStampUseCase.execute(schoolIdOf(req), userIdOf(req), type, { buffer: req.file.buffer });
+            sendSuccess(res, result, `${type === "stamp" ? "Stamp" : "Signature"} uploaded successfully`);
+        } catch (e) { next(e); }
     }
 
-    // ── Get settings ──────────────────────────────────────────────────────
-    getSettings = async (
-        req: Request, res: Response, next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.getSchoolSettingsUseCase.execute();
-            sendSuccess(res, result, "Settings retrieved successfully");
-        } catch (err) { next(err); }
+    getPreferences = async (_req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.getSchoolPreferencesUseCase.execute(), "Preferences retrieved successfully"); } catch (e) { next(e); }
     };
 
-    // ── Update settings ───────────────────────────────────────────────────
-    updateSettings = async (
-        req: Request, res: Response, next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.updateSchoolSettingsUseCase.execute(
-                req.body,
-                req.user!.schoolId!,
-            );
-            sendSuccess(res, result, "Settings updated successfully");
-        } catch (err) { next(err); }
-    };
-
-    // ── Upload stamp ──────────────────────────────────────────────────────
-    uploadStamp = async (
-        req: Request, res: Response, next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const file = req.file;
-            if (!file) {
-                res.status(400).json({
-                    success: false,
-                    message: "No file uploaded",
-                });
-                return;
-            }
-
-            const result = await this.uploadStampUseCase.execute(
-                req.user!.schoolId!,
-                "stamp",
-                {
-                    buffer:   file.buffer,
-                    mimetype: file.mimetype,
-                    filename: file.originalname,
-                },
-            );
-            sendSuccess(res, result, "Stamp uploaded successfully");
-        } catch (err) { next(err); }
-    };
-
-    // ── Upload signature ──────────────────────────────────────────────────
-    uploadSignature = async (
-        req: Request, res: Response, next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const file = req.file;
-            if (!file) {
-                res.status(400).json({
-                    success: false,
-                    message: "No file uploaded",
-                });
-                return;
-            }
-
-            const result = await this.uploadStampUseCase.execute(
-                req.user!.schoolId!,
-                "signature",
-                {
-                    buffer:   file.buffer,
-                    mimetype: file.mimetype,
-                    filename: file.originalname,
-                },
-            );
-            sendSuccess(res, result, "Signature uploaded successfully");
-        } catch (err) { next(err); }
+    updatePreferences = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.updateSchoolPreferencesUseCase.execute(schoolIdOf(req), userIdOf(req), req.body), "Preferences updated successfully"); }
+        catch (e) { next(e); }
     };
 }

@@ -47,13 +47,13 @@ export class SchoolSettingsMapper
             signature:                  raw.signature                  ?? null,
 
             reportCardTemplate:         raw.reportCardTemplate ?? "classic",
-            customReportCard:           raw.customReportCard,
+            customReportCard:           (raw.reportCardTemplate ?? "classic") === "custom_letterhead",
 
             reportCardLetterheadUrl:    raw.reportCardLetterheadUrl    ?? null,
             letterheadContentTopMm:     raw.letterheadContentTopMm     ?? null,
             letterheadContentBottomMm:  raw.letterheadContentBottomMm  ?? null,
 
-            allowStudentLogin:          raw.allowStudentLogin,
+            allowStudentLogin:          raw.allowStudentLogin ?? false,
             teachingModel:              raw.teachingModel ?? null,
 
             createdAt:                  raw.createdAt,

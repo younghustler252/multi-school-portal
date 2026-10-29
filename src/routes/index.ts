@@ -36,7 +36,7 @@ import bankReconciliationRouter from "../modules/bank-reconciliation/routes/bank
 import gatewaySettlementsRouter from "../modules/gateway-settlements/routes/settlement.routes";
 import payrollTransfersRouter from "../modules/payroll-transfers/routes/transfer.routes";
 // import notificationRouter from "../modules/notifications/routes/notification.routes";
-// import schoolSettingRouter from "../modules/school-settings/routes/school-settings.routes"
+import schoolSettingRouter from "../modules/school-settings/routes/school-settings.routes"
 // import platformsettingsRouter from "../modules/platform-settings/routes/platform-settings.route"
 // import feedbackRouter from "../modules/feedback/routes/feedback.routes"
 
@@ -78,7 +78,7 @@ router.use("/fees", feesRouter);
 router.use("/payments", paymentRouter)
 // router.use("/super-admin", superAdminRouter)
 // router.use("/notifications", notificationRouter);
-// router.use("/school-settings", schoolSettingRouter)
+router.use("/school-settings", schoolSettingRouter)
 // router.use("/platform-settings", platformsettingsRouter)
 // router.use("/feedback", feedbackRouter)
 

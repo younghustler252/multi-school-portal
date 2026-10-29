@@ -44,6 +44,7 @@ export const ROLE_TEMPLATES: RoleTemplateDef[] = [
             { key: "branches.view", scope: "ALL" },
             { key: "finance.accounts.view", scope: "ALL" }, { key: "finance.journals.view", scope: "ALL" }, { key: "finance.periods.view", scope: "ALL" }, { key: "finance.reports.view", scope: "ALL" }, { key: "finance.reports.export", scope: "ALL" }, { key: "finance.reports.accountant", scope: "ALL" },
             { key: "finance.settings.view", scope: "ALL" }, { key: "finance.bank_reconciliation.view", scope: "ALL" },
+            { key: "school_settings.view", scope: "ALL" }, { key: "school_settings.manage", scope: "ALL" },
         ],
     },
     {
