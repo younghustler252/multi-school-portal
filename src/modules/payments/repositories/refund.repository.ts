@@ -6,6 +6,7 @@ export interface IRefundRepository {
     list(filters: RefundFilters, page?: number, limit?: number): Promise<PaginatedResult<RefundEntity>>;
     create(data: Record<string, any>): Promise<RefundEntity>;
     markDecided(id: string, data: Record<string, any>, status: "APPROVED" | "REJECTED"): Promise<boolean>;     // only from REQUESTED; false when already decided
+    recordFirstApproval(id: string, byId: string, at: Date): Promise<boolean>;                                 // only from REQUESTED with no first approval yet
     markPaid(id: string, data: Record<string, any>): Promise<boolean>;                                         // only from APPROVED
     openAmounts(studentId: string): Promise<Map<string, bigint>>;                                              // per payment: refunds asked for or approved, not yet paid
     openAmountFor(paymentId: string, studentId: string): Promise<bigint>;

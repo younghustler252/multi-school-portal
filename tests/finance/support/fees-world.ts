@@ -147,7 +147,8 @@ export function feesWorld() {
     const refundRepository: any = {
         async findById(id: string) { const r = refunds.get(id); return r ? refundView(r) : null; },
         async list() { const data = [...refunds.values()].map(refundView); return { data, meta: { total: data.length, page: 1, limit: 20, totalPages: 1 } }; },
-        async create(data: any) { const r = { id: `ref-${++refN}`, status: "REQUESTED", payoutAccountId: null, decidedById: null, decidedAt: null, decisionNote: null, paidAt: null, journalId: null, createdAt: NOW, ...data }; refunds.set(r.id, r); return refundView(r); },
+        async create(data: any) { const r = { id: `ref-${++refN}`, status: "REQUESTED", payoutAccountId: null, decidedById: null, decidedAt: null, decisionNote: null, firstApprovedById: null, firstApprovedAt: null, paidAt: null, journalId: null, createdAt: NOW, ...data }; refunds.set(r.id, r); return refundView(r); },
+        async recordFirstApproval(id: string, by: string, at: Date) { const r = refunds.get(id); if (r.status !== "REQUESTED" || r.firstApprovedById) return false; Object.assign(r, { firstApprovedById: by, firstApprovedAt: at }); return true; },
         async markDecided(id: string, data: any, status: string) { const r = refunds.get(id); if (r.status !== "REQUESTED") return false; Object.assign(r, data, { status }); return true; },
         async markPaid(id: string, data: any) { const r = refunds.get(id); if (r.status !== "APPROVED") return false; Object.assign(r, data, { status: "PAID" }); return true; },
         async openAmounts(studentId: string) { const m = new Map<string, bigint>(); for (const r of refunds.values()) if (r.studentId === studentId && OPEN.includes(r.status)) m.set(r.paymentId, (m.get(r.paymentId) ?? 0n) + r.amountKobo); return m; },
@@ -165,7 +166,8 @@ export function feesWorld() {
     const feeAdjustmentRepository: any = {
         async findById(id: string) { const a = adjustments.get(id); return a ? adjView(a) : null; },
         async list() { const data = [...adjustments.values()].map(adjView); return { data, meta: { total: data.length, page: 1, limit: 20, totalPages: 1 } }; },
-        async create(data: any) { const a = { id: `adj-${++adjN}`, status: "PENDING", decidedById: null, decidedAt: null, decisionNote: null, journalId: null, createdAt: NOW, ...data }; adjustments.set(a.id, a); return adjView(a); },
+        async create(data: any) { const a = { id: `adj-${++adjN}`, status: "PENDING", decidedById: null, decidedAt: null, decisionNote: null, firstApprovedById: null, firstApprovedAt: null, journalId: null, createdAt: NOW, ...data }; adjustments.set(a.id, a); return adjView(a); },
+        async recordFirstApproval(id: string, by: string, at: Date) { const a = adjustments.get(id); if (a.status !== "PENDING" || a.firstApprovedById) return false; Object.assign(a, { firstApprovedById: by, firstApprovedAt: at }); return true; },
         async markDecided(id: string, data: any, status: string) { const a = adjustments.get(id); if (a.status !== "PENDING") return false; Object.assign(a, data, { status }); return true; },
         async creditedOnItem(itemId: string) { return [...adjustments.values()].filter(a => a.invoiceItemId === itemId && a.type === "CREDIT_NOTE" && a.status === "APPROVED").reduce((s, a) => s + a.amountKobo, 0n); },
         async countApprovedForInvoice(invoiceId: string) { return [...adjustments.values()].filter(a => a.invoiceId === invoiceId && a.status === "APPROVED").length; },

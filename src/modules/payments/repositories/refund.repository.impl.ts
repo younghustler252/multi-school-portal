@@ -24,6 +24,11 @@ export class RefundRepositoryImpl extends BaseTenantRepository<RefundEntity, Ref
         return r.count === 1;
     }
 
+    async recordFirstApproval(id: string, byId: string, at: Date) {
+        const r = await this.model().updateMany({ where: { id, status: "REQUESTED", firstApprovedById: null }, data: { firstApprovedById: byId, firstApprovedAt: at } });
+        return r.count === 1;
+    }
+
     async markPaid(id: string, data: Record<string, any>) {
         const r = await this.model().updateMany({ where: { id, status: "APPROVED" }, data: { ...data, status: "PAID" } });
         return r.count === 1;

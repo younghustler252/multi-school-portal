@@ -792,6 +792,8 @@ model InvoiceAdjustment {
   decidedById   String?
   decidedAt     DateTime?
   decisionNote  String?
+  firstApprovedById String?
+  firstApprovedAt   DateTime?
   journalId     String?                 @unique
   createdAt     DateTime                @default(now())
   updatedAt     DateTime                @updatedAt
@@ -914,6 +916,8 @@ model Refund {
   decidedById     String?
   decidedAt       DateTime?
   decisionNote    String?
+  firstApprovedById String?
+  firstApprovedAt   DateTime?
   paidAt          DateTime?
   journalId       String?      @unique
   createdAt       DateTime     @default(now())

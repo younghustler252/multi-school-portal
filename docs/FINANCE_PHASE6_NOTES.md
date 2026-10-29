@@ -63,3 +63,8 @@ Safety rules:
 Known gaps: a reversal after the run is PAID needs a manual correction; Paystack transfer fees are not booked; no scheduled reconcile job (call POST /reconcile); accounts that require OTP approval for transfers are not supported; a reference cannot be reused.
 Open decision: the platform uses ONE Paystack key, so transfers would draw on the platform's Paystack balance, not the school's. Decide whose balance funds salaries before enabling in production.
 Tests: `payroll-transfers.test.ts` (in-memory world, no real Paystack or database).
+
+## Second approver: refunds and fee adjustments
+The same setting `finance.second_approval_threshold_kobo` now covers refunds and fee adjustments (waiver, write-off, extra discount, credit note), tested on the request's `amountKobo`. At or above it, the first approve call only records `firstApprovedById/At` (audit `payments.refund.first_approved` / `fees.adjustment.first_approved`, status unchanged, response has `approvalsRequired: 2, approvalsReceived: 1`); a different person's approval completes it (refund -> APPROVED, ready to pay out; adjustment -> posted). Same person twice gives `SECOND_APPROVER_MUST_DIFFER`. The requester rule is unchanged. A rejection is final at any point.
+Migration `20261101090000_second_approval_refunds_adjustments` (`firstApprovedById/At` on `Refund` and `InvoiceAdjustment`).
+Loans have no separate approve step (created and disbursed in one action), so they are not covered. Tests: `second-approval-refunds.test.ts`.

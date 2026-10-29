@@ -27,6 +27,11 @@ export class FeeAdjustmentRepositoryImpl extends BaseTenantRepository<Adjustment
         return r.count === 1;
     }
 
+    async recordFirstApproval(id: string, byId: string, at: Date) {
+        const r = await this.model().updateMany({ where: { id, status: "PENDING", firstApprovedById: null }, data: { firstApprovedById: byId, firstApprovedAt: at } });
+        return r.count === 1;
+    }
+
     async creditedOnItem(invoiceItemId: string): Promise<bigint> {
         const agg = await this.model().aggregate({ where: { invoiceItemId, type: "CREDIT_NOTE", status: "APPROVED" }, _sum: { amountKobo: true } });
         return (agg._sum.amountKobo as bigint | null) ?? 0n;

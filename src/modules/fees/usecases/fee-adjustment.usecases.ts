@@ -7,7 +7,7 @@ import { AuditService } from "../../audit/services/audit.service";
 import { todayInFinanceZone } from "../../ledger/domain/ledger.dates";
 import { feeErrors } from "../domain/fee.errors";
 import { ADJUSTMENT_LABEL, planAdjustment } from "../domain/adjustment.policy";
-import { FinanceSettingsReader, settingsOf } from "../../finance-settings/domain/finance-settings";
+import { FinanceSettingsReader, approvalsRequired, settingsOf } from "../../finance-settings/domain/finance-settings";
 import { ApproveAdjustmentDtoType, ListAdjustmentsQueryType, RejectAdjustmentDtoType, RequestAdjustmentDtoType } from "../dtos/adjustment.dto";
 import type { FeeInvoiceEntity } from "../domain/invoice.entity";
 
@@ -99,6 +99,19 @@ export class DecideAdjustmentUseCase {
     async approve(id: string, schoolId: string, actorUserId: string, dto: ApproveAdjustmentDtoType) {
         const d = this.d;
         const a = await this.load(id, actorUserId);
+
+        // At or above the second-approval amount, the first approval is only recorded; a different person's approval posts it
+        if (approvalsRequired(a.amountKobo, await settingsOf(d)) === 2) {
+            if (!a.firstApprovedById) {
+                if (!(await d.feeAdjustmentRepository.recordFirstApproval(id, actorUserId, this.now()))) throw feeErrors.adjustmentChanged();
+                await d.auditService.log({
+                    userId: actorUserId, schoolId, action: "fees.adjustment.first_approved", entity: "InvoiceAdjustment", entityId: id,
+                    oldValue: { status: "PENDING" }, newValue: { status: "PENDING", approvalsReceived: 1, approvalsRequired: 2, note: dto.note ?? null },
+                });
+                return { ...d.feeAdjustmentMapper.toResponse((await d.feeAdjustmentRepository.findById(id))!), approvalsRequired: 2, approvalsReceived: 1 };
+            }
+            if (a.firstApprovedById === actorUserId) throw feeErrors.adjustmentSecondApproverMustDiffer();
+        }
 
         await this.transaction(async () => {
             const { inv, plan } = await planFor(d, a.invoiceId, a.type, a.amountKobo, a.invoiceItemId);

@@ -7,7 +7,7 @@ import { RefundMapper } from "../mappers/refund.mapper";
 import { AuditService } from "../../audit/services/audit.service";
 import { parseDay, todayInFinanceZone } from "../../ledger/domain/ledger.dates";
 import { paymentErrors } from "../domain/payment.errors";
-import { FinanceSettingsReader, settingsOf } from "../../finance-settings/domain/finance-settings";
+import { FinanceSettingsReader, approvalsRequired, settingsOf } from "../../finance-settings/domain/finance-settings";
 import { ApproveRefundDtoType, ListRefundsQueryType, PayRefundDtoType, RejectRefundDtoType, RequestRefundDtoType } from "../dtos/payment.dto";
 
 interface Dependencies {
@@ -91,7 +91,20 @@ export class DecideRefundUseCase {
         const r = await this.d.refundRepository.findById(id);
         if (!r) throw paymentErrors.refundNotFound();
         if (r.status !== "REQUESTED") throw paymentErrors.refundNotRequested(r.status);
-        if (r.requestedById === actorUserId && !(await settingsOf(this.d)).allowSelfApproval) throw paymentErrors.selfApproval();
+        const settings = await settingsOf(this.d);
+        if (r.requestedById === actorUserId && !settings.allowSelfApproval) throw paymentErrors.selfApproval();
+        // At or above the second-approval amount, the first approval is only recorded; a different person's approval completes it. A rejection by anyone is final.
+        if (status === "APPROVED" && approvalsRequired(r.amountKobo, settings) === 2) {
+            if (!r.firstApprovedById) {
+                if (!(await this.d.refundRepository.recordFirstApproval(id, actorUserId, this.now()))) throw paymentErrors.refundChanged();
+                await this.d.auditService.log({
+                    userId: actorUserId, schoolId, action: "payments.refund.first_approved", entity: "Refund", entityId: id,
+                    oldValue: { status: "REQUESTED" }, newValue: { status: "REQUESTED", approvalsReceived: 1, approvalsRequired: 2, note: note ?? null },
+                });
+                return { ...this.d.refundMapper.toResponse((await this.d.refundRepository.findById(id))!), approvalsRequired: 2, approvalsReceived: 1 };
+            }
+            if (r.firstApprovedById === actorUserId) throw paymentErrors.secondApproverMustDiffer();
+        }
         if (!(await this.d.refundRepository.markDecided(id, { decidedById: actorUserId, decidedAt: this.now(), decisionNote: note ?? null }, status))) throw paymentErrors.refundChanged();
 
         await this.d.auditService.log({

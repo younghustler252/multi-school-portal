@@ -60,6 +60,7 @@ export const feeErrors = {
     creditNoteTooLarge: (maxKobo: bigint) => new AppError(
         "A credit note cannot be more than the fee it cancels, less earlier credit notes on it", 400, true, "CREDIT_NOTE_EXCEEDS_ITEM", { maxKobo: maxKobo.toString() }),
     adjustmentNotPending: (status: string) => new AppError("This adjustment was already decided", 409, true, "ADJUSTMENT_NOT_PENDING", { status }),
+    adjustmentSecondApproverMustDiffer: () => new AppError("A second, different person must approve this adjustment", 403, true, "SECOND_APPROVER_MUST_DIFFER"),
     adjustmentSelfApproval: () => new AppError(
         "A different person must approve this. The person who asked for it cannot", 403, true, "SELF_APPROVAL_NOT_ALLOWED"),
     adjustmentChanged: () => new AppError("This adjustment was changed by someone else. Reload it and try again", 409, true, "ADJUSTMENT_CHANGED"),

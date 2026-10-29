@@ -34,6 +34,7 @@ export const paymentErrors = {
         "The student does not have that much credit from this payment. A refund can only pay out credit", 409, true, "INSUFFICIENT_CREDIT", { availableKobo: availableKobo.toString() }),
     refundNotRequested: (status: string) => new AppError("This refund was already decided", 409, true, "REFUND_NOT_REQUESTED", { status }),
     refundNotApproved:  (status: string) => new AppError("Only an approved refund can be paid", 409, true, "REFUND_NOT_APPROVED", { status }),
+    secondApproverMustDiffer: () => new AppError("A second, different person must approve this refund", 403, true, "SECOND_APPROVER_MUST_DIFFER"),
     selfApproval:     () => new AppError("A different person must approve this. The person who asked for it cannot", 403, true, "SELF_APPROVAL_NOT_ALLOWED"),
     refundChanged:    () => new AppError("This refund was changed by someone else. Reload it and try again", 409, true, "REFUND_CHANGED"),
     paymentHasRefunds: () => new AppError(

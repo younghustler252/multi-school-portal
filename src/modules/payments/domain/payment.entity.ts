@@ -50,7 +50,7 @@ export type RefundStatus = "REQUESTED" | "APPROVED" | "PAID" | "REJECTED";
 export interface RefundEntity {
     id: string; paymentId: string; receiptNumber: string | null; studentId: string | null; studentName: string | null; amountKobo: bigint; reason: string;
     status: RefundStatus; payoutAccountId: string | null; requestedById: string; decidedById: string | null; decidedAt: Date | null;
-    decisionNote: string | null; paidAt: Date | null; journalId: string | null; createdAt: Date;
+    decisionNote: string | null; firstApprovedById: string | null; firstApprovedAt: Date | null; paidAt: Date | null; journalId: string | null; createdAt: Date;
 }
 export interface RefundFilters { status?: RefundStatus; paymentId?: string; studentId?: string }
 
