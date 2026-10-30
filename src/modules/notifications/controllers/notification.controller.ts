@@ -2,14 +2,13 @@ import { Request, Response, NextFunction } from "express";
 import { SendSchoolNotificationUseCase } from "../usecases/send-school-notification.usecase";
 import { SendPlatformNotificationUseCase } from "../usecases/send-platform-notification.usecase";
 import { GetNotificationsUseCase } from "../usecases/get-notifications.usecase";
-import { GetMyNotificationsUseCase } from "../usecases/get-my-notification.usecase";
-import { MarkNotificationReadUseCase } from "../usecases/mark-notification-read.usecase";
-import { MarkAllNotificationsReadUseCase } from "../usecases/mark-all-notification-read.usecase";
 import {
-	sendCreated,
-	sendPaginated,
-	sendSuccess,
-} from "../../../shared/utils/api-response";
+	GetMyNotificationsUseCase, MarkNotificationReadUseCase, MarkAllNotificationsReadUseCase,
+	GetPlatformInboxUseCase, MarkPlatformMessageReadUseCase, Inbox,
+} from "../usecases/my-notifications.usecases";
+import { getAccess } from "../../../infrastructure/middleware/rbac.middleware";
+import { sendCreated, sendPaginated, sendSuccess } from "../../../shared/utils/api-response";
+import { UnauthorizedError } from "../../../shared/errors/domain.errors";
 
 interface Dependencies {
 	sendSchoolNotificationUseCase: SendSchoolNotificationUseCase;
@@ -18,157 +17,52 @@ interface Dependencies {
 	getMyNotificationsUseCase: GetMyNotificationsUseCase;
 	markNotificationReadUseCase: MarkNotificationReadUseCase;
 	markAllNotificationsReadUseCase: MarkAllNotificationsReadUseCase;
+	getPlatformInboxUseCase: GetPlatformInboxUseCase;
+	markPlatformMessageReadUseCase: MarkPlatformMessageReadUseCase;
 }
 
+const schoolIdOf = (req: Request): string => req.schoolId as string;
+const userIdOf = (req: Request): string => { if (!req.auth) throw new UnauthorizedError("No token provided", "TOKEN_MISSING"); return req.auth.userId; };
+/** Who is asking: from the session's access (persona and the id of their own record), never from the request. */
+const inboxOf = (req: Request): Inbox => { const a = getAccess(req); return { persona: a.persona, personaEntityId: a.personaEntityId }; };
+const num = (v: unknown): number | undefined => (v ? Number(v) : undefined);
+
 export class NotificationController {
-	private readonly sendSchoolNotificationUseCase: SendSchoolNotificationUseCase;
-	private readonly sendPlatformNotificationUseCase: SendPlatformNotificationUseCase;
-	private readonly getNotificationsUseCase: GetNotificationsUseCase;
-	private readonly getMyNotificationsUseCase: GetMyNotificationsUseCase;
-	private readonly markNotificationReadUseCase: MarkNotificationReadUseCase;
-	private readonly markAllNotificationsReadUseCase: MarkAllNotificationsReadUseCase;
+	constructor(private readonly d: Dependencies) {}
 
-	constructor({
-		sendSchoolNotificationUseCase,
-		sendPlatformNotificationUseCase,
-		getNotificationsUseCase,
-		getMyNotificationsUseCase,
-		markNotificationReadUseCase,
-		markAllNotificationsReadUseCase,
-	}: Dependencies) {
-		this.sendSchoolNotificationUseCase = sendSchoolNotificationUseCase;
-		this.sendPlatformNotificationUseCase = sendPlatformNotificationUseCase;
-		this.getNotificationsUseCase = getNotificationsUseCase;
-		this.getMyNotificationsUseCase = getMyNotificationsUseCase;
-		this.markNotificationReadUseCase = markNotificationReadUseCase;
-		this.markAllNotificationsReadUseCase = markAllNotificationsReadUseCase;
-	}
-
-	// ── Send school notification ──────────────────────────────────────────
-	sendSchoolNotification = async (
-		req: Request,
-		res: Response,
-		next: NextFunction,
-	): Promise<void> => {
-		try {
-			const result = await this.sendSchoolNotificationUseCase.execute(
-				req.body,
-				req.user!.id,
-			);
-			sendCreated(res, result, "Notification sent successfully");
-		} catch (err) {
-			next(err);
-		}
+	sendSchoolNotification = async (req: Request, res: Response, next: NextFunction) => {
+		try { sendCreated(res, await this.d.sendSchoolNotificationUseCase.execute(req.body, schoolIdOf(req), userIdOf(req)), "Notification sent successfully"); } catch (e) { next(e); }
 	};
 
-	// ── Get school notifications ──────────────────────────────────────────
-	getSchoolNotifications = async (
-		req: Request,
-		res: Response,
-		next: NextFunction,
-	): Promise<void> => {
-		try {
-			const result = await this.getNotificationsUseCase.getSchoolNotifications(
-				req.query as any,
-			);
-			sendPaginated(res, result.data, result.meta);
-		} catch (err) {
-			next(err);
-		}
+	getSchoolNotifications = async (req: Request, res: Response, next: NextFunction) => {
+		try { const r = await this.d.getNotificationsUseCase.getSchoolNotifications(req.query as any); sendPaginated(res, r.data, r.meta); } catch (e) { next(e); }
 	};
 
-	// ── Send platform notification (super admin) ──────────────────────────
-	sendPlatformNotification = async (
-		req: Request,
-		res: Response,
-		next: NextFunction,
-	): Promise<void> => {
-		try {
-			const result = await this.sendPlatformNotificationUseCase.execute(
-				req.body,
-				req.user!.id,
-			);
-			sendCreated(res, result, "Platform notification sent successfully");
-		} catch (err) {
-			next(err);
-		}
+	sendPlatformNotification = async (req: Request, res: Response, next: NextFunction) => {
+		try { sendCreated(res, await this.d.sendPlatformNotificationUseCase.execute(req.body, userIdOf(req)), "Platform notification sent successfully"); } catch (e) { next(e); }
 	};
 
-	// ── Get platform notifications (super admin) ──────────────────────────
-	getPlatformNotifications = async (
-		req: Request,
-		res: Response,
-		next: NextFunction,
-	): Promise<void> => {
-		try {
-			const result = await this.getNotificationsUseCase.getPlatformNotifications(
-				req.query as any,
-			);
-			sendPaginated(res, result.data, result.meta);
-		} catch (err) {
-			next(err);
-		}
+	getPlatformNotifications = async (req: Request, res: Response, next: NextFunction) => {
+		try { const r = await this.d.getNotificationsUseCase.getPlatformNotifications(req.query as any); sendPaginated(res, r.data, r.meta); } catch (e) { next(e); }
 	};
 
-	// ── Get my notifications ──────────────────────────────────────────────
-	getMyNotifications = async (
-		req: Request,
-		res: Response,
-		next: NextFunction,
-	): Promise<void> => {
-		try {
-			const result = await this.getMyNotificationsUseCase.execute(
-				req.user!.id,
-				req.user!.role,
-				req.user!.schoolId ?? null,
-				{
-					page: req.query.page ? Number(req.query.page) : undefined,
-					limit: req.query.limit ? Number(req.query.limit) : undefined,
-				},
-			);
-
-			sendPaginated(res, result.data, result.meta);
-		} catch (err) {
-			next(err);
-		}
+	getMyNotifications = async (req: Request, res: Response, next: NextFunction) => {
+		try { const r = await this.d.getMyNotificationsUseCase.execute(inboxOf(req), { page: num(req.query.page), limit: num(req.query.limit) }); sendPaginated(res, r.data, r.meta); } catch (e) { next(e); }
 	};
 
-	// ── Mark one notification as read ─────────────────────────────────────
-	markNotificationRead = async (
-		req: Request,
-		res: Response,
-		next: NextFunction,
-	): Promise<void> => {
-		try {
-			const { recipientId } = req.params;
-			const kind = req.query.kind === "platform" ? "platform" : "school";
-
-			await this.markNotificationReadUseCase.execute(
-				recipientId as string,
-				kind,
-			);
-
-			sendSuccess(res, null, "Notification marked as read");
-		} catch (err) {
-			next(err);
-		}
+	markNotificationRead = async (req: Request, res: Response, next: NextFunction) => {
+		try { await this.d.markNotificationReadUseCase.execute(inboxOf(req), String(req.params.recipientId)); sendSuccess(res, null, "Notification marked as read"); } catch (e) { next(e); }
 	};
 
-	// ── Mark all notifications as read ────────────────────────────────────
-	markAllNotificationsRead = async (
-		req: Request,
-		res: Response,
-		next: NextFunction,
-	): Promise<void> => {
-		try {
-			const result = await this.markAllNotificationsReadUseCase.execute(
-				req.user!.id,
-				req.user!.role,
-			);
+	markAllNotificationsRead = async (req: Request, res: Response, next: NextFunction) => {
+		try { sendSuccess(res, await this.d.markAllNotificationsReadUseCase.execute(inboxOf(req)), "All notifications marked as read"); } catch (e) { next(e); }
+	};
 
-			sendSuccess(res, result, "All notifications marked as read");
-		} catch (err) {
-			next(err);
-		}
+	getPlatformInbox = async (req: Request, res: Response, next: NextFunction) => {
+		try { const r = await this.d.getPlatformInboxUseCase.execute(schoolIdOf(req), { page: num(req.query.page), limit: num(req.query.limit) }); sendPaginated(res, r.data, r.meta); } catch (e) { next(e); }
+	};
+
+	markPlatformMessageRead = async (req: Request, res: Response, next: NextFunction) => {
+		try { await this.d.markPlatformMessageReadUseCase.execute(schoolIdOf(req), String(req.params.recipientId)); sendSuccess(res, null, "Message marked as read"); } catch (e) { next(e); }
 	};
 }

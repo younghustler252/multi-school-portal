@@ -2,9 +2,11 @@ export interface NotificationChannelPayload {
     recipientId: string;
     to:          string;
     title:       string;
+    /** Plain text. A channel that puts it into HTML escapes it itself. */
     message:     string;
     type:        string;
-    metadata?:   Record<string, any> | null;
+    /** firstName: the recipient's first name. skipGreeting: the message already greets by name. bodyOnly: send the message without the title (SMS). */
+    metadata?:   { firstName?: string | null; skipGreeting?: boolean; bodyOnly?: boolean } & Record<string, any> | null;
 }
 
 export interface NotificationSendResult {

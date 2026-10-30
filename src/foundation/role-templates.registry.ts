@@ -46,6 +46,7 @@ export const ROLE_TEMPLATES: RoleTemplateDef[] = [
             { key: "finance.settings.view", scope: "ALL" }, { key: "finance.bank_reconciliation.view", scope: "ALL" },
             { key: "school_settings.view", scope: "ALL" }, { key: "school_settings.manage", scope: "ALL" },
             { key: "message_templates.view", scope: "ALL" }, { key: "message_templates.manage", scope: "ALL" },
+            { key: "notifications.view", scope: "ALL" }, { key: "notifications.send", scope: "ALL" },
         ],
     },
     {

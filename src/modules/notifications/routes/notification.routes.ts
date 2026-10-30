@@ -3,79 +3,41 @@ import { container } from "../../../container";
 import { NotificationController } from "../controllers/notification.controller";
 import { validate } from "../../../infrastructure/middleware/validate.middleware";
 import { authenticate } from "../../../infrastructure/middleware/auth.middleware";
-import {
-	requireSchoolAdmin,
-	requireSuperAdmin,
-} from "../../../infrastructure/middleware/rbac.middleware";
+import { requireSuperAdmin, requirePermission, requirePersona } from "../../../infrastructure/middleware/rbac.middleware";
 import { requireTenant } from "../../../infrastructure/middleware/tenant-resolver.middleware";
-import {
-	SendSchoolNotificationDto,
-	SendPlatformNotificationDto,
-	ListNotificationsDto,
-} from "../dtos/notification.dto";
+import { SendSchoolNotificationDto, SendPlatformNotificationDto, ListNotificationsDto } from "../dtos/notification.dto";
 
+/*
+| NOTIFICATION ROUTES (mounted at /notifications)
+|  School side (inside a school):
+|   GET   /school                     notifications.view            messages the school has sent
+|   POST  /school                     notifications.send            send an announcement (email/SMS need the plan feature AND the school's preference)
+|   GET   /me                         any signed-in student, guardian or staff member: your own in-app messages
+|   PATCH /me/read-all                same: mark all of yours read
+|   PATCH /me/:recipientId/read       same: mark one of yours read (a message that is not yours is a 404)
+|   GET   /platform-inbox             notifications.platform.view   messages the platform sent to the school
+|   PATCH /platform-inbox/:recipientId/read   notifications.platform.view
+|  Platform side (super admin, outside a school):
+|   GET   /platform                   sent platform messages
+|   POST  /platform                   send a platform message to schools
+| The fixed paths (/me/read-all) come before the ones with an id, so they are never taken for an id.
+*/
 const router = Router();
+const ctrl = () => container.resolve<NotificationController>("notificationController");
+const guard = (permission: string) => [authenticate, requireTenant, requirePermission(permission)] as const;
+const mine = [authenticate, requireTenant, requirePersona("STAFF", "STUDENT", "GUARDIAN")] as const;
 
-const ctrl = () => container.resolve<NotificationController>(
-	"notificationController",
-);
+router.get("/school", ...guard("notifications.view"), validate(ListNotificationsDto, "query"), (q, s, n) => ctrl().getSchoolNotifications(q, s, n));
+router.post("/school", ...guard("notifications.send"), validate(SendSchoolNotificationDto), (q, s, n) => ctrl().sendSchoolNotification(q, s, n));
 
-// ── School notifications ──────────────────────────────────────────────────
-router.get(
-	"/school",
-	authenticate,
-	requireTenant,
-	requireSchoolAdmin,
-	validate(ListNotificationsDto, "query"),
-	(req, res, next) => ctrl().getSchoolNotifications(req, res, next),
-);
+router.get("/me", ...mine, validate(ListNotificationsDto, "query"), (q, s, n) => ctrl().getMyNotifications(q, s, n));
+router.patch("/me/read-all", ...mine, (q, s, n) => ctrl().markAllNotificationsRead(q, s, n));
+router.patch("/me/:recipientId/read", ...mine, (q, s, n) => ctrl().markNotificationRead(q, s, n));
 
-router.post(
-	"/school",
-	authenticate,
-	requireTenant,
-	requireSchoolAdmin,
-	validate(SendSchoolNotificationDto),
-	(req, res, next) => ctrl().sendSchoolNotification(req, res, next),
-);
+router.get("/platform-inbox", ...guard("notifications.platform.view"), validate(ListNotificationsDto, "query"), (q, s, n) => ctrl().getPlatformInbox(q, s, n));
+router.patch("/platform-inbox/:recipientId/read", ...guard("notifications.platform.view"), (q, s, n) => ctrl().markPlatformMessageRead(q, s, n));
 
-// ── Platform notifications (super admin only) ─────────────────────────────
-router.get(
-	"/platform",
-	authenticate,
-	requireSuperAdmin,
-	validate(ListNotificationsDto, "query"),
-	(req, res, next) => ctrl().getPlatformNotifications(req, res, next),
-);
-
-router.post(
-	"/platform",
-	authenticate,
-	requireSuperAdmin,
-	validate(SendPlatformNotificationDto),
-	(req, res, next) => ctrl().sendPlatformNotification(req, res, next),
-);
-
-// ── Current user's notifications ──────────────────────────────────────────
-router.get(
-	"/me",
-	authenticate,
-	validate(ListNotificationsDto, "query"),
-	(req, res, next) => ctrl().getMyNotifications(req, res, next),
-);
-
-// ── Mark one notification as read ─────────────────────────────────────────
-router.patch(
-	"/:recipientId/read",
-	authenticate,
-	(req, res, next) => ctrl().markNotificationRead(req, res, next),
-);
-
-// ── Mark all current user's notifications as read ─────────────────────────
-router.patch(
-	"/me/read-all",
-	authenticate,
-	(req, res, next) => ctrl().markAllNotificationsRead(req, res, next),
-);
+router.get("/platform", authenticate, requireSuperAdmin, validate(ListNotificationsDto, "query"), (q, s, n) => ctrl().getPlatformNotifications(q, s, n));
+router.post("/platform", authenticate, requireSuperAdmin, validate(SendPlatformNotificationDto), (q, s, n) => ctrl().sendPlatformNotification(q, s, n));
 
 export default router;

@@ -1,9 +1,13 @@
-import { asClass, asValue }  from "awilix";
+import { asClass, asFunction, asValue }  from "awilix";
 import type { AwilixContainer } from "awilix";
 import { prisma }            from "../infrastructure/database/prisma/prisma.client";
 import { TenantContext }     from "../infrastructure/database/prisma/tenant.context";
 import { MailService }       from "../infrastructure/mail/mail.service";
 import { SmsService }        from "../infrastructure/sms/sms.service";
+import { ChannelRegistry }   from "../infrastructure/notifications/channel.registry";
+import { EmailNotificationChannel } from "../infrastructure/notifications/providers/email.channel";
+import { SmsNotificationChannel }   from "../infrastructure/notifications/providers/sms.channel";
+import { InAppNotificationChannel } from "../infrastructure/notifications/providers/in-app.channel";
 import { SupabaseStorageService } from "../infrastructure/storage/supabase-storage.service";
 import { PaystackProvider } from "../infrastructure/payments/paystack.provider";
 import { PaystackTransferProvider } from "../infrastructure/payments/paystack-transfer.provider";
@@ -31,6 +35,15 @@ export const registerShared = (container: AwilixContainer): void => {
         // ── Communication ────────────────────────────────────────────────
         mailService:   asClass(MailService).singleton(),
         smsService:    asClass(SmsService).singleton(),
+
+        // One delivery road per channel (email, SMS, in-app). WhatsApp has no provider yet, so it is not registered.
+        channelRegistry: asFunction(({ mailService, smsService }: { mailService: MailService; smsService: SmsService }) => {
+            const registry = new ChannelRegistry();
+            registry.register(new EmailNotificationChannel(mailService));
+            registry.register(new SmsNotificationChannel(smsService));
+            registry.register(new InAppNotificationChannel());
+            return registry;
+        }).singleton(),
 
         // ── Storage (uncomment when built) ───────────────────────────────
         storageService: asClass(SupabaseStorageService).singleton(),

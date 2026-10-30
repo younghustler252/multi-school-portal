@@ -2,18 +2,14 @@ import { z } from "zod";
 
 // ── Send school notification ──────────────────────────────────────────────
 export const SendSchoolNotificationDto = z.object({
-    title:      z.string().min(1).max(100),
-    message:    z.string().min(1),
+    title:      z.string().trim().min(1).max(100).refine(t => !/[\r\n]/.test(t), "The title must be one line"),
+    message:    z.string().trim().min(1).max(2000),
     type:       z.enum([
-                    "fee_invoice",
-                    "fee_reminder",
-                    "fee_receipt",
-                    "report_card_ready",
-                    "attendance_alert",
                     "event",
                     "holiday",
                     "broadcast",
                     "custom",
+                    "fee_reminder",
                 ]),
     targetType: z.enum([
                     "STUDENT",
@@ -24,22 +20,22 @@ export const SendSchoolNotificationDto = z.object({
                     "ALL_STAFF",
                     "EVERYONE",
                 ]),
-    channels:   z.array(z.enum(["IN_APP", "EMAIL", "SMS"])).min(1),
-    metadata: z.record(z.string(), z.any()).optional(),
+    channels:   z.array(z.enum(["IN_APP", "EMAIL", "SMS"])).min(1).max(3),
+    metadata: z.record(z.string().max(50), z.union([z.string().max(200), z.number(), z.boolean()])).optional().refine(m => !m || Object.keys(m).length <= 10, "At most 10 metadata values"),
 
     // General (school-wide) messages skip graduates and the families of graduates only; set true to include them.
     includeGraduates: z.boolean().default(false),
 
     // Specific recipients (optional)
-    studentIds:  z.array(z.string().uuid()).optional(),
-    guardianIds: z.array(z.string().uuid()).optional(),
-    staffIds:    z.array(z.string().uuid()).optional(),
-});
+    studentIds:  z.array(z.string().uuid()).max(500).optional(),
+    guardianIds: z.array(z.string().uuid()).max(500).optional(),
+    staffIds:    z.array(z.string().uuid()).max(500).optional(),
+}).strict();
 
 // ── Send platform notification ────────────────────────────────────────────
 export const SendPlatformNotificationDto = z.object({
-    title:     z.string().min(1).max(100),
-    message:   z.string().min(1),
+    title:     z.string().trim().min(1).max(100).refine(t => !/[\r\n]/.test(t), "The title must be one line"),
+    message:   z.string().trim().min(1).max(2000),
     type:      z.enum([
                    "welcome",
                    "feature_announcement",

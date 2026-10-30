@@ -47,13 +47,15 @@ export interface PlatformNotificationRecipientEntity {
 }
 
 // NEW — was missing entirely; createRecipient() had no typed return because of this gap
+export type RecipientKind = "STUDENT" | "GUARDIAN" | "STAFF";
+
 export interface SchoolNotificationRecipientEntity {
-    id:             string;
-    notificationId: string;
-    studentId:      string | null;
-    guardianId:     string | null;
-    staffId:        string | null;
-    channel:        string;
+    id:                string;
+    notificationId:    string;
+    recipientType:     RecipientKind;
+    recipientEntityId: string;
+    userId:            string | null;
+    channel:           string;
     status:         string;
     priority:       string;
     retryCount:     number;

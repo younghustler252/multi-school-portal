@@ -8,6 +8,8 @@
 | can hold anything), then split into paragraphs. SMS and in-app text stay plain text.
 |--------------------------------------------------------------------------
 */
+import { escapeHtml } from "../../../shared/utils/html";
+
 export type MessageChannel = "IN_APP" | "EMAIL" | "SMS";
 
 export const PLACEHOLDER = /\{\{\s*([a-z][a-z0-9_]*)\s*\}\}/g;
@@ -20,8 +22,7 @@ const CONTROL = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g;
 
 export const placeholdersIn = (text: string): string[] => [...new Set([...text.matchAll(PLACEHOLDER)].map(m => m[1]))];
 
-export const escapeHtml = (text: string): string =>
-    text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+export { escapeHtml };
 
 export interface TemplateText { subject?: string | null; body: string }
 

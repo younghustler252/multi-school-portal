@@ -21,6 +21,7 @@ import { BANK_RECONCILIATION_PERMISSIONS } from "../modules/bank-reconciliation/
 import { PAYROLL_TRANSFER_PERMISSIONS } from "../modules/payroll-transfers/payroll-transfers.permissions";
 import { SCHOOL_SETTINGS_PERMISSIONS } from "../modules/school-settings/school-settings.permissions";
 import { MESSAGE_TEMPLATE_PERMISSIONS } from "../modules/message-templates/message-templates.permissions";
+import { NOTIFICATION_PERMISSIONS } from "../modules/notifications/notifications.permissions";
 
 /*
 |--------------------------------------------------------------------------
@@ -84,6 +85,7 @@ const ALL: readonly PermissionDef[] = [
     ...PAYROLL_TRANSFER_PERMISSIONS,
     ...SCHOOL_SETTINGS_PERMISSIONS,
     ...MESSAGE_TEMPLATE_PERMISSIONS,
+    ...NOTIFICATION_PERMISSIONS,
     ...CORE_PERMISSIONS,
 ];
 

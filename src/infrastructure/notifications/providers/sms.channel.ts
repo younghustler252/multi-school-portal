@@ -8,8 +8,9 @@ export class SmsNotificationChannel implements INotificationChannel {
 
     async send(payload: NotificationChannelPayload): Promise<NotificationSendResult> {
         try {
-            const result = await this.smsService.send(payload.to, `${payload.title}: ${payload.message}`);
-            return { success: true, providerMessageId: (result as any)?.messageId };
+            const message = payload.metadata?.bodyOnly ? payload.message : `${payload.title}: ${payload.message}`;
+            await this.smsService.send({ to: payload.to, message });
+            return { success: true };
         } catch (err) {
             return { success: false, error: err instanceof Error ? err.message : "Unknown SMS error" };
         }

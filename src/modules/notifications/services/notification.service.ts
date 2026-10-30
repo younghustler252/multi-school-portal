@@ -3,6 +3,7 @@ import { ISchoolRepository }       from "../../school/repositories/school.reposi
 import { IUserRepository }         from "../../auth/repositories/user.repository";
 import { MailService } from "../../../infrastructure/mail/mail.service";
 import { PlatformNotificationType } from "../../../generated/public";
+import { escapeHtml, singleLine, textToParagraphs } from "../../../shared/utils/html";
 
 interface Dependencies {
     notificationRepository: INotificationRepository;
@@ -64,21 +65,19 @@ export class NotificationService {
         });
 
         try {
-            const adminUser = await this.userRepository.findOne({
-                schoolId: params.schoolId,
-                role:     "school_admin",
-            });
+            const adminUser = await this.notificationRepository.findSchoolAdminContact(params.schoolId);
 
             if (adminUser) {
                 await this.mailService.sendLetter(adminUser.email, {
-                    subject:    params.title,
-                    title:      params.title,
-                    greeting:   `Hi ${adminUser.firstName ?? "there"},`,
-                    paragraphs: [params.message],
+                    subject:    singleLine(params.title),
+                    title:      escapeHtml(singleLine(params.title)),
+                    greeting:   `Hi ${escapeHtml(adminUser.firstName ?? "there")},`,
+                    paragraphs: textToParagraphs(params.message),
                     footer:     "This is an automated notification from SchoolPortal.",
                 });
-
                 await this.notificationRepository.markPlatformRecipientSent(emailRecipient.id);
+            } else {
+                await this.notificationRepository.markPlatformRecipientFailed(emailRecipient.id, "No school admin contact on file");
             }
         } catch (err) {
             await this.notificationRepository.markPlatformRecipientFailed(
