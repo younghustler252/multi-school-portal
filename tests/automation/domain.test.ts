@@ -2,7 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { validateSchedule, nextRunAfter, readSchedule, describeSchedule, DEFAULT_SCHEDULE } from "../../src/modules/automation/domain/schedule";
 import { formatNaira, formatDay, daysBetween, addDays } from "../../src/modules/automation/domain/automation-format";
-import { AUTOMATION_DEFINITIONS, DEFINITION_BY_KEY, defaultParams, resolveParams, InvoiceRow } from "../../src/modules/automation/domain/automation-definitions";
+import { AUTOMATION_DEFINITIONS, FEE_DUE_SOON, FEE_OVERDUE, defaultParams, resolveParams, InvoiceRow } from "../../src/modules/automation/domain/automation-definitions";
 import { TEMPLATE_BY_KEY } from "../../src/modules/message-templates/domain/template-catalog";
 import { validateDefinitions } from "../../src/foundation/settings.engine";
 import { renderPlain, renderMessage } from "../../src/modules/message-templates/domain/template-engine";
@@ -64,8 +64,8 @@ const inv = (id: string, dueDate: string, balance = 100000n): InvoiceRow =>
     ({ invoiceId: id, invoiceNumber: id.toUpperCase(), studentId: "s1", studentName: "Tolu A", dueDate, balanceKobo: balance, guardians: [guardian] });
 
 describe("definitions", () => {
-    const dueSoon = DEFINITION_BY_KEY.get("fee.reminder_due_soon")!;
-    const overdue = DEFINITION_BY_KEY.get("fee.overdue_notice")!;
+    const dueSoon = FEE_DUE_SOON;
+    const overdue = FEE_OVERDUE;
 
     it("the registry of definitions is sound: own params are valid, templates exist and use only their own variables", () => {
         for (const d of AUTOMATION_DEFINITIONS) {

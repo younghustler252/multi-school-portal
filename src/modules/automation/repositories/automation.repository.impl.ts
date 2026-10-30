@@ -1,5 +1,5 @@
 import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
-import type { InvoiceRow } from "../domain/automation-definitions";
+import type { InvoiceRow, AbsenceRow, GuardianRow } from "../domain/automation-definitions";
 import { dayString, parseDay } from "../../ledger/domain/ledger.dates";
 import type {
     IAutomationRuleRepository, IAutomationRunRepository, IAutomationSourceRepository,
@@ -70,6 +70,25 @@ export class AutomationSourceRepositoryImpl implements IAutomationSourceReposito
             dueDate: dayString(r.dueDate as Date), balanceKobo: r.balanceKobo,
             guardians: r.student.guardianLinks.map(l => l.guardian).filter(g => g.isActive)
                 .map(g => ({ id: g.id, firstName: g.firstName, email: g.email || null, phone: g.phone, userId: g.userId })),
+        }));
+    }
+
+    async findAttendanceOn(day: string, statuses: ("absent" | "late")[]): Promise<AbsenceRow[]> {
+        const rows = await db().attendance.findMany({
+            where: { date: parseDay(day), status: { in: statuses } },
+            select: {
+                id: true, status: true, studentId: true,
+                class: { select: { name: true } },
+                student: { select: { firstName: true, lastName: true, guardianLinks: { select: { guardian: {
+                    select: { id: true, firstName: true, email: true, phone: true, userId: true, isActive: true } } } } } },
+            },
+            take: 20000,
+        });
+        return rows.map(r => ({
+            attendanceId: r.id, studentId: r.studentId, studentName: `${r.student.firstName} ${r.student.lastName}`.trim(),
+            className: r.class?.name ?? null, status: r.status as "absent" | "late", day,
+            guardians: r.student.guardianLinks.map(l => l.guardian).filter(g => g.isActive)
+                .map((g): GuardianRow => ({ id: g.id, firstName: g.firstName, email: g.email || null, phone: g.phone, userId: g.userId })),
         }));
     }
 }

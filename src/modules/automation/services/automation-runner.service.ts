@@ -1,6 +1,5 @@
 import type { IAutomationRuleRepository, IAutomationRunRepository, IAutomationSourceRepository, AutomationRuleRow, RunStatus } from "../repositories/automation.repository";
 import { AutomationChannel, DEFINITION_BY_KEY, resolveParams } from "../domain/automation-definitions";
-import { formatDay, formatNaira } from "../domain/automation-format";
 import { readSchedule, nextRunAfter } from "../domain/schedule";
 import { renderPlain } from "../../message-templates/domain/template-engine";
 import type { MessageTemplateService } from "../../message-templates/services/message-template.service";
@@ -61,34 +60,30 @@ export class AutomationRunnerService {
 
         const today = todayInFinanceZone(this.now());
         const params = resolveParams(def, rule.params);
-        const { from, to } = def.window(params, today);
-        const rows = await this.d.automationSourceRepository.findUnpaidInvoicesDueBetween(from, to);
-        const occurrences = def.select(rows, params, today);
+        const occurrences = await def.find(this.d.automationSourceRepository, params, today);
         r.matched = occurrences.length;
         if (occurrences.length === 0) return;
 
         const school = await this.d.schoolName();
+        const type = this.d.messageTemplateService.definition(def.templateKey).notificationType;
         const texts = new Map<AutomationChannel, Awaited<ReturnType<MessageTemplateService["effective"]>>>();
         for (const c of policy.allowed) texts.set(c, await this.d.messageTemplateService.effective(def.templateKey, c));
 
         const people = new Set<string>();
         const messages: OutgoingMessage[] = [];
         let broken = 0;
-        for (const { row, key } of occurrences) {
-            for (const g of row.guardians) {
+        for (const occ of occurrences) {
+            for (const g of occ.guardians) {
                 for (const channel of policy.allowed) {
                     if (channel === "EMAIL" && !g.email) continue;
                     if (channel === "SMS" && !g.phone) continue;
-                    const plain = renderPlain(texts.get(channel)!, {
-                        guardian_name: g.firstName, student_name: row.studentName, school_name: school,
-                        amount_due: formatNaira(row.balanceKobo), due_date: formatDay(row.dueDate), invoice_number: row.invoiceNumber ?? "",
-                    });
+                    const plain = renderPlain(texts.get(channel)!, { ...occ.values, guardian_name: g.firstName, school_name: school });
                     if (plain.missing.length || !plain.body) { broken++; continue; }
                     people.add(g.id);
                     messages.push({
-                        type: "fee_reminder", channel, title: plain.subject || def.name, message: plain.body,
+                        type, channel, title: plain.subject || def.name, message: plain.body,
                         recipient: { recipientType: "GUARDIAN", recipientEntityId: g.id, userId: g.userId },
-                        idempotencyKey: `auto:${rule.id}:${key}:${g.id}:${channel}`,
+                        idempotencyKey: `auto:${rule.id}:${occ.key}:${g.id}:${channel}`,
                     });
                 }
             }

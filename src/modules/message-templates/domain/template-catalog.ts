@@ -17,7 +17,7 @@ export interface TemplateDef {
     name:        string;
     description: string;
     /** The notification type this message is stored as (SchoolNotificationType). */
-    notificationType: "fee_reminder" | "fee_invoice" | "broadcast";
+    notificationType: "fee_reminder" | "fee_invoice" | "attendance_alert" | "broadcast";
     variables:   readonly TemplateVariable[];
     defaults:    Record<MessageChannel, { subject: string | null; body: string }>;
 }
@@ -29,6 +29,15 @@ const FEE_VARIABLES: readonly TemplateVariable[] = [
     { name: "amount_due",     label: "Amount still owing",     sample: "₦45,000.00" },
     { name: "due_date",       label: "Invoice due date",       sample: "15 Nov 2026" },
     { name: "invoice_number", label: "Invoice number",         sample: "INV-0042" },
+];
+
+const ATTENDANCE_VARIABLES: readonly TemplateVariable[] = [
+    { name: "guardian_name", label: "Guardian's first name", sample: "Mrs. Adeyemi" },
+    { name: "student_name",  label: "Student's name",        sample: "Tolu Adeyemi" },
+    { name: "school_name",   label: "School name",           sample: "Your School" },
+    { name: "date",          label: "Date of the register",  sample: "30 Oct 2026" },
+    { name: "class_name",    label: "Class",                 sample: "JSS 2" },
+    { name: "status",        label: "absent or late",        sample: "absent" },
 ];
 
 export const TEMPLATE_CATALOG: readonly TemplateDef[] = [
@@ -48,6 +57,15 @@ export const TEMPLATE_CATALOG: readonly TemplateDef[] = [
             IN_APP: { subject: "Fee payment overdue", body: "The fee of {{amount_due}} for {{student_name}} was due on {{due_date}} and is now overdue. Please make payment as soon as you can." },
             EMAIL:  { subject: "Fee payment overdue", body: "Hi {{guardian_name}},\n\nThe fee of {{amount_due}} for {{student_name}} was due on {{due_date}} (invoice {{invoice_number}}) and is now overdue.\n\nPlease log in to your parent portal to make payment, or contact the school office if you have already paid.\n\n— {{school_name}}" },
             SMS:    { subject: null, body: "{{school_name}}: the fee of {{amount_due}} for {{student_name}} was due on {{due_date}} and is overdue. Please pay through the parent portal." },
+        },
+    },
+    {
+        key: "attendance.absent", name: "Absence notice", notificationType: "attendance_alert", variables: ATTENDANCE_VARIABLES,
+        description: "Sent to a student's guardians when the class register marks the student absent (or late, if the school chooses).",
+        defaults: {
+            IN_APP: { subject: "Attendance notice", body: "{{student_name}} ({{class_name}}) was marked {{status}} on {{date}}." },
+            EMAIL:  { subject: "Attendance notice for {{student_name}}", body: "Hi {{guardian_name}},\n\n{{student_name}} ({{class_name}}) was marked {{status}} on {{date}}.\n\nIf this is a mistake, or you would like to explain the absence, please contact the school office.\n\n— {{school_name}}" },
+            SMS:    { subject: null, body: "{{school_name}}: {{student_name}} ({{class_name}}) was marked {{status}} on {{date}}." },
         },
     },
 ];

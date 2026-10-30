@@ -1,4 +1,4 @@
-import type { InvoiceRow } from "../domain/automation-definitions";
+import type { AutomationSources } from "../domain/automation-definitions";
 
 export interface AutomationRuleRow {
     id: string; definitionKey: string; name: string; enabled: boolean;
@@ -37,7 +37,4 @@ export interface IAutomationRunRepository {
     listForRule(ruleId: string, limit: number): Promise<RunLogRow[]>;
     latestForRules(ruleIds: string[]): Promise<Map<string, RunLogRow>>;
 }
-export interface IAutomationSourceRepository {
-    /** Unpaid or partly paid invoices with a due date in the range (both ends inclusive), each with the student's active guardians. */
-    findUnpaidInvoicesDueBetween(from: string, to: string, limit?: number): Promise<InvoiceRow[]>;
-}
+export interface IAutomationSourceRepository extends AutomationSources {}

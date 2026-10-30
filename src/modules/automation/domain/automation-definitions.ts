@@ -1,7 +1,7 @@
 import type { SettingDef, SettingValue } from "../../../foundation/settings.engine";
 import { coerceStored } from "../../../foundation/settings.engine";
 import { Schedule, DEFAULT_SCHEDULE } from "./schedule";
-import { addDays, daysBetween } from "./automation-format";
+import { addDays, daysBetween, formatDay, formatNaira } from "./automation-format";
 import { receivesFeeReminder } from "../../students/domain/student-eligibility";
 
 /*
@@ -30,8 +30,24 @@ export interface InvoiceRow {
     guardians:     GuardianRow[];
 }
 
-/** One invoice that needs a message, with the key that makes sure it is only sent once per occasion. */
-export interface Occurrence { row: InvoiceRow; key: string }
+export interface AbsenceRow {
+    attendanceId: string; studentId: string; studentName: string; className: string | null;
+    status: "absent" | "late"; day: string; guardians: GuardianRow[];
+}
+
+/** Where definitions get their facts. The runner is given the real repository; tests give a fake. */
+export interface AutomationSources {
+    /** Unpaid or partly paid invoices with a due date in the range (both ends inclusive), with the student's active guardians. */
+    findUnpaidInvoicesDueBetween(from: string, to: string, limit?: number): Promise<InvoiceRow[]>;
+    /** Attendance rows of one day with one of these statuses, with the student's active guardians. */
+    findAttendanceOn(day: string, statuses: ("absent" | "late")[]): Promise<AbsenceRow[]>;
+}
+
+/** One thing that needs a message: who gets it, the words' values, and the key that makes sure it is sent only once per occasion. */
+export interface Occurrence { key: string; guardians: GuardianRow[]; values: Record<string, string> }
+
+/** The pure part of a fee automation (also what the tests exercise). */
+export interface FeeOccurrence { row: InvoiceRow; key: string }
 
 export interface AutomationDefinition {
     key:             string;
@@ -42,15 +58,37 @@ export interface AutomationDefinition {
     params:          readonly SettingDef[];
     defaultChannels: readonly AutomationChannel[];
     defaultSchedule: Schedule;
-    /** Due dates to look at, inclusive, for a rule with these params on this day. */
+    /** Whether a school gets the rule switched on from the start. */
+    defaultEnabled:  boolean;
+    /** Everything that needs a message today for a rule with these numbers. The caller adds guardian_name and school_name. */
+    find(src: AutomationSources, params: Record<string, SettingValue>, today: string): Promise<Occurrence[]>;
+}
+
+export interface FeeDefinition extends AutomationDefinition {
+    /** Due dates to look at, inclusive. */
     window(params: Record<string, SettingValue>, today: string): { from: string; to: string };
-    select(rows: InvoiceRow[], params: Record<string, SettingValue>, today: string): Occurrence[];
+    select(rows: InvoiceRow[], params: Record<string, SettingValue>, today: string): FeeOccurrence[];
+}
+
+const feeValues = (row: InvoiceRow): Record<string, string> => ({
+    student_name: row.studentName, amount_due: formatNaira(row.balanceKobo), due_date: formatDay(row.dueDate), invoice_number: row.invoiceNumber ?? "",
+});
+
+function feeDefinition(d: Omit<FeeDefinition, "find" | "defaultEnabled"> & { defaultEnabled: boolean }): FeeDefinition {
+    return {
+        ...d,
+        async find(src, params, today) {
+            const { from, to } = d.window(params, today);
+            const rows = await src.findUnpaidInvoicesDueBetween(from, to);
+            return d.select(rows, params, today).map(o => ({ key: o.key, guardians: o.row.guardians, values: feeValues(o.row) }));
+        },
+    };
 }
 
 const num = (p: Record<string, SettingValue>, k: string): number => p[k] as number;
 
 /* ---------- fee reminder: an invoice is due soon (replaces the old hard-coded 2 day reminder) ---------- */
-const FEE_DUE_SOON: AutomationDefinition = {
+export const FEE_DUE_SOON: FeeDefinition = feeDefinition({
     key: "fee.reminder_due_soon",
     name: "Fee reminder: due soon",
     description: "Reminds a student's guardians a few days before an unpaid invoice is due. Each invoice is reminded once.",
@@ -61,14 +99,15 @@ const FEE_DUE_SOON: AutomationDefinition = {
     ],
     defaultChannels: ["IN_APP", "EMAIL"],          // what the old reminder did
     defaultSchedule: DEFAULT_SCHEDULE,             // every day at 08:00, as before
+    defaultEnabled: true,                          // the school already had this reminder before automation existed
     window: (p, today) => ({ from: today, to: addDays(today, num(p, "days_before")) }),
     select: (rows, p, today) => rows
         .filter(r => receivesFeeReminder(Number(r.balanceKobo)) && r.dueDate >= today && r.dueDate <= addDays(today, num(p, "days_before")))
         .map(row => ({ row, key: `${row.invoiceId}:${row.dueDate}` })),
-};
+});
 
 /* ---------- fee overdue notice: an invoice is past its due date and still unpaid ---------- */
-const FEE_OVERDUE: AutomationDefinition = {
+export const FEE_OVERDUE: FeeDefinition = feeDefinition({
     key: "fee.overdue_notice",
     name: "Fee notice: overdue",
     description: "Tells a student's guardians that an invoice is past its due date and still unpaid, then repeats it every few days, up to a limit.",
@@ -83,13 +122,14 @@ const FEE_OVERDUE: AutomationDefinition = {
     ],
     defaultChannels: ["IN_APP", "EMAIL"],
     defaultSchedule: DEFAULT_SCHEDULE,
+    defaultEnabled: false,
     window: (p, today) => ({
         from: addDays(today, -(num(p, "days_after") + Math.max(num(p, "repeat_every_days") * num(p, "max_notices"), 30))),
         to:   addDays(today, -num(p, "days_after")),
     }),
     select: (rows, p, today) => {
         const after = num(p, "days_after"), every = num(p, "repeat_every_days"), max = num(p, "max_notices");
-        const out: Occurrence[] = [];
+        const out: FeeOccurrence[] = [];
         for (const row of rows) {
             if (!receivesFeeReminder(Number(row.balanceKobo))) continue;
             const overdue = daysBetween(row.dueDate, today);
@@ -100,9 +140,31 @@ const FEE_OVERDUE: AutomationDefinition = {
         }
         return out;
     },
+});
+
+/* ---------- attendance: a guardian hears when the register marks the student absent (reads the attendance module's data, never writes it) ---------- */
+const ATTENDANCE_ABSENT: AutomationDefinition = {
+    key: "attendance.absent_today",
+    name: "Attendance: absence notice",
+    description: "Tells a student's guardians when today's class register marks the student absent. Each student is told once per day.",
+    templateKey: "attendance.absent",
+    params: [
+        { key: "include_late", kind: "boolean", group: "When", default: false,
+          label: "Also tell guardians about lateness", description: "When on, a student marked late is included." },
+    ],
+    defaultChannels: ["IN_APP", "SMS"],
+    defaultSchedule: { type: "daily", time: "11:00" },       // after the morning registers are taken
+    defaultEnabled: false,
+    async find(src, p, today) {
+        const rows = await src.findAttendanceOn(today, p.include_late === true ? ["absent", "late"] : ["absent"]);
+        return rows.map(r => ({
+            key: `${r.studentId}:${r.day}`, guardians: r.guardians,
+            values: { student_name: r.studentName, class_name: r.className ?? "your child's class", date: formatDay(r.day), status: r.status },
+        }));
+    },
 };
 
-export const AUTOMATION_DEFINITIONS: readonly AutomationDefinition[] = [FEE_DUE_SOON, FEE_OVERDUE];
+export const AUTOMATION_DEFINITIONS: readonly AutomationDefinition[] = [FEE_DUE_SOON, FEE_OVERDUE, ATTENDANCE_ABSENT];
 export const DEFINITION_BY_KEY: ReadonlyMap<string, AutomationDefinition> = new Map(AUTOMATION_DEFINITIONS.map(d => [d.key, d]));
 
 /** The default value of every number of a definition. */

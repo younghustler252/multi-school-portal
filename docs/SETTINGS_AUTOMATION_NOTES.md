@@ -22,13 +22,16 @@ Built on `refactor/modules`. Notifications and automation are owned by the same 
 ## Behaviour changes to know about (fee reminders)
 The old 08:00 defaulter worker was removed; `fee.reminder_due_soon` replaces it with the same defaults (2 days before, in-app + email, 08:00 Lagos). Differences: each invoice is reminded **once** (the old one repeated daily inside the window); email now respects the plan and the school's email switch; the extra notice to the school admin was dropped; reminders still follow the outstanding balance, not student status. A new, off-by-default `fee.overdue_notice` exists.
 
+## Attendance absence notice
+`attendance.absent_today` (off by default; in-app + SMS; daily 11:00) tells guardians when today's register marks their child absent, optionally late too. It only READS the attendance table (the attendance module is another developer's) and is stored as an `attendance_alert` message. One message per student per day.
+
 ## Deploy steps
 1. `npm run sync:registries` (new permission, feature and setting keys) then `npm run sync:school-roles`. New keys are not auto-given to existing editable roles; `school_admin` has everything. Principal templates carry the new keys for new schools.
 2. Activate `automation.rules.max` in the platform console and grant it per plan (it is inactive in code, so unlimited until then).
 3. Start the app: `initSchedulers` registers the 5-minute `automation-tick` and removes the old `defaulter-reminder-scheduler` once.
 
 ## Left alone on purpose
-Billing, school lifecycle and term lifecycle workers are not started by `initWorkers` (enabling billing could charge money; the owner must decide). AUTH-01 is fixed (see below).
+Billing (hourly), school lifecycle (03:00), term lifecycle (07:00) are now started by `initWorkers` and scheduled by `initSchedulers`; the old every-minute subscription expiry job is replaced by billing and removed from Redis once. The payment reconciliation worker imported the billing engine from a path outside the repo, which would have stopped the API from starting: fixed. AUTH-01 is fixed (see below).
 
 ## AUTH-01 (fixed)
 Inviting someone into a role, or changing a staff member's roles, now compares scope as well as key: the inviter must hold every permission of the role at a scope at least as wide (`canDelegateRole` in `foundation/access.service.ts`). `RoleRecord.permissions` carries the scopes and `InviteActor.scopeOf` supplies the inviter's. Grants-all roles still need a school admin. Tests: `tests/auth/role-delegation.test.ts`.

@@ -21,13 +21,12 @@ interface Deps {
 }
 const PLAN_KEY = "automation.rules.max";
 
-/* Every definition has one rule per school. It is created the first time anyone (or the tick) looks. The due-soon reminder is ON,
-   because the school already had it before automation existed; everything new starts OFF. */
+/* Every definition has one rule per school. It is created the first time anyone (or the tick) looks. A definition says whether it starts ON (only the fee reminder the school already had) or OFF. */
 export async function ensureDefaultRules(d: Pick<Deps, "automationRuleRepository">, now: Date): Promise<AutomationRuleRow[]> {
     let rules = await d.automationRuleRepository.list();
     for (const def of AUTOMATION_DEFINITIONS) {
         if (rules.some(r => r.definitionKey === def.key)) continue;
-        const enabled = def.key === "fee.reminder_due_soon";
+        const enabled = def.defaultEnabled;
         await d.automationRuleRepository.create({
             definitionKey: def.key, name: def.name, enabled, params: defaultParams(def), channels: [...def.defaultChannels],
             schedule: def.defaultSchedule, nextRunAt: enabled ? nextRunAfter(def.defaultSchedule, now) : null, templateKey: def.templateKey, createdById: null,
