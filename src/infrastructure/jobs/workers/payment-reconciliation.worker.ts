@@ -4,7 +4,7 @@ import { prisma, getTenantClient } from "../../database/prisma/prisma.client";
 import { TenantContext } from "../../database/prisma/tenant.context";
 import { container } from "../../../container";
 import { ConfirmOnlinePaymentUseCase } from "../../../modules/payments/usecases/online-payment.usecases";
-import { BillingEngine } from "../../../../billing-module-v1 (1)/modules/subscriptions/services/billing-engine.service";
+import { BillingEngine } from "../../../modules/subscriptions/services/billing-engine.service";
 
 /*
 | PAYMENT RECONCILIATION: a safety net for payments whose webhook or return visit never arrived.

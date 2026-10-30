@@ -1,40 +1,9 @@
 import { subscriptionExpiryQueue } from "../queues/subscription-expiry.queue";
 
 /*
-|--------------------------------------------------------------------------
-| SUBSCRIPTION EXPIRY SCHEDULER
-|--------------------------------------------------------------------------
-| Periodically checks subscriptions for:
-| - Upcoming expiry reminders
-| - Auto-renewal
-| - Scheduled downgrades
-| - Expired subscriptions
-| - Grace-period downgrades
-|--------------------------------------------------------------------------
+| The old every-minute subscription expiry job is replaced by the hourly billing job (queues/billing.queue.ts).
+| Earlier versions registered a repeating job in Redis; this removes it once. Removing one that is not there is harmless.
 */
-
-export const scheduleSubscriptionExpiry =
-    async (): Promise<void> => {
-        await subscriptionExpiryQueue.upsertJobScheduler(
-            "subscription-expiry-scheduler",
-            {
-                // Testing: every 1 minute
-                // Production: consider 60 * 60 * 1000
-                every: 60 * 1000,
-            },
-            {
-                name: "process-expiry",
-                data: {
-                    runAt: new Date().toISOString(),
-                },
-                opts: {
-                    removeOnComplete: true,
-                    removeOnFail: false,
-                },
-            },
-        );
-
-        console.log(
-            "⏰ Subscription expiry scheduled — every 1 minute",
-        );
-    };
+export const retireSubscriptionExpiry = async (): Promise<void> => {
+    await subscriptionExpiryQueue.removeJobScheduler("subscription-expiry-scheduler");
+};
