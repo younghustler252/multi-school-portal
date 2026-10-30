@@ -13,7 +13,7 @@ import type { InvoiceRow } from "../../src/modules/automation/domain/automation-
 const NOW = new Date("2026-10-30T07:00:00Z");           // 08:00 Lagos, Friday 2026-10-30
 const SCHOOL = "school-1";
 
-function world(opts: { prefs?: Record<string, unknown>; plan?: { email?: boolean; sms?: boolean; ruleLimit?: boolean }; invoices?: InvoiceRow[]; absences?: any[]; now?: () => Date } = {}) {
+function world(opts: { prefs?: Record<string, unknown>; plan?: { email?: boolean; sms?: boolean; ruleLimit?: boolean }; invoices?: InvoiceRow[]; absences?: any[]; payments?: any[]; now?: () => Date } = {}) {
     const rules: AutomationRuleRow[] = [];
     const logs: RunLogRow[] = [];
     const audits: any[] = [];
@@ -36,7 +36,7 @@ function world(opts: { prefs?: Record<string, unknown>; plan?: { email?: boolean
         listForRule: async (ruleId: string) => logs.filter(l => l.ruleId === ruleId),
         latestForRules: async (ids: string[]) => new Map(ids.flatMap(id => { const l = logs.filter(x => x.ruleId === id).pop(); return l ? [[id, l] as [string, RunLogRow]] : []; })),
     };
-    const source = { findUnpaidInvoicesDueBetween: async (from: string, to: string) => (opts.invoices ?? []).filter(i => i.dueDate >= from && i.dueDate <= to), findAttendanceOn: async (day: string, st: string[]) => (opts.absences ?? []).filter(a => a.day === day && st.includes(a.status)) };
+    const source = { findUnpaidInvoicesDueBetween: async (from: string, to: string) => (opts.invoices ?? []).filter(i => i.dueDate >= from && i.dueDate <= to), findConfirmedPaymentsSince: async (since: Date) => (opts.payments ?? []).filter(p => new Date(p.confirmedAt) >= since), findAttendanceOn: async (day: string, st: string[]) => (opts.absences ?? []).filter(a => a.day === day && st.includes(a.status)) };
     const templates = new MessageTemplateService({ messageTemplateRepository: { find: async () => null } as any });
     const dispatch = {
         requeued: 0,
@@ -71,13 +71,13 @@ describe("default rules", () => {
     it("one rule per automation; the old reminder is ON and runs at the old time, new ones are OFF; calling twice adds nothing", async () => {
         const w = world();
         const rules = await ensureDefaultRules(w.d, NOW);
-        assert.equal(rules.length, 3);
+        assert.equal(rules.length, 4);
         const due = rules.find(r => r.definitionKey === "fee.reminder_due_soon")!;
         assert.equal(due.enabled, true);
         assert.deepEqual(due.channels, ["IN_APP", "EMAIL"]);
         assert.equal(due.nextRunAt?.toISOString(), "2026-10-31T07:00:00.000Z");
         assert.equal(rules.find(r => r.definitionKey === "fee.overdue_notice")!.enabled, false);
-        assert.equal((await ensureDefaultRules(w.d, NOW)).length, 3);
+        assert.equal((await ensureDefaultRules(w.d, NOW)).length, 4);
     });
 });
 
@@ -193,6 +193,26 @@ describe("attendance absence notice", () => {
     });
 });
 
+describe("payment received", () => {
+    const pay = (id: string, over: any = {}) => ({ paymentId: id, confirmedAt: "2026-10-30T06:00:00Z", amountKobo: 4500000n, paidDay: "2026-10-30", receiptNumber: "RCT-7", studentNames: ["Tolu Adeyemi", "Bisi Adeyemi"], guardian: guardian("g1"), ...over });
+    const receiptRule = async (w: any) => (await ensureDefaultRules(w.d, NOW)).find(r => r.definitionKey === "fee.payment_received")!;
+
+    it("is off by default and checks every 15 minutes", async () => {
+        const rule = await receiptRule(world());
+        assert.equal(rule.enabled, false); assert.deepEqual(rule.schedule, { type: "interval", minutes: 15 });
+    });
+    it("thanks the paying guardian once per payment, naming the students and the receipt", async () => {
+        const w = world({ payments: [pay("p1"), pay("old", { confirmedAt: "2026-10-20T06:00:00Z" })] });
+        const rule = await receiptRule(w);
+        const r = await w.d.automationRunnerService.run(rule, { schoolId: SCHOOL, trigger: "MANUAL" });
+        assert.equal(r.matched, 1, "a payment older than the catch-up window is ignored");
+        const email = w.sent.find((m: any) => m.channel === "EMAIL");
+        assert.equal(email.type, "fee_receipt");
+        assert.match(email.message, /₦45,000\.00 for Tolu Adeyemi, Bisi Adeyemi on 30 Oct 2026/); assert.match(email.message, /RCT-7/);
+        assert.equal((await w.d.automationRunnerService.run(rule, { schoolId: SCHOOL, trigger: "SCHEDULE" })).created, 0);
+    });
+});
+
 describe("changing a rule", () => {
     it("turn on needs the school switch and the plan; turning off clears the next time; the audit lists what changed", async () => {
         const w = world();
@@ -241,7 +261,7 @@ describe("changing a rule", () => {
     it("list shows the school switch, channel availability and each automation's settings", async () => {
         const w = world({ plan: { email: false } });
         const out = await new ListAutomationsUseCase(w.d, () => NOW).execute(SCHOOL);
-        assert.equal(out.schoolEnabled, true); assert.equal(out.automations.length, 3);
+        assert.equal(out.schoolEnabled, true); assert.equal(out.automations.length, 4);
         assert.ok(out.channels.blocked.some((b: any) => b.channel === "EMAIL" && b.reason === "plan"));
         assert.equal(out.automations[0].params[0].key, "days_before");
     });

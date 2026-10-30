@@ -22,6 +22,9 @@ Built on `refactor/modules`. Notifications and automation are owned by the same 
 ## Behaviour changes to know about (fee reminders)
 The old 08:00 defaulter worker was removed; `fee.reminder_due_soon` replaces it with the same defaults (2 days before, in-app + email, 08:00 Lagos). Differences: each invoice is reminded **once** (the old one repeated daily inside the window); email now respects the plan and the school's email switch; the extra notice to the school admin was dropped; reminders still follow the outstanding balance, not student status. A new, off-by-default `fee.overdue_notice` exists.
 
+## Payment received
+`fee.payment_received` (off by default; in-app + email; checks every 15 minutes) thanks the guardian who paid once a payment is CONFIRMED and not reversed, with amount, students and receipt number. It polls confirmed payments instead of hooking each confirmation path (manual record, webhook, online), so it never touches the payments module and cannot be missed; one message per payment. Schedules now also support `{type:"interval", minutes}` (15 to 720, steps of 5).
+
 ## Attendance absence notice
 `attendance.absent_today` (off by default; in-app + SMS; daily 11:00) tells guardians when today's register marks their child absent, optionally late too. It only READS the attendance table (the attendance module is another developer's) and is stored as an `attendance_alert` message. One message per student per day.
 

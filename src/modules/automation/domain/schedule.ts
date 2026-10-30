@@ -12,7 +12,10 @@ const DAY_MS = 24 * 60 * MINUTE;
 
 export type Schedule =
     | { type: "daily";  time: string }
-    | { type: "weekly"; weekday: number; time: string };      // weekday: 0 = Sunday ... 6 = Saturday
+    | { type: "weekly"; weekday: number; time: string }       // weekday: 0 = Sunday ... 6 = Saturday
+    | { type: "interval"; minutes: number };                  // every N minutes (for things that should follow events closely, like receipts)
+
+export const INTERVAL_MIN = 15, INTERVAL_MAX = 720;
 
 export const DEFAULT_SCHEDULE: Schedule = { type: "daily", time: "08:00" };
 
@@ -21,9 +24,14 @@ export function validateSchedule(raw: unknown): string[] {
     if (!raw || typeof raw !== "object") return ["The schedule must say when to run"];
     const s = raw as Record<string, unknown>;
     const problems: string[] = [];
-    const allowed = s.type === "weekly" ? ["type", "weekday", "time"] : ["type", "time"];
+    const allowed = s.type === "weekly" ? ["type", "weekday", "time"] : s.type === "interval" ? ["type", "minutes"] : ["type", "time"];
     for (const k of Object.keys(s)) if (!allowed.includes(k)) problems.push(`Unknown schedule field: ${k}`);
-    if (s.type !== "daily" && s.type !== "weekly") problems.push("The schedule type must be daily or weekly");
+    if (s.type !== "daily" && s.type !== "weekly" && s.type !== "interval") { problems.push("The schedule type must be daily, weekly or interval"); return problems; }
+    if (s.type === "interval") {
+        const m = s.minutes as number;
+        if (!Number.isInteger(m) || m < INTERVAL_MIN || m > INTERVAL_MAX || m % 5 !== 0) problems.push(`The interval must be a whole number of minutes from ${INTERVAL_MIN} to ${INTERVAL_MAX}, in steps of 5`);
+        return problems;
+    }
     if (typeof s.time !== "string" || !TIME.test(s.time)) problems.push("The time must look like 08:00 (24 hour clock)");
     if (s.type === "weekly" && (!Number.isInteger(s.weekday) || (s.weekday as number) < 0 || (s.weekday as number) > 6)) {
         problems.push("The weekday must be 0 (Sunday) to 6 (Saturday)");
@@ -40,6 +48,7 @@ const minutesOf = (time: string): number => { const m = TIME.exec(time)!; return
 
 /** The first moment strictly after `after` that matches the schedule. */
 export function nextRunAfter(schedule: Schedule, after: Date): Date {
+    if (schedule.type === "interval") return new Date(after.getTime() + schedule.minutes * MINUTE);
     const offset = SCHEDULE_UTC_OFFSET_MINUTES * MINUTE;
     const local = after.getTime() + offset;                          // wall clock as if it were UTC
     const dayStart = Math.floor(local / DAY_MS) * DAY_MS;
@@ -55,4 +64,4 @@ export function nextRunAfter(schedule: Schedule, after: Date): Date {
 }
 
 export const describeSchedule = (s: Schedule): string =>
-    s.type === "daily" ? `Every day at ${s.time}` : `Every ${["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][s.weekday]} at ${s.time}`;
+    s.type === "interval" ? `Every ${s.minutes} minutes` : s.type === "daily" ? `Every day at ${s.time}` : `Every ${["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][s.weekday]} at ${s.time}`;

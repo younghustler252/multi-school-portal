@@ -1,6 +1,7 @@
 import type { SettingDef, SettingValue } from "../../../foundation/settings.engine";
 import { coerceStored } from "../../../foundation/settings.engine";
 import { Schedule, DEFAULT_SCHEDULE } from "./schedule";
+import { parseDay } from "../../ledger/domain/ledger.dates";
 import { addDays, daysBetween, formatDay, formatNaira } from "./automation-format";
 import { receivesFeeReminder } from "../../students/domain/student-eligibility";
 
@@ -35,12 +36,18 @@ export interface AbsenceRow {
     status: "absent" | "late"; day: string; guardians: GuardianRow[];
 }
 
+export interface PaymentRow {
+    paymentId: string; amountKobo: bigint; paidDay: string; receiptNumber: string | null; studentNames: string[]; guardian: GuardianRow;
+}
+
 /** Where definitions get their facts. The runner is given the real repository; tests give a fake. */
 export interface AutomationSources {
     /** Unpaid or partly paid invoices with a due date in the range (both ends inclusive), with the student's active guardians. */
     findUnpaidInvoicesDueBetween(from: string, to: string, limit?: number): Promise<InvoiceRow[]>;
     /** Attendance rows of one day with one of these statuses, with the student's active guardians. */
     findAttendanceOn(day: string, statuses: ("absent" | "late")[]): Promise<AbsenceRow[]>;
+    /** Payments confirmed since this moment (not reversed) made by a guardian, with the students they were allocated to. */
+    findConfirmedPaymentsSince(since: Date): Promise<PaymentRow[]>;
 }
 
 /** One thing that needs a message: who gets it, the words' values, and the key that makes sure it is sent only once per occasion. */
@@ -142,6 +149,29 @@ export const FEE_OVERDUE: FeeDefinition = feeDefinition({
     },
 });
 
+/* ---------- payment received: the guardian who paid hears it once the school has confirmed the payment ---------- */
+const FEE_RECEIPT: AutomationDefinition = {
+    key: "fee.payment_received",
+    name: "Payment received",
+    description: "Thanks the guardian who paid, once the payment is confirmed, with the amount and receipt number. Each payment is told once.",
+    templateKey: "fee.receipt",
+    params: [
+        { key: "days_back", kind: "integer", group: "When", default: 2, min: 0, max: 7,
+          label: "Catch-up window (days)", description: "Payments confirmed in the last few days are still told if the system was down. Each payment is only ever told once." },
+    ],
+    defaultChannels: ["IN_APP", "EMAIL"],
+    defaultSchedule: { type: "interval", minutes: 15 },
+    defaultEnabled: false,
+    async find(src, p, today) {
+        const since = new Date(parseDay(addDays(today, -num(p, "days_back"))).getTime() - 60 * 60 * 1000);   // midnight in Lagos
+        const rows = await src.findConfirmedPaymentsSince(since);
+        return rows.map(r => ({
+            key: r.paymentId, guardians: [r.guardian],
+            values: { student_name: r.studentNames.length ? r.studentNames.join(", ") : "your child", amount_paid: formatNaira(r.amountKobo), paid_date: formatDay(r.paidDay), receipt_number: r.receiptNumber ?? "" },
+        }));
+    },
+};
+
 /* ---------- attendance: a guardian hears when the register marks the student absent (reads the attendance module's data, never writes it) ---------- */
 const ATTENDANCE_ABSENT: AutomationDefinition = {
     key: "attendance.absent_today",
@@ -164,7 +194,7 @@ const ATTENDANCE_ABSENT: AutomationDefinition = {
     },
 };
 
-export const AUTOMATION_DEFINITIONS: readonly AutomationDefinition[] = [FEE_DUE_SOON, FEE_OVERDUE, ATTENDANCE_ABSENT];
+export const AUTOMATION_DEFINITIONS: readonly AutomationDefinition[] = [FEE_DUE_SOON, FEE_OVERDUE, FEE_RECEIPT, ATTENDANCE_ABSENT];
 export const DEFINITION_BY_KEY: ReadonlyMap<string, AutomationDefinition> = new Map(AUTOMATION_DEFINITIONS.map(d => [d.key, d]));
 
 /** The default value of every number of a definition. */

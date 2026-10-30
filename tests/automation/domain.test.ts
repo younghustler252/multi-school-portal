@@ -42,6 +42,17 @@ describe("schedule", () => {
     });
 });
 
+describe("interval schedule", () => {
+    it("next run is N minutes after the given moment; validation bounds it", () => {
+        assert.equal(nextRunAfter({ type: "interval", minutes: 15 }, at("2026-10-30T07:02:00Z")).toISOString(), "2026-10-30T07:17:00.000Z");
+        assert.deepEqual(validateSchedule({ type: "interval", minutes: 15 }), []);
+        for (const bad of [{ minutes: 5 }, { minutes: 16 }, { minutes: 721 }, { minutes: 1.5 }, {}, { minutes: 30, time: "08:00" }]) {
+            assert.ok(validateSchedule({ type: "interval", ...bad }).length, JSON.stringify(bad));
+        }
+        assert.equal(describeSchedule({ type: "interval", minutes: 30 }), "Every 30 minutes");
+    });
+});
+
 describe("formatting", () => {
     it("money is exact for any size and never goes through a float", () => {
         assert.equal(formatNaira(4500000n), "₦45,000.00");

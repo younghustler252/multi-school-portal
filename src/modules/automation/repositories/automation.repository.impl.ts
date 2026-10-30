@@ -1,6 +1,6 @@
 import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
-import type { InvoiceRow, AbsenceRow, GuardianRow } from "../domain/automation-definitions";
-import { dayString, parseDay } from "../../ledger/domain/ledger.dates";
+import type { InvoiceRow, AbsenceRow, GuardianRow, PaymentRow } from "../domain/automation-definitions";
+import { dayString, parseDay, todayInFinanceZone } from "../../ledger/domain/ledger.dates";
 import type {
     IAutomationRuleRepository, IAutomationRunRepository, IAutomationSourceRepository,
     AutomationRuleRow, NewRule, RuleChanges, NewRunLog, RunLogRow,
@@ -89,6 +89,24 @@ export class AutomationSourceRepositoryImpl implements IAutomationSourceReposito
             className: r.class?.name ?? null, status: r.status as "absent" | "late", day,
             guardians: r.student.guardianLinks.map(l => l.guardian).filter(g => g.isActive)
                 .map((g): GuardianRow => ({ id: g.id, firstName: g.firstName, email: g.email || null, phone: g.phone, userId: g.userId })),
+        }));
+    }
+
+    async findConfirmedPaymentsSince(since: Date): Promise<PaymentRow[]> {
+        const rows = await db().payment.findMany({
+            where: { status: "CONFIRMED", reversedAt: null, guardianId: { not: null }, confirmedAt: { gte: since } },
+            select: {
+                id: true, amountKobo: true, confirmedAt: true, paidAt: true,
+                guardian: { select: { id: true, firstName: true, email: true, phone: true, userId: true, isActive: true } },
+                receipt: { select: { receiptNumber: true } },
+                allocations: { where: { reversedAt: null }, select: { student: { select: { firstName: true, lastName: true } } } },
+            },
+            orderBy: { confirmedAt: "asc" }, take: 5000,
+        });
+        return rows.filter(r => r.guardian && r.guardian.isActive).map(r => ({
+            paymentId: r.id, amountKobo: r.amountKobo, paidDay: todayInFinanceZone((r.paidAt ?? r.confirmedAt) as Date), receiptNumber: r.receipt?.receiptNumber ?? null,
+            studentNames: [...new Set(r.allocations.map(a => `${a.student.firstName} ${a.student.lastName}`.trim()))],
+            guardian: { id: r.guardian!.id, firstName: r.guardian!.firstName, email: r.guardian!.email || null, phone: r.guardian!.phone, userId: r.guardian!.userId },
         }));
     }
 }
