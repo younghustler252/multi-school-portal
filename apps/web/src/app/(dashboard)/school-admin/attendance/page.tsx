@@ -1,0 +1,166 @@
+"use client";
+
+import { useState, useMemo, useEffect } from "react";
+import { Loader2, CheckCheck } from "lucide-react";
+import { toast } from "sonner";
+import { PageHeader } from "@/components/layout/page-header";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+	Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import { StatusPicker } from "@/features/attendance/components/status-picker";
+import { useScopedClasses } from "@/features/attendance/hooks/use-scoped-classes";
+import { useCurrentSession } from "@/features/school/hooks/use-sessions";
+import { useEnrolments } from "@/features/enrolment/hooks/use-enrolments";
+import { useStudentsBatch } from "@/features/students/hooks/use-students";
+import { useAttendance, useBulkMarkAttendance } from "@/features/attendance/hooks/use-attendance";
+import { AttendanceStatus, BulkAttendanceRecord } from "@/features/attendance/types/attendance.types";
+import { ApiErrorResponse } from "@/types/api-response";
+
+function todayISO() {
+	return new Date().toISOString().slice(0, 10);
+}
+
+export default function AttendancePage() {
+	const [classId, setClassId] = useState("");
+	const [date, setDate] = useState(todayISO());
+	const [draft, setDraft] = useState<Record<string, AttendanceStatus>>({});
+
+	const { classes } = useScopedClasses();
+	const { data: currentSession } = useCurrentSession();
+	const termId = currentSession?.currentTerm?.id;
+
+	useEffect(() => {
+		if (!classId && classes.length > 0) setClassId(classes[0].id);
+	}, [classes, classId]);
+
+	const { data: enrolmentData, isLoading: enrolmentsLoading } = useEnrolments({
+		classId: classId || undefined,
+		termId,
+		status: "active",
+	});
+
+	const studentIds = useMemo(
+		() => enrolmentData?.enrolments.map((e) => e.studentId) ?? [],
+		[enrolmentData]
+	);
+	const { data: students } = useStudentsBatch(studentIds);
+
+	const { data: existingRecords, isLoading: recordsLoading } = useAttendance({
+		classId: classId || undefined,
+		termId,
+		date,
+	});
+	const bulkMark = useBulkMarkAttendance();
+
+	const roster = students ?? [];
+
+	function statusFor(studentId: string): AttendanceStatus {
+		if (draft[studentId]) return draft[studentId];
+		const existing = existingRecords?.find((r) => r.studentId === studentId);
+		return existing?.status ?? "present";
+	}
+
+	function setStatus(studentId: string, status: AttendanceStatus) {
+		setDraft((prev) => ({ ...prev, [studentId]: status }));
+	}
+
+	function markAllPresent() {
+		const next: Record<string, AttendanceStatus> = {};
+		roster.forEach((s) => { next[s.id] = "present"; });
+		setDraft(next);
+	}
+
+	async function handleSubmit() {
+		if (!termId || !classId) return;
+		const records: BulkAttendanceRecord[] = roster.map((s) => ({
+			studentId: s.id,
+			status: statusFor(s.id),
+		}));
+
+		try {
+			await bulkMark.mutateAsync({ termId, date, records });
+			toast.success("Attendance saved");
+			setDraft({});
+		} catch (err) {
+			const apiErr = err as ApiErrorResponse;
+			toast.error(apiErr.message || "Couldn't save attendance");
+		}
+	}
+
+	return (
+		<>
+			<PageHeader title="Attendance" description="Mark daily attendance for a class." />
+
+			<div className="mb-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
+				<div className="space-y-1.5 sm:w-56">
+					<label className="text-xs text-muted-foreground">Class</label>
+					<Select value={classId} onValueChange={(v) => setClassId(v ?? "")}>
+						<SelectTrigger className="w-full">
+							<SelectValue placeholder="Select a class">
+								{(value: string | null) => classes.find((c) => c.id === value)?.name ?? "Select a class"}
+							</SelectValue>
+						</SelectTrigger>
+						<SelectContent>
+							{classes.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+						</SelectContent>
+					</Select>
+				</div>
+
+				<div className="space-y-1.5 sm:w-44">
+					<label className="text-xs text-muted-foreground">Date</label>
+					<Input type="date" value={date} onChange={(e) => setDate(e.target.value)} max={todayISO()} className="w-full" />
+				</div>
+
+				{roster.length > 0 && (
+					<Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={markAllPresent}>
+						<CheckCheck className="size-3.5" /> Mark all present
+					</Button>
+				)}
+			</div>
+
+			{!termId && <p className="text-sm text-muted-foreground">No current term set — set one in Settings → Term &amp; calendar first.</p>}
+			{termId && !classId && <p className="text-sm text-muted-foreground">Select a class to begin.</p>}
+
+			{termId && classId && (enrolmentsLoading || recordsLoading) && (
+				<div className="space-y-2">
+					{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}
+				</div>
+			)}
+
+			{termId && classId && !enrolmentsLoading && roster.length === 0 && (
+				<p className="text-sm text-muted-foreground">No students enrolled in this class this term.</p>
+			)}
+
+			{termId && classId && roster.length > 0 && !enrolmentsLoading && (
+				<>
+					<div className="overflow-hidden rounded-xl border border-border bg-card/60 pb-20 sm:pb-0">
+						{roster.map((student, i) => (
+							<div
+								key={student.id}
+								className={`flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between ${i > 0 ? "border-t border-border" : ""}`}
+							>
+								<span className="text-sm font-medium">
+									{student.firstName} {student.lastName}
+									{student.admissionNumber && (
+										<span className="ml-1.5 text-xs font-normal text-muted-foreground">#{student.admissionNumber}</span>
+									)}
+								</span>
+								<StatusPicker value={statusFor(student.id)} onChange={(status) => setStatus(student.id, status)} />
+							</div>
+						))}
+					</div>
+
+					<div className="fixed inset-x-0 bottom-0 z-10 border-t border-border bg-background/95 p-4 backdrop-blur sm:sticky sm:mt-4 sm:flex sm:justify-end sm:bg-background/80 sm:p-3">
+						<Button className="w-full sm:w-auto" onClick={handleSubmit} disabled={bulkMark.isPending}>
+							{bulkMark.isPending && <Loader2 className="size-4 animate-spin" />}
+							{bulkMark.isPending ? "Saving…" : "Save attendance"}
+						</Button>
+					</div>
+				</>
+			)}
+		</>
+	);
+}

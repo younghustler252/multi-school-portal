@@ -1,0 +1,92 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
+import { Menu, Search, Sun, Moon, UserCircle, Settings, LogOut, MessageSquarePlus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+	DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { NotificationBell } from "./notification-bell";
+import { FeedbackDialog } from "@/features/feedback/components/feedback-dialog";
+import { Role } from "@/types/roles";
+import { useAuthStore } from "@/stores/auth.store";
+
+interface TopbarProps {
+	role: Role;
+	onMenuClick: () => void;
+	searchPlaceholder?: string;
+}
+
+const NOTIFICATION_INBOX_PATH: Record<Role, string> = {
+	school_admin: "/school-admin/notifications",
+	teacher: "/teacher/notifications",
+	bursar: "/bursar/notifications",
+	principal: "/principal/notifications",
+	student: "/student/notifications",
+	guardian: "/guardian/notifications",
+	super_admin: "/notifications",
+};
+
+export function Topbar({ role, onMenuClick, searchPlaceholder = "Search…" }: TopbarProps) {
+	const { theme, setTheme } = useTheme();
+	const [mounted, setMounted] = useState(false);
+	const [feedbackOpen, setFeedbackOpen] = useState(false);
+	const router = useRouter();
+	const logout = useAuthStore((s) => s.logout);
+	const user = useAuthStore((s) => s.user);
+
+	function handleLogout() {
+		logout();
+		router.push("/login");
+	}
+
+	useEffect(() => { setMounted(true); }, []);
+
+	return (
+		<header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur md:px-6">
+			<button type="button" className="lg:hidden" onClick={onMenuClick} aria-label="Open menu">
+				<Menu className="size-5" />
+			</button>
+
+			<div className="hidden h-9 max-w-md flex-1 items-center gap-2 rounded-md border border-border bg-muted/40 px-3 md:flex">
+				<Search className="size-4 text-muted-foreground" />
+				<input type="search" placeholder={searchPlaceholder} className="flex-1 bg-transparent text-sm outline-none" />
+			</div>
+
+			<div className="flex-1 md:hidden" />
+
+			<Button type="button" variant="ghost" size="icon" onClick={() => setTheme(theme === "dark" ? "light" : "dark")} aria-label="Toggle theme">
+				{mounted && theme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
+			</Button>
+
+			<NotificationBell inboxPath={NOTIFICATION_INBOX_PATH[role]} />
+
+			<DropdownMenu>
+				<DropdownMenuTrigger
+					render={
+						<Button type="button" variant="ghost" size="sm" className="gap-2">
+							<UserCircle className="size-4" />
+							<span className="hidden text-sm sm:inline">{user?.firstName ?? "Account"}</span>
+						</Button>
+					}
+				/>
+				<DropdownMenuContent align="end" className="w-[min(20rem,calc(100vw-2rem))]">
+					<DropdownMenuItem onClick={() => router.push("/settings")}>
+						<Settings className="size-4" /> Account settings
+					</DropdownMenuItem>
+					<DropdownMenuItem onClick={() => setFeedbackOpen(true)}>
+						<MessageSquarePlus className="size-4" /> Send feedback
+					</DropdownMenuItem>
+					<DropdownMenuSeparator />
+					<DropdownMenuItem onClick={handleLogout}>
+						<LogOut className="size-4" /> Log out
+					</DropdownMenuItem>
+				</DropdownMenuContent>
+			</DropdownMenu>
+
+			<FeedbackDialog open={feedbackOpen} onOpenChange={setFeedbackOpen} />
+		</header>
+	);
+}

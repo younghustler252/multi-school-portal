@@ -1,0 +1,24 @@
+{
+	"name": "SchoolOS",
+	"fullName": "SchoolOS — School Operating System",
+	"tagline": "The operating system for Nigerian schools",
+	"description": "Replace paper, spreadsheets, and disconnected tools with one organised digital system for enrolment, attendance, grades, and fees.",
+    "logoUrl": "/vercel.svg",
+	"logoLetter": "S",
+	"supportEmail": "support@schoolos.app",
+	"salesEmail": "hello@schoolos.app",
+	"website": "https://schoolos.app",
+	"socials": {
+		"twitter": "https://twitter.com/schoolos",
+		"linkedin": "https://linkedin.com/company/schoolos",
+		"instagram": "https://instagram.com/schoolos"
+	},
+	"address": {
+		"country": "Nigeria"
+	},
+	"legal": {
+		"companyName": "SchoolOS Technologies Ltd",
+		"privacyPolicyUrl": "/privacy",
+		"termsUrl": "/terms"
+	}
+}
