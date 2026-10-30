@@ -5,6 +5,7 @@ import { InviteService }     from "../services/invite.service";
 import { MembershipService, RoleRecord } from "../services/membership.service";
 import { AuthAuditService }  from "../services/auth-audit.service";
 import { legacyUserRole }    from "../services/legacy-role";
+import { canDelegateRole } from "../../../foundation/access.service";
 import { authErrors }        from "../domain/auth.errors";
 import { SendInviteDtoType } from "../dtos/invite.dto";
 import { InviteActor, RequestMeta } from "../types/auth.types";
@@ -23,7 +24,7 @@ interface Dependencies {
 | SEND INVITE
 | Route guard (users.invite) decides WHO may invite; this decides WHAT they may grant.
 |  - STAFF: the role must exist in this school, and the inviter may only grant a role
-|    whose every permission they hold themselves (a grants-all role only by a School Admin).
+|    whose every permission they hold themselves AT A SCOPE AS WIDE (OWN < ASSIGNED < BRANCH < ALL) (a grants-all role only by a School Admin).
 |    This closes the old hole where the role came straight from the request body.
 |  - GUARDIAN / STUDENT: the person record must already exist; the locked default role applies.
 |  - an existing account is allowed (it gains a second membership); someone who already holds
@@ -46,7 +47,7 @@ export class SendInviteUseCase {
             if (!role || role.persona !== "STAFF") throw authErrors.badRequest("That role does not exist");
             if (role.grantsAll) {
                 if (!actor.isAdmin) throw authErrors.roleNotAllowed();
-            } else if (!role.permissionKeys.every(k => actor.can(k))) {
+            } else if (!canDelegateRole(role.permissions, actor.scopeOf)) {
                 throw authErrors.roleNotAllowed();
             }
         } else {

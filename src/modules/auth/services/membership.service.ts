@@ -1,3 +1,4 @@
+import type { Scope } from "../../../foundation/access.service";
 import { PrismaClient } from "../../../generated/public/client";
 import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
 import { UrlService } from "../../../shared/services/url.service";
@@ -21,6 +22,8 @@ export interface RoleRecord {
     persona:           PersonaType;
     sourceTemplateKey: string | null;
     permissionKeys:    string[];
+    /** Each permission with the scope the role grants it at. */
+    permissions:       { key: string; scope: Scope }[];
 }
 
 /*
@@ -105,11 +108,12 @@ export class MembershipService {
         const db   = getTenantClient();
         const role = await db.schoolRole.findFirst({ where: { id: roleId, deletedAt: null } });
         if (!role) return null;
-        const perms = await db.schoolRolePermission.findMany({ where: { roleId }, select: { permissionKey: true } });
+        const perms = await db.schoolRolePermission.findMany({ where: { roleId }, select: { permissionKey: true, scope: true } });
         return {
             id: role.id, name: role.name, grantsAll: role.grantsAll,
             persona: role.persona as PersonaType, sourceTemplateKey: role.sourceTemplateKey ?? null,
             permissionKeys: perms.map(p => p.permissionKey),
+            permissions:    perms.map(p => ({ key: p.permissionKey, scope: p.scope as Scope })),
         };
     }
 

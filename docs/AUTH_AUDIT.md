@@ -60,7 +60,7 @@ The application mounts optional authentication and tenant resolution globally, b
 ### AUTH-01 — Role invitation checks permission keys but ignores permission scope
 
 **Severity: High (P1)**  
-**Status: Confirmed by source inspection**
+**Status: FIXED (scope-aware delegation, `canDelegateRole`; also applied to staff role changes; tests in `tests/auth/role-delegation.test.ts`)**
 
 In `src/modules/auth/usecases/send-invite.usecase.ts`, the inviter's ability to grant a non-`grantsAll` staff role is checked using:
 

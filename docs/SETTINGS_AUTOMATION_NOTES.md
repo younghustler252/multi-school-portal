@@ -28,4 +28,7 @@ The old 08:00 defaulter worker was removed; `fee.reminder_due_soon` replaces it 
 3. Start the app: `initSchedulers` registers the 5-minute `automation-tick` and removes the old `defaulter-reminder-scheduler` once.
 
 ## Left alone on purpose
-Billing, school lifecycle and term lifecycle workers are not started by `initWorkers` (enabling billing could charge money; the owner must decide). AUTH-01 is still open.
+Billing, school lifecycle and term lifecycle workers are not started by `initWorkers` (enabling billing could charge money; the owner must decide). AUTH-01 is fixed (see below).
+
+## AUTH-01 (fixed)
+Inviting someone into a role, or changing a staff member's roles, now compares scope as well as key: the inviter must hold every permission of the role at a scope at least as wide (`canDelegateRole` in `foundation/access.service.ts`). `RoleRecord.permissions` carries the scopes and `InviteActor.scopeOf` supplies the inviter's. Grants-all roles still need a school admin. Tests: `tests/auth/role-delegation.test.ts`.

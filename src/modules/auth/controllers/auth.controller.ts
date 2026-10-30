@@ -78,6 +78,7 @@ export class AuthController {
             membershipId: a.membershipId,
             isAdmin:      access.hasRoleKey("school_admin"),
             can:          (key: string) => access.can(key),
+            scopeOf:      (key: string) => access.scopeOf(key),
         };
     }
 

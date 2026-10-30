@@ -28,6 +28,17 @@ export type Realm   = "school" | "platform";
 const RANK: Record<Scope, number> = { OWN: 1, ASSIGNED: 2, BRANCH: 3, ALL: 4 };
 const LEGACY_ROLE_PRIORITY = ["school_admin", "principal", "bursar", "teacher", "student", "guardian"] as const;
 
+/** Is a held scope at least as wide as the needed one? (ALL > BRANCH > ASSIGNED > OWN; a missing scope covers nothing.) */
+export const scopeCovers = (held: Scope | null, needed: Scope): boolean => held !== null && RANK[held] >= RANK[needed];
+
+/**
+ * May someone who holds these permissions hand out a role with these permissions? Every permission of the role must be held,
+ * and held at a scope at least as wide as the role grants it. (Comparing keys alone would let a person with students.view at OWN
+ * give away students.view at ALL.) A role that grants everything is a separate rule: only a school admin may give it.
+ */
+export const canDelegateRole = (granted: ReadonlyArray<{ key: string; scope: Scope }>, scopeOf: (key: string) => Scope | null): boolean =>
+    granted.every(p => scopeCovers(scopeOf(p.key), p.scope));
+
 export class Access {
     constructor(
         readonly realm:           Realm,

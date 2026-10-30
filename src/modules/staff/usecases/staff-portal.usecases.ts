@@ -1,4 +1,5 @@
 import { AuditService } from "../../audit/services/audit.service";
+import { canDelegateRole } from "../../../foundation/access.service";
 import type { AccessService } from "../../../foundation/access.service";
 import { IStaffRepository } from "../repositories/staff.repository";
 import { MembershipService } from "../../auth/services/membership.service";
@@ -34,7 +35,7 @@ export class InviteStaffUseCase {
         return d.sendInviteUseCase.execute(
             { email: staff.email, persona: "STAFF", roleId: dto.roleId, personaEntityId: id, firstName: staff.firstName },
             schoolId,
-            { userId: actor.userId, membershipId: actor.membershipId, isAdmin: actor.isAdmin, can: (k: string) => actor.access.can(k) },
+            { userId: actor.userId, membershipId: actor.membershipId, isAdmin: actor.isAdmin, can: (k: string) => actor.access.can(k), scopeOf: (k: string) => actor.access.scopeOf(k) },
             { ip: actor.ip, userAgent: actor.userAgent },
         );
     }
@@ -67,7 +68,7 @@ export class ChangeStaffRolesUseCase {
 
         for (const role of roles) {
             if (role!.grantsAll) { if (!actor.isAdmin) throw staffErrors.roleNotAllowed(); }
-            else if (!role!.permissionKeys.every(k => actor.access.can(k))) throw staffErrors.roleNotAllowed();
+            else if (!canDelegateRole(role!.permissions, k => actor.access.scopeOf(k))) throw staffErrors.roleNotAllowed();
         }
 
         const keepsAdmin = roles.some(r => r!.sourceTemplateKey === "school_admin");

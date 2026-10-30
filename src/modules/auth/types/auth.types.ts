@@ -1,3 +1,4 @@
+import type { Scope } from "../../../foundation/access.service";
 import { UserEntity } from "../domain/auth.entity";
 
 export type PersonaType = "STAFF" | "STUDENT" | "GUARDIAN";
@@ -52,4 +53,6 @@ export interface InviteActor {
     membershipId: string | null;
     isAdmin:      boolean;
     can:          (permissionKey: string) => boolean;
+    /** The inviter's effective scope for a permission (null when not held). Roles are only delegated at or below it. */
+    scopeOf:      (permissionKey: string) => Scope | null;
 }
