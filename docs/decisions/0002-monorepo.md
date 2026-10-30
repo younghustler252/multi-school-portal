@@ -35,7 +35,7 @@ Names inside `apps/api/src` stay as they are (`foundation` already means access,
 
 ## What leaves the repository root
 Not moved, cleaned: `project.zip`, `attendance.patch`, `PROJECT_BRIEF (1).md`, `schoolos-api-documentation.md` and `swagger.yaml` (fold into `docs/` or regenerate), `backups/*.sql`, and root `public/` (goes under `apps/api/public`).
-**Database dumps are committed** (`backups/*.sql`). Check whether they hold real data; if so remove them from history as well, not just from the tree.
+Database dumps are committed (`backups/*.sql`). I checked them: they hold the table definitions only, no data rows, so there is nothing secret to scrub from history. They are still clutter; remove them and keep `backups/` in `.gitignore`.
 `tsconfig.json` still lists a stale include (`staff-module-v1/shared/context`); drop it during the move.
 
 ## Order of work
@@ -63,5 +63,4 @@ Not moved, cleaned: `project.zip`, `attendance.patch`, `PROJECT_BRIEF (1).md`, `
 ## Open questions
 - Is the web app deployed on Vercel or elsewhere? (affects step 4)
 - Does anyone have an open branch in either repository? (affects step 1)
-- Do the `backups/*.sql` files contain real data? (affects the history clean-up)
 - Do we want to keep the `schoolos-api-documentation.md` / `swagger.yaml` files, or generate API docs from `contracts` later?
