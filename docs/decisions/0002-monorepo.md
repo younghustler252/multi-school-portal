@@ -1,6 +1,6 @@
 # 0002: One repository for the API and the web app
 
-Status: **proposed** (needs a yes from everyone who has an open branch)
+Status: **done** on branch `refactor/modules` (no open branches existed, so no freeze was needed). Still to do by hand: root `npm install`, move `.env` to `apps/api`, archive the old UI repository, point hosting at `apps/web`.
 Date: 2026-10-31
 
 ## Why
