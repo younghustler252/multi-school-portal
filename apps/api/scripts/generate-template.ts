@@ -22,7 +22,7 @@ const DUMMY_DATA: ReportCardTemplateData = {
 };
 
 async function main() {
-    const outputDir = join(process.cwd(), "public", "template-previews");
+    const outputDir = join(__dirname, "..", "public", "template-previews");
 
     const templates = [
         { name: "classic", render: renderClassicTemplate },

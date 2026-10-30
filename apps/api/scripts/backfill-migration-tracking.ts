@@ -4,7 +4,7 @@ import { readdirSync } from "fs";
 import { join } from "path";
 import { prisma } from "../src/infrastructure/database/prisma/prisma.client";
 
-const TENANT_MIGRATIONS_DIR = join(process.cwd(), "prisma", "tenant-migrations");
+const TENANT_MIGRATIONS_DIR = join(__dirname, "..", "prisma", "tenant-migrations");
 
 const BACKFILL_UP_TO = "20260805000000_add_class_teacher"; // ⚠️ adjust to your real cutoff
 

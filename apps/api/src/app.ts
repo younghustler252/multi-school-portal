@@ -48,7 +48,7 @@ app.post(
 );
 // ── Static assets (no auth/tenant context needed at all) ───────────────────
 app.use("/api/v1/report-cards/template-previews", express.static(
-    join(process.cwd(), "public", "template-previews"),
+    join(__dirname, "..", "public", "template-previews"),
 ));
 
 

@@ -34,5 +34,10 @@ coverage/
 tmp/
 temp/
 
+# Database dumps (made by npm run db:backup)
+backups/
 
-/srcV2/generated/prisma
+# Next.js
+.next/
+next-env.d.ts
+*.tsbuildinfo

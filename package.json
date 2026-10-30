@@ -1,0 +1,19 @@
+{
+  "name": "multi-school-portal",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev -w apps/api",
+    "dev:worker": "npm run dev:worker -w apps/api",
+    "dev:web": "npm run dev -w apps/web",
+    "build:api": "npm run build -w apps/api",
+    "build:web": "npm run build -w apps/web",
+    "test": "npm run test -w apps/api",
+    "lint:web": "npm run lint -w apps/web",
+    "db:up": "docker compose up -d"
+  }
+}

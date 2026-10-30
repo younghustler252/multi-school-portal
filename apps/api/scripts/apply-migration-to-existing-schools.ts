@@ -6,7 +6,7 @@ import { join } from "path";
 import { prisma } from "../src/infrastructure/database/prisma/prisma.client";
 
 const DRY_RUN = process.argv.includes("--dry-run");
-const TENANT_MIGRATIONS_DIR = join(process.cwd(), "prisma", "tenant-migrations");
+const TENANT_MIGRATIONS_DIR = join(__dirname, "..", "prisma", "tenant-migrations");
 
 async function getAppliedMigrations(client: any): Promise<Set<string>> {
     try {

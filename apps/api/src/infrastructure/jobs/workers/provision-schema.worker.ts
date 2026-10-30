@@ -147,7 +147,7 @@ export const provisionSchemaWorker = new Worker<ProvisionSchemaJobData>(
 					await client.query(`CREATE SCHEMA "${schemaName}"`);
 					await client.query(`SET search_path TO "${schemaName}"`);
 
-					const tenantMigrationsDir = join(process.cwd(), "prisma", "tenant-migrations");
+					const tenantMigrationsDir = join(__dirname, "..", "..", "..", "..", "prisma", "tenant-migrations")   // apps/api/prisma, from src/ or dist/;
 					const migrations = readdirSync(tenantMigrationsDir, { withFileTypes: true })
 						.filter(entry => entry.isDirectory())
 						.map(entry => entry.name)
