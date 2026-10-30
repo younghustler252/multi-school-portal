@@ -64,7 +64,7 @@ export const ROLE_TEMPLATES: RoleTemplateDef[] = [
         description: "Works with the students and classes assigned to them.",
         permissions: [
             { key: "school.view", scope: "ALL" },
-            { key: "classes.view", scope: "ALL" }, { key: "sessions.view", scope: "ALL" }, { key: "enrolment.view", scope: "ASSIGNED" }, { key: "students.view", scope: "ASSIGNED" }, { key: "attendance.view", scope: "ASSIGNED" },
+            { key: "classes.view", scope: "ALL" }, { key: "sessions.view", scope: "ALL" }, { key: "enrolment.view", scope: "ASSIGNED" }, { key: "students.view", scope: "ASSIGNED" }, { key: "attendance.view", scope: "ASSIGNED" }, { key: "attendance.mark", scope: "ASSIGNED" },
             { key: "payroll.payslips.view", scope: "OWN" },
         ],
     },

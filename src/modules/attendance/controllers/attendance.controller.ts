@@ -1,158 +1,40 @@
 import { Request, Response, NextFunction } from "express";
-import { MarkAttendanceUseCase }       from "../usecases/mark-attendance.usecase";
-import { BulkMarkAttendanceUseCase }   from "../usecases/bulk-mark-attendance.usecase";
-import { GetAttendanceUseCase }        from "../usecases/get-attendance.usecase";
-import { GetAttendanceSummaryUseCase } from "../usecases/get-attendance-summary.usecase";
-import { UpdateAttendanceUseCase }     from "../usecases/update-attendance.usecase";
-import { GetMyChildrenAttendanceUseCase } from "../usecases/get-my-childreen-attendance";
-import {
-    sendSuccess,
-    sendCreated,
-    sendPaginated,
-}                                      from "../../../shared/utils/api-response";
-
-/*
-|--------------------------------------------------------------------------
-| ATTENDANCE CONTROLLER
-|--------------------------------------------------------------------------
-*/
+import { GetRegisterUseCase } from "../usecases/get-register.usecase";
+import { SubmitRegisterUseCase } from "../usecases/submit-register.usecase";
+import { UpdateAttendanceUseCase } from "../usecases/update-attendance.usecase";
+import { ListAttendanceUseCase } from "../usecases/list-attendance.usecase";
+import { StudentSummaryUseCase, ClassSummaryUseCase } from "../usecases/attendance-summaries.usecases";
+import { sendSuccess } from "../../../shared/utils/api-response";
+import { getAccess } from "../../../infrastructure/middleware/rbac.middleware";
+import { RegisterQuery, ListAttendanceQuery, StudentSummaryQuery, ClassSummaryQuery } from "../dtos/attendance.dto";
+import { attendanceErrors } from "../domain/attendance.errors";
+import { AttendanceActor } from "../domain/attendance.types";
 
 interface Dependencies {
-    markAttendanceUseCase:       MarkAttendanceUseCase;
-    bulkMarkAttendanceUseCase:   BulkMarkAttendanceUseCase;
-    getAttendanceUseCase:        GetAttendanceUseCase;
-    getAttendanceSummaryUseCase: GetAttendanceSummaryUseCase;
-    updateAttendanceUseCase:     UpdateAttendanceUseCase;
-    getMyChildrenAttendanceUseCase: GetMyChildrenAttendanceUseCase;
+    getRegisterUseCase: GetRegisterUseCase; submitRegisterUseCase: SubmitRegisterUseCase; updateAttendanceUseCase: UpdateAttendanceUseCase;
+    listAttendanceUseCase: ListAttendanceUseCase; studentSummaryUseCase: StudentSummaryUseCase; classSummaryUseCase: ClassSummaryUseCase;
 }
 
+/*
+| ATTENDANCE CONTROLLER (school realm, /attendance). The school is the host's school; the acting person comes ONLY from
+| the verified session (req.auth), never from the body or URL.
+*/
+const schoolIdOf = (req: Request): string => req.schoolId as string;
+const actorOf = (req: Request): AttendanceActor => { if (!req.auth) throw attendanceErrors.recordNotFound(); return { userId: req.auth.userId }; };
+
 export class AttendanceController {
-    private readonly markAttendanceUseCase:       MarkAttendanceUseCase;
-    private readonly bulkMarkAttendanceUseCase:   BulkMarkAttendanceUseCase;
-    private readonly getAttendanceUseCase:        GetAttendanceUseCase;
-    private readonly getAttendanceSummaryUseCase: GetAttendanceSummaryUseCase;
-    private readonly updateAttendanceUseCase:     UpdateAttendanceUseCase;
-    private readonly getMyChildrenAttendanceUseCase:     GetMyChildrenAttendanceUseCase;
+    constructor(private readonly d: Dependencies) {}
 
-    constructor({
-        markAttendanceUseCase,
-        bulkMarkAttendanceUseCase,
-        getAttendanceUseCase,
-        getAttendanceSummaryUseCase,
-        updateAttendanceUseCase,
-        getMyChildrenAttendanceUseCase
-    }: Dependencies) {
-        this.markAttendanceUseCase       = markAttendanceUseCase;
-        this.bulkMarkAttendanceUseCase   = bulkMarkAttendanceUseCase;
-        this.getAttendanceUseCase        = getAttendanceUseCase;
-        this.getAttendanceSummaryUseCase = getAttendanceSummaryUseCase;
-        this.updateAttendanceUseCase     = updateAttendanceUseCase;
-        this.getMyChildrenAttendanceUseCase = getMyChildrenAttendanceUseCase;
-    }
-
-    // ── Get attendance records ────────────────────────────────────────────
-    getAttendance = async (
-        req: Request, res: Response, next: NextFunction,
-    ): Promise<void> => {
+    // The validate middleware does not write query values back, so queries are parsed here
+    register = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.getRegisterUseCase.execute(String(req.params.classId), RegisterQuery.parse(req.query).date, getAccess(req)), "Register retrieved successfully"); } catch (e) { next(e); } };
+    submit   = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.submitRegisterUseCase.execute(schoolIdOf(req), String(req.params.classId), req.body, getAccess(req), actorOf(req)), "Register saved"); } catch (e) { next(e); } };
+    update   = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.updateAttendanceUseCase.execute(schoolIdOf(req), String(req.params.id), req.body, getAccess(req), actorOf(req)), "Attendance updated"); } catch (e) { next(e); } };
+    list     = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const result = await this.getAttendanceUseCase.execute(
-                req.query as any,
-            );
-            sendPaginated(res, result.data, result.meta);
-        } catch (err) { next(err); }
+            const r = await this.d.listAttendanceUseCase.execute(ListAttendanceQuery.parse(req.query), getAccess(req));
+            res.status(200).json({ success: true, message: "Attendance retrieved successfully", data: r.data, meta: r.meta });
+        } catch (e) { next(e); }
     };
-
-    // ── Get attendance summary for a student ──────────────────────────────
-    getAttendanceSummary = async (
-        req: Request, res: Response, next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.getAttendanceSummaryUseCase.execute(
-                req.params.studentId as string,
-                req.query.termId     as string,
-            );
-            sendSuccess(res, result, "Attendance summary retrieved");
-        } catch (err) { next(err); }
-    };
-
-    markAttendance = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const classId = req.params.classId as string;
-            const requestingUserId = req.user?.id as string;
-            const requestingUserRole = req.user?.role as string;
-
-            const result = await this.markAttendanceUseCase.execute(
-                req.body,
-                classId,
-                requestingUserId,
-                requestingUserRole,
-            );
-
-            sendCreated(res, result, "Attendance marked successfully");
-        } catch (err) {
-            next(err);
-        }
-    };
-
-
-
-    // ── Bulk mark attendance ──────────────────────────────────────────────
-    bulkMarkAttendance = async (
-        req: Request, res: Response, next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.bulkMarkAttendanceUseCase.execute(
-                req.body,
-            );
-            sendCreated(
-                res,
-                result,
-                `Marked ${result.marked.length} record(s). Skipped ${result.skipped.length}.`,
-            );
-        } catch (err) { next(err); }
-    };
-
-    // ── Update attendance ─────────────────────────────────────────────────
-    updateAttendance = async (
-        req: Request, res: Response, next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.updateAttendanceUseCase.execute(
-                req.params.id as string,
-                req.body,
-            );
-            sendSuccess(res, result, "Attendance updated successfully");
-        } catch (err) { next(err); }
-    };
-
-    // ── Get my children's attendance ─────────────────────────────────────────
-    getMyChildrenAttendance = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.getMyChildrenAttendanceUseCase.execute(
-                req.user?.id as string,
-                {
-                    studentId: req.query.studentId as string | undefined,
-                    termId: req.query.termId as string | undefined,
-                    page: req.query.page
-                        ? Number(req.query.page)
-                        : undefined,
-                    limit: req.query.limit
-                        ? Number(req.query.limit)
-                        : undefined,
-                },
-            );
-
-            sendPaginated(res, result.data, result.meta);
-        } catch (err) {
-            next(err);
-        }
-    };
+    studentSummary = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.studentSummaryUseCase.execute(StudentSummaryQuery.parse(req.query), getAccess(req)), "Attendance summary retrieved successfully"); } catch (e) { next(e); } };
+    classSummary   = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.classSummaryUseCase.execute(String(req.params.classId), ClassSummaryQuery.parse(req.query), getAccess(req)), "Class attendance summary retrieved successfully"); } catch (e) { next(e); } };
 }

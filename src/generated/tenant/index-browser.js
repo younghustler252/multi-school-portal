@@ -166,6 +166,8 @@ exports.Prisma.StudentScalarFieldEnum = {
   nationality: 'nationality',
   stateOfOrigin: 'stateOfOrigin',
   isActive: 'isActive',
+  graduatedAt: 'graduatedAt',
+  graduatedTermId: 'graduatedTermId',
   admittedAt: 'admittedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -305,10 +307,13 @@ exports.Prisma.AttendanceScalarFieldEnum = {
   id: 'id',
   studentId: 'studentId',
   termId: 'termId',
+  classId: 'classId',
   date: 'date',
   status: 'status',
   note: 'note',
-  createdAt: 'createdAt'
+  markedById: 'markedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.GradeScalarFieldEnum = {
@@ -490,6 +495,8 @@ exports.Prisma.InvoiceAdjustmentScalarFieldEnum = {
   decidedById: 'decidedById',
   decidedAt: 'decidedAt',
   decisionNote: 'decisionNote',
+  firstApprovedById: 'firstApprovedById',
+  firstApprovedAt: 'firstApprovedAt',
   journalId: 'journalId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -569,6 +576,8 @@ exports.Prisma.RefundScalarFieldEnum = {
   decidedById: 'decidedById',
   decidedAt: 'decidedAt',
   decisionNote: 'decisionNote',
+  firstApprovedById: 'firstApprovedById',
+  firstApprovedAt: 'firstApprovedAt',
   paidAt: 'paidAt',
   journalId: 'journalId',
   createdAt: 'createdAt',
@@ -831,6 +840,408 @@ exports.Prisma.JournalLineScalarFieldEnum = {
   memo: 'memo',
   partyType: 'partyType',
   partyId: 'partyId'
+};
+
+exports.Prisma.VendorScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  contactName: 'contactName',
+  phone: 'phone',
+  email: 'email',
+  address: 'address',
+  bankName: 'bankName',
+  accountName: 'accountName',
+  accountNumberEncrypted: 'accountNumberEncrypted',
+  accountNumberLast4: 'accountNumberLast4',
+  taxId: 'taxId',
+  notes: 'notes',
+  isActive: 'isActive',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt'
+};
+
+exports.Prisma.ExpenseScalarFieldEnum = {
+  id: 'id',
+  expenseNumber: 'expenseNumber',
+  kind: 'kind',
+  vendorId: 'vendorId',
+  reference: 'reference',
+  description: 'description',
+  expenseDate: 'expenseDate',
+  dueDate: 'dueDate',
+  totalKobo: 'totalKobo',
+  paidKobo: 'paidKobo',
+  status: 'status',
+  payFromAccountId: 'payFromAccountId',
+  termId: 'termId',
+  branchId: 'branchId',
+  recurringExpenseId: 'recurringExpenseId',
+  requestedById: 'requestedById',
+  submittedAt: 'submittedAt',
+  approvedById: 'approvedById',
+  approvedAt: 'approvedAt',
+  firstApprovedById: 'firstApprovedById',
+  firstApprovedAt: 'firstApprovedAt',
+  autoApproved: 'autoApproved',
+  rejectedById: 'rejectedById',
+  rejectedAt: 'rejectedAt',
+  rejectionReason: 'rejectionReason',
+  voidReason: 'voidReason',
+  voidedById: 'voidedById',
+  voidedAt: 'voidedAt',
+  journalId: 'journalId',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ExpenseLineScalarFieldEnum = {
+  id: 'id',
+  expenseId: 'expenseId',
+  ledgerAccountId: 'ledgerAccountId',
+  description: 'description',
+  amountKobo: 'amountKobo',
+  vatKobo: 'vatKobo',
+  sortOrder: 'sortOrder'
+};
+
+exports.Prisma.ExpensePaymentScalarFieldEnum = {
+  id: 'id',
+  expenseId: 'expenseId',
+  amountKobo: 'amountKobo',
+  paidOn: 'paidOn',
+  accountId: 'accountId',
+  method: 'method',
+  reference: 'reference',
+  paidById: 'paidById',
+  journalId: 'journalId',
+  reversedAt: 'reversedAt',
+  reversedById: 'reversedById',
+  reverseReason: 'reverseReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.RecurringExpenseScalarFieldEnum = {
+  id: 'id',
+  vendorId: 'vendorId',
+  kind: 'kind',
+  payFromAccountId: 'payFromAccountId',
+  description: 'description',
+  lines: 'lines',
+  frequency: 'frequency',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  nextRunDate: 'nextRunDate',
+  lastRunAt: 'lastRunAt',
+  autoApprove: 'autoApprove',
+  isActive: 'isActive',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.BudgetScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  sessionId: 'sessionId',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  status: 'status',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt'
+};
+
+exports.Prisma.BudgetLineScalarFieldEnum = {
+  id: 'id',
+  budgetId: 'budgetId',
+  ledgerAccountId: 'ledgerAccountId',
+  termId: 'termId',
+  plannedKobo: 'plannedKobo',
+  note: 'note',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PayComponentScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  code: 'code',
+  type: 'type',
+  calcType: 'calcType',
+  defaultValue: 'defaultValue',
+  bands: 'bands',
+  isTaxable: 'isTaxable',
+  isStatutory: 'isStatutory',
+  expenseAccountId: 'expenseAccountId',
+  liabilityAccountId: 'liabilityAccountId',
+  isActive: 'isActive',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt'
+};
+
+exports.Prisma.StaffPayProfileScalarFieldEnum = {
+  id: 'id',
+  staffId: 'staffId',
+  effectiveFrom: 'effectiveFrom',
+  effectiveTo: 'effectiveTo',
+  basicSalaryKobo: 'basicSalaryKobo',
+  payFrequency: 'payFrequency',
+  bankCode: 'bankCode',
+  bankName: 'bankName',
+  accountName: 'accountName',
+  accountNumberEncrypted: 'accountNumberEncrypted',
+  accountNumberLast4: 'accountNumberLast4',
+  taxId: 'taxId',
+  pensionId: 'pensionId',
+  isActive: 'isActive',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.StaffPayComponentScalarFieldEnum = {
+  id: 'id',
+  profileId: 'profileId',
+  componentId: 'componentId',
+  valueOverride: 'valueOverride',
+  isActive: 'isActive'
+};
+
+exports.Prisma.PayrollRunScalarFieldEnum = {
+  id: 'id',
+  runNumber: 'runNumber',
+  periodYear: 'periodYear',
+  periodMonth: 'periodMonth',
+  payDate: 'payDate',
+  status: 'status',
+  grossKobo: 'grossKobo',
+  deductionsKobo: 'deductionsKobo',
+  employerCostKobo: 'employerCostKobo',
+  netKobo: 'netKobo',
+  staffCount: 'staffCount',
+  calculatedAt: 'calculatedAt',
+  createdById: 'createdById',
+  submittedAt: 'submittedAt',
+  firstApprovedById: 'firstApprovedById',
+  firstApprovedAt: 'firstApprovedAt',
+  approvedById: 'approvedById',
+  approvedAt: 'approvedAt',
+  rejectedById: 'rejectedById',
+  rejectedAt: 'rejectedAt',
+  rejectionReason: 'rejectionReason',
+  paidAt: 'paidAt',
+  paidById: 'paidById',
+  paidOn: 'paidOn',
+  paidFromAccountId: 'paidFromAccountId',
+  paymentReference: 'paymentReference',
+  accrualJournalId: 'accrualJournalId',
+  paymentJournalId: 'paymentJournalId',
+  cancelledAt: 'cancelledAt',
+  cancelledById: 'cancelledById',
+  cancelReason: 'cancelReason',
+  notes: 'notes',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PayslipScalarFieldEnum = {
+  id: 'id',
+  runId: 'runId',
+  staffId: 'staffId',
+  payslipNumber: 'payslipNumber',
+  grossKobo: 'grossKobo',
+  totalDeductionsKobo: 'totalDeductionsKobo',
+  netKobo: 'netKobo',
+  employerContributionKobo: 'employerContributionKobo',
+  status: 'status',
+  paidAt: 'paidAt',
+  paymentReference: 'paymentReference',
+  snapshot: 'snapshot',
+  emailedAt: 'emailedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PayslipLineScalarFieldEnum = {
+  id: 'id',
+  payslipId: 'payslipId',
+  kind: 'kind',
+  componentId: 'componentId',
+  loanId: 'loanId',
+  label: 'label',
+  type: 'type',
+  amountKobo: 'amountKobo',
+  expenseAccountId: 'expenseAccountId',
+  liabilityAccountId: 'liabilityAccountId',
+  sortOrder: 'sortOrder'
+};
+
+exports.Prisma.StaffLoanScalarFieldEnum = {
+  id: 'id',
+  staffId: 'staffId',
+  principalKobo: 'principalKobo',
+  balanceKobo: 'balanceKobo',
+  monthlyRepaymentKobo: 'monthlyRepaymentKobo',
+  startYear: 'startYear',
+  startMonth: 'startMonth',
+  status: 'status',
+  reason: 'reason',
+  approvedById: 'approvedById',
+  disbursedOn: 'disbursedOn',
+  paidFromAccountId: 'paidFromAccountId',
+  disbursementJournalId: 'disbursementJournalId',
+  cancelledAt: 'cancelledAt',
+  cancelledById: 'cancelledById',
+  cancelReason: 'cancelReason',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.StaffLoanRepaymentScalarFieldEnum = {
+  id: 'id',
+  loanId: 'loanId',
+  payslipId: 'payslipId',
+  amountKobo: 'amountKobo',
+  reversedAt: 'reversedAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.PayrollRemittanceScalarFieldEnum = {
+  id: 'id',
+  liabilityAccountId: 'liabilityAccountId',
+  periodYear: 'periodYear',
+  periodMonth: 'periodMonth',
+  amountKobo: 'amountKobo',
+  paidOn: 'paidOn',
+  fromAccountId: 'fromAccountId',
+  reference: 'reference',
+  note: 'note',
+  journalId: 'journalId',
+  createdById: 'createdById',
+  reversedAt: 'reversedAt',
+  reversedById: 'reversedById',
+  reverseReason: 'reverseReason',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.BankStatementScalarFieldEnum = {
+  id: 'id',
+  ledgerAccountId: 'ledgerAccountId',
+  fileName: 'fileName',
+  fileHash: 'fileHash',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  openingBalanceKobo: 'openingBalanceKobo',
+  closingBalanceKobo: 'closingBalanceKobo',
+  lineCount: 'lineCount',
+  importedById: 'importedById',
+  importedAt: 'importedAt'
+};
+
+exports.Prisma.BankStatementLineScalarFieldEnum = {
+  id: 'id',
+  statementId: 'statementId',
+  ledgerAccountId: 'ledgerAccountId',
+  lineNumber: 'lineNumber',
+  txnDate: 'txnDate',
+  description: 'description',
+  reference: 'reference',
+  amountKobo: 'amountKobo',
+  balanceKobo: 'balanceKobo',
+  dedupeKey: 'dedupeKey',
+  matchGroupId: 'matchGroupId',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.BankMatchGroupScalarFieldEnum = {
+  id: 'id',
+  ledgerAccountId: 'ledgerAccountId',
+  kind: 'kind',
+  note: 'note',
+  createdById: 'createdById',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.BankMatchedJournalLineScalarFieldEnum = {
+  journalLineId: 'journalLineId',
+  groupId: 'groupId'
+};
+
+exports.Prisma.BankReconciliationScalarFieldEnum = {
+  id: 'id',
+  ledgerAccountId: 'ledgerAccountId',
+  periodId: 'periodId',
+  statementBalanceKobo: 'statementBalanceKobo',
+  bookBalanceKobo: 'bookBalanceKobo',
+  outstandingBookKobo: 'outstandingBookKobo',
+  note: 'note',
+  completedById: 'completedById',
+  completedAt: 'completedAt'
+};
+
+exports.Prisma.GatewaySettlementScalarFieldEnum = {
+  id: 'id',
+  provider: 'provider',
+  reference: 'reference',
+  settledOn: 'settledOn',
+  grossKobo: 'grossKobo',
+  feeKobo: 'feeKobo',
+  netKobo: 'netKobo',
+  accountId: 'accountId',
+  journalId: 'journalId',
+  itemCount: 'itemCount',
+  note: 'note',
+  recordedById: 'recordedById',
+  createdAt: 'createdAt',
+  reversedAt: 'reversedAt',
+  reversedById: 'reversedById',
+  reverseReason: 'reverseReason'
+};
+
+exports.Prisma.GatewaySettlementItemScalarFieldEnum = {
+  id: 'id',
+  settlementId: 'settlementId',
+  paymentId: 'paymentId',
+  amountKobo: 'amountKobo',
+  feeKobo: 'feeKobo'
+};
+
+exports.Prisma.SalaryTransferScalarFieldEnum = {
+  id: 'id',
+  runId: 'runId',
+  payslipId: 'payslipId',
+  staffId: 'staffId',
+  attempt: 'attempt',
+  reference: 'reference',
+  amountKobo: 'amountKobo',
+  status: 'status',
+  bankCode: 'bankCode',
+  bankName: 'bankName',
+  accountName: 'accountName',
+  accountNumberEncrypted: 'accountNumberEncrypted',
+  accountLast4: 'accountLast4',
+  recipientCode: 'recipientCode',
+  transferCode: 'transferCode',
+  fromAccountId: 'fromAccountId',
+  failureReason: 'failureReason',
+  initiatedById: 'initiatedById',
+  sentAt: 'sentAt',
+  confirmedAt: 'confirmedAt',
+  journalId: 'journalId',
+  reversalJournalId: 'reversalJournalId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -1153,6 +1564,87 @@ exports.LedgerPartyType = exports.$Enums.LedgerPartyType = {
   STAFF: 'STAFF'
 };
 
+exports.ExpenseKind = exports.$Enums.ExpenseKind = {
+  DIRECT: 'DIRECT',
+  BILL: 'BILL'
+};
+
+exports.ExpenseStatus = exports.$Enums.ExpenseStatus = {
+  DRAFT: 'DRAFT',
+  PENDING_APPROVAL: 'PENDING_APPROVAL',
+  APPROVED: 'APPROVED',
+  PARTIALLY_PAID: 'PARTIALLY_PAID',
+  PAID: 'PAID',
+  REJECTED: 'REJECTED',
+  VOID: 'VOID'
+};
+
+exports.RecurrenceFrequency = exports.$Enums.RecurrenceFrequency = {
+  WEEKLY: 'WEEKLY',
+  MONTHLY: 'MONTHLY',
+  TERMLY: 'TERMLY',
+  YEARLY: 'YEARLY'
+};
+
+exports.BudgetStatus = exports.$Enums.BudgetStatus = {
+  DRAFT: 'DRAFT',
+  ACTIVE: 'ACTIVE',
+  CLOSED: 'CLOSED'
+};
+
+exports.PayComponentType = exports.$Enums.PayComponentType = {
+  EARNING: 'EARNING',
+  DEDUCTION: 'DEDUCTION',
+  EMPLOYER_CONTRIBUTION: 'EMPLOYER_CONTRIBUTION'
+};
+
+exports.PayCalcType = exports.$Enums.PayCalcType = {
+  FIXED: 'FIXED',
+  PERCENT_OF_BASIC: 'PERCENT_OF_BASIC',
+  PERCENT_OF_GROSS: 'PERCENT_OF_GROSS',
+  BANDED: 'BANDED'
+};
+
+exports.PayrollRunStatus = exports.$Enums.PayrollRunStatus = {
+  DRAFT: 'DRAFT',
+  CALCULATED: 'CALCULATED',
+  PENDING_APPROVAL: 'PENDING_APPROVAL',
+  APPROVED: 'APPROVED',
+  PAID: 'PAID',
+  CANCELLED: 'CANCELLED'
+};
+
+exports.PayslipStatus = exports.$Enums.PayslipStatus = {
+  DRAFT: 'DRAFT',
+  FINAL: 'FINAL',
+  PAID: 'PAID',
+  VOID: 'VOID'
+};
+
+exports.LoanStatus = exports.$Enums.LoanStatus = {
+  ACTIVE: 'ACTIVE',
+  CLEARED: 'CLEARED',
+  CANCELLED: 'CANCELLED'
+};
+
+exports.BankMatchKind = exports.$Enums.BankMatchKind = {
+  AUTO: 'AUTO',
+  MANUAL: 'MANUAL',
+  CREATED: 'CREATED',
+  CLEARED: 'CLEARED'
+};
+
+exports.SalaryTransferStatus = exports.$Enums.SalaryTransferStatus = {
+  PENDING: 'PENDING',
+  SENDING: 'SENDING',
+  PROCESSING: 'PROCESSING',
+  UNKNOWN: 'UNKNOWN',
+  SUCCESS: 'SUCCESS',
+  FAILED: 'FAILED',
+  REVERSED: 'REVERSED',
+  CANCELLED: 'CANCELLED'
+};
+
 exports.Prisma.ModelName = {
   Staff: 'Staff',
   Student: 'Student',
@@ -1203,7 +1695,31 @@ exports.Prisma.ModelName = {
   LedgerAccount: 'LedgerAccount',
   FinancePeriod: 'FinancePeriod',
   JournalEntry: 'JournalEntry',
-  JournalLine: 'JournalLine'
+  JournalLine: 'JournalLine',
+  Vendor: 'Vendor',
+  Expense: 'Expense',
+  ExpenseLine: 'ExpenseLine',
+  ExpensePayment: 'ExpensePayment',
+  RecurringExpense: 'RecurringExpense',
+  Budget: 'Budget',
+  BudgetLine: 'BudgetLine',
+  PayComponent: 'PayComponent',
+  StaffPayProfile: 'StaffPayProfile',
+  StaffPayComponent: 'StaffPayComponent',
+  PayrollRun: 'PayrollRun',
+  Payslip: 'Payslip',
+  PayslipLine: 'PayslipLine',
+  StaffLoan: 'StaffLoan',
+  StaffLoanRepayment: 'StaffLoanRepayment',
+  PayrollRemittance: 'PayrollRemittance',
+  BankStatement: 'BankStatement',
+  BankStatementLine: 'BankStatementLine',
+  BankMatchGroup: 'BankMatchGroup',
+  BankMatchedJournalLine: 'BankMatchedJournalLine',
+  BankReconciliation: 'BankReconciliation',
+  GatewaySettlement: 'GatewaySettlement',
+  GatewaySettlementItem: 'GatewaySettlementItem',
+  SalaryTransfer: 'SalaryTransfer'
 };
 
 /**

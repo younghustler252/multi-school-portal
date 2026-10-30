@@ -286,6 +286,7 @@ model Class {
   progressionsTo   ClassProgression[] @relation("ProgressionTo")
   feeStructures    FeeStructure[]
   feeInvoices      FeeInvoice[]
+  attendance Attendance[]
 }
 
 model Subject {
@@ -391,18 +392,24 @@ model SchoolSettings {
 // ===== ATTENDANCE =====
 
 model Attendance {
-  id        String           @id @default(uuid())
-  studentId String
-  termId    String
-  date      DateTime
-  status    AttendanceStatus
-  note      String?
-  createdAt DateTime         @default(now())
+  id          String           @id @default(uuid())
+  studentId   String
+  termId      String
+  classId     String?          // the class the register was taken for (old rows: empty)
+  date        DateTime
+  status      AttendanceStatus
+  note        String?
+  markedById  String?          // the LOGIN (User) id of who marked it (old rows: empty)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
 
   student Student @relation(fields: [studentId], references: [id])
   term    Term    @relation(fields: [termId], references: [id])
+  class   Class?  @relation(fields: [classId], references: [id], onDelete: SetNull)
 
   @@unique([studentId, date])
+  @@index([classId, date])
+  @@index([termId, date])
 }
 
 enum AttendanceStatus {

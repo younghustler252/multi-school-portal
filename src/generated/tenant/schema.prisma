@@ -133,6 +133,8 @@ model Student {
   nationality     String?   @default("Nigerian")
   stateOfOrigin   String?
   isActive        Boolean   @default(true)
+  graduatedAt     DateTime?
+  graduatedTermId String?
   admittedAt      DateTime?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
@@ -146,6 +148,8 @@ model Student {
   discounts     StudentDiscount[]
   allocations   PaymentAllocation[]
   refunds       Refund[]
+
+  @@index([graduatedAt])
 }
 
 model Guardian {
@@ -282,6 +286,7 @@ model Class {
   progressionsTo   ClassProgression[] @relation("ProgressionTo")
   feeStructures    FeeStructure[]
   feeInvoices      FeeInvoice[]
+  attendance       Attendance[]
 }
 
 model Subject {
@@ -387,18 +392,24 @@ model SchoolSettings {
 // ===== ATTENDANCE =====
 
 model Attendance {
-  id        String           @id @default(uuid())
-  studentId String
-  termId    String
-  date      DateTime
-  status    AttendanceStatus
-  note      String?
-  createdAt DateTime         @default(now())
+  id         String           @id @default(uuid())
+  studentId  String
+  termId     String
+  classId    String? // the class the register was taken for (old rows: empty)
+  date       DateTime
+  status     AttendanceStatus
+  note       String?
+  markedById String? // the LOGIN (User) id of who marked it (old rows: empty)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
 
   student Student @relation(fields: [studentId], references: [id])
   term    Term    @relation(fields: [termId], references: [id])
+  class   Class?  @relation(fields: [classId], references: [id], onDelete: SetNull)
 
   @@unique([studentId, date])
+  @@index([classId, date])
+  @@index([termId, date])
 }
 
 enum AttendanceStatus {
@@ -781,20 +792,22 @@ model StudentDiscount {
 // Needs a second person to approve; the books are touched only on approval.
 // amountKobo is always positive; the type says which way it moves the invoice.
 model InvoiceAdjustment {
-  id            String                  @id @default(uuid())
-  invoiceId     String
-  type          AdjustmentType
-  invoiceItemId String?
-  amountKobo    BigInt
-  reason        String
-  status        InvoiceAdjustmentStatus @default(PENDING)
-  requestedById String
-  decidedById   String?
-  decidedAt     DateTime?
-  decisionNote  String?
-  journalId     String?                 @unique
-  createdAt     DateTime                @default(now())
-  updatedAt     DateTime                @updatedAt
+  id                String                  @id @default(uuid())
+  invoiceId         String
+  type              AdjustmentType
+  invoiceItemId     String?
+  amountKobo        BigInt
+  reason            String
+  status            InvoiceAdjustmentStatus @default(PENDING)
+  requestedById     String
+  decidedById       String?
+  decidedAt         DateTime?
+  decisionNote      String?
+  firstApprovedById String?
+  firstApprovedAt   DateTime?
+  journalId         String?                 @unique
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
 
   invoice     FeeInvoice      @relation(fields: [invoiceId], references: [id], onDelete: Restrict)
   invoiceItem FeeInvoiceItem? @relation(fields: [invoiceItemId], references: [id], onDelete: Restrict)
@@ -865,14 +878,15 @@ model Payment {
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
 
-  guardian        Guardian?           @relation(fields: [guardianId], references: [id], onDelete: Restrict)
-  branch          Branch?             @relation(fields: [branchId], references: [id], onDelete: Restrict)
-  account         LedgerAccount       @relation(fields: [accountId], references: [id], onDelete: Restrict)
-  proofAttachment Attachment?         @relation(fields: [proofAttachmentId], references: [id], onDelete: Restrict)
-  journal         JournalEntry?       @relation(fields: [journalId], references: [id], onDelete: Restrict)
+  guardian        Guardian?              @relation(fields: [guardianId], references: [id], onDelete: Restrict)
+  branch          Branch?                @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  account         LedgerAccount          @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  proofAttachment Attachment?            @relation(fields: [proofAttachmentId], references: [id], onDelete: Restrict)
+  journal         JournalEntry?          @relation(fields: [journalId], references: [id], onDelete: Restrict)
   allocations     PaymentAllocation[]
   refunds         Refund[]
   receipt         Receipt?
+  settlementItem  GatewaySettlementItem?
 
   @@index([status])
   @@index([guardianId])
@@ -902,21 +916,23 @@ model PaymentAllocation {
 }
 
 model Refund {
-  id              String       @id @default(uuid())
-  paymentId       String
-  studentId       String?
-  amountKobo      BigInt
-  reason          String
-  status          RefundStatus @default(REQUESTED)
-  payoutAccountId String?
-  requestedById   String
-  decidedById     String?
-  decidedAt       DateTime?
-  decisionNote    String?
-  paidAt          DateTime?
-  journalId       String?      @unique
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
+  id                String       @id @default(uuid())
+  paymentId         String
+  studentId         String?
+  amountKobo        BigInt
+  reason            String
+  status            RefundStatus @default(REQUESTED)
+  payoutAccountId   String?
+  requestedById     String
+  decidedById       String?
+  decidedAt         DateTime?
+  decisionNote      String?
+  firstApprovedById String?
+  firstApprovedAt   DateTime?
+  paidAt            DateTime?
+  journalId         String?      @unique
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
 
   payment       Payment        @relation(fields: [paymentId], references: [id], onDelete: Restrict)
   student       Student?       @relation(fields: [studentId], references: [id], onDelete: Restrict)
@@ -1341,6 +1357,18 @@ model LedgerAccount {
   payments      Payment[]
   refundPayouts Refund[]         @relation("RefundPayoutAccount")
 
+  expenseLines     ExpenseLine[]
+  expensePayFrom   Expense[]          @relation("ExpensePayFrom")
+  expensePayments  ExpensePayment[]
+  budgetLines      BudgetLine[]
+  recurringPayFrom RecurringExpense[] @relation("RecurringPayFrom")
+
+  bankStatements      BankStatement[]
+  bankMatchGroups     BankMatchGroup[]
+  bankReconciliations BankReconciliation[]
+  gatewaySettlements  GatewaySettlement[]
+  salaryTransfersFrom SalaryTransfer[]     @relation("SalaryTransferFrom")
+
   @@index([type])
   @@index([parentId])
   @@index([isActive])
@@ -1362,7 +1390,8 @@ model FinancePeriod {
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
-  journals JournalEntry[]
+  journals            JournalEntry[]
+  bankReconciliations BankReconciliation[]
 }
 
 // One money event. Immutable once posted; only status may change (POSTED to REVERSED).
@@ -1398,10 +1427,18 @@ model JournalEntry {
   reversedBy JournalEntry? @relation("JournalReversal")
   lines      JournalLine[]
 
-  feeInvoice FeeInvoice?
-  payment    Payment?
-  adjustment InvoiceAdjustment?
-  refund     Refund?
+  feeInvoice        FeeInvoice?
+  payment           Payment?
+  gatewaySettlement GatewaySettlement?
+  salaryTransfer    SalaryTransfer?    @relation("SalaryTransferJournal")
+  adjustment        InvoiceAdjustment?
+  refund            Refund?
+  expense           Expense?
+  expensePayment    ExpensePayment?
+  runAccrual        PayrollRun?        @relation("RunAccrual")
+  runPayment        PayrollRun?        @relation("RunPayment")
+  loanDisbursed     StaffLoan?
+  remittance        PayrollRemittance?
 
   @@index([periodId])
   @@index([entryDate])
@@ -1423,10 +1460,692 @@ model JournalLine {
   partyType       LedgerPartyType?
   partyId         String?
 
-  journal       JournalEntry  @relation(fields: [journalId], references: [id], onDelete: Restrict)
-  ledgerAccount LedgerAccount @relation(fields: [ledgerAccountId], references: [id], onDelete: Restrict)
+  journal       JournalEntry            @relation(fields: [journalId], references: [id], onDelete: Restrict)
+  ledgerAccount LedgerAccount           @relation(fields: [ledgerAccountId], references: [id], onDelete: Restrict)
+  bankMatch     BankMatchedJournalLine?
 
   @@unique([journalId, lineNumber])
   @@index([ledgerAccountId, journalId])
   @@index([partyType, partyId])
+}
+
+// ===== FINANCE: EXPENSES, BILLS AND BUDGETS (phase 3) =====
+
+enum ExpenseKind {
+  DIRECT // paid at once, when approved
+  BILL // owed to a supplier; paid later, in one or more payments
+}
+
+enum ExpenseStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  PARTIALLY_PAID
+  PAID
+  REJECTED
+  VOID
+}
+
+enum RecurrenceFrequency {
+  WEEKLY
+  MONTHLY
+  TERMLY
+  YEARLY
+}
+
+enum BudgetStatus {
+  DRAFT
+  ACTIVE
+  CLOSED
+}
+
+// A supplier. The bank account number is stored encrypted; only the last four digits are shown.
+model Vendor {
+  id                     String    @id @default(uuid())
+  name                   String
+  contactName            String?
+  phone                  String?
+  email                  String?
+  address                String?
+  bankName               String?
+  accountName            String?
+  accountNumberEncrypted String?
+  accountNumberLast4     String?
+  taxId                  String?
+  notes                  String?
+  isActive               Boolean   @default(true)
+  createdById            String?
+  updatedById            String?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  deletedAt              DateTime?
+
+  expenses          Expense[]
+  recurringExpenses RecurringExpense[]
+
+  @@index([name])
+  @@index([isActive])
+  @@index([deletedAt])
+}
+
+// Money the school spends. DIRECT is paid when approved; BILL is owed to the supplier (accounts payable) until paid.
+// The number is given when it is submitted, so drafts leave no gaps. Amounts are whole kobo.
+model Expense {
+  id                 String        @id @default(uuid())
+  expenseNumber      String?       @unique
+  kind               ExpenseKind
+  vendorId           String?
+  reference          String?
+  description        String
+  expenseDate        DateTime      @db.Date
+  dueDate            DateTime?     @db.Date
+  totalKobo          BigInt
+  paidKobo           BigInt        @default(0)
+  status             ExpenseStatus @default(DRAFT)
+  payFromAccountId   String?
+  termId             String?
+  branchId           String?
+  recurringExpenseId String?
+  requestedById      String
+  submittedAt        DateTime?
+  approvedById       String?
+  approvedAt         DateTime?
+  firstApprovedById  String?
+  firstApprovedAt    DateTime?
+  autoApproved       Boolean       @default(false)
+  rejectedById       String?
+  rejectedAt         DateTime?
+  rejectionReason    String?
+  voidReason         String?
+  voidedById         String?
+  voidedAt           DateTime?
+  journalId          String?       @unique
+  version            Int           @default(1)
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  vendor         Vendor?           @relation(fields: [vendorId], references: [id], onDelete: Restrict)
+  payFromAccount LedgerAccount?    @relation("ExpensePayFrom", fields: [payFromAccountId], references: [id], onDelete: Restrict)
+  recurring      RecurringExpense? @relation(fields: [recurringExpenseId], references: [id], onDelete: Restrict)
+  journal        JournalEntry?     @relation(fields: [journalId], references: [id], onDelete: Restrict)
+  lines          ExpenseLine[]
+  payments       ExpensePayment[]
+
+  @@unique([recurringExpenseId, expenseDate]) // a repeat run never makes the same expense twice
+  @@index([status])
+  @@index([kind])
+  @@index([vendorId])
+  @@index([expenseDate])
+  @@index([dueDate])
+  @@index([requestedById])
+  @@index([recurringExpenseId])
+}
+
+model ExpenseLine {
+  id              String @id @default(uuid())
+  expenseId       String
+  ledgerAccountId String
+  description     String
+  amountKobo      BigInt
+  vatKobo         BigInt @default(0)
+  sortOrder       Int    @default(0)
+
+  expense       Expense       @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  ledgerAccount LedgerAccount @relation(fields: [ledgerAccountId], references: [id], onDelete: Restrict)
+
+  @@index([expenseId])
+  @@index([ledgerAccountId])
+}
+
+// One payment out for an expense (a DIRECT expense has exactly one). A reversed payment keeps its row.
+model ExpensePayment {
+  id            String        @id @default(uuid())
+  expenseId     String
+  amountKobo    BigInt
+  paidOn        DateTime      @db.Date
+  accountId     String
+  method        PaymentMethod
+  reference     String?
+  paidById      String
+  journalId     String        @unique
+  reversedAt    DateTime?
+  reversedById  String?
+  reverseReason String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  expense Expense       @relation(fields: [expenseId], references: [id], onDelete: Restrict)
+  account LedgerAccount @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  journal JournalEntry  @relation(fields: [journalId], references: [id], onDelete: Restrict)
+
+  @@index([expenseId])
+  @@index([paidOn])
+  @@index([accountId])
+}
+
+// A bill or expense that repeats. A daily job makes a draft (or an approved one) when nextRunDate arrives.
+// lines is a list of { ledgerAccountId, description, amountKobo (digit string) }.
+model RecurringExpense {
+  id               String              @id @default(uuid())
+  vendorId         String?
+  kind             ExpenseKind         @default(BILL)
+  payFromAccountId String?
+  description      String
+  lines            Json
+  frequency        RecurrenceFrequency
+  startDate        DateTime            @db.Date
+  endDate          DateTime?           @db.Date
+  nextRunDate      DateTime            @db.Date
+  lastRunAt        DateTime?
+  autoApprove      Boolean             @default(false)
+  isActive         Boolean             @default(true)
+  createdById      String
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+
+  vendor         Vendor?        @relation(fields: [vendorId], references: [id], onDelete: Restrict)
+  payFromAccount LedgerAccount? @relation("RecurringPayFrom", fields: [payFromAccountId], references: [id], onDelete: Restrict)
+  expenses       Expense[]
+
+  @@index([isActive, nextRunDate])
+}
+
+// What the school plans to earn and spend, to compare with what the books show.
+model Budget {
+  id          String       @id @default(uuid())
+  name        String
+  sessionId   String?
+  startDate   DateTime     @db.Date
+  endDate     DateTime     @db.Date
+  status      BudgetStatus @default(DRAFT)
+  createdById String
+  updatedById String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  deletedAt   DateTime?
+
+  lines BudgetLine[]
+
+  @@index([status])
+  @@index([startDate, endDate])
+  @@index([deletedAt])
+}
+
+model BudgetLine {
+  id              String   @id @default(uuid())
+  budgetId        String
+  ledgerAccountId String
+  termId          String?
+  plannedKobo     BigInt
+  note            String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  budget        Budget        @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  ledgerAccount LedgerAccount @relation(fields: [ledgerAccountId], references: [id], onDelete: Restrict)
+
+  @@index([budgetId])
+  @@index([ledgerAccountId])
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// FINANCE PHASE 5: PAYROLL (sensitive). Amounts are whole kobo; rates are basis points (1000 = 10.00%).
+// The school's accountant sets the rules as data; nothing statutory is hardcoded. Staff and ledger accounts are
+// referenced by plain id and checked in code (Finance only reads Staff and adds nothing to it).
+// ──────────────────────────────────────────────────────────────────────────
+
+enum PayComponentType {
+  EARNING
+  DEDUCTION
+  EMPLOYER_CONTRIBUTION
+}
+
+enum PayCalcType {
+  FIXED
+  PERCENT_OF_BASIC
+  PERCENT_OF_GROSS
+  BANDED
+}
+
+enum PayrollRunStatus {
+  DRAFT
+  CALCULATED
+  PENDING_APPROVAL
+  APPROVED
+  PAID
+  CANCELLED
+}
+
+enum PayslipStatus {
+  DRAFT
+  FINAL
+  PAID
+  VOID
+}
+
+enum LoanStatus {
+  ACTIVE
+  CLEARED
+  CANCELLED
+}
+
+// An earning, deduction or employer contribution. defaultValue is kobo for FIXED and basis points for the percent types.
+// bands (BANDED only): [{ "upToKobo": "30000000" | null, "rateBp": 700 }, ...] applied progressively to the month's taxable pay.
+model PayComponent {
+  id                 String           @id @default(uuid())
+  name               String
+  code               String           @unique
+  type               PayComponentType
+  calcType           PayCalcType
+  defaultValue       BigInt           @default(0)
+  bands              Json?
+  isTaxable          Boolean          @default(false)
+  isStatutory        Boolean          @default(false)
+  expenseAccountId   String?
+  liabilityAccountId String?
+  isActive           Boolean          @default(true)
+  createdById        String?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  deletedAt          DateTime?
+
+  staffComponents StaffPayComponent[]
+
+  @@index([type])
+  @@index([isActive])
+  @@index([deletedAt])
+}
+
+// What one staff member is paid, from a date. History is kept as dated rows; the current row has no end date.
+model StaffPayProfile {
+  id                     String    @id @default(uuid())
+  staffId                String
+  effectiveFrom          DateTime  @db.Date
+  effectiveTo            DateTime? @db.Date
+  basicSalaryKobo        BigInt
+  payFrequency           String    @default("MONTHLY")
+  bankCode               String?
+  bankName               String?
+  accountName            String?
+  accountNumberEncrypted String?
+  accountNumberLast4     String?
+  taxId                  String?
+  pensionId              String?
+  isActive               Boolean   @default(true)
+  createdById            String
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  components StaffPayComponent[]
+
+  @@index([staffId, effectiveFrom])
+}
+
+model StaffPayComponent {
+  id            String  @id @default(uuid())
+  profileId     String
+  componentId   String
+  valueOverride BigInt?
+  isActive      Boolean @default(true)
+
+  profile   StaffPayProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  component PayComponent    @relation(fields: [componentId], references: [id], onDelete: Restrict)
+
+  @@unique([profileId, componentId])
+  @@index([componentId])
+}
+
+// One month's pay for everyone. Only one run per month that is not cancelled (checked in code). Money is posted when it is approved and when it is paid.
+model PayrollRun {
+  id                String           @id @default(uuid())
+  runNumber         String           @unique
+  periodYear        Int
+  periodMonth       Int
+  payDate           DateTime         @db.Date
+  status            PayrollRunStatus @default(DRAFT)
+  grossKobo         BigInt           @default(0)
+  deductionsKobo    BigInt           @default(0)
+  employerCostKobo  BigInt           @default(0)
+  netKobo           BigInt           @default(0)
+  staffCount        Int              @default(0)
+  calculatedAt      DateTime?
+  createdById       String
+  submittedAt       DateTime?
+  firstApprovedById String?
+  firstApprovedAt   DateTime?
+  approvedById      String?
+  approvedAt        DateTime?
+  rejectedById      String?
+  rejectedAt        DateTime?
+  rejectionReason   String?
+  paidAt            DateTime?
+  paidById          String?
+  paidOn            DateTime?        @db.Date
+  paidFromAccountId String?
+  paymentReference  String?
+  accrualJournalId  String?          @unique
+  paymentJournalId  String?          @unique
+  cancelledAt       DateTime?
+  cancelledById     String?
+  cancelReason      String?
+  notes             String?
+  version           Int              @default(1)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  accrualJournal  JournalEntry?    @relation("RunAccrual", fields: [accrualJournalId], references: [id], onDelete: Restrict)
+  paymentJournal  JournalEntry?    @relation("RunPayment", fields: [paymentJournalId], references: [id], onDelete: Restrict)
+  payslips        Payslip[]
+  salaryTransfers SalaryTransfer[]
+
+  @@index([periodYear, periodMonth])
+  @@index([status])
+}
+
+// One staff member's pay for a run. Numbered and frozen (snapshot) when the run is approved.
+model Payslip {
+  id                       String        @id @default(uuid())
+  runId                    String
+  staffId                  String
+  payslipNumber            String?       @unique
+  grossKobo                BigInt
+  totalDeductionsKobo      BigInt
+  netKobo                  BigInt
+  employerContributionKobo BigInt        @default(0)
+  status                   PayslipStatus @default(DRAFT)
+  paidAt                   DateTime?
+  paymentReference         String?
+  snapshot                 Json?
+  emailedAt                DateTime?
+  createdAt                DateTime      @default(now())
+  updatedAt                DateTime      @updatedAt
+
+  run             PayrollRun       @relation(fields: [runId], references: [id], onDelete: Cascade)
+  lines           PayslipLine[]
+  salaryTransfers SalaryTransfer[]
+
+  @@unique([runId, staffId])
+  @@index([staffId])
+}
+
+// kind: BASIC (the basic salary), COMPONENT (a pay component) or LOAN (a loan repayment). The accounts are copied from the component when pay is calculated.
+model PayslipLine {
+  id                 String           @id @default(uuid())
+  payslipId          String
+  kind               String           @default("COMPONENT")
+  componentId        String?
+  loanId             String?
+  label              String
+  type               PayComponentType
+  amountKobo         BigInt
+  expenseAccountId   String?
+  liabilityAccountId String?
+  sortOrder          Int              @default(0)
+
+  payslip Payslip @relation(fields: [payslipId], references: [id], onDelete: Cascade)
+
+  @@index([payslipId])
+}
+
+model StaffLoan {
+  id                    String     @id @default(uuid())
+  staffId               String
+  principalKobo         BigInt
+  balanceKobo           BigInt
+  monthlyRepaymentKobo  BigInt
+  startYear             Int
+  startMonth            Int
+  status                LoanStatus @default(ACTIVE)
+  reason                String?
+  approvedById          String
+  disbursedOn           DateTime   @db.Date
+  paidFromAccountId     String
+  disbursementJournalId String     @unique
+  cancelledAt           DateTime?
+  cancelledById         String?
+  cancelReason          String?
+  version               Int        @default(1)
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime   @updatedAt
+
+  disbursementJournal JournalEntry         @relation(fields: [disbursementJournalId], references: [id], onDelete: Restrict)
+  repayments          StaffLoanRepayment[]
+
+  @@index([staffId])
+  @@index([status])
+}
+
+model StaffLoanRepayment {
+  id         String    @id @default(uuid())
+  loanId     String
+  payslipId  String
+  amountKobo BigInt
+  reversedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  loan StaffLoan @relation(fields: [loanId], references: [id], onDelete: Restrict)
+
+  @@unique([loanId, payslipId])
+}
+
+// Tax or pension paid over to the authority: debit the liability account, credit the money account.
+model PayrollRemittance {
+  id                 String    @id @default(uuid())
+  liabilityAccountId String
+  periodYear         Int
+  periodMonth        Int
+  amountKobo         BigInt
+  paidOn             DateTime  @db.Date
+  fromAccountId      String
+  reference          String?
+  note               String?
+  journalId          String    @unique
+  createdById        String
+  reversedAt         DateTime?
+  reversedById       String?
+  reverseReason      String?
+  createdAt          DateTime  @default(now())
+
+  journal JournalEntry @relation(fields: [journalId], references: [id], onDelete: Restrict)
+
+  @@index([periodYear, periodMonth])
+}
+
+// ===== FINANCE: BANK RECONCILIATION (phase 6) =====
+// A bank statement is imported as signed lines (money in is positive, money out is negative) and each line is paired with the
+// journal line(s) that record the same money. A month is signed off per money account with BankReconciliation.
+
+enum BankMatchKind {
+  AUTO // paired by the system: same amount, close dates, no other candidate as good
+  MANUAL // paired by a person
+  CREATED // the books did not have it: a journal was made from the bank line (a charge, interest)
+  CLEARED // a book entry with no bank line, set aside with a reason (an opening balance from before the statements start)
+}
+
+// One uploaded file. The same file cannot be imported twice for one account.
+model BankStatement {
+  id                 String   @id @default(uuid())
+  ledgerAccountId    String
+  fileName           String?
+  fileHash           String
+  startDate          DateTime @db.Date
+  endDate            DateTime @db.Date
+  openingBalanceKobo BigInt?
+  closingBalanceKobo BigInt?
+  lineCount          Int
+  importedById       String?
+  importedAt         DateTime @default(now())
+
+  ledgerAccount LedgerAccount       @relation(fields: [ledgerAccountId], references: [id], onDelete: Restrict)
+  lines         BankStatementLine[]
+
+  @@unique([ledgerAccountId, fileHash])
+  @@index([ledgerAccountId, endDate])
+}
+
+// One transaction as the bank printed it. dedupeKey stops an overlapping upload creating it twice.
+model BankStatementLine {
+  id              String   @id @default(uuid())
+  statementId     String
+  ledgerAccountId String
+  lineNumber      Int
+  txnDate         DateTime @db.Date
+  description     String
+  reference       String?
+  amountKobo      BigInt
+  balanceKobo     BigInt?
+  dedupeKey       String
+  matchGroupId    String?
+  createdAt       DateTime @default(now())
+
+  statement  BankStatement   @relation(fields: [statementId], references: [id], onDelete: Cascade)
+  matchGroup BankMatchGroup? @relation(fields: [matchGroupId], references: [id], onDelete: SetNull)
+
+  @@unique([ledgerAccountId, dedupeKey])
+  @@index([ledgerAccountId, txnDate])
+  @@index([statementId])
+  @@index([matchGroupId])
+}
+
+// A pairing: the bank lines and the journal lines in it add up to the same amount.
+model BankMatchGroup {
+  id              String        @id @default(uuid())
+  ledgerAccountId String
+  kind            BankMatchKind
+  note            String?
+  createdById     String?
+  createdAt       DateTime      @default(now())
+
+  ledgerAccount LedgerAccount            @relation(fields: [ledgerAccountId], references: [id], onDelete: Restrict)
+  bankLines     BankStatementLine[]
+  journalLines  BankMatchedJournalLine[]
+
+  @@index([ledgerAccountId, createdAt])
+}
+
+// A journal line can be in at most one pairing (the primary key), so it can never be counted twice.
+model BankMatchedJournalLine {
+  journalLineId String @id
+  groupId       String
+
+  group       BankMatchGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  journalLine JournalLine    @relation(fields: [journalLineId], references: [id], onDelete: Restrict)
+
+  @@index([groupId])
+}
+
+// The sign-off: this money account agreed with its bank at the end of this month. Reopening deletes the row (the audit trail keeps why).
+model BankReconciliation {
+  id                   String   @id @default(uuid())
+  ledgerAccountId      String
+  periodId             String
+  statementBalanceKobo BigInt
+  bookBalanceKobo      BigInt
+  outstandingBookKobo  BigInt
+  note                 String?
+  completedById        String?
+  completedAt          DateTime @default(now())
+
+  ledgerAccount LedgerAccount @relation(fields: [ledgerAccountId], references: [id], onDelete: Restrict)
+  period        FinancePeriod @relation(fields: [periodId], references: [id], onDelete: Restrict)
+
+  @@unique([ledgerAccountId, periodId])
+  @@index([periodId])
+}
+
+// ============================================================================
+// FINANCE: GATEWAY SETTLEMENTS (phase 6)
+// ============================================================================
+
+// One payout from the payment gateway to the school's bank. The journal is Dr bank (net) + Dr bank charges (fee) / Cr online clearing (gross).
+model GatewaySettlement {
+  id            String    @id @default(uuid())
+  provider      String    @default("paystack")
+  reference     String
+  settledOn     DateTime  @db.Date
+  grossKobo     BigInt
+  feeKobo       BigInt
+  netKobo       BigInt
+  accountId     String
+  journalId     String    @unique
+  itemCount     Int
+  note          String?
+  recordedById  String?
+  createdAt     DateTime  @default(now())
+  reversedAt    DateTime?
+  reversedById  String?
+  reverseReason String?
+
+  account LedgerAccount           @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  journal JournalEntry            @relation(fields: [journalId], references: [id], onDelete: Restrict)
+  items   GatewaySettlementItem[]
+
+  @@unique([provider, reference])
+  @@index([settledOn])
+}
+
+// An online payment that a settlement paid out. A payment can be in at most one live settlement (reversing the settlement deletes these rows).
+model GatewaySettlementItem {
+  id           String @id @default(uuid())
+  settlementId String
+  paymentId    String @unique
+  amountKobo   BigInt
+  feeKobo      BigInt
+
+  settlement GatewaySettlement @relation(fields: [settlementId], references: [id], onDelete: Cascade)
+  payment    Payment           @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+
+  @@index([settlementId])
+}
+
+// ============================================================================
+// PAYROLL: SALARY TRANSFERS (phase 6). One row per attempt to pay one payslip by bank transfer.
+// The row exists BEFORE the provider is called; only a confirmed outcome (webhook or verify) makes it SUCCESS and posts the books.
+// ============================================================================
+
+enum SalaryTransferStatus {
+  PENDING // created, nothing sent
+  SENDING // claimed by a sender, the provider call is in flight
+  PROCESSING // the provider accepted it and is still moving the money
+  UNKNOWN // the provider call ended without an answer: never resend, verify
+  SUCCESS // confirmed paid
+  FAILED // confirmed not paid (a retry makes a new attempt)
+  REVERSED // paid, then returned by the bank
+  CANCELLED // stopped before sending
+}
+
+model SalaryTransfer {
+  id                     String               @id @default(uuid())
+  runId                  String
+  payslipId              String
+  staffId                String
+  attempt                Int                  @default(1)
+  reference              String               @unique
+  amountKobo             BigInt
+  status                 SalaryTransferStatus @default(PENDING)
+  bankCode               String
+  bankName               String?
+  accountName            String
+  accountNumberEncrypted String
+  accountLast4           String
+  recipientCode          String?
+  transferCode           String?
+  fromAccountId          String
+  failureReason          String?
+  initiatedById          String
+  sentAt                 DateTime?
+  confirmedAt            DateTime?
+  journalId              String?              @unique
+  reversalJournalId      String?
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @updatedAt
+
+  run         PayrollRun    @relation(fields: [runId], references: [id], onDelete: Restrict)
+  payslip     Payslip       @relation(fields: [payslipId], references: [id], onDelete: Restrict)
+  fromAccount LedgerAccount @relation("SalaryTransferFrom", fields: [fromAccountId], references: [id], onDelete: Restrict)
+  journal     JournalEntry? @relation("SalaryTransferJournal", fields: [journalId], references: [id], onDelete: Restrict)
+
+  @@unique([payslipId, attempt])
+  @@index([runId])
+  @@index([status])
 }

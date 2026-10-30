@@ -1,32 +1,30 @@
-import { asClass }                      from "awilix";
-import type { AwilixContainer }         from "awilix";
-import { AttendanceMapper }             from "./mappers/attendance.mapper";
-import { AttendanceRepositoryImpl }     from "./repositories/attendance.repository.impl";
-import { MarkAttendanceUseCase }        from "./usecases/mark-attendance.usecase";
-import { BulkMarkAttendanceUseCase }    from "./usecases/bulk-mark-attendance.usecase";
-import { GetAttendanceUseCase }         from "./usecases/get-attendance.usecase";
-import { GetMyAttendanceUseCase } from "./usecases/get-my attendance.usecase";
-import { GetAttendanceSummaryUseCase }  from "./usecases/get-attendance-summary.usecase";
-import { UpdateAttendanceUseCase }      from "./usecases/update-attendance.usecase";
-import { GetMyChildrenAttendanceUseCase } from "./usecases/get-my-childreen-attendance";
-import { AttendanceController }         from "./controllers/attendance.controller";
+import { asClass } from "awilix";
+import type { AwilixContainer } from "awilix";
+import { AttendanceRepository } from "./repositories/attendance.repository";
+import { AttendancePresenter } from "./services/attendance-presenter";
+import { GetRegisterUseCase } from "./usecases/get-register.usecase";
+import { SubmitRegisterUseCase } from "./usecases/submit-register.usecase";
+import { UpdateAttendanceUseCase } from "./usecases/update-attendance.usecase";
+import { ListAttendanceUseCase } from "./usecases/list-attendance.usecase";
+import { StudentSummaryUseCase, ClassSummaryUseCase } from "./usecases/attendance-summaries.usecases";
+import { AttendanceController } from "./controllers/attendance.controller";
 
 /*
-|--------------------------------------------------------------------------
-| ATTENDANCE CONTAINER
-|--------------------------------------------------------------------------
+| ATTENDANCE CONTAINER.
+| Requires: registerAuth (userRepository), registerAudit (auditService), registerFoundation (accessService).
 */
-
 export const registerAttendance = (container: AwilixContainer): void => {
     container.register({
-        attendanceMapper:            asClass(AttendanceMapper).singleton(),
-        attendanceRepository:        asClass(AttendanceRepositoryImpl).scoped(),
-        markAttendanceUseCase:       asClass(MarkAttendanceUseCase).scoped(),
-        bulkMarkAttendanceUseCase:   asClass(BulkMarkAttendanceUseCase).scoped(),
-        getAttendanceUseCase:        asClass(GetAttendanceUseCase).scoped(),
-        getAttendanceSummaryUseCase: asClass(GetAttendanceSummaryUseCase).scoped(),
-        updateAttendanceUseCase:     asClass(UpdateAttendanceUseCase).scoped(),
-        getMyChildrenAttendanceUseCase: asClass(GetMyChildrenAttendanceUseCase).scoped(),
-        attendanceController:        asClass(AttendanceController).scoped(),
+        attendanceRepository:     asClass(AttendanceRepository).scoped(),
+        attendancePresenter:      asClass(AttendancePresenter).scoped(),
+
+        getRegisterUseCase:       asClass(GetRegisterUseCase).scoped(),
+        submitRegisterUseCase:    asClass(SubmitRegisterUseCase).scoped(),
+        updateAttendanceUseCase:  asClass(UpdateAttendanceUseCase).scoped(),
+        listAttendanceUseCase:    asClass(ListAttendanceUseCase).scoped(),
+        studentSummaryUseCase:    asClass(StudentSummaryUseCase).scoped(),
+        classSummaryUseCase:      asClass(ClassSummaryUseCase).scoped(),
+
+        attendanceController:     asClass(AttendanceController).scoped(),
     });
 };
