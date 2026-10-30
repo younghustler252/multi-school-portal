@@ -8,7 +8,8 @@ import { INotificationRepository }        from "../repositories/notification.rep
 import { DispatchChannel, NotificationDispatchService, OutgoingMessage } from "../services/notification-dispatch.service";
 import { ACTIVE_STUDENT_WHERE, guardianAnnouncementWhere } from "../../students/domain/student-eligibility";
 import { EntitlementsService }            from "../../../foundation/entitlements.service";
-import { preferencesOf, PreferencesReader } from "../../../foundation/settings.registry";
+import { PreferencesReader } from "../../../foundation/settings.registry";
+import { ChannelPolicyService } from "../services/channel-policy.service";
 import { AuditService }                   from "../../audit/services/audit.service";
 import { notificationErrors }             from "../domain/notification.errors";
 import { RecipientKind }                  from "../domain/notification.entity";
@@ -24,12 +25,11 @@ interface Dependencies {
     entitlementsService:      EntitlementsService;
     auditService:             AuditService;
     schoolPreferencesService?: PreferencesReader;
+    channelPolicyService?:    ChannelPolicyService;
 }
 
 interface ResolvedRecipient { type: RecipientKind; id: string; userId: string | null; email: string | null; phone: string | null }
 
-const PLAN_FEATURE: Partial<Record<DispatchChannel, string>> = { EMAIL: "notifications.email", SMS: "notifications.sms" };
-const PREFERENCE:   Partial<Record<DispatchChannel, string>> = { EMAIL: "notifications.email_enabled", SMS: "notifications.sms_enabled" };
 
 /*
 | SEND an announcement. Every requested channel must be allowed by BOTH the plan (notifications.email / notifications.sms)
@@ -75,15 +75,8 @@ export class SendSchoolNotificationUseCase {
     }
 
     private async assertChannelsAllowed(schoolId: string, channels: DispatchChannel[]): Promise<void> {
-        const prefs = await preferencesOf(this.d);
-        const blocked: { channel: string; reason: "plan" | "school_setting" }[] = [];
-        for (const channel of channels) {
-            const feature = PLAN_FEATURE[channel];
-            if (!feature) continue;
-            const decision = await this.d.entitlementsService.checkFeature(schoolId, feature);
-            if (!decision.allowed) { blocked.push({ channel, reason: "plan" }); continue; }
-            if (prefs[PREFERENCE[channel]!] !== true) blocked.push({ channel, reason: "school_setting" });
-        }
+        const policy = this.d.channelPolicyService ?? new ChannelPolicyService(this.d);
+        const { blocked } = await policy.evaluate(schoolId, channels);
         if (blocked.length) throw notificationErrors.channelUnavailable(blocked);
     }
 

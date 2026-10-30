@@ -7,6 +7,7 @@ import { SendSchoolNotificationUseCase } from "./usecases/send-school-notificati
 import { SendPlatformNotificationUseCase } from "./usecases/send-platform-notification.usecase";
 import { NotificationService } from "./services/notification.service";
 import { NotificationDispatchService } from "./services/notification-dispatch.service";
+import { ChannelPolicyService } from "./services/channel-policy.service";
 import { NotificationDeliveryService } from "./services/notification-delivery.service";
 import { GetNotificationsUseCase } from "./usecases/get-notifications.usecase";
 import {
@@ -32,6 +33,7 @@ export const registerNotifications = (container: AwilixContainer): void => {
 				(await import("../../infrastructure/jobs/queues/notification.queue")).enqueueDeliveries(jobs),
 		}),
 		notificationDispatchService: asClass(NotificationDispatchService).scoped(),
+		channelPolicyService: asClass(ChannelPolicyService).scoped(),
 		notificationDeliveryService: asClass(NotificationDeliveryService).scoped(),
 
 		sendSchoolNotificationUseCase: asClass(SendSchoolNotificationUseCase).scoped(),

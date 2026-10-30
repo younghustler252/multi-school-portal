@@ -37,6 +37,7 @@ import gatewaySettlementsRouter from "../modules/gateway-settlements/routes/sett
 import payrollTransfersRouter from "../modules/payroll-transfers/routes/transfer.routes";
 import notificationRouter from "../modules/notifications/routes/notification.routes";
 import schoolSettingRouter from "../modules/school-settings/routes/school-settings.routes"
+import automationRouter from "../modules/automation/routes/automation.routes";
 import messageTemplateRouter from "../modules/message-templates/routes/message-template.routes";
 // import platformsettingsRouter from "../modules/platform-settings/routes/platform-settings.route"
 // import feedbackRouter from "../modules/feedback/routes/feedback.routes"
@@ -81,6 +82,7 @@ router.use("/payments", paymentRouter)
 router.use("/notifications", notificationRouter);
 router.use("/school-settings", schoolSettingRouter)
 router.use("/message-templates", messageTemplateRouter);
+router.use("/automations", automationRouter);
 // router.use("/platform-settings", platformsettingsRouter)
 // router.use("/feedback", feedbackRouter)
 

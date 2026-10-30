@@ -24,6 +24,7 @@ export const tenantMeters = () => ({
     "students.active": () => getTenantClient().student.count({ where: ACTIVE_STUDENT_WHERE }),
     "staff.active":    () => getTenantClient().staff.count({ where: { isActive: true } }),
     "branches.active": () => getTenantClient().branch.count({ where: { isActive: true, deletedAt: null } }),
+    "automation.rules": () => getTenantClient().automationRule.count({ where: { enabled: true, deletedAt: null } }),
 });
 
 export const registerFoundation = (container: AwilixContainer): void => {

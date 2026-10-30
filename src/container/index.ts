@@ -50,6 +50,7 @@ import { registerPayrollTransfers } from "../modules/payroll-transfers/payroll-t
 import { registerNotifications } from "../modules/notifications/notifications.container";
 // import { registerSuperAdmin }    from "../modules/super-admin/super-admin.container";
 import { registerSchoolSettings } from "../modules/school-settings/school-settings.container";
+import { registerAutomation } from "../modules/automation/automation.container";
 import { registerMessageTemplates } from "../modules/message-templates/message-templates.container";
 // import { registerPlatformSettings } from "../modules/platform-settings/platform-settings.container";
 // import { registerFeedback } from "../modules/feedback/feedback.container";
@@ -87,6 +88,7 @@ const modules: Array<(c: AwilixContainer) => void> = [
     // registerSuperAdmin, 
     registerSchoolSettings,
     registerMessageTemplates,
+    registerAutomation,
     // registerPlatformSettings,
     // registerFeedback
 ];

@@ -87,6 +87,16 @@ export function renderMessage(channel: MessageChannel, t: TemplateText, values: 
     return { channel, subject: subject ? subject.text : null, body: body.text, paragraphs: [], missing };
 }
 
+/**
+ * The message as PLAIN text, ready to hand to the notification dispatcher (any channel). Unlike renderMessage this does NOT
+ * escape for HTML: the email channel escapes at the moment it builds the email, so escaping here too would show "&amp;" to parents.
+ */
+export function renderPlain(t: TemplateText, values: Record<string, unknown>): { subject: string | null; body: string; missing: string[] } {
+    const body = fillPlaceholders((t.body ?? "").trim(), values);
+    const subject = t.subject ? fillPlaceholders(t.subject.trim(), values) : null;
+    return { subject: subject ? subject.text.replace(/\s+/g, " ").trim() : null, body: body.text, missing: [...new Set([...body.missing, ...(subject?.missing ?? [])])] };
+}
+
 /* ---------- SMS length: how many messages will the school pay for ---------- */
 
 const GSM_BASIC = new Set("@£$¥èéùìòÇ\nØø\rÅåΔ_ΦΓΛΩΠΨΣΘΞÆæßÉ !\"#¤%&'()*+,-./0123456789:;<=>?¡ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÑÜ§¿abcdefghijklmnopqrstuvwxyzäöñüà");
