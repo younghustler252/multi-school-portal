@@ -17,5 +17,7 @@ export const SCHOOL_PERMISSIONS = [
     { key: "platform.schools.manage",    realm: "PLATFORM", module: "school", scopes: ["ALL"], personas: ["STAFF"], label: "Edit school details (including locked fields)", isSensitive: true },
     { key: "platform.schools.verify",    realm: "PLATFORM", module: "school", scopes: ["ALL"], personas: ["STAFF"], label: "Verify or reject schools and their documents", isSensitive: true },
     { key: "platform.schools.suspend",   realm: "PLATFORM", module: "school", scopes: ["ALL"], personas: ["STAFF"], label: "Suspend and reactivate schools", isSensitive: true },
+    { key: "platform.schools.provisioning",        realm: "PLATFORM", module: "school", scopes: ["ALL"], personas: ["STAFF"], label: "See which schools are provisioned or failed" },
+    { key: "platform.schools.provisioning.retry",  realm: "PLATFORM", module: "school", scopes: ["ALL"], personas: ["STAFF"], label: "Retry school provisioning", isSensitive: true },
     { key: "platform.schools.documents", realm: "PLATFORM", module: "school", scopes: ["ALL"], personas: ["STAFF"], label: "View school verification documents", isSensitive: true },
 ] as const;

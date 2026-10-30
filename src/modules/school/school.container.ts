@@ -1,4 +1,4 @@
-import { asClass } from "awilix";
+import { asClass, asFunction } from "awilix";
 import type { AwilixContainer } from "awilix";
 import { SchoolMapper, SchoolDocumentMapper } from "./mappers/school.mapper";
 import { SchoolRepositoryImpl } from "./repositories/school.repository.impl";
@@ -25,6 +25,7 @@ import { VerifySchoolUseCase } from "./usecases/platform/verify-school.usecase";
 import { RejectSchoolUseCase } from "./usecases/platform/reject-school.usecase";
 import { SuspendSchoolUseCase, ReactivateSchoolUseCase } from "./usecases/platform/suspend-school.usecase";
 import { SchoolDocumentsReviewUseCase } from "./usecases/platform/school-documents.usecases";
+import { ListSchoolProvisioningUseCase, RetrySchoolProvisioningUseCase, bullProvisionQueue } from "./usecases/platform/school-provisioning.usecases";
 import { RunSchoolLifecycleUseCase } from "./usecases/platform/run-school-lifecycle.usecase";
 
 import { SchoolController } from "./controllers/school.controller";
@@ -65,6 +66,9 @@ export const registerSchool = (container: AwilixContainer): void => {
         suspendSchoolUseCase:         asClass(SuspendSchoolUseCase).scoped(),
         reactivateSchoolUseCase:      asClass(ReactivateSchoolUseCase).scoped(),
         schoolDocumentsReviewUseCase: asClass(SchoolDocumentsReviewUseCase).scoped(),
+        provisionQueue:               asFunction(() => bullProvisionQueue()).singleton(),
+        listSchoolProvisioningUseCase:  asClass(ListSchoolProvisioningUseCase).scoped(),
+        retrySchoolProvisioningUseCase: asClass(RetrySchoolProvisioningUseCase).scoped(),
         runSchoolLifecycleUseCase:    asClass(RunSchoolLifecycleUseCase).scoped(),
 
         schoolController:         asClass(SchoolController).scoped(),

@@ -20,6 +20,10 @@ const ctrl   = () => container.resolve<SchoolPlatformController>("schoolPlatform
 router.get("/",  authenticate, requirePermission("platform.schools.view"),   (q, s, n) => ctrl().list(q, s, n));
 router.post("/", authenticate, requirePermission("platform.schools.create"), validate(CreateSchoolDto), (q, s, n) => ctrl().create(q, s, n));
 
+// Provisioning: which schools are ready, waiting or failed, and a retry (registered before "/:id")
+router.get("/provisioning",          authenticate, requirePermission("platform.schools.provisioning"),       (q, s, n) => ctrl().provisioning(q, s, n));
+router.post("/:id/provisioning/retry", authenticate, requirePermission("platform.schools.provisioning.retry"), (q, s, n) => ctrl().retryProvisioning(q, s, n));
+
 // Documents (registered before "/:id" routes for readability; the paths do not overlap)
 router.put("/documents/:documentId/approve", authenticate, requirePermission("platform.schools.verify"), (q, s, n) => ctrl().approveDocument(q, s, n));
 router.put("/documents/:documentId/reject",  authenticate, requirePermission("platform.schools.verify"), validate(RejectDocumentDto), (q, s, n) => ctrl().rejectDocument(q, s, n));

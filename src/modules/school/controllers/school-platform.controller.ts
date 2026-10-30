@@ -7,6 +7,7 @@ import { VerifySchoolUseCase }           from "../usecases/platform/verify-schoo
 import { RejectSchoolUseCase }           from "../usecases/platform/reject-school.usecase";
 import { SuspendSchoolUseCase, ReactivateSchoolUseCase } from "../usecases/platform/suspend-school.usecase";
 import { SchoolDocumentsReviewUseCase }  from "../usecases/platform/school-documents.usecases";
+import { ListSchoolProvisioningUseCase, RetrySchoolProvisioningUseCase, ProvisioningQuery } from "../usecases/platform/school-provisioning.usecases";
 import { sendSuccess, sendCreated, sendPaginated } from "../../../shared/utils/api-response";
 import { ListSchoolsQuery }              from "../dtos/school.dto";
 import { schoolErrors }                  from "../domain/school.errors";
@@ -17,6 +18,7 @@ interface Dependencies {
     verifySchoolUseCase: VerifySchoolUseCase; rejectSchoolUseCase: RejectSchoolUseCase;
     suspendSchoolUseCase: SuspendSchoolUseCase; reactivateSchoolUseCase: ReactivateSchoolUseCase;
     schoolDocumentsReviewUseCase: SchoolDocumentsReviewUseCase;
+    listSchoolProvisioningUseCase: ListSchoolProvisioningUseCase; retrySchoolProvisioningUseCase: RetrySchoolProvisioningUseCase;
 }
 
 /* PLATFORM CONTROLLER (mounted at /platform/schools). The acting person is always req.auth.userId. */
@@ -35,6 +37,17 @@ export class SchoolPlatformController {
             const r = await this.d.listSchoolsUseCase.execute(ListSchoolsQuery.parse(req.query));
             sendPaginated(res, r.data, r.meta);
         } catch (e) { next(e); }
+    };
+
+    provisioning = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const r = await this.d.listSchoolProvisioningUseCase.execute(ProvisioningQuery.parse(req.query));
+            res.status(200).json({ success: true, message: "Provisioning status retrieved successfully", data: r.data, meta: r.meta, counts: r.counts });
+        } catch (e) { next(e); }
+    };
+
+    retryProvisioning = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.retrySchoolProvisioningUseCase.execute(actorOf(req), idOf(req)), "Provisioning queued again"); } catch (e) { next(e); }
     };
 
     get = async (req: Request, res: Response, next: NextFunction) => {
