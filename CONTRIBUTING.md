@@ -40,3 +40,6 @@ Each module has one owner who reviews changes to it. Do not edit another owner's
 ## Type check baseline
 `npm run typecheck` (the API) must pass. The one unfinished module that is not mounted (`super-admin`) is excluded in `apps/api/tsconfig.json`. When it is finished and registered, delete its line so the compiler checks it again.
 The Prisma clients in `apps/api/src/generated` are checked in. After you change a `.prisma` schema run `npm run prisma:generate -w apps/api` and commit the regenerated files in the same pull request, or the next person's type check fails.
+
+## Shared contracts
+`packages/contracts` is what the web app imports for request schemas and response types. The API does not import it (it compiles to CommonJS from its own `src`), so the two are kept in step by `apps/api/tests/contracts/parity.test.ts`, which runs both on the same inputs. If you change an API DTO or an error code, change `packages/contracts` in the same pull request; the test names what disagrees.

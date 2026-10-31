@@ -12,3 +12,13 @@ export interface ProvisioningList {
 }
 /** POST /platform/schools/:id/provisioning/retry */
 export interface RetryProvisioningResult { schoolId: string; state: "queued" }
+
+import { z } from "zod";
+/** Query string of GET /platform/schools/provisioning */
+export const ProvisioningQueryRequest = z.object({
+    page:   z.coerce.number().int().min(1).default(1),
+    limit:  z.coerce.number().int().min(1).max(100).default(20),
+    state:  z.enum(["all", "provisioned", "pending", "failed"]).default("all"),
+    search: z.string().trim().max(100).optional(),
+});
+export type ProvisioningQueryRequest = z.infer<typeof ProvisioningQueryRequest>;
