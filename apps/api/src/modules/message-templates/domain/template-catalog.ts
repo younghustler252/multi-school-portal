@@ -17,7 +17,7 @@ export interface TemplateDef {
     name:        string;
     description: string;
     /** The notification type this message is stored as (SchoolNotificationType). */
-    notificationType: "fee_reminder" | "fee_invoice" | "fee_receipt" | "attendance_alert" | "broadcast";
+    notificationType: "fee_reminder" | "fee_invoice" | "fee_receipt" | "attendance_alert" | "report_card_ready" | "broadcast";
     variables:   readonly TemplateVariable[];
     defaults:    Record<MessageChannel, { subject: string | null; body: string }>;
 }
@@ -47,6 +47,14 @@ const ATTENDANCE_VARIABLES: readonly TemplateVariable[] = [
     { name: "date",          label: "Date of the register",  sample: "30 Oct 2026" },
     { name: "class_name",    label: "Class",                 sample: "JSS 2" },
     { name: "status",        label: "absent or late",        sample: "absent" },
+];
+
+const REPORT_CARD_VARIABLES: readonly TemplateVariable[] = [
+    { name: "guardian_name", label: "Guardian's first name", sample: "Mrs. Adeyemi" },
+    { name: "student_name",  label: "Student's name",        sample: "Tolu Adeyemi" },
+    { name: "school_name",   label: "School name",           sample: "Your School" },
+    { name: "term_name",     label: "Term and session",      sample: "First Term 2026/2027" },
+    { name: "class_name",    label: "Class",                 sample: "JSS 2" },
 ];
 
 export const TEMPLATE_CATALOG: readonly TemplateDef[] = [
@@ -84,6 +92,15 @@ export const TEMPLATE_CATALOG: readonly TemplateDef[] = [
             IN_APP: { subject: "Attendance notice", body: "{{student_name}} ({{class_name}}) was marked {{status}} on {{date}}." },
             EMAIL:  { subject: "Attendance notice for {{student_name}}", body: "Hi {{guardian_name}},\n\n{{student_name}} ({{class_name}}) was marked {{status}} on {{date}}.\n\nIf this is a mistake, or you would like to explain the absence, please contact the school office.\n\n— {{school_name}}" },
             SMS:    { subject: null, body: "{{school_name}}: {{student_name}} ({{class_name}}) was marked {{status}} on {{date}}." },
+        },
+    },
+    {
+        key: "report_card.ready", name: "Report card ready", notificationType: "report_card_ready", variables: REPORT_CARD_VARIABLES,
+        description: "Sent to a student's guardians when the school publishes the student's report card.",
+        defaults: {
+            IN_APP: { subject: "Report card ready", body: "{{student_name}}'s report card for {{term_name}} is ready. Log in to view and download it." },
+            EMAIL:  { subject: "{{student_name}}'s report card for {{term_name}}", body: "Hi {{guardian_name}},\n\n{{student_name}}'s report card for {{term_name}} ({{class_name}}) is now available. Please log in to the parent portal to view and download it.\n\n— {{school_name}}" },
+            SMS:    { subject: null, body: "{{school_name}}: {{student_name}}'s report card for {{term_name}} is ready. Please log in to the parent portal to view it." },
         },
     },
 ];

@@ -5,6 +5,7 @@
   "scripts": {
     "test": "tsx --import ./tests/setup/env.ts --test --test-reporter=spec \"tests/**/*.test.ts\"",
     "dev": "nodemon",
+    "prebuild": "npm run prisma:generate",
     "build": "tsc",
     "start": "node dist/server.js",
     "dev:worker": "nodemon --exec ts-node src/worker.ts",

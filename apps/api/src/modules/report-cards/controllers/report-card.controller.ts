@@ -1,282 +1,55 @@
 import { Request, Response, NextFunction } from "express";
-
-import { GenerateReportCardUseCase } from "../usecases/generate-report-card.usecase";
-import { BulkGenerateReportCardsUseCase } from "../usecases/bulk-generate-report-cards.usecase";
-import { GetReportCardsUseCase } from "../usecases/get-report-cards.usecase";
-import { GetReportCardUseCase } from "../usecases/get-report-card.usecase";
-import { UpdateReportCardUseCase } from "../usecases/update-report-card.usecase";
-import { PublishReportCardsUseCase } from "../usecases/publish-report-cards.usecase";
-import { SendReportCardsUseCase } from "../usecases/send-report-cards.usecase";
-import { GetReportCardBulkStatusUseCase } from "../usecases/get-report-card-bulk-status.usecase";
-import { GetMyChildrenReportCardsUseCase } from "../usecases/get-my-children-report-cards.usecase";
-import { GetMyReportCardsUseCase } from "../usecases/get-my-report-cards.usecase";
-
-import {
-    sendSuccess,
-    sendCreated,
-    sendPaginated,
-} from "../../../shared/utils/api-response";
+import { ListReportCardsUseCase, GetReportCardUseCase, ClassOverviewUseCase } from "../usecases/report-cards-read.usecases";
+import { GenerateReportCardsUseCase } from "../usecases/generate-report-cards.usecase";
+import { UpdateRemarksUseCase } from "../usecases/update-remarks.usecase";
+import { PublishReportCardsUseCase, UnpublishReportCardsUseCase } from "../usecases/publish-report-cards.usecases";
+import { ReportCardPdfUseCase } from "../usecases/report-card-pdf.usecase";
+import { sendSuccess } from "../../../shared/utils/api-response";
+import { getAccess } from "../../../infrastructure/middleware/rbac.middleware";
+import { CardParams, ListCardsQuery, OverviewQuery, GenerateDto, RemarksDto, PublishDto, UnpublishDto } from "../dtos/report-card.dto";
+import { reportCardErrors } from "../domain/report-cards.errors";
 
 interface Dependencies {
-    generateReportCardUseCase:      GenerateReportCardUseCase;
-    bulkGenerateReportCardsUseCase: BulkGenerateReportCardsUseCase;
-    getReportCardsUseCase:          GetReportCardsUseCase;
-    getReportCardUseCase:           GetReportCardUseCase;
-    updateReportCardUseCase:        UpdateReportCardUseCase;
-    publishReportCardsUseCase:      PublishReportCardsUseCase;
-    sendReportCardsUseCase:         SendReportCardsUseCase;
-    getReportCardBulkStatusUseCase: GetReportCardBulkStatusUseCase;
-    getMyChildrenReportCardsUseCase: GetMyChildrenReportCardsUseCase;
-    getMyReportCardsUseCase:         GetMyReportCardsUseCase;
+    listReportCardsUseCase: ListReportCardsUseCase; getReportCardUseCase: GetReportCardUseCase; classOverviewUseCase: ClassOverviewUseCase;
+    generateReportCardsUseCase: GenerateReportCardsUseCase; updateRemarksUseCase: UpdateRemarksUseCase;
+    publishReportCardsUseCase: PublishReportCardsUseCase; unpublishReportCardsUseCase: UnpublishReportCardsUseCase; reportCardPdfUseCase: ReportCardPdfUseCase;
 }
 
+/* REPORT CARD CONTROLLER (school realm). The acting person comes ONLY from the verified session, never the body. */
+const schoolIdOf = (req: Request): string => req.schoolId as string;
+const actorOf = (req: Request) => { if (!req.auth) throw reportCardErrors.notFound(); return { userId: req.auth.userId }; };
+const idOf = (req: Request): string => CardParams.parse(req.params).id;
+
 export class ReportCardController {
-    private readonly generateReportCardUseCase:       GenerateReportCardUseCase;
-    private readonly bulkGenerateReportCardsUseCase:  BulkGenerateReportCardsUseCase;
-    private readonly getReportCardsUseCase:           GetReportCardsUseCase;
-    private readonly getReportCardUseCase:            GetReportCardUseCase;
-    private readonly updateReportCardUseCase:         UpdateReportCardUseCase;
-    private readonly publishReportCardsUseCase:       PublishReportCardsUseCase;
-    private readonly sendReportCardsUseCase:          SendReportCardsUseCase;
-    private readonly getReportCardBulkStatusUseCase:  GetReportCardBulkStatusUseCase;
-    private readonly getMyChildrenReportCardsUseCase: GetMyChildrenReportCardsUseCase;
-    private readonly getMyReportCardsUseCase:         GetMyReportCardsUseCase;
+    constructor(private readonly d: Dependencies) {}
 
-    constructor({
-        generateReportCardUseCase,
-        bulkGenerateReportCardsUseCase,
-        getReportCardsUseCase,
-        getReportCardUseCase,
-        updateReportCardUseCase,
-        publishReportCardsUseCase,
-        sendReportCardsUseCase,
-        getReportCardBulkStatusUseCase,
-        getMyChildrenReportCardsUseCase,
-        getMyReportCardsUseCase,
-    }: Dependencies) {
-        this.generateReportCardUseCase       = generateReportCardUseCase;
-        this.bulkGenerateReportCardsUseCase  = bulkGenerateReportCardsUseCase;
-        this.getReportCardsUseCase           = getReportCardsUseCase;
-        this.getReportCardUseCase            = getReportCardUseCase;
-        this.updateReportCardUseCase         = updateReportCardUseCase;
-        this.publishReportCardsUseCase       = publishReportCardsUseCase;
-        this.sendReportCardsUseCase          = sendReportCardsUseCase;
-        this.getReportCardBulkStatusUseCase  = getReportCardBulkStatusUseCase;
-        this.getMyChildrenReportCardsUseCase = getMyChildrenReportCardsUseCase;
-        this.getMyReportCardsUseCase         = getMyReportCardsUseCase;
-    }
-
-    // ── List report cards ─────────────────────────────────────────────────
-    getReportCards = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.getReportCardsUseCase.execute(
-                req.query as any,
-            );
-
-            sendPaginated(res, result.data, result.meta);
-        } catch (err) {
-            next(err);
-        }
+    list = async (req: Request, res: Response, next: NextFunction) => {
+        try { const r = await this.d.listReportCardsUseCase.execute(ListCardsQuery.parse(req.query), getAccess(req)); res.status(200).json({ success: true, message: "Report cards retrieved successfully", data: r.data, meta: r.meta }); } catch (e) { next(e); }
     };
-
-    // ── Get single report card ─────────────────────────────────────────────
-    getReportCard = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.getReportCardUseCase.execute(
-                req.params.id as string,
-            );
-
-            sendSuccess(
-                res,
-                result,
-                "Report card retrieved successfully",
-            );
-        } catch (err) {
-            next(err);
-        }
+    overview = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.classOverviewUseCase.execute(OverviewQuery.parse(req.query), getAccess(req)), "Class report card overview retrieved successfully"); } catch (e) { next(e); }
     };
-
-    // ── Generate single report card ───────────────────────────────────────
-    generateReportCard = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.generateReportCardUseCase.execute(
-                req.body,
-                req.user!.schoolId!,
-            );
-
-            sendCreated(
-                res,
-                result,
-                "Report card generated successfully",
-            );
-        } catch (err) {
-            next(err);
-        }
+    get = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.getReportCardUseCase.execute(idOf(req), getAccess(req)), "Report card retrieved successfully"); } catch (e) { next(e); }
     };
-
-    // ── Bulk generate ─────────────────────────────────────────────────────
-    bulkGenerateReportCards = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.bulkGenerateReportCardsUseCase.execute(
-                req.body,
-                req.user!.schoolId!,
-                req.user?.id as string,
-            );
-
-            sendCreated(
-                res,
-                result,
-                result.message,
-            );
-        } catch (err) {
-            next(err);
-        }
+    generate = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.generateReportCardsUseCase.execute(GenerateDto.parse(req.body), schoolIdOf(req), getAccess(req), actorOf(req)), "Report cards generated"); } catch (e) { next(e); }
     };
-
-    // ── Get bulk generation job status ────────────────────────────────────
-    getBulkGenerationStatus = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result =
-                await this.getReportCardBulkStatusUseCase.execute(
-                    req.params.jobId as string,
-                );
-
-            sendSuccess(
-                res,
-                result,
-                "Report card generation status retrieved successfully",
-            );
-        } catch (err) {
-            next(err);
-        }
+    remarks = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.updateRemarksUseCase.execute(idOf(req), RemarksDto.parse(req.body), schoolIdOf(req), getAccess(req), actorOf(req)), "Remarks saved"); } catch (e) { next(e); }
     };
-
-    // ── Update report card remarks ─────────────────────────────────────────
-    updateReportCard = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.updateReportCardUseCase.execute(
-                req.params.id as string,
-                req.body,
-            );
-
-            sendSuccess(
-                res,
-                result,
-                "Report card updated successfully",
-            );
-        } catch (err) {
-            next(err);
-        }
+    publish = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.publishReportCardsUseCase.execute(PublishDto.parse(req.body), schoolIdOf(req), getAccess(req), actorOf(req)), "Report cards published"); } catch (e) { next(e); }
     };
-
-    // ── Publish report cards ──────────────────────────────────────────────
-    publishReportCards = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result = await this.publishReportCardsUseCase.execute(
-                req.body.termId as string,
-            );
-
-            sendSuccess(
-                res,
-                result,
-                `${result.published} report card(s) published`,
-            );
-        } catch (err) {
-            next(err);
-        }
+    unpublish = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.unpublishReportCardsUseCase.execute(UnpublishDto.parse(req.body), schoolIdOf(req), getAccess(req), actorOf(req)), "Report cards taken back to draft"); } catch (e) { next(e); }
     };
-
-    // ── Send report card notification ─────────────────────────────────────
-    sendReportCard = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
+    pdf = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const result = await this.sendReportCardsUseCase.execute(
-                req.params.id as string,
-                req.body.schoolName ?? "School",
-                req.body.subdomain ?? "",
-                req.body.termName ?? "Term",
-            );
-
-            sendSuccess(res, null, result.message);
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    // ── My children report cards ──────────────────────────────────────────
-    getMyChildrenReportCards = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result =
-                await this.getMyChildrenReportCardsUseCase.execute(
-                    req.user?.id as string,
-                    req.query as any,
-                );
-
-            sendPaginated(
-                res,
-                result.data,
-                result.meta,
-            );
-        } catch (err) {
-            next(err);
-        }
-    };
-
-    // ── My report cards ───────────────────────────────────────────────────
-    getMyReportCards = async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ): Promise<void> => {
-        try {
-            const result =
-                await this.getMyReportCardsUseCase.execute(
-                    req.user?.id as string,
-                    req.query as any,
-                );
-
-            sendPaginated(
-                res,
-                result.data,
-                result.meta,
-            );
-        } catch (err) {
-            next(err);
-        }
+            const { buffer, filename } = await this.d.reportCardPdfUseCase.execute(idOf(req), schoolIdOf(req), getAccess(req));
+            res.setHeader("Content-Type", "application/pdf");
+            res.setHeader("Content-Disposition", `inline; filename="${filename}"`);
+            res.status(200).send(buffer);
+        } catch (e) { next(e); }
     };
 }

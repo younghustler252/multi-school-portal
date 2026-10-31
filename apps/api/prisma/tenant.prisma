@@ -287,6 +287,7 @@ model Class {
   feeStructures    FeeStructure[]
   feeInvoices      FeeInvoice[]
   attendance Attendance[]
+  reportCards ReportCard[]
 }
 
 model Subject {
@@ -475,13 +476,22 @@ model ReportCard {
   emailSentAt     DateTime?
   smsSentAt       DateTime?
   generatedAt     DateTime?
+  classId         String?          // the class the card was made for
+  snapshot        Json?            // everything the card shows, frozen when it is generated (see report-cards/domain/report-card.policy.ts)
+  generatedById   String?
+  publishedAt     DateTime?
+  publishedById   String?
+  unpublishReason String?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
   student Student @relation(fields: [studentId], references: [id])
   term    Term    @relation(fields: [termId], references: [id])
+  class   Class?  @relation(fields: [classId], references: [id], onDelete: SetNull)
 
   @@unique([studentId, termId])
+  @@index([termId, classId])
+  @@index([status])
 }
 
 enum ReportCardStatus {

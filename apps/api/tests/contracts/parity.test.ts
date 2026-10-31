@@ -7,11 +7,13 @@ import { UpdateAutomationDto } from "../../src/modules/automation/dtos/automatio
 import { SaveTemplateDto, PreviewTemplateDto } from "../../src/modules/message-templates/dtos/message-template.dto";
 import { UpdateSchoolPreferencesDto } from "../../src/modules/school-settings/dtos/school-settings.dto";
 import { ProvisioningQuery } from "../../src/modules/school/usecases/platform/school-provisioning.usecases";
+import { GenerateDto, RemarksDto, PublishDto, UnpublishDto, ListCardsQuery } from "../../src/modules/report-cards/dtos/report-card.dto";
 import { ImpersonateSchoolDto } from "../../src/modules/school/usecases/platform/impersonate-school.usecase";
 
 /* The shared contract and the API's own DTO must accept and refuse exactly the same inputs. */
 type Pair = { name: string; shared: { safeParse(v: unknown): { success: boolean } }; api: { safeParse(v: unknown): { success: boolean } }; samples: unknown[] };
 const long = (n: number) => "x".repeat(n);
+const UID = "8f6f8a50-1111-4c1d-9a5e-0f1c2d3e4f5a";
 
 const pairs: Pair[] = [
     { name: "UpdateAutomation", shared: C.UpdateAutomationRequest, api: UpdateAutomationDto, samples: [
@@ -35,6 +37,21 @@ const pairs: Pair[] = [
     ] },
     { name: "Impersonate", shared: C.ImpersonateRequest, api: ImpersonateSchoolDto, samples: [
         {}, { reason: "short" }, { reason: "Investigating a billing complaint" }, { reason: long(501) }, { reason: "Investigating a billing complaint", membershipId: "m1" }, { reason: "Investigating a billing complaint", membershipId: "" }, { reason: "Investigating a billing complaint", x: 1 },
+    ] },
+    { name: "GenerateReportCards", shared: C.GenerateReportCardsRequest, api: GenerateDto, samples: [
+        {}, { classId: "x" }, { classId: UID }, { classId: UID, termId: UID }, { classId: UID, studentIds: [] }, { classId: UID, studentIds: [UID] }, { classId: UID, studentIds: Array(201).fill(UID) }, { classId: UID, extra: 1 },
+    ] },
+    { name: "ReportCardRemarks", shared: C.ReportCardRemarksRequest, api: RemarksDto, samples: [
+        {}, { teacherRemark: "Good" }, { teacherRemark: null }, { principalRemark: "x".repeat(500) }, { principalRemark: "x".repeat(501) }, { teacherRemark: 5 }, { teacherRemark: "a", other: 1 },
+    ] },
+    { name: "PublishReportCards", shared: C.PublishReportCardsRequest, api: PublishDto, samples: [
+        {}, { ids: [] }, { ids: [UID] }, { ids: ["x"] }, { ids: [UID], allowMissing: true }, { ids: [UID], allowMissing: "yes" }, { ids: Array(201).fill(UID) }, { ids: [UID], extra: 1 },
+    ] },
+    { name: "UnpublishReportCards", shared: C.UnpublishReportCardsRequest, api: UnpublishDto, samples: [
+        {}, { ids: [UID] }, { ids: [UID], reason: "no" }, { ids: [UID], reason: "Wrong marks" }, { ids: [UID], reason: "x".repeat(501) }, { ids: [], reason: "Wrong marks" },
+    ] },
+    { name: "ListReportCardsQuery", shared: C.ListReportCardsQueryRequest, api: ListCardsQuery, samples: [
+        {}, { page: "2" }, { page: "0" }, { limit: "100" }, { limit: "101" }, { status: "draft" }, { status: "generated" }, { termId: "x" }, { classId: UID, studentId: UID },
     ] },
 ];
 

@@ -43,3 +43,6 @@ The Prisma clients in `apps/api/src/generated` are checked in. After you change 
 
 ## Shared contracts
 `packages/contracts` is what the web app imports for request schemas and response types. The API does not import it (it compiles to CommonJS from its own `src`), so the two are kept in step by `apps/api/tests/contracts/parity.test.ts`, which runs both on the same inputs. If you change an API DTO or an error code, change `packages/contracts` in the same pull request; the test names what disagrees.
+
+## Prisma clients
+The generated clients (`apps/api/src/generated`) are committed. When you change `apps/api/prisma/*.prisma`, run `npm run prisma:generate -w apps/api` and commit the result in the same pull request. CI regenerates them and fails if the committed copy differs, and `npm run build -w apps/api` regenerates before compiling.

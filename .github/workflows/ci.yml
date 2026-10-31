@@ -16,6 +16,14 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version-file: .nvmrc, cache: npm }
       - run: npm ci
+      # Regenerate the Prisma clients from the schemas so the typecheck below compares the code with the CURRENT schema,
+      # then make sure the copies committed in the repo are the same (if this step fails: run `npm run prisma:generate -w apps/api` and commit apps/api/src/generated).
+      - run: npm run prisma:generate -w apps/api
+        env:
+          PUBLIC_DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+          TENANT_DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+      - name: Committed Prisma clients are up to date
+        run: git diff --exit-code -- apps/api/src/generated
       - run: npm run typecheck -w apps/api
       - run: npm test -w apps/api          # database tests are skipped unless TEST_DATABASE_URL is set; read the skips
 

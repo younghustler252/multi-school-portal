@@ -11,3 +11,4 @@ export * from "./message-templates";
 export * from "./provisioning";
 export * from "./school-settings";
 export * from "./platform";
+export * from "./report-cards";
