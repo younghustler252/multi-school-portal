@@ -383,6 +383,26 @@ export type GatewaySettlementItem = $Result.DefaultSelection<Prisma.$GatewaySett
  * 
  */
 export type SalaryTransfer = $Result.DefaultSelection<Prisma.$SalaryTransferPayload>
+/**
+ * Model GradingScale
+ * 
+ */
+export type GradingScale = $Result.DefaultSelection<Prisma.$GradingScalePayload>
+/**
+ * Model GradingBand
+ * 
+ */
+export type GradingBand = $Result.DefaultSelection<Prisma.$GradingBandPayload>
+/**
+ * Model AssessmentScheme
+ * 
+ */
+export type AssessmentScheme = $Result.DefaultSelection<Prisma.$AssessmentSchemePayload>
+/**
+ * Model AssessmentComponent
+ * 
+ */
+export type AssessmentComponent = $Result.DefaultSelection<Prisma.$AssessmentComponentPayload>
 
 /**
  * Enums
@@ -912,6 +932,14 @@ export const SalaryTransferStatus: {
 
 export type SalaryTransferStatus = (typeof SalaryTransferStatus)[keyof typeof SalaryTransferStatus]
 
+
+export const AssessmentKind: {
+  ca: 'ca',
+  exam: 'exam'
+};
+
+export type AssessmentKind = (typeof AssessmentKind)[keyof typeof AssessmentKind]
+
 }
 
 export type Persona = $Enums.Persona
@@ -1117,6 +1145,10 @@ export const BankMatchKind: typeof $Enums.BankMatchKind
 export type SalaryTransferStatus = $Enums.SalaryTransferStatus
 
 export const SalaryTransferStatus: typeof $Enums.SalaryTransferStatus
+
+export type AssessmentKind = $Enums.AssessmentKind
+
+export const AssessmentKind: typeof $Enums.AssessmentKind
 
 /**
  * ##  Prisma Client ʲˢ
@@ -1978,6 +2010,46 @@ export class PrismaClient<
     * ```
     */
   get salaryTransfer(): Prisma.SalaryTransferDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.gradingScale`: Exposes CRUD operations for the **GradingScale** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more GradingScales
+    * const gradingScales = await prisma.gradingScale.findMany()
+    * ```
+    */
+  get gradingScale(): Prisma.GradingScaleDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.gradingBand`: Exposes CRUD operations for the **GradingBand** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more GradingBands
+    * const gradingBands = await prisma.gradingBand.findMany()
+    * ```
+    */
+  get gradingBand(): Prisma.GradingBandDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.assessmentScheme`: Exposes CRUD operations for the **AssessmentScheme** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AssessmentSchemes
+    * const assessmentSchemes = await prisma.assessmentScheme.findMany()
+    * ```
+    */
+  get assessmentScheme(): Prisma.AssessmentSchemeDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.assessmentComponent`: Exposes CRUD operations for the **AssessmentComponent** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AssessmentComponents
+    * const assessmentComponents = await prisma.assessmentComponent.findMany()
+    * ```
+    */
+  get assessmentComponent(): Prisma.AssessmentComponentDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -2498,7 +2570,11 @@ export namespace Prisma {
     BankReconciliation: 'BankReconciliation',
     GatewaySettlement: 'GatewaySettlement',
     GatewaySettlementItem: 'GatewaySettlementItem',
-    SalaryTransfer: 'SalaryTransfer'
+    SalaryTransfer: 'SalaryTransfer',
+    GradingScale: 'GradingScale',
+    GradingBand: 'GradingBand',
+    AssessmentScheme: 'AssessmentScheme',
+    AssessmentComponent: 'AssessmentComponent'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -2514,7 +2590,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "staff" | "student" | "guardian" | "studentGuardian" | "calendarEvent" | "session" | "term" | "class" | "subject" | "classSubject" | "enrolment" | "classProgression" | "schoolSettings" | "attendance" | "grade" | "gradingConfig" | "reportCard" | "feeType" | "feeStructure" | "feeStructureItem" | "feeInvoice" | "feeInvoiceItem" | "feeInvoiceDiscount" | "feeDiscountRule" | "studentDiscount" | "invoiceAdjustment" | "instalmentPlan" | "instalmentLine" | "payment" | "paymentAllocation" | "refund" | "receipt" | "schoolRole" | "schoolRolePermission" | "membership" | "membershipRole" | "branch" | "staffBranch" | "schoolSettingValue" | "automationRule" | "automationRunLog" | "schoolMessageTemplate" | "numberSequence" | "attachment" | "schoolNotification" | "schoolNotificationRecipient" | "ledgerAccount" | "financePeriod" | "journalEntry" | "journalLine" | "vendor" | "expense" | "expenseLine" | "expensePayment" | "recurringExpense" | "budget" | "budgetLine" | "payComponent" | "staffPayProfile" | "staffPayComponent" | "payrollRun" | "payslip" | "payslipLine" | "staffLoan" | "staffLoanRepayment" | "payrollRemittance" | "bankStatement" | "bankStatementLine" | "bankMatchGroup" | "bankMatchedJournalLine" | "bankReconciliation" | "gatewaySettlement" | "gatewaySettlementItem" | "salaryTransfer"
+      modelProps: "staff" | "student" | "guardian" | "studentGuardian" | "calendarEvent" | "session" | "term" | "class" | "subject" | "classSubject" | "enrolment" | "classProgression" | "schoolSettings" | "attendance" | "grade" | "gradingConfig" | "reportCard" | "feeType" | "feeStructure" | "feeStructureItem" | "feeInvoice" | "feeInvoiceItem" | "feeInvoiceDiscount" | "feeDiscountRule" | "studentDiscount" | "invoiceAdjustment" | "instalmentPlan" | "instalmentLine" | "payment" | "paymentAllocation" | "refund" | "receipt" | "schoolRole" | "schoolRolePermission" | "membership" | "membershipRole" | "branch" | "staffBranch" | "schoolSettingValue" | "automationRule" | "automationRunLog" | "schoolMessageTemplate" | "numberSequence" | "attachment" | "schoolNotification" | "schoolNotificationRecipient" | "ledgerAccount" | "financePeriod" | "journalEntry" | "journalLine" | "vendor" | "expense" | "expenseLine" | "expensePayment" | "recurringExpense" | "budget" | "budgetLine" | "payComponent" | "staffPayProfile" | "staffPayComponent" | "payrollRun" | "payslip" | "payslipLine" | "staffLoan" | "staffLoanRepayment" | "payrollRemittance" | "bankStatement" | "bankStatementLine" | "bankMatchGroup" | "bankMatchedJournalLine" | "bankReconciliation" | "gatewaySettlement" | "gatewaySettlementItem" | "salaryTransfer" | "gradingScale" | "gradingBand" | "assessmentScheme" | "assessmentComponent"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -7994,6 +8070,302 @@ export namespace Prisma {
           }
         }
       }
+      GradingScale: {
+        payload: Prisma.$GradingScalePayload<ExtArgs>
+        fields: Prisma.GradingScaleFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.GradingScaleFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradingScalePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.GradingScaleFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradingScalePayload>
+          }
+          findFirst: {
+            args: Prisma.GradingScaleFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradingScalePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.GradingScaleFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradingScalePayload>
+          }
+          findMany: {
+            args: Prisma.GradingScaleFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradingScalePayload>[]
+          }
+          create: {
+            args: Prisma.GradingScaleCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradingScalePayload>
+          }
+          createMany: {
+            args: Prisma.GradingScaleCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.GradingScaleCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradingScalePayload>[]
+          }
+          delete: {
+            args: Prisma.GradingScaleDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradingScalePayload>
+          }
+          update: {
+            args: Prisma.GradingScaleUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradingScalePayload>
+          }
+          deleteMany: {
+            args: Prisma.GradingScaleDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.GradingScaleUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.GradingScaleUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradingScalePayload>[]
+          }
+          upsert: {
+            args: Prisma.GradingScaleUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradingScalePayload>
+          }
+          aggregate: {
+            args: Prisma.GradingScaleAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGradingScale>
+          }
+          groupBy: {
+            args: Prisma.GradingScaleGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GradingScaleGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.GradingScaleCountArgs<ExtArgs>
+            result: $Utils.Optional<GradingScaleCountAggregateOutputType> | number
+          }
+        }
+      }
+      GradingBand: {
+        payload: Prisma.$GradingBandPayload<ExtArgs>
+        fields: Prisma.GradingBandFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.GradingBandFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradingBandPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.GradingBandFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradingBandPayload>
+          }
+          findFirst: {
+            args: Prisma.GradingBandFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradingBandPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.GradingBandFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradingBandPayload>
+          }
+          findMany: {
+            args: Prisma.GradingBandFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradingBandPayload>[]
+          }
+          create: {
+            args: Prisma.GradingBandCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradingBandPayload>
+          }
+          createMany: {
+            args: Prisma.GradingBandCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.GradingBandCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradingBandPayload>[]
+          }
+          delete: {
+            args: Prisma.GradingBandDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradingBandPayload>
+          }
+          update: {
+            args: Prisma.GradingBandUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradingBandPayload>
+          }
+          deleteMany: {
+            args: Prisma.GradingBandDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.GradingBandUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.GradingBandUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradingBandPayload>[]
+          }
+          upsert: {
+            args: Prisma.GradingBandUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradingBandPayload>
+          }
+          aggregate: {
+            args: Prisma.GradingBandAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGradingBand>
+          }
+          groupBy: {
+            args: Prisma.GradingBandGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GradingBandGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.GradingBandCountArgs<ExtArgs>
+            result: $Utils.Optional<GradingBandCountAggregateOutputType> | number
+          }
+        }
+      }
+      AssessmentScheme: {
+        payload: Prisma.$AssessmentSchemePayload<ExtArgs>
+        fields: Prisma.AssessmentSchemeFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AssessmentSchemeFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentSchemePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AssessmentSchemeFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentSchemePayload>
+          }
+          findFirst: {
+            args: Prisma.AssessmentSchemeFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentSchemePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AssessmentSchemeFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentSchemePayload>
+          }
+          findMany: {
+            args: Prisma.AssessmentSchemeFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentSchemePayload>[]
+          }
+          create: {
+            args: Prisma.AssessmentSchemeCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentSchemePayload>
+          }
+          createMany: {
+            args: Prisma.AssessmentSchemeCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AssessmentSchemeCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentSchemePayload>[]
+          }
+          delete: {
+            args: Prisma.AssessmentSchemeDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentSchemePayload>
+          }
+          update: {
+            args: Prisma.AssessmentSchemeUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentSchemePayload>
+          }
+          deleteMany: {
+            args: Prisma.AssessmentSchemeDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AssessmentSchemeUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AssessmentSchemeUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentSchemePayload>[]
+          }
+          upsert: {
+            args: Prisma.AssessmentSchemeUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentSchemePayload>
+          }
+          aggregate: {
+            args: Prisma.AssessmentSchemeAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAssessmentScheme>
+          }
+          groupBy: {
+            args: Prisma.AssessmentSchemeGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AssessmentSchemeGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AssessmentSchemeCountArgs<ExtArgs>
+            result: $Utils.Optional<AssessmentSchemeCountAggregateOutputType> | number
+          }
+        }
+      }
+      AssessmentComponent: {
+        payload: Prisma.$AssessmentComponentPayload<ExtArgs>
+        fields: Prisma.AssessmentComponentFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AssessmentComponentFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentComponentPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AssessmentComponentFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentComponentPayload>
+          }
+          findFirst: {
+            args: Prisma.AssessmentComponentFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentComponentPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AssessmentComponentFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentComponentPayload>
+          }
+          findMany: {
+            args: Prisma.AssessmentComponentFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentComponentPayload>[]
+          }
+          create: {
+            args: Prisma.AssessmentComponentCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentComponentPayload>
+          }
+          createMany: {
+            args: Prisma.AssessmentComponentCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AssessmentComponentCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentComponentPayload>[]
+          }
+          delete: {
+            args: Prisma.AssessmentComponentDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentComponentPayload>
+          }
+          update: {
+            args: Prisma.AssessmentComponentUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentComponentPayload>
+          }
+          deleteMany: {
+            args: Prisma.AssessmentComponentDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AssessmentComponentUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AssessmentComponentUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentComponentPayload>[]
+          }
+          upsert: {
+            args: Prisma.AssessmentComponentUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentComponentPayload>
+          }
+          aggregate: {
+            args: Prisma.AssessmentComponentAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAssessmentComponent>
+          }
+          groupBy: {
+            args: Prisma.AssessmentComponentGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AssessmentComponentGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AssessmentComponentCountArgs<ExtArgs>
+            result: $Utils.Optional<AssessmentComponentCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -8191,6 +8563,10 @@ export namespace Prisma {
     gatewaySettlement?: GatewaySettlementOmit
     gatewaySettlementItem?: GatewaySettlementItemOmit
     salaryTransfer?: SalaryTransferOmit
+    gradingScale?: GradingScaleOmit
+    gradingBand?: GradingBandOmit
+    assessmentScheme?: AssessmentSchemeOmit
+    assessmentComponent?: AssessmentComponentOmit
   }
 
   /* Types for Logging */
@@ -9973,6 +10349,68 @@ export namespace Prisma {
    */
   export type GatewaySettlementCountOutputTypeCountItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: GatewaySettlementItemWhereInput
+  }
+
+
+  /**
+   * Count Type GradingScaleCountOutputType
+   */
+
+  export type GradingScaleCountOutputType = {
+    bands: number
+  }
+
+  export type GradingScaleCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    bands?: boolean | GradingScaleCountOutputTypeCountBandsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * GradingScaleCountOutputType without action
+   */
+  export type GradingScaleCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradingScaleCountOutputType
+     */
+    select?: GradingScaleCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * GradingScaleCountOutputType without action
+   */
+  export type GradingScaleCountOutputTypeCountBandsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GradingBandWhereInput
+  }
+
+
+  /**
+   * Count Type AssessmentSchemeCountOutputType
+   */
+
+  export type AssessmentSchemeCountOutputType = {
+    components: number
+  }
+
+  export type AssessmentSchemeCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    components?: boolean | AssessmentSchemeCountOutputTypeCountComponentsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * AssessmentSchemeCountOutputType without action
+   */
+  export type AssessmentSchemeCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentSchemeCountOutputType
+     */
+    select?: AssessmentSchemeCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * AssessmentSchemeCountOutputType without action
+   */
+  export type AssessmentSchemeCountOutputTypeCountComponentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AssessmentComponentWhereInput
   }
 
 
@@ -101341,6 +101779,4406 @@ export namespace Prisma {
 
 
   /**
+   * Model GradingScale
+   */
+
+  export type AggregateGradingScale = {
+    _count: GradingScaleCountAggregateOutputType | null
+    _min: GradingScaleMinAggregateOutputType | null
+    _max: GradingScaleMaxAggregateOutputType | null
+  }
+
+  export type GradingScaleMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    level: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type GradingScaleMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    level: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type GradingScaleCountAggregateOutputType = {
+    id: number
+    name: number
+    level: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type GradingScaleMinAggregateInputType = {
+    id?: true
+    name?: true
+    level?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type GradingScaleMaxAggregateInputType = {
+    id?: true
+    name?: true
+    level?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type GradingScaleCountAggregateInputType = {
+    id?: true
+    name?: true
+    level?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type GradingScaleAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GradingScale to aggregate.
+     */
+    where?: GradingScaleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GradingScales to fetch.
+     */
+    orderBy?: GradingScaleOrderByWithRelationInput | GradingScaleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: GradingScaleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GradingScales from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GradingScales.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned GradingScales
+    **/
+    _count?: true | GradingScaleCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: GradingScaleMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: GradingScaleMaxAggregateInputType
+  }
+
+  export type GetGradingScaleAggregateType<T extends GradingScaleAggregateArgs> = {
+        [P in keyof T & keyof AggregateGradingScale]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateGradingScale[P]>
+      : GetScalarType<T[P], AggregateGradingScale[P]>
+  }
+
+
+
+
+  export type GradingScaleGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GradingScaleWhereInput
+    orderBy?: GradingScaleOrderByWithAggregationInput | GradingScaleOrderByWithAggregationInput[]
+    by: GradingScaleScalarFieldEnum[] | GradingScaleScalarFieldEnum
+    having?: GradingScaleScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: GradingScaleCountAggregateInputType | true
+    _min?: GradingScaleMinAggregateInputType
+    _max?: GradingScaleMaxAggregateInputType
+  }
+
+  export type GradingScaleGroupByOutputType = {
+    id: string
+    name: string
+    level: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: GradingScaleCountAggregateOutputType | null
+    _min: GradingScaleMinAggregateOutputType | null
+    _max: GradingScaleMaxAggregateOutputType | null
+  }
+
+  type GetGradingScaleGroupByPayload<T extends GradingScaleGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<GradingScaleGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof GradingScaleGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], GradingScaleGroupByOutputType[P]>
+            : GetScalarType<T[P], GradingScaleGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type GradingScaleSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    level?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    bands?: boolean | GradingScale$bandsArgs<ExtArgs>
+    _count?: boolean | GradingScaleCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["gradingScale"]>
+
+  export type GradingScaleSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    level?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["gradingScale"]>
+
+  export type GradingScaleSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    level?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["gradingScale"]>
+
+  export type GradingScaleSelectScalar = {
+    id?: boolean
+    name?: boolean
+    level?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type GradingScaleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "level" | "createdAt" | "updatedAt", ExtArgs["result"]["gradingScale"]>
+  export type GradingScaleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    bands?: boolean | GradingScale$bandsArgs<ExtArgs>
+    _count?: boolean | GradingScaleCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type GradingScaleIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type GradingScaleIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $GradingScalePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GradingScale"
+    objects: {
+      bands: Prisma.$GradingBandPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      level: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["gradingScale"]>
+    composites: {}
+  }
+
+  type GradingScaleGetPayload<S extends boolean | null | undefined | GradingScaleDefaultArgs> = $Result.GetResult<Prisma.$GradingScalePayload, S>
+
+  type GradingScaleCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<GradingScaleFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: GradingScaleCountAggregateInputType | true
+    }
+
+  export interface GradingScaleDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GradingScale'], meta: { name: 'GradingScale' } }
+    /**
+     * Find zero or one GradingScale that matches the filter.
+     * @param {GradingScaleFindUniqueArgs} args - Arguments to find a GradingScale
+     * @example
+     * // Get one GradingScale
+     * const gradingScale = await prisma.gradingScale.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends GradingScaleFindUniqueArgs>(args: SelectSubset<T, GradingScaleFindUniqueArgs<ExtArgs>>): Prisma__GradingScaleClient<$Result.GetResult<Prisma.$GradingScalePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one GradingScale that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {GradingScaleFindUniqueOrThrowArgs} args - Arguments to find a GradingScale
+     * @example
+     * // Get one GradingScale
+     * const gradingScale = await prisma.gradingScale.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends GradingScaleFindUniqueOrThrowArgs>(args: SelectSubset<T, GradingScaleFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GradingScaleClient<$Result.GetResult<Prisma.$GradingScalePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first GradingScale that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GradingScaleFindFirstArgs} args - Arguments to find a GradingScale
+     * @example
+     * // Get one GradingScale
+     * const gradingScale = await prisma.gradingScale.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends GradingScaleFindFirstArgs>(args?: SelectSubset<T, GradingScaleFindFirstArgs<ExtArgs>>): Prisma__GradingScaleClient<$Result.GetResult<Prisma.$GradingScalePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first GradingScale that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GradingScaleFindFirstOrThrowArgs} args - Arguments to find a GradingScale
+     * @example
+     * // Get one GradingScale
+     * const gradingScale = await prisma.gradingScale.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends GradingScaleFindFirstOrThrowArgs>(args?: SelectSubset<T, GradingScaleFindFirstOrThrowArgs<ExtArgs>>): Prisma__GradingScaleClient<$Result.GetResult<Prisma.$GradingScalePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more GradingScales that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GradingScaleFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all GradingScales
+     * const gradingScales = await prisma.gradingScale.findMany()
+     * 
+     * // Get first 10 GradingScales
+     * const gradingScales = await prisma.gradingScale.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const gradingScaleWithIdOnly = await prisma.gradingScale.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends GradingScaleFindManyArgs>(args?: SelectSubset<T, GradingScaleFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GradingScalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a GradingScale.
+     * @param {GradingScaleCreateArgs} args - Arguments to create a GradingScale.
+     * @example
+     * // Create one GradingScale
+     * const GradingScale = await prisma.gradingScale.create({
+     *   data: {
+     *     // ... data to create a GradingScale
+     *   }
+     * })
+     * 
+     */
+    create<T extends GradingScaleCreateArgs>(args: SelectSubset<T, GradingScaleCreateArgs<ExtArgs>>): Prisma__GradingScaleClient<$Result.GetResult<Prisma.$GradingScalePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many GradingScales.
+     * @param {GradingScaleCreateManyArgs} args - Arguments to create many GradingScales.
+     * @example
+     * // Create many GradingScales
+     * const gradingScale = await prisma.gradingScale.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends GradingScaleCreateManyArgs>(args?: SelectSubset<T, GradingScaleCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many GradingScales and returns the data saved in the database.
+     * @param {GradingScaleCreateManyAndReturnArgs} args - Arguments to create many GradingScales.
+     * @example
+     * // Create many GradingScales
+     * const gradingScale = await prisma.gradingScale.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many GradingScales and only return the `id`
+     * const gradingScaleWithIdOnly = await prisma.gradingScale.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends GradingScaleCreateManyAndReturnArgs>(args?: SelectSubset<T, GradingScaleCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GradingScalePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a GradingScale.
+     * @param {GradingScaleDeleteArgs} args - Arguments to delete one GradingScale.
+     * @example
+     * // Delete one GradingScale
+     * const GradingScale = await prisma.gradingScale.delete({
+     *   where: {
+     *     // ... filter to delete one GradingScale
+     *   }
+     * })
+     * 
+     */
+    delete<T extends GradingScaleDeleteArgs>(args: SelectSubset<T, GradingScaleDeleteArgs<ExtArgs>>): Prisma__GradingScaleClient<$Result.GetResult<Prisma.$GradingScalePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one GradingScale.
+     * @param {GradingScaleUpdateArgs} args - Arguments to update one GradingScale.
+     * @example
+     * // Update one GradingScale
+     * const gradingScale = await prisma.gradingScale.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends GradingScaleUpdateArgs>(args: SelectSubset<T, GradingScaleUpdateArgs<ExtArgs>>): Prisma__GradingScaleClient<$Result.GetResult<Prisma.$GradingScalePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more GradingScales.
+     * @param {GradingScaleDeleteManyArgs} args - Arguments to filter GradingScales to delete.
+     * @example
+     * // Delete a few GradingScales
+     * const { count } = await prisma.gradingScale.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends GradingScaleDeleteManyArgs>(args?: SelectSubset<T, GradingScaleDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GradingScales.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GradingScaleUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many GradingScales
+     * const gradingScale = await prisma.gradingScale.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends GradingScaleUpdateManyArgs>(args: SelectSubset<T, GradingScaleUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GradingScales and returns the data updated in the database.
+     * @param {GradingScaleUpdateManyAndReturnArgs} args - Arguments to update many GradingScales.
+     * @example
+     * // Update many GradingScales
+     * const gradingScale = await prisma.gradingScale.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more GradingScales and only return the `id`
+     * const gradingScaleWithIdOnly = await prisma.gradingScale.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends GradingScaleUpdateManyAndReturnArgs>(args: SelectSubset<T, GradingScaleUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GradingScalePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one GradingScale.
+     * @param {GradingScaleUpsertArgs} args - Arguments to update or create a GradingScale.
+     * @example
+     * // Update or create a GradingScale
+     * const gradingScale = await prisma.gradingScale.upsert({
+     *   create: {
+     *     // ... data to create a GradingScale
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the GradingScale we want to update
+     *   }
+     * })
+     */
+    upsert<T extends GradingScaleUpsertArgs>(args: SelectSubset<T, GradingScaleUpsertArgs<ExtArgs>>): Prisma__GradingScaleClient<$Result.GetResult<Prisma.$GradingScalePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of GradingScales.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GradingScaleCountArgs} args - Arguments to filter GradingScales to count.
+     * @example
+     * // Count the number of GradingScales
+     * const count = await prisma.gradingScale.count({
+     *   where: {
+     *     // ... the filter for the GradingScales we want to count
+     *   }
+     * })
+    **/
+    count<T extends GradingScaleCountArgs>(
+      args?: Subset<T, GradingScaleCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], GradingScaleCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a GradingScale.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GradingScaleAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends GradingScaleAggregateArgs>(args: Subset<T, GradingScaleAggregateArgs>): Prisma.PrismaPromise<GetGradingScaleAggregateType<T>>
+
+    /**
+     * Group by GradingScale.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GradingScaleGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends GradingScaleGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: GradingScaleGroupByArgs['orderBy'] }
+        : { orderBy?: GradingScaleGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, GradingScaleGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGradingScaleGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the GradingScale model
+   */
+  readonly fields: GradingScaleFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for GradingScale.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__GradingScaleClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    bands<T extends GradingScale$bandsArgs<ExtArgs> = {}>(args?: Subset<T, GradingScale$bandsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GradingBandPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the GradingScale model
+   */
+  interface GradingScaleFieldRefs {
+    readonly id: FieldRef<"GradingScale", 'String'>
+    readonly name: FieldRef<"GradingScale", 'String'>
+    readonly level: FieldRef<"GradingScale", 'String'>
+    readonly createdAt: FieldRef<"GradingScale", 'DateTime'>
+    readonly updatedAt: FieldRef<"GradingScale", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * GradingScale findUnique
+   */
+  export type GradingScaleFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradingScale
+     */
+    select?: GradingScaleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradingScale
+     */
+    omit?: GradingScaleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradingScaleInclude<ExtArgs> | null
+    /**
+     * Filter, which GradingScale to fetch.
+     */
+    where: GradingScaleWhereUniqueInput
+  }
+
+  /**
+   * GradingScale findUniqueOrThrow
+   */
+  export type GradingScaleFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradingScale
+     */
+    select?: GradingScaleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradingScale
+     */
+    omit?: GradingScaleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradingScaleInclude<ExtArgs> | null
+    /**
+     * Filter, which GradingScale to fetch.
+     */
+    where: GradingScaleWhereUniqueInput
+  }
+
+  /**
+   * GradingScale findFirst
+   */
+  export type GradingScaleFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradingScale
+     */
+    select?: GradingScaleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradingScale
+     */
+    omit?: GradingScaleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradingScaleInclude<ExtArgs> | null
+    /**
+     * Filter, which GradingScale to fetch.
+     */
+    where?: GradingScaleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GradingScales to fetch.
+     */
+    orderBy?: GradingScaleOrderByWithRelationInput | GradingScaleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GradingScales.
+     */
+    cursor?: GradingScaleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GradingScales from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GradingScales.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GradingScales.
+     */
+    distinct?: GradingScaleScalarFieldEnum | GradingScaleScalarFieldEnum[]
+  }
+
+  /**
+   * GradingScale findFirstOrThrow
+   */
+  export type GradingScaleFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradingScale
+     */
+    select?: GradingScaleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradingScale
+     */
+    omit?: GradingScaleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradingScaleInclude<ExtArgs> | null
+    /**
+     * Filter, which GradingScale to fetch.
+     */
+    where?: GradingScaleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GradingScales to fetch.
+     */
+    orderBy?: GradingScaleOrderByWithRelationInput | GradingScaleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GradingScales.
+     */
+    cursor?: GradingScaleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GradingScales from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GradingScales.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GradingScales.
+     */
+    distinct?: GradingScaleScalarFieldEnum | GradingScaleScalarFieldEnum[]
+  }
+
+  /**
+   * GradingScale findMany
+   */
+  export type GradingScaleFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradingScale
+     */
+    select?: GradingScaleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradingScale
+     */
+    omit?: GradingScaleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradingScaleInclude<ExtArgs> | null
+    /**
+     * Filter, which GradingScales to fetch.
+     */
+    where?: GradingScaleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GradingScales to fetch.
+     */
+    orderBy?: GradingScaleOrderByWithRelationInput | GradingScaleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing GradingScales.
+     */
+    cursor?: GradingScaleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GradingScales from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GradingScales.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GradingScales.
+     */
+    distinct?: GradingScaleScalarFieldEnum | GradingScaleScalarFieldEnum[]
+  }
+
+  /**
+   * GradingScale create
+   */
+  export type GradingScaleCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradingScale
+     */
+    select?: GradingScaleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradingScale
+     */
+    omit?: GradingScaleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradingScaleInclude<ExtArgs> | null
+    /**
+     * The data needed to create a GradingScale.
+     */
+    data: XOR<GradingScaleCreateInput, GradingScaleUncheckedCreateInput>
+  }
+
+  /**
+   * GradingScale createMany
+   */
+  export type GradingScaleCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many GradingScales.
+     */
+    data: GradingScaleCreateManyInput | GradingScaleCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GradingScale createManyAndReturn
+   */
+  export type GradingScaleCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradingScale
+     */
+    select?: GradingScaleSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradingScale
+     */
+    omit?: GradingScaleOmit<ExtArgs> | null
+    /**
+     * The data used to create many GradingScales.
+     */
+    data: GradingScaleCreateManyInput | GradingScaleCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GradingScale update
+   */
+  export type GradingScaleUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradingScale
+     */
+    select?: GradingScaleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradingScale
+     */
+    omit?: GradingScaleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradingScaleInclude<ExtArgs> | null
+    /**
+     * The data needed to update a GradingScale.
+     */
+    data: XOR<GradingScaleUpdateInput, GradingScaleUncheckedUpdateInput>
+    /**
+     * Choose, which GradingScale to update.
+     */
+    where: GradingScaleWhereUniqueInput
+  }
+
+  /**
+   * GradingScale updateMany
+   */
+  export type GradingScaleUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update GradingScales.
+     */
+    data: XOR<GradingScaleUpdateManyMutationInput, GradingScaleUncheckedUpdateManyInput>
+    /**
+     * Filter which GradingScales to update
+     */
+    where?: GradingScaleWhereInput
+    /**
+     * Limit how many GradingScales to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * GradingScale updateManyAndReturn
+   */
+  export type GradingScaleUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradingScale
+     */
+    select?: GradingScaleSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradingScale
+     */
+    omit?: GradingScaleOmit<ExtArgs> | null
+    /**
+     * The data used to update GradingScales.
+     */
+    data: XOR<GradingScaleUpdateManyMutationInput, GradingScaleUncheckedUpdateManyInput>
+    /**
+     * Filter which GradingScales to update
+     */
+    where?: GradingScaleWhereInput
+    /**
+     * Limit how many GradingScales to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * GradingScale upsert
+   */
+  export type GradingScaleUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradingScale
+     */
+    select?: GradingScaleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradingScale
+     */
+    omit?: GradingScaleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradingScaleInclude<ExtArgs> | null
+    /**
+     * The filter to search for the GradingScale to update in case it exists.
+     */
+    where: GradingScaleWhereUniqueInput
+    /**
+     * In case the GradingScale found by the `where` argument doesn't exist, create a new GradingScale with this data.
+     */
+    create: XOR<GradingScaleCreateInput, GradingScaleUncheckedCreateInput>
+    /**
+     * In case the GradingScale was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<GradingScaleUpdateInput, GradingScaleUncheckedUpdateInput>
+  }
+
+  /**
+   * GradingScale delete
+   */
+  export type GradingScaleDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradingScale
+     */
+    select?: GradingScaleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradingScale
+     */
+    omit?: GradingScaleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradingScaleInclude<ExtArgs> | null
+    /**
+     * Filter which GradingScale to delete.
+     */
+    where: GradingScaleWhereUniqueInput
+  }
+
+  /**
+   * GradingScale deleteMany
+   */
+  export type GradingScaleDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GradingScales to delete
+     */
+    where?: GradingScaleWhereInput
+    /**
+     * Limit how many GradingScales to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * GradingScale.bands
+   */
+  export type GradingScale$bandsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradingBand
+     */
+    select?: GradingBandSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradingBand
+     */
+    omit?: GradingBandOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradingBandInclude<ExtArgs> | null
+    where?: GradingBandWhereInput
+    orderBy?: GradingBandOrderByWithRelationInput | GradingBandOrderByWithRelationInput[]
+    cursor?: GradingBandWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: GradingBandScalarFieldEnum | GradingBandScalarFieldEnum[]
+  }
+
+  /**
+   * GradingScale without action
+   */
+  export type GradingScaleDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradingScale
+     */
+    select?: GradingScaleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradingScale
+     */
+    omit?: GradingScaleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradingScaleInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model GradingBand
+   */
+
+  export type AggregateGradingBand = {
+    _count: GradingBandCountAggregateOutputType | null
+    _avg: GradingBandAvgAggregateOutputType | null
+    _sum: GradingBandSumAggregateOutputType | null
+    _min: GradingBandMinAggregateOutputType | null
+    _max: GradingBandMaxAggregateOutputType | null
+  }
+
+  export type GradingBandAvgAggregateOutputType = {
+    minScore: number | null
+  }
+
+  export type GradingBandSumAggregateOutputType = {
+    minScore: number | null
+  }
+
+  export type GradingBandMinAggregateOutputType = {
+    id: string | null
+    scaleId: string | null
+    minScore: number | null
+    grade: string | null
+    remark: string | null
+    isPass: boolean | null
+    createdAt: Date | null
+  }
+
+  export type GradingBandMaxAggregateOutputType = {
+    id: string | null
+    scaleId: string | null
+    minScore: number | null
+    grade: string | null
+    remark: string | null
+    isPass: boolean | null
+    createdAt: Date | null
+  }
+
+  export type GradingBandCountAggregateOutputType = {
+    id: number
+    scaleId: number
+    minScore: number
+    grade: number
+    remark: number
+    isPass: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type GradingBandAvgAggregateInputType = {
+    minScore?: true
+  }
+
+  export type GradingBandSumAggregateInputType = {
+    minScore?: true
+  }
+
+  export type GradingBandMinAggregateInputType = {
+    id?: true
+    scaleId?: true
+    minScore?: true
+    grade?: true
+    remark?: true
+    isPass?: true
+    createdAt?: true
+  }
+
+  export type GradingBandMaxAggregateInputType = {
+    id?: true
+    scaleId?: true
+    minScore?: true
+    grade?: true
+    remark?: true
+    isPass?: true
+    createdAt?: true
+  }
+
+  export type GradingBandCountAggregateInputType = {
+    id?: true
+    scaleId?: true
+    minScore?: true
+    grade?: true
+    remark?: true
+    isPass?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type GradingBandAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GradingBand to aggregate.
+     */
+    where?: GradingBandWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GradingBands to fetch.
+     */
+    orderBy?: GradingBandOrderByWithRelationInput | GradingBandOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: GradingBandWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GradingBands from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GradingBands.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned GradingBands
+    **/
+    _count?: true | GradingBandCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: GradingBandAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: GradingBandSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: GradingBandMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: GradingBandMaxAggregateInputType
+  }
+
+  export type GetGradingBandAggregateType<T extends GradingBandAggregateArgs> = {
+        [P in keyof T & keyof AggregateGradingBand]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateGradingBand[P]>
+      : GetScalarType<T[P], AggregateGradingBand[P]>
+  }
+
+
+
+
+  export type GradingBandGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GradingBandWhereInput
+    orderBy?: GradingBandOrderByWithAggregationInput | GradingBandOrderByWithAggregationInput[]
+    by: GradingBandScalarFieldEnum[] | GradingBandScalarFieldEnum
+    having?: GradingBandScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: GradingBandCountAggregateInputType | true
+    _avg?: GradingBandAvgAggregateInputType
+    _sum?: GradingBandSumAggregateInputType
+    _min?: GradingBandMinAggregateInputType
+    _max?: GradingBandMaxAggregateInputType
+  }
+
+  export type GradingBandGroupByOutputType = {
+    id: string
+    scaleId: string
+    minScore: number
+    grade: string
+    remark: string
+    isPass: boolean
+    createdAt: Date
+    _count: GradingBandCountAggregateOutputType | null
+    _avg: GradingBandAvgAggregateOutputType | null
+    _sum: GradingBandSumAggregateOutputType | null
+    _min: GradingBandMinAggregateOutputType | null
+    _max: GradingBandMaxAggregateOutputType | null
+  }
+
+  type GetGradingBandGroupByPayload<T extends GradingBandGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<GradingBandGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof GradingBandGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], GradingBandGroupByOutputType[P]>
+            : GetScalarType<T[P], GradingBandGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type GradingBandSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    scaleId?: boolean
+    minScore?: boolean
+    grade?: boolean
+    remark?: boolean
+    isPass?: boolean
+    createdAt?: boolean
+    scale?: boolean | GradingScaleDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["gradingBand"]>
+
+  export type GradingBandSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    scaleId?: boolean
+    minScore?: boolean
+    grade?: boolean
+    remark?: boolean
+    isPass?: boolean
+    createdAt?: boolean
+    scale?: boolean | GradingScaleDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["gradingBand"]>
+
+  export type GradingBandSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    scaleId?: boolean
+    minScore?: boolean
+    grade?: boolean
+    remark?: boolean
+    isPass?: boolean
+    createdAt?: boolean
+    scale?: boolean | GradingScaleDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["gradingBand"]>
+
+  export type GradingBandSelectScalar = {
+    id?: boolean
+    scaleId?: boolean
+    minScore?: boolean
+    grade?: boolean
+    remark?: boolean
+    isPass?: boolean
+    createdAt?: boolean
+  }
+
+  export type GradingBandOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "scaleId" | "minScore" | "grade" | "remark" | "isPass" | "createdAt", ExtArgs["result"]["gradingBand"]>
+  export type GradingBandInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    scale?: boolean | GradingScaleDefaultArgs<ExtArgs>
+  }
+  export type GradingBandIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    scale?: boolean | GradingScaleDefaultArgs<ExtArgs>
+  }
+  export type GradingBandIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    scale?: boolean | GradingScaleDefaultArgs<ExtArgs>
+  }
+
+  export type $GradingBandPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GradingBand"
+    objects: {
+      scale: Prisma.$GradingScalePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      scaleId: string
+      minScore: number
+      grade: string
+      remark: string
+      isPass: boolean
+      createdAt: Date
+    }, ExtArgs["result"]["gradingBand"]>
+    composites: {}
+  }
+
+  type GradingBandGetPayload<S extends boolean | null | undefined | GradingBandDefaultArgs> = $Result.GetResult<Prisma.$GradingBandPayload, S>
+
+  type GradingBandCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<GradingBandFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: GradingBandCountAggregateInputType | true
+    }
+
+  export interface GradingBandDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GradingBand'], meta: { name: 'GradingBand' } }
+    /**
+     * Find zero or one GradingBand that matches the filter.
+     * @param {GradingBandFindUniqueArgs} args - Arguments to find a GradingBand
+     * @example
+     * // Get one GradingBand
+     * const gradingBand = await prisma.gradingBand.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends GradingBandFindUniqueArgs>(args: SelectSubset<T, GradingBandFindUniqueArgs<ExtArgs>>): Prisma__GradingBandClient<$Result.GetResult<Prisma.$GradingBandPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one GradingBand that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {GradingBandFindUniqueOrThrowArgs} args - Arguments to find a GradingBand
+     * @example
+     * // Get one GradingBand
+     * const gradingBand = await prisma.gradingBand.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends GradingBandFindUniqueOrThrowArgs>(args: SelectSubset<T, GradingBandFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GradingBandClient<$Result.GetResult<Prisma.$GradingBandPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first GradingBand that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GradingBandFindFirstArgs} args - Arguments to find a GradingBand
+     * @example
+     * // Get one GradingBand
+     * const gradingBand = await prisma.gradingBand.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends GradingBandFindFirstArgs>(args?: SelectSubset<T, GradingBandFindFirstArgs<ExtArgs>>): Prisma__GradingBandClient<$Result.GetResult<Prisma.$GradingBandPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first GradingBand that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GradingBandFindFirstOrThrowArgs} args - Arguments to find a GradingBand
+     * @example
+     * // Get one GradingBand
+     * const gradingBand = await prisma.gradingBand.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends GradingBandFindFirstOrThrowArgs>(args?: SelectSubset<T, GradingBandFindFirstOrThrowArgs<ExtArgs>>): Prisma__GradingBandClient<$Result.GetResult<Prisma.$GradingBandPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more GradingBands that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GradingBandFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all GradingBands
+     * const gradingBands = await prisma.gradingBand.findMany()
+     * 
+     * // Get first 10 GradingBands
+     * const gradingBands = await prisma.gradingBand.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const gradingBandWithIdOnly = await prisma.gradingBand.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends GradingBandFindManyArgs>(args?: SelectSubset<T, GradingBandFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GradingBandPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a GradingBand.
+     * @param {GradingBandCreateArgs} args - Arguments to create a GradingBand.
+     * @example
+     * // Create one GradingBand
+     * const GradingBand = await prisma.gradingBand.create({
+     *   data: {
+     *     // ... data to create a GradingBand
+     *   }
+     * })
+     * 
+     */
+    create<T extends GradingBandCreateArgs>(args: SelectSubset<T, GradingBandCreateArgs<ExtArgs>>): Prisma__GradingBandClient<$Result.GetResult<Prisma.$GradingBandPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many GradingBands.
+     * @param {GradingBandCreateManyArgs} args - Arguments to create many GradingBands.
+     * @example
+     * // Create many GradingBands
+     * const gradingBand = await prisma.gradingBand.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends GradingBandCreateManyArgs>(args?: SelectSubset<T, GradingBandCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many GradingBands and returns the data saved in the database.
+     * @param {GradingBandCreateManyAndReturnArgs} args - Arguments to create many GradingBands.
+     * @example
+     * // Create many GradingBands
+     * const gradingBand = await prisma.gradingBand.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many GradingBands and only return the `id`
+     * const gradingBandWithIdOnly = await prisma.gradingBand.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends GradingBandCreateManyAndReturnArgs>(args?: SelectSubset<T, GradingBandCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GradingBandPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a GradingBand.
+     * @param {GradingBandDeleteArgs} args - Arguments to delete one GradingBand.
+     * @example
+     * // Delete one GradingBand
+     * const GradingBand = await prisma.gradingBand.delete({
+     *   where: {
+     *     // ... filter to delete one GradingBand
+     *   }
+     * })
+     * 
+     */
+    delete<T extends GradingBandDeleteArgs>(args: SelectSubset<T, GradingBandDeleteArgs<ExtArgs>>): Prisma__GradingBandClient<$Result.GetResult<Prisma.$GradingBandPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one GradingBand.
+     * @param {GradingBandUpdateArgs} args - Arguments to update one GradingBand.
+     * @example
+     * // Update one GradingBand
+     * const gradingBand = await prisma.gradingBand.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends GradingBandUpdateArgs>(args: SelectSubset<T, GradingBandUpdateArgs<ExtArgs>>): Prisma__GradingBandClient<$Result.GetResult<Prisma.$GradingBandPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more GradingBands.
+     * @param {GradingBandDeleteManyArgs} args - Arguments to filter GradingBands to delete.
+     * @example
+     * // Delete a few GradingBands
+     * const { count } = await prisma.gradingBand.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends GradingBandDeleteManyArgs>(args?: SelectSubset<T, GradingBandDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GradingBands.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GradingBandUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many GradingBands
+     * const gradingBand = await prisma.gradingBand.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends GradingBandUpdateManyArgs>(args: SelectSubset<T, GradingBandUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GradingBands and returns the data updated in the database.
+     * @param {GradingBandUpdateManyAndReturnArgs} args - Arguments to update many GradingBands.
+     * @example
+     * // Update many GradingBands
+     * const gradingBand = await prisma.gradingBand.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more GradingBands and only return the `id`
+     * const gradingBandWithIdOnly = await prisma.gradingBand.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends GradingBandUpdateManyAndReturnArgs>(args: SelectSubset<T, GradingBandUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GradingBandPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one GradingBand.
+     * @param {GradingBandUpsertArgs} args - Arguments to update or create a GradingBand.
+     * @example
+     * // Update or create a GradingBand
+     * const gradingBand = await prisma.gradingBand.upsert({
+     *   create: {
+     *     // ... data to create a GradingBand
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the GradingBand we want to update
+     *   }
+     * })
+     */
+    upsert<T extends GradingBandUpsertArgs>(args: SelectSubset<T, GradingBandUpsertArgs<ExtArgs>>): Prisma__GradingBandClient<$Result.GetResult<Prisma.$GradingBandPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of GradingBands.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GradingBandCountArgs} args - Arguments to filter GradingBands to count.
+     * @example
+     * // Count the number of GradingBands
+     * const count = await prisma.gradingBand.count({
+     *   where: {
+     *     // ... the filter for the GradingBands we want to count
+     *   }
+     * })
+    **/
+    count<T extends GradingBandCountArgs>(
+      args?: Subset<T, GradingBandCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], GradingBandCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a GradingBand.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GradingBandAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends GradingBandAggregateArgs>(args: Subset<T, GradingBandAggregateArgs>): Prisma.PrismaPromise<GetGradingBandAggregateType<T>>
+
+    /**
+     * Group by GradingBand.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GradingBandGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends GradingBandGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: GradingBandGroupByArgs['orderBy'] }
+        : { orderBy?: GradingBandGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, GradingBandGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGradingBandGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the GradingBand model
+   */
+  readonly fields: GradingBandFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for GradingBand.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__GradingBandClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    scale<T extends GradingScaleDefaultArgs<ExtArgs> = {}>(args?: Subset<T, GradingScaleDefaultArgs<ExtArgs>>): Prisma__GradingScaleClient<$Result.GetResult<Prisma.$GradingScalePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the GradingBand model
+   */
+  interface GradingBandFieldRefs {
+    readonly id: FieldRef<"GradingBand", 'String'>
+    readonly scaleId: FieldRef<"GradingBand", 'String'>
+    readonly minScore: FieldRef<"GradingBand", 'Float'>
+    readonly grade: FieldRef<"GradingBand", 'String'>
+    readonly remark: FieldRef<"GradingBand", 'String'>
+    readonly isPass: FieldRef<"GradingBand", 'Boolean'>
+    readonly createdAt: FieldRef<"GradingBand", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * GradingBand findUnique
+   */
+  export type GradingBandFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradingBand
+     */
+    select?: GradingBandSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradingBand
+     */
+    omit?: GradingBandOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradingBandInclude<ExtArgs> | null
+    /**
+     * Filter, which GradingBand to fetch.
+     */
+    where: GradingBandWhereUniqueInput
+  }
+
+  /**
+   * GradingBand findUniqueOrThrow
+   */
+  export type GradingBandFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradingBand
+     */
+    select?: GradingBandSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradingBand
+     */
+    omit?: GradingBandOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradingBandInclude<ExtArgs> | null
+    /**
+     * Filter, which GradingBand to fetch.
+     */
+    where: GradingBandWhereUniqueInput
+  }
+
+  /**
+   * GradingBand findFirst
+   */
+  export type GradingBandFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradingBand
+     */
+    select?: GradingBandSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradingBand
+     */
+    omit?: GradingBandOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradingBandInclude<ExtArgs> | null
+    /**
+     * Filter, which GradingBand to fetch.
+     */
+    where?: GradingBandWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GradingBands to fetch.
+     */
+    orderBy?: GradingBandOrderByWithRelationInput | GradingBandOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GradingBands.
+     */
+    cursor?: GradingBandWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GradingBands from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GradingBands.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GradingBands.
+     */
+    distinct?: GradingBandScalarFieldEnum | GradingBandScalarFieldEnum[]
+  }
+
+  /**
+   * GradingBand findFirstOrThrow
+   */
+  export type GradingBandFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradingBand
+     */
+    select?: GradingBandSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradingBand
+     */
+    omit?: GradingBandOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradingBandInclude<ExtArgs> | null
+    /**
+     * Filter, which GradingBand to fetch.
+     */
+    where?: GradingBandWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GradingBands to fetch.
+     */
+    orderBy?: GradingBandOrderByWithRelationInput | GradingBandOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GradingBands.
+     */
+    cursor?: GradingBandWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GradingBands from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GradingBands.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GradingBands.
+     */
+    distinct?: GradingBandScalarFieldEnum | GradingBandScalarFieldEnum[]
+  }
+
+  /**
+   * GradingBand findMany
+   */
+  export type GradingBandFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradingBand
+     */
+    select?: GradingBandSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradingBand
+     */
+    omit?: GradingBandOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradingBandInclude<ExtArgs> | null
+    /**
+     * Filter, which GradingBands to fetch.
+     */
+    where?: GradingBandWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GradingBands to fetch.
+     */
+    orderBy?: GradingBandOrderByWithRelationInput | GradingBandOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing GradingBands.
+     */
+    cursor?: GradingBandWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GradingBands from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GradingBands.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GradingBands.
+     */
+    distinct?: GradingBandScalarFieldEnum | GradingBandScalarFieldEnum[]
+  }
+
+  /**
+   * GradingBand create
+   */
+  export type GradingBandCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradingBand
+     */
+    select?: GradingBandSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradingBand
+     */
+    omit?: GradingBandOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradingBandInclude<ExtArgs> | null
+    /**
+     * The data needed to create a GradingBand.
+     */
+    data: XOR<GradingBandCreateInput, GradingBandUncheckedCreateInput>
+  }
+
+  /**
+   * GradingBand createMany
+   */
+  export type GradingBandCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many GradingBands.
+     */
+    data: GradingBandCreateManyInput | GradingBandCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GradingBand createManyAndReturn
+   */
+  export type GradingBandCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradingBand
+     */
+    select?: GradingBandSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradingBand
+     */
+    omit?: GradingBandOmit<ExtArgs> | null
+    /**
+     * The data used to create many GradingBands.
+     */
+    data: GradingBandCreateManyInput | GradingBandCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradingBandIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * GradingBand update
+   */
+  export type GradingBandUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradingBand
+     */
+    select?: GradingBandSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradingBand
+     */
+    omit?: GradingBandOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradingBandInclude<ExtArgs> | null
+    /**
+     * The data needed to update a GradingBand.
+     */
+    data: XOR<GradingBandUpdateInput, GradingBandUncheckedUpdateInput>
+    /**
+     * Choose, which GradingBand to update.
+     */
+    where: GradingBandWhereUniqueInput
+  }
+
+  /**
+   * GradingBand updateMany
+   */
+  export type GradingBandUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update GradingBands.
+     */
+    data: XOR<GradingBandUpdateManyMutationInput, GradingBandUncheckedUpdateManyInput>
+    /**
+     * Filter which GradingBands to update
+     */
+    where?: GradingBandWhereInput
+    /**
+     * Limit how many GradingBands to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * GradingBand updateManyAndReturn
+   */
+  export type GradingBandUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradingBand
+     */
+    select?: GradingBandSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradingBand
+     */
+    omit?: GradingBandOmit<ExtArgs> | null
+    /**
+     * The data used to update GradingBands.
+     */
+    data: XOR<GradingBandUpdateManyMutationInput, GradingBandUncheckedUpdateManyInput>
+    /**
+     * Filter which GradingBands to update
+     */
+    where?: GradingBandWhereInput
+    /**
+     * Limit how many GradingBands to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradingBandIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * GradingBand upsert
+   */
+  export type GradingBandUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradingBand
+     */
+    select?: GradingBandSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradingBand
+     */
+    omit?: GradingBandOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradingBandInclude<ExtArgs> | null
+    /**
+     * The filter to search for the GradingBand to update in case it exists.
+     */
+    where: GradingBandWhereUniqueInput
+    /**
+     * In case the GradingBand found by the `where` argument doesn't exist, create a new GradingBand with this data.
+     */
+    create: XOR<GradingBandCreateInput, GradingBandUncheckedCreateInput>
+    /**
+     * In case the GradingBand was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<GradingBandUpdateInput, GradingBandUncheckedUpdateInput>
+  }
+
+  /**
+   * GradingBand delete
+   */
+  export type GradingBandDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradingBand
+     */
+    select?: GradingBandSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradingBand
+     */
+    omit?: GradingBandOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradingBandInclude<ExtArgs> | null
+    /**
+     * Filter which GradingBand to delete.
+     */
+    where: GradingBandWhereUniqueInput
+  }
+
+  /**
+   * GradingBand deleteMany
+   */
+  export type GradingBandDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GradingBands to delete
+     */
+    where?: GradingBandWhereInput
+    /**
+     * Limit how many GradingBands to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * GradingBand without action
+   */
+  export type GradingBandDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradingBand
+     */
+    select?: GradingBandSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradingBand
+     */
+    omit?: GradingBandOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradingBandInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AssessmentScheme
+   */
+
+  export type AggregateAssessmentScheme = {
+    _count: AssessmentSchemeCountAggregateOutputType | null
+    _min: AssessmentSchemeMinAggregateOutputType | null
+    _max: AssessmentSchemeMaxAggregateOutputType | null
+  }
+
+  export type AssessmentSchemeMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    level: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AssessmentSchemeMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    level: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AssessmentSchemeCountAggregateOutputType = {
+    id: number
+    name: number
+    level: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type AssessmentSchemeMinAggregateInputType = {
+    id?: true
+    name?: true
+    level?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AssessmentSchemeMaxAggregateInputType = {
+    id?: true
+    name?: true
+    level?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AssessmentSchemeCountAggregateInputType = {
+    id?: true
+    name?: true
+    level?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type AssessmentSchemeAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AssessmentScheme to aggregate.
+     */
+    where?: AssessmentSchemeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssessmentSchemes to fetch.
+     */
+    orderBy?: AssessmentSchemeOrderByWithRelationInput | AssessmentSchemeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AssessmentSchemeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssessmentSchemes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssessmentSchemes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AssessmentSchemes
+    **/
+    _count?: true | AssessmentSchemeCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AssessmentSchemeMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AssessmentSchemeMaxAggregateInputType
+  }
+
+  export type GetAssessmentSchemeAggregateType<T extends AssessmentSchemeAggregateArgs> = {
+        [P in keyof T & keyof AggregateAssessmentScheme]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAssessmentScheme[P]>
+      : GetScalarType<T[P], AggregateAssessmentScheme[P]>
+  }
+
+
+
+
+  export type AssessmentSchemeGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AssessmentSchemeWhereInput
+    orderBy?: AssessmentSchemeOrderByWithAggregationInput | AssessmentSchemeOrderByWithAggregationInput[]
+    by: AssessmentSchemeScalarFieldEnum[] | AssessmentSchemeScalarFieldEnum
+    having?: AssessmentSchemeScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AssessmentSchemeCountAggregateInputType | true
+    _min?: AssessmentSchemeMinAggregateInputType
+    _max?: AssessmentSchemeMaxAggregateInputType
+  }
+
+  export type AssessmentSchemeGroupByOutputType = {
+    id: string
+    name: string
+    level: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: AssessmentSchemeCountAggregateOutputType | null
+    _min: AssessmentSchemeMinAggregateOutputType | null
+    _max: AssessmentSchemeMaxAggregateOutputType | null
+  }
+
+  type GetAssessmentSchemeGroupByPayload<T extends AssessmentSchemeGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AssessmentSchemeGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AssessmentSchemeGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AssessmentSchemeGroupByOutputType[P]>
+            : GetScalarType<T[P], AssessmentSchemeGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AssessmentSchemeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    level?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    components?: boolean | AssessmentScheme$componentsArgs<ExtArgs>
+    _count?: boolean | AssessmentSchemeCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["assessmentScheme"]>
+
+  export type AssessmentSchemeSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    level?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["assessmentScheme"]>
+
+  export type AssessmentSchemeSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    level?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["assessmentScheme"]>
+
+  export type AssessmentSchemeSelectScalar = {
+    id?: boolean
+    name?: boolean
+    level?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type AssessmentSchemeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "level" | "createdAt" | "updatedAt", ExtArgs["result"]["assessmentScheme"]>
+  export type AssessmentSchemeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    components?: boolean | AssessmentScheme$componentsArgs<ExtArgs>
+    _count?: boolean | AssessmentSchemeCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type AssessmentSchemeIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type AssessmentSchemeIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $AssessmentSchemePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AssessmentScheme"
+    objects: {
+      components: Prisma.$AssessmentComponentPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      level: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["assessmentScheme"]>
+    composites: {}
+  }
+
+  type AssessmentSchemeGetPayload<S extends boolean | null | undefined | AssessmentSchemeDefaultArgs> = $Result.GetResult<Prisma.$AssessmentSchemePayload, S>
+
+  type AssessmentSchemeCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AssessmentSchemeFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AssessmentSchemeCountAggregateInputType | true
+    }
+
+  export interface AssessmentSchemeDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AssessmentScheme'], meta: { name: 'AssessmentScheme' } }
+    /**
+     * Find zero or one AssessmentScheme that matches the filter.
+     * @param {AssessmentSchemeFindUniqueArgs} args - Arguments to find a AssessmentScheme
+     * @example
+     * // Get one AssessmentScheme
+     * const assessmentScheme = await prisma.assessmentScheme.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AssessmentSchemeFindUniqueArgs>(args: SelectSubset<T, AssessmentSchemeFindUniqueArgs<ExtArgs>>): Prisma__AssessmentSchemeClient<$Result.GetResult<Prisma.$AssessmentSchemePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AssessmentScheme that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AssessmentSchemeFindUniqueOrThrowArgs} args - Arguments to find a AssessmentScheme
+     * @example
+     * // Get one AssessmentScheme
+     * const assessmentScheme = await prisma.assessmentScheme.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AssessmentSchemeFindUniqueOrThrowArgs>(args: SelectSubset<T, AssessmentSchemeFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AssessmentSchemeClient<$Result.GetResult<Prisma.$AssessmentSchemePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AssessmentScheme that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssessmentSchemeFindFirstArgs} args - Arguments to find a AssessmentScheme
+     * @example
+     * // Get one AssessmentScheme
+     * const assessmentScheme = await prisma.assessmentScheme.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AssessmentSchemeFindFirstArgs>(args?: SelectSubset<T, AssessmentSchemeFindFirstArgs<ExtArgs>>): Prisma__AssessmentSchemeClient<$Result.GetResult<Prisma.$AssessmentSchemePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AssessmentScheme that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssessmentSchemeFindFirstOrThrowArgs} args - Arguments to find a AssessmentScheme
+     * @example
+     * // Get one AssessmentScheme
+     * const assessmentScheme = await prisma.assessmentScheme.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AssessmentSchemeFindFirstOrThrowArgs>(args?: SelectSubset<T, AssessmentSchemeFindFirstOrThrowArgs<ExtArgs>>): Prisma__AssessmentSchemeClient<$Result.GetResult<Prisma.$AssessmentSchemePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AssessmentSchemes that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssessmentSchemeFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AssessmentSchemes
+     * const assessmentSchemes = await prisma.assessmentScheme.findMany()
+     * 
+     * // Get first 10 AssessmentSchemes
+     * const assessmentSchemes = await prisma.assessmentScheme.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const assessmentSchemeWithIdOnly = await prisma.assessmentScheme.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AssessmentSchemeFindManyArgs>(args?: SelectSubset<T, AssessmentSchemeFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssessmentSchemePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AssessmentScheme.
+     * @param {AssessmentSchemeCreateArgs} args - Arguments to create a AssessmentScheme.
+     * @example
+     * // Create one AssessmentScheme
+     * const AssessmentScheme = await prisma.assessmentScheme.create({
+     *   data: {
+     *     // ... data to create a AssessmentScheme
+     *   }
+     * })
+     * 
+     */
+    create<T extends AssessmentSchemeCreateArgs>(args: SelectSubset<T, AssessmentSchemeCreateArgs<ExtArgs>>): Prisma__AssessmentSchemeClient<$Result.GetResult<Prisma.$AssessmentSchemePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AssessmentSchemes.
+     * @param {AssessmentSchemeCreateManyArgs} args - Arguments to create many AssessmentSchemes.
+     * @example
+     * // Create many AssessmentSchemes
+     * const assessmentScheme = await prisma.assessmentScheme.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AssessmentSchemeCreateManyArgs>(args?: SelectSubset<T, AssessmentSchemeCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AssessmentSchemes and returns the data saved in the database.
+     * @param {AssessmentSchemeCreateManyAndReturnArgs} args - Arguments to create many AssessmentSchemes.
+     * @example
+     * // Create many AssessmentSchemes
+     * const assessmentScheme = await prisma.assessmentScheme.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AssessmentSchemes and only return the `id`
+     * const assessmentSchemeWithIdOnly = await prisma.assessmentScheme.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AssessmentSchemeCreateManyAndReturnArgs>(args?: SelectSubset<T, AssessmentSchemeCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssessmentSchemePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AssessmentScheme.
+     * @param {AssessmentSchemeDeleteArgs} args - Arguments to delete one AssessmentScheme.
+     * @example
+     * // Delete one AssessmentScheme
+     * const AssessmentScheme = await prisma.assessmentScheme.delete({
+     *   where: {
+     *     // ... filter to delete one AssessmentScheme
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AssessmentSchemeDeleteArgs>(args: SelectSubset<T, AssessmentSchemeDeleteArgs<ExtArgs>>): Prisma__AssessmentSchemeClient<$Result.GetResult<Prisma.$AssessmentSchemePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AssessmentScheme.
+     * @param {AssessmentSchemeUpdateArgs} args - Arguments to update one AssessmentScheme.
+     * @example
+     * // Update one AssessmentScheme
+     * const assessmentScheme = await prisma.assessmentScheme.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AssessmentSchemeUpdateArgs>(args: SelectSubset<T, AssessmentSchemeUpdateArgs<ExtArgs>>): Prisma__AssessmentSchemeClient<$Result.GetResult<Prisma.$AssessmentSchemePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AssessmentSchemes.
+     * @param {AssessmentSchemeDeleteManyArgs} args - Arguments to filter AssessmentSchemes to delete.
+     * @example
+     * // Delete a few AssessmentSchemes
+     * const { count } = await prisma.assessmentScheme.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AssessmentSchemeDeleteManyArgs>(args?: SelectSubset<T, AssessmentSchemeDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AssessmentSchemes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssessmentSchemeUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AssessmentSchemes
+     * const assessmentScheme = await prisma.assessmentScheme.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AssessmentSchemeUpdateManyArgs>(args: SelectSubset<T, AssessmentSchemeUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AssessmentSchemes and returns the data updated in the database.
+     * @param {AssessmentSchemeUpdateManyAndReturnArgs} args - Arguments to update many AssessmentSchemes.
+     * @example
+     * // Update many AssessmentSchemes
+     * const assessmentScheme = await prisma.assessmentScheme.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AssessmentSchemes and only return the `id`
+     * const assessmentSchemeWithIdOnly = await prisma.assessmentScheme.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AssessmentSchemeUpdateManyAndReturnArgs>(args: SelectSubset<T, AssessmentSchemeUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssessmentSchemePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AssessmentScheme.
+     * @param {AssessmentSchemeUpsertArgs} args - Arguments to update or create a AssessmentScheme.
+     * @example
+     * // Update or create a AssessmentScheme
+     * const assessmentScheme = await prisma.assessmentScheme.upsert({
+     *   create: {
+     *     // ... data to create a AssessmentScheme
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AssessmentScheme we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AssessmentSchemeUpsertArgs>(args: SelectSubset<T, AssessmentSchemeUpsertArgs<ExtArgs>>): Prisma__AssessmentSchemeClient<$Result.GetResult<Prisma.$AssessmentSchemePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AssessmentSchemes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssessmentSchemeCountArgs} args - Arguments to filter AssessmentSchemes to count.
+     * @example
+     * // Count the number of AssessmentSchemes
+     * const count = await prisma.assessmentScheme.count({
+     *   where: {
+     *     // ... the filter for the AssessmentSchemes we want to count
+     *   }
+     * })
+    **/
+    count<T extends AssessmentSchemeCountArgs>(
+      args?: Subset<T, AssessmentSchemeCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AssessmentSchemeCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AssessmentScheme.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssessmentSchemeAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AssessmentSchemeAggregateArgs>(args: Subset<T, AssessmentSchemeAggregateArgs>): Prisma.PrismaPromise<GetAssessmentSchemeAggregateType<T>>
+
+    /**
+     * Group by AssessmentScheme.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssessmentSchemeGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AssessmentSchemeGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AssessmentSchemeGroupByArgs['orderBy'] }
+        : { orderBy?: AssessmentSchemeGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AssessmentSchemeGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAssessmentSchemeGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AssessmentScheme model
+   */
+  readonly fields: AssessmentSchemeFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AssessmentScheme.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AssessmentSchemeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    components<T extends AssessmentScheme$componentsArgs<ExtArgs> = {}>(args?: Subset<T, AssessmentScheme$componentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssessmentComponentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AssessmentScheme model
+   */
+  interface AssessmentSchemeFieldRefs {
+    readonly id: FieldRef<"AssessmentScheme", 'String'>
+    readonly name: FieldRef<"AssessmentScheme", 'String'>
+    readonly level: FieldRef<"AssessmentScheme", 'String'>
+    readonly createdAt: FieldRef<"AssessmentScheme", 'DateTime'>
+    readonly updatedAt: FieldRef<"AssessmentScheme", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AssessmentScheme findUnique
+   */
+  export type AssessmentSchemeFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentScheme
+     */
+    select?: AssessmentSchemeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentScheme
+     */
+    omit?: AssessmentSchemeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentSchemeInclude<ExtArgs> | null
+    /**
+     * Filter, which AssessmentScheme to fetch.
+     */
+    where: AssessmentSchemeWhereUniqueInput
+  }
+
+  /**
+   * AssessmentScheme findUniqueOrThrow
+   */
+  export type AssessmentSchemeFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentScheme
+     */
+    select?: AssessmentSchemeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentScheme
+     */
+    omit?: AssessmentSchemeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentSchemeInclude<ExtArgs> | null
+    /**
+     * Filter, which AssessmentScheme to fetch.
+     */
+    where: AssessmentSchemeWhereUniqueInput
+  }
+
+  /**
+   * AssessmentScheme findFirst
+   */
+  export type AssessmentSchemeFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentScheme
+     */
+    select?: AssessmentSchemeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentScheme
+     */
+    omit?: AssessmentSchemeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentSchemeInclude<ExtArgs> | null
+    /**
+     * Filter, which AssessmentScheme to fetch.
+     */
+    where?: AssessmentSchemeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssessmentSchemes to fetch.
+     */
+    orderBy?: AssessmentSchemeOrderByWithRelationInput | AssessmentSchemeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AssessmentSchemes.
+     */
+    cursor?: AssessmentSchemeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssessmentSchemes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssessmentSchemes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AssessmentSchemes.
+     */
+    distinct?: AssessmentSchemeScalarFieldEnum | AssessmentSchemeScalarFieldEnum[]
+  }
+
+  /**
+   * AssessmentScheme findFirstOrThrow
+   */
+  export type AssessmentSchemeFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentScheme
+     */
+    select?: AssessmentSchemeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentScheme
+     */
+    omit?: AssessmentSchemeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentSchemeInclude<ExtArgs> | null
+    /**
+     * Filter, which AssessmentScheme to fetch.
+     */
+    where?: AssessmentSchemeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssessmentSchemes to fetch.
+     */
+    orderBy?: AssessmentSchemeOrderByWithRelationInput | AssessmentSchemeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AssessmentSchemes.
+     */
+    cursor?: AssessmentSchemeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssessmentSchemes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssessmentSchemes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AssessmentSchemes.
+     */
+    distinct?: AssessmentSchemeScalarFieldEnum | AssessmentSchemeScalarFieldEnum[]
+  }
+
+  /**
+   * AssessmentScheme findMany
+   */
+  export type AssessmentSchemeFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentScheme
+     */
+    select?: AssessmentSchemeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentScheme
+     */
+    omit?: AssessmentSchemeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentSchemeInclude<ExtArgs> | null
+    /**
+     * Filter, which AssessmentSchemes to fetch.
+     */
+    where?: AssessmentSchemeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssessmentSchemes to fetch.
+     */
+    orderBy?: AssessmentSchemeOrderByWithRelationInput | AssessmentSchemeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AssessmentSchemes.
+     */
+    cursor?: AssessmentSchemeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssessmentSchemes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssessmentSchemes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AssessmentSchemes.
+     */
+    distinct?: AssessmentSchemeScalarFieldEnum | AssessmentSchemeScalarFieldEnum[]
+  }
+
+  /**
+   * AssessmentScheme create
+   */
+  export type AssessmentSchemeCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentScheme
+     */
+    select?: AssessmentSchemeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentScheme
+     */
+    omit?: AssessmentSchemeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentSchemeInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AssessmentScheme.
+     */
+    data: XOR<AssessmentSchemeCreateInput, AssessmentSchemeUncheckedCreateInput>
+  }
+
+  /**
+   * AssessmentScheme createMany
+   */
+  export type AssessmentSchemeCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AssessmentSchemes.
+     */
+    data: AssessmentSchemeCreateManyInput | AssessmentSchemeCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AssessmentScheme createManyAndReturn
+   */
+  export type AssessmentSchemeCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentScheme
+     */
+    select?: AssessmentSchemeSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentScheme
+     */
+    omit?: AssessmentSchemeOmit<ExtArgs> | null
+    /**
+     * The data used to create many AssessmentSchemes.
+     */
+    data: AssessmentSchemeCreateManyInput | AssessmentSchemeCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AssessmentScheme update
+   */
+  export type AssessmentSchemeUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentScheme
+     */
+    select?: AssessmentSchemeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentScheme
+     */
+    omit?: AssessmentSchemeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentSchemeInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AssessmentScheme.
+     */
+    data: XOR<AssessmentSchemeUpdateInput, AssessmentSchemeUncheckedUpdateInput>
+    /**
+     * Choose, which AssessmentScheme to update.
+     */
+    where: AssessmentSchemeWhereUniqueInput
+  }
+
+  /**
+   * AssessmentScheme updateMany
+   */
+  export type AssessmentSchemeUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AssessmentSchemes.
+     */
+    data: XOR<AssessmentSchemeUpdateManyMutationInput, AssessmentSchemeUncheckedUpdateManyInput>
+    /**
+     * Filter which AssessmentSchemes to update
+     */
+    where?: AssessmentSchemeWhereInput
+    /**
+     * Limit how many AssessmentSchemes to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AssessmentScheme updateManyAndReturn
+   */
+  export type AssessmentSchemeUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentScheme
+     */
+    select?: AssessmentSchemeSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentScheme
+     */
+    omit?: AssessmentSchemeOmit<ExtArgs> | null
+    /**
+     * The data used to update AssessmentSchemes.
+     */
+    data: XOR<AssessmentSchemeUpdateManyMutationInput, AssessmentSchemeUncheckedUpdateManyInput>
+    /**
+     * Filter which AssessmentSchemes to update
+     */
+    where?: AssessmentSchemeWhereInput
+    /**
+     * Limit how many AssessmentSchemes to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AssessmentScheme upsert
+   */
+  export type AssessmentSchemeUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentScheme
+     */
+    select?: AssessmentSchemeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentScheme
+     */
+    omit?: AssessmentSchemeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentSchemeInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AssessmentScheme to update in case it exists.
+     */
+    where: AssessmentSchemeWhereUniqueInput
+    /**
+     * In case the AssessmentScheme found by the `where` argument doesn't exist, create a new AssessmentScheme with this data.
+     */
+    create: XOR<AssessmentSchemeCreateInput, AssessmentSchemeUncheckedCreateInput>
+    /**
+     * In case the AssessmentScheme was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AssessmentSchemeUpdateInput, AssessmentSchemeUncheckedUpdateInput>
+  }
+
+  /**
+   * AssessmentScheme delete
+   */
+  export type AssessmentSchemeDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentScheme
+     */
+    select?: AssessmentSchemeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentScheme
+     */
+    omit?: AssessmentSchemeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentSchemeInclude<ExtArgs> | null
+    /**
+     * Filter which AssessmentScheme to delete.
+     */
+    where: AssessmentSchemeWhereUniqueInput
+  }
+
+  /**
+   * AssessmentScheme deleteMany
+   */
+  export type AssessmentSchemeDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AssessmentSchemes to delete
+     */
+    where?: AssessmentSchemeWhereInput
+    /**
+     * Limit how many AssessmentSchemes to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AssessmentScheme.components
+   */
+  export type AssessmentScheme$componentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentComponent
+     */
+    select?: AssessmentComponentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentComponent
+     */
+    omit?: AssessmentComponentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentComponentInclude<ExtArgs> | null
+    where?: AssessmentComponentWhereInput
+    orderBy?: AssessmentComponentOrderByWithRelationInput | AssessmentComponentOrderByWithRelationInput[]
+    cursor?: AssessmentComponentWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AssessmentComponentScalarFieldEnum | AssessmentComponentScalarFieldEnum[]
+  }
+
+  /**
+   * AssessmentScheme without action
+   */
+  export type AssessmentSchemeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentScheme
+     */
+    select?: AssessmentSchemeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentScheme
+     */
+    omit?: AssessmentSchemeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentSchemeInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AssessmentComponent
+   */
+
+  export type AggregateAssessmentComponent = {
+    _count: AssessmentComponentCountAggregateOutputType | null
+    _avg: AssessmentComponentAvgAggregateOutputType | null
+    _sum: AssessmentComponentSumAggregateOutputType | null
+    _min: AssessmentComponentMinAggregateOutputType | null
+    _max: AssessmentComponentMaxAggregateOutputType | null
+  }
+
+  export type AssessmentComponentAvgAggregateOutputType = {
+    maxScore: number | null
+    position: number | null
+  }
+
+  export type AssessmentComponentSumAggregateOutputType = {
+    maxScore: number | null
+    position: number | null
+  }
+
+  export type AssessmentComponentMinAggregateOutputType = {
+    id: string | null
+    schemeId: string | null
+    name: string | null
+    kind: $Enums.AssessmentKind | null
+    maxScore: number | null
+    position: number | null
+    createdAt: Date | null
+  }
+
+  export type AssessmentComponentMaxAggregateOutputType = {
+    id: string | null
+    schemeId: string | null
+    name: string | null
+    kind: $Enums.AssessmentKind | null
+    maxScore: number | null
+    position: number | null
+    createdAt: Date | null
+  }
+
+  export type AssessmentComponentCountAggregateOutputType = {
+    id: number
+    schemeId: number
+    name: number
+    kind: number
+    maxScore: number
+    position: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type AssessmentComponentAvgAggregateInputType = {
+    maxScore?: true
+    position?: true
+  }
+
+  export type AssessmentComponentSumAggregateInputType = {
+    maxScore?: true
+    position?: true
+  }
+
+  export type AssessmentComponentMinAggregateInputType = {
+    id?: true
+    schemeId?: true
+    name?: true
+    kind?: true
+    maxScore?: true
+    position?: true
+    createdAt?: true
+  }
+
+  export type AssessmentComponentMaxAggregateInputType = {
+    id?: true
+    schemeId?: true
+    name?: true
+    kind?: true
+    maxScore?: true
+    position?: true
+    createdAt?: true
+  }
+
+  export type AssessmentComponentCountAggregateInputType = {
+    id?: true
+    schemeId?: true
+    name?: true
+    kind?: true
+    maxScore?: true
+    position?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type AssessmentComponentAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AssessmentComponent to aggregate.
+     */
+    where?: AssessmentComponentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssessmentComponents to fetch.
+     */
+    orderBy?: AssessmentComponentOrderByWithRelationInput | AssessmentComponentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AssessmentComponentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssessmentComponents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssessmentComponents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AssessmentComponents
+    **/
+    _count?: true | AssessmentComponentCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AssessmentComponentAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AssessmentComponentSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AssessmentComponentMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AssessmentComponentMaxAggregateInputType
+  }
+
+  export type GetAssessmentComponentAggregateType<T extends AssessmentComponentAggregateArgs> = {
+        [P in keyof T & keyof AggregateAssessmentComponent]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAssessmentComponent[P]>
+      : GetScalarType<T[P], AggregateAssessmentComponent[P]>
+  }
+
+
+
+
+  export type AssessmentComponentGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AssessmentComponentWhereInput
+    orderBy?: AssessmentComponentOrderByWithAggregationInput | AssessmentComponentOrderByWithAggregationInput[]
+    by: AssessmentComponentScalarFieldEnum[] | AssessmentComponentScalarFieldEnum
+    having?: AssessmentComponentScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AssessmentComponentCountAggregateInputType | true
+    _avg?: AssessmentComponentAvgAggregateInputType
+    _sum?: AssessmentComponentSumAggregateInputType
+    _min?: AssessmentComponentMinAggregateInputType
+    _max?: AssessmentComponentMaxAggregateInputType
+  }
+
+  export type AssessmentComponentGroupByOutputType = {
+    id: string
+    schemeId: string
+    name: string
+    kind: $Enums.AssessmentKind
+    maxScore: number
+    position: number
+    createdAt: Date
+    _count: AssessmentComponentCountAggregateOutputType | null
+    _avg: AssessmentComponentAvgAggregateOutputType | null
+    _sum: AssessmentComponentSumAggregateOutputType | null
+    _min: AssessmentComponentMinAggregateOutputType | null
+    _max: AssessmentComponentMaxAggregateOutputType | null
+  }
+
+  type GetAssessmentComponentGroupByPayload<T extends AssessmentComponentGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AssessmentComponentGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AssessmentComponentGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AssessmentComponentGroupByOutputType[P]>
+            : GetScalarType<T[P], AssessmentComponentGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AssessmentComponentSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    schemeId?: boolean
+    name?: boolean
+    kind?: boolean
+    maxScore?: boolean
+    position?: boolean
+    createdAt?: boolean
+    scheme?: boolean | AssessmentSchemeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["assessmentComponent"]>
+
+  export type AssessmentComponentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    schemeId?: boolean
+    name?: boolean
+    kind?: boolean
+    maxScore?: boolean
+    position?: boolean
+    createdAt?: boolean
+    scheme?: boolean | AssessmentSchemeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["assessmentComponent"]>
+
+  export type AssessmentComponentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    schemeId?: boolean
+    name?: boolean
+    kind?: boolean
+    maxScore?: boolean
+    position?: boolean
+    createdAt?: boolean
+    scheme?: boolean | AssessmentSchemeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["assessmentComponent"]>
+
+  export type AssessmentComponentSelectScalar = {
+    id?: boolean
+    schemeId?: boolean
+    name?: boolean
+    kind?: boolean
+    maxScore?: boolean
+    position?: boolean
+    createdAt?: boolean
+  }
+
+  export type AssessmentComponentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schemeId" | "name" | "kind" | "maxScore" | "position" | "createdAt", ExtArgs["result"]["assessmentComponent"]>
+  export type AssessmentComponentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    scheme?: boolean | AssessmentSchemeDefaultArgs<ExtArgs>
+  }
+  export type AssessmentComponentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    scheme?: boolean | AssessmentSchemeDefaultArgs<ExtArgs>
+  }
+  export type AssessmentComponentIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    scheme?: boolean | AssessmentSchemeDefaultArgs<ExtArgs>
+  }
+
+  export type $AssessmentComponentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AssessmentComponent"
+    objects: {
+      scheme: Prisma.$AssessmentSchemePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      schemeId: string
+      name: string
+      kind: $Enums.AssessmentKind
+      maxScore: number
+      position: number
+      createdAt: Date
+    }, ExtArgs["result"]["assessmentComponent"]>
+    composites: {}
+  }
+
+  type AssessmentComponentGetPayload<S extends boolean | null | undefined | AssessmentComponentDefaultArgs> = $Result.GetResult<Prisma.$AssessmentComponentPayload, S>
+
+  type AssessmentComponentCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AssessmentComponentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AssessmentComponentCountAggregateInputType | true
+    }
+
+  export interface AssessmentComponentDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AssessmentComponent'], meta: { name: 'AssessmentComponent' } }
+    /**
+     * Find zero or one AssessmentComponent that matches the filter.
+     * @param {AssessmentComponentFindUniqueArgs} args - Arguments to find a AssessmentComponent
+     * @example
+     * // Get one AssessmentComponent
+     * const assessmentComponent = await prisma.assessmentComponent.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AssessmentComponentFindUniqueArgs>(args: SelectSubset<T, AssessmentComponentFindUniqueArgs<ExtArgs>>): Prisma__AssessmentComponentClient<$Result.GetResult<Prisma.$AssessmentComponentPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AssessmentComponent that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AssessmentComponentFindUniqueOrThrowArgs} args - Arguments to find a AssessmentComponent
+     * @example
+     * // Get one AssessmentComponent
+     * const assessmentComponent = await prisma.assessmentComponent.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AssessmentComponentFindUniqueOrThrowArgs>(args: SelectSubset<T, AssessmentComponentFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AssessmentComponentClient<$Result.GetResult<Prisma.$AssessmentComponentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AssessmentComponent that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssessmentComponentFindFirstArgs} args - Arguments to find a AssessmentComponent
+     * @example
+     * // Get one AssessmentComponent
+     * const assessmentComponent = await prisma.assessmentComponent.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AssessmentComponentFindFirstArgs>(args?: SelectSubset<T, AssessmentComponentFindFirstArgs<ExtArgs>>): Prisma__AssessmentComponentClient<$Result.GetResult<Prisma.$AssessmentComponentPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AssessmentComponent that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssessmentComponentFindFirstOrThrowArgs} args - Arguments to find a AssessmentComponent
+     * @example
+     * // Get one AssessmentComponent
+     * const assessmentComponent = await prisma.assessmentComponent.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AssessmentComponentFindFirstOrThrowArgs>(args?: SelectSubset<T, AssessmentComponentFindFirstOrThrowArgs<ExtArgs>>): Prisma__AssessmentComponentClient<$Result.GetResult<Prisma.$AssessmentComponentPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AssessmentComponents that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssessmentComponentFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AssessmentComponents
+     * const assessmentComponents = await prisma.assessmentComponent.findMany()
+     * 
+     * // Get first 10 AssessmentComponents
+     * const assessmentComponents = await prisma.assessmentComponent.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const assessmentComponentWithIdOnly = await prisma.assessmentComponent.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AssessmentComponentFindManyArgs>(args?: SelectSubset<T, AssessmentComponentFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssessmentComponentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AssessmentComponent.
+     * @param {AssessmentComponentCreateArgs} args - Arguments to create a AssessmentComponent.
+     * @example
+     * // Create one AssessmentComponent
+     * const AssessmentComponent = await prisma.assessmentComponent.create({
+     *   data: {
+     *     // ... data to create a AssessmentComponent
+     *   }
+     * })
+     * 
+     */
+    create<T extends AssessmentComponentCreateArgs>(args: SelectSubset<T, AssessmentComponentCreateArgs<ExtArgs>>): Prisma__AssessmentComponentClient<$Result.GetResult<Prisma.$AssessmentComponentPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AssessmentComponents.
+     * @param {AssessmentComponentCreateManyArgs} args - Arguments to create many AssessmentComponents.
+     * @example
+     * // Create many AssessmentComponents
+     * const assessmentComponent = await prisma.assessmentComponent.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AssessmentComponentCreateManyArgs>(args?: SelectSubset<T, AssessmentComponentCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AssessmentComponents and returns the data saved in the database.
+     * @param {AssessmentComponentCreateManyAndReturnArgs} args - Arguments to create many AssessmentComponents.
+     * @example
+     * // Create many AssessmentComponents
+     * const assessmentComponent = await prisma.assessmentComponent.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AssessmentComponents and only return the `id`
+     * const assessmentComponentWithIdOnly = await prisma.assessmentComponent.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AssessmentComponentCreateManyAndReturnArgs>(args?: SelectSubset<T, AssessmentComponentCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssessmentComponentPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AssessmentComponent.
+     * @param {AssessmentComponentDeleteArgs} args - Arguments to delete one AssessmentComponent.
+     * @example
+     * // Delete one AssessmentComponent
+     * const AssessmentComponent = await prisma.assessmentComponent.delete({
+     *   where: {
+     *     // ... filter to delete one AssessmentComponent
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AssessmentComponentDeleteArgs>(args: SelectSubset<T, AssessmentComponentDeleteArgs<ExtArgs>>): Prisma__AssessmentComponentClient<$Result.GetResult<Prisma.$AssessmentComponentPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AssessmentComponent.
+     * @param {AssessmentComponentUpdateArgs} args - Arguments to update one AssessmentComponent.
+     * @example
+     * // Update one AssessmentComponent
+     * const assessmentComponent = await prisma.assessmentComponent.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AssessmentComponentUpdateArgs>(args: SelectSubset<T, AssessmentComponentUpdateArgs<ExtArgs>>): Prisma__AssessmentComponentClient<$Result.GetResult<Prisma.$AssessmentComponentPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AssessmentComponents.
+     * @param {AssessmentComponentDeleteManyArgs} args - Arguments to filter AssessmentComponents to delete.
+     * @example
+     * // Delete a few AssessmentComponents
+     * const { count } = await prisma.assessmentComponent.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AssessmentComponentDeleteManyArgs>(args?: SelectSubset<T, AssessmentComponentDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AssessmentComponents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssessmentComponentUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AssessmentComponents
+     * const assessmentComponent = await prisma.assessmentComponent.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AssessmentComponentUpdateManyArgs>(args: SelectSubset<T, AssessmentComponentUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AssessmentComponents and returns the data updated in the database.
+     * @param {AssessmentComponentUpdateManyAndReturnArgs} args - Arguments to update many AssessmentComponents.
+     * @example
+     * // Update many AssessmentComponents
+     * const assessmentComponent = await prisma.assessmentComponent.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AssessmentComponents and only return the `id`
+     * const assessmentComponentWithIdOnly = await prisma.assessmentComponent.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AssessmentComponentUpdateManyAndReturnArgs>(args: SelectSubset<T, AssessmentComponentUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssessmentComponentPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AssessmentComponent.
+     * @param {AssessmentComponentUpsertArgs} args - Arguments to update or create a AssessmentComponent.
+     * @example
+     * // Update or create a AssessmentComponent
+     * const assessmentComponent = await prisma.assessmentComponent.upsert({
+     *   create: {
+     *     // ... data to create a AssessmentComponent
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AssessmentComponent we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AssessmentComponentUpsertArgs>(args: SelectSubset<T, AssessmentComponentUpsertArgs<ExtArgs>>): Prisma__AssessmentComponentClient<$Result.GetResult<Prisma.$AssessmentComponentPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AssessmentComponents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssessmentComponentCountArgs} args - Arguments to filter AssessmentComponents to count.
+     * @example
+     * // Count the number of AssessmentComponents
+     * const count = await prisma.assessmentComponent.count({
+     *   where: {
+     *     // ... the filter for the AssessmentComponents we want to count
+     *   }
+     * })
+    **/
+    count<T extends AssessmentComponentCountArgs>(
+      args?: Subset<T, AssessmentComponentCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AssessmentComponentCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AssessmentComponent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssessmentComponentAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AssessmentComponentAggregateArgs>(args: Subset<T, AssessmentComponentAggregateArgs>): Prisma.PrismaPromise<GetAssessmentComponentAggregateType<T>>
+
+    /**
+     * Group by AssessmentComponent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssessmentComponentGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AssessmentComponentGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AssessmentComponentGroupByArgs['orderBy'] }
+        : { orderBy?: AssessmentComponentGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AssessmentComponentGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAssessmentComponentGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AssessmentComponent model
+   */
+  readonly fields: AssessmentComponentFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AssessmentComponent.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AssessmentComponentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    scheme<T extends AssessmentSchemeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AssessmentSchemeDefaultArgs<ExtArgs>>): Prisma__AssessmentSchemeClient<$Result.GetResult<Prisma.$AssessmentSchemePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AssessmentComponent model
+   */
+  interface AssessmentComponentFieldRefs {
+    readonly id: FieldRef<"AssessmentComponent", 'String'>
+    readonly schemeId: FieldRef<"AssessmentComponent", 'String'>
+    readonly name: FieldRef<"AssessmentComponent", 'String'>
+    readonly kind: FieldRef<"AssessmentComponent", 'AssessmentKind'>
+    readonly maxScore: FieldRef<"AssessmentComponent", 'Float'>
+    readonly position: FieldRef<"AssessmentComponent", 'Int'>
+    readonly createdAt: FieldRef<"AssessmentComponent", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AssessmentComponent findUnique
+   */
+  export type AssessmentComponentFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentComponent
+     */
+    select?: AssessmentComponentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentComponent
+     */
+    omit?: AssessmentComponentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentComponentInclude<ExtArgs> | null
+    /**
+     * Filter, which AssessmentComponent to fetch.
+     */
+    where: AssessmentComponentWhereUniqueInput
+  }
+
+  /**
+   * AssessmentComponent findUniqueOrThrow
+   */
+  export type AssessmentComponentFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentComponent
+     */
+    select?: AssessmentComponentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentComponent
+     */
+    omit?: AssessmentComponentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentComponentInclude<ExtArgs> | null
+    /**
+     * Filter, which AssessmentComponent to fetch.
+     */
+    where: AssessmentComponentWhereUniqueInput
+  }
+
+  /**
+   * AssessmentComponent findFirst
+   */
+  export type AssessmentComponentFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentComponent
+     */
+    select?: AssessmentComponentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentComponent
+     */
+    omit?: AssessmentComponentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentComponentInclude<ExtArgs> | null
+    /**
+     * Filter, which AssessmentComponent to fetch.
+     */
+    where?: AssessmentComponentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssessmentComponents to fetch.
+     */
+    orderBy?: AssessmentComponentOrderByWithRelationInput | AssessmentComponentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AssessmentComponents.
+     */
+    cursor?: AssessmentComponentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssessmentComponents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssessmentComponents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AssessmentComponents.
+     */
+    distinct?: AssessmentComponentScalarFieldEnum | AssessmentComponentScalarFieldEnum[]
+  }
+
+  /**
+   * AssessmentComponent findFirstOrThrow
+   */
+  export type AssessmentComponentFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentComponent
+     */
+    select?: AssessmentComponentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentComponent
+     */
+    omit?: AssessmentComponentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentComponentInclude<ExtArgs> | null
+    /**
+     * Filter, which AssessmentComponent to fetch.
+     */
+    where?: AssessmentComponentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssessmentComponents to fetch.
+     */
+    orderBy?: AssessmentComponentOrderByWithRelationInput | AssessmentComponentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AssessmentComponents.
+     */
+    cursor?: AssessmentComponentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssessmentComponents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssessmentComponents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AssessmentComponents.
+     */
+    distinct?: AssessmentComponentScalarFieldEnum | AssessmentComponentScalarFieldEnum[]
+  }
+
+  /**
+   * AssessmentComponent findMany
+   */
+  export type AssessmentComponentFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentComponent
+     */
+    select?: AssessmentComponentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentComponent
+     */
+    omit?: AssessmentComponentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentComponentInclude<ExtArgs> | null
+    /**
+     * Filter, which AssessmentComponents to fetch.
+     */
+    where?: AssessmentComponentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssessmentComponents to fetch.
+     */
+    orderBy?: AssessmentComponentOrderByWithRelationInput | AssessmentComponentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AssessmentComponents.
+     */
+    cursor?: AssessmentComponentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssessmentComponents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssessmentComponents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AssessmentComponents.
+     */
+    distinct?: AssessmentComponentScalarFieldEnum | AssessmentComponentScalarFieldEnum[]
+  }
+
+  /**
+   * AssessmentComponent create
+   */
+  export type AssessmentComponentCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentComponent
+     */
+    select?: AssessmentComponentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentComponent
+     */
+    omit?: AssessmentComponentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentComponentInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AssessmentComponent.
+     */
+    data: XOR<AssessmentComponentCreateInput, AssessmentComponentUncheckedCreateInput>
+  }
+
+  /**
+   * AssessmentComponent createMany
+   */
+  export type AssessmentComponentCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AssessmentComponents.
+     */
+    data: AssessmentComponentCreateManyInput | AssessmentComponentCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AssessmentComponent createManyAndReturn
+   */
+  export type AssessmentComponentCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentComponent
+     */
+    select?: AssessmentComponentSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentComponent
+     */
+    omit?: AssessmentComponentOmit<ExtArgs> | null
+    /**
+     * The data used to create many AssessmentComponents.
+     */
+    data: AssessmentComponentCreateManyInput | AssessmentComponentCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentComponentIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AssessmentComponent update
+   */
+  export type AssessmentComponentUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentComponent
+     */
+    select?: AssessmentComponentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentComponent
+     */
+    omit?: AssessmentComponentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentComponentInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AssessmentComponent.
+     */
+    data: XOR<AssessmentComponentUpdateInput, AssessmentComponentUncheckedUpdateInput>
+    /**
+     * Choose, which AssessmentComponent to update.
+     */
+    where: AssessmentComponentWhereUniqueInput
+  }
+
+  /**
+   * AssessmentComponent updateMany
+   */
+  export type AssessmentComponentUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AssessmentComponents.
+     */
+    data: XOR<AssessmentComponentUpdateManyMutationInput, AssessmentComponentUncheckedUpdateManyInput>
+    /**
+     * Filter which AssessmentComponents to update
+     */
+    where?: AssessmentComponentWhereInput
+    /**
+     * Limit how many AssessmentComponents to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AssessmentComponent updateManyAndReturn
+   */
+  export type AssessmentComponentUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentComponent
+     */
+    select?: AssessmentComponentSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentComponent
+     */
+    omit?: AssessmentComponentOmit<ExtArgs> | null
+    /**
+     * The data used to update AssessmentComponents.
+     */
+    data: XOR<AssessmentComponentUpdateManyMutationInput, AssessmentComponentUncheckedUpdateManyInput>
+    /**
+     * Filter which AssessmentComponents to update
+     */
+    where?: AssessmentComponentWhereInput
+    /**
+     * Limit how many AssessmentComponents to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentComponentIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AssessmentComponent upsert
+   */
+  export type AssessmentComponentUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentComponent
+     */
+    select?: AssessmentComponentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentComponent
+     */
+    omit?: AssessmentComponentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentComponentInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AssessmentComponent to update in case it exists.
+     */
+    where: AssessmentComponentWhereUniqueInput
+    /**
+     * In case the AssessmentComponent found by the `where` argument doesn't exist, create a new AssessmentComponent with this data.
+     */
+    create: XOR<AssessmentComponentCreateInput, AssessmentComponentUncheckedCreateInput>
+    /**
+     * In case the AssessmentComponent was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AssessmentComponentUpdateInput, AssessmentComponentUncheckedUpdateInput>
+  }
+
+  /**
+   * AssessmentComponent delete
+   */
+  export type AssessmentComponentDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentComponent
+     */
+    select?: AssessmentComponentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentComponent
+     */
+    omit?: AssessmentComponentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentComponentInclude<ExtArgs> | null
+    /**
+     * Filter which AssessmentComponent to delete.
+     */
+    where: AssessmentComponentWhereUniqueInput
+  }
+
+  /**
+   * AssessmentComponent deleteMany
+   */
+  export type AssessmentComponentDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AssessmentComponents to delete
+     */
+    where?: AssessmentComponentWhereInput
+    /**
+     * Limit how many AssessmentComponents to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AssessmentComponent without action
+   */
+  export type AssessmentComponentDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentComponent
+     */
+    select?: AssessmentComponentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentComponent
+     */
+    omit?: AssessmentComponentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentComponentInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -102700,6 +107538,54 @@ export namespace Prisma {
   export type SalaryTransferScalarFieldEnum = (typeof SalaryTransferScalarFieldEnum)[keyof typeof SalaryTransferScalarFieldEnum]
 
 
+  export const GradingScaleScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    level: 'level',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type GradingScaleScalarFieldEnum = (typeof GradingScaleScalarFieldEnum)[keyof typeof GradingScaleScalarFieldEnum]
+
+
+  export const GradingBandScalarFieldEnum: {
+    id: 'id',
+    scaleId: 'scaleId',
+    minScore: 'minScore',
+    grade: 'grade',
+    remark: 'remark',
+    isPass: 'isPass',
+    createdAt: 'createdAt'
+  };
+
+  export type GradingBandScalarFieldEnum = (typeof GradingBandScalarFieldEnum)[keyof typeof GradingBandScalarFieldEnum]
+
+
+  export const AssessmentSchemeScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    level: 'level',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type AssessmentSchemeScalarFieldEnum = (typeof AssessmentSchemeScalarFieldEnum)[keyof typeof AssessmentSchemeScalarFieldEnum]
+
+
+  export const AssessmentComponentScalarFieldEnum: {
+    id: 'id',
+    schemeId: 'schemeId',
+    name: 'name',
+    kind: 'kind',
+    maxScore: 'maxScore',
+    position: 'position',
+    createdAt: 'createdAt'
+  };
+
+  export type AssessmentComponentScalarFieldEnum = (typeof AssessmentComponentScalarFieldEnum)[keyof typeof AssessmentComponentScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -103555,6 +108441,20 @@ export namespace Prisma {
    * Reference to a field of type 'SalaryTransferStatus[]'
    */
   export type ListEnumSalaryTransferStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SalaryTransferStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'AssessmentKind'
+   */
+  export type EnumAssessmentKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AssessmentKind'>
+    
+
+
+  /**
+   * Reference to a field of type 'AssessmentKind[]'
+   */
+  export type ListEnumAssessmentKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AssessmentKind[]'>
     
   /**
    * Deep Input Types
@@ -110899,6 +115799,252 @@ export namespace Prisma {
     reversalJournalId?: StringNullableWithAggregatesFilter<"SalaryTransfer"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"SalaryTransfer"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"SalaryTransfer"> | Date | string
+  }
+
+  export type GradingScaleWhereInput = {
+    AND?: GradingScaleWhereInput | GradingScaleWhereInput[]
+    OR?: GradingScaleWhereInput[]
+    NOT?: GradingScaleWhereInput | GradingScaleWhereInput[]
+    id?: StringFilter<"GradingScale"> | string
+    name?: StringFilter<"GradingScale"> | string
+    level?: StringNullableFilter<"GradingScale"> | string | null
+    createdAt?: DateTimeFilter<"GradingScale"> | Date | string
+    updatedAt?: DateTimeFilter<"GradingScale"> | Date | string
+    bands?: GradingBandListRelationFilter
+  }
+
+  export type GradingScaleOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    level?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    bands?: GradingBandOrderByRelationAggregateInput
+  }
+
+  export type GradingScaleWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: GradingScaleWhereInput | GradingScaleWhereInput[]
+    OR?: GradingScaleWhereInput[]
+    NOT?: GradingScaleWhereInput | GradingScaleWhereInput[]
+    name?: StringFilter<"GradingScale"> | string
+    level?: StringNullableFilter<"GradingScale"> | string | null
+    createdAt?: DateTimeFilter<"GradingScale"> | Date | string
+    updatedAt?: DateTimeFilter<"GradingScale"> | Date | string
+    bands?: GradingBandListRelationFilter
+  }, "id">
+
+  export type GradingScaleOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    level?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: GradingScaleCountOrderByAggregateInput
+    _max?: GradingScaleMaxOrderByAggregateInput
+    _min?: GradingScaleMinOrderByAggregateInput
+  }
+
+  export type GradingScaleScalarWhereWithAggregatesInput = {
+    AND?: GradingScaleScalarWhereWithAggregatesInput | GradingScaleScalarWhereWithAggregatesInput[]
+    OR?: GradingScaleScalarWhereWithAggregatesInput[]
+    NOT?: GradingScaleScalarWhereWithAggregatesInput | GradingScaleScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"GradingScale"> | string
+    name?: StringWithAggregatesFilter<"GradingScale"> | string
+    level?: StringNullableWithAggregatesFilter<"GradingScale"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"GradingScale"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"GradingScale"> | Date | string
+  }
+
+  export type GradingBandWhereInput = {
+    AND?: GradingBandWhereInput | GradingBandWhereInput[]
+    OR?: GradingBandWhereInput[]
+    NOT?: GradingBandWhereInput | GradingBandWhereInput[]
+    id?: StringFilter<"GradingBand"> | string
+    scaleId?: StringFilter<"GradingBand"> | string
+    minScore?: FloatFilter<"GradingBand"> | number
+    grade?: StringFilter<"GradingBand"> | string
+    remark?: StringFilter<"GradingBand"> | string
+    isPass?: BoolFilter<"GradingBand"> | boolean
+    createdAt?: DateTimeFilter<"GradingBand"> | Date | string
+    scale?: XOR<GradingScaleScalarRelationFilter, GradingScaleWhereInput>
+  }
+
+  export type GradingBandOrderByWithRelationInput = {
+    id?: SortOrder
+    scaleId?: SortOrder
+    minScore?: SortOrder
+    grade?: SortOrder
+    remark?: SortOrder
+    isPass?: SortOrder
+    createdAt?: SortOrder
+    scale?: GradingScaleOrderByWithRelationInput
+  }
+
+  export type GradingBandWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    scaleId_minScore?: GradingBandScaleIdMinScoreCompoundUniqueInput
+    AND?: GradingBandWhereInput | GradingBandWhereInput[]
+    OR?: GradingBandWhereInput[]
+    NOT?: GradingBandWhereInput | GradingBandWhereInput[]
+    scaleId?: StringFilter<"GradingBand"> | string
+    minScore?: FloatFilter<"GradingBand"> | number
+    grade?: StringFilter<"GradingBand"> | string
+    remark?: StringFilter<"GradingBand"> | string
+    isPass?: BoolFilter<"GradingBand"> | boolean
+    createdAt?: DateTimeFilter<"GradingBand"> | Date | string
+    scale?: XOR<GradingScaleScalarRelationFilter, GradingScaleWhereInput>
+  }, "id" | "scaleId_minScore">
+
+  export type GradingBandOrderByWithAggregationInput = {
+    id?: SortOrder
+    scaleId?: SortOrder
+    minScore?: SortOrder
+    grade?: SortOrder
+    remark?: SortOrder
+    isPass?: SortOrder
+    createdAt?: SortOrder
+    _count?: GradingBandCountOrderByAggregateInput
+    _avg?: GradingBandAvgOrderByAggregateInput
+    _max?: GradingBandMaxOrderByAggregateInput
+    _min?: GradingBandMinOrderByAggregateInput
+    _sum?: GradingBandSumOrderByAggregateInput
+  }
+
+  export type GradingBandScalarWhereWithAggregatesInput = {
+    AND?: GradingBandScalarWhereWithAggregatesInput | GradingBandScalarWhereWithAggregatesInput[]
+    OR?: GradingBandScalarWhereWithAggregatesInput[]
+    NOT?: GradingBandScalarWhereWithAggregatesInput | GradingBandScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"GradingBand"> | string
+    scaleId?: StringWithAggregatesFilter<"GradingBand"> | string
+    minScore?: FloatWithAggregatesFilter<"GradingBand"> | number
+    grade?: StringWithAggregatesFilter<"GradingBand"> | string
+    remark?: StringWithAggregatesFilter<"GradingBand"> | string
+    isPass?: BoolWithAggregatesFilter<"GradingBand"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"GradingBand"> | Date | string
+  }
+
+  export type AssessmentSchemeWhereInput = {
+    AND?: AssessmentSchemeWhereInput | AssessmentSchemeWhereInput[]
+    OR?: AssessmentSchemeWhereInput[]
+    NOT?: AssessmentSchemeWhereInput | AssessmentSchemeWhereInput[]
+    id?: StringFilter<"AssessmentScheme"> | string
+    name?: StringFilter<"AssessmentScheme"> | string
+    level?: StringNullableFilter<"AssessmentScheme"> | string | null
+    createdAt?: DateTimeFilter<"AssessmentScheme"> | Date | string
+    updatedAt?: DateTimeFilter<"AssessmentScheme"> | Date | string
+    components?: AssessmentComponentListRelationFilter
+  }
+
+  export type AssessmentSchemeOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    level?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    components?: AssessmentComponentOrderByRelationAggregateInput
+  }
+
+  export type AssessmentSchemeWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AssessmentSchemeWhereInput | AssessmentSchemeWhereInput[]
+    OR?: AssessmentSchemeWhereInput[]
+    NOT?: AssessmentSchemeWhereInput | AssessmentSchemeWhereInput[]
+    name?: StringFilter<"AssessmentScheme"> | string
+    level?: StringNullableFilter<"AssessmentScheme"> | string | null
+    createdAt?: DateTimeFilter<"AssessmentScheme"> | Date | string
+    updatedAt?: DateTimeFilter<"AssessmentScheme"> | Date | string
+    components?: AssessmentComponentListRelationFilter
+  }, "id">
+
+  export type AssessmentSchemeOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    level?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: AssessmentSchemeCountOrderByAggregateInput
+    _max?: AssessmentSchemeMaxOrderByAggregateInput
+    _min?: AssessmentSchemeMinOrderByAggregateInput
+  }
+
+  export type AssessmentSchemeScalarWhereWithAggregatesInput = {
+    AND?: AssessmentSchemeScalarWhereWithAggregatesInput | AssessmentSchemeScalarWhereWithAggregatesInput[]
+    OR?: AssessmentSchemeScalarWhereWithAggregatesInput[]
+    NOT?: AssessmentSchemeScalarWhereWithAggregatesInput | AssessmentSchemeScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AssessmentScheme"> | string
+    name?: StringWithAggregatesFilter<"AssessmentScheme"> | string
+    level?: StringNullableWithAggregatesFilter<"AssessmentScheme"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"AssessmentScheme"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"AssessmentScheme"> | Date | string
+  }
+
+  export type AssessmentComponentWhereInput = {
+    AND?: AssessmentComponentWhereInput | AssessmentComponentWhereInput[]
+    OR?: AssessmentComponentWhereInput[]
+    NOT?: AssessmentComponentWhereInput | AssessmentComponentWhereInput[]
+    id?: StringFilter<"AssessmentComponent"> | string
+    schemeId?: StringFilter<"AssessmentComponent"> | string
+    name?: StringFilter<"AssessmentComponent"> | string
+    kind?: EnumAssessmentKindFilter<"AssessmentComponent"> | $Enums.AssessmentKind
+    maxScore?: FloatFilter<"AssessmentComponent"> | number
+    position?: IntFilter<"AssessmentComponent"> | number
+    createdAt?: DateTimeFilter<"AssessmentComponent"> | Date | string
+    scheme?: XOR<AssessmentSchemeScalarRelationFilter, AssessmentSchemeWhereInput>
+  }
+
+  export type AssessmentComponentOrderByWithRelationInput = {
+    id?: SortOrder
+    schemeId?: SortOrder
+    name?: SortOrder
+    kind?: SortOrder
+    maxScore?: SortOrder
+    position?: SortOrder
+    createdAt?: SortOrder
+    scheme?: AssessmentSchemeOrderByWithRelationInput
+  }
+
+  export type AssessmentComponentWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    schemeId_position?: AssessmentComponentSchemeIdPositionCompoundUniqueInput
+    AND?: AssessmentComponentWhereInput | AssessmentComponentWhereInput[]
+    OR?: AssessmentComponentWhereInput[]
+    NOT?: AssessmentComponentWhereInput | AssessmentComponentWhereInput[]
+    schemeId?: StringFilter<"AssessmentComponent"> | string
+    name?: StringFilter<"AssessmentComponent"> | string
+    kind?: EnumAssessmentKindFilter<"AssessmentComponent"> | $Enums.AssessmentKind
+    maxScore?: FloatFilter<"AssessmentComponent"> | number
+    position?: IntFilter<"AssessmentComponent"> | number
+    createdAt?: DateTimeFilter<"AssessmentComponent"> | Date | string
+    scheme?: XOR<AssessmentSchemeScalarRelationFilter, AssessmentSchemeWhereInput>
+  }, "id" | "schemeId_position">
+
+  export type AssessmentComponentOrderByWithAggregationInput = {
+    id?: SortOrder
+    schemeId?: SortOrder
+    name?: SortOrder
+    kind?: SortOrder
+    maxScore?: SortOrder
+    position?: SortOrder
+    createdAt?: SortOrder
+    _count?: AssessmentComponentCountOrderByAggregateInput
+    _avg?: AssessmentComponentAvgOrderByAggregateInput
+    _max?: AssessmentComponentMaxOrderByAggregateInput
+    _min?: AssessmentComponentMinOrderByAggregateInput
+    _sum?: AssessmentComponentSumOrderByAggregateInput
+  }
+
+  export type AssessmentComponentScalarWhereWithAggregatesInput = {
+    AND?: AssessmentComponentScalarWhereWithAggregatesInput | AssessmentComponentScalarWhereWithAggregatesInput[]
+    OR?: AssessmentComponentScalarWhereWithAggregatesInput[]
+    NOT?: AssessmentComponentScalarWhereWithAggregatesInput | AssessmentComponentScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AssessmentComponent"> | string
+    schemeId?: StringWithAggregatesFilter<"AssessmentComponent"> | string
+    name?: StringWithAggregatesFilter<"AssessmentComponent"> | string
+    kind?: EnumAssessmentKindWithAggregatesFilter<"AssessmentComponent"> | $Enums.AssessmentKind
+    maxScore?: FloatWithAggregatesFilter<"AssessmentComponent"> | number
+    position?: IntWithAggregatesFilter<"AssessmentComponent"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"AssessmentComponent"> | Date | string
   }
 
   export type StaffCreateInput = {
@@ -119130,6 +124276,264 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type GradingScaleCreateInput = {
+    id?: string
+    name: string
+    level?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    bands?: GradingBandCreateNestedManyWithoutScaleInput
+  }
+
+  export type GradingScaleUncheckedCreateInput = {
+    id?: string
+    name: string
+    level?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    bands?: GradingBandUncheckedCreateNestedManyWithoutScaleInput
+  }
+
+  export type GradingScaleUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    level?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    bands?: GradingBandUpdateManyWithoutScaleNestedInput
+  }
+
+  export type GradingScaleUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    level?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    bands?: GradingBandUncheckedUpdateManyWithoutScaleNestedInput
+  }
+
+  export type GradingScaleCreateManyInput = {
+    id?: string
+    name: string
+    level?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GradingScaleUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    level?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GradingScaleUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    level?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GradingBandCreateInput = {
+    id?: string
+    minScore: number
+    grade: string
+    remark: string
+    isPass?: boolean
+    createdAt?: Date | string
+    scale: GradingScaleCreateNestedOneWithoutBandsInput
+  }
+
+  export type GradingBandUncheckedCreateInput = {
+    id?: string
+    scaleId: string
+    minScore: number
+    grade: string
+    remark: string
+    isPass?: boolean
+    createdAt?: Date | string
+  }
+
+  export type GradingBandUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    minScore?: FloatFieldUpdateOperationsInput | number
+    grade?: StringFieldUpdateOperationsInput | string
+    remark?: StringFieldUpdateOperationsInput | string
+    isPass?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    scale?: GradingScaleUpdateOneRequiredWithoutBandsNestedInput
+  }
+
+  export type GradingBandUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    scaleId?: StringFieldUpdateOperationsInput | string
+    minScore?: FloatFieldUpdateOperationsInput | number
+    grade?: StringFieldUpdateOperationsInput | string
+    remark?: StringFieldUpdateOperationsInput | string
+    isPass?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GradingBandCreateManyInput = {
+    id?: string
+    scaleId: string
+    minScore: number
+    grade: string
+    remark: string
+    isPass?: boolean
+    createdAt?: Date | string
+  }
+
+  export type GradingBandUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    minScore?: FloatFieldUpdateOperationsInput | number
+    grade?: StringFieldUpdateOperationsInput | string
+    remark?: StringFieldUpdateOperationsInput | string
+    isPass?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GradingBandUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    scaleId?: StringFieldUpdateOperationsInput | string
+    minScore?: FloatFieldUpdateOperationsInput | number
+    grade?: StringFieldUpdateOperationsInput | string
+    remark?: StringFieldUpdateOperationsInput | string
+    isPass?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssessmentSchemeCreateInput = {
+    id?: string
+    name: string
+    level?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    components?: AssessmentComponentCreateNestedManyWithoutSchemeInput
+  }
+
+  export type AssessmentSchemeUncheckedCreateInput = {
+    id?: string
+    name: string
+    level?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    components?: AssessmentComponentUncheckedCreateNestedManyWithoutSchemeInput
+  }
+
+  export type AssessmentSchemeUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    level?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    components?: AssessmentComponentUpdateManyWithoutSchemeNestedInput
+  }
+
+  export type AssessmentSchemeUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    level?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    components?: AssessmentComponentUncheckedUpdateManyWithoutSchemeNestedInput
+  }
+
+  export type AssessmentSchemeCreateManyInput = {
+    id?: string
+    name: string
+    level?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AssessmentSchemeUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    level?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssessmentSchemeUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    level?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssessmentComponentCreateInput = {
+    id?: string
+    name: string
+    kind: $Enums.AssessmentKind
+    maxScore: number
+    position: number
+    createdAt?: Date | string
+    scheme: AssessmentSchemeCreateNestedOneWithoutComponentsInput
+  }
+
+  export type AssessmentComponentUncheckedCreateInput = {
+    id?: string
+    schemeId: string
+    name: string
+    kind: $Enums.AssessmentKind
+    maxScore: number
+    position: number
+    createdAt?: Date | string
+  }
+
+  export type AssessmentComponentUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    kind?: EnumAssessmentKindFieldUpdateOperationsInput | $Enums.AssessmentKind
+    maxScore?: FloatFieldUpdateOperationsInput | number
+    position?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    scheme?: AssessmentSchemeUpdateOneRequiredWithoutComponentsNestedInput
+  }
+
+  export type AssessmentComponentUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schemeId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    kind?: EnumAssessmentKindFieldUpdateOperationsInput | $Enums.AssessmentKind
+    maxScore?: FloatFieldUpdateOperationsInput | number
+    position?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssessmentComponentCreateManyInput = {
+    id?: string
+    schemeId: string
+    name: string
+    kind: $Enums.AssessmentKind
+    maxScore: number
+    position: number
+    createdAt?: Date | string
+  }
+
+  export type AssessmentComponentUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    kind?: EnumAssessmentKindFieldUpdateOperationsInput | $Enums.AssessmentKind
+    maxScore?: FloatFieldUpdateOperationsInput | number
+    position?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssessmentComponentUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    schemeId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    kind?: EnumAssessmentKindFieldUpdateOperationsInput | $Enums.AssessmentKind
+    maxScore?: FloatFieldUpdateOperationsInput | number
+    position?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -125161,6 +130565,189 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumSalaryTransferStatusFilter<$PrismaModel>
     _max?: NestedEnumSalaryTransferStatusFilter<$PrismaModel>
+  }
+
+  export type GradingBandListRelationFilter = {
+    every?: GradingBandWhereInput
+    some?: GradingBandWhereInput
+    none?: GradingBandWhereInput
+  }
+
+  export type GradingBandOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type GradingScaleCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    level?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type GradingScaleMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    level?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type GradingScaleMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    level?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type GradingScaleScalarRelationFilter = {
+    is?: GradingScaleWhereInput
+    isNot?: GradingScaleWhereInput
+  }
+
+  export type GradingBandScaleIdMinScoreCompoundUniqueInput = {
+    scaleId: string
+    minScore: number
+  }
+
+  export type GradingBandCountOrderByAggregateInput = {
+    id?: SortOrder
+    scaleId?: SortOrder
+    minScore?: SortOrder
+    grade?: SortOrder
+    remark?: SortOrder
+    isPass?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type GradingBandAvgOrderByAggregateInput = {
+    minScore?: SortOrder
+  }
+
+  export type GradingBandMaxOrderByAggregateInput = {
+    id?: SortOrder
+    scaleId?: SortOrder
+    minScore?: SortOrder
+    grade?: SortOrder
+    remark?: SortOrder
+    isPass?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type GradingBandMinOrderByAggregateInput = {
+    id?: SortOrder
+    scaleId?: SortOrder
+    minScore?: SortOrder
+    grade?: SortOrder
+    remark?: SortOrder
+    isPass?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type GradingBandSumOrderByAggregateInput = {
+    minScore?: SortOrder
+  }
+
+  export type AssessmentComponentListRelationFilter = {
+    every?: AssessmentComponentWhereInput
+    some?: AssessmentComponentWhereInput
+    none?: AssessmentComponentWhereInput
+  }
+
+  export type AssessmentComponentOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AssessmentSchemeCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    level?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AssessmentSchemeMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    level?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AssessmentSchemeMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    level?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EnumAssessmentKindFilter<$PrismaModel = never> = {
+    equals?: $Enums.AssessmentKind | EnumAssessmentKindFieldRefInput<$PrismaModel>
+    in?: $Enums.AssessmentKind[] | ListEnumAssessmentKindFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AssessmentKind[] | ListEnumAssessmentKindFieldRefInput<$PrismaModel>
+    not?: NestedEnumAssessmentKindFilter<$PrismaModel> | $Enums.AssessmentKind
+  }
+
+  export type AssessmentSchemeScalarRelationFilter = {
+    is?: AssessmentSchemeWhereInput
+    isNot?: AssessmentSchemeWhereInput
+  }
+
+  export type AssessmentComponentSchemeIdPositionCompoundUniqueInput = {
+    schemeId: string
+    position: number
+  }
+
+  export type AssessmentComponentCountOrderByAggregateInput = {
+    id?: SortOrder
+    schemeId?: SortOrder
+    name?: SortOrder
+    kind?: SortOrder
+    maxScore?: SortOrder
+    position?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AssessmentComponentAvgOrderByAggregateInput = {
+    maxScore?: SortOrder
+    position?: SortOrder
+  }
+
+  export type AssessmentComponentMaxOrderByAggregateInput = {
+    id?: SortOrder
+    schemeId?: SortOrder
+    name?: SortOrder
+    kind?: SortOrder
+    maxScore?: SortOrder
+    position?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AssessmentComponentMinOrderByAggregateInput = {
+    id?: SortOrder
+    schemeId?: SortOrder
+    name?: SortOrder
+    kind?: SortOrder
+    maxScore?: SortOrder
+    position?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AssessmentComponentSumOrderByAggregateInput = {
+    maxScore?: SortOrder
+    position?: SortOrder
+  }
+
+  export type EnumAssessmentKindWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AssessmentKind | EnumAssessmentKindFieldRefInput<$PrismaModel>
+    in?: $Enums.AssessmentKind[] | ListEnumAssessmentKindFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AssessmentKind[] | ListEnumAssessmentKindFieldRefInput<$PrismaModel>
+    not?: NestedEnumAssessmentKindWithAggregatesFilter<$PrismaModel> | $Enums.AssessmentKind
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAssessmentKindFilter<$PrismaModel>
+    _max?: NestedEnumAssessmentKindFilter<$PrismaModel>
   }
 
   export type ClassSubjectCreateNestedManyWithoutStaffInput = {
@@ -132083,6 +137670,122 @@ export namespace Prisma {
     update?: XOR<XOR<JournalEntryUpdateToOneWithWhereWithoutSalaryTransferInput, JournalEntryUpdateWithoutSalaryTransferInput>, JournalEntryUncheckedUpdateWithoutSalaryTransferInput>
   }
 
+  export type GradingBandCreateNestedManyWithoutScaleInput = {
+    create?: XOR<GradingBandCreateWithoutScaleInput, GradingBandUncheckedCreateWithoutScaleInput> | GradingBandCreateWithoutScaleInput[] | GradingBandUncheckedCreateWithoutScaleInput[]
+    connectOrCreate?: GradingBandCreateOrConnectWithoutScaleInput | GradingBandCreateOrConnectWithoutScaleInput[]
+    createMany?: GradingBandCreateManyScaleInputEnvelope
+    connect?: GradingBandWhereUniqueInput | GradingBandWhereUniqueInput[]
+  }
+
+  export type GradingBandUncheckedCreateNestedManyWithoutScaleInput = {
+    create?: XOR<GradingBandCreateWithoutScaleInput, GradingBandUncheckedCreateWithoutScaleInput> | GradingBandCreateWithoutScaleInput[] | GradingBandUncheckedCreateWithoutScaleInput[]
+    connectOrCreate?: GradingBandCreateOrConnectWithoutScaleInput | GradingBandCreateOrConnectWithoutScaleInput[]
+    createMany?: GradingBandCreateManyScaleInputEnvelope
+    connect?: GradingBandWhereUniqueInput | GradingBandWhereUniqueInput[]
+  }
+
+  export type GradingBandUpdateManyWithoutScaleNestedInput = {
+    create?: XOR<GradingBandCreateWithoutScaleInput, GradingBandUncheckedCreateWithoutScaleInput> | GradingBandCreateWithoutScaleInput[] | GradingBandUncheckedCreateWithoutScaleInput[]
+    connectOrCreate?: GradingBandCreateOrConnectWithoutScaleInput | GradingBandCreateOrConnectWithoutScaleInput[]
+    upsert?: GradingBandUpsertWithWhereUniqueWithoutScaleInput | GradingBandUpsertWithWhereUniqueWithoutScaleInput[]
+    createMany?: GradingBandCreateManyScaleInputEnvelope
+    set?: GradingBandWhereUniqueInput | GradingBandWhereUniqueInput[]
+    disconnect?: GradingBandWhereUniqueInput | GradingBandWhereUniqueInput[]
+    delete?: GradingBandWhereUniqueInput | GradingBandWhereUniqueInput[]
+    connect?: GradingBandWhereUniqueInput | GradingBandWhereUniqueInput[]
+    update?: GradingBandUpdateWithWhereUniqueWithoutScaleInput | GradingBandUpdateWithWhereUniqueWithoutScaleInput[]
+    updateMany?: GradingBandUpdateManyWithWhereWithoutScaleInput | GradingBandUpdateManyWithWhereWithoutScaleInput[]
+    deleteMany?: GradingBandScalarWhereInput | GradingBandScalarWhereInput[]
+  }
+
+  export type GradingBandUncheckedUpdateManyWithoutScaleNestedInput = {
+    create?: XOR<GradingBandCreateWithoutScaleInput, GradingBandUncheckedCreateWithoutScaleInput> | GradingBandCreateWithoutScaleInput[] | GradingBandUncheckedCreateWithoutScaleInput[]
+    connectOrCreate?: GradingBandCreateOrConnectWithoutScaleInput | GradingBandCreateOrConnectWithoutScaleInput[]
+    upsert?: GradingBandUpsertWithWhereUniqueWithoutScaleInput | GradingBandUpsertWithWhereUniqueWithoutScaleInput[]
+    createMany?: GradingBandCreateManyScaleInputEnvelope
+    set?: GradingBandWhereUniqueInput | GradingBandWhereUniqueInput[]
+    disconnect?: GradingBandWhereUniqueInput | GradingBandWhereUniqueInput[]
+    delete?: GradingBandWhereUniqueInput | GradingBandWhereUniqueInput[]
+    connect?: GradingBandWhereUniqueInput | GradingBandWhereUniqueInput[]
+    update?: GradingBandUpdateWithWhereUniqueWithoutScaleInput | GradingBandUpdateWithWhereUniqueWithoutScaleInput[]
+    updateMany?: GradingBandUpdateManyWithWhereWithoutScaleInput | GradingBandUpdateManyWithWhereWithoutScaleInput[]
+    deleteMany?: GradingBandScalarWhereInput | GradingBandScalarWhereInput[]
+  }
+
+  export type GradingScaleCreateNestedOneWithoutBandsInput = {
+    create?: XOR<GradingScaleCreateWithoutBandsInput, GradingScaleUncheckedCreateWithoutBandsInput>
+    connectOrCreate?: GradingScaleCreateOrConnectWithoutBandsInput
+    connect?: GradingScaleWhereUniqueInput
+  }
+
+  export type GradingScaleUpdateOneRequiredWithoutBandsNestedInput = {
+    create?: XOR<GradingScaleCreateWithoutBandsInput, GradingScaleUncheckedCreateWithoutBandsInput>
+    connectOrCreate?: GradingScaleCreateOrConnectWithoutBandsInput
+    upsert?: GradingScaleUpsertWithoutBandsInput
+    connect?: GradingScaleWhereUniqueInput
+    update?: XOR<XOR<GradingScaleUpdateToOneWithWhereWithoutBandsInput, GradingScaleUpdateWithoutBandsInput>, GradingScaleUncheckedUpdateWithoutBandsInput>
+  }
+
+  export type AssessmentComponentCreateNestedManyWithoutSchemeInput = {
+    create?: XOR<AssessmentComponentCreateWithoutSchemeInput, AssessmentComponentUncheckedCreateWithoutSchemeInput> | AssessmentComponentCreateWithoutSchemeInput[] | AssessmentComponentUncheckedCreateWithoutSchemeInput[]
+    connectOrCreate?: AssessmentComponentCreateOrConnectWithoutSchemeInput | AssessmentComponentCreateOrConnectWithoutSchemeInput[]
+    createMany?: AssessmentComponentCreateManySchemeInputEnvelope
+    connect?: AssessmentComponentWhereUniqueInput | AssessmentComponentWhereUniqueInput[]
+  }
+
+  export type AssessmentComponentUncheckedCreateNestedManyWithoutSchemeInput = {
+    create?: XOR<AssessmentComponentCreateWithoutSchemeInput, AssessmentComponentUncheckedCreateWithoutSchemeInput> | AssessmentComponentCreateWithoutSchemeInput[] | AssessmentComponentUncheckedCreateWithoutSchemeInput[]
+    connectOrCreate?: AssessmentComponentCreateOrConnectWithoutSchemeInput | AssessmentComponentCreateOrConnectWithoutSchemeInput[]
+    createMany?: AssessmentComponentCreateManySchemeInputEnvelope
+    connect?: AssessmentComponentWhereUniqueInput | AssessmentComponentWhereUniqueInput[]
+  }
+
+  export type AssessmentComponentUpdateManyWithoutSchemeNestedInput = {
+    create?: XOR<AssessmentComponentCreateWithoutSchemeInput, AssessmentComponentUncheckedCreateWithoutSchemeInput> | AssessmentComponentCreateWithoutSchemeInput[] | AssessmentComponentUncheckedCreateWithoutSchemeInput[]
+    connectOrCreate?: AssessmentComponentCreateOrConnectWithoutSchemeInput | AssessmentComponentCreateOrConnectWithoutSchemeInput[]
+    upsert?: AssessmentComponentUpsertWithWhereUniqueWithoutSchemeInput | AssessmentComponentUpsertWithWhereUniqueWithoutSchemeInput[]
+    createMany?: AssessmentComponentCreateManySchemeInputEnvelope
+    set?: AssessmentComponentWhereUniqueInput | AssessmentComponentWhereUniqueInput[]
+    disconnect?: AssessmentComponentWhereUniqueInput | AssessmentComponentWhereUniqueInput[]
+    delete?: AssessmentComponentWhereUniqueInput | AssessmentComponentWhereUniqueInput[]
+    connect?: AssessmentComponentWhereUniqueInput | AssessmentComponentWhereUniqueInput[]
+    update?: AssessmentComponentUpdateWithWhereUniqueWithoutSchemeInput | AssessmentComponentUpdateWithWhereUniqueWithoutSchemeInput[]
+    updateMany?: AssessmentComponentUpdateManyWithWhereWithoutSchemeInput | AssessmentComponentUpdateManyWithWhereWithoutSchemeInput[]
+    deleteMany?: AssessmentComponentScalarWhereInput | AssessmentComponentScalarWhereInput[]
+  }
+
+  export type AssessmentComponentUncheckedUpdateManyWithoutSchemeNestedInput = {
+    create?: XOR<AssessmentComponentCreateWithoutSchemeInput, AssessmentComponentUncheckedCreateWithoutSchemeInput> | AssessmentComponentCreateWithoutSchemeInput[] | AssessmentComponentUncheckedCreateWithoutSchemeInput[]
+    connectOrCreate?: AssessmentComponentCreateOrConnectWithoutSchemeInput | AssessmentComponentCreateOrConnectWithoutSchemeInput[]
+    upsert?: AssessmentComponentUpsertWithWhereUniqueWithoutSchemeInput | AssessmentComponentUpsertWithWhereUniqueWithoutSchemeInput[]
+    createMany?: AssessmentComponentCreateManySchemeInputEnvelope
+    set?: AssessmentComponentWhereUniqueInput | AssessmentComponentWhereUniqueInput[]
+    disconnect?: AssessmentComponentWhereUniqueInput | AssessmentComponentWhereUniqueInput[]
+    delete?: AssessmentComponentWhereUniqueInput | AssessmentComponentWhereUniqueInput[]
+    connect?: AssessmentComponentWhereUniqueInput | AssessmentComponentWhereUniqueInput[]
+    update?: AssessmentComponentUpdateWithWhereUniqueWithoutSchemeInput | AssessmentComponentUpdateWithWhereUniqueWithoutSchemeInput[]
+    updateMany?: AssessmentComponentUpdateManyWithWhereWithoutSchemeInput | AssessmentComponentUpdateManyWithWhereWithoutSchemeInput[]
+    deleteMany?: AssessmentComponentScalarWhereInput | AssessmentComponentScalarWhereInput[]
+  }
+
+  export type AssessmentSchemeCreateNestedOneWithoutComponentsInput = {
+    create?: XOR<AssessmentSchemeCreateWithoutComponentsInput, AssessmentSchemeUncheckedCreateWithoutComponentsInput>
+    connectOrCreate?: AssessmentSchemeCreateOrConnectWithoutComponentsInput
+    connect?: AssessmentSchemeWhereUniqueInput
+  }
+
+  export type EnumAssessmentKindFieldUpdateOperationsInput = {
+    set?: $Enums.AssessmentKind
+  }
+
+  export type AssessmentSchemeUpdateOneRequiredWithoutComponentsNestedInput = {
+    create?: XOR<AssessmentSchemeCreateWithoutComponentsInput, AssessmentSchemeUncheckedCreateWithoutComponentsInput>
+    connectOrCreate?: AssessmentSchemeCreateOrConnectWithoutComponentsInput
+    upsert?: AssessmentSchemeUpsertWithoutComponentsInput
+    connect?: AssessmentSchemeWhereUniqueInput
+    update?: XOR<XOR<AssessmentSchemeUpdateToOneWithWhereWithoutComponentsInput, AssessmentSchemeUpdateWithoutComponentsInput>, AssessmentSchemeUncheckedUpdateWithoutComponentsInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -133281,6 +138984,23 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumSalaryTransferStatusFilter<$PrismaModel>
     _max?: NestedEnumSalaryTransferStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumAssessmentKindFilter<$PrismaModel = never> = {
+    equals?: $Enums.AssessmentKind | EnumAssessmentKindFieldRefInput<$PrismaModel>
+    in?: $Enums.AssessmentKind[] | ListEnumAssessmentKindFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AssessmentKind[] | ListEnumAssessmentKindFieldRefInput<$PrismaModel>
+    not?: NestedEnumAssessmentKindFilter<$PrismaModel> | $Enums.AssessmentKind
+  }
+
+  export type NestedEnumAssessmentKindWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AssessmentKind | EnumAssessmentKindFieldRefInput<$PrismaModel>
+    in?: $Enums.AssessmentKind[] | ListEnumAssessmentKindFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AssessmentKind[] | ListEnumAssessmentKindFieldRefInput<$PrismaModel>
+    not?: NestedEnumAssessmentKindWithAggregatesFilter<$PrismaModel> | $Enums.AssessmentKind
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAssessmentKindFilter<$PrismaModel>
+    _max?: NestedEnumAssessmentKindFilter<$PrismaModel>
   }
 
   export type ClassSubjectCreateWithoutStaffInput = {
@@ -156571,6 +162291,216 @@ export namespace Prisma {
     remittance?: PayrollRemittanceUncheckedUpdateOneWithoutJournalNestedInput
   }
 
+  export type GradingBandCreateWithoutScaleInput = {
+    id?: string
+    minScore: number
+    grade: string
+    remark: string
+    isPass?: boolean
+    createdAt?: Date | string
+  }
+
+  export type GradingBandUncheckedCreateWithoutScaleInput = {
+    id?: string
+    minScore: number
+    grade: string
+    remark: string
+    isPass?: boolean
+    createdAt?: Date | string
+  }
+
+  export type GradingBandCreateOrConnectWithoutScaleInput = {
+    where: GradingBandWhereUniqueInput
+    create: XOR<GradingBandCreateWithoutScaleInput, GradingBandUncheckedCreateWithoutScaleInput>
+  }
+
+  export type GradingBandCreateManyScaleInputEnvelope = {
+    data: GradingBandCreateManyScaleInput | GradingBandCreateManyScaleInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type GradingBandUpsertWithWhereUniqueWithoutScaleInput = {
+    where: GradingBandWhereUniqueInput
+    update: XOR<GradingBandUpdateWithoutScaleInput, GradingBandUncheckedUpdateWithoutScaleInput>
+    create: XOR<GradingBandCreateWithoutScaleInput, GradingBandUncheckedCreateWithoutScaleInput>
+  }
+
+  export type GradingBandUpdateWithWhereUniqueWithoutScaleInput = {
+    where: GradingBandWhereUniqueInput
+    data: XOR<GradingBandUpdateWithoutScaleInput, GradingBandUncheckedUpdateWithoutScaleInput>
+  }
+
+  export type GradingBandUpdateManyWithWhereWithoutScaleInput = {
+    where: GradingBandScalarWhereInput
+    data: XOR<GradingBandUpdateManyMutationInput, GradingBandUncheckedUpdateManyWithoutScaleInput>
+  }
+
+  export type GradingBandScalarWhereInput = {
+    AND?: GradingBandScalarWhereInput | GradingBandScalarWhereInput[]
+    OR?: GradingBandScalarWhereInput[]
+    NOT?: GradingBandScalarWhereInput | GradingBandScalarWhereInput[]
+    id?: StringFilter<"GradingBand"> | string
+    scaleId?: StringFilter<"GradingBand"> | string
+    minScore?: FloatFilter<"GradingBand"> | number
+    grade?: StringFilter<"GradingBand"> | string
+    remark?: StringFilter<"GradingBand"> | string
+    isPass?: BoolFilter<"GradingBand"> | boolean
+    createdAt?: DateTimeFilter<"GradingBand"> | Date | string
+  }
+
+  export type GradingScaleCreateWithoutBandsInput = {
+    id?: string
+    name: string
+    level?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GradingScaleUncheckedCreateWithoutBandsInput = {
+    id?: string
+    name: string
+    level?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GradingScaleCreateOrConnectWithoutBandsInput = {
+    where: GradingScaleWhereUniqueInput
+    create: XOR<GradingScaleCreateWithoutBandsInput, GradingScaleUncheckedCreateWithoutBandsInput>
+  }
+
+  export type GradingScaleUpsertWithoutBandsInput = {
+    update: XOR<GradingScaleUpdateWithoutBandsInput, GradingScaleUncheckedUpdateWithoutBandsInput>
+    create: XOR<GradingScaleCreateWithoutBandsInput, GradingScaleUncheckedCreateWithoutBandsInput>
+    where?: GradingScaleWhereInput
+  }
+
+  export type GradingScaleUpdateToOneWithWhereWithoutBandsInput = {
+    where?: GradingScaleWhereInput
+    data: XOR<GradingScaleUpdateWithoutBandsInput, GradingScaleUncheckedUpdateWithoutBandsInput>
+  }
+
+  export type GradingScaleUpdateWithoutBandsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    level?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GradingScaleUncheckedUpdateWithoutBandsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    level?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssessmentComponentCreateWithoutSchemeInput = {
+    id?: string
+    name: string
+    kind: $Enums.AssessmentKind
+    maxScore: number
+    position: number
+    createdAt?: Date | string
+  }
+
+  export type AssessmentComponentUncheckedCreateWithoutSchemeInput = {
+    id?: string
+    name: string
+    kind: $Enums.AssessmentKind
+    maxScore: number
+    position: number
+    createdAt?: Date | string
+  }
+
+  export type AssessmentComponentCreateOrConnectWithoutSchemeInput = {
+    where: AssessmentComponentWhereUniqueInput
+    create: XOR<AssessmentComponentCreateWithoutSchemeInput, AssessmentComponentUncheckedCreateWithoutSchemeInput>
+  }
+
+  export type AssessmentComponentCreateManySchemeInputEnvelope = {
+    data: AssessmentComponentCreateManySchemeInput | AssessmentComponentCreateManySchemeInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AssessmentComponentUpsertWithWhereUniqueWithoutSchemeInput = {
+    where: AssessmentComponentWhereUniqueInput
+    update: XOR<AssessmentComponentUpdateWithoutSchemeInput, AssessmentComponentUncheckedUpdateWithoutSchemeInput>
+    create: XOR<AssessmentComponentCreateWithoutSchemeInput, AssessmentComponentUncheckedCreateWithoutSchemeInput>
+  }
+
+  export type AssessmentComponentUpdateWithWhereUniqueWithoutSchemeInput = {
+    where: AssessmentComponentWhereUniqueInput
+    data: XOR<AssessmentComponentUpdateWithoutSchemeInput, AssessmentComponentUncheckedUpdateWithoutSchemeInput>
+  }
+
+  export type AssessmentComponentUpdateManyWithWhereWithoutSchemeInput = {
+    where: AssessmentComponentScalarWhereInput
+    data: XOR<AssessmentComponentUpdateManyMutationInput, AssessmentComponentUncheckedUpdateManyWithoutSchemeInput>
+  }
+
+  export type AssessmentComponentScalarWhereInput = {
+    AND?: AssessmentComponentScalarWhereInput | AssessmentComponentScalarWhereInput[]
+    OR?: AssessmentComponentScalarWhereInput[]
+    NOT?: AssessmentComponentScalarWhereInput | AssessmentComponentScalarWhereInput[]
+    id?: StringFilter<"AssessmentComponent"> | string
+    schemeId?: StringFilter<"AssessmentComponent"> | string
+    name?: StringFilter<"AssessmentComponent"> | string
+    kind?: EnumAssessmentKindFilter<"AssessmentComponent"> | $Enums.AssessmentKind
+    maxScore?: FloatFilter<"AssessmentComponent"> | number
+    position?: IntFilter<"AssessmentComponent"> | number
+    createdAt?: DateTimeFilter<"AssessmentComponent"> | Date | string
+  }
+
+  export type AssessmentSchemeCreateWithoutComponentsInput = {
+    id?: string
+    name: string
+    level?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AssessmentSchemeUncheckedCreateWithoutComponentsInput = {
+    id?: string
+    name: string
+    level?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AssessmentSchemeCreateOrConnectWithoutComponentsInput = {
+    where: AssessmentSchemeWhereUniqueInput
+    create: XOR<AssessmentSchemeCreateWithoutComponentsInput, AssessmentSchemeUncheckedCreateWithoutComponentsInput>
+  }
+
+  export type AssessmentSchemeUpsertWithoutComponentsInput = {
+    update: XOR<AssessmentSchemeUpdateWithoutComponentsInput, AssessmentSchemeUncheckedUpdateWithoutComponentsInput>
+    create: XOR<AssessmentSchemeCreateWithoutComponentsInput, AssessmentSchemeUncheckedCreateWithoutComponentsInput>
+    where?: AssessmentSchemeWhereInput
+  }
+
+  export type AssessmentSchemeUpdateToOneWithWhereWithoutComponentsInput = {
+    where?: AssessmentSchemeWhereInput
+    data: XOR<AssessmentSchemeUpdateWithoutComponentsInput, AssessmentSchemeUncheckedUpdateWithoutComponentsInput>
+  }
+
+  export type AssessmentSchemeUpdateWithoutComponentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    level?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssessmentSchemeUncheckedUpdateWithoutComponentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    level?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type ClassSubjectCreateManyStaffInput = {
     id?: string
     classId: string
@@ -163145,6 +169075,78 @@ export namespace Prisma {
     paymentId?: StringFieldUpdateOperationsInput | string
     amountKobo?: BigIntFieldUpdateOperationsInput | bigint | number
     feeKobo?: BigIntFieldUpdateOperationsInput | bigint | number
+  }
+
+  export type GradingBandCreateManyScaleInput = {
+    id?: string
+    minScore: number
+    grade: string
+    remark: string
+    isPass?: boolean
+    createdAt?: Date | string
+  }
+
+  export type GradingBandUpdateWithoutScaleInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    minScore?: FloatFieldUpdateOperationsInput | number
+    grade?: StringFieldUpdateOperationsInput | string
+    remark?: StringFieldUpdateOperationsInput | string
+    isPass?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GradingBandUncheckedUpdateWithoutScaleInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    minScore?: FloatFieldUpdateOperationsInput | number
+    grade?: StringFieldUpdateOperationsInput | string
+    remark?: StringFieldUpdateOperationsInput | string
+    isPass?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GradingBandUncheckedUpdateManyWithoutScaleInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    minScore?: FloatFieldUpdateOperationsInput | number
+    grade?: StringFieldUpdateOperationsInput | string
+    remark?: StringFieldUpdateOperationsInput | string
+    isPass?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssessmentComponentCreateManySchemeInput = {
+    id?: string
+    name: string
+    kind: $Enums.AssessmentKind
+    maxScore: number
+    position: number
+    createdAt?: Date | string
+  }
+
+  export type AssessmentComponentUpdateWithoutSchemeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    kind?: EnumAssessmentKindFieldUpdateOperationsInput | $Enums.AssessmentKind
+    maxScore?: FloatFieldUpdateOperationsInput | number
+    position?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssessmentComponentUncheckedUpdateWithoutSchemeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    kind?: EnumAssessmentKindFieldUpdateOperationsInput | $Enums.AssessmentKind
+    maxScore?: FloatFieldUpdateOperationsInput | number
+    position?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssessmentComponentUncheckedUpdateManyWithoutSchemeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    kind?: EnumAssessmentKindFieldUpdateOperationsInput | $Enums.AssessmentKind
+    maxScore?: FloatFieldUpdateOperationsInput | number
+    position?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

@@ -1244,6 +1244,42 @@ exports.Prisma.SalaryTransferScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.GradingScaleScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  level: 'level',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.GradingBandScalarFieldEnum = {
+  id: 'id',
+  scaleId: 'scaleId',
+  minScore: 'minScore',
+  grade: 'grade',
+  remark: 'remark',
+  isPass: 'isPass',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.AssessmentSchemeScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  level: 'level',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AssessmentComponentScalarFieldEnum = {
+  id: 'id',
+  schemeId: 'schemeId',
+  name: 'name',
+  kind: 'kind',
+  maxScore: 'maxScore',
+  position: 'position',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1645,6 +1681,11 @@ exports.SalaryTransferStatus = exports.$Enums.SalaryTransferStatus = {
   CANCELLED: 'CANCELLED'
 };
 
+exports.AssessmentKind = exports.$Enums.AssessmentKind = {
+  ca: 'ca',
+  exam: 'exam'
+};
+
 exports.Prisma.ModelName = {
   Staff: 'Staff',
   Student: 'Student',
@@ -1719,7 +1760,11 @@ exports.Prisma.ModelName = {
   BankReconciliation: 'BankReconciliation',
   GatewaySettlement: 'GatewaySettlement',
   GatewaySettlementItem: 'GatewaySettlementItem',
-  SalaryTransfer: 'SalaryTransfer'
+  SalaryTransfer: 'SalaryTransfer',
+  GradingScale: 'GradingScale',
+  GradingBand: 'GradingBand',
+  AssessmentScheme: 'AssessmentScheme',
+  AssessmentComponent: 'AssessmentComponent'
 };
 
 /**
