@@ -10,10 +10,7 @@
         "node_modules", "dist",
         // Unfinished or unmounted code that nothing imports and that does not compile yet.
         // Remove a line when its owner finishes the module, so the compiler checks it again.
-        "src/modules/super-admin",                              // not mounted (see routes/index.ts and container/index.ts); imports files that do not exist
-        "src/infrastructure/verification",                      // qoreid provider needs env.qoreId, which is not defined
-        "src/modules/branches/usecases/assign-branches.usecase.ts", // uses a MembershipBranch model that is not in the schema
-        "src/modules/plans/usage.service.ts"                    // stray copy with wrong import paths; the live one is in modules/subscriptions/services
+        "src/modules/super-admin"                               // not mounted (see routes/index.ts and container/index.ts); imports files that do not exist
     ],
     "ts-node": { "files": true }
 }

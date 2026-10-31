@@ -76,6 +76,11 @@ const envSchema = z.object({
 
     //sentry
     SENTRY_DSN: z.string().optional(),
+
+    // ── QoreID (government ID verification; the manual review provider is used until these are set and the provider is switched in shared.container) ──
+    QOREID_BASE_URL:  z.string().url().default("https://api.qoreid.com"),
+    QOREID_CLIENT_ID: z.string().optional(),
+    QOREID_SECRET:    z.string().optional(),
 });
 
 /*
@@ -162,5 +167,11 @@ export const env = {
     },
 
     sentryDsn: parsed.data.SENTRY_DSN,
+
+    qoreId: {
+        baseUrl:  parsed.data.QOREID_BASE_URL,
+        clientId: parsed.data.QOREID_CLIENT_ID || "",
+        secret:   parsed.data.QOREID_SECRET || "",
+    },
 
 } as const;
