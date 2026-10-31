@@ -15,9 +15,9 @@ describe("routes/index.ts wiring", () => {
     it("branches is mounted at /branches", () => {
         assert.match(active, /router\.use\("\/branches",\s*branchRouter\)/);
     });
-    it("two routers on one path is allowed (finance, fees); the same path is never given to two different modules by accident", () => {
+    it("two routers on one path is allowed (finance, fees, grades); the same path is never given to two different modules by accident", () => {
         const mounts = [...active.matchAll(/router\.use\("([^"]+)",\s*(\w+)\)/g)].map(m => [m[1], m[2]] as const);
-        const shared = new Set(["/finance", "/fees"]);
+        const shared = new Set(["/finance", "/fees", "/grades"]);
         const seen = new Map<string, string>();
         for (const [path, name] of mounts) {
             if (seen.has(path) && !shared.has(path)) assert.fail(`${path} is mounted twice (${seen.get(path)} and ${name})`);

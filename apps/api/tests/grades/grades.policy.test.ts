@@ -74,9 +74,10 @@ describe("requests and permissions", () => {
         assert.equal(SaveSchemeDto.safeParse({ components: [{ name: "CA", kind: "quiz", maxScore: 40 }] }).success, false);
         assert.equal(SaveSchemeDto.safeParse({ components: [{ name: "CA", kind: "ca", maxScore: 100 }] }).success, true);
     });
-    it("grades.view and grades.config are registered; only the admin changes the setup", () => {
+    it("the grades permissions are registered; only the admin changes the setup", () => {
         assert.deepEqual(validatePermissionRegistry(PERMISSION_REGISTRY), []);
-        assert.deepEqual(PERMISSION_REGISTRY.filter(p => p.module === "grades").map(p => p.key).sort(), ["grades.config", "grades.view"]);
+        assert.deepEqual(PERMISSION_REGISTRY.filter(p => p.module === "grades").map(p => p.key).sort(), ["grades.approve", "grades.config", "grades.enter", "grades.publish", "grades.reopen", "grades.submit", "grades.view"]);
+        assert.equal((PERMISSION_REGISTRY.find(p => p.key === "grades.reopen") as any).isSensitive, true);
         const has = (role: string, scope: string) => ROLE_TEMPLATES.find(t => t.key === role)!.permissions.some(p => p.key === "grades.view" && p.scope === scope);
         assert.deepEqual([has("principal", "ALL"), has("teacher", "ASSIGNED"), has("student", "OWN"), has("guardian", "OWN")], [true, true, true, true]);
         assert.equal(ROLE_TEMPLATES.some(t => t.key !== "school_admin" && t.permissions.some(p => p.key === "grades.config")), false);

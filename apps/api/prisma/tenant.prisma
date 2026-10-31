@@ -319,6 +319,7 @@ model ClassSubject {
   grades  Grade[]
 
   @@unique([classId, subjectId, termId])
+  sheet   ResultSheet?
 }
 
 enum ClassSubjectAssignmentSource {
@@ -426,6 +427,7 @@ model Grade {
   studentId      String
   termId         String
   classSubjectId String
+  sheetId        String
   caScore        Float?
   examScore      Float?
   total          Float?
@@ -440,8 +442,11 @@ model Grade {
   student      Student      @relation(fields: [studentId], references: [id])
   term         Term         @relation(fields: [termId], references: [id])
   classSubject ClassSubject @relation(fields: [classSubjectId], references: [id])
+  sheet        ResultSheet  @relation(fields: [sheetId], references: [id])
+  scores       GradeScore[]
 
   @@unique([studentId, termId, classSubjectId])
+  @@index([sheetId])
 }
 
 model GradingConfig {
@@ -2204,4 +2209,52 @@ model AssessmentComponent {
   scheme AssessmentScheme @relation(fields: [schemeId], references: [id], onDelete: Cascade)
 
   @@unique([schemeId, position])
+}
+
+// ── Mark sheets: one subject, in one class, for one term ──
+enum ResultSheetStatus {
+  draft
+  submitted
+  approved
+  published
+  locked
+}
+
+model ResultSheet {
+  id             String            @id @default(uuid())
+  classSubjectId String            @unique
+  status         ResultSheetStatus @default(draft)
+  components     Json              // the parts of the score, copied from the school's scheme when the sheet is created: [{ position, name, kind, maxScore }]
+  scale          Json?             // the grading scale used, frozen when published: [{ minScore, grade, remark, isPass }]
+  submittedAt    DateTime?
+  submittedById  String?
+  approvedAt     DateTime?
+  approvedById   String?
+  publishedAt    DateTime?
+  publishedById  String?
+  lockedAt       DateTime?
+  lockedById     String?
+  reopenedAt     DateTime?
+  reopenedById   String?
+  reopenReason   String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  classSubject ClassSubject @relation(fields: [classSubjectId], references: [id])
+  grades       Grade[]
+
+  @@index([status])
+}
+
+// One score of one student for one part (position) of the sheet's scheme. Not entered = no row or an empty score.
+model GradeScore {
+  id       String  @id @default(uuid())
+  gradeId  String
+  position Int
+  score    Float?
+  isAbsent Boolean @default(false)
+
+  grade Grade @relation(fields: [gradeId], references: [id], onDelete: Cascade)
+
+  @@unique([gradeId, position])
 }
