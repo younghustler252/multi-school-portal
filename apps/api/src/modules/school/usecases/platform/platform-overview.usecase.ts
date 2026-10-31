@@ -1,7 +1,5 @@
 import type { PrismaClient } from "../../../../generated/public";
 import { TenantContext } from "../../../../infrastructure/database/prisma/tenant.context";
-import { getTenantClient } from "../../../../infrastructure/database/prisma/prisma.client";
-import { ACTIVE_STUDENT_WHERE } from "../../../students/domain/student-eligibility";
 
 /*
 | PLATFORM OVERVIEW (platform realm): the counts the admin dashboard opens with.
@@ -14,7 +12,12 @@ export interface StudentCounter { count(school: { id: string; schemaName: string
 
 export function tenantStudentCounter(): StudentCounter {
     return {
-        count: (s) => TenantContext.run({ tenantSchema: s.schemaName, schoolId: s.id }, () => getTenantClient().student.count({ where: ACTIVE_STUDENT_WHERE })),
+        // loaded on first use so that importing this file never opens a database connection
+        async count(s) {
+            const { getTenantClient } = await import("../../../../infrastructure/database/prisma/prisma.client");
+            const { ACTIVE_STUDENT_WHERE } = await import("../../../students/domain/student-eligibility");
+            return TenantContext.run({ tenantSchema: s.schemaName, schoolId: s.id }, () => getTenantClient().student.count({ where: ACTIVE_STUDENT_WHERE }));
+        },
     };
 }
 
