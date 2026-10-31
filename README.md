@@ -14,7 +14,7 @@ docs/            documentation and decisions (docs/decisions)
 First time after cloning (or after pulling the move into `apps/`):
 
 1. `npm install` at the repo root (npm workspaces). This creates one root `package-lock.json`; then delete `apps/api/package-lock.json` and `apps/web/package-lock.json`.
-2. Move your API `.env` into `apps/api/` (the API reads `.env` from the folder it is started in).
+2. Copy `apps/api/.env.development.example` to `apps/api/.env.development` and `apps/web/.env.local.example` to `apps/web/.env.local`, then fill them in (the API reads `.env.development` from the folder it is started in, so move your existing file into `apps/api/`).
 3. `npm run db:up` (Postgres and Redis), then `npm run dev:api`, `npm run dev:worker`, `npm run dev:web`.
 4. Tests: `npm test`.
 

@@ -14,6 +14,12 @@
     "build:web": "npm run build -w apps/web",
     "test": "npm run test -w apps/api",
     "lint:web": "npm run lint -w apps/web",
-    "db:up": "docker compose up -d"
+    "db:up": "docker compose up -d",
+    "typecheck": "npm run typecheck -w apps/api && npm run typecheck -w apps/web",
+    "audit:deps": "npm audit --omit=dev",
+    "check": "npm run typecheck && npm test && npm run lint:web"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }
