@@ -21,6 +21,7 @@ router.get("/",  authenticate, requirePermission("platform.schools.view"),   (q,
 router.post("/", authenticate, requirePermission("platform.schools.create"), validate(CreateSchoolDto), (q, s, n) => ctrl().create(q, s, n));
 
 // Provisioning: which schools are ready, waiting or failed, and a retry (registered before "/:id")
+router.get("/overview", authenticate, requirePermission("platform.overview.view"), (q, s, n) => ctrl().overview(q, s, n));
 router.get("/provisioning",          authenticate, requirePermission("platform.schools.provisioning"),       (q, s, n) => ctrl().provisioning(q, s, n));
 router.post("/:id/provisioning/retry", authenticate, requirePermission("platform.schools.provisioning.retry"), (q, s, n) => ctrl().retryProvisioning(q, s, n));
 

@@ -29,7 +29,6 @@ import payrollRouter from "../modules/payroll/routes/payroll.routes";
 import myPayslipsRouter from "../modules/payroll/routes/my-payslips.routes";
 import sessionRouter from "../modules/sessions/routes/session.routes"
 import paymentRouter from "../modules/payments/routes/payment.routes";
-// import superAdminRouter from "../modules/super-admin/routes/super-admin.routes";
 import auditRouter from "../modules/audit/routes/audit.routes"
 import ledgerRouter from "../modules/ledger/routes/ledger.routes";
 import financeSettingsRouter from "../modules/finance-settings/routes/finance-settings.routes";
@@ -84,7 +83,6 @@ router.use("/fees/adjustments", feeAdjustmentRouter);
 router.use("/fees", feeReportRouter);
 router.use("/fees", feesRouter);
 router.use("/payments", paymentRouter)
-// router.use("/super-admin", superAdminRouter)
 router.use("/notifications", notificationRouter);
 router.use("/school-settings", schoolSettingRouter)
 router.use("/message-templates", messageTemplateRouter);

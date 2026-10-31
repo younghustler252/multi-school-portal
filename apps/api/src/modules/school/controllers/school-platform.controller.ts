@@ -9,6 +9,7 @@ import { SuspendSchoolUseCase, ReactivateSchoolUseCase } from "../usecases/platf
 import { SchoolDocumentsReviewUseCase }  from "../usecases/platform/school-documents.usecases";
 import { ListSchoolProvisioningUseCase, RetrySchoolProvisioningUseCase, ProvisioningQuery } from "../usecases/platform/school-provisioning.usecases";
 import { ImpersonateSchoolUseCase, ImpersonateSchoolDto } from "../usecases/platform/impersonate-school.usecase";
+import { PlatformOverviewUseCase } from "../usecases/platform/platform-overview.usecase";
 import { sendSuccess, sendCreated, sendPaginated } from "../../../shared/utils/api-response";
 import { ListSchoolsQuery }              from "../dtos/school.dto";
 import { schoolErrors }                  from "../domain/school.errors";
@@ -19,7 +20,7 @@ interface Dependencies {
     verifySchoolUseCase: VerifySchoolUseCase; rejectSchoolUseCase: RejectSchoolUseCase;
     suspendSchoolUseCase: SuspendSchoolUseCase; reactivateSchoolUseCase: ReactivateSchoolUseCase;
     schoolDocumentsReviewUseCase: SchoolDocumentsReviewUseCase;
-    impersonateSchoolUseCase: ImpersonateSchoolUseCase;
+    impersonateSchoolUseCase: ImpersonateSchoolUseCase; platformOverviewUseCase: PlatformOverviewUseCase;
     listSchoolProvisioningUseCase: ListSchoolProvisioningUseCase; retrySchoolProvisioningUseCase: RetrySchoolProvisioningUseCase;
 }
 
@@ -50,6 +51,10 @@ export class SchoolPlatformController {
 
     retryProvisioning = async (req: Request, res: Response, next: NextFunction) => {
         try { sendSuccess(res, await this.d.retrySchoolProvisioningUseCase.execute(actorOf(req), idOf(req)), "Provisioning queued again"); } catch (e) { next(e); }
+    };
+
+    overview = async (_req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.platformOverviewUseCase.execute(), "Platform overview retrieved successfully"); } catch (e) { next(e); }
     };
 
     impersonate = async (req: Request, res: Response, next: NextFunction) => {

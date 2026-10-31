@@ -7,10 +7,8 @@
     },
     "include": ["src/**/*"],
     "exclude": [
-        "node_modules", "dist",
-        // Unfinished or unmounted code that nothing imports and that does not compile yet.
-        // Remove a line when its owner finishes the module, so the compiler checks it again.
-        "src/modules/super-admin"                               // not mounted (see routes/index.ts and container/index.ts); imports files that do not exist
+        "node_modules", "dist"
+        // Add unfinished, unmounted code here only while its owner finishes it, and remove the line afterwards.
     ],
     "ts-node": { "files": true }
 }
