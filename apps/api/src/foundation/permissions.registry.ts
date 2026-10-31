@@ -11,6 +11,7 @@ import { SESSION_PERMISSIONS } from "../modules/sessions/sessions.permissions";
 import { CLASS_PERMISSIONS } from "../modules/classes/classes.permissions";
 import { ENROLMENT_PERMISSIONS } from "../modules/enrolment/enrolment.permissions";
 import { ATTENDANCE_PERMISSIONS } from "../modules/attendance/attendance.permissions";
+import { GRADES_PERMISSIONS } from "../modules/grades/grades.permissions";
 import { AUDIT_PERMISSIONS } from "../modules/audit/audit.permissions";
 import { LEDGER_PERMISSIONS } from "../modules/ledger/ledger.permissions";
 import { FEES_PERMISSIONS } from "../modules/fees/fees.permissions";
@@ -76,6 +77,7 @@ const ALL: readonly PermissionDef[] = [
     ...CLASS_PERMISSIONS,
     ...ENROLMENT_PERMISSIONS,
     ...ATTENDANCE_PERMISSIONS,
+    ...GRADES_PERMISSIONS,
     ...AUDIT_PERMISSIONS,
     ...LEDGER_PERMISSIONS,
     ...FEES_PERMISSIONS,
