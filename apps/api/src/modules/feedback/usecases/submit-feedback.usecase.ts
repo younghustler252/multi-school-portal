@@ -36,7 +36,7 @@ export class SubmitFeedbackUseCase {
 
         try {
             await this.mailService.sendLetter(
-                env?.APP_BASE_DOMAIN ?? "support@schoolportal.com",
+                "support@schoolportal.com",   // TODO: make this a setting (the old env.APP_BASE_DOMAIN never existed, so this was always the fallback)
                 {
                     subject: `New feedback: ${feedback.type}`,
                     title: "New feedback received",

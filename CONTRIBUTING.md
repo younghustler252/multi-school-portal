@@ -36,3 +36,7 @@ Each module has one owner who reviews changes to it. Do not edit another owner's
 - Install packages with `npm install <pkg> -w apps/api` (or `apps/web`).
 - `npm run audit:deps` shows known vulnerabilities in what ships. Dependabot opens weekly update pull requests; merge security ones quickly.
 - Secrets live only in `.env.*` files that are not committed (`*.example` files list the names).
+
+## Type check baseline
+`npm run typecheck` must pass. A few unfinished files that nothing imports are excluded in `apps/api/tsconfig.json` (super-admin, the qoreid verification provider, assign-branches, a stray plans/usage.service). When you finish one, delete its line so the compiler checks it again.
+The Prisma clients in `apps/api/src/generated` are checked in. After you change a `.prisma` schema run `npm run prisma:generate -w apps/api` and commit the regenerated files in the same pull request, or the next person's type check fails.

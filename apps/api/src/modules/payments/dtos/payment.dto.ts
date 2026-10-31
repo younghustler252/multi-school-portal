@@ -89,7 +89,7 @@ export const InitializeOnlinePaymentDto = z.object({ invoiceId: id, amountKobo: 
 /* The gateway paid the school: money moves from the online clearing account to the bank, less the gateway's fee. */
 export const RecordSettlementDto = z.object({
     grossKobo:   positiveKobo,                       // what the online payments came to
-    feeKobo:     kobo.default(0),                    // what the gateway kept
+    feeKobo:     kobo.optional().transform(v => v ?? 0n),                   // what the gateway kept
     accountId:   id.optional(),                      // the bank account that received it; the default bank account when omitted
     settledOn:   day.optional(),
     reference:   text(100).optional(),               // the gateway's settlement reference; the same one never posts twice

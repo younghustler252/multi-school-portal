@@ -20,7 +20,7 @@ export const SettlementReportDto = z.object({
 export const SettlePaymentsDto = z.object({
     reference:  text(100),                          // the gateway's settlement reference; the same one never posts twice
     paymentIds: z.array(id).min(1).max(500).refine(a => new Set(a).size === a.length, "Each payment can be listed once"),
-    feeKobo:    kobo.default(0),
+    feeKobo:    kobo.optional().transform(v => v ?? 0n),
     settledOn:  day.optional(),
     accountId:  id.optional(),
     note:       text(300).optional(),

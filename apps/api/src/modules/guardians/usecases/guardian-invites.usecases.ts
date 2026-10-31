@@ -27,7 +27,7 @@ export class InviteGuardianUseCase {
         return d.sendInviteUseCase.execute(
             { email: guardian.email, persona: "GUARDIAN", personaEntityId: id, firstName: guardian.firstName },
             schoolId,
-            { userId: actor.userId, membershipId: actor.membershipId, isAdmin: actor.isAdmin, can: (k: string) => actor.access.can(k) },
+            { userId: actor.userId, membershipId: actor.membershipId, isAdmin: actor.isAdmin, can: (k: string) => actor.access.can(k), scopeOf: (k: string) => actor.access.scopeOf(k) },
             { ip: actor.ip, userAgent: actor.userAgent },
         );
     }

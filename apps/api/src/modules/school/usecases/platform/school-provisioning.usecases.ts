@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { PrismaClient } from "@prisma/client";
+import type { PrismaClient } from "../../../../generated/public";
 import type { AuditService } from "../../../audit/services/audit.service";
 import { provisioningErrors } from "../../domain/provisioning.errors";
 

@@ -21,7 +21,7 @@ export function viewerOf(req: Request, forceOwn = false): PayslipViewer {
     return { scope: "OWN", staffId };
 }
 
-type Handler = (req: Request, res: Response) => Promise<void>;
+type Handler = (req: Request, res: Response) => Promise<unknown>;
 const wrap = (fn: Handler) => async (req: Request, res: Response, next: NextFunction) => { try { await fn(req, res); } catch (e) { next(e); } };
 const list = (res: Response, message: string, r: { data: unknown; meta: unknown }) => { res.status(200).json({ success: true, message, data: r.data, meta: r.meta }); };
 

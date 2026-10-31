@@ -90,19 +90,19 @@ export class GetDashboardUseCase {
             const grace = await db.schoolSettingValue.findUnique({ where: { key: "finance.grace_days" } });
             const graceDays = Math.max(0, Number(grace?.value ?? 0) || 0);
             const cutoff = new Date(Date.now() - graceDays * 86_400_000);
-            const live = { termId: term.id, status: { not: "waived" as const } };
+            // Invoices of the current term that still count (not draft, waived or void). Amounts are whole kobo (BigInt in the database).
+            const live = { termId: term.id, status: { in: ["unpaid", "partial", "paid"] as ("unpaid" | "partial" | "paid")[] }, voidedAt: null };
 
-            const [items, discounts, paid, overdue] = await Promise.all([
-                db.feeInvoiceItem.aggregate({ _sum: { amountKobo: true }, where: { feeInvoice: live } }),
-                db.feeInvoice.aggregate({ _sum: { discountKobo: true }, where: live }),
-                db.payment.aggregate({ _sum: { amountKobo: true }, where: { status: "success", feeInvoice: live } }),
-                db.feeInvoice.count({ where: { termId: term.id, status: { in: ["unpaid", "partial"] }, dueDate: { lt: cutoff } } }),
+            const [sums, overdue] = await Promise.all([
+                db.feeInvoice.aggregate({ _sum: { totalKobo: true, paidKobo: true, balanceKobo: true }, where: live }),
+                db.feeInvoice.count({ where: { ...live, status: { in: ["unpaid", "partial"] }, dueDate: { lt: cutoff } } }),
             ]);
-            const invoiced  = Math.max(0, (items._sum.amountKobo ?? 0) - (discounts._sum.discountKobo ?? 0));
-            const collected = paid._sum.amountKobo ?? 0;
             return {
-                term: termLabel, totalInvoicedKobo: invoiced, totalCollectedKobo: collected,
-                totalPendingKobo: Math.max(0, invoiced - collected), overdueInvoices: overdue,
+                term: termLabel,
+                totalInvoicedKobo:  Number(sums._sum.totalKobo ?? 0n),
+                totalCollectedKobo: Number(sums._sum.paidKobo ?? 0n),
+                totalPendingKobo:   Number(sums._sum.balanceKobo ?? 0n),
+                overdueInvoices: overdue,
             };
         })() : null;
 
