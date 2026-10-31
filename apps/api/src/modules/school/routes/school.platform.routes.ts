@@ -28,6 +28,7 @@ router.post("/:id/provisioning/retry", authenticate, requirePermission("platform
 router.put("/documents/:documentId/approve", authenticate, requirePermission("platform.schools.verify"), (q, s, n) => ctrl().approveDocument(q, s, n));
 router.put("/documents/:documentId/reject",  authenticate, requirePermission("platform.schools.verify"), validate(RejectDocumentDto), (q, s, n) => ctrl().rejectDocument(q, s, n));
 
+router.post("/:id/impersonate", authenticate, requirePermission("platform.schools.impersonate"), (q, s, n) => ctrl().impersonate(q, s, n));
 router.get("/:id",            authenticate, requirePermission("platform.schools.view"),      (q, s, n) => ctrl().get(q, s, n));
 router.put("/:id",            authenticate, requirePermission("platform.schools.manage"),    validate(PlatformUpdateSchoolDto), (q, s, n) => ctrl().update(q, s, n));
 router.get("/:id/documents",  authenticate, requirePermission("platform.schools.documents"), (q, s, n) => ctrl().listDocuments(q, s, n));

@@ -8,6 +8,7 @@ import { RejectSchoolUseCase }           from "../usecases/platform/reject-schoo
 import { SuspendSchoolUseCase, ReactivateSchoolUseCase } from "../usecases/platform/suspend-school.usecase";
 import { SchoolDocumentsReviewUseCase }  from "../usecases/platform/school-documents.usecases";
 import { ListSchoolProvisioningUseCase, RetrySchoolProvisioningUseCase, ProvisioningQuery } from "../usecases/platform/school-provisioning.usecases";
+import { ImpersonateSchoolUseCase, ImpersonateSchoolDto } from "../usecases/platform/impersonate-school.usecase";
 import { sendSuccess, sendCreated, sendPaginated } from "../../../shared/utils/api-response";
 import { ListSchoolsQuery }              from "../dtos/school.dto";
 import { schoolErrors }                  from "../domain/school.errors";
@@ -18,6 +19,7 @@ interface Dependencies {
     verifySchoolUseCase: VerifySchoolUseCase; rejectSchoolUseCase: RejectSchoolUseCase;
     suspendSchoolUseCase: SuspendSchoolUseCase; reactivateSchoolUseCase: ReactivateSchoolUseCase;
     schoolDocumentsReviewUseCase: SchoolDocumentsReviewUseCase;
+    impersonateSchoolUseCase: ImpersonateSchoolUseCase;
     listSchoolProvisioningUseCase: ListSchoolProvisioningUseCase; retrySchoolProvisioningUseCase: RetrySchoolProvisioningUseCase;
 }
 
@@ -48,6 +50,13 @@ export class SchoolPlatformController {
 
     retryProvisioning = async (req: Request, res: Response, next: NextFunction) => {
         try { sendSuccess(res, await this.d.retrySchoolProvisioningUseCase.execute(actorOf(req), idOf(req)), "Provisioning queued again"); } catch (e) { next(e); }
+    };
+
+    impersonate = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const dto = ImpersonateSchoolDto.parse(req.body);
+            sendSuccess(res, await this.d.impersonateSchoolUseCase.execute(actorOf(req), idOf(req), dto, { ip: req.ip ?? null, userAgent: req.get("user-agent") ?? null }), "Impersonation ticket created");
+        } catch (e) { next(e); }
     };
 
     get = async (req: Request, res: Response, next: NextFunction) => {

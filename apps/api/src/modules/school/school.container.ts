@@ -25,6 +25,7 @@ import { VerifySchoolUseCase } from "./usecases/platform/verify-school.usecase";
 import { RejectSchoolUseCase } from "./usecases/platform/reject-school.usecase";
 import { SuspendSchoolUseCase, ReactivateSchoolUseCase } from "./usecases/platform/suspend-school.usecase";
 import { SchoolDocumentsReviewUseCase } from "./usecases/platform/school-documents.usecases";
+import { ImpersonateSchoolUseCase, redisTicketStore } from "./usecases/platform/impersonate-school.usecase";
 import { ListSchoolProvisioningUseCase, RetrySchoolProvisioningUseCase, bullProvisionQueue } from "./usecases/platform/school-provisioning.usecases";
 import { RunSchoolLifecycleUseCase } from "./usecases/platform/run-school-lifecycle.usecase";
 
@@ -69,6 +70,8 @@ export const registerSchool = (container: AwilixContainer): void => {
         provisionQueue:               asFunction(() => bullProvisionQueue()).singleton(),
         listSchoolProvisioningUseCase:  asClass(ListSchoolProvisioningUseCase).scoped(),
         retrySchoolProvisioningUseCase: asClass(RetrySchoolProvisioningUseCase).scoped(),
+        ticketStore:                  asFunction(() => redisTicketStore()).singleton(),
+        impersonateSchoolUseCase:     asClass(ImpersonateSchoolUseCase).scoped(),
         runSchoolLifecycleUseCase:    asClass(RunSchoolLifecycleUseCase).scoped(),
 
         schoolController:         asClass(SchoolController).scoped(),
