@@ -14,6 +14,7 @@ import classRouter from "../modules/classes/routes/class.routes";
 import enrolmentRouter from "../modules/enrolment/routes/enrolment.routes";
 import attendanceRouter from "../modules/attendance/routes/attendance.routes";
 // import gradeRouter from "../modules/grades/routes/grade.routes"
+import gradesSetupRouter from "../modules/grades/routes/grades-setup.routes";
 // import reportCardRouter from "../modules/report-cards/routes/report-card.routes"
 import feesRouter from "../modules/fees/routes/fee-setup.routes";
 import feeInvoiceRouter from "../modules/fees/routes/fee-invoice.routes";
@@ -63,6 +64,7 @@ router.use("/classes", classRouter);
 router.use("/enrolments", enrolmentRouter);
 router.use("/attendance", attendanceRouter);
 // router.use("/grades", gradeRouter)
+router.use("/grades", gradesSetupRouter);
 router.use("/sessions", sessionRouter)
 // router.use("/report-cards", reportCardRouter)
 router.use("/finance", financeReportRouter);

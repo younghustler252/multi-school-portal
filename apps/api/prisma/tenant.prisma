@@ -2149,3 +2149,59 @@ model SalaryTransfer {
   @@index([runId])
   @@index([status])
 }
+
+// ── Grades setup: grading scales and assessment schemes, one per level (level empty = the default for all levels) ──
+enum AssessmentKind {
+  ca
+  exam
+}
+
+model GradingScale {
+  id        String   @id @default(uuid())
+  name      String
+  level     String?  // primary | jss | ss, or empty for the default. One scale per level (SQL unique index)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bands GradingBand[]
+}
+
+// A band starts at minScore and runs up to the next band's minScore (the top band reaches 100)
+model GradingBand {
+  id        String   @id @default(uuid())
+  scaleId   String
+  minScore  Float
+  grade     String
+  remark    String
+  isPass    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  scale GradingScale @relation(fields: [scaleId], references: [id], onDelete: Cascade)
+
+  @@unique([scaleId, minScore])
+}
+
+model AssessmentScheme {
+  id        String   @id @default(uuid())
+  name      String
+  level     String?  // primary | jss | ss, or empty for the default. One scheme per level (SQL unique index)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  components AssessmentComponent[]
+}
+
+// The maximum scores of one scheme's components add up to 100
+model AssessmentComponent {
+  id        String         @id @default(uuid())
+  schemeId  String
+  name      String
+  kind      AssessmentKind
+  maxScore  Float
+  position  Int
+  createdAt DateTime       @default(now())
+
+  scheme AssessmentScheme @relation(fields: [schemeId], references: [id], onDelete: Cascade)
+
+  @@unique([schemeId, position])
+}

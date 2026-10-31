@@ -37,7 +37,7 @@ export const ROLE_TEMPLATES: RoleTemplateDef[] = [
         description: "Oversees the whole school: profile, people, attendance and fees (view).",
         permissions: [
             { key: "school.view", scope: "ALL" }, { key: "school.update", scope: "ALL" }, { key: "school.dashboard.view", scope: "ALL" },
-            { key: "classes.view", scope: "ALL" }, { key: "sessions.view", scope: "ALL" }, { key: "enrolment.view", scope: "ALL" }, { key: "students.view", scope: "ALL" }, { key: "attendance.view", scope: "ALL" },
+            { key: "classes.view", scope: "ALL" }, { key: "sessions.view", scope: "ALL" }, { key: "enrolment.view", scope: "ALL" }, { key: "students.view", scope: "ALL" }, { key: "attendance.view", scope: "ALL" }, { key: "grades.view", scope: "ALL" },
             { key: "fees.view", scope: "ALL" }, { key: "fees.setup.view", scope: "ALL" }, { key: "fees.invoices.view", scope: "ALL" }, { key: "fees.reports.view", scope: "ALL" }, { key: "payments.view", scope: "ALL" }, { key: "staff.view", scope: "ALL" },
             { key: "expenses.view", scope: "ALL" }, { key: "expenses.approve", scope: "ALL" }, { key: "budgets.view", scope: "ALL" },
             { key: "payroll.runs.view", scope: "ALL" }, { key: "payroll.runs.approve", scope: "ALL" }, { key: "payroll.payslips.view", scope: "OWN" },
@@ -64,7 +64,7 @@ export const ROLE_TEMPLATES: RoleTemplateDef[] = [
         description: "Works with the students and classes assigned to them.",
         permissions: [
             { key: "school.view", scope: "ALL" },
-            { key: "classes.view", scope: "ALL" }, { key: "sessions.view", scope: "ALL" }, { key: "enrolment.view", scope: "ASSIGNED" }, { key: "students.view", scope: "ASSIGNED" }, { key: "attendance.view", scope: "ASSIGNED" }, { key: "attendance.mark", scope: "ASSIGNED" },
+            { key: "classes.view", scope: "ALL" }, { key: "sessions.view", scope: "ALL" }, { key: "enrolment.view", scope: "ASSIGNED" }, { key: "students.view", scope: "ASSIGNED" }, { key: "attendance.view", scope: "ASSIGNED" }, { key: "attendance.mark", scope: "ASSIGNED" }, { key: "grades.view", scope: "ASSIGNED" },
             { key: "payroll.payslips.view", scope: "OWN" },
         ],
     },
@@ -89,14 +89,14 @@ export const ROLE_TEMPLATES: RoleTemplateDef[] = [
         key: "student", name: "Student", persona: "STUDENT", locked: true, grantsAll: false, defaultForPersona: "STUDENT", sortOrder: 100,
         description: "A student's own records only. Assigned automatically.",
         permissions: [
-            { key: "sessions.view", scope: "ALL" }, { key: "enrolment.view", scope: "OWN" }, { key: "students.view", scope: "OWN" }, { key: "attendance.view", scope: "OWN" }, { key: "fees.view", scope: "OWN" },
+            { key: "sessions.view", scope: "ALL" }, { key: "enrolment.view", scope: "OWN" }, { key: "students.view", scope: "OWN" }, { key: "attendance.view", scope: "OWN" }, { key: "grades.view", scope: "OWN" }, { key: "fees.view", scope: "OWN" },
         ],
     },
     {
         key: "guardian", name: "Guardian", persona: "GUARDIAN", locked: true, grantsAll: false, defaultForPersona: "GUARDIAN", sortOrder: 110,
         description: "The records of the guardian's own children only. Assigned automatically.",
         permissions: [
-            { key: "sessions.view", scope: "ALL" }, { key: "enrolment.view", scope: "OWN" }, { key: "students.view", scope: "OWN" }, { key: "attendance.view", scope: "OWN" }, { key: "fees.view", scope: "OWN" }, { key: "payments.pay", scope: "OWN" },
+            { key: "sessions.view", scope: "ALL" }, { key: "enrolment.view", scope: "OWN" }, { key: "students.view", scope: "OWN" }, { key: "attendance.view", scope: "OWN" }, { key: "grades.view", scope: "OWN" }, { key: "fees.view", scope: "OWN" }, { key: "payments.pay", scope: "OWN" },
         ],
     },
 ];
