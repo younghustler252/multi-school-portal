@@ -40,6 +40,10 @@ import notificationRouter from "../modules/notifications/routes/notification.rou
 import schoolSettingRouter from "../modules/school-settings/routes/school-settings.routes"
 import automationRouter from "../modules/automation/routes/automation.routes";
 import messageTemplateRouter from "../modules/message-templates/routes/message-template.routes";
+import platformSchoolsRouter from "../modules/school/routes/school.platform.routes";
+import platformPlansRouter from "../modules/plans/routes/plan.platform.routes";
+import platformBillingRouter from "../modules/subscriptions/routes/billing.platform.routes";
+import platformAuditRouter from "../modules/audit/routes/audit.platform.routes";
 // import platformsettingsRouter from "../modules/platform-settings/routes/platform-settings.route"
 // import feedbackRouter from "../modules/feedback/routes/feedback.routes"
 
@@ -85,6 +89,11 @@ router.use("/notifications", notificationRouter);
 router.use("/school-settings", schoolSettingRouter)
 router.use("/message-templates", messageTemplateRouter);
 router.use("/automations", automationRouter);
+// Platform (admin host) routes: every route inside is guarded by requirePermission("platform.*")
+router.use("/platform/schools", platformSchoolsRouter);
+router.use("/platform/plans", platformPlansRouter);
+router.use("/platform/subscriptions", platformBillingRouter);
+router.use("/platform/audit", platformAuditRouter);
 // router.use("/platform-settings", platformsettingsRouter)
 // router.use("/feedback", feedbackRouter)
 
