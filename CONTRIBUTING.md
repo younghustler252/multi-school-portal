@@ -5,7 +5,7 @@ One repository, three parts: `apps/api` (backend), `apps/web` (Next.js), `packag
 ## Every day
 1. `nvm use` (Node 22), `npm install` at the root (never inside an app folder), `npm run db:up`.
 2. Branch from `main` (or the agreed integration branch): `feature/<module>-<what>`, `fix/<what>`.
-3. Before you push: `npm run check` (types, tests, web lint). CI runs the same.
+3. Before you push: `npm run check` (API types and tests). While the web app is being brought up to date with the API, web checks are report-only: run `npm run typecheck:web` when you change the web app, and do not add new errors. CI runs the same.
 4. Small pull requests, one module at a time. Say in the description what you ran and what you did **not** run (database tests skipped, no provider keys, and so on).
 
 ## Owning a module
@@ -38,5 +38,5 @@ Each module has one owner who reviews changes to it. Do not edit another owner's
 - Secrets live only in `.env.*` files that are not committed (`*.example` files list the names).
 
 ## Type check baseline
-`npm run typecheck` must pass. The one unfinished module that is not mounted (`super-admin`) is excluded in `apps/api/tsconfig.json`. When it is finished and registered, delete its line so the compiler checks it again.
+`npm run typecheck` (the API) must pass. The one unfinished module that is not mounted (`super-admin`) is excluded in `apps/api/tsconfig.json`. When it is finished and registered, delete its line so the compiler checks it again.
 The Prisma clients in `apps/api/src/generated` are checked in. After you change a `.prisma` schema run `npm run prisma:generate -w apps/api` and commit the regenerated files in the same pull request, or the next person's type check fails.

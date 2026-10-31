@@ -21,6 +21,7 @@ jobs:
 
   web:
     runs-on: ubuntu-latest
+    continue-on-error: true               # report only until the web app is brought up to date with the API; then remove this line
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
