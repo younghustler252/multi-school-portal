@@ -38,3 +38,7 @@ Billing (hourly), school lifecycle (03:00), term lifecycle (07:00) are now start
 
 ## AUTH-01 (fixed)
 Inviting someone into a role, or changing a staff member's roles, now compares scope as well as key: the inviter must hold every permission of the role at a scope at least as wide (`canDelegateRole` in `foundation/access.service.ts`). `RoleRecord.permissions` carries the scopes and `InviteActor.scopeOf` supplies the inviter's. Grants-all roles still need a school admin. Tests: `tests/auth/role-delegation.test.ts`.
+
+## Platform routes and impersonation (added later)
+- `/platform/schools`, `/platform/plans`, `/platform/subscriptions`, `/platform/audit` are now mounted (they were not reachable before). A test fails if a `*.platform.routes.ts` file is left unmounted.
+- `POST /platform/schools/:id/impersonate` `{ reason (10-500 chars, required), membershipId? }`, permission `platform.schools.impersonate` (sensitive; run `npm run sync:registries -w apps/api` and grant it only to roles that should have it). Creates a one-use 60 second ticket for the school admin (or the chosen active STAFF member, never platform staff), audits `platform.impersonation_issued` with the reason, and returns `redirectUrl` to open on the school host. The school host exchanges it at `/auth/exchange-impersonation-token`; that session is capped at 60 minutes, carries the platform member's id and cannot change passwords.
