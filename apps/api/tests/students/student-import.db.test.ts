@@ -142,6 +142,7 @@ describe("student import (real database)", { skip: dbTestsEnabled ? false : skip
         assert.equal(await reason(Buffer.from("firstName\r\nAda\r\n")), "missing_columns");
         assert.equal(await reason(Buffer.from("")), "empty");
         assert.equal(await reason(Buffer.from("firstName,lastName\r\n" + "A,B\r\n".repeat(1001))), "too_many_rows");
-        assert.equal((await preview(Buffer.from(IMPORT_TEMPLATE))).summary.ok, 1, "the template itself is a valid file");
+        const t = await preview(Buffer.from(IMPORT_TEMPLATE));   // its example student (Ada Obi, 25/03/2014) was imported by an earlier test, so it is "skipped", never an error
+        assert.deepEqual([t.summary.total, t.summary.errors], [1, 0], "the template itself is a valid file");
     }));
 });

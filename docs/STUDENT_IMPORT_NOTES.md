@@ -1,0 +1,48 @@
+# Student import notes
+
+Bring many students in at once from a CSV file: preview first, then import. Replaces the old dormant import, which saved half a row when a guardian failed, ignored unknown classes, never checked the plan limit and doubled students on a second upload. **Paths are under `apps/api`.**
+
+## Endpoints (`/students`, permission `students.import`, school admin only by default)
+| Route | What it does |
+|---|---|
+| GET `/students/import/template` | Downloads a CSV with the right headings and one example row |
+| POST `/students/import/preview` (multipart, field `file`) | Checks every row and **saves nothing**. Returns the summary, every row's result and every problem in plain words, and whether the plan has room |
+| POST `/students/import` (multipart, field `file`) | Runs the **same checks**, then saves |
+
+The preview and the import use one function (`planImportRows`), so they cannot disagree. The file is a CSV of at most **1,000 rows and 2 MB** (the existing upload rate limiter applies). An Excel file is refused with the steps to save it as CSV.
+
+## Columns
+`firstName`, `lastName` (required); `middleName`, `dateOfBirth`, `gender`, `admissionNumber`, `className`, and one guardian: `guardianFirstName`, `guardianLastName`, `guardianEmail`, `guardianPhone`, `guardianRelation`. Headings can be written any way ("First Name", "first_name"); other columns are ignored and listed in `ignoredColumns`. Row numbers are the ones in the sheet (the heading is row 1).
+
+## Row rules
+- **Dates:** `YYYY-MM-DD` or `DD/MM/YYYY` (day first, as in Nigeria); must be a real date and not in the future. **Gender:** male, female, m or f.
+- **Class:** `className` must match an existing class (any capitals). The student is enrolled in the **current term**; refused if there is no current term or the class is full (capacity counts the rows already planned for it).
+- **Admission number:** if typed, kept; if empty, the next free one is generated (the same way as adding one student).
+- **Guardian:** needs first name, last name and a valid email once any guardian detail is given. Relation is one of the usual list and defaults to `guardian`. A guardian with the **same email is reused** (brothers and sisters in one file share one parent), and the first guardian of a student is their primary guardian.
+- **Duplicates are skipped, not errors:** the same admission number, or the same first name + last name + date of birth, as a student already in the school or earlier in the file. So uploading the same file twice adds nothing the second time.
+  *Limit:* a row with **no date of birth and no admission number** cannot be recognised as a duplicate (two real children can share a name), so it would be created again. Ask schools to fill one of the two.
+- Rows with errors are never saved; a rejected row does not take a class seat.
+
+## Saving
+- The plan limit is checked for the number of new students; if they do not fit, **nothing is imported** (`PLAN_LIMIT_REACHED`, with the limit and the current count).
+- All valid rows are saved in **one transaction** (student, class place, guardian, link). A row is never half saved, and if something unexpected fails nothing is saved.
+- Class seats are checked again under the class lock: if someone filled a class since the preview, nothing is imported (`IMPORT_CLASS_FILLED`). Two people importing the same file at once: one wins, the other gets `IMPORT_CONFLICT` and changes nothing.
+- Audit: `student.bulk_imported` with the file name, counts and the first 100 names with their admission numbers.
+
+## Response
+Preview: `{ file{name, rows}, summary{ total, ok, skipped, errors, willCreate }, planLimit{ allowed, adding, limit?, current? }, ignoredColumns, rows[{ row, status: ok | skipped | error, name, class, messages[], student: null }] }`.
+Import: `{ summary{ total, created, skipped, errors, guardiansCreated, guardiansLinked }, rows[{ row, status: created | skipped | error, name, class, messages[], student{ id, name, admissionNumber } | null }] }`.
+Error codes: `IMPORT_NO_FILE`, `IMPORT_FILE_INVALID` (`details.reason`: empty, excel, too_many_rows, missing_columns, unreadable), `IMPORT_CLASS_FILLED`, `IMPORT_CONFLICT`, `PLAN_LIMIT_REACHED`.
+
+## Frontend steps
+Download the template; choose a CSV; call **preview** and show the rows with their messages (let the admin fix the file and try again); when it looks right, call **import** with the same file; show the result and offer the list of skipped and error rows (rows are numbered like the sheet) to export.
+
+## Deploy
+No migration. Run `npm run sync:registries` (registers `students.import`; the school admin gets it automatically, so no role sync is needed).
+
+## Tests (`apps/api/tests/students/`, 21)
+`student-import.policy.test.ts` (14: reading the file, dates, gender, every row rule, duplicates, class capacity, shared parent) and `student-import.db.test.ts` (7, real Postgres: preview saves nothing, import saves the right things, same file twice adds nothing, class capacity, plan limit refuses the whole import, two imports at once, bad files). Database tests need `TEST_DATABASE_URL` and Redis.
+**Not run:** HTTP calls with a real file upload (the app was not started); an import of 1,000 rows for timing (it runs in one transaction with a 2-minute allowance).
+
+## Not in scope
+Excel files, importing staff / fees / grades, photos, a second guardian per row.
