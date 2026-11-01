@@ -80,11 +80,9 @@ function themeFor(name: ReportCardTemplateName, d: ReportCardTemplateData): Them
         th{background:var(--soft);color:var(--accent)}.summary .cell b{color:var(--accent)}` };
 }
 
-export function renderReportCardHtml(name: ReportCardTemplateName, d: ReportCardTemplateData): string {
-    const t = themeFor(name, d);
+/** One card's page (everything inside <body>). */
+function cardPage(t: ReturnType<typeof themeFor>, d: ReportCardTemplateData): string {
     const logo = safeImage(d.school.logoUrl), stamp = safeImage(d.branding.stampUrl), sign = safeImage(d.branding.signatureUrl);
-    const bg = t.letterhead && d.letterhead ? safeImage(d.letterhead.imageUrl) : null;
-    const top = d.letterhead?.contentTopMm ?? 50, bottom = d.letterhead?.contentBottomMm ?? 30;
 
     // Columns for the parts of the score: one per position, named from the first subject that has it
     const cols = new Map<number, { name: string; max: number }>();
@@ -103,6 +101,24 @@ export function renderReportCardHtml(name: ReportCardTemplateName, d: ReportCard
     const a = d.attendance;
     const attendance = a && a.marked > 0 ? `<div class="att"><b>Attendance</b> ${a.present + a.late} of ${a.marked} days present` + (a.absent ? `, ${a.absent} absent` : "") + (a.late ? `, ${a.late} late` : "") + (a.excused ? `, ${a.excused} excused` : "") + `</div>` : "";
 
+    return `<div class="page">${d.draft ? `<div class="watermark">DRAFT</div>` : ""}
+<div class="header">${logo ? `<img class="logo" src="${esc(logo)}" alt="">` : ""}<div class="info"><h1 class="school-name">${esc(d.school.name)}</h1>${d.school.motto ? `<p class="motto">${esc(d.school.motto)}</p>` : ""}${d.school.address ? `<p class="address">${esc(d.school.address)}</p>` : ""}</div>
+<div class="title"><span class="label">Terminal Report Card</span><div class="term">${esc(d.termName)} · ${esc(d.sessionName)}</div></div></div>
+<div class="student"><div><small>Student</small><b>${esc(full(d.student))}</b></div><div><small>Admission no.</small><b>${esc(d.student.admissionNumber ?? "-")}</b></div><div><small>Class</small><b>${esc(d.className)}</b></div><div><small>Position in class</small><b>${d.position ? `${ordinal(d.position)} of ${d.totalStudents ?? "-"}` : "-"}</b></div></div>
+<table><thead>${head}</thead><tbody>${rows || `<tr><td class="l" colspan="${span}">No results yet</td></tr>`}${missing}</tbody></table>
+<div class="summary"><div class="cell"><small>Total score</small><b>${num(d.totalScore)}</b></div><div class="cell"><small>Average</small><b>${num(d.averageScore)}</b></div><div class="cell"><small>Overall grade</small><b>${d.overallGrade ? esc(d.overallGrade.grade) : "-"}</b>${d.overallGrade ? ` <small style="display:inline">${esc(d.overallGrade.remark)}</small>` : ""}</div><div class="cell"><small>Position</small><b>${d.position ? ordinal(d.position) : "-"}</b></div></div>
+${attendance}
+<div class="remarks"><div class="box"><h4>Class teacher's remark</h4><p>${esc(d.teacherRemark ?? "")}</p></div><div class="box"><h4>Principal's remark</h4><p>${esc(d.principalRemark ?? "")}</p></div></div>
+<div class="sign"><div class="line">Class teacher</div><div class="line">${sign ? `<img src="${esc(sign)}" alt="">` : ""}Principal</div>${stamp ? `<div><img class="stamp" src="${esc(stamp)}" alt=""></div>` : ""}</div>
+</div>`;
+}
+
+/** One or many cards in ONE document, a page break after each (a whole class printed in one go). The look comes from the first card. */
+export function renderReportCardsHtml(name: ReportCardTemplateName, list: ReportCardTemplateData[]): string {
+    const first = list[0];
+    const t = themeFor(name, first);
+    const bg = t.letterhead && first.letterhead ? safeImage(first.letterhead.imageUrl) : null;
+    const top = first.letterhead?.contentTopMm ?? 50, bottom = first.letterhead?.contentBottomMm ?? 30;
     return `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
 @page{size:A4;margin:10mm}
@@ -110,7 +126,7 @@ export function renderReportCardHtml(name: ReportCardTemplateName, d: ReportCard
 *{box-sizing:border-box}
 body{margin:0;color:#1f2a24;font:12px/1.5 Inter,-apple-system,"Segoe UI",Arial,sans-serif;position:relative}
 ${bg ? `body::before{content:"";position:fixed;inset:-10mm;background:url("${esc(bg)}") center/100% 100% no-repeat;z-index:-1}` : ""}
-.page{position:relative;padding:12px}
+.page{position:relative;padding:12px;break-after:page}.page:last-child{break-after:auto}
 .header{display:flex;align-items:center;gap:14px}
 .logo{width:64px;height:64px;object-fit:contain;flex-shrink:0}
 .info{flex:1}.school-name{margin:0;font-size:21px;line-height:1.2;color:var(--accent)}
@@ -134,21 +150,13 @@ th.l,td.l{text-align:left}td{border-bottom:1px solid #e6ece8}tr{page-break-insid
 .sign{display:flex;justify-content:space-between;align-items:flex-end;margin-top:22px;gap:20px}
 .sign .line{flex:1;text-align:center;border-top:1px solid #9aa9a1;padding-top:4px;font-size:10px;color:#4a5a52;min-height:46px;position:relative}
 .sign img{max-height:44px;max-width:150px;display:block;margin:0 auto 2px}.stamp{max-height:70px!important}
-.watermark{position:fixed;top:42%;left:0;right:0;text-align:center;font-size:120px;font-weight:800;color:#00000010;transform:rotate(-24deg);letter-spacing:12px;pointer-events:none}
+.watermark{position:absolute;top:34%;left:0;right:0;text-align:center;font-size:120px;font-weight:800;color:#00000010;transform:rotate(-24deg);letter-spacing:12px;pointer-events:none}
 ${t.css}
-</style></head><body>
-${d.draft ? `<div class="watermark">DRAFT</div>` : ""}
-<div class="page">
-<div class="header">${logo ? `<img class="logo" src="${esc(logo)}" alt="">` : ""}<div class="info"><h1 class="school-name">${esc(d.school.name)}</h1>${d.school.motto ? `<p class="motto">${esc(d.school.motto)}</p>` : ""}${d.school.address ? `<p class="address">${esc(d.school.address)}</p>` : ""}</div>
-<div class="title"><span class="label">Terminal Report Card</span><div class="term">${esc(d.termName)} · ${esc(d.sessionName)}</div></div></div>
-<div class="student"><div><small>Student</small><b>${esc(full(d.student))}</b></div><div><small>Admission no.</small><b>${esc(d.student.admissionNumber ?? "-")}</b></div><div><small>Class</small><b>${esc(d.className)}</b></div><div><small>Position in class</small><b>${d.position ? `${ordinal(d.position)} of ${d.totalStudents ?? "-"}` : "-"}</b></div></div>
-<table><thead>${head}</thead><tbody>${rows || `<tr><td class="l" colspan="${span}">No results yet</td></tr>`}${missing}</tbody></table>
-<div class="summary"><div class="cell"><small>Total score</small><b>${num(d.totalScore)}</b></div><div class="cell"><small>Average</small><b>${num(d.averageScore)}</b></div><div class="cell"><small>Overall grade</small><b>${d.overallGrade ? esc(d.overallGrade.grade) : "-"}</b>${d.overallGrade ? ` <small style="display:inline">${esc(d.overallGrade.remark)}</small>` : ""}</div><div class="cell"><small>Position</small><b>${d.position ? ordinal(d.position) : "-"}</b></div></div>
-${attendance}
-<div class="remarks"><div class="box"><h4>Class teacher's remark</h4><p>${esc(d.teacherRemark ?? "")}</p></div><div class="box"><h4>Principal's remark</h4><p>${esc(d.principalRemark ?? "")}</p></div></div>
-<div class="sign"><div class="line">Class teacher</div><div class="line">${sign ? `<img src="${esc(sign)}" alt="">` : ""}Principal</div>${stamp ? `<div><img class="stamp" src="${esc(stamp)}" alt=""></div>` : ""}</div>
-</div></body></html>`;
+</style></head><body>${list.map(d => cardPage(t, d)).join("")}</body></html>`;
 }
+
+export const renderReportCardHtml = (name: ReportCardTemplateName, d: ReportCardTemplateData): string => renderReportCardsHtml(name, [d]);
+
 
 /** What the template picker shows (the frontend lists these and calls the preview with the key). */
 export const TEMPLATE_CATALOG: ReadonlyArray<{ key: ReportCardTemplateName; name: string; description: string; requiresFeature: string | null }> = [

@@ -7,7 +7,7 @@ import { UpdateAutomationDto } from "../../src/modules/automation/dtos/automatio
 import { SaveTemplateDto, PreviewTemplateDto } from "../../src/modules/message-templates/dtos/message-template.dto";
 import { UpdateSchoolPreferencesDto } from "../../src/modules/school-settings/dtos/school-settings.dto";
 import { ProvisioningQuery } from "../../src/modules/school/usecases/platform/school-provisioning.usecases";
-import { GenerateDto, RemarksDto, PublishDto, UnpublishDto, ListCardsQuery, TemplateQuery } from "../../src/modules/report-cards/dtos/report-card.dto";
+import { GenerateDto, RemarksDto, PublishDto, UnpublishDto, ListCardsQuery, TemplateQuery, ClassPdfQuery } from "../../src/modules/report-cards/dtos/report-card.dto";
 import { REPORT_CARD_TEMPLATES } from "../../src/infrastructure/pdf/report-card.html";
 import { ImpersonateSchoolDto } from "../../src/modules/school/usecases/platform/impersonate-school.usecase";
 
@@ -56,6 +56,10 @@ const pairs: Pair[] = [
     ] },
     { name: "ReportCardTemplateQuery", shared: C.ReportCardTemplateQuery, api: TemplateQuery, samples: [
         {}, { template: "classic" }, { template: "modern" }, { template: "minimal" }, { template: "custom_letterhead" }, { template: "fancy" }, { template: 5 },
+    ] },
+    { name: "ClassPdfQuery", shared: C.ClassPdfQueryRequest, api: ClassPdfQuery, samples: [
+        {}, { classId: UID }, { classId: "x" }, { classId: UID, termId: UID }, { classId: UID, template: "modern" }, { classId: UID, template: "fancy" },
+        { classId: UID, include: "published" }, { classId: UID, include: "all" }, { classId: UID, include: "everything" }, { classId: UID, extra: 1 },
     ] },
 ];
 

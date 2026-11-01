@@ -89,3 +89,16 @@ export interface ReportCardTemplateOption { key: ReportCardTemplateKey; name: st
  * `fellBack` is true when the saved template is no longer available (for example after a plan downgrade) and classic was used.
  */
 export interface ReportCardPreview { template: ReportCardTemplateKey; fellBack: boolean; html: string }
+
+/**
+ * GET /report-cards/class-pdf?classId&termId&template=&include=published|all : every card of a class in ONE pdf
+ * (one page break after each). Cached by content hash, so a repeat call with nothing changed returns instantly.
+ * `include=published` (default): only published/sent cards. `include=all`: any card with content yet, drafts too (watermarked).
+ * Response is the PDF itself (Content-Type: application/pdf); there is no JSON body to type for the success case.
+ * Needs report_cards.view (ALL, or the class teacher) and the plan feature report_cards.pdf.
+ */
+export const ClassPdfQueryRequest = z.object({
+    classId: id, termId: id.optional(), template: z.enum(ReportCardTemplateKeys).optional(),
+    include: z.enum(["published", "all"]).default("published"),
+});
+export type ClassPdfQueryRequest = z.infer<typeof ClassPdfQueryRequest>;

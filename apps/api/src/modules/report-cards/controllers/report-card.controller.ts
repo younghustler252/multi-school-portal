@@ -3,10 +3,10 @@ import { ListReportCardsUseCase, GetReportCardUseCase, ClassOverviewUseCase } fr
 import { GenerateReportCardsUseCase } from "../usecases/generate-report-cards.usecase";
 import { UpdateRemarksUseCase } from "../usecases/update-remarks.usecase";
 import { PublishReportCardsUseCase, UnpublishReportCardsUseCase } from "../usecases/publish-report-cards.usecases";
-import { ReportCardPdfUseCase, ReportCardPreviewUseCase, ListTemplatesUseCase, TemplatePreviewUseCase } from "../usecases/report-card-render.usecases";
+import { ReportCardPdfUseCase, ReportCardPreviewUseCase, ListTemplatesUseCase, TemplatePreviewUseCase, ClassPdfUseCase } from "../usecases/report-card-render.usecases";
 import { sendSuccess } from "../../../shared/utils/api-response";
 import { getAccess } from "../../../infrastructure/middleware/rbac.middleware";
-import { CardParams, TemplateQuery, ListCardsQuery, OverviewQuery, GenerateDto, RemarksDto, PublishDto, UnpublishDto } from "../dtos/report-card.dto";
+import { CardParams, TemplateQuery, ListCardsQuery, OverviewQuery, GenerateDto, RemarksDto, PublishDto, UnpublishDto, ClassPdfQuery } from "../dtos/report-card.dto";
 import { reportCardErrors } from "../domain/report-cards.errors";
 
 interface Dependencies {
@@ -14,6 +14,7 @@ interface Dependencies {
     generateReportCardsUseCase: GenerateReportCardsUseCase; updateRemarksUseCase: UpdateRemarksUseCase;
     publishReportCardsUseCase: PublishReportCardsUseCase; unpublishReportCardsUseCase: UnpublishReportCardsUseCase; reportCardPdfUseCase: ReportCardPdfUseCase;
     reportCardPreviewUseCase: ReportCardPreviewUseCase; listTemplatesUseCase: ListTemplatesUseCase; templatePreviewUseCase: TemplatePreviewUseCase;
+    classPdfUseCase: ClassPdfUseCase;
 }
 
 /* REPORT CARD CONTROLLER (school realm). The acting person comes ONLY from the verified session, never the body. */
@@ -61,5 +62,13 @@ export class ReportCardController {
     };
     templatePreview = async (req: Request, res: Response, next: NextFunction) => {
         try { sendSuccess(res, await this.d.templatePreviewUseCase.execute(schoolIdOf(req), getAccess(req), TemplateQuery.parse(req.query).template), "Template preview"); } catch (e) { next(e); }
+    };
+    classPdf = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { buffer, filename } = await this.d.classPdfUseCase.execute(ClassPdfQuery.parse(req.query), schoolIdOf(req), getAccess(req));
+            res.setHeader("Content-Type", "application/pdf");
+            res.setHeader("Content-Disposition", `inline; filename="${filename}"`);
+            res.status(200).send(buffer);
+        } catch (e) { next(e); }
     };
 }

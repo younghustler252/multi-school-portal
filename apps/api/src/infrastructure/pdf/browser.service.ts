@@ -54,11 +54,11 @@ class BrowserService {
      * Renders HTML we built ourselves. The page cannot run scripts, and it may only load data: URLs and https images from `allowedImageHosts`
      * (never file:, http:, or another site), so nothing inside the page can read files or reach internal addresses.
      */
-    async renderHtmlToPdf(html: string, allowedImageHosts: string[] = []): Promise<Buffer> {
-        return this.slot(() => this.render(html, allowedImageHosts));
+    async renderHtmlToPdf(html: string, allowedImageHosts: string[] = [], timeoutMs = 30000): Promise<Buffer> {
+        return this.slot(() => this.render(html, allowedImageHosts, timeoutMs));
     }
 
-    private async render(html: string, allowedImageHosts: string[]): Promise<Buffer> {
+    private async render(html: string, allowedImageHosts: string[], timeoutMs: number): Promise<Buffer> {
         const browser = await this.getBrowser();
         const page = await browser.newPage();
 
@@ -73,7 +73,7 @@ class BrowserService {
             });
             await page.setContent(html, {
                 waitUntil: "load",
-                timeout: 20000,
+                timeout: Math.min(timeoutMs, 60000),
             });
 
             const pdf = await page.pdf({
@@ -85,7 +85,7 @@ class BrowserService {
                     left: "10mm",
                     right: "10mm",
                 },
-                timeout: 30000,
+                timeout: timeoutMs,
             });
 
             return Buffer.from(pdf);

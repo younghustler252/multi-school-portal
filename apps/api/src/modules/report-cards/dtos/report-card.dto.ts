@@ -41,9 +41,18 @@ export const UnpublishDto = z.object({
 /** ?template= on the preview and the PDF (staff only; families always get the school's own template). */
 export const TemplateQuery = z.object({ template: z.enum(["classic", "modern", "minimal", "custom_letterhead"]).optional() });
 
+/** GET /report-cards/class-pdf: a whole class in one PDF. `include` chooses which cards: published cards only (the default), or every card that has content yet (drafts too, watermarked). */
+export const ClassPdfQuery = z.object({
+    classId:  id,
+    termId:   id.optional(),
+    template: z.enum(["classic", "modern", "minimal", "custom_letterhead"]).optional(),
+    include:  z.enum(["published", "all"]).default("published"),
+});
+
 export type ListCardsQueryType = z.infer<typeof ListCardsQuery>;
 export type OverviewQueryType  = z.infer<typeof OverviewQuery>;
 export type GenerateDtoType    = z.infer<typeof GenerateDto>;
 export type RemarksDtoType     = z.infer<typeof RemarksDto>;
 export type PublishDtoType     = z.infer<typeof PublishDto>;
 export type UnpublishDtoType   = z.infer<typeof UnpublishDto>;
+export type ClassPdfQueryType  = z.infer<typeof ClassPdfQuery>;

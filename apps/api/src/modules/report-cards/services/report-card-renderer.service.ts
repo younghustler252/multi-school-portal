@@ -4,11 +4,13 @@ import type { PdfGeneratorService } from "../../../infrastructure/pdf/pdf-genera
 import { ReportCardTemplateData, ReportCardTemplateName, REPORT_CARD_TEMPLATES, TEMPLATE_CATALOG } from "../../../infrastructure/pdf/report-card.html";
 import { CardSnapshot } from "../domain/report-card.policy";
 import { reportCardErrors } from "../domain/report-cards.errors";
+import { PdfCacheService, pdfHash } from "./pdf-cache.service";
 
 interface Dependencies {
     schoolRepository: ISchoolRepository; schoolSettingsRepository: ISchoolSettingsRepository; pdfGeneratorService: PdfGeneratorService;
     entitlementsService: { checkFeature(schoolId: string, key: string): Promise<{ allowed: boolean }> };
     allowedImageHosts: string[];
+    pdfCacheService: PdfCacheService;
 }
 type Settings = Awaited<ReturnType<ISchoolSettingsRepository["find"]>>;
 
@@ -66,7 +68,11 @@ export class ReportCardRenderer {
             branding: { primaryColor: settings?.primaryColor ?? "#299447", secondaryColor: settings?.secondaryColor ?? null, stampUrl: settings?.stamp ?? null, signatureUrl: settings?.signature ?? null },
             letterhead: settings?.reportCardLetterheadUrl ? { imageUrl: settings.reportCardLetterheadUrl, contentTopMm: settings.letterheadContentTopMm ?? 50, contentBottomMm: settings.letterheadContentBottomMm ?? 30 } : undefined,
         };
-        return { ctx, settings };
+        const brandingVersion = {
+            schoolUpdatedAt: (school as { updatedAt?: Date | null } | null)?.updatedAt ?? null,
+            settingsUpdatedAt: (settings as { updatedAt?: Date | null } | null)?.updatedAt ?? null,
+        };
+        return { ctx, settings, brandingVersion };
     }
 
     private async letterheadProblem(schoolId: string, settings: Settings): Promise<string | null> {
@@ -92,9 +98,47 @@ export class ReportCardRenderer {
         return { template: t.name, fellBack: t.fellBack, data: templateDataFor(snap, remarks, ctx, draft) };
     }
 
-    async cardPdf(schoolId: string, snap: CardSnapshot, remarks: { teacherRemark: string | null; principalRemark: string | null }, draft: boolean, requested?: string): Promise<Buffer> {
-        const r = await this.cardHtml(schoolId, snap, remarks, draft, requested);
-        return this.d.pdfGeneratorService.generateReportCardPdf(r.template, r.data, this.d.allowedImageHosts);
+    /**
+     * Render (or return cached) a single card PDF.
+     * @param schoolId  needed for the cache folder path
+     * @param termId    needed for the cache folder path
+     * @param cardId    needed for the cache folder path
+     */
+    async cardPdf(
+        schoolId: string, termId: string, cardId: string,
+        snap: CardSnapshot, remarks: { teacherRemark: string | null; principalRemark: string | null },
+        draft: boolean, requested?: string,
+    ): Promise<{ buffer: Buffer; cached: boolean }> {
+        const { ctx, settings, brandingVersion } = await this.context(schoolId);
+        const t = await this.resolve(schoolId, requested, settings);
+        const data = templateDataFor(snap, remarks, ctx, draft);
+        const hash = pdfHash(t.name, data, brandingVersion);
+        const folder = `schools/${schoolId}/report-cards/${termId}/single/${cardId}`;
+        return this.d.pdfCacheService.getSingle(folder, hash, () =>
+            this.d.pdfGeneratorService.generateReportCardPdf(t.name, data, this.d.allowedImageHosts),
+        );
+    }
+
+    /**
+     * Render (or return cached) a whole-class PDF.
+     * @param schoolId   cache folder
+     * @param termId     cache folder
+     * @param classId    cache folder
+     * @param items      rows to include: snap + remarks for each card
+     */
+    async classPdf(
+        schoolId: string, termId: string, classId: string,
+        items: Array<{ snap: CardSnapshot; remarks: { teacherRemark: string | null; principalRemark: string | null } }>,
+        requested?: string,
+    ): Promise<{ buffer: Buffer; cached: boolean }> {
+        const { ctx, settings, brandingVersion } = await this.context(schoolId);
+        const t = await this.resolve(schoolId, requested, settings);
+        const dataList = items.map(({ snap, remarks }) => templateDataFor(snap, remarks, ctx, false /* class PDF = published only = not draft */));
+        const hash = pdfHash(t.name, dataList, brandingVersion);
+        const folder = `schools/${schoolId}/report-cards/${termId}/classes/${classId}`;
+        return this.d.pdfCacheService.getClass(folder, hash, () =>
+            this.d.pdfGeneratorService.generateReportCardsPdf(t.name, dataList, this.d.allowedImageHosts),
+        );
     }
 
     html(template: ReportCardTemplateName, data: ReportCardTemplateData): string { return this.d.pdfGeneratorService.html(template, data); }

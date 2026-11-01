@@ -2,7 +2,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { renderReportCardHtml, REPORT_CARD_TEMPLATES, esc, safeImage, safeColor, ordinal } from "../../src/infrastructure/pdf/report-card.html";
 import { ReportCardRenderer, sampleData, templateDataFor } from "../../src/modules/report-cards/services/report-card-renderer.service";
-import { ReportCardPreviewUseCase, ReportCardPdfUseCase, ListTemplatesUseCase, TemplatePreviewUseCase } from "../../src/modules/report-cards/usecases/report-card-render.usecases";
+import { PdfCacheService, PdfCacheStore } from "../../src/modules/report-cards/services/pdf-cache.service";
+import { ReportCardPreviewUseCase, ReportCardPdfUseCase, ListTemplatesUseCase, TemplatePreviewUseCase, ClassPdfUseCase } from "../../src/modules/report-cards/usecases/report-card-render.usecases";
 import { GenerateReportCardsUseCase } from "../../src/modules/report-cards/usecases/generate-report-cards.usecase";
 import { admin, access, fakeRepo, worldWith, pub, auditLog } from "./helpers";
 
@@ -57,6 +58,18 @@ test("the letterhead theme uses the school's image and offsets; an unknown templ
     assert.ok(html.includes("https://files.example.test/lh.png")); assert.ok(html.includes("--top:55mm")); assert.ok(html.includes("--bottom:35mm"));
 });
 
+/** An in-memory PdfCacheStore (no real storage), so cache behaviour is observable in tests. */
+function fakeCacheStore(): PdfCacheStore & { files: Map<string, Buffer> } {
+    const files = new Map<string, Buffer>();
+    return {
+        files,
+        async get(path) { return files.get(path) ?? null; },
+        async put(path, data) { files.set(path, data); },
+        async listFolder(folder) { return [...files.keys()].filter(k => k.startsWith(`${folder}/`)).map(k => k.slice(folder.length + 1)); },
+        async deleteMany(paths) { for (const p of paths) files.delete(p); },
+    };
+}
+
 // ── use cases ────────────────────────────────────────────────────────────
 const NOW = new Date("2026-10-05T09:00:00Z");
 async function setup(opts: { settings?: any; plan?: boolean } = {}) {
@@ -65,15 +78,27 @@ async function setup(opts: { settings?: any; plan?: boolean } = {}) {
     await new GenerateReportCardsUseCase({ reportCardsRepository: repo, reportCardBuilder: builder, auditService: a.svc }).execute({ classId: "c1" }, "sch", admin(), { userId: "u1" }, NOW);
     const pdfCalls: any[] = [];
     const settings = { reportCardTemplate: "classic", primaryColor: "#1f6f43", ...opts.settings };
+    const cacheStore = fakeCacheStore();
+    const pdfCacheService = new PdfCacheService(cacheStore);
     const renderer = new ReportCardRenderer({
         schoolRepository: { findById: async () => ({ name: "Alpha", logoUrl: "https://files.example.test/logo.png" }) } as any,
         schoolSettingsRepository: { find: async () => settings } as any,
-        pdfGeneratorService: { html: (t: any, d: any) => renderReportCardHtml(t, d), generateReportCardPdf: async (t: string, d: any, hosts: string[]) => { pdfCalls.push({ t, d, hosts }); return Buffer.from("%PDF-fake"); } } as any,
+        pdfGeneratorService: {
+            html: (t: any, d: any) => renderReportCardHtml(t, d),
+            generateReportCardPdf: async (t: string, d: any, hosts: string[]) => { pdfCalls.push({ t, d, hosts }); return Buffer.from("%PDF-fake"); },
+            generateReportCardsPdf: async (t: string, list: any[], hosts: string[]) => { pdfCalls.push({ t, list, hosts }); return Buffer.from("%PDF-class-fake"); },
+        } as any,
         entitlementsService: { checkFeature: async () => ({ allowed: opts.plan !== false }) },
         allowedImageHosts: ["files.example.test"],
+        pdfCacheService,
     });
     const deps = { reportCardsRepository: repo, reportCardRenderer: renderer };
-    return { rows, pdfCalls, preview: new ReportCardPreviewUseCase(deps), pdf: new ReportCardPdfUseCase(deps), list: new ListTemplatesUseCase(deps), sample: new TemplatePreviewUseCase(deps) };
+    return {
+        rows, pdfCalls, cacheStore,
+        preview: new ReportCardPreviewUseCase(deps), pdf: new ReportCardPdfUseCase(deps),
+        list: new ListTemplatesUseCase(deps), sample: new TemplatePreviewUseCase(deps),
+        classPdf: new ClassPdfUseCase(deps),
+    };
 }
 const family = () => access({ persona: "GUARDIAN", me: "g1", can: ["report_cards.view"], scopes: { "report_cards.view": "OWN" } });
 
@@ -127,9 +152,45 @@ test("the PDF is drawn from the snapshot with the chosen template, only our own 
     s.rows[0].status = "published"; (s.rows[0].snapshot as any).student.firstName = "Ann/../<b>";
     const r = await s.pdf.execute(s.rows[0].id, "sch", admin(), "minimal");
     assert.equal(r.buffer.toString(), "%PDF-fake"); assert.match(r.filename, /^[A-Za-z0-9-]+\.pdf$/);
+    assert.equal(r.cached, false);
     assert.equal(s.pdfCalls[0].t, "minimal"); assert.deepEqual(s.pdfCalls[0].hosts, ["files.example.test"]);
     assert.equal(s.pdfCalls[0].d.draft, false); assert.equal(s.pdfCalls[0].d.subjects[0].subjectName, "Maths");
     await assert.rejects(s.pdf.execute("ghost", "sch", admin()), /not found/i);
+});
+
+test("single PDF: a second identical request is served from cache, a changed remark renders again and evicts the old file", async () => {
+    const s = await setup();
+    s.rows[0].status = "published";
+    const first = await s.pdf.execute(s.rows[0].id, "sch", admin(), "minimal");
+    assert.equal(first.cached, false); assert.equal(s.pdfCalls.length, 1);
+
+    const second = await s.pdf.execute(s.rows[0].id, "sch", admin(), "minimal");
+    assert.equal(second.cached, true); assert.equal(s.pdfCalls.length, 1, "no re-render on a cache hit");
+    assert.equal(second.buffer.toString(), first.buffer.toString());
+
+    const folder = `schools/sch/report-cards/${s.rows[0].termId}/single/${s.rows[0].id}`;
+    assert.equal([...s.cacheStore.files.keys()].filter(k => k.startsWith(folder)).length, 1);
+
+    s.rows[0].teacherRemark = "Changed remark";
+    const third = await s.pdf.execute(s.rows[0].id, "sch", admin(), "minimal");
+    assert.equal(third.cached, false); assert.equal(s.pdfCalls.length, 2, "a changed remark re-renders");
+    assert.equal([...s.cacheStore.files.keys()].filter(k => k.startsWith(folder)).length, 1, "the old cached file was evicted");
+});
+
+test("class PDF: every published card in one document, cached by content hash, staff only, drafts excluded by default", async () => {
+    const s = await setup();
+    await assert.rejects(s.classPdf.execute({ classId: "c1", include: "published" } as any, "sch", { scopeOf: () => "OWN" } as any), /not allowed/);
+
+    // nothing published yet -> nothing to print
+    await assert.rejects(s.classPdf.execute({ classId: "c1", include: "published" } as any, "sch", admin()), /nothing/i);
+
+    s.rows[0].status = "published";
+    const r = await s.classPdf.execute({ classId: "c1", include: "published" } as any, "sch", admin());
+    assert.equal(r.buffer.toString(), "%PDF-class-fake"); assert.equal(r.cardCount, 1); assert.equal(r.cached, false);
+    assert.match(r.filename, /report-cards\.pdf$/);
+
+    const again = await s.classPdf.execute({ classId: "c1", include: "published" } as any, "sch", admin());
+    assert.equal(again.cached, true, "second identical class request is a cache hit");
 });
 
 test("the print data comes only from the frozen snapshot (a changed sheet cannot change it)", async () => {
