@@ -321,6 +321,7 @@ exports.Prisma.GradeScalarFieldEnum = {
   studentId: 'studentId',
   termId: 'termId',
   classSubjectId: 'classSubjectId',
+  sheetId: 'sheetId',
   caScore: 'caScore',
   examScore: 'examScore',
   total: 'total',
@@ -1280,6 +1281,35 @@ exports.Prisma.AssessmentComponentScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.ResultSheetScalarFieldEnum = {
+  id: 'id',
+  classSubjectId: 'classSubjectId',
+  status: 'status',
+  components: 'components',
+  scale: 'scale',
+  submittedAt: 'submittedAt',
+  submittedById: 'submittedById',
+  approvedAt: 'approvedAt',
+  approvedById: 'approvedById',
+  publishedAt: 'publishedAt',
+  publishedById: 'publishedById',
+  lockedAt: 'lockedAt',
+  lockedById: 'lockedById',
+  reopenedAt: 'reopenedAt',
+  reopenedById: 'reopenedById',
+  reopenReason: 'reopenReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.GradeScoreScalarFieldEnum = {
+  id: 'id',
+  gradeId: 'gradeId',
+  position: 'position',
+  score: 'score',
+  isAbsent: 'isAbsent'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1686,6 +1716,14 @@ exports.AssessmentKind = exports.$Enums.AssessmentKind = {
   exam: 'exam'
 };
 
+exports.ResultSheetStatus = exports.$Enums.ResultSheetStatus = {
+  draft: 'draft',
+  submitted: 'submitted',
+  approved: 'approved',
+  published: 'published',
+  locked: 'locked'
+};
+
 exports.Prisma.ModelName = {
   Staff: 'Staff',
   Student: 'Student',
@@ -1764,7 +1802,9 @@ exports.Prisma.ModelName = {
   GradingScale: 'GradingScale',
   GradingBand: 'GradingBand',
   AssessmentScheme: 'AssessmentScheme',
-  AssessmentComponent: 'AssessmentComponent'
+  AssessmentComponent: 'AssessmentComponent',
+  ResultSheet: 'ResultSheet',
+  GradeScore: 'GradeScore'
 };
 
 /**

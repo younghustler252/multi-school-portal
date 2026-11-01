@@ -11,12 +11,12 @@ import { ReactivateStudentUseCase } from "./usecases/reactivate-student.usecase"
 import { UndoGraduationUseCase } from "./usecases/undo-graduation.usecase";
 import { ListStudentsUseCase, GetStudentUseCase, GetMyStudentProfileUseCase } from "./usecases/student-queries.usecases";
 import { UploadStudentPhotoUseCase } from "./usecases/upload-photo.usecase";
+import { PreviewStudentImportUseCase, ImportStudentsUseCase } from "./usecases/student-import.usecases";
 import { StudentController } from "./controllers/student.controller";
 
 /*
 | STUDENTS CONTAINER.
 | Requires: registerShared (storageService), registerFoundation (accessService), registerAudit (auditService).
-| Not registered on purpose: ImportStudentsUseCase and GetStudentsBatchUseCase (see routes/student.routes.ts).
 */
 export const registerStudents = (container: AwilixContainer): void => {
     container.register({
@@ -33,6 +33,8 @@ export const registerStudents = (container: AwilixContainer): void => {
         deactivateStudentUseCase:    asClass(DeactivateStudentUseCase).scoped(),
         reactivateStudentUseCase:    asClass(ReactivateStudentUseCase).scoped(),
         undoGraduationUseCase:       asClass(UndoGraduationUseCase).scoped(),
+        previewStudentImportUseCase: asClass(PreviewStudentImportUseCase).scoped(),
+        importStudentsUseCase:       asClass(ImportStudentsUseCase).scoped(),
         uploadStudentPhotoUseCase:   asClass(UploadStudentPhotoUseCase).scoped(),
 
         studentController:           asClass(StudentController).scoped(),

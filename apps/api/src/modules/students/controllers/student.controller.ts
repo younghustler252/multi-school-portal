@@ -6,6 +6,8 @@ import { ReactivateStudentUseCase } from "../usecases/reactivate-student.usecase
 import { UndoGraduationUseCase } from "../usecases/undo-graduation.usecase";
 import { ListStudentsUseCase, GetStudentUseCase, GetMyStudentProfileUseCase } from "../usecases/student-queries.usecases";
 import { UploadStudentPhotoUseCase } from "../usecases/upload-photo.usecase";
+import { PreviewStudentImportUseCase, ImportStudentsUseCase } from "../usecases/student-import.usecases";
+import { IMPORT_TEMPLATE } from "../domain/student-import.policy";
 import { sendSuccess, sendCreated } from "../../../shared/utils/api-response";
 import { getAccess } from "../../../infrastructure/middleware/rbac.middleware";
 import { ListStudentsQuery } from "../dtos/student.dto";
@@ -17,6 +19,7 @@ interface Dependencies {
     createStudentUseCase: CreateStudentUseCase; updateStudentUseCase: UpdateStudentUseCase;
     deactivateStudentUseCase: DeactivateStudentUseCase; reactivateStudentUseCase: ReactivateStudentUseCase;
     undoGraduationUseCase: UndoGraduationUseCase;
+    previewStudentImportUseCase: PreviewStudentImportUseCase; importStudentsUseCase: ImportStudentsUseCase;
     uploadStudentPhotoUseCase: UploadStudentPhotoUseCase;
 }
 
@@ -54,6 +57,22 @@ export class StudentController {
         try {
             if (!req.file) throw studentErrors.noPhotoFile();
             sendSuccess(res, await this.d.uploadStudentPhotoUseCase.execute(schoolIdOf(req), idOf(req), { buffer: req.file.buffer }, actorOf(req)), "Photo uploaded successfully");
+        } catch (e) { next(e); }
+    };
+
+    importTemplate = async (_req: Request, res: Response, next: NextFunction) => {
+        try { res.status(200).set({ "Content-Type": "text/csv; charset=utf-8", "Content-Disposition": 'attachment; filename="students-import-template.csv"' }).send(IMPORT_TEMPLATE); } catch (e) { next(e); }
+    };
+    previewImport = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            if (!req.file) throw studentErrors.importNoFile();
+            sendSuccess(res, await this.d.previewStudentImportUseCase.execute(schoolIdOf(req), { buffer: req.file.buffer, name: req.file.originalname }), "Import checked. Nothing was saved");
+        } catch (e) { next(e); }
+    };
+    importStudents = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            if (!req.file) throw studentErrors.importNoFile();
+            sendSuccess(res, await this.d.importStudentsUseCase.execute(schoolIdOf(req), { buffer: req.file.buffer, name: req.file.originalname }, actorOf(req)), "Import finished");
         } catch (e) { next(e); }
     };
 }

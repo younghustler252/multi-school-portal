@@ -10,6 +10,7 @@ import { requirePermission, requirePersona } from "../../../infrastructure/middl
 import { reestablishTenantContext } from "../../../infrastructure/middleware/reestablish-tenant-context";
 import { AppError } from "../../../shared/errors/domain.errors";
 import { MAX_PHOTO_BYTES } from "../domain/student.policy";
+import { MAX_IMPORT_BYTES } from "../domain/student-import.policy";
 import { CreateStudentDto, UpdateStudentDto, DeactivateStudentDto, UndoGraduationDto } from "../dtos/student.dto";
 
 /*
@@ -19,12 +20,13 @@ import { CreateStudentDto, UpdateStudentDto, DeactivateStudentDto, UndoGraduatio
 | The plan's student limit is checked inside create and reactivate.
 | Fixed paths ("/me") come before "/:id".
 | Upload route: authenticate -> permission -> limiter -> multer -> reestablishTenantContext -> controller.
-| Not here yet: CSV import and bulk create (they need Guardians, Classes, Sessions and Enrolment switched on first).
+| students.import = preview and run a CSV import (fixed paths come before "/:id")
 */
 const router = Router();
 const ctrl   = () => container.resolve<StudentController>("studentController");
 const view   = [authenticate, requireTenant, requirePermission("students.view")] as const;
 const manage = [authenticate, requireTenant, requirePermission("students.manage")] as const;
+const importer = [authenticate, requireTenant, requirePermission("students.import")] as const;
 const self   = [authenticate, requireTenant, requirePersona("STUDENT")] as const;
 
 const photoUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: MAX_PHOTO_BYTES } });
@@ -35,6 +37,18 @@ const photo = (req: Request, res: Response, next: NextFunction) =>
         if (err instanceof multer.MulterError) return next(new AppError(err.code === "LIMIT_FILE_SIZE" ? "Image must be 2 MB or smaller" : "Upload failed", 400, true, "INVALID_IMAGE"));
         next(err);
     });
+
+const csvUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: MAX_IMPORT_BYTES } });
+const csv = (req: Request, res: Response, next: NextFunction) =>
+    csvUpload.single("file")(req, res, (err: unknown) => {
+        if (!err) return next();
+        if (err instanceof multer.MulterError) return next(new AppError(err.code === "LIMIT_FILE_SIZE" ? "The file must be 2 MB or smaller" : "Upload failed", 400, true, "IMPORT_FILE_INVALID"));
+        next(err);
+    });
+
+router.get("/import/template", ...importer, (q, s, n) => ctrl().importTemplate(q, s, n));
+router.post("/import/preview", ...importer, uploadLimiter, csv, reestablishTenantContext, (q, s, n) => ctrl().previewImport(q, s, n));
+router.post("/import", ...importer, uploadLimiter, csv, reestablishTenantContext, (q, s, n) => ctrl().importStudents(q, s, n));
 
 router.get("/me", ...self, (q, s, n) => ctrl().me(q, s, n));
 

@@ -403,6 +403,16 @@ export type AssessmentScheme = $Result.DefaultSelection<Prisma.$AssessmentScheme
  * 
  */
 export type AssessmentComponent = $Result.DefaultSelection<Prisma.$AssessmentComponentPayload>
+/**
+ * Model ResultSheet
+ * 
+ */
+export type ResultSheet = $Result.DefaultSelection<Prisma.$ResultSheetPayload>
+/**
+ * Model GradeScore
+ * 
+ */
+export type GradeScore = $Result.DefaultSelection<Prisma.$GradeScorePayload>
 
 /**
  * Enums
@@ -940,6 +950,17 @@ export const AssessmentKind: {
 
 export type AssessmentKind = (typeof AssessmentKind)[keyof typeof AssessmentKind]
 
+
+export const ResultSheetStatus: {
+  draft: 'draft',
+  submitted: 'submitted',
+  approved: 'approved',
+  published: 'published',
+  locked: 'locked'
+};
+
+export type ResultSheetStatus = (typeof ResultSheetStatus)[keyof typeof ResultSheetStatus]
+
 }
 
 export type Persona = $Enums.Persona
@@ -1149,6 +1170,10 @@ export const SalaryTransferStatus: typeof $Enums.SalaryTransferStatus
 export type AssessmentKind = $Enums.AssessmentKind
 
 export const AssessmentKind: typeof $Enums.AssessmentKind
+
+export type ResultSheetStatus = $Enums.ResultSheetStatus
+
+export const ResultSheetStatus: typeof $Enums.ResultSheetStatus
 
 /**
  * ##  Prisma Client ʲˢ
@@ -2050,6 +2075,26 @@ export class PrismaClient<
     * ```
     */
   get assessmentComponent(): Prisma.AssessmentComponentDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.resultSheet`: Exposes CRUD operations for the **ResultSheet** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ResultSheets
+    * const resultSheets = await prisma.resultSheet.findMany()
+    * ```
+    */
+  get resultSheet(): Prisma.ResultSheetDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.gradeScore`: Exposes CRUD operations for the **GradeScore** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more GradeScores
+    * const gradeScores = await prisma.gradeScore.findMany()
+    * ```
+    */
+  get gradeScore(): Prisma.GradeScoreDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -2574,7 +2619,9 @@ export namespace Prisma {
     GradingScale: 'GradingScale',
     GradingBand: 'GradingBand',
     AssessmentScheme: 'AssessmentScheme',
-    AssessmentComponent: 'AssessmentComponent'
+    AssessmentComponent: 'AssessmentComponent',
+    ResultSheet: 'ResultSheet',
+    GradeScore: 'GradeScore'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -2590,7 +2637,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "staff" | "student" | "guardian" | "studentGuardian" | "calendarEvent" | "session" | "term" | "class" | "subject" | "classSubject" | "enrolment" | "classProgression" | "schoolSettings" | "attendance" | "grade" | "gradingConfig" | "reportCard" | "feeType" | "feeStructure" | "feeStructureItem" | "feeInvoice" | "feeInvoiceItem" | "feeInvoiceDiscount" | "feeDiscountRule" | "studentDiscount" | "invoiceAdjustment" | "instalmentPlan" | "instalmentLine" | "payment" | "paymentAllocation" | "refund" | "receipt" | "schoolRole" | "schoolRolePermission" | "membership" | "membershipRole" | "branch" | "staffBranch" | "schoolSettingValue" | "automationRule" | "automationRunLog" | "schoolMessageTemplate" | "numberSequence" | "attachment" | "schoolNotification" | "schoolNotificationRecipient" | "ledgerAccount" | "financePeriod" | "journalEntry" | "journalLine" | "vendor" | "expense" | "expenseLine" | "expensePayment" | "recurringExpense" | "budget" | "budgetLine" | "payComponent" | "staffPayProfile" | "staffPayComponent" | "payrollRun" | "payslip" | "payslipLine" | "staffLoan" | "staffLoanRepayment" | "payrollRemittance" | "bankStatement" | "bankStatementLine" | "bankMatchGroup" | "bankMatchedJournalLine" | "bankReconciliation" | "gatewaySettlement" | "gatewaySettlementItem" | "salaryTransfer" | "gradingScale" | "gradingBand" | "assessmentScheme" | "assessmentComponent"
+      modelProps: "staff" | "student" | "guardian" | "studentGuardian" | "calendarEvent" | "session" | "term" | "class" | "subject" | "classSubject" | "enrolment" | "classProgression" | "schoolSettings" | "attendance" | "grade" | "gradingConfig" | "reportCard" | "feeType" | "feeStructure" | "feeStructureItem" | "feeInvoice" | "feeInvoiceItem" | "feeInvoiceDiscount" | "feeDiscountRule" | "studentDiscount" | "invoiceAdjustment" | "instalmentPlan" | "instalmentLine" | "payment" | "paymentAllocation" | "refund" | "receipt" | "schoolRole" | "schoolRolePermission" | "membership" | "membershipRole" | "branch" | "staffBranch" | "schoolSettingValue" | "automationRule" | "automationRunLog" | "schoolMessageTemplate" | "numberSequence" | "attachment" | "schoolNotification" | "schoolNotificationRecipient" | "ledgerAccount" | "financePeriod" | "journalEntry" | "journalLine" | "vendor" | "expense" | "expenseLine" | "expensePayment" | "recurringExpense" | "budget" | "budgetLine" | "payComponent" | "staffPayProfile" | "staffPayComponent" | "payrollRun" | "payslip" | "payslipLine" | "staffLoan" | "staffLoanRepayment" | "payrollRemittance" | "bankStatement" | "bankStatementLine" | "bankMatchGroup" | "bankMatchedJournalLine" | "bankReconciliation" | "gatewaySettlement" | "gatewaySettlementItem" | "salaryTransfer" | "gradingScale" | "gradingBand" | "assessmentScheme" | "assessmentComponent" | "resultSheet" | "gradeScore"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -8366,6 +8413,154 @@ export namespace Prisma {
           }
         }
       }
+      ResultSheet: {
+        payload: Prisma.$ResultSheetPayload<ExtArgs>
+        fields: Prisma.ResultSheetFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ResultSheetFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ResultSheetPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ResultSheetFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ResultSheetPayload>
+          }
+          findFirst: {
+            args: Prisma.ResultSheetFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ResultSheetPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ResultSheetFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ResultSheetPayload>
+          }
+          findMany: {
+            args: Prisma.ResultSheetFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ResultSheetPayload>[]
+          }
+          create: {
+            args: Prisma.ResultSheetCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ResultSheetPayload>
+          }
+          createMany: {
+            args: Prisma.ResultSheetCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ResultSheetCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ResultSheetPayload>[]
+          }
+          delete: {
+            args: Prisma.ResultSheetDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ResultSheetPayload>
+          }
+          update: {
+            args: Prisma.ResultSheetUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ResultSheetPayload>
+          }
+          deleteMany: {
+            args: Prisma.ResultSheetDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ResultSheetUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ResultSheetUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ResultSheetPayload>[]
+          }
+          upsert: {
+            args: Prisma.ResultSheetUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ResultSheetPayload>
+          }
+          aggregate: {
+            args: Prisma.ResultSheetAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateResultSheet>
+          }
+          groupBy: {
+            args: Prisma.ResultSheetGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ResultSheetGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ResultSheetCountArgs<ExtArgs>
+            result: $Utils.Optional<ResultSheetCountAggregateOutputType> | number
+          }
+        }
+      }
+      GradeScore: {
+        payload: Prisma.$GradeScorePayload<ExtArgs>
+        fields: Prisma.GradeScoreFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.GradeScoreFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradeScorePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.GradeScoreFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradeScorePayload>
+          }
+          findFirst: {
+            args: Prisma.GradeScoreFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradeScorePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.GradeScoreFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradeScorePayload>
+          }
+          findMany: {
+            args: Prisma.GradeScoreFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradeScorePayload>[]
+          }
+          create: {
+            args: Prisma.GradeScoreCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradeScorePayload>
+          }
+          createMany: {
+            args: Prisma.GradeScoreCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.GradeScoreCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradeScorePayload>[]
+          }
+          delete: {
+            args: Prisma.GradeScoreDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradeScorePayload>
+          }
+          update: {
+            args: Prisma.GradeScoreUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradeScorePayload>
+          }
+          deleteMany: {
+            args: Prisma.GradeScoreDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.GradeScoreUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.GradeScoreUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradeScorePayload>[]
+          }
+          upsert: {
+            args: Prisma.GradeScoreUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradeScorePayload>
+          }
+          aggregate: {
+            args: Prisma.GradeScoreAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGradeScore>
+          }
+          groupBy: {
+            args: Prisma.GradeScoreGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GradeScoreGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.GradeScoreCountArgs<ExtArgs>
+            result: $Utils.Optional<GradeScoreCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -8567,6 +8762,8 @@ export namespace Prisma {
     gradingBand?: GradingBandOmit
     assessmentScheme?: AssessmentSchemeOmit
     assessmentComponent?: AssessmentComponentOmit
+    resultSheet?: ResultSheetOmit
+    gradeScore?: GradeScoreOmit
   }
 
   /* Types for Logging */
@@ -9166,6 +9363,37 @@ export namespace Prisma {
    */
   export type ClassSubjectCountOutputTypeCountGradesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: GradeWhereInput
+  }
+
+
+  /**
+   * Count Type GradeCountOutputType
+   */
+
+  export type GradeCountOutputType = {
+    scores: number
+  }
+
+  export type GradeCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    scores?: boolean | GradeCountOutputTypeCountScoresArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * GradeCountOutputType without action
+   */
+  export type GradeCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradeCountOutputType
+     */
+    select?: GradeCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * GradeCountOutputType without action
+   */
+  export type GradeCountOutputTypeCountScoresArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GradeScoreWhereInput
   }
 
 
@@ -10411,6 +10639,37 @@ export namespace Prisma {
    */
   export type AssessmentSchemeCountOutputTypeCountComponentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: AssessmentComponentWhereInput
+  }
+
+
+  /**
+   * Count Type ResultSheetCountOutputType
+   */
+
+  export type ResultSheetCountOutputType = {
+    grades: number
+  }
+
+  export type ResultSheetCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    grades?: boolean | ResultSheetCountOutputTypeCountGradesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * ResultSheetCountOutputType without action
+   */
+  export type ResultSheetCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ResultSheetCountOutputType
+     */
+    select?: ResultSheetCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * ResultSheetCountOutputType without action
+   */
+  export type ResultSheetCountOutputTypeCountGradesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GradeWhereInput
   }
 
 
@@ -22090,6 +22349,7 @@ export namespace Prisma {
     staff?: boolean | StaffDefaultArgs<ExtArgs>
     term?: boolean | TermDefaultArgs<ExtArgs>
     grades?: boolean | ClassSubject$gradesArgs<ExtArgs>
+    sheet?: boolean | ClassSubject$sheetArgs<ExtArgs>
     _count?: boolean | ClassSubjectCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["classSubject"]>
 
@@ -22141,6 +22401,7 @@ export namespace Prisma {
     staff?: boolean | StaffDefaultArgs<ExtArgs>
     term?: boolean | TermDefaultArgs<ExtArgs>
     grades?: boolean | ClassSubject$gradesArgs<ExtArgs>
+    sheet?: boolean | ClassSubject$sheetArgs<ExtArgs>
     _count?: boolean | ClassSubjectCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type ClassSubjectIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -22164,6 +22425,7 @@ export namespace Prisma {
       staff: Prisma.$StaffPayload<ExtArgs>
       term: Prisma.$TermPayload<ExtArgs>
       grades: Prisma.$GradePayload<ExtArgs>[]
+      sheet: Prisma.$ResultSheetPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -22573,6 +22835,7 @@ export namespace Prisma {
     staff<T extends StaffDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StaffDefaultArgs<ExtArgs>>): Prisma__StaffClient<$Result.GetResult<Prisma.$StaffPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     term<T extends TermDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TermDefaultArgs<ExtArgs>>): Prisma__TermClient<$Result.GetResult<Prisma.$TermPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     grades<T extends ClassSubject$gradesArgs<ExtArgs> = {}>(args?: Subset<T, ClassSubject$gradesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GradePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    sheet<T extends ClassSubject$sheetArgs<ExtArgs> = {}>(args?: Subset<T, ClassSubject$sheetArgs<ExtArgs>>): Prisma__ResultSheetClient<$Result.GetResult<Prisma.$ResultSheetPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -23032,6 +23295,25 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: GradeScalarFieldEnum | GradeScalarFieldEnum[]
+  }
+
+  /**
+   * ClassSubject.sheet
+   */
+  export type ClassSubject$sheetArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ResultSheet
+     */
+    select?: ResultSheetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ResultSheet
+     */
+    omit?: ResultSheetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ResultSheetInclude<ExtArgs> | null
+    where?: ResultSheetWhereInput
   }
 
   /**
@@ -27668,6 +27950,7 @@ export namespace Prisma {
     studentId: string | null
     termId: string | null
     classSubjectId: string | null
+    sheetId: string | null
     caScore: number | null
     examScore: number | null
     total: number | null
@@ -27685,6 +27968,7 @@ export namespace Prisma {
     studentId: string | null
     termId: string | null
     classSubjectId: string | null
+    sheetId: string | null
     caScore: number | null
     examScore: number | null
     total: number | null
@@ -27702,6 +27986,7 @@ export namespace Prisma {
     studentId: number
     termId: number
     classSubjectId: number
+    sheetId: number
     caScore: number
     examScore: number
     total: number
@@ -27737,6 +28022,7 @@ export namespace Prisma {
     studentId?: true
     termId?: true
     classSubjectId?: true
+    sheetId?: true
     caScore?: true
     examScore?: true
     total?: true
@@ -27754,6 +28040,7 @@ export namespace Prisma {
     studentId?: true
     termId?: true
     classSubjectId?: true
+    sheetId?: true
     caScore?: true
     examScore?: true
     total?: true
@@ -27771,6 +28058,7 @@ export namespace Prisma {
     studentId?: true
     termId?: true
     classSubjectId?: true
+    sheetId?: true
     caScore?: true
     examScore?: true
     total?: true
@@ -27875,6 +28163,7 @@ export namespace Prisma {
     studentId: string
     termId: string
     classSubjectId: string
+    sheetId: string
     caScore: number | null
     examScore: number | null
     total: number | null
@@ -27911,6 +28200,7 @@ export namespace Prisma {
     studentId?: boolean
     termId?: boolean
     classSubjectId?: boolean
+    sheetId?: boolean
     caScore?: boolean
     examScore?: boolean
     total?: boolean
@@ -27924,6 +28214,9 @@ export namespace Prisma {
     student?: boolean | StudentDefaultArgs<ExtArgs>
     term?: boolean | TermDefaultArgs<ExtArgs>
     classSubject?: boolean | ClassSubjectDefaultArgs<ExtArgs>
+    sheet?: boolean | ResultSheetDefaultArgs<ExtArgs>
+    scores?: boolean | Grade$scoresArgs<ExtArgs>
+    _count?: boolean | GradeCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["grade"]>
 
   export type GradeSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -27931,6 +28224,7 @@ export namespace Prisma {
     studentId?: boolean
     termId?: boolean
     classSubjectId?: boolean
+    sheetId?: boolean
     caScore?: boolean
     examScore?: boolean
     total?: boolean
@@ -27944,6 +28238,7 @@ export namespace Prisma {
     student?: boolean | StudentDefaultArgs<ExtArgs>
     term?: boolean | TermDefaultArgs<ExtArgs>
     classSubject?: boolean | ClassSubjectDefaultArgs<ExtArgs>
+    sheet?: boolean | ResultSheetDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["grade"]>
 
   export type GradeSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -27951,6 +28246,7 @@ export namespace Prisma {
     studentId?: boolean
     termId?: boolean
     classSubjectId?: boolean
+    sheetId?: boolean
     caScore?: boolean
     examScore?: boolean
     total?: boolean
@@ -27964,6 +28260,7 @@ export namespace Prisma {
     student?: boolean | StudentDefaultArgs<ExtArgs>
     term?: boolean | TermDefaultArgs<ExtArgs>
     classSubject?: boolean | ClassSubjectDefaultArgs<ExtArgs>
+    sheet?: boolean | ResultSheetDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["grade"]>
 
   export type GradeSelectScalar = {
@@ -27971,6 +28268,7 @@ export namespace Prisma {
     studentId?: boolean
     termId?: boolean
     classSubjectId?: boolean
+    sheetId?: boolean
     caScore?: boolean
     examScore?: boolean
     total?: boolean
@@ -27983,21 +28281,26 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type GradeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "studentId" | "termId" | "classSubjectId" | "caScore" | "examScore" | "total" | "grade" | "remark" | "position" | "totalStudents" | "isPublished" | "createdAt" | "updatedAt", ExtArgs["result"]["grade"]>
+  export type GradeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "studentId" | "termId" | "classSubjectId" | "sheetId" | "caScore" | "examScore" | "total" | "grade" | "remark" | "position" | "totalStudents" | "isPublished" | "createdAt" | "updatedAt", ExtArgs["result"]["grade"]>
   export type GradeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     student?: boolean | StudentDefaultArgs<ExtArgs>
     term?: boolean | TermDefaultArgs<ExtArgs>
     classSubject?: boolean | ClassSubjectDefaultArgs<ExtArgs>
+    sheet?: boolean | ResultSheetDefaultArgs<ExtArgs>
+    scores?: boolean | Grade$scoresArgs<ExtArgs>
+    _count?: boolean | GradeCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type GradeIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     student?: boolean | StudentDefaultArgs<ExtArgs>
     term?: boolean | TermDefaultArgs<ExtArgs>
     classSubject?: boolean | ClassSubjectDefaultArgs<ExtArgs>
+    sheet?: boolean | ResultSheetDefaultArgs<ExtArgs>
   }
   export type GradeIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     student?: boolean | StudentDefaultArgs<ExtArgs>
     term?: boolean | TermDefaultArgs<ExtArgs>
     classSubject?: boolean | ClassSubjectDefaultArgs<ExtArgs>
+    sheet?: boolean | ResultSheetDefaultArgs<ExtArgs>
   }
 
   export type $GradePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -28006,12 +28309,15 @@ export namespace Prisma {
       student: Prisma.$StudentPayload<ExtArgs>
       term: Prisma.$TermPayload<ExtArgs>
       classSubject: Prisma.$ClassSubjectPayload<ExtArgs>
+      sheet: Prisma.$ResultSheetPayload<ExtArgs>
+      scores: Prisma.$GradeScorePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       studentId: string
       termId: string
       classSubjectId: string
+      sheetId: string
       caScore: number | null
       examScore: number | null
       total: number | null
@@ -28419,6 +28725,8 @@ export namespace Prisma {
     student<T extends StudentDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StudentDefaultArgs<ExtArgs>>): Prisma__StudentClient<$Result.GetResult<Prisma.$StudentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     term<T extends TermDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TermDefaultArgs<ExtArgs>>): Prisma__TermClient<$Result.GetResult<Prisma.$TermPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     classSubject<T extends ClassSubjectDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ClassSubjectDefaultArgs<ExtArgs>>): Prisma__ClassSubjectClient<$Result.GetResult<Prisma.$ClassSubjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    sheet<T extends ResultSheetDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ResultSheetDefaultArgs<ExtArgs>>): Prisma__ResultSheetClient<$Result.GetResult<Prisma.$ResultSheetPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    scores<T extends Grade$scoresArgs<ExtArgs> = {}>(args?: Subset<T, Grade$scoresArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GradeScorePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -28452,6 +28760,7 @@ export namespace Prisma {
     readonly studentId: FieldRef<"Grade", 'String'>
     readonly termId: FieldRef<"Grade", 'String'>
     readonly classSubjectId: FieldRef<"Grade", 'String'>
+    readonly sheetId: FieldRef<"Grade", 'String'>
     readonly caScore: FieldRef<"Grade", 'Float'>
     readonly examScore: FieldRef<"Grade", 'Float'>
     readonly total: FieldRef<"Grade", 'Float'>
@@ -28860,6 +29169,30 @@ export namespace Prisma {
      * Limit how many Grades to delete.
      */
     limit?: number
+  }
+
+  /**
+   * Grade.scores
+   */
+  export type Grade$scoresArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradeScore
+     */
+    select?: GradeScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradeScore
+     */
+    omit?: GradeScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradeScoreInclude<ExtArgs> | null
+    where?: GradeScoreWhereInput
+    orderBy?: GradeScoreOrderByWithRelationInput | GradeScoreOrderByWithRelationInput[]
+    cursor?: GradeScoreWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: GradeScoreScalarFieldEnum | GradeScoreScalarFieldEnum[]
   }
 
   /**
@@ -106179,6 +106512,2361 @@ export namespace Prisma {
 
 
   /**
+   * Model ResultSheet
+   */
+
+  export type AggregateResultSheet = {
+    _count: ResultSheetCountAggregateOutputType | null
+    _min: ResultSheetMinAggregateOutputType | null
+    _max: ResultSheetMaxAggregateOutputType | null
+  }
+
+  export type ResultSheetMinAggregateOutputType = {
+    id: string | null
+    classSubjectId: string | null
+    status: $Enums.ResultSheetStatus | null
+    submittedAt: Date | null
+    submittedById: string | null
+    approvedAt: Date | null
+    approvedById: string | null
+    publishedAt: Date | null
+    publishedById: string | null
+    lockedAt: Date | null
+    lockedById: string | null
+    reopenedAt: Date | null
+    reopenedById: string | null
+    reopenReason: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ResultSheetMaxAggregateOutputType = {
+    id: string | null
+    classSubjectId: string | null
+    status: $Enums.ResultSheetStatus | null
+    submittedAt: Date | null
+    submittedById: string | null
+    approvedAt: Date | null
+    approvedById: string | null
+    publishedAt: Date | null
+    publishedById: string | null
+    lockedAt: Date | null
+    lockedById: string | null
+    reopenedAt: Date | null
+    reopenedById: string | null
+    reopenReason: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ResultSheetCountAggregateOutputType = {
+    id: number
+    classSubjectId: number
+    status: number
+    components: number
+    scale: number
+    submittedAt: number
+    submittedById: number
+    approvedAt: number
+    approvedById: number
+    publishedAt: number
+    publishedById: number
+    lockedAt: number
+    lockedById: number
+    reopenedAt: number
+    reopenedById: number
+    reopenReason: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ResultSheetMinAggregateInputType = {
+    id?: true
+    classSubjectId?: true
+    status?: true
+    submittedAt?: true
+    submittedById?: true
+    approvedAt?: true
+    approvedById?: true
+    publishedAt?: true
+    publishedById?: true
+    lockedAt?: true
+    lockedById?: true
+    reopenedAt?: true
+    reopenedById?: true
+    reopenReason?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ResultSheetMaxAggregateInputType = {
+    id?: true
+    classSubjectId?: true
+    status?: true
+    submittedAt?: true
+    submittedById?: true
+    approvedAt?: true
+    approvedById?: true
+    publishedAt?: true
+    publishedById?: true
+    lockedAt?: true
+    lockedById?: true
+    reopenedAt?: true
+    reopenedById?: true
+    reopenReason?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ResultSheetCountAggregateInputType = {
+    id?: true
+    classSubjectId?: true
+    status?: true
+    components?: true
+    scale?: true
+    submittedAt?: true
+    submittedById?: true
+    approvedAt?: true
+    approvedById?: true
+    publishedAt?: true
+    publishedById?: true
+    lockedAt?: true
+    lockedById?: true
+    reopenedAt?: true
+    reopenedById?: true
+    reopenReason?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ResultSheetAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ResultSheet to aggregate.
+     */
+    where?: ResultSheetWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ResultSheets to fetch.
+     */
+    orderBy?: ResultSheetOrderByWithRelationInput | ResultSheetOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ResultSheetWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ResultSheets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ResultSheets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ResultSheets
+    **/
+    _count?: true | ResultSheetCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ResultSheetMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ResultSheetMaxAggregateInputType
+  }
+
+  export type GetResultSheetAggregateType<T extends ResultSheetAggregateArgs> = {
+        [P in keyof T & keyof AggregateResultSheet]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateResultSheet[P]>
+      : GetScalarType<T[P], AggregateResultSheet[P]>
+  }
+
+
+
+
+  export type ResultSheetGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ResultSheetWhereInput
+    orderBy?: ResultSheetOrderByWithAggregationInput | ResultSheetOrderByWithAggregationInput[]
+    by: ResultSheetScalarFieldEnum[] | ResultSheetScalarFieldEnum
+    having?: ResultSheetScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ResultSheetCountAggregateInputType | true
+    _min?: ResultSheetMinAggregateInputType
+    _max?: ResultSheetMaxAggregateInputType
+  }
+
+  export type ResultSheetGroupByOutputType = {
+    id: string
+    classSubjectId: string
+    status: $Enums.ResultSheetStatus
+    components: JsonValue
+    scale: JsonValue | null
+    submittedAt: Date | null
+    submittedById: string | null
+    approvedAt: Date | null
+    approvedById: string | null
+    publishedAt: Date | null
+    publishedById: string | null
+    lockedAt: Date | null
+    lockedById: string | null
+    reopenedAt: Date | null
+    reopenedById: string | null
+    reopenReason: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: ResultSheetCountAggregateOutputType | null
+    _min: ResultSheetMinAggregateOutputType | null
+    _max: ResultSheetMaxAggregateOutputType | null
+  }
+
+  type GetResultSheetGroupByPayload<T extends ResultSheetGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ResultSheetGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ResultSheetGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ResultSheetGroupByOutputType[P]>
+            : GetScalarType<T[P], ResultSheetGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ResultSheetSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    classSubjectId?: boolean
+    status?: boolean
+    components?: boolean
+    scale?: boolean
+    submittedAt?: boolean
+    submittedById?: boolean
+    approvedAt?: boolean
+    approvedById?: boolean
+    publishedAt?: boolean
+    publishedById?: boolean
+    lockedAt?: boolean
+    lockedById?: boolean
+    reopenedAt?: boolean
+    reopenedById?: boolean
+    reopenReason?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    classSubject?: boolean | ClassSubjectDefaultArgs<ExtArgs>
+    grades?: boolean | ResultSheet$gradesArgs<ExtArgs>
+    _count?: boolean | ResultSheetCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["resultSheet"]>
+
+  export type ResultSheetSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    classSubjectId?: boolean
+    status?: boolean
+    components?: boolean
+    scale?: boolean
+    submittedAt?: boolean
+    submittedById?: boolean
+    approvedAt?: boolean
+    approvedById?: boolean
+    publishedAt?: boolean
+    publishedById?: boolean
+    lockedAt?: boolean
+    lockedById?: boolean
+    reopenedAt?: boolean
+    reopenedById?: boolean
+    reopenReason?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    classSubject?: boolean | ClassSubjectDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["resultSheet"]>
+
+  export type ResultSheetSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    classSubjectId?: boolean
+    status?: boolean
+    components?: boolean
+    scale?: boolean
+    submittedAt?: boolean
+    submittedById?: boolean
+    approvedAt?: boolean
+    approvedById?: boolean
+    publishedAt?: boolean
+    publishedById?: boolean
+    lockedAt?: boolean
+    lockedById?: boolean
+    reopenedAt?: boolean
+    reopenedById?: boolean
+    reopenReason?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    classSubject?: boolean | ClassSubjectDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["resultSheet"]>
+
+  export type ResultSheetSelectScalar = {
+    id?: boolean
+    classSubjectId?: boolean
+    status?: boolean
+    components?: boolean
+    scale?: boolean
+    submittedAt?: boolean
+    submittedById?: boolean
+    approvedAt?: boolean
+    approvedById?: boolean
+    publishedAt?: boolean
+    publishedById?: boolean
+    lockedAt?: boolean
+    lockedById?: boolean
+    reopenedAt?: boolean
+    reopenedById?: boolean
+    reopenReason?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ResultSheetOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "classSubjectId" | "status" | "components" | "scale" | "submittedAt" | "submittedById" | "approvedAt" | "approvedById" | "publishedAt" | "publishedById" | "lockedAt" | "lockedById" | "reopenedAt" | "reopenedById" | "reopenReason" | "createdAt" | "updatedAt", ExtArgs["result"]["resultSheet"]>
+  export type ResultSheetInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    classSubject?: boolean | ClassSubjectDefaultArgs<ExtArgs>
+    grades?: boolean | ResultSheet$gradesArgs<ExtArgs>
+    _count?: boolean | ResultSheetCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type ResultSheetIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    classSubject?: boolean | ClassSubjectDefaultArgs<ExtArgs>
+  }
+  export type ResultSheetIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    classSubject?: boolean | ClassSubjectDefaultArgs<ExtArgs>
+  }
+
+  export type $ResultSheetPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ResultSheet"
+    objects: {
+      classSubject: Prisma.$ClassSubjectPayload<ExtArgs>
+      grades: Prisma.$GradePayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      classSubjectId: string
+      status: $Enums.ResultSheetStatus
+      components: Prisma.JsonValue
+      scale: Prisma.JsonValue | null
+      submittedAt: Date | null
+      submittedById: string | null
+      approvedAt: Date | null
+      approvedById: string | null
+      publishedAt: Date | null
+      publishedById: string | null
+      lockedAt: Date | null
+      lockedById: string | null
+      reopenedAt: Date | null
+      reopenedById: string | null
+      reopenReason: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["resultSheet"]>
+    composites: {}
+  }
+
+  type ResultSheetGetPayload<S extends boolean | null | undefined | ResultSheetDefaultArgs> = $Result.GetResult<Prisma.$ResultSheetPayload, S>
+
+  type ResultSheetCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ResultSheetFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ResultSheetCountAggregateInputType | true
+    }
+
+  export interface ResultSheetDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ResultSheet'], meta: { name: 'ResultSheet' } }
+    /**
+     * Find zero or one ResultSheet that matches the filter.
+     * @param {ResultSheetFindUniqueArgs} args - Arguments to find a ResultSheet
+     * @example
+     * // Get one ResultSheet
+     * const resultSheet = await prisma.resultSheet.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ResultSheetFindUniqueArgs>(args: SelectSubset<T, ResultSheetFindUniqueArgs<ExtArgs>>): Prisma__ResultSheetClient<$Result.GetResult<Prisma.$ResultSheetPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ResultSheet that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ResultSheetFindUniqueOrThrowArgs} args - Arguments to find a ResultSheet
+     * @example
+     * // Get one ResultSheet
+     * const resultSheet = await prisma.resultSheet.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ResultSheetFindUniqueOrThrowArgs>(args: SelectSubset<T, ResultSheetFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ResultSheetClient<$Result.GetResult<Prisma.$ResultSheetPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ResultSheet that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ResultSheetFindFirstArgs} args - Arguments to find a ResultSheet
+     * @example
+     * // Get one ResultSheet
+     * const resultSheet = await prisma.resultSheet.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ResultSheetFindFirstArgs>(args?: SelectSubset<T, ResultSheetFindFirstArgs<ExtArgs>>): Prisma__ResultSheetClient<$Result.GetResult<Prisma.$ResultSheetPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ResultSheet that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ResultSheetFindFirstOrThrowArgs} args - Arguments to find a ResultSheet
+     * @example
+     * // Get one ResultSheet
+     * const resultSheet = await prisma.resultSheet.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ResultSheetFindFirstOrThrowArgs>(args?: SelectSubset<T, ResultSheetFindFirstOrThrowArgs<ExtArgs>>): Prisma__ResultSheetClient<$Result.GetResult<Prisma.$ResultSheetPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ResultSheets that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ResultSheetFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ResultSheets
+     * const resultSheets = await prisma.resultSheet.findMany()
+     * 
+     * // Get first 10 ResultSheets
+     * const resultSheets = await prisma.resultSheet.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const resultSheetWithIdOnly = await prisma.resultSheet.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ResultSheetFindManyArgs>(args?: SelectSubset<T, ResultSheetFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ResultSheetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ResultSheet.
+     * @param {ResultSheetCreateArgs} args - Arguments to create a ResultSheet.
+     * @example
+     * // Create one ResultSheet
+     * const ResultSheet = await prisma.resultSheet.create({
+     *   data: {
+     *     // ... data to create a ResultSheet
+     *   }
+     * })
+     * 
+     */
+    create<T extends ResultSheetCreateArgs>(args: SelectSubset<T, ResultSheetCreateArgs<ExtArgs>>): Prisma__ResultSheetClient<$Result.GetResult<Prisma.$ResultSheetPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ResultSheets.
+     * @param {ResultSheetCreateManyArgs} args - Arguments to create many ResultSheets.
+     * @example
+     * // Create many ResultSheets
+     * const resultSheet = await prisma.resultSheet.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ResultSheetCreateManyArgs>(args?: SelectSubset<T, ResultSheetCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ResultSheets and returns the data saved in the database.
+     * @param {ResultSheetCreateManyAndReturnArgs} args - Arguments to create many ResultSheets.
+     * @example
+     * // Create many ResultSheets
+     * const resultSheet = await prisma.resultSheet.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ResultSheets and only return the `id`
+     * const resultSheetWithIdOnly = await prisma.resultSheet.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ResultSheetCreateManyAndReturnArgs>(args?: SelectSubset<T, ResultSheetCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ResultSheetPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ResultSheet.
+     * @param {ResultSheetDeleteArgs} args - Arguments to delete one ResultSheet.
+     * @example
+     * // Delete one ResultSheet
+     * const ResultSheet = await prisma.resultSheet.delete({
+     *   where: {
+     *     // ... filter to delete one ResultSheet
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ResultSheetDeleteArgs>(args: SelectSubset<T, ResultSheetDeleteArgs<ExtArgs>>): Prisma__ResultSheetClient<$Result.GetResult<Prisma.$ResultSheetPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ResultSheet.
+     * @param {ResultSheetUpdateArgs} args - Arguments to update one ResultSheet.
+     * @example
+     * // Update one ResultSheet
+     * const resultSheet = await prisma.resultSheet.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ResultSheetUpdateArgs>(args: SelectSubset<T, ResultSheetUpdateArgs<ExtArgs>>): Prisma__ResultSheetClient<$Result.GetResult<Prisma.$ResultSheetPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ResultSheets.
+     * @param {ResultSheetDeleteManyArgs} args - Arguments to filter ResultSheets to delete.
+     * @example
+     * // Delete a few ResultSheets
+     * const { count } = await prisma.resultSheet.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ResultSheetDeleteManyArgs>(args?: SelectSubset<T, ResultSheetDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ResultSheets.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ResultSheetUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ResultSheets
+     * const resultSheet = await prisma.resultSheet.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ResultSheetUpdateManyArgs>(args: SelectSubset<T, ResultSheetUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ResultSheets and returns the data updated in the database.
+     * @param {ResultSheetUpdateManyAndReturnArgs} args - Arguments to update many ResultSheets.
+     * @example
+     * // Update many ResultSheets
+     * const resultSheet = await prisma.resultSheet.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ResultSheets and only return the `id`
+     * const resultSheetWithIdOnly = await prisma.resultSheet.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ResultSheetUpdateManyAndReturnArgs>(args: SelectSubset<T, ResultSheetUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ResultSheetPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ResultSheet.
+     * @param {ResultSheetUpsertArgs} args - Arguments to update or create a ResultSheet.
+     * @example
+     * // Update or create a ResultSheet
+     * const resultSheet = await prisma.resultSheet.upsert({
+     *   create: {
+     *     // ... data to create a ResultSheet
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ResultSheet we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ResultSheetUpsertArgs>(args: SelectSubset<T, ResultSheetUpsertArgs<ExtArgs>>): Prisma__ResultSheetClient<$Result.GetResult<Prisma.$ResultSheetPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ResultSheets.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ResultSheetCountArgs} args - Arguments to filter ResultSheets to count.
+     * @example
+     * // Count the number of ResultSheets
+     * const count = await prisma.resultSheet.count({
+     *   where: {
+     *     // ... the filter for the ResultSheets we want to count
+     *   }
+     * })
+    **/
+    count<T extends ResultSheetCountArgs>(
+      args?: Subset<T, ResultSheetCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ResultSheetCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ResultSheet.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ResultSheetAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ResultSheetAggregateArgs>(args: Subset<T, ResultSheetAggregateArgs>): Prisma.PrismaPromise<GetResultSheetAggregateType<T>>
+
+    /**
+     * Group by ResultSheet.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ResultSheetGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ResultSheetGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ResultSheetGroupByArgs['orderBy'] }
+        : { orderBy?: ResultSheetGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ResultSheetGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetResultSheetGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ResultSheet model
+   */
+  readonly fields: ResultSheetFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ResultSheet.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ResultSheetClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    classSubject<T extends ClassSubjectDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ClassSubjectDefaultArgs<ExtArgs>>): Prisma__ClassSubjectClient<$Result.GetResult<Prisma.$ClassSubjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    grades<T extends ResultSheet$gradesArgs<ExtArgs> = {}>(args?: Subset<T, ResultSheet$gradesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GradePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ResultSheet model
+   */
+  interface ResultSheetFieldRefs {
+    readonly id: FieldRef<"ResultSheet", 'String'>
+    readonly classSubjectId: FieldRef<"ResultSheet", 'String'>
+    readonly status: FieldRef<"ResultSheet", 'ResultSheetStatus'>
+    readonly components: FieldRef<"ResultSheet", 'Json'>
+    readonly scale: FieldRef<"ResultSheet", 'Json'>
+    readonly submittedAt: FieldRef<"ResultSheet", 'DateTime'>
+    readonly submittedById: FieldRef<"ResultSheet", 'String'>
+    readonly approvedAt: FieldRef<"ResultSheet", 'DateTime'>
+    readonly approvedById: FieldRef<"ResultSheet", 'String'>
+    readonly publishedAt: FieldRef<"ResultSheet", 'DateTime'>
+    readonly publishedById: FieldRef<"ResultSheet", 'String'>
+    readonly lockedAt: FieldRef<"ResultSheet", 'DateTime'>
+    readonly lockedById: FieldRef<"ResultSheet", 'String'>
+    readonly reopenedAt: FieldRef<"ResultSheet", 'DateTime'>
+    readonly reopenedById: FieldRef<"ResultSheet", 'String'>
+    readonly reopenReason: FieldRef<"ResultSheet", 'String'>
+    readonly createdAt: FieldRef<"ResultSheet", 'DateTime'>
+    readonly updatedAt: FieldRef<"ResultSheet", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ResultSheet findUnique
+   */
+  export type ResultSheetFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ResultSheet
+     */
+    select?: ResultSheetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ResultSheet
+     */
+    omit?: ResultSheetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ResultSheetInclude<ExtArgs> | null
+    /**
+     * Filter, which ResultSheet to fetch.
+     */
+    where: ResultSheetWhereUniqueInput
+  }
+
+  /**
+   * ResultSheet findUniqueOrThrow
+   */
+  export type ResultSheetFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ResultSheet
+     */
+    select?: ResultSheetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ResultSheet
+     */
+    omit?: ResultSheetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ResultSheetInclude<ExtArgs> | null
+    /**
+     * Filter, which ResultSheet to fetch.
+     */
+    where: ResultSheetWhereUniqueInput
+  }
+
+  /**
+   * ResultSheet findFirst
+   */
+  export type ResultSheetFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ResultSheet
+     */
+    select?: ResultSheetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ResultSheet
+     */
+    omit?: ResultSheetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ResultSheetInclude<ExtArgs> | null
+    /**
+     * Filter, which ResultSheet to fetch.
+     */
+    where?: ResultSheetWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ResultSheets to fetch.
+     */
+    orderBy?: ResultSheetOrderByWithRelationInput | ResultSheetOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ResultSheets.
+     */
+    cursor?: ResultSheetWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ResultSheets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ResultSheets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ResultSheets.
+     */
+    distinct?: ResultSheetScalarFieldEnum | ResultSheetScalarFieldEnum[]
+  }
+
+  /**
+   * ResultSheet findFirstOrThrow
+   */
+  export type ResultSheetFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ResultSheet
+     */
+    select?: ResultSheetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ResultSheet
+     */
+    omit?: ResultSheetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ResultSheetInclude<ExtArgs> | null
+    /**
+     * Filter, which ResultSheet to fetch.
+     */
+    where?: ResultSheetWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ResultSheets to fetch.
+     */
+    orderBy?: ResultSheetOrderByWithRelationInput | ResultSheetOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ResultSheets.
+     */
+    cursor?: ResultSheetWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ResultSheets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ResultSheets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ResultSheets.
+     */
+    distinct?: ResultSheetScalarFieldEnum | ResultSheetScalarFieldEnum[]
+  }
+
+  /**
+   * ResultSheet findMany
+   */
+  export type ResultSheetFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ResultSheet
+     */
+    select?: ResultSheetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ResultSheet
+     */
+    omit?: ResultSheetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ResultSheetInclude<ExtArgs> | null
+    /**
+     * Filter, which ResultSheets to fetch.
+     */
+    where?: ResultSheetWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ResultSheets to fetch.
+     */
+    orderBy?: ResultSheetOrderByWithRelationInput | ResultSheetOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ResultSheets.
+     */
+    cursor?: ResultSheetWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ResultSheets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ResultSheets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ResultSheets.
+     */
+    distinct?: ResultSheetScalarFieldEnum | ResultSheetScalarFieldEnum[]
+  }
+
+  /**
+   * ResultSheet create
+   */
+  export type ResultSheetCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ResultSheet
+     */
+    select?: ResultSheetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ResultSheet
+     */
+    omit?: ResultSheetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ResultSheetInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ResultSheet.
+     */
+    data: XOR<ResultSheetCreateInput, ResultSheetUncheckedCreateInput>
+  }
+
+  /**
+   * ResultSheet createMany
+   */
+  export type ResultSheetCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ResultSheets.
+     */
+    data: ResultSheetCreateManyInput | ResultSheetCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ResultSheet createManyAndReturn
+   */
+  export type ResultSheetCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ResultSheet
+     */
+    select?: ResultSheetSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ResultSheet
+     */
+    omit?: ResultSheetOmit<ExtArgs> | null
+    /**
+     * The data used to create many ResultSheets.
+     */
+    data: ResultSheetCreateManyInput | ResultSheetCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ResultSheetIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ResultSheet update
+   */
+  export type ResultSheetUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ResultSheet
+     */
+    select?: ResultSheetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ResultSheet
+     */
+    omit?: ResultSheetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ResultSheetInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ResultSheet.
+     */
+    data: XOR<ResultSheetUpdateInput, ResultSheetUncheckedUpdateInput>
+    /**
+     * Choose, which ResultSheet to update.
+     */
+    where: ResultSheetWhereUniqueInput
+  }
+
+  /**
+   * ResultSheet updateMany
+   */
+  export type ResultSheetUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ResultSheets.
+     */
+    data: XOR<ResultSheetUpdateManyMutationInput, ResultSheetUncheckedUpdateManyInput>
+    /**
+     * Filter which ResultSheets to update
+     */
+    where?: ResultSheetWhereInput
+    /**
+     * Limit how many ResultSheets to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ResultSheet updateManyAndReturn
+   */
+  export type ResultSheetUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ResultSheet
+     */
+    select?: ResultSheetSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ResultSheet
+     */
+    omit?: ResultSheetOmit<ExtArgs> | null
+    /**
+     * The data used to update ResultSheets.
+     */
+    data: XOR<ResultSheetUpdateManyMutationInput, ResultSheetUncheckedUpdateManyInput>
+    /**
+     * Filter which ResultSheets to update
+     */
+    where?: ResultSheetWhereInput
+    /**
+     * Limit how many ResultSheets to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ResultSheetIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ResultSheet upsert
+   */
+  export type ResultSheetUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ResultSheet
+     */
+    select?: ResultSheetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ResultSheet
+     */
+    omit?: ResultSheetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ResultSheetInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ResultSheet to update in case it exists.
+     */
+    where: ResultSheetWhereUniqueInput
+    /**
+     * In case the ResultSheet found by the `where` argument doesn't exist, create a new ResultSheet with this data.
+     */
+    create: XOR<ResultSheetCreateInput, ResultSheetUncheckedCreateInput>
+    /**
+     * In case the ResultSheet was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ResultSheetUpdateInput, ResultSheetUncheckedUpdateInput>
+  }
+
+  /**
+   * ResultSheet delete
+   */
+  export type ResultSheetDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ResultSheet
+     */
+    select?: ResultSheetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ResultSheet
+     */
+    omit?: ResultSheetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ResultSheetInclude<ExtArgs> | null
+    /**
+     * Filter which ResultSheet to delete.
+     */
+    where: ResultSheetWhereUniqueInput
+  }
+
+  /**
+   * ResultSheet deleteMany
+   */
+  export type ResultSheetDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ResultSheets to delete
+     */
+    where?: ResultSheetWhereInput
+    /**
+     * Limit how many ResultSheets to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ResultSheet.grades
+   */
+  export type ResultSheet$gradesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Grade
+     */
+    select?: GradeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Grade
+     */
+    omit?: GradeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradeInclude<ExtArgs> | null
+    where?: GradeWhereInput
+    orderBy?: GradeOrderByWithRelationInput | GradeOrderByWithRelationInput[]
+    cursor?: GradeWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: GradeScalarFieldEnum | GradeScalarFieldEnum[]
+  }
+
+  /**
+   * ResultSheet without action
+   */
+  export type ResultSheetDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ResultSheet
+     */
+    select?: ResultSheetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ResultSheet
+     */
+    omit?: ResultSheetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ResultSheetInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model GradeScore
+   */
+
+  export type AggregateGradeScore = {
+    _count: GradeScoreCountAggregateOutputType | null
+    _avg: GradeScoreAvgAggregateOutputType | null
+    _sum: GradeScoreSumAggregateOutputType | null
+    _min: GradeScoreMinAggregateOutputType | null
+    _max: GradeScoreMaxAggregateOutputType | null
+  }
+
+  export type GradeScoreAvgAggregateOutputType = {
+    position: number | null
+    score: number | null
+  }
+
+  export type GradeScoreSumAggregateOutputType = {
+    position: number | null
+    score: number | null
+  }
+
+  export type GradeScoreMinAggregateOutputType = {
+    id: string | null
+    gradeId: string | null
+    position: number | null
+    score: number | null
+    isAbsent: boolean | null
+  }
+
+  export type GradeScoreMaxAggregateOutputType = {
+    id: string | null
+    gradeId: string | null
+    position: number | null
+    score: number | null
+    isAbsent: boolean | null
+  }
+
+  export type GradeScoreCountAggregateOutputType = {
+    id: number
+    gradeId: number
+    position: number
+    score: number
+    isAbsent: number
+    _all: number
+  }
+
+
+  export type GradeScoreAvgAggregateInputType = {
+    position?: true
+    score?: true
+  }
+
+  export type GradeScoreSumAggregateInputType = {
+    position?: true
+    score?: true
+  }
+
+  export type GradeScoreMinAggregateInputType = {
+    id?: true
+    gradeId?: true
+    position?: true
+    score?: true
+    isAbsent?: true
+  }
+
+  export type GradeScoreMaxAggregateInputType = {
+    id?: true
+    gradeId?: true
+    position?: true
+    score?: true
+    isAbsent?: true
+  }
+
+  export type GradeScoreCountAggregateInputType = {
+    id?: true
+    gradeId?: true
+    position?: true
+    score?: true
+    isAbsent?: true
+    _all?: true
+  }
+
+  export type GradeScoreAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GradeScore to aggregate.
+     */
+    where?: GradeScoreWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GradeScores to fetch.
+     */
+    orderBy?: GradeScoreOrderByWithRelationInput | GradeScoreOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: GradeScoreWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GradeScores from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GradeScores.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned GradeScores
+    **/
+    _count?: true | GradeScoreCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: GradeScoreAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: GradeScoreSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: GradeScoreMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: GradeScoreMaxAggregateInputType
+  }
+
+  export type GetGradeScoreAggregateType<T extends GradeScoreAggregateArgs> = {
+        [P in keyof T & keyof AggregateGradeScore]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateGradeScore[P]>
+      : GetScalarType<T[P], AggregateGradeScore[P]>
+  }
+
+
+
+
+  export type GradeScoreGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GradeScoreWhereInput
+    orderBy?: GradeScoreOrderByWithAggregationInput | GradeScoreOrderByWithAggregationInput[]
+    by: GradeScoreScalarFieldEnum[] | GradeScoreScalarFieldEnum
+    having?: GradeScoreScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: GradeScoreCountAggregateInputType | true
+    _avg?: GradeScoreAvgAggregateInputType
+    _sum?: GradeScoreSumAggregateInputType
+    _min?: GradeScoreMinAggregateInputType
+    _max?: GradeScoreMaxAggregateInputType
+  }
+
+  export type GradeScoreGroupByOutputType = {
+    id: string
+    gradeId: string
+    position: number
+    score: number | null
+    isAbsent: boolean
+    _count: GradeScoreCountAggregateOutputType | null
+    _avg: GradeScoreAvgAggregateOutputType | null
+    _sum: GradeScoreSumAggregateOutputType | null
+    _min: GradeScoreMinAggregateOutputType | null
+    _max: GradeScoreMaxAggregateOutputType | null
+  }
+
+  type GetGradeScoreGroupByPayload<T extends GradeScoreGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<GradeScoreGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof GradeScoreGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], GradeScoreGroupByOutputType[P]>
+            : GetScalarType<T[P], GradeScoreGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type GradeScoreSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    gradeId?: boolean
+    position?: boolean
+    score?: boolean
+    isAbsent?: boolean
+    grade?: boolean | GradeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["gradeScore"]>
+
+  export type GradeScoreSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    gradeId?: boolean
+    position?: boolean
+    score?: boolean
+    isAbsent?: boolean
+    grade?: boolean | GradeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["gradeScore"]>
+
+  export type GradeScoreSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    gradeId?: boolean
+    position?: boolean
+    score?: boolean
+    isAbsent?: boolean
+    grade?: boolean | GradeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["gradeScore"]>
+
+  export type GradeScoreSelectScalar = {
+    id?: boolean
+    gradeId?: boolean
+    position?: boolean
+    score?: boolean
+    isAbsent?: boolean
+  }
+
+  export type GradeScoreOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "gradeId" | "position" | "score" | "isAbsent", ExtArgs["result"]["gradeScore"]>
+  export type GradeScoreInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    grade?: boolean | GradeDefaultArgs<ExtArgs>
+  }
+  export type GradeScoreIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    grade?: boolean | GradeDefaultArgs<ExtArgs>
+  }
+  export type GradeScoreIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    grade?: boolean | GradeDefaultArgs<ExtArgs>
+  }
+
+  export type $GradeScorePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GradeScore"
+    objects: {
+      grade: Prisma.$GradePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      gradeId: string
+      position: number
+      score: number | null
+      isAbsent: boolean
+    }, ExtArgs["result"]["gradeScore"]>
+    composites: {}
+  }
+
+  type GradeScoreGetPayload<S extends boolean | null | undefined | GradeScoreDefaultArgs> = $Result.GetResult<Prisma.$GradeScorePayload, S>
+
+  type GradeScoreCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<GradeScoreFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: GradeScoreCountAggregateInputType | true
+    }
+
+  export interface GradeScoreDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GradeScore'], meta: { name: 'GradeScore' } }
+    /**
+     * Find zero or one GradeScore that matches the filter.
+     * @param {GradeScoreFindUniqueArgs} args - Arguments to find a GradeScore
+     * @example
+     * // Get one GradeScore
+     * const gradeScore = await prisma.gradeScore.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends GradeScoreFindUniqueArgs>(args: SelectSubset<T, GradeScoreFindUniqueArgs<ExtArgs>>): Prisma__GradeScoreClient<$Result.GetResult<Prisma.$GradeScorePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one GradeScore that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {GradeScoreFindUniqueOrThrowArgs} args - Arguments to find a GradeScore
+     * @example
+     * // Get one GradeScore
+     * const gradeScore = await prisma.gradeScore.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends GradeScoreFindUniqueOrThrowArgs>(args: SelectSubset<T, GradeScoreFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GradeScoreClient<$Result.GetResult<Prisma.$GradeScorePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first GradeScore that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GradeScoreFindFirstArgs} args - Arguments to find a GradeScore
+     * @example
+     * // Get one GradeScore
+     * const gradeScore = await prisma.gradeScore.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends GradeScoreFindFirstArgs>(args?: SelectSubset<T, GradeScoreFindFirstArgs<ExtArgs>>): Prisma__GradeScoreClient<$Result.GetResult<Prisma.$GradeScorePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first GradeScore that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GradeScoreFindFirstOrThrowArgs} args - Arguments to find a GradeScore
+     * @example
+     * // Get one GradeScore
+     * const gradeScore = await prisma.gradeScore.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends GradeScoreFindFirstOrThrowArgs>(args?: SelectSubset<T, GradeScoreFindFirstOrThrowArgs<ExtArgs>>): Prisma__GradeScoreClient<$Result.GetResult<Prisma.$GradeScorePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more GradeScores that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GradeScoreFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all GradeScores
+     * const gradeScores = await prisma.gradeScore.findMany()
+     * 
+     * // Get first 10 GradeScores
+     * const gradeScores = await prisma.gradeScore.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const gradeScoreWithIdOnly = await prisma.gradeScore.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends GradeScoreFindManyArgs>(args?: SelectSubset<T, GradeScoreFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GradeScorePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a GradeScore.
+     * @param {GradeScoreCreateArgs} args - Arguments to create a GradeScore.
+     * @example
+     * // Create one GradeScore
+     * const GradeScore = await prisma.gradeScore.create({
+     *   data: {
+     *     // ... data to create a GradeScore
+     *   }
+     * })
+     * 
+     */
+    create<T extends GradeScoreCreateArgs>(args: SelectSubset<T, GradeScoreCreateArgs<ExtArgs>>): Prisma__GradeScoreClient<$Result.GetResult<Prisma.$GradeScorePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many GradeScores.
+     * @param {GradeScoreCreateManyArgs} args - Arguments to create many GradeScores.
+     * @example
+     * // Create many GradeScores
+     * const gradeScore = await prisma.gradeScore.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends GradeScoreCreateManyArgs>(args?: SelectSubset<T, GradeScoreCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many GradeScores and returns the data saved in the database.
+     * @param {GradeScoreCreateManyAndReturnArgs} args - Arguments to create many GradeScores.
+     * @example
+     * // Create many GradeScores
+     * const gradeScore = await prisma.gradeScore.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many GradeScores and only return the `id`
+     * const gradeScoreWithIdOnly = await prisma.gradeScore.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends GradeScoreCreateManyAndReturnArgs>(args?: SelectSubset<T, GradeScoreCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GradeScorePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a GradeScore.
+     * @param {GradeScoreDeleteArgs} args - Arguments to delete one GradeScore.
+     * @example
+     * // Delete one GradeScore
+     * const GradeScore = await prisma.gradeScore.delete({
+     *   where: {
+     *     // ... filter to delete one GradeScore
+     *   }
+     * })
+     * 
+     */
+    delete<T extends GradeScoreDeleteArgs>(args: SelectSubset<T, GradeScoreDeleteArgs<ExtArgs>>): Prisma__GradeScoreClient<$Result.GetResult<Prisma.$GradeScorePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one GradeScore.
+     * @param {GradeScoreUpdateArgs} args - Arguments to update one GradeScore.
+     * @example
+     * // Update one GradeScore
+     * const gradeScore = await prisma.gradeScore.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends GradeScoreUpdateArgs>(args: SelectSubset<T, GradeScoreUpdateArgs<ExtArgs>>): Prisma__GradeScoreClient<$Result.GetResult<Prisma.$GradeScorePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more GradeScores.
+     * @param {GradeScoreDeleteManyArgs} args - Arguments to filter GradeScores to delete.
+     * @example
+     * // Delete a few GradeScores
+     * const { count } = await prisma.gradeScore.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends GradeScoreDeleteManyArgs>(args?: SelectSubset<T, GradeScoreDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GradeScores.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GradeScoreUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many GradeScores
+     * const gradeScore = await prisma.gradeScore.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends GradeScoreUpdateManyArgs>(args: SelectSubset<T, GradeScoreUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GradeScores and returns the data updated in the database.
+     * @param {GradeScoreUpdateManyAndReturnArgs} args - Arguments to update many GradeScores.
+     * @example
+     * // Update many GradeScores
+     * const gradeScore = await prisma.gradeScore.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more GradeScores and only return the `id`
+     * const gradeScoreWithIdOnly = await prisma.gradeScore.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends GradeScoreUpdateManyAndReturnArgs>(args: SelectSubset<T, GradeScoreUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GradeScorePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one GradeScore.
+     * @param {GradeScoreUpsertArgs} args - Arguments to update or create a GradeScore.
+     * @example
+     * // Update or create a GradeScore
+     * const gradeScore = await prisma.gradeScore.upsert({
+     *   create: {
+     *     // ... data to create a GradeScore
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the GradeScore we want to update
+     *   }
+     * })
+     */
+    upsert<T extends GradeScoreUpsertArgs>(args: SelectSubset<T, GradeScoreUpsertArgs<ExtArgs>>): Prisma__GradeScoreClient<$Result.GetResult<Prisma.$GradeScorePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of GradeScores.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GradeScoreCountArgs} args - Arguments to filter GradeScores to count.
+     * @example
+     * // Count the number of GradeScores
+     * const count = await prisma.gradeScore.count({
+     *   where: {
+     *     // ... the filter for the GradeScores we want to count
+     *   }
+     * })
+    **/
+    count<T extends GradeScoreCountArgs>(
+      args?: Subset<T, GradeScoreCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], GradeScoreCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a GradeScore.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GradeScoreAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends GradeScoreAggregateArgs>(args: Subset<T, GradeScoreAggregateArgs>): Prisma.PrismaPromise<GetGradeScoreAggregateType<T>>
+
+    /**
+     * Group by GradeScore.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GradeScoreGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends GradeScoreGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: GradeScoreGroupByArgs['orderBy'] }
+        : { orderBy?: GradeScoreGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, GradeScoreGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGradeScoreGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the GradeScore model
+   */
+  readonly fields: GradeScoreFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for GradeScore.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__GradeScoreClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    grade<T extends GradeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, GradeDefaultArgs<ExtArgs>>): Prisma__GradeClient<$Result.GetResult<Prisma.$GradePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the GradeScore model
+   */
+  interface GradeScoreFieldRefs {
+    readonly id: FieldRef<"GradeScore", 'String'>
+    readonly gradeId: FieldRef<"GradeScore", 'String'>
+    readonly position: FieldRef<"GradeScore", 'Int'>
+    readonly score: FieldRef<"GradeScore", 'Float'>
+    readonly isAbsent: FieldRef<"GradeScore", 'Boolean'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * GradeScore findUnique
+   */
+  export type GradeScoreFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradeScore
+     */
+    select?: GradeScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradeScore
+     */
+    omit?: GradeScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradeScoreInclude<ExtArgs> | null
+    /**
+     * Filter, which GradeScore to fetch.
+     */
+    where: GradeScoreWhereUniqueInput
+  }
+
+  /**
+   * GradeScore findUniqueOrThrow
+   */
+  export type GradeScoreFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradeScore
+     */
+    select?: GradeScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradeScore
+     */
+    omit?: GradeScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradeScoreInclude<ExtArgs> | null
+    /**
+     * Filter, which GradeScore to fetch.
+     */
+    where: GradeScoreWhereUniqueInput
+  }
+
+  /**
+   * GradeScore findFirst
+   */
+  export type GradeScoreFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradeScore
+     */
+    select?: GradeScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradeScore
+     */
+    omit?: GradeScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradeScoreInclude<ExtArgs> | null
+    /**
+     * Filter, which GradeScore to fetch.
+     */
+    where?: GradeScoreWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GradeScores to fetch.
+     */
+    orderBy?: GradeScoreOrderByWithRelationInput | GradeScoreOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GradeScores.
+     */
+    cursor?: GradeScoreWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GradeScores from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GradeScores.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GradeScores.
+     */
+    distinct?: GradeScoreScalarFieldEnum | GradeScoreScalarFieldEnum[]
+  }
+
+  /**
+   * GradeScore findFirstOrThrow
+   */
+  export type GradeScoreFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradeScore
+     */
+    select?: GradeScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradeScore
+     */
+    omit?: GradeScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradeScoreInclude<ExtArgs> | null
+    /**
+     * Filter, which GradeScore to fetch.
+     */
+    where?: GradeScoreWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GradeScores to fetch.
+     */
+    orderBy?: GradeScoreOrderByWithRelationInput | GradeScoreOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GradeScores.
+     */
+    cursor?: GradeScoreWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GradeScores from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GradeScores.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GradeScores.
+     */
+    distinct?: GradeScoreScalarFieldEnum | GradeScoreScalarFieldEnum[]
+  }
+
+  /**
+   * GradeScore findMany
+   */
+  export type GradeScoreFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradeScore
+     */
+    select?: GradeScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradeScore
+     */
+    omit?: GradeScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradeScoreInclude<ExtArgs> | null
+    /**
+     * Filter, which GradeScores to fetch.
+     */
+    where?: GradeScoreWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GradeScores to fetch.
+     */
+    orderBy?: GradeScoreOrderByWithRelationInput | GradeScoreOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing GradeScores.
+     */
+    cursor?: GradeScoreWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GradeScores from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GradeScores.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GradeScores.
+     */
+    distinct?: GradeScoreScalarFieldEnum | GradeScoreScalarFieldEnum[]
+  }
+
+  /**
+   * GradeScore create
+   */
+  export type GradeScoreCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradeScore
+     */
+    select?: GradeScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradeScore
+     */
+    omit?: GradeScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradeScoreInclude<ExtArgs> | null
+    /**
+     * The data needed to create a GradeScore.
+     */
+    data: XOR<GradeScoreCreateInput, GradeScoreUncheckedCreateInput>
+  }
+
+  /**
+   * GradeScore createMany
+   */
+  export type GradeScoreCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many GradeScores.
+     */
+    data: GradeScoreCreateManyInput | GradeScoreCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GradeScore createManyAndReturn
+   */
+  export type GradeScoreCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradeScore
+     */
+    select?: GradeScoreSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradeScore
+     */
+    omit?: GradeScoreOmit<ExtArgs> | null
+    /**
+     * The data used to create many GradeScores.
+     */
+    data: GradeScoreCreateManyInput | GradeScoreCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradeScoreIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * GradeScore update
+   */
+  export type GradeScoreUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradeScore
+     */
+    select?: GradeScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradeScore
+     */
+    omit?: GradeScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradeScoreInclude<ExtArgs> | null
+    /**
+     * The data needed to update a GradeScore.
+     */
+    data: XOR<GradeScoreUpdateInput, GradeScoreUncheckedUpdateInput>
+    /**
+     * Choose, which GradeScore to update.
+     */
+    where: GradeScoreWhereUniqueInput
+  }
+
+  /**
+   * GradeScore updateMany
+   */
+  export type GradeScoreUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update GradeScores.
+     */
+    data: XOR<GradeScoreUpdateManyMutationInput, GradeScoreUncheckedUpdateManyInput>
+    /**
+     * Filter which GradeScores to update
+     */
+    where?: GradeScoreWhereInput
+    /**
+     * Limit how many GradeScores to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * GradeScore updateManyAndReturn
+   */
+  export type GradeScoreUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradeScore
+     */
+    select?: GradeScoreSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradeScore
+     */
+    omit?: GradeScoreOmit<ExtArgs> | null
+    /**
+     * The data used to update GradeScores.
+     */
+    data: XOR<GradeScoreUpdateManyMutationInput, GradeScoreUncheckedUpdateManyInput>
+    /**
+     * Filter which GradeScores to update
+     */
+    where?: GradeScoreWhereInput
+    /**
+     * Limit how many GradeScores to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradeScoreIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * GradeScore upsert
+   */
+  export type GradeScoreUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradeScore
+     */
+    select?: GradeScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradeScore
+     */
+    omit?: GradeScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradeScoreInclude<ExtArgs> | null
+    /**
+     * The filter to search for the GradeScore to update in case it exists.
+     */
+    where: GradeScoreWhereUniqueInput
+    /**
+     * In case the GradeScore found by the `where` argument doesn't exist, create a new GradeScore with this data.
+     */
+    create: XOR<GradeScoreCreateInput, GradeScoreUncheckedCreateInput>
+    /**
+     * In case the GradeScore was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<GradeScoreUpdateInput, GradeScoreUncheckedUpdateInput>
+  }
+
+  /**
+   * GradeScore delete
+   */
+  export type GradeScoreDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradeScore
+     */
+    select?: GradeScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradeScore
+     */
+    omit?: GradeScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradeScoreInclude<ExtArgs> | null
+    /**
+     * Filter which GradeScore to delete.
+     */
+    where: GradeScoreWhereUniqueInput
+  }
+
+  /**
+   * GradeScore deleteMany
+   */
+  export type GradeScoreDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GradeScores to delete
+     */
+    where?: GradeScoreWhereInput
+    /**
+     * Limit how many GradeScores to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * GradeScore without action
+   */
+  export type GradeScoreDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradeScore
+     */
+    select?: GradeScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GradeScore
+     */
+    omit?: GradeScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradeScoreInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -106435,6 +109123,7 @@ export namespace Prisma {
     studentId: 'studentId',
     termId: 'termId',
     classSubjectId: 'classSubjectId',
+    sheetId: 'sheetId',
     caScore: 'caScore',
     examScore: 'examScore',
     total: 'total',
@@ -107586,6 +110275,41 @@ export namespace Prisma {
   export type AssessmentComponentScalarFieldEnum = (typeof AssessmentComponentScalarFieldEnum)[keyof typeof AssessmentComponentScalarFieldEnum]
 
 
+  export const ResultSheetScalarFieldEnum: {
+    id: 'id',
+    classSubjectId: 'classSubjectId',
+    status: 'status',
+    components: 'components',
+    scale: 'scale',
+    submittedAt: 'submittedAt',
+    submittedById: 'submittedById',
+    approvedAt: 'approvedAt',
+    approvedById: 'approvedById',
+    publishedAt: 'publishedAt',
+    publishedById: 'publishedById',
+    lockedAt: 'lockedAt',
+    lockedById: 'lockedById',
+    reopenedAt: 'reopenedAt',
+    reopenedById: 'reopenedById',
+    reopenReason: 'reopenReason',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ResultSheetScalarFieldEnum = (typeof ResultSheetScalarFieldEnum)[keyof typeof ResultSheetScalarFieldEnum]
+
+
+  export const GradeScoreScalarFieldEnum: {
+    id: 'id',
+    gradeId: 'gradeId',
+    position: 'position',
+    score: 'score',
+    isAbsent: 'isAbsent'
+  };
+
+  export type GradeScoreScalarFieldEnum = (typeof GradeScoreScalarFieldEnum)[keyof typeof GradeScoreScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -108455,6 +111179,20 @@ export namespace Prisma {
    * Reference to a field of type 'AssessmentKind[]'
    */
   export type ListEnumAssessmentKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AssessmentKind[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'ResultSheetStatus'
+   */
+  export type EnumResultSheetStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ResultSheetStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'ResultSheetStatus[]'
+   */
+  export type ListEnumResultSheetStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ResultSheetStatus[]'>
     
   /**
    * Deep Input Types
@@ -109384,6 +112122,7 @@ export namespace Prisma {
     staff?: XOR<StaffScalarRelationFilter, StaffWhereInput>
     term?: XOR<TermScalarRelationFilter, TermWhereInput>
     grades?: GradeListRelationFilter
+    sheet?: XOR<ResultSheetNullableScalarRelationFilter, ResultSheetWhereInput> | null
   }
 
   export type ClassSubjectOrderByWithRelationInput = {
@@ -109400,6 +112139,7 @@ export namespace Prisma {
     staff?: StaffOrderByWithRelationInput
     term?: TermOrderByWithRelationInput
     grades?: GradeOrderByRelationAggregateInput
+    sheet?: ResultSheetOrderByWithRelationInput
   }
 
   export type ClassSubjectWhereUniqueInput = Prisma.AtLeast<{
@@ -109420,6 +112160,7 @@ export namespace Prisma {
     staff?: XOR<StaffScalarRelationFilter, StaffWhereInput>
     term?: XOR<TermScalarRelationFilter, TermWhereInput>
     grades?: GradeListRelationFilter
+    sheet?: XOR<ResultSheetNullableScalarRelationFilter, ResultSheetWhereInput> | null
   }, "id" | "classId_subjectId_termId">
 
   export type ClassSubjectOrderByWithAggregationInput = {
@@ -109799,6 +112540,7 @@ export namespace Prisma {
     studentId?: StringFilter<"Grade"> | string
     termId?: StringFilter<"Grade"> | string
     classSubjectId?: StringFilter<"Grade"> | string
+    sheetId?: StringFilter<"Grade"> | string
     caScore?: FloatNullableFilter<"Grade"> | number | null
     examScore?: FloatNullableFilter<"Grade"> | number | null
     total?: FloatNullableFilter<"Grade"> | number | null
@@ -109812,6 +112554,8 @@ export namespace Prisma {
     student?: XOR<StudentScalarRelationFilter, StudentWhereInput>
     term?: XOR<TermScalarRelationFilter, TermWhereInput>
     classSubject?: XOR<ClassSubjectScalarRelationFilter, ClassSubjectWhereInput>
+    sheet?: XOR<ResultSheetScalarRelationFilter, ResultSheetWhereInput>
+    scores?: GradeScoreListRelationFilter
   }
 
   export type GradeOrderByWithRelationInput = {
@@ -109819,6 +112563,7 @@ export namespace Prisma {
     studentId?: SortOrder
     termId?: SortOrder
     classSubjectId?: SortOrder
+    sheetId?: SortOrder
     caScore?: SortOrderInput | SortOrder
     examScore?: SortOrderInput | SortOrder
     total?: SortOrderInput | SortOrder
@@ -109832,6 +112577,8 @@ export namespace Prisma {
     student?: StudentOrderByWithRelationInput
     term?: TermOrderByWithRelationInput
     classSubject?: ClassSubjectOrderByWithRelationInput
+    sheet?: ResultSheetOrderByWithRelationInput
+    scores?: GradeScoreOrderByRelationAggregateInput
   }
 
   export type GradeWhereUniqueInput = Prisma.AtLeast<{
@@ -109843,6 +112590,7 @@ export namespace Prisma {
     studentId?: StringFilter<"Grade"> | string
     termId?: StringFilter<"Grade"> | string
     classSubjectId?: StringFilter<"Grade"> | string
+    sheetId?: StringFilter<"Grade"> | string
     caScore?: FloatNullableFilter<"Grade"> | number | null
     examScore?: FloatNullableFilter<"Grade"> | number | null
     total?: FloatNullableFilter<"Grade"> | number | null
@@ -109856,6 +112604,8 @@ export namespace Prisma {
     student?: XOR<StudentScalarRelationFilter, StudentWhereInput>
     term?: XOR<TermScalarRelationFilter, TermWhereInput>
     classSubject?: XOR<ClassSubjectScalarRelationFilter, ClassSubjectWhereInput>
+    sheet?: XOR<ResultSheetScalarRelationFilter, ResultSheetWhereInput>
+    scores?: GradeScoreListRelationFilter
   }, "id" | "studentId_termId_classSubjectId">
 
   export type GradeOrderByWithAggregationInput = {
@@ -109863,6 +112613,7 @@ export namespace Prisma {
     studentId?: SortOrder
     termId?: SortOrder
     classSubjectId?: SortOrder
+    sheetId?: SortOrder
     caScore?: SortOrderInput | SortOrder
     examScore?: SortOrderInput | SortOrder
     total?: SortOrderInput | SortOrder
@@ -109888,6 +112639,7 @@ export namespace Prisma {
     studentId?: StringWithAggregatesFilter<"Grade"> | string
     termId?: StringWithAggregatesFilter<"Grade"> | string
     classSubjectId?: StringWithAggregatesFilter<"Grade"> | string
+    sheetId?: StringWithAggregatesFilter<"Grade"> | string
     caScore?: FloatNullableWithAggregatesFilter<"Grade"> | number | null
     examScore?: FloatNullableWithAggregatesFilter<"Grade"> | number | null
     total?: FloatNullableWithAggregatesFilter<"Grade"> | number | null
@@ -116047,6 +118799,187 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"AssessmentComponent"> | Date | string
   }
 
+  export type ResultSheetWhereInput = {
+    AND?: ResultSheetWhereInput | ResultSheetWhereInput[]
+    OR?: ResultSheetWhereInput[]
+    NOT?: ResultSheetWhereInput | ResultSheetWhereInput[]
+    id?: StringFilter<"ResultSheet"> | string
+    classSubjectId?: StringFilter<"ResultSheet"> | string
+    status?: EnumResultSheetStatusFilter<"ResultSheet"> | $Enums.ResultSheetStatus
+    components?: JsonFilter<"ResultSheet">
+    scale?: JsonNullableFilter<"ResultSheet">
+    submittedAt?: DateTimeNullableFilter<"ResultSheet"> | Date | string | null
+    submittedById?: StringNullableFilter<"ResultSheet"> | string | null
+    approvedAt?: DateTimeNullableFilter<"ResultSheet"> | Date | string | null
+    approvedById?: StringNullableFilter<"ResultSheet"> | string | null
+    publishedAt?: DateTimeNullableFilter<"ResultSheet"> | Date | string | null
+    publishedById?: StringNullableFilter<"ResultSheet"> | string | null
+    lockedAt?: DateTimeNullableFilter<"ResultSheet"> | Date | string | null
+    lockedById?: StringNullableFilter<"ResultSheet"> | string | null
+    reopenedAt?: DateTimeNullableFilter<"ResultSheet"> | Date | string | null
+    reopenedById?: StringNullableFilter<"ResultSheet"> | string | null
+    reopenReason?: StringNullableFilter<"ResultSheet"> | string | null
+    createdAt?: DateTimeFilter<"ResultSheet"> | Date | string
+    updatedAt?: DateTimeFilter<"ResultSheet"> | Date | string
+    classSubject?: XOR<ClassSubjectScalarRelationFilter, ClassSubjectWhereInput>
+    grades?: GradeListRelationFilter
+  }
+
+  export type ResultSheetOrderByWithRelationInput = {
+    id?: SortOrder
+    classSubjectId?: SortOrder
+    status?: SortOrder
+    components?: SortOrder
+    scale?: SortOrderInput | SortOrder
+    submittedAt?: SortOrderInput | SortOrder
+    submittedById?: SortOrderInput | SortOrder
+    approvedAt?: SortOrderInput | SortOrder
+    approvedById?: SortOrderInput | SortOrder
+    publishedAt?: SortOrderInput | SortOrder
+    publishedById?: SortOrderInput | SortOrder
+    lockedAt?: SortOrderInput | SortOrder
+    lockedById?: SortOrderInput | SortOrder
+    reopenedAt?: SortOrderInput | SortOrder
+    reopenedById?: SortOrderInput | SortOrder
+    reopenReason?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    classSubject?: ClassSubjectOrderByWithRelationInput
+    grades?: GradeOrderByRelationAggregateInput
+  }
+
+  export type ResultSheetWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    classSubjectId?: string
+    AND?: ResultSheetWhereInput | ResultSheetWhereInput[]
+    OR?: ResultSheetWhereInput[]
+    NOT?: ResultSheetWhereInput | ResultSheetWhereInput[]
+    status?: EnumResultSheetStatusFilter<"ResultSheet"> | $Enums.ResultSheetStatus
+    components?: JsonFilter<"ResultSheet">
+    scale?: JsonNullableFilter<"ResultSheet">
+    submittedAt?: DateTimeNullableFilter<"ResultSheet"> | Date | string | null
+    submittedById?: StringNullableFilter<"ResultSheet"> | string | null
+    approvedAt?: DateTimeNullableFilter<"ResultSheet"> | Date | string | null
+    approvedById?: StringNullableFilter<"ResultSheet"> | string | null
+    publishedAt?: DateTimeNullableFilter<"ResultSheet"> | Date | string | null
+    publishedById?: StringNullableFilter<"ResultSheet"> | string | null
+    lockedAt?: DateTimeNullableFilter<"ResultSheet"> | Date | string | null
+    lockedById?: StringNullableFilter<"ResultSheet"> | string | null
+    reopenedAt?: DateTimeNullableFilter<"ResultSheet"> | Date | string | null
+    reopenedById?: StringNullableFilter<"ResultSheet"> | string | null
+    reopenReason?: StringNullableFilter<"ResultSheet"> | string | null
+    createdAt?: DateTimeFilter<"ResultSheet"> | Date | string
+    updatedAt?: DateTimeFilter<"ResultSheet"> | Date | string
+    classSubject?: XOR<ClassSubjectScalarRelationFilter, ClassSubjectWhereInput>
+    grades?: GradeListRelationFilter
+  }, "id" | "classSubjectId">
+
+  export type ResultSheetOrderByWithAggregationInput = {
+    id?: SortOrder
+    classSubjectId?: SortOrder
+    status?: SortOrder
+    components?: SortOrder
+    scale?: SortOrderInput | SortOrder
+    submittedAt?: SortOrderInput | SortOrder
+    submittedById?: SortOrderInput | SortOrder
+    approvedAt?: SortOrderInput | SortOrder
+    approvedById?: SortOrderInput | SortOrder
+    publishedAt?: SortOrderInput | SortOrder
+    publishedById?: SortOrderInput | SortOrder
+    lockedAt?: SortOrderInput | SortOrder
+    lockedById?: SortOrderInput | SortOrder
+    reopenedAt?: SortOrderInput | SortOrder
+    reopenedById?: SortOrderInput | SortOrder
+    reopenReason?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ResultSheetCountOrderByAggregateInput
+    _max?: ResultSheetMaxOrderByAggregateInput
+    _min?: ResultSheetMinOrderByAggregateInput
+  }
+
+  export type ResultSheetScalarWhereWithAggregatesInput = {
+    AND?: ResultSheetScalarWhereWithAggregatesInput | ResultSheetScalarWhereWithAggregatesInput[]
+    OR?: ResultSheetScalarWhereWithAggregatesInput[]
+    NOT?: ResultSheetScalarWhereWithAggregatesInput | ResultSheetScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ResultSheet"> | string
+    classSubjectId?: StringWithAggregatesFilter<"ResultSheet"> | string
+    status?: EnumResultSheetStatusWithAggregatesFilter<"ResultSheet"> | $Enums.ResultSheetStatus
+    components?: JsonWithAggregatesFilter<"ResultSheet">
+    scale?: JsonNullableWithAggregatesFilter<"ResultSheet">
+    submittedAt?: DateTimeNullableWithAggregatesFilter<"ResultSheet"> | Date | string | null
+    submittedById?: StringNullableWithAggregatesFilter<"ResultSheet"> | string | null
+    approvedAt?: DateTimeNullableWithAggregatesFilter<"ResultSheet"> | Date | string | null
+    approvedById?: StringNullableWithAggregatesFilter<"ResultSheet"> | string | null
+    publishedAt?: DateTimeNullableWithAggregatesFilter<"ResultSheet"> | Date | string | null
+    publishedById?: StringNullableWithAggregatesFilter<"ResultSheet"> | string | null
+    lockedAt?: DateTimeNullableWithAggregatesFilter<"ResultSheet"> | Date | string | null
+    lockedById?: StringNullableWithAggregatesFilter<"ResultSheet"> | string | null
+    reopenedAt?: DateTimeNullableWithAggregatesFilter<"ResultSheet"> | Date | string | null
+    reopenedById?: StringNullableWithAggregatesFilter<"ResultSheet"> | string | null
+    reopenReason?: StringNullableWithAggregatesFilter<"ResultSheet"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"ResultSheet"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ResultSheet"> | Date | string
+  }
+
+  export type GradeScoreWhereInput = {
+    AND?: GradeScoreWhereInput | GradeScoreWhereInput[]
+    OR?: GradeScoreWhereInput[]
+    NOT?: GradeScoreWhereInput | GradeScoreWhereInput[]
+    id?: StringFilter<"GradeScore"> | string
+    gradeId?: StringFilter<"GradeScore"> | string
+    position?: IntFilter<"GradeScore"> | number
+    score?: FloatNullableFilter<"GradeScore"> | number | null
+    isAbsent?: BoolFilter<"GradeScore"> | boolean
+    grade?: XOR<GradeScalarRelationFilter, GradeWhereInput>
+  }
+
+  export type GradeScoreOrderByWithRelationInput = {
+    id?: SortOrder
+    gradeId?: SortOrder
+    position?: SortOrder
+    score?: SortOrderInput | SortOrder
+    isAbsent?: SortOrder
+    grade?: GradeOrderByWithRelationInput
+  }
+
+  export type GradeScoreWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    gradeId_position?: GradeScoreGradeIdPositionCompoundUniqueInput
+    AND?: GradeScoreWhereInput | GradeScoreWhereInput[]
+    OR?: GradeScoreWhereInput[]
+    NOT?: GradeScoreWhereInput | GradeScoreWhereInput[]
+    gradeId?: StringFilter<"GradeScore"> | string
+    position?: IntFilter<"GradeScore"> | number
+    score?: FloatNullableFilter<"GradeScore"> | number | null
+    isAbsent?: BoolFilter<"GradeScore"> | boolean
+    grade?: XOR<GradeScalarRelationFilter, GradeWhereInput>
+  }, "id" | "gradeId_position">
+
+  export type GradeScoreOrderByWithAggregationInput = {
+    id?: SortOrder
+    gradeId?: SortOrder
+    position?: SortOrder
+    score?: SortOrderInput | SortOrder
+    isAbsent?: SortOrder
+    _count?: GradeScoreCountOrderByAggregateInput
+    _avg?: GradeScoreAvgOrderByAggregateInput
+    _max?: GradeScoreMaxOrderByAggregateInput
+    _min?: GradeScoreMinOrderByAggregateInput
+    _sum?: GradeScoreSumOrderByAggregateInput
+  }
+
+  export type GradeScoreScalarWhereWithAggregatesInput = {
+    AND?: GradeScoreScalarWhereWithAggregatesInput | GradeScoreScalarWhereWithAggregatesInput[]
+    OR?: GradeScoreScalarWhereWithAggregatesInput[]
+    NOT?: GradeScoreScalarWhereWithAggregatesInput | GradeScoreScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"GradeScore"> | string
+    gradeId?: StringWithAggregatesFilter<"GradeScore"> | string
+    position?: IntWithAggregatesFilter<"GradeScore"> | number
+    score?: FloatNullableWithAggregatesFilter<"GradeScore"> | number | null
+    isAbsent?: BoolWithAggregatesFilter<"GradeScore"> | boolean
+  }
+
   export type StaffCreateInput = {
     id?: string
     userId?: string | null
@@ -117126,6 +120059,7 @@ export namespace Prisma {
     staff: StaffCreateNestedOneWithoutClassSubjectsInput
     term: TermCreateNestedOneWithoutClassSubjectsInput
     grades?: GradeCreateNestedManyWithoutClassSubjectInput
+    sheet?: ResultSheetCreateNestedOneWithoutClassSubjectInput
   }
 
   export type ClassSubjectUncheckedCreateInput = {
@@ -117138,6 +120072,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     grades?: GradeUncheckedCreateNestedManyWithoutClassSubjectInput
+    sheet?: ResultSheetUncheckedCreateNestedOneWithoutClassSubjectInput
   }
 
   export type ClassSubjectUpdateInput = {
@@ -117150,6 +120085,7 @@ export namespace Prisma {
     staff?: StaffUpdateOneRequiredWithoutClassSubjectsNestedInput
     term?: TermUpdateOneRequiredWithoutClassSubjectsNestedInput
     grades?: GradeUpdateManyWithoutClassSubjectNestedInput
+    sheet?: ResultSheetUpdateOneWithoutClassSubjectNestedInput
   }
 
   export type ClassSubjectUncheckedUpdateInput = {
@@ -117162,6 +120098,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     grades?: GradeUncheckedUpdateManyWithoutClassSubjectNestedInput
+    sheet?: ResultSheetUncheckedUpdateOneWithoutClassSubjectNestedInput
   }
 
   export type ClassSubjectCreateManyInput = {
@@ -117571,6 +120508,8 @@ export namespace Prisma {
     student: StudentCreateNestedOneWithoutGradesInput
     term: TermCreateNestedOneWithoutGradesInput
     classSubject: ClassSubjectCreateNestedOneWithoutGradesInput
+    sheet: ResultSheetCreateNestedOneWithoutGradesInput
+    scores?: GradeScoreCreateNestedManyWithoutGradeInput
   }
 
   export type GradeUncheckedCreateInput = {
@@ -117578,6 +120517,7 @@ export namespace Prisma {
     studentId: string
     termId: string
     classSubjectId: string
+    sheetId: string
     caScore?: number | null
     examScore?: number | null
     total?: number | null
@@ -117588,6 +120528,7 @@ export namespace Prisma {
     isPublished?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    scores?: GradeScoreUncheckedCreateNestedManyWithoutGradeInput
   }
 
   export type GradeUpdateInput = {
@@ -117605,6 +120546,8 @@ export namespace Prisma {
     student?: StudentUpdateOneRequiredWithoutGradesNestedInput
     term?: TermUpdateOneRequiredWithoutGradesNestedInput
     classSubject?: ClassSubjectUpdateOneRequiredWithoutGradesNestedInput
+    sheet?: ResultSheetUpdateOneRequiredWithoutGradesNestedInput
+    scores?: GradeScoreUpdateManyWithoutGradeNestedInput
   }
 
   export type GradeUncheckedUpdateInput = {
@@ -117612,6 +120555,7 @@ export namespace Prisma {
     studentId?: StringFieldUpdateOperationsInput | string
     termId?: StringFieldUpdateOperationsInput | string
     classSubjectId?: StringFieldUpdateOperationsInput | string
+    sheetId?: StringFieldUpdateOperationsInput | string
     caScore?: NullableFloatFieldUpdateOperationsInput | number | null
     examScore?: NullableFloatFieldUpdateOperationsInput | number | null
     total?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -117622,6 +120566,7 @@ export namespace Prisma {
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    scores?: GradeScoreUncheckedUpdateManyWithoutGradeNestedInput
   }
 
   export type GradeCreateManyInput = {
@@ -117629,6 +120574,7 @@ export namespace Prisma {
     studentId: string
     termId: string
     classSubjectId: string
+    sheetId: string
     caScore?: number | null
     examScore?: number | null
     total?: number | null
@@ -117660,6 +120606,7 @@ export namespace Prisma {
     studentId?: StringFieldUpdateOperationsInput | string
     termId?: StringFieldUpdateOperationsInput | string
     classSubjectId?: StringFieldUpdateOperationsInput | string
+    sheetId?: StringFieldUpdateOperationsInput | string
     caScore?: NullableFloatFieldUpdateOperationsInput | number | null
     examScore?: NullableFloatFieldUpdateOperationsInput | number | null
     total?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -124534,6 +127481,211 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ResultSheetCreateInput = {
+    id?: string
+    status?: $Enums.ResultSheetStatus
+    components: JsonNullValueInput | InputJsonValue
+    scale?: NullableJsonNullValueInput | InputJsonValue
+    submittedAt?: Date | string | null
+    submittedById?: string | null
+    approvedAt?: Date | string | null
+    approvedById?: string | null
+    publishedAt?: Date | string | null
+    publishedById?: string | null
+    lockedAt?: Date | string | null
+    lockedById?: string | null
+    reopenedAt?: Date | string | null
+    reopenedById?: string | null
+    reopenReason?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    classSubject: ClassSubjectCreateNestedOneWithoutSheetInput
+    grades?: GradeCreateNestedManyWithoutSheetInput
+  }
+
+  export type ResultSheetUncheckedCreateInput = {
+    id?: string
+    classSubjectId: string
+    status?: $Enums.ResultSheetStatus
+    components: JsonNullValueInput | InputJsonValue
+    scale?: NullableJsonNullValueInput | InputJsonValue
+    submittedAt?: Date | string | null
+    submittedById?: string | null
+    approvedAt?: Date | string | null
+    approvedById?: string | null
+    publishedAt?: Date | string | null
+    publishedById?: string | null
+    lockedAt?: Date | string | null
+    lockedById?: string | null
+    reopenedAt?: Date | string | null
+    reopenedById?: string | null
+    reopenReason?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    grades?: GradeUncheckedCreateNestedManyWithoutSheetInput
+  }
+
+  export type ResultSheetUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumResultSheetStatusFieldUpdateOperationsInput | $Enums.ResultSheetStatus
+    components?: JsonNullValueInput | InputJsonValue
+    scale?: NullableJsonNullValueInput | InputJsonValue
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    submittedById?: NullableStringFieldUpdateOperationsInput | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedById?: NullableStringFieldUpdateOperationsInput | string | null
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    publishedById?: NullableStringFieldUpdateOperationsInput | string | null
+    lockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lockedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reopenedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reopenedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reopenReason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    classSubject?: ClassSubjectUpdateOneRequiredWithoutSheetNestedInput
+    grades?: GradeUpdateManyWithoutSheetNestedInput
+  }
+
+  export type ResultSheetUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    classSubjectId?: StringFieldUpdateOperationsInput | string
+    status?: EnumResultSheetStatusFieldUpdateOperationsInput | $Enums.ResultSheetStatus
+    components?: JsonNullValueInput | InputJsonValue
+    scale?: NullableJsonNullValueInput | InputJsonValue
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    submittedById?: NullableStringFieldUpdateOperationsInput | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedById?: NullableStringFieldUpdateOperationsInput | string | null
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    publishedById?: NullableStringFieldUpdateOperationsInput | string | null
+    lockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lockedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reopenedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reopenedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reopenReason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    grades?: GradeUncheckedUpdateManyWithoutSheetNestedInput
+  }
+
+  export type ResultSheetCreateManyInput = {
+    id?: string
+    classSubjectId: string
+    status?: $Enums.ResultSheetStatus
+    components: JsonNullValueInput | InputJsonValue
+    scale?: NullableJsonNullValueInput | InputJsonValue
+    submittedAt?: Date | string | null
+    submittedById?: string | null
+    approvedAt?: Date | string | null
+    approvedById?: string | null
+    publishedAt?: Date | string | null
+    publishedById?: string | null
+    lockedAt?: Date | string | null
+    lockedById?: string | null
+    reopenedAt?: Date | string | null
+    reopenedById?: string | null
+    reopenReason?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ResultSheetUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumResultSheetStatusFieldUpdateOperationsInput | $Enums.ResultSheetStatus
+    components?: JsonNullValueInput | InputJsonValue
+    scale?: NullableJsonNullValueInput | InputJsonValue
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    submittedById?: NullableStringFieldUpdateOperationsInput | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedById?: NullableStringFieldUpdateOperationsInput | string | null
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    publishedById?: NullableStringFieldUpdateOperationsInput | string | null
+    lockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lockedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reopenedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reopenedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reopenReason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ResultSheetUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    classSubjectId?: StringFieldUpdateOperationsInput | string
+    status?: EnumResultSheetStatusFieldUpdateOperationsInput | $Enums.ResultSheetStatus
+    components?: JsonNullValueInput | InputJsonValue
+    scale?: NullableJsonNullValueInput | InputJsonValue
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    submittedById?: NullableStringFieldUpdateOperationsInput | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedById?: NullableStringFieldUpdateOperationsInput | string | null
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    publishedById?: NullableStringFieldUpdateOperationsInput | string | null
+    lockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lockedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reopenedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reopenedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reopenReason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GradeScoreCreateInput = {
+    id?: string
+    position: number
+    score?: number | null
+    isAbsent?: boolean
+    grade: GradeCreateNestedOneWithoutScoresInput
+  }
+
+  export type GradeScoreUncheckedCreateInput = {
+    id?: string
+    gradeId: string
+    position: number
+    score?: number | null
+    isAbsent?: boolean
+  }
+
+  export type GradeScoreUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    position?: IntFieldUpdateOperationsInput | number
+    score?: NullableFloatFieldUpdateOperationsInput | number | null
+    isAbsent?: BoolFieldUpdateOperationsInput | boolean
+    grade?: GradeUpdateOneRequiredWithoutScoresNestedInput
+  }
+
+  export type GradeScoreUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    gradeId?: StringFieldUpdateOperationsInput | string
+    position?: IntFieldUpdateOperationsInput | number
+    score?: NullableFloatFieldUpdateOperationsInput | number | null
+    isAbsent?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type GradeScoreCreateManyInput = {
+    id?: string
+    gradeId: string
+    position: number
+    score?: number | null
+    isAbsent?: boolean
+  }
+
+  export type GradeScoreUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    position?: IntFieldUpdateOperationsInput | number
+    score?: NullableFloatFieldUpdateOperationsInput | number | null
+    isAbsent?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type GradeScoreUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    gradeId?: StringFieldUpdateOperationsInput | string
+    position?: IntFieldUpdateOperationsInput | number
+    score?: NullableFloatFieldUpdateOperationsInput | number | null
+    isAbsent?: BoolFieldUpdateOperationsInput | boolean
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -125470,6 +128622,11 @@ export namespace Prisma {
     isNot?: TermWhereInput
   }
 
+  export type ResultSheetNullableScalarRelationFilter = {
+    is?: ResultSheetWhereInput | null
+    isNot?: ResultSheetWhereInput | null
+  }
+
   export type ClassSubjectClassIdSubjectIdTermIdCompoundUniqueInput = {
     classId: string
     subjectId: string
@@ -125772,6 +128929,21 @@ export namespace Prisma {
     isNot?: ClassSubjectWhereInput
   }
 
+  export type ResultSheetScalarRelationFilter = {
+    is?: ResultSheetWhereInput
+    isNot?: ResultSheetWhereInput
+  }
+
+  export type GradeScoreListRelationFilter = {
+    every?: GradeScoreWhereInput
+    some?: GradeScoreWhereInput
+    none?: GradeScoreWhereInput
+  }
+
+  export type GradeScoreOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type GradeStudentIdTermIdClassSubjectIdCompoundUniqueInput = {
     studentId: string
     termId: string
@@ -125783,6 +128955,7 @@ export namespace Prisma {
     studentId?: SortOrder
     termId?: SortOrder
     classSubjectId?: SortOrder
+    sheetId?: SortOrder
     caScore?: SortOrder
     examScore?: SortOrder
     total?: SortOrder
@@ -125808,6 +128981,7 @@ export namespace Prisma {
     studentId?: SortOrder
     termId?: SortOrder
     classSubjectId?: SortOrder
+    sheetId?: SortOrder
     caScore?: SortOrder
     examScore?: SortOrder
     total?: SortOrder
@@ -125825,6 +128999,7 @@ export namespace Prisma {
     studentId?: SortOrder
     termId?: SortOrder
     classSubjectId?: SortOrder
+    sheetId?: SortOrder
     caScore?: SortOrder
     examScore?: SortOrder
     total?: SortOrder
@@ -130750,6 +133925,126 @@ export namespace Prisma {
     _max?: NestedEnumAssessmentKindFilter<$PrismaModel>
   }
 
+  export type EnumResultSheetStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.ResultSheetStatus | EnumResultSheetStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ResultSheetStatus[] | ListEnumResultSheetStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ResultSheetStatus[] | ListEnumResultSheetStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumResultSheetStatusFilter<$PrismaModel> | $Enums.ResultSheetStatus
+  }
+
+  export type ResultSheetCountOrderByAggregateInput = {
+    id?: SortOrder
+    classSubjectId?: SortOrder
+    status?: SortOrder
+    components?: SortOrder
+    scale?: SortOrder
+    submittedAt?: SortOrder
+    submittedById?: SortOrder
+    approvedAt?: SortOrder
+    approvedById?: SortOrder
+    publishedAt?: SortOrder
+    publishedById?: SortOrder
+    lockedAt?: SortOrder
+    lockedById?: SortOrder
+    reopenedAt?: SortOrder
+    reopenedById?: SortOrder
+    reopenReason?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ResultSheetMaxOrderByAggregateInput = {
+    id?: SortOrder
+    classSubjectId?: SortOrder
+    status?: SortOrder
+    submittedAt?: SortOrder
+    submittedById?: SortOrder
+    approvedAt?: SortOrder
+    approvedById?: SortOrder
+    publishedAt?: SortOrder
+    publishedById?: SortOrder
+    lockedAt?: SortOrder
+    lockedById?: SortOrder
+    reopenedAt?: SortOrder
+    reopenedById?: SortOrder
+    reopenReason?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ResultSheetMinOrderByAggregateInput = {
+    id?: SortOrder
+    classSubjectId?: SortOrder
+    status?: SortOrder
+    submittedAt?: SortOrder
+    submittedById?: SortOrder
+    approvedAt?: SortOrder
+    approvedById?: SortOrder
+    publishedAt?: SortOrder
+    publishedById?: SortOrder
+    lockedAt?: SortOrder
+    lockedById?: SortOrder
+    reopenedAt?: SortOrder
+    reopenedById?: SortOrder
+    reopenReason?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EnumResultSheetStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ResultSheetStatus | EnumResultSheetStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ResultSheetStatus[] | ListEnumResultSheetStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ResultSheetStatus[] | ListEnumResultSheetStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumResultSheetStatusWithAggregatesFilter<$PrismaModel> | $Enums.ResultSheetStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumResultSheetStatusFilter<$PrismaModel>
+    _max?: NestedEnumResultSheetStatusFilter<$PrismaModel>
+  }
+
+  export type GradeScalarRelationFilter = {
+    is?: GradeWhereInput
+    isNot?: GradeWhereInput
+  }
+
+  export type GradeScoreGradeIdPositionCompoundUniqueInput = {
+    gradeId: string
+    position: number
+  }
+
+  export type GradeScoreCountOrderByAggregateInput = {
+    id?: SortOrder
+    gradeId?: SortOrder
+    position?: SortOrder
+    score?: SortOrder
+    isAbsent?: SortOrder
+  }
+
+  export type GradeScoreAvgOrderByAggregateInput = {
+    position?: SortOrder
+    score?: SortOrder
+  }
+
+  export type GradeScoreMaxOrderByAggregateInput = {
+    id?: SortOrder
+    gradeId?: SortOrder
+    position?: SortOrder
+    score?: SortOrder
+    isAbsent?: SortOrder
+  }
+
+  export type GradeScoreMinOrderByAggregateInput = {
+    id?: SortOrder
+    gradeId?: SortOrder
+    position?: SortOrder
+    score?: SortOrder
+    isAbsent?: SortOrder
+  }
+
+  export type GradeScoreSumOrderByAggregateInput = {
+    position?: SortOrder
+    score?: SortOrder
+  }
+
   export type ClassSubjectCreateNestedManyWithoutStaffInput = {
     create?: XOR<ClassSubjectCreateWithoutStaffInput, ClassSubjectUncheckedCreateWithoutStaffInput> | ClassSubjectCreateWithoutStaffInput[] | ClassSubjectUncheckedCreateWithoutStaffInput[]
     connectOrCreate?: ClassSubjectCreateOrConnectWithoutStaffInput | ClassSubjectCreateOrConnectWithoutStaffInput[]
@@ -132539,11 +135834,23 @@ export namespace Prisma {
     connect?: GradeWhereUniqueInput | GradeWhereUniqueInput[]
   }
 
+  export type ResultSheetCreateNestedOneWithoutClassSubjectInput = {
+    create?: XOR<ResultSheetCreateWithoutClassSubjectInput, ResultSheetUncheckedCreateWithoutClassSubjectInput>
+    connectOrCreate?: ResultSheetCreateOrConnectWithoutClassSubjectInput
+    connect?: ResultSheetWhereUniqueInput
+  }
+
   export type GradeUncheckedCreateNestedManyWithoutClassSubjectInput = {
     create?: XOR<GradeCreateWithoutClassSubjectInput, GradeUncheckedCreateWithoutClassSubjectInput> | GradeCreateWithoutClassSubjectInput[] | GradeUncheckedCreateWithoutClassSubjectInput[]
     connectOrCreate?: GradeCreateOrConnectWithoutClassSubjectInput | GradeCreateOrConnectWithoutClassSubjectInput[]
     createMany?: GradeCreateManyClassSubjectInputEnvelope
     connect?: GradeWhereUniqueInput | GradeWhereUniqueInput[]
+  }
+
+  export type ResultSheetUncheckedCreateNestedOneWithoutClassSubjectInput = {
+    create?: XOR<ResultSheetCreateWithoutClassSubjectInput, ResultSheetUncheckedCreateWithoutClassSubjectInput>
+    connectOrCreate?: ResultSheetCreateOrConnectWithoutClassSubjectInput
+    connect?: ResultSheetWhereUniqueInput
   }
 
   export type EnumClassSubjectAssignmentSourceFieldUpdateOperationsInput = {
@@ -132596,6 +135903,16 @@ export namespace Prisma {
     deleteMany?: GradeScalarWhereInput | GradeScalarWhereInput[]
   }
 
+  export type ResultSheetUpdateOneWithoutClassSubjectNestedInput = {
+    create?: XOR<ResultSheetCreateWithoutClassSubjectInput, ResultSheetUncheckedCreateWithoutClassSubjectInput>
+    connectOrCreate?: ResultSheetCreateOrConnectWithoutClassSubjectInput
+    upsert?: ResultSheetUpsertWithoutClassSubjectInput
+    disconnect?: ResultSheetWhereInput | boolean
+    delete?: ResultSheetWhereInput | boolean
+    connect?: ResultSheetWhereUniqueInput
+    update?: XOR<XOR<ResultSheetUpdateToOneWithWhereWithoutClassSubjectInput, ResultSheetUpdateWithoutClassSubjectInput>, ResultSheetUncheckedUpdateWithoutClassSubjectInput>
+  }
+
   export type GradeUncheckedUpdateManyWithoutClassSubjectNestedInput = {
     create?: XOR<GradeCreateWithoutClassSubjectInput, GradeUncheckedCreateWithoutClassSubjectInput> | GradeCreateWithoutClassSubjectInput[] | GradeUncheckedCreateWithoutClassSubjectInput[]
     connectOrCreate?: GradeCreateOrConnectWithoutClassSubjectInput | GradeCreateOrConnectWithoutClassSubjectInput[]
@@ -132608,6 +135925,16 @@ export namespace Prisma {
     update?: GradeUpdateWithWhereUniqueWithoutClassSubjectInput | GradeUpdateWithWhereUniqueWithoutClassSubjectInput[]
     updateMany?: GradeUpdateManyWithWhereWithoutClassSubjectInput | GradeUpdateManyWithWhereWithoutClassSubjectInput[]
     deleteMany?: GradeScalarWhereInput | GradeScalarWhereInput[]
+  }
+
+  export type ResultSheetUncheckedUpdateOneWithoutClassSubjectNestedInput = {
+    create?: XOR<ResultSheetCreateWithoutClassSubjectInput, ResultSheetUncheckedCreateWithoutClassSubjectInput>
+    connectOrCreate?: ResultSheetCreateOrConnectWithoutClassSubjectInput
+    upsert?: ResultSheetUpsertWithoutClassSubjectInput
+    disconnect?: ResultSheetWhereInput | boolean
+    delete?: ResultSheetWhereInput | boolean
+    connect?: ResultSheetWhereUniqueInput
+    update?: XOR<XOR<ResultSheetUpdateToOneWithWhereWithoutClassSubjectInput, ResultSheetUpdateWithoutClassSubjectInput>, ResultSheetUncheckedUpdateWithoutClassSubjectInput>
   }
 
   export type StudentCreateNestedOneWithoutEnrolmentsInput = {
@@ -132756,6 +136083,26 @@ export namespace Prisma {
     connect?: ClassSubjectWhereUniqueInput
   }
 
+  export type ResultSheetCreateNestedOneWithoutGradesInput = {
+    create?: XOR<ResultSheetCreateWithoutGradesInput, ResultSheetUncheckedCreateWithoutGradesInput>
+    connectOrCreate?: ResultSheetCreateOrConnectWithoutGradesInput
+    connect?: ResultSheetWhereUniqueInput
+  }
+
+  export type GradeScoreCreateNestedManyWithoutGradeInput = {
+    create?: XOR<GradeScoreCreateWithoutGradeInput, GradeScoreUncheckedCreateWithoutGradeInput> | GradeScoreCreateWithoutGradeInput[] | GradeScoreUncheckedCreateWithoutGradeInput[]
+    connectOrCreate?: GradeScoreCreateOrConnectWithoutGradeInput | GradeScoreCreateOrConnectWithoutGradeInput[]
+    createMany?: GradeScoreCreateManyGradeInputEnvelope
+    connect?: GradeScoreWhereUniqueInput | GradeScoreWhereUniqueInput[]
+  }
+
+  export type GradeScoreUncheckedCreateNestedManyWithoutGradeInput = {
+    create?: XOR<GradeScoreCreateWithoutGradeInput, GradeScoreUncheckedCreateWithoutGradeInput> | GradeScoreCreateWithoutGradeInput[] | GradeScoreUncheckedCreateWithoutGradeInput[]
+    connectOrCreate?: GradeScoreCreateOrConnectWithoutGradeInput | GradeScoreCreateOrConnectWithoutGradeInput[]
+    createMany?: GradeScoreCreateManyGradeInputEnvelope
+    connect?: GradeScoreWhereUniqueInput | GradeScoreWhereUniqueInput[]
+  }
+
   export type NullableFloatFieldUpdateOperationsInput = {
     set?: number | null
     increment?: number
@@ -132786,6 +136133,42 @@ export namespace Prisma {
     upsert?: ClassSubjectUpsertWithoutGradesInput
     connect?: ClassSubjectWhereUniqueInput
     update?: XOR<XOR<ClassSubjectUpdateToOneWithWhereWithoutGradesInput, ClassSubjectUpdateWithoutGradesInput>, ClassSubjectUncheckedUpdateWithoutGradesInput>
+  }
+
+  export type ResultSheetUpdateOneRequiredWithoutGradesNestedInput = {
+    create?: XOR<ResultSheetCreateWithoutGradesInput, ResultSheetUncheckedCreateWithoutGradesInput>
+    connectOrCreate?: ResultSheetCreateOrConnectWithoutGradesInput
+    upsert?: ResultSheetUpsertWithoutGradesInput
+    connect?: ResultSheetWhereUniqueInput
+    update?: XOR<XOR<ResultSheetUpdateToOneWithWhereWithoutGradesInput, ResultSheetUpdateWithoutGradesInput>, ResultSheetUncheckedUpdateWithoutGradesInput>
+  }
+
+  export type GradeScoreUpdateManyWithoutGradeNestedInput = {
+    create?: XOR<GradeScoreCreateWithoutGradeInput, GradeScoreUncheckedCreateWithoutGradeInput> | GradeScoreCreateWithoutGradeInput[] | GradeScoreUncheckedCreateWithoutGradeInput[]
+    connectOrCreate?: GradeScoreCreateOrConnectWithoutGradeInput | GradeScoreCreateOrConnectWithoutGradeInput[]
+    upsert?: GradeScoreUpsertWithWhereUniqueWithoutGradeInput | GradeScoreUpsertWithWhereUniqueWithoutGradeInput[]
+    createMany?: GradeScoreCreateManyGradeInputEnvelope
+    set?: GradeScoreWhereUniqueInput | GradeScoreWhereUniqueInput[]
+    disconnect?: GradeScoreWhereUniqueInput | GradeScoreWhereUniqueInput[]
+    delete?: GradeScoreWhereUniqueInput | GradeScoreWhereUniqueInput[]
+    connect?: GradeScoreWhereUniqueInput | GradeScoreWhereUniqueInput[]
+    update?: GradeScoreUpdateWithWhereUniqueWithoutGradeInput | GradeScoreUpdateWithWhereUniqueWithoutGradeInput[]
+    updateMany?: GradeScoreUpdateManyWithWhereWithoutGradeInput | GradeScoreUpdateManyWithWhereWithoutGradeInput[]
+    deleteMany?: GradeScoreScalarWhereInput | GradeScoreScalarWhereInput[]
+  }
+
+  export type GradeScoreUncheckedUpdateManyWithoutGradeNestedInput = {
+    create?: XOR<GradeScoreCreateWithoutGradeInput, GradeScoreUncheckedCreateWithoutGradeInput> | GradeScoreCreateWithoutGradeInput[] | GradeScoreUncheckedCreateWithoutGradeInput[]
+    connectOrCreate?: GradeScoreCreateOrConnectWithoutGradeInput | GradeScoreCreateOrConnectWithoutGradeInput[]
+    upsert?: GradeScoreUpsertWithWhereUniqueWithoutGradeInput | GradeScoreUpsertWithWhereUniqueWithoutGradeInput[]
+    createMany?: GradeScoreCreateManyGradeInputEnvelope
+    set?: GradeScoreWhereUniqueInput | GradeScoreWhereUniqueInput[]
+    disconnect?: GradeScoreWhereUniqueInput | GradeScoreWhereUniqueInput[]
+    delete?: GradeScoreWhereUniqueInput | GradeScoreWhereUniqueInput[]
+    connect?: GradeScoreWhereUniqueInput | GradeScoreWhereUniqueInput[]
+    update?: GradeScoreUpdateWithWhereUniqueWithoutGradeInput | GradeScoreUpdateWithWhereUniqueWithoutGradeInput[]
+    updateMany?: GradeScoreUpdateManyWithWhereWithoutGradeInput | GradeScoreUpdateManyWithWhereWithoutGradeInput[]
+    deleteMany?: GradeScoreScalarWhereInput | GradeScoreScalarWhereInput[]
   }
 
   export type FloatFieldUpdateOperationsInput = {
@@ -137786,6 +141169,80 @@ export namespace Prisma {
     update?: XOR<XOR<AssessmentSchemeUpdateToOneWithWhereWithoutComponentsInput, AssessmentSchemeUpdateWithoutComponentsInput>, AssessmentSchemeUncheckedUpdateWithoutComponentsInput>
   }
 
+  export type ClassSubjectCreateNestedOneWithoutSheetInput = {
+    create?: XOR<ClassSubjectCreateWithoutSheetInput, ClassSubjectUncheckedCreateWithoutSheetInput>
+    connectOrCreate?: ClassSubjectCreateOrConnectWithoutSheetInput
+    connect?: ClassSubjectWhereUniqueInput
+  }
+
+  export type GradeCreateNestedManyWithoutSheetInput = {
+    create?: XOR<GradeCreateWithoutSheetInput, GradeUncheckedCreateWithoutSheetInput> | GradeCreateWithoutSheetInput[] | GradeUncheckedCreateWithoutSheetInput[]
+    connectOrCreate?: GradeCreateOrConnectWithoutSheetInput | GradeCreateOrConnectWithoutSheetInput[]
+    createMany?: GradeCreateManySheetInputEnvelope
+    connect?: GradeWhereUniqueInput | GradeWhereUniqueInput[]
+  }
+
+  export type GradeUncheckedCreateNestedManyWithoutSheetInput = {
+    create?: XOR<GradeCreateWithoutSheetInput, GradeUncheckedCreateWithoutSheetInput> | GradeCreateWithoutSheetInput[] | GradeUncheckedCreateWithoutSheetInput[]
+    connectOrCreate?: GradeCreateOrConnectWithoutSheetInput | GradeCreateOrConnectWithoutSheetInput[]
+    createMany?: GradeCreateManySheetInputEnvelope
+    connect?: GradeWhereUniqueInput | GradeWhereUniqueInput[]
+  }
+
+  export type EnumResultSheetStatusFieldUpdateOperationsInput = {
+    set?: $Enums.ResultSheetStatus
+  }
+
+  export type ClassSubjectUpdateOneRequiredWithoutSheetNestedInput = {
+    create?: XOR<ClassSubjectCreateWithoutSheetInput, ClassSubjectUncheckedCreateWithoutSheetInput>
+    connectOrCreate?: ClassSubjectCreateOrConnectWithoutSheetInput
+    upsert?: ClassSubjectUpsertWithoutSheetInput
+    connect?: ClassSubjectWhereUniqueInput
+    update?: XOR<XOR<ClassSubjectUpdateToOneWithWhereWithoutSheetInput, ClassSubjectUpdateWithoutSheetInput>, ClassSubjectUncheckedUpdateWithoutSheetInput>
+  }
+
+  export type GradeUpdateManyWithoutSheetNestedInput = {
+    create?: XOR<GradeCreateWithoutSheetInput, GradeUncheckedCreateWithoutSheetInput> | GradeCreateWithoutSheetInput[] | GradeUncheckedCreateWithoutSheetInput[]
+    connectOrCreate?: GradeCreateOrConnectWithoutSheetInput | GradeCreateOrConnectWithoutSheetInput[]
+    upsert?: GradeUpsertWithWhereUniqueWithoutSheetInput | GradeUpsertWithWhereUniqueWithoutSheetInput[]
+    createMany?: GradeCreateManySheetInputEnvelope
+    set?: GradeWhereUniqueInput | GradeWhereUniqueInput[]
+    disconnect?: GradeWhereUniqueInput | GradeWhereUniqueInput[]
+    delete?: GradeWhereUniqueInput | GradeWhereUniqueInput[]
+    connect?: GradeWhereUniqueInput | GradeWhereUniqueInput[]
+    update?: GradeUpdateWithWhereUniqueWithoutSheetInput | GradeUpdateWithWhereUniqueWithoutSheetInput[]
+    updateMany?: GradeUpdateManyWithWhereWithoutSheetInput | GradeUpdateManyWithWhereWithoutSheetInput[]
+    deleteMany?: GradeScalarWhereInput | GradeScalarWhereInput[]
+  }
+
+  export type GradeUncheckedUpdateManyWithoutSheetNestedInput = {
+    create?: XOR<GradeCreateWithoutSheetInput, GradeUncheckedCreateWithoutSheetInput> | GradeCreateWithoutSheetInput[] | GradeUncheckedCreateWithoutSheetInput[]
+    connectOrCreate?: GradeCreateOrConnectWithoutSheetInput | GradeCreateOrConnectWithoutSheetInput[]
+    upsert?: GradeUpsertWithWhereUniqueWithoutSheetInput | GradeUpsertWithWhereUniqueWithoutSheetInput[]
+    createMany?: GradeCreateManySheetInputEnvelope
+    set?: GradeWhereUniqueInput | GradeWhereUniqueInput[]
+    disconnect?: GradeWhereUniqueInput | GradeWhereUniqueInput[]
+    delete?: GradeWhereUniqueInput | GradeWhereUniqueInput[]
+    connect?: GradeWhereUniqueInput | GradeWhereUniqueInput[]
+    update?: GradeUpdateWithWhereUniqueWithoutSheetInput | GradeUpdateWithWhereUniqueWithoutSheetInput[]
+    updateMany?: GradeUpdateManyWithWhereWithoutSheetInput | GradeUpdateManyWithWhereWithoutSheetInput[]
+    deleteMany?: GradeScalarWhereInput | GradeScalarWhereInput[]
+  }
+
+  export type GradeCreateNestedOneWithoutScoresInput = {
+    create?: XOR<GradeCreateWithoutScoresInput, GradeUncheckedCreateWithoutScoresInput>
+    connectOrCreate?: GradeCreateOrConnectWithoutScoresInput
+    connect?: GradeWhereUniqueInput
+  }
+
+  export type GradeUpdateOneRequiredWithoutScoresNestedInput = {
+    create?: XOR<GradeCreateWithoutScoresInput, GradeUncheckedCreateWithoutScoresInput>
+    connectOrCreate?: GradeCreateOrConnectWithoutScoresInput
+    upsert?: GradeUpsertWithoutScoresInput
+    connect?: GradeWhereUniqueInput
+    update?: XOR<XOR<GradeUpdateToOneWithWhereWithoutScoresInput, GradeUpdateWithoutScoresInput>, GradeUncheckedUpdateWithoutScoresInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -139003,6 +142460,23 @@ export namespace Prisma {
     _max?: NestedEnumAssessmentKindFilter<$PrismaModel>
   }
 
+  export type NestedEnumResultSheetStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.ResultSheetStatus | EnumResultSheetStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ResultSheetStatus[] | ListEnumResultSheetStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ResultSheetStatus[] | ListEnumResultSheetStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumResultSheetStatusFilter<$PrismaModel> | $Enums.ResultSheetStatus
+  }
+
+  export type NestedEnumResultSheetStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ResultSheetStatus | EnumResultSheetStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ResultSheetStatus[] | ListEnumResultSheetStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ResultSheetStatus[] | ListEnumResultSheetStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumResultSheetStatusWithAggregatesFilter<$PrismaModel> | $Enums.ResultSheetStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumResultSheetStatusFilter<$PrismaModel>
+    _max?: NestedEnumResultSheetStatusFilter<$PrismaModel>
+  }
+
   export type ClassSubjectCreateWithoutStaffInput = {
     id?: string
     assignedVia?: $Enums.ClassSubjectAssignmentSource
@@ -139012,6 +142486,7 @@ export namespace Prisma {
     subject: SubjectCreateNestedOneWithoutClassSubjectsInput
     term: TermCreateNestedOneWithoutClassSubjectsInput
     grades?: GradeCreateNestedManyWithoutClassSubjectInput
+    sheet?: ResultSheetCreateNestedOneWithoutClassSubjectInput
   }
 
   export type ClassSubjectUncheckedCreateWithoutStaffInput = {
@@ -139023,6 +142498,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     grades?: GradeUncheckedCreateNestedManyWithoutClassSubjectInput
+    sheet?: ResultSheetUncheckedCreateNestedOneWithoutClassSubjectInput
   }
 
   export type ClassSubjectCreateOrConnectWithoutStaffInput = {
@@ -139348,12 +142824,15 @@ export namespace Prisma {
     updatedAt?: Date | string
     term: TermCreateNestedOneWithoutGradesInput
     classSubject: ClassSubjectCreateNestedOneWithoutGradesInput
+    sheet: ResultSheetCreateNestedOneWithoutGradesInput
+    scores?: GradeScoreCreateNestedManyWithoutGradeInput
   }
 
   export type GradeUncheckedCreateWithoutStudentInput = {
     id?: string
     termId: string
     classSubjectId: string
+    sheetId: string
     caScore?: number | null
     examScore?: number | null
     total?: number | null
@@ -139364,6 +142843,7 @@ export namespace Prisma {
     isPublished?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    scores?: GradeScoreUncheckedCreateNestedManyWithoutGradeInput
   }
 
   export type GradeCreateOrConnectWithoutStudentInput = {
@@ -139727,6 +143207,7 @@ export namespace Prisma {
     studentId?: StringFilter<"Grade"> | string
     termId?: StringFilter<"Grade"> | string
     classSubjectId?: StringFilter<"Grade"> | string
+    sheetId?: StringFilter<"Grade"> | string
     caScore?: FloatNullableFilter<"Grade"> | number | null
     examScore?: FloatNullableFilter<"Grade"> | number | null
     total?: FloatNullableFilter<"Grade"> | number | null
@@ -141039,6 +144520,7 @@ export namespace Prisma {
     subject: SubjectCreateNestedOneWithoutClassSubjectsInput
     staff: StaffCreateNestedOneWithoutClassSubjectsInput
     grades?: GradeCreateNestedManyWithoutClassSubjectInput
+    sheet?: ResultSheetCreateNestedOneWithoutClassSubjectInput
   }
 
   export type ClassSubjectUncheckedCreateWithoutTermInput = {
@@ -141050,6 +144532,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     grades?: GradeUncheckedCreateNestedManyWithoutClassSubjectInput
+    sheet?: ResultSheetUncheckedCreateNestedOneWithoutClassSubjectInput
   }
 
   export type ClassSubjectCreateOrConnectWithoutTermInput = {
@@ -141148,12 +144631,15 @@ export namespace Prisma {
     updatedAt?: Date | string
     student: StudentCreateNestedOneWithoutGradesInput
     classSubject: ClassSubjectCreateNestedOneWithoutGradesInput
+    sheet: ResultSheetCreateNestedOneWithoutGradesInput
+    scores?: GradeScoreCreateNestedManyWithoutGradeInput
   }
 
   export type GradeUncheckedCreateWithoutTermInput = {
     id?: string
     studentId: string
     classSubjectId: string
+    sheetId: string
     caScore?: number | null
     examScore?: number | null
     total?: number | null
@@ -141164,6 +144650,7 @@ export namespace Prisma {
     isPublished?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    scores?: GradeScoreUncheckedCreateNestedManyWithoutGradeInput
   }
 
   export type GradeCreateOrConnectWithoutTermInput = {
@@ -141757,6 +145244,7 @@ export namespace Prisma {
     staff: StaffCreateNestedOneWithoutClassSubjectsInput
     term: TermCreateNestedOneWithoutClassSubjectsInput
     grades?: GradeCreateNestedManyWithoutClassSubjectInput
+    sheet?: ResultSheetCreateNestedOneWithoutClassSubjectInput
   }
 
   export type ClassSubjectUncheckedCreateWithoutClassInput = {
@@ -141768,6 +145256,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     grades?: GradeUncheckedCreateNestedManyWithoutClassSubjectInput
+    sheet?: ResultSheetUncheckedCreateNestedOneWithoutClassSubjectInput
   }
 
   export type ClassSubjectCreateOrConnectWithoutClassInput = {
@@ -142274,6 +145763,7 @@ export namespace Prisma {
     staff: StaffCreateNestedOneWithoutClassSubjectsInput
     term: TermCreateNestedOneWithoutClassSubjectsInput
     grades?: GradeCreateNestedManyWithoutClassSubjectInput
+    sheet?: ResultSheetCreateNestedOneWithoutClassSubjectInput
   }
 
   export type ClassSubjectUncheckedCreateWithoutSubjectInput = {
@@ -142285,6 +145775,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     grades?: GradeUncheckedCreateNestedManyWithoutClassSubjectInput
+    sheet?: ResultSheetUncheckedCreateNestedOneWithoutClassSubjectInput
   }
 
   export type ClassSubjectCreateOrConnectWithoutSubjectInput = {
@@ -142580,12 +146071,15 @@ export namespace Prisma {
     updatedAt?: Date | string
     student: StudentCreateNestedOneWithoutGradesInput
     term: TermCreateNestedOneWithoutGradesInput
+    sheet: ResultSheetCreateNestedOneWithoutGradesInput
+    scores?: GradeScoreCreateNestedManyWithoutGradeInput
   }
 
   export type GradeUncheckedCreateWithoutClassSubjectInput = {
     id?: string
     studentId: string
     termId: string
+    sheetId: string
     caScore?: number | null
     examScore?: number | null
     total?: number | null
@@ -142596,6 +146090,7 @@ export namespace Prisma {
     isPublished?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    scores?: GradeScoreUncheckedCreateNestedManyWithoutGradeInput
   }
 
   export type GradeCreateOrConnectWithoutClassSubjectInput = {
@@ -142606,6 +146101,53 @@ export namespace Prisma {
   export type GradeCreateManyClassSubjectInputEnvelope = {
     data: GradeCreateManyClassSubjectInput | GradeCreateManyClassSubjectInput[]
     skipDuplicates?: boolean
+  }
+
+  export type ResultSheetCreateWithoutClassSubjectInput = {
+    id?: string
+    status?: $Enums.ResultSheetStatus
+    components: JsonNullValueInput | InputJsonValue
+    scale?: NullableJsonNullValueInput | InputJsonValue
+    submittedAt?: Date | string | null
+    submittedById?: string | null
+    approvedAt?: Date | string | null
+    approvedById?: string | null
+    publishedAt?: Date | string | null
+    publishedById?: string | null
+    lockedAt?: Date | string | null
+    lockedById?: string | null
+    reopenedAt?: Date | string | null
+    reopenedById?: string | null
+    reopenReason?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    grades?: GradeCreateNestedManyWithoutSheetInput
+  }
+
+  export type ResultSheetUncheckedCreateWithoutClassSubjectInput = {
+    id?: string
+    status?: $Enums.ResultSheetStatus
+    components: JsonNullValueInput | InputJsonValue
+    scale?: NullableJsonNullValueInput | InputJsonValue
+    submittedAt?: Date | string | null
+    submittedById?: string | null
+    approvedAt?: Date | string | null
+    approvedById?: string | null
+    publishedAt?: Date | string | null
+    publishedById?: string | null
+    lockedAt?: Date | string | null
+    lockedById?: string | null
+    reopenedAt?: Date | string | null
+    reopenedById?: string | null
+    reopenReason?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    grades?: GradeUncheckedCreateNestedManyWithoutSheetInput
+  }
+
+  export type ResultSheetCreateOrConnectWithoutClassSubjectInput = {
+    where: ResultSheetWhereUniqueInput
+    create: XOR<ResultSheetCreateWithoutClassSubjectInput, ResultSheetUncheckedCreateWithoutClassSubjectInput>
   }
 
   export type ClassUpsertWithoutClassSubjectsInput = {
@@ -142822,6 +146364,59 @@ export namespace Prisma {
   export type GradeUpdateManyWithWhereWithoutClassSubjectInput = {
     where: GradeScalarWhereInput
     data: XOR<GradeUpdateManyMutationInput, GradeUncheckedUpdateManyWithoutClassSubjectInput>
+  }
+
+  export type ResultSheetUpsertWithoutClassSubjectInput = {
+    update: XOR<ResultSheetUpdateWithoutClassSubjectInput, ResultSheetUncheckedUpdateWithoutClassSubjectInput>
+    create: XOR<ResultSheetCreateWithoutClassSubjectInput, ResultSheetUncheckedCreateWithoutClassSubjectInput>
+    where?: ResultSheetWhereInput
+  }
+
+  export type ResultSheetUpdateToOneWithWhereWithoutClassSubjectInput = {
+    where?: ResultSheetWhereInput
+    data: XOR<ResultSheetUpdateWithoutClassSubjectInput, ResultSheetUncheckedUpdateWithoutClassSubjectInput>
+  }
+
+  export type ResultSheetUpdateWithoutClassSubjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumResultSheetStatusFieldUpdateOperationsInput | $Enums.ResultSheetStatus
+    components?: JsonNullValueInput | InputJsonValue
+    scale?: NullableJsonNullValueInput | InputJsonValue
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    submittedById?: NullableStringFieldUpdateOperationsInput | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedById?: NullableStringFieldUpdateOperationsInput | string | null
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    publishedById?: NullableStringFieldUpdateOperationsInput | string | null
+    lockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lockedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reopenedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reopenedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reopenReason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    grades?: GradeUpdateManyWithoutSheetNestedInput
+  }
+
+  export type ResultSheetUncheckedUpdateWithoutClassSubjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumResultSheetStatusFieldUpdateOperationsInput | $Enums.ResultSheetStatus
+    components?: JsonNullValueInput | InputJsonValue
+    scale?: NullableJsonNullValueInput | InputJsonValue
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    submittedById?: NullableStringFieldUpdateOperationsInput | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedById?: NullableStringFieldUpdateOperationsInput | string | null
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    publishedById?: NullableStringFieldUpdateOperationsInput | string | null
+    lockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lockedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reopenedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reopenedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reopenReason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    grades?: GradeUncheckedUpdateManyWithoutSheetNestedInput
   }
 
   export type StudentCreateWithoutEnrolmentsInput = {
@@ -143727,6 +147322,7 @@ export namespace Prisma {
     subject: SubjectCreateNestedOneWithoutClassSubjectsInput
     staff: StaffCreateNestedOneWithoutClassSubjectsInput
     term: TermCreateNestedOneWithoutClassSubjectsInput
+    sheet?: ResultSheetCreateNestedOneWithoutClassSubjectInput
   }
 
   export type ClassSubjectUncheckedCreateWithoutGradesInput = {
@@ -143738,11 +147334,83 @@ export namespace Prisma {
     assignedVia?: $Enums.ClassSubjectAssignmentSource
     createdAt?: Date | string
     updatedAt?: Date | string
+    sheet?: ResultSheetUncheckedCreateNestedOneWithoutClassSubjectInput
   }
 
   export type ClassSubjectCreateOrConnectWithoutGradesInput = {
     where: ClassSubjectWhereUniqueInput
     create: XOR<ClassSubjectCreateWithoutGradesInput, ClassSubjectUncheckedCreateWithoutGradesInput>
+  }
+
+  export type ResultSheetCreateWithoutGradesInput = {
+    id?: string
+    status?: $Enums.ResultSheetStatus
+    components: JsonNullValueInput | InputJsonValue
+    scale?: NullableJsonNullValueInput | InputJsonValue
+    submittedAt?: Date | string | null
+    submittedById?: string | null
+    approvedAt?: Date | string | null
+    approvedById?: string | null
+    publishedAt?: Date | string | null
+    publishedById?: string | null
+    lockedAt?: Date | string | null
+    lockedById?: string | null
+    reopenedAt?: Date | string | null
+    reopenedById?: string | null
+    reopenReason?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    classSubject: ClassSubjectCreateNestedOneWithoutSheetInput
+  }
+
+  export type ResultSheetUncheckedCreateWithoutGradesInput = {
+    id?: string
+    classSubjectId: string
+    status?: $Enums.ResultSheetStatus
+    components: JsonNullValueInput | InputJsonValue
+    scale?: NullableJsonNullValueInput | InputJsonValue
+    submittedAt?: Date | string | null
+    submittedById?: string | null
+    approvedAt?: Date | string | null
+    approvedById?: string | null
+    publishedAt?: Date | string | null
+    publishedById?: string | null
+    lockedAt?: Date | string | null
+    lockedById?: string | null
+    reopenedAt?: Date | string | null
+    reopenedById?: string | null
+    reopenReason?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ResultSheetCreateOrConnectWithoutGradesInput = {
+    where: ResultSheetWhereUniqueInput
+    create: XOR<ResultSheetCreateWithoutGradesInput, ResultSheetUncheckedCreateWithoutGradesInput>
+  }
+
+  export type GradeScoreCreateWithoutGradeInput = {
+    id?: string
+    position: number
+    score?: number | null
+    isAbsent?: boolean
+  }
+
+  export type GradeScoreUncheckedCreateWithoutGradeInput = {
+    id?: string
+    position: number
+    score?: number | null
+    isAbsent?: boolean
+  }
+
+  export type GradeScoreCreateOrConnectWithoutGradeInput = {
+    where: GradeScoreWhereUniqueInput
+    create: XOR<GradeScoreCreateWithoutGradeInput, GradeScoreUncheckedCreateWithoutGradeInput>
+  }
+
+  export type GradeScoreCreateManyGradeInputEnvelope = {
+    data: GradeScoreCreateManyGradeInput | GradeScoreCreateManyGradeInput[]
+    skipDuplicates?: boolean
   }
 
   export type StudentUpsertWithoutGradesInput = {
@@ -143887,6 +147555,7 @@ export namespace Prisma {
     subject?: SubjectUpdateOneRequiredWithoutClassSubjectsNestedInput
     staff?: StaffUpdateOneRequiredWithoutClassSubjectsNestedInput
     term?: TermUpdateOneRequiredWithoutClassSubjectsNestedInput
+    sheet?: ResultSheetUpdateOneWithoutClassSubjectNestedInput
   }
 
   export type ClassSubjectUncheckedUpdateWithoutGradesInput = {
@@ -143898,6 +147567,87 @@ export namespace Prisma {
     assignedVia?: EnumClassSubjectAssignmentSourceFieldUpdateOperationsInput | $Enums.ClassSubjectAssignmentSource
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sheet?: ResultSheetUncheckedUpdateOneWithoutClassSubjectNestedInput
+  }
+
+  export type ResultSheetUpsertWithoutGradesInput = {
+    update: XOR<ResultSheetUpdateWithoutGradesInput, ResultSheetUncheckedUpdateWithoutGradesInput>
+    create: XOR<ResultSheetCreateWithoutGradesInput, ResultSheetUncheckedCreateWithoutGradesInput>
+    where?: ResultSheetWhereInput
+  }
+
+  export type ResultSheetUpdateToOneWithWhereWithoutGradesInput = {
+    where?: ResultSheetWhereInput
+    data: XOR<ResultSheetUpdateWithoutGradesInput, ResultSheetUncheckedUpdateWithoutGradesInput>
+  }
+
+  export type ResultSheetUpdateWithoutGradesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumResultSheetStatusFieldUpdateOperationsInput | $Enums.ResultSheetStatus
+    components?: JsonNullValueInput | InputJsonValue
+    scale?: NullableJsonNullValueInput | InputJsonValue
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    submittedById?: NullableStringFieldUpdateOperationsInput | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedById?: NullableStringFieldUpdateOperationsInput | string | null
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    publishedById?: NullableStringFieldUpdateOperationsInput | string | null
+    lockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lockedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reopenedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reopenedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reopenReason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    classSubject?: ClassSubjectUpdateOneRequiredWithoutSheetNestedInput
+  }
+
+  export type ResultSheetUncheckedUpdateWithoutGradesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    classSubjectId?: StringFieldUpdateOperationsInput | string
+    status?: EnumResultSheetStatusFieldUpdateOperationsInput | $Enums.ResultSheetStatus
+    components?: JsonNullValueInput | InputJsonValue
+    scale?: NullableJsonNullValueInput | InputJsonValue
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    submittedById?: NullableStringFieldUpdateOperationsInput | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedById?: NullableStringFieldUpdateOperationsInput | string | null
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    publishedById?: NullableStringFieldUpdateOperationsInput | string | null
+    lockedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lockedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reopenedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reopenedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reopenReason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GradeScoreUpsertWithWhereUniqueWithoutGradeInput = {
+    where: GradeScoreWhereUniqueInput
+    update: XOR<GradeScoreUpdateWithoutGradeInput, GradeScoreUncheckedUpdateWithoutGradeInput>
+    create: XOR<GradeScoreCreateWithoutGradeInput, GradeScoreUncheckedCreateWithoutGradeInput>
+  }
+
+  export type GradeScoreUpdateWithWhereUniqueWithoutGradeInput = {
+    where: GradeScoreWhereUniqueInput
+    data: XOR<GradeScoreUpdateWithoutGradeInput, GradeScoreUncheckedUpdateWithoutGradeInput>
+  }
+
+  export type GradeScoreUpdateManyWithWhereWithoutGradeInput = {
+    where: GradeScoreScalarWhereInput
+    data: XOR<GradeScoreUpdateManyMutationInput, GradeScoreUncheckedUpdateManyWithoutGradeInput>
+  }
+
+  export type GradeScoreScalarWhereInput = {
+    AND?: GradeScoreScalarWhereInput | GradeScoreScalarWhereInput[]
+    OR?: GradeScoreScalarWhereInput[]
+    NOT?: GradeScoreScalarWhereInput | GradeScoreScalarWhereInput[]
+    id?: StringFilter<"GradeScore"> | string
+    gradeId?: StringFilter<"GradeScore"> | string
+    position?: IntFilter<"GradeScore"> | number
+    score?: FloatNullableFilter<"GradeScore"> | number | null
+    isAbsent?: BoolFilter<"GradeScore"> | boolean
   }
 
   export type StudentCreateWithoutReportCardsInput = {
@@ -162501,6 +166251,220 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ClassSubjectCreateWithoutSheetInput = {
+    id?: string
+    assignedVia?: $Enums.ClassSubjectAssignmentSource
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    class: ClassCreateNestedOneWithoutClassSubjectsInput
+    subject: SubjectCreateNestedOneWithoutClassSubjectsInput
+    staff: StaffCreateNestedOneWithoutClassSubjectsInput
+    term: TermCreateNestedOneWithoutClassSubjectsInput
+    grades?: GradeCreateNestedManyWithoutClassSubjectInput
+  }
+
+  export type ClassSubjectUncheckedCreateWithoutSheetInput = {
+    id?: string
+    classId: string
+    subjectId: string
+    staffId: string
+    termId: string
+    assignedVia?: $Enums.ClassSubjectAssignmentSource
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    grades?: GradeUncheckedCreateNestedManyWithoutClassSubjectInput
+  }
+
+  export type ClassSubjectCreateOrConnectWithoutSheetInput = {
+    where: ClassSubjectWhereUniqueInput
+    create: XOR<ClassSubjectCreateWithoutSheetInput, ClassSubjectUncheckedCreateWithoutSheetInput>
+  }
+
+  export type GradeCreateWithoutSheetInput = {
+    id?: string
+    caScore?: number | null
+    examScore?: number | null
+    total?: number | null
+    grade?: string | null
+    remark?: string | null
+    position?: number | null
+    totalStudents?: number | null
+    isPublished?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    student: StudentCreateNestedOneWithoutGradesInput
+    term: TermCreateNestedOneWithoutGradesInput
+    classSubject: ClassSubjectCreateNestedOneWithoutGradesInput
+    scores?: GradeScoreCreateNestedManyWithoutGradeInput
+  }
+
+  export type GradeUncheckedCreateWithoutSheetInput = {
+    id?: string
+    studentId: string
+    termId: string
+    classSubjectId: string
+    caScore?: number | null
+    examScore?: number | null
+    total?: number | null
+    grade?: string | null
+    remark?: string | null
+    position?: number | null
+    totalStudents?: number | null
+    isPublished?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    scores?: GradeScoreUncheckedCreateNestedManyWithoutGradeInput
+  }
+
+  export type GradeCreateOrConnectWithoutSheetInput = {
+    where: GradeWhereUniqueInput
+    create: XOR<GradeCreateWithoutSheetInput, GradeUncheckedCreateWithoutSheetInput>
+  }
+
+  export type GradeCreateManySheetInputEnvelope = {
+    data: GradeCreateManySheetInput | GradeCreateManySheetInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ClassSubjectUpsertWithoutSheetInput = {
+    update: XOR<ClassSubjectUpdateWithoutSheetInput, ClassSubjectUncheckedUpdateWithoutSheetInput>
+    create: XOR<ClassSubjectCreateWithoutSheetInput, ClassSubjectUncheckedCreateWithoutSheetInput>
+    where?: ClassSubjectWhereInput
+  }
+
+  export type ClassSubjectUpdateToOneWithWhereWithoutSheetInput = {
+    where?: ClassSubjectWhereInput
+    data: XOR<ClassSubjectUpdateWithoutSheetInput, ClassSubjectUncheckedUpdateWithoutSheetInput>
+  }
+
+  export type ClassSubjectUpdateWithoutSheetInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    assignedVia?: EnumClassSubjectAssignmentSourceFieldUpdateOperationsInput | $Enums.ClassSubjectAssignmentSource
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    class?: ClassUpdateOneRequiredWithoutClassSubjectsNestedInput
+    subject?: SubjectUpdateOneRequiredWithoutClassSubjectsNestedInput
+    staff?: StaffUpdateOneRequiredWithoutClassSubjectsNestedInput
+    term?: TermUpdateOneRequiredWithoutClassSubjectsNestedInput
+    grades?: GradeUpdateManyWithoutClassSubjectNestedInput
+  }
+
+  export type ClassSubjectUncheckedUpdateWithoutSheetInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    classId?: StringFieldUpdateOperationsInput | string
+    subjectId?: StringFieldUpdateOperationsInput | string
+    staffId?: StringFieldUpdateOperationsInput | string
+    termId?: StringFieldUpdateOperationsInput | string
+    assignedVia?: EnumClassSubjectAssignmentSourceFieldUpdateOperationsInput | $Enums.ClassSubjectAssignmentSource
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    grades?: GradeUncheckedUpdateManyWithoutClassSubjectNestedInput
+  }
+
+  export type GradeUpsertWithWhereUniqueWithoutSheetInput = {
+    where: GradeWhereUniqueInput
+    update: XOR<GradeUpdateWithoutSheetInput, GradeUncheckedUpdateWithoutSheetInput>
+    create: XOR<GradeCreateWithoutSheetInput, GradeUncheckedCreateWithoutSheetInput>
+  }
+
+  export type GradeUpdateWithWhereUniqueWithoutSheetInput = {
+    where: GradeWhereUniqueInput
+    data: XOR<GradeUpdateWithoutSheetInput, GradeUncheckedUpdateWithoutSheetInput>
+  }
+
+  export type GradeUpdateManyWithWhereWithoutSheetInput = {
+    where: GradeScalarWhereInput
+    data: XOR<GradeUpdateManyMutationInput, GradeUncheckedUpdateManyWithoutSheetInput>
+  }
+
+  export type GradeCreateWithoutScoresInput = {
+    id?: string
+    caScore?: number | null
+    examScore?: number | null
+    total?: number | null
+    grade?: string | null
+    remark?: string | null
+    position?: number | null
+    totalStudents?: number | null
+    isPublished?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    student: StudentCreateNestedOneWithoutGradesInput
+    term: TermCreateNestedOneWithoutGradesInput
+    classSubject: ClassSubjectCreateNestedOneWithoutGradesInput
+    sheet: ResultSheetCreateNestedOneWithoutGradesInput
+  }
+
+  export type GradeUncheckedCreateWithoutScoresInput = {
+    id?: string
+    studentId: string
+    termId: string
+    classSubjectId: string
+    sheetId: string
+    caScore?: number | null
+    examScore?: number | null
+    total?: number | null
+    grade?: string | null
+    remark?: string | null
+    position?: number | null
+    totalStudents?: number | null
+    isPublished?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GradeCreateOrConnectWithoutScoresInput = {
+    where: GradeWhereUniqueInput
+    create: XOR<GradeCreateWithoutScoresInput, GradeUncheckedCreateWithoutScoresInput>
+  }
+
+  export type GradeUpsertWithoutScoresInput = {
+    update: XOR<GradeUpdateWithoutScoresInput, GradeUncheckedUpdateWithoutScoresInput>
+    create: XOR<GradeCreateWithoutScoresInput, GradeUncheckedCreateWithoutScoresInput>
+    where?: GradeWhereInput
+  }
+
+  export type GradeUpdateToOneWithWhereWithoutScoresInput = {
+    where?: GradeWhereInput
+    data: XOR<GradeUpdateWithoutScoresInput, GradeUncheckedUpdateWithoutScoresInput>
+  }
+
+  export type GradeUpdateWithoutScoresInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    caScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    examScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    total?: NullableFloatFieldUpdateOperationsInput | number | null
+    grade?: NullableStringFieldUpdateOperationsInput | string | null
+    remark?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: NullableIntFieldUpdateOperationsInput | number | null
+    totalStudents?: NullableIntFieldUpdateOperationsInput | number | null
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    student?: StudentUpdateOneRequiredWithoutGradesNestedInput
+    term?: TermUpdateOneRequiredWithoutGradesNestedInput
+    classSubject?: ClassSubjectUpdateOneRequiredWithoutGradesNestedInput
+    sheet?: ResultSheetUpdateOneRequiredWithoutGradesNestedInput
+  }
+
+  export type GradeUncheckedUpdateWithoutScoresInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    studentId?: StringFieldUpdateOperationsInput | string
+    termId?: StringFieldUpdateOperationsInput | string
+    classSubjectId?: StringFieldUpdateOperationsInput | string
+    sheetId?: StringFieldUpdateOperationsInput | string
+    caScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    examScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    total?: NullableFloatFieldUpdateOperationsInput | number | null
+    grade?: NullableStringFieldUpdateOperationsInput | string | null
+    remark?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: NullableIntFieldUpdateOperationsInput | number | null
+    totalStudents?: NullableIntFieldUpdateOperationsInput | number | null
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type ClassSubjectCreateManyStaffInput = {
     id?: string
     classId: string
@@ -162545,6 +166509,7 @@ export namespace Prisma {
     subject?: SubjectUpdateOneRequiredWithoutClassSubjectsNestedInput
     term?: TermUpdateOneRequiredWithoutClassSubjectsNestedInput
     grades?: GradeUpdateManyWithoutClassSubjectNestedInput
+    sheet?: ResultSheetUpdateOneWithoutClassSubjectNestedInput
   }
 
   export type ClassSubjectUncheckedUpdateWithoutStaffInput = {
@@ -162556,6 +166521,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     grades?: GradeUncheckedUpdateManyWithoutClassSubjectNestedInput
+    sheet?: ResultSheetUncheckedUpdateOneWithoutClassSubjectNestedInput
   }
 
   export type ClassSubjectUncheckedUpdateManyWithoutStaffInput = {
@@ -162692,6 +166658,7 @@ export namespace Prisma {
     id?: string
     termId: string
     classSubjectId: string
+    sheetId: string
     caScore?: number | null
     examScore?: number | null
     total?: number | null
@@ -162893,12 +166860,15 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     term?: TermUpdateOneRequiredWithoutGradesNestedInput
     classSubject?: ClassSubjectUpdateOneRequiredWithoutGradesNestedInput
+    sheet?: ResultSheetUpdateOneRequiredWithoutGradesNestedInput
+    scores?: GradeScoreUpdateManyWithoutGradeNestedInput
   }
 
   export type GradeUncheckedUpdateWithoutStudentInput = {
     id?: StringFieldUpdateOperationsInput | string
     termId?: StringFieldUpdateOperationsInput | string
     classSubjectId?: StringFieldUpdateOperationsInput | string
+    sheetId?: StringFieldUpdateOperationsInput | string
     caScore?: NullableFloatFieldUpdateOperationsInput | number | null
     examScore?: NullableFloatFieldUpdateOperationsInput | number | null
     total?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -162909,12 +166879,14 @@ export namespace Prisma {
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    scores?: GradeScoreUncheckedUpdateManyWithoutGradeNestedInput
   }
 
   export type GradeUncheckedUpdateManyWithoutStudentInput = {
     id?: StringFieldUpdateOperationsInput | string
     termId?: StringFieldUpdateOperationsInput | string
     classSubjectId?: StringFieldUpdateOperationsInput | string
+    sheetId?: StringFieldUpdateOperationsInput | string
     caScore?: NullableFloatFieldUpdateOperationsInput | number | null
     examScore?: NullableFloatFieldUpdateOperationsInput | number | null
     total?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -163893,6 +167865,7 @@ export namespace Prisma {
     id?: string
     studentId: string
     classSubjectId: string
+    sheetId: string
     caScore?: number | null
     examScore?: number | null
     total?: number | null
@@ -164011,6 +167984,7 @@ export namespace Prisma {
     subject?: SubjectUpdateOneRequiredWithoutClassSubjectsNestedInput
     staff?: StaffUpdateOneRequiredWithoutClassSubjectsNestedInput
     grades?: GradeUpdateManyWithoutClassSubjectNestedInput
+    sheet?: ResultSheetUpdateOneWithoutClassSubjectNestedInput
   }
 
   export type ClassSubjectUncheckedUpdateWithoutTermInput = {
@@ -164022,6 +167996,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     grades?: GradeUncheckedUpdateManyWithoutClassSubjectNestedInput
+    sheet?: ResultSheetUncheckedUpdateOneWithoutClassSubjectNestedInput
   }
 
   export type ClassSubjectUncheckedUpdateManyWithoutTermInput = {
@@ -164126,12 +168101,15 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     student?: StudentUpdateOneRequiredWithoutGradesNestedInput
     classSubject?: ClassSubjectUpdateOneRequiredWithoutGradesNestedInput
+    sheet?: ResultSheetUpdateOneRequiredWithoutGradesNestedInput
+    scores?: GradeScoreUpdateManyWithoutGradeNestedInput
   }
 
   export type GradeUncheckedUpdateWithoutTermInput = {
     id?: StringFieldUpdateOperationsInput | string
     studentId?: StringFieldUpdateOperationsInput | string
     classSubjectId?: StringFieldUpdateOperationsInput | string
+    sheetId?: StringFieldUpdateOperationsInput | string
     caScore?: NullableFloatFieldUpdateOperationsInput | number | null
     examScore?: NullableFloatFieldUpdateOperationsInput | number | null
     total?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -164142,12 +168120,14 @@ export namespace Prisma {
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    scores?: GradeScoreUncheckedUpdateManyWithoutGradeNestedInput
   }
 
   export type GradeUncheckedUpdateManyWithoutTermInput = {
     id?: StringFieldUpdateOperationsInput | string
     studentId?: StringFieldUpdateOperationsInput | string
     classSubjectId?: StringFieldUpdateOperationsInput | string
+    sheetId?: StringFieldUpdateOperationsInput | string
     caScore?: NullableFloatFieldUpdateOperationsInput | number | null
     examScore?: NullableFloatFieldUpdateOperationsInput | number | null
     total?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -164624,6 +168604,7 @@ export namespace Prisma {
     staff?: StaffUpdateOneRequiredWithoutClassSubjectsNestedInput
     term?: TermUpdateOneRequiredWithoutClassSubjectsNestedInput
     grades?: GradeUpdateManyWithoutClassSubjectNestedInput
+    sheet?: ResultSheetUpdateOneWithoutClassSubjectNestedInput
   }
 
   export type ClassSubjectUncheckedUpdateWithoutClassInput = {
@@ -164635,6 +168616,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     grades?: GradeUncheckedUpdateManyWithoutClassSubjectNestedInput
+    sheet?: ResultSheetUncheckedUpdateOneWithoutClassSubjectNestedInput
   }
 
   export type ClassSubjectUncheckedUpdateManyWithoutClassInput = {
@@ -164904,6 +168886,7 @@ export namespace Prisma {
     staff?: StaffUpdateOneRequiredWithoutClassSubjectsNestedInput
     term?: TermUpdateOneRequiredWithoutClassSubjectsNestedInput
     grades?: GradeUpdateManyWithoutClassSubjectNestedInput
+    sheet?: ResultSheetUpdateOneWithoutClassSubjectNestedInput
   }
 
   export type ClassSubjectUncheckedUpdateWithoutSubjectInput = {
@@ -164915,6 +168898,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     grades?: GradeUncheckedUpdateManyWithoutClassSubjectNestedInput
+    sheet?: ResultSheetUncheckedUpdateOneWithoutClassSubjectNestedInput
   }
 
   export type ClassSubjectUncheckedUpdateManyWithoutSubjectInput = {
@@ -164931,6 +168915,7 @@ export namespace Prisma {
     id?: string
     studentId: string
     termId: string
+    sheetId: string
     caScore?: number | null
     examScore?: number | null
     total?: number | null
@@ -164957,12 +168942,33 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     student?: StudentUpdateOneRequiredWithoutGradesNestedInput
     term?: TermUpdateOneRequiredWithoutGradesNestedInput
+    sheet?: ResultSheetUpdateOneRequiredWithoutGradesNestedInput
+    scores?: GradeScoreUpdateManyWithoutGradeNestedInput
   }
 
   export type GradeUncheckedUpdateWithoutClassSubjectInput = {
     id?: StringFieldUpdateOperationsInput | string
     studentId?: StringFieldUpdateOperationsInput | string
     termId?: StringFieldUpdateOperationsInput | string
+    sheetId?: StringFieldUpdateOperationsInput | string
+    caScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    examScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    total?: NullableFloatFieldUpdateOperationsInput | number | null
+    grade?: NullableStringFieldUpdateOperationsInput | string | null
+    remark?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: NullableIntFieldUpdateOperationsInput | number | null
+    totalStudents?: NullableIntFieldUpdateOperationsInput | number | null
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    scores?: GradeScoreUncheckedUpdateManyWithoutGradeNestedInput
+  }
+
+  export type GradeUncheckedUpdateManyWithoutClassSubjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    studentId?: StringFieldUpdateOperationsInput | string
+    termId?: StringFieldUpdateOperationsInput | string
+    sheetId?: StringFieldUpdateOperationsInput | string
     caScore?: NullableFloatFieldUpdateOperationsInput | number | null
     examScore?: NullableFloatFieldUpdateOperationsInput | number | null
     total?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -164975,20 +168981,32 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type GradeUncheckedUpdateManyWithoutClassSubjectInput = {
+  export type GradeScoreCreateManyGradeInput = {
+    id?: string
+    position: number
+    score?: number | null
+    isAbsent?: boolean
+  }
+
+  export type GradeScoreUpdateWithoutGradeInput = {
     id?: StringFieldUpdateOperationsInput | string
-    studentId?: StringFieldUpdateOperationsInput | string
-    termId?: StringFieldUpdateOperationsInput | string
-    caScore?: NullableFloatFieldUpdateOperationsInput | number | null
-    examScore?: NullableFloatFieldUpdateOperationsInput | number | null
-    total?: NullableFloatFieldUpdateOperationsInput | number | null
-    grade?: NullableStringFieldUpdateOperationsInput | string | null
-    remark?: NullableStringFieldUpdateOperationsInput | string | null
-    position?: NullableIntFieldUpdateOperationsInput | number | null
-    totalStudents?: NullableIntFieldUpdateOperationsInput | number | null
-    isPublished?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    position?: IntFieldUpdateOperationsInput | number
+    score?: NullableFloatFieldUpdateOperationsInput | number | null
+    isAbsent?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type GradeScoreUncheckedUpdateWithoutGradeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    position?: IntFieldUpdateOperationsInput | number
+    score?: NullableFloatFieldUpdateOperationsInput | number | null
+    isAbsent?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type GradeScoreUncheckedUpdateManyWithoutGradeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    position?: IntFieldUpdateOperationsInput | number
+    score?: NullableFloatFieldUpdateOperationsInput | number | null
+    isAbsent?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type FeeStructureItemCreateManyFeeTypeInput = {
@@ -169147,6 +173165,76 @@ export namespace Prisma {
     maxScore?: FloatFieldUpdateOperationsInput | number
     position?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GradeCreateManySheetInput = {
+    id?: string
+    studentId: string
+    termId: string
+    classSubjectId: string
+    caScore?: number | null
+    examScore?: number | null
+    total?: number | null
+    grade?: string | null
+    remark?: string | null
+    position?: number | null
+    totalStudents?: number | null
+    isPublished?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GradeUpdateWithoutSheetInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    caScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    examScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    total?: NullableFloatFieldUpdateOperationsInput | number | null
+    grade?: NullableStringFieldUpdateOperationsInput | string | null
+    remark?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: NullableIntFieldUpdateOperationsInput | number | null
+    totalStudents?: NullableIntFieldUpdateOperationsInput | number | null
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    student?: StudentUpdateOneRequiredWithoutGradesNestedInput
+    term?: TermUpdateOneRequiredWithoutGradesNestedInput
+    classSubject?: ClassSubjectUpdateOneRequiredWithoutGradesNestedInput
+    scores?: GradeScoreUpdateManyWithoutGradeNestedInput
+  }
+
+  export type GradeUncheckedUpdateWithoutSheetInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    studentId?: StringFieldUpdateOperationsInput | string
+    termId?: StringFieldUpdateOperationsInput | string
+    classSubjectId?: StringFieldUpdateOperationsInput | string
+    caScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    examScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    total?: NullableFloatFieldUpdateOperationsInput | number | null
+    grade?: NullableStringFieldUpdateOperationsInput | string | null
+    remark?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: NullableIntFieldUpdateOperationsInput | number | null
+    totalStudents?: NullableIntFieldUpdateOperationsInput | number | null
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    scores?: GradeScoreUncheckedUpdateManyWithoutGradeNestedInput
+  }
+
+  export type GradeUncheckedUpdateManyWithoutSheetInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    studentId?: StringFieldUpdateOperationsInput | string
+    termId?: StringFieldUpdateOperationsInput | string
+    classSubjectId?: StringFieldUpdateOperationsInput | string
+    caScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    examScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    total?: NullableFloatFieldUpdateOperationsInput | number | null
+    grade?: NullableStringFieldUpdateOperationsInput | string | null
+    remark?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: NullableIntFieldUpdateOperationsInput | number | null
+    totalStudents?: NullableIntFieldUpdateOperationsInput | number | null
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 
