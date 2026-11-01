@@ -7,7 +7,8 @@ import { UpdateAutomationDto } from "../../src/modules/automation/dtos/automatio
 import { SaveTemplateDto, PreviewTemplateDto } from "../../src/modules/message-templates/dtos/message-template.dto";
 import { UpdateSchoolPreferencesDto } from "../../src/modules/school-settings/dtos/school-settings.dto";
 import { ProvisioningQuery } from "../../src/modules/school/usecases/platform/school-provisioning.usecases";
-import { GenerateDto, RemarksDto, PublishDto, UnpublishDto, ListCardsQuery } from "../../src/modules/report-cards/dtos/report-card.dto";
+import { GenerateDto, RemarksDto, PublishDto, UnpublishDto, ListCardsQuery, TemplateQuery } from "../../src/modules/report-cards/dtos/report-card.dto";
+import { REPORT_CARD_TEMPLATES } from "../../src/infrastructure/pdf/report-card.html";
 import { ImpersonateSchoolDto } from "../../src/modules/school/usecases/platform/impersonate-school.usecase";
 
 /* The shared contract and the API's own DTO must accept and refuse exactly the same inputs. */
@@ -53,7 +54,14 @@ const pairs: Pair[] = [
     { name: "ListReportCardsQuery", shared: C.ListReportCardsQueryRequest, api: ListCardsQuery, samples: [
         {}, { page: "2" }, { page: "0" }, { limit: "100" }, { limit: "101" }, { status: "draft" }, { status: "generated" }, { termId: "x" }, { classId: UID, studentId: UID },
     ] },
+    { name: "ReportCardTemplateQuery", shared: C.ReportCardTemplateQuery, api: TemplateQuery, samples: [
+        {}, { template: "classic" }, { template: "modern" }, { template: "minimal" }, { template: "custom_letterhead" }, { template: "fancy" }, { template: 5 },
+    ] },
 ];
+
+test("the template keys offered to the web app are exactly the ones the renderer prints", () => {
+    assert.deepEqual([...C.ReportCardTemplateKeys].sort(), [...REPORT_CARD_TEMPLATES].sort());
+});
 
 for (const p of pairs) {
     test(`contract parity: ${p.name}`, () => {

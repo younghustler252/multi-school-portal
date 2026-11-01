@@ -38,6 +38,9 @@ export const UnpublishDto = z.object({
     reason: z.string().trim().min(UNPUBLISH_REASON_MIN, `Please say why (at least ${UNPUBLISH_REASON_MIN} characters)`).max(500),
 }).strict();
 
+/** ?template= on the preview and the PDF (staff only; families always get the school's own template). */
+export const TemplateQuery = z.object({ template: z.enum(["classic", "modern", "minimal", "custom_letterhead"]).optional() });
+
 export type ListCardsQueryType = z.infer<typeof ListCardsQuery>;
 export type OverviewQueryType  = z.infer<typeof OverviewQuery>;
 export type GenerateDtoType    = z.infer<typeof GenerateDto>;

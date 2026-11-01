@@ -1,4 +1,4 @@
-import { asClass } from "awilix";
+import { asClass, asFunction } from "awilix";
 import type { AwilixContainer } from "awilix";
 import { PdfGeneratorService } from "../../infrastructure/pdf/pdf-generator.service";
 import { ReportCardsRepository } from "./repositories/report-cards.repository";
@@ -8,14 +8,16 @@ import { ListReportCardsUseCase, GetReportCardUseCase, ClassOverviewUseCase } fr
 import { GenerateReportCardsUseCase } from "./usecases/generate-report-cards.usecase";
 import { UpdateRemarksUseCase } from "./usecases/update-remarks.usecase";
 import { PublishReportCardsUseCase, UnpublishReportCardsUseCase } from "./usecases/publish-report-cards.usecases";
-import { ReportCardPdfUseCase } from "./usecases/report-card-pdf.usecase";
+import { ReportCardPdfUseCase, ReportCardPreviewUseCase, ListTemplatesUseCase, TemplatePreviewUseCase } from "./usecases/report-card-render.usecases";
+import { ReportCardRenderer } from "./services/report-card-renderer.service";
+import { env } from "../../config/env";
 import { ReportCardController } from "./controllers/report-card.controller";
 
 /*
 | REPORT CARDS CONTAINER.
 | Requires: registerAudit (auditService), registerGradesSetup (gradesSheetsRepository), the notifications container
 | (notificationDispatchService, channelPolicyService), the message templates container (messageTemplateService),
-| the school container (schoolRepository) and the school settings container (schoolSettingsRepository).
+| the school container (schoolRepository) and the school settings container (schoolSettingsRepository), the foundation container (entitlementsService).
 */
 export const registerReportCards = (container: AwilixContainer): void => {
     container.register({
@@ -30,7 +32,12 @@ export const registerReportCards = (container: AwilixContainer): void => {
         updateRemarksUseCase:         asClass(UpdateRemarksUseCase).scoped(),
         publishReportCardsUseCase:    asClass(PublishReportCardsUseCase).scoped(),
         unpublishReportCardsUseCase:  asClass(UnpublishReportCardsUseCase).scoped(),
+        allowedImageHosts:            asFunction(() => [new URL(env.supabase.url).hostname]).singleton(),   // the only host printed pages may load images from
+        reportCardRenderer:           asClass(ReportCardRenderer).scoped(),
         reportCardPdfUseCase:         asClass(ReportCardPdfUseCase).scoped(),
+        reportCardPreviewUseCase:     asClass(ReportCardPreviewUseCase).scoped(),
+        listTemplatesUseCase:         asClass(ListTemplatesUseCase).scoped(),
+        templatePreviewUseCase:       asClass(TemplatePreviewUseCase).scoped(),
         reportCardController:         asClass(ReportCardController).scoped(),
     });
 };
