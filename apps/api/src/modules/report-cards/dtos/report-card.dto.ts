@@ -6,6 +6,8 @@ const id = z.string().uuid();
 const remark = z.string().trim().max(REMARK_MAX).nullable();   // null or empty clears it
 
 export const CardParams = z.object({ id });
+/** GET /report-cards/class-pdf/status/:jobId. The job id is the content hash PdfCacheService computes (16 hex chars). */
+export const ClassPdfJobParams = z.object({ jobId: z.string().regex(/^[0-9a-f]{16}$/, "Not a report card job id") });
 
 export const ListCardsQuery = z.object({
     page:      z.coerce.number().int().min(1).default(1),

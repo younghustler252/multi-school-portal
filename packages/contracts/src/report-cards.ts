@@ -94,11 +94,26 @@ export interface ReportCardPreview { template: ReportCardTemplateKey; fellBack: 
  * GET /report-cards/class-pdf?classId&termId&template=&include=published|all : every card of a class in ONE pdf
  * (one page break after each). Cached by content hash, so a repeat call with nothing changed returns instantly.
  * `include=published` (default): only published/sent cards. `include=all`: any card with content yet, drafts too (watermarked).
- * Response is the PDF itself (Content-Type: application/pdf); there is no JSON body to type for the success case.
  * Needs report_cards.view (ALL, or the class teacher) and the plan feature report_cards.pdf.
+ *
+ * TWO outcomes, told apart by the HTTP status:
+ * - 200, Content-Type: application/pdf — the PDF, already cached. No JSON body to type.
+ * - 202 — not cached yet (a render was just started in the background; a big class can take long enough to outrun
+ *   an HTTP/gateway timeout, so it is never rendered inline). Body is `ClassPdfQueued`. Poll
+ *   `GET /report-cards/class-pdf/status/:jobId` (`ClassPdfJobStatus`) until `status: "done"`, then repeat the
+ *   SAME `GET /report-cards/class-pdf` call: it is now a cache hit (200, the PDF).
  */
+export const ClassPdfJobParamsRequest = z.object({ jobId: z.string().regex(/^[0-9a-f]{16}$/, "Not a report card job id") });
+export type ClassPdfJobParamsRequest = z.infer<typeof ClassPdfJobParamsRequest>;
+
 export const ClassPdfQueryRequest = z.object({
     classId: id, termId: id.optional(), template: z.enum(ReportCardTemplateKeys).optional(),
     include: z.enum(["published", "all"]).default("published"),
 });
 export type ClassPdfQueryRequest = z.infer<typeof ClassPdfQueryRequest>;
+
+export interface ClassPdfQueued { status: "queued"; jobId: string; filename: string; cardCount: number; pollUrl: string }
+
+/** GET /report-cards/class-pdf/status/:jobId. "queued" covers both waiting and actively rendering. "unknown" = no such job (expired, or never existed) — treat it as still not ready and fall back to re-requesting the PDF. */
+export const ClassPdfJobStatuses = ["queued", "done", "failed", "unknown"] as const;
+export type ClassPdfJobStatus = { status: (typeof ClassPdfJobStatuses)[number] };

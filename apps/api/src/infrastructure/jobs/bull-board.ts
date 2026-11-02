@@ -7,6 +7,7 @@ import { automationQueue }      from "./queues/automation.queue";
 import { billingQueue }         from "./queues/billing.queue";
 import { schoolLifecycleQueue } from "./queues/school-lifecycle.queue";
 import { termLifecycleQueue }   from "./queues/term-lifecycle.queue";
+import { classPdfQueue }        from "./queues/class-pdf.queue";
 
 /*
 |--------------------------------------------------------------------------
@@ -29,6 +30,7 @@ export const createBullBoardRouter = () => {
             new BullMQAdapter(billingQueue),
             new BullMQAdapter(schoolLifecycleQueue),
             new BullMQAdapter(termLifecycleQueue),
+            new BullMQAdapter(classPdfQueue),
         ],
         serverAdapter,
     });

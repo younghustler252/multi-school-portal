@@ -81,6 +81,11 @@ export class PdfCacheService {
 
     constructor(private readonly store: PdfCacheStore) {}
 
+    /** Is this exact PDF already cached? Never renders. Used by a route that must answer fast (sync hit, or 202 + background job on a miss). */
+    async peek(folder: string, hash: string): Promise<Buffer | null> {
+        return this.store.get(`${folder}/${hash}.pdf`).catch(() => null);
+    }
+
     /**
      * Get or render a single report card PDF.
      * @param folder  e.g. "schools/s1/report-cards/t1/single/cardId"

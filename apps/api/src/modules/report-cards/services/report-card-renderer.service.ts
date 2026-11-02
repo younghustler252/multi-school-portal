@@ -119,25 +119,45 @@ export class ReportCardRenderer {
         );
     }
 
+    /** Turns class PDF items into the data list, the resolved template, and the cache folder/hash — WITHOUT rendering. Cheap: DB-only (via `context`), no browser. */
+    private async classPdfPlan(
+        schoolId: string, termId: string, classId: string,
+        items: Array<{ snap: CardSnapshot; remarks: { teacherRemark: string | null; principalRemark: string | null }; draft: boolean }>,
+        requested?: string,
+    ) {
+        const { ctx, settings, brandingVersion } = await this.context(schoolId);
+        const t = await this.resolve(schoolId, requested, settings);
+        const dataList = items.map(({ snap, remarks, draft }) => templateDataFor(snap, remarks, ctx, draft));
+        const hash = pdfHash(t.name, dataList, brandingVersion);
+        const folder = `schools/${schoolId}/report-cards/${termId}/classes/${classId}`;
+        return { templateName: t.name, dataList, hash, folder };
+    }
+
+    /** Is this exact class PDF already cached? Never renders (safe to call on the request path). */
+    async classPdfKey(
+        schoolId: string, termId: string, classId: string,
+        items: Array<{ snap: CardSnapshot; remarks: { teacherRemark: string | null; principalRemark: string | null }; draft: boolean }>,
+        requested?: string,
+    ): Promise<{ hash: string; folder: string }> {
+        const { hash, folder } = await this.classPdfPlan(schoolId, termId, classId, items, requested);
+        return { hash, folder };
+    }
+
     /**
      * Render (or return cached) a whole-class PDF.
      * @param schoolId   cache folder
      * @param termId     cache folder
      * @param classId    cache folder
-     * @param items      rows to include: snap + remarks for each card
+     * @param items      rows to include: snap + remarks + whether that card is still a draft, for each card
      */
     async classPdf(
         schoolId: string, termId: string, classId: string,
-        items: Array<{ snap: CardSnapshot; remarks: { teacherRemark: string | null; principalRemark: string | null } }>,
+        items: Array<{ snap: CardSnapshot; remarks: { teacherRemark: string | null; principalRemark: string | null }; draft: boolean }>,
         requested?: string,
     ): Promise<{ buffer: Buffer; cached: boolean }> {
-        const { ctx, settings, brandingVersion } = await this.context(schoolId);
-        const t = await this.resolve(schoolId, requested, settings);
-        const dataList = items.map(({ snap, remarks }) => templateDataFor(snap, remarks, ctx, false /* class PDF = published only = not draft */));
-        const hash = pdfHash(t.name, dataList, brandingVersion);
-        const folder = `schools/${schoolId}/report-cards/${termId}/classes/${classId}`;
+        const { templateName, dataList, hash, folder } = await this.classPdfPlan(schoolId, termId, classId, items, requested);
         return this.d.pdfCacheService.getClass(folder, hash, () =>
-            this.d.pdfGeneratorService.generateReportCardsPdf(t.name, dataList, this.d.allowedImageHosts),
+            this.d.pdfGeneratorService.generateReportCardsPdf(templateName, dataList, this.d.allowedImageHosts),
         );
     }
 

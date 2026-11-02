@@ -8,7 +8,7 @@ import { ListReportCardsUseCase, GetReportCardUseCase, ClassOverviewUseCase } fr
 import { GenerateReportCardsUseCase } from "./usecases/generate-report-cards.usecase";
 import { UpdateRemarksUseCase } from "./usecases/update-remarks.usecase";
 import { PublishReportCardsUseCase, UnpublishReportCardsUseCase } from "./usecases/publish-report-cards.usecases";
-import { ReportCardPdfUseCase, ReportCardPreviewUseCase, ListTemplatesUseCase, TemplatePreviewUseCase, ClassPdfUseCase } from "./usecases/report-card-render.usecases";
+import { ReportCardPdfUseCase, ReportCardPreviewUseCase, ListTemplatesUseCase, TemplatePreviewUseCase, ClassPdfUseCase, ClassPdfStatusUseCase, ClassPdfJobRunner, bullClassPdfQueue } from "./usecases/report-card-render.usecases";
 import { ReportCardRenderer } from "./services/report-card-renderer.service";
 import { PdfCacheService, SupabasePdfCacheStore } from "./services/pdf-cache.service";
 import { env } from "../../config/env";
@@ -42,7 +42,10 @@ export const registerReportCards = (container: AwilixContainer): void => {
         reportCardPreviewUseCase:     asClass(ReportCardPreviewUseCase).scoped(),
         listTemplatesUseCase:         asClass(ListTemplatesUseCase).scoped(),
         templatePreviewUseCase:       asClass(TemplatePreviewUseCase).scoped(),
+        classPdfQueue:                asFunction(bullClassPdfQueue).singleton(),
         classPdfUseCase:              asClass(ClassPdfUseCase).scoped(),
+        classPdfStatusUseCase:        asClass(ClassPdfStatusUseCase).scoped(),
+        classPdfJobRunner:            asClass(ClassPdfJobRunner).scoped(),   // resolved by the worker, not by any route
         reportCardController:         asClass(ReportCardController).scoped(),
     });
 };

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { renderReportCardHtml, REPORT_CARD_TEMPLATES, esc, safeImage, safeColor, ordinal } from "../../src/infrastructure/pdf/report-card.html";
 import { ReportCardRenderer, sampleData, templateDataFor } from "../../src/modules/report-cards/services/report-card-renderer.service";
 import { PdfCacheService, PdfCacheStore } from "../../src/modules/report-cards/services/pdf-cache.service";
-import { ReportCardPreviewUseCase, ReportCardPdfUseCase, ListTemplatesUseCase, TemplatePreviewUseCase, ClassPdfUseCase } from "../../src/modules/report-cards/usecases/report-card-render.usecases";
+import { ReportCardPreviewUseCase, ReportCardPdfUseCase, ListTemplatesUseCase, TemplatePreviewUseCase, ClassPdfUseCase, ClassPdfStatusUseCase, ClassPdfJobRunner, ClassPdfQueuePort } from "../../src/modules/report-cards/usecases/report-card-render.usecases";
 import { GenerateReportCardsUseCase } from "../../src/modules/report-cards/usecases/generate-report-cards.usecase";
 import { admin, access, fakeRepo, worldWith, pub, auditLog } from "./helpers";
 
@@ -58,6 +58,17 @@ test("the letterhead theme uses the school's image and offsets; an unknown templ
     assert.ok(html.includes("https://files.example.test/lh.png")); assert.ok(html.includes("--top:55mm")); assert.ok(html.includes("--bottom:35mm"));
 });
 
+/** An in-memory queue (no real Redis/BullMQ), so the enqueue/poll contract is observable in tests. Jobs resolve "done" the moment the test calls `run`. */
+function fakeClassPdfQueue(): ClassPdfQueuePort & { jobs: Array<{ jobId: string; job: any }>; states: Map<string, "queued" | "done" | "failed"> } {
+    const jobs: Array<{ jobId: string; job: any }> = [];
+    const states = new Map<string, "queued" | "done" | "failed">();
+    return {
+        jobs, states,
+        async enqueue(jobId, job) { jobs.push({ jobId, job }); if (!states.has(jobId)) states.set(jobId, "queued"); },
+        async status(jobId) { return states.get(jobId) ?? "unknown"; },
+    };
+}
+
 /** An in-memory PdfCacheStore (no real storage), so cache behaviour is observable in tests. */
 function fakeCacheStore(): PdfCacheStore & { files: Map<string, Buffer> } {
     const files = new Map<string, Buffer>();
@@ -93,11 +104,14 @@ async function setup(opts: { settings?: any; plan?: boolean } = {}) {
         pdfCacheService,
     });
     const deps = { reportCardsRepository: repo, reportCardRenderer: renderer };
+    const classPdfQueue = fakeClassPdfQueue();
     return {
-        rows, pdfCalls, cacheStore,
+        rows, pdfCalls, cacheStore, classPdfQueue,
         preview: new ReportCardPreviewUseCase(deps), pdf: new ReportCardPdfUseCase(deps),
         list: new ListTemplatesUseCase(deps), sample: new TemplatePreviewUseCase(deps),
-        classPdf: new ClassPdfUseCase(deps),
+        classPdf: new ClassPdfUseCase({ ...deps, classPdfQueue, pdfCacheService }),
+        classPdfStatus: new ClassPdfStatusUseCase({ classPdfQueue }),
+        classPdfJobRunner: new ClassPdfJobRunner(deps),
     };
 }
 const family = () => access({ persona: "GUARDIAN", me: "g1", can: ["report_cards.view"], scopes: { "report_cards.view": "OWN" } });
@@ -177,20 +191,46 @@ test("single PDF: a second identical request is served from cache, a changed rem
     assert.equal([...s.cacheStore.files.keys()].filter(k => k.startsWith(folder)).length, 1, "the old cached file was evicted");
 });
 
-test("class PDF: every published card in one document, cached by content hash, staff only, drafts excluded by default", async () => {
+test("class PDF: a miss queues a background job, not an inline render; staff only, drafts excluded by default", async () => {
     const s = await setup();
-    await assert.rejects(s.classPdf.execute({ classId: "c1", include: "published" } as any, "sch", { scopeOf: () => "OWN" } as any), /not allowed/);
+    await assert.rejects(s.classPdf.execute({ classId: "c1", include: "published" } as any, "sch", "schema1", family()), /not allowed/);
 
     // nothing published yet -> nothing to print
-    await assert.rejects(s.classPdf.execute({ classId: "c1", include: "published" } as any, "sch", admin()), /nothing/i);
+    await assert.rejects(s.classPdf.execute({ classId: "c1", include: "published" } as any, "sch", "schema1", admin()), /nothing/i);
 
     s.rows[0].status = "published";
-    const r = await s.classPdf.execute({ classId: "c1", include: "published" } as any, "sch", admin());
-    assert.equal(r.buffer.toString(), "%PDF-class-fake"); assert.equal(r.cardCount, 1); assert.equal(r.cached, false);
-    assert.match(r.filename, /report-cards\.pdf$/);
+    const r = await s.classPdf.execute({ classId: "c1", include: "published" } as any, "sch", "schema1", admin());
+    assert.equal(r.status, "queued"); assert.equal(s.pdfCalls.length, 0, "a miss never renders inline");
+    if (r.status !== "queued") throw new Error("unreachable");
+    assert.equal(r.cardCount, 1); assert.match(r.filename, /report-cards\.pdf$/);
+    assert.equal(s.classPdfQueue.jobs.length, 1);
+    assert.deepEqual(s.classPdfQueue.jobs[0].job, { schoolId: "sch", tenantSchema: "schema1", termId: "term1", classId: "c1", template: undefined, include: "published" });
+    assert.equal((await s.classPdfStatus.execute(r.jobId)).status, "queued");
 
-    const again = await s.classPdf.execute({ classId: "c1", include: "published" } as any, "sch", admin());
-    assert.equal(again.cached, true, "second identical class request is a cache hit");
+    // the background worker runs the job: gathers fresh and renders+caches
+    await s.classPdfJobRunner.run("sch", "term1", "c1", "published");
+    assert.equal(s.pdfCalls.length, 1);
+    s.classPdfQueue.states.set(r.jobId, "done");
+    assert.equal((await s.classPdfStatus.execute(r.jobId)).status, "done");
+
+    // the SAME request, repeated, is now a cache hit and returns the PDF straight away (no second job)
+    const again = await s.classPdf.execute({ classId: "c1", include: "published" } as any, "sch", "schema1", admin());
+    assert.equal(again.status, "ready");
+    if (again.status !== "ready") throw new Error("unreachable");
+    assert.equal(again.buffer.toString(), "%PDF-class-fake"); assert.equal(again.cached, true);
+    assert.equal(s.classPdfQueue.jobs.length, 1, "no second job for an already-cached request");
+
+    assert.equal((await s.classPdfStatus.execute("0000000000000000")).status, "unknown");
+});
+
+test("class PDF: include=all also prints drafts, watermarked", async () => {
+    const s = await setup();
+    const r = await s.classPdf.execute({ classId: "c1", include: "all" } as any, "sch", "schema1", admin());
+    assert.equal(r.status, "queued");
+    await s.classPdfJobRunner.run("sch", "term1", "c1", "all");
+    const dataList = s.pdfCalls[0].list;
+    assert.equal(dataList.length, 3, "all 3 students' draft cards are included with include=all");
+    assert.ok(dataList.every((d: any) => d.draft === true), "every unpublished card prints with the DRAFT watermark in a whole-class PDF too");
 });
 
 test("the print data comes only from the frozen snapshot (a changed sheet cannot change it)", async () => {

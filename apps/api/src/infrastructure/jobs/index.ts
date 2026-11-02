@@ -10,5 +10,6 @@ export const initWorkers = (): void => {
     require("./workers/payment-reconciliation.worker")
     require("./workers/ledger-integrity.worker")
     require("./workers/recurring-expenses.worker")
+    require("./workers/class-pdf.worker")
     console.log("✅ Background workers started");
 };

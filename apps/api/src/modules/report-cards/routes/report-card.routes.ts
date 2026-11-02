@@ -23,8 +23,9 @@ router.get("/", ...guard("report_cards.view"), (q, s, n) => ctrl().list(q, s, n)
 router.get("/templates", authenticate, requireTenant, requireAnyPermission("report_cards.view", "school_settings.view"), (q, s, n) => ctrl().templates(q, s, n));
 router.get("/template-preview", authenticate, requireTenant, requireAnyPermission("report_cards.view", "school_settings.view"), (q, s, n) => ctrl().templatePreview(q, s, n));
 router.get("/overview", ...guard("report_cards.view"), (q, s, n) => ctrl().overview(q, s, n));
-// a whole class in one PDF (cached); must come before "/:id"
+// a whole class in one PDF (cached; a miss renders in the background, see .../class-pdf/status/:jobId); both must come before "/:id"
 router.get("/class-pdf", ...guard("report_cards.view"), requireFeature("report_cards.pdf"), (q, s, n) => ctrl().classPdf(q, s, n));
+router.get("/class-pdf/status/:jobId", ...guard("report_cards.view"), (q, s, n) => ctrl().classPdfStatus(q, s, n));
 router.post("/generate", ...guard("report_cards.generate"), (q, s, n) => ctrl().generate(q, s, n));
 router.post("/publish", ...guard("report_cards.publish"), (q, s, n) => ctrl().publish(q, s, n));
 router.post("/unpublish", ...guard("report_cards.publish"), (q, s, n) => ctrl().unpublish(q, s, n));

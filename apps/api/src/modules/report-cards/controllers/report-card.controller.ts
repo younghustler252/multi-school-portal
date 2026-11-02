@@ -3,10 +3,10 @@ import { ListReportCardsUseCase, GetReportCardUseCase, ClassOverviewUseCase } fr
 import { GenerateReportCardsUseCase } from "../usecases/generate-report-cards.usecase";
 import { UpdateRemarksUseCase } from "../usecases/update-remarks.usecase";
 import { PublishReportCardsUseCase, UnpublishReportCardsUseCase } from "../usecases/publish-report-cards.usecases";
-import { ReportCardPdfUseCase, ReportCardPreviewUseCase, ListTemplatesUseCase, TemplatePreviewUseCase, ClassPdfUseCase } from "../usecases/report-card-render.usecases";
+import { ReportCardPdfUseCase, ReportCardPreviewUseCase, ListTemplatesUseCase, TemplatePreviewUseCase, ClassPdfUseCase, ClassPdfStatusUseCase } from "../usecases/report-card-render.usecases";
 import { sendSuccess } from "../../../shared/utils/api-response";
 import { getAccess } from "../../../infrastructure/middleware/rbac.middleware";
-import { CardParams, TemplateQuery, ListCardsQuery, OverviewQuery, GenerateDto, RemarksDto, PublishDto, UnpublishDto, ClassPdfQuery } from "../dtos/report-card.dto";
+import { CardParams, TemplateQuery, ListCardsQuery, OverviewQuery, GenerateDto, RemarksDto, PublishDto, UnpublishDto, ClassPdfQuery, ClassPdfJobParams } from "../dtos/report-card.dto";
 import { reportCardErrors } from "../domain/report-cards.errors";
 
 interface Dependencies {
@@ -14,11 +14,12 @@ interface Dependencies {
     generateReportCardsUseCase: GenerateReportCardsUseCase; updateRemarksUseCase: UpdateRemarksUseCase;
     publishReportCardsUseCase: PublishReportCardsUseCase; unpublishReportCardsUseCase: UnpublishReportCardsUseCase; reportCardPdfUseCase: ReportCardPdfUseCase;
     reportCardPreviewUseCase: ReportCardPreviewUseCase; listTemplatesUseCase: ListTemplatesUseCase; templatePreviewUseCase: TemplatePreviewUseCase;
-    classPdfUseCase: ClassPdfUseCase;
+    classPdfUseCase: ClassPdfUseCase; classPdfStatusUseCase: ClassPdfStatusUseCase;
 }
 
 /* REPORT CARD CONTROLLER (school realm). The acting person comes ONLY from the verified session, never the body. */
 const schoolIdOf = (req: Request): string => req.schoolId as string;
+const tenantSchemaOf = (req: Request): string => req.tenantSchema as string;
 const actorOf = (req: Request) => { if (!req.auth) throw reportCardErrors.notFound(); return { userId: req.auth.userId }; };
 const idOf = (req: Request): string => CardParams.parse(req.params).id;
 
@@ -63,12 +64,20 @@ export class ReportCardController {
     templatePreview = async (req: Request, res: Response, next: NextFunction) => {
         try { sendSuccess(res, await this.d.templatePreviewUseCase.execute(schoolIdOf(req), getAccess(req), TemplateQuery.parse(req.query).template), "Template preview"); } catch (e) { next(e); }
     };
+    /** A cache hit answers with the PDF. A miss answers 202 with a job id to poll at GET /class-pdf/status/:jobId; repeat this same request once it is done. */
     classPdf = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const { buffer, filename } = await this.d.classPdfUseCase.execute(ClassPdfQuery.parse(req.query), schoolIdOf(req), getAccess(req));
-            res.setHeader("Content-Type", "application/pdf");
-            res.setHeader("Content-Disposition", `inline; filename="${filename}"`);
-            res.status(200).send(buffer);
+            const r = await this.d.classPdfUseCase.execute(ClassPdfQuery.parse(req.query), schoolIdOf(req), tenantSchemaOf(req), getAccess(req));
+            if (r.status === "ready") {
+                res.setHeader("Content-Type", "application/pdf");
+                res.setHeader("Content-Disposition", `inline; filename="${r.filename}"`);
+                res.status(200).send(r.buffer);
+                return;
+            }
+            sendSuccess(res, { status: "queued", jobId: r.jobId, filename: r.filename, cardCount: r.cardCount, pollUrl: `/report-cards/class-pdf/status/${r.jobId}` }, "Report card PDFs are being prepared", 202);
         } catch (e) { next(e); }
+    };
+    classPdfStatus = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.classPdfStatusUseCase.execute(ClassPdfJobParams.parse(req.params).jobId), "Class PDF job status"); } catch (e) { next(e); }
     };
 }
