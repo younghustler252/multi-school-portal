@@ -1,0 +1,94 @@
+diff --git a/apps/api/prisma/tenant-migrations/20261106090000_class_branch/migration.sql b/apps/api/prisma/tenant-migrations/20261106090000_class_branch/migration.sql
+new file mode 100644
+index 0000000..46c9de7
+--- /dev/null
++++ b/apps/api/prisma/tenant-migrations/20261106090000_class_branch/migration.sql
+@@ -0,0 +1,24 @@
++-- Every class now belongs to one branch. Existing classes go to the MAIN branch (everything started there).
++-- If a school has classes but no main branch, stop with a clear message instead of guessing.
++
++DO $$
++BEGIN
++  IF EXISTS (SELECT 1 FROM "Class")
++     AND NOT EXISTS (SELECT 1 FROM "Branch" WHERE "isMain" = true AND "deletedAt" IS NULL) THEN
++    RAISE EXCEPTION 'Cannot add Class.branchId: this school has classes but no main branch. Create or restore the main branch first, then run the migration again.';
++  END IF;
++END $$;
++
++-- AlterTable
++ALTER TABLE "Class" ADD COLUMN "branchId" TEXT;
++
++UPDATE "Class"
++SET "branchId" = (SELECT "id" FROM "Branch" WHERE "isMain" = true AND "deletedAt" IS NULL LIMIT 1);
++
++ALTER TABLE "Class" ALTER COLUMN "branchId" SET NOT NULL;
++
++-- AddForeignKey (a branch with classes cannot be removed from the database)
++ALTER TABLE "Class" ADD CONSTRAINT "Class_branchId_fkey" FOREIGN KEY ("branchId") REFERENCES "Branch"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
++
++-- CreateIndex
++CREATE INDEX "Class_branchId_idx" ON "Class"("branchId");
+diff --git a/apps/api/prisma/tenant.prisma b/apps/api/prisma/tenant.prisma
+index 390a66c..e85f923 100644
+--- a/apps/api/prisma/tenant.prisma
++++ b/apps/api/prisma/tenant.prisma
+@@ -276,9 +276,11 @@ model Class {
+   level          String?
+   capacity       Int?
+   classTeacherId String?
++  branchId       String
+   createdAt      DateTime @default(now())
+   updatedAt      DateTime @updatedAt
+ 
++  branch           Branch             @relation(fields: [branchId], references: [id])
+   classTeacher     Staff?             @relation(fields: [classTeacherId], references: [id])
+   enrolments       Enrolment[]
+   classSubjects    ClassSubject[]
+@@ -288,6 +290,8 @@ model Class {
+   feeInvoices      FeeInvoice[]
+   attendance Attendance[]
+   reportCards ReportCard[]
++
++  @@index([branchId])
+ }
+ 
+ model Subject {
+@@ -1058,6 +1062,7 @@ model Branch {
+   deletedAt        DateTime?
+ 
+   staff          StaffBranch[]
++  classes        Class[]
+   journalEntries JournalEntry[]
+   feeStructures  FeeStructure[]
+   feeInvoices    FeeInvoice[]
+diff --git a/apps/api/src/foundation/role-templates.registry.ts b/apps/api/src/foundation/role-templates.registry.ts
+index c0c260b..853a28e 100644
+--- a/apps/api/src/foundation/role-templates.registry.ts
++++ b/apps/api/src/foundation/role-templates.registry.ts
+@@ -55,7 +55,7 @@ export const ROLE_TEMPLATES: RoleTemplateDef[] = [
+         description: "Runs one campus: sees only the branches they are assigned to.",
+         permissions: [
+             { key: "school.view", scope: "ALL" }, { key: "branches.view", scope: "BRANCH" },
+-            { key: "classes.view", scope: "ALL" }, { key: "sessions.view", scope: "ALL" }, { key: "enrolment.view", scope: "BRANCH" }, { key: "students.view", scope: "BRANCH" }, { key: "attendance.view", scope: "BRANCH" },
++            { key: "classes.view", scope: "BRANCH" }, { key: "classes.manage", scope: "BRANCH" }, { key: "sessions.view", scope: "ALL" }, { key: "enrolment.view", scope: "BRANCH" }, { key: "students.view", scope: "BRANCH" }, { key: "attendance.view", scope: "BRANCH" }, { key: "grades.view", scope: "BRANCH" },
+             { key: "fees.view", scope: "BRANCH" }, { key: "staff.view", scope: "BRANCH" }, { key: "staff.manage", scope: "BRANCH" },
+         ],
+     },
+diff --git a/apps/api/src/modules/classes/classes.permissions.ts b/apps/api/src/modules/classes/classes.permissions.ts
+index 89eebd8..b6c570b 100644
+--- a/apps/api/src/modules/classes/classes.permissions.ts
++++ b/apps/api/src/modules/classes/classes.permissions.ts
+@@ -1,9 +1,9 @@
+ /*
+ | CLASS PERMISSION KEYS.
+-| classes.view    see classes, subjects and who teaches what (staff roles; students and guardians see their own class through enrolment)
+-| classes.manage  create, edit and delete classes and subjects, choose class teachers, class progression and subject teachers
++| classes.view    see classes, subjects and who teaches what. Scope ALL, or BRANCH (only the classes of your branches; subjects are school-wide)
++| classes.manage  create, edit and delete classes and subjects, choose class teachers, class progression and subject teachers. Scope ALL, or BRANCH (only classes of your branches)
+ */
+ export const CLASS_PERMISSIONS = [
+-    { key: "classes.view",   realm: "SCHOOL", module: "classes", scopes: ["ALL"], personas: ["STAFF"], label: "View classes, subjects and teachers" },
+-    { key: "classes.manage", realm: "SCHOOL", module: "classes", scopes: ["ALL"], personas: ["STAFF"], label: "Manage classes, subjects and teacher assignments", isSensitive: true },
++    { key: "classes.view",   realm: "SCHOOL", module: "classes", scopes: ["ALL", "BRANCH"], personas: ["STAFF"], label: "View classes, subjects and teachers" },
++    { key: "classes.manage", realm: "SCHOOL", module: "classes", scopes: ["ALL", "BRANCH"], personas: ["STAFF"], label: "Manage classes, subjects and teacher assignments", isSensitive: true },
+ ] as const;

@@ -276,9 +276,11 @@ model Class {
   level          String?
   capacity       Int?
   classTeacherId String?
+  branchId       String
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
+  branch           Branch             @relation(fields: [branchId], references: [id])
   classTeacher     Staff?             @relation(fields: [classTeacherId], references: [id])
   enrolments       Enrolment[]
   classSubjects    ClassSubject[]
@@ -288,6 +290,8 @@ model Class {
   feeInvoices      FeeInvoice[]
   attendance Attendance[]
   reportCards ReportCard[]
+
+  @@index([branchId])
 }
 
 model Subject {
@@ -1058,6 +1062,7 @@ model Branch {
   deletedAt        DateTime?
 
   staff          StaffBranch[]
+  classes        Class[]
   journalEntries JournalEntry[]
   feeStructures  FeeStructure[]
   feeInvoices    FeeInvoice[]

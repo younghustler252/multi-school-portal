@@ -55,7 +55,7 @@ export const ROLE_TEMPLATES: RoleTemplateDef[] = [
         description: "Runs one campus: sees only the branches they are assigned to.",
         permissions: [
             { key: "school.view", scope: "ALL" }, { key: "branches.view", scope: "BRANCH" },
-            { key: "classes.view", scope: "ALL" }, { key: "sessions.view", scope: "ALL" }, { key: "enrolment.view", scope: "BRANCH" }, { key: "students.view", scope: "BRANCH" }, { key: "attendance.view", scope: "BRANCH" },
+            { key: "classes.view", scope: "BRANCH" }, { key: "classes.manage", scope: "BRANCH" }, { key: "sessions.view", scope: "ALL" }, { key: "enrolment.view", scope: "BRANCH" }, { key: "students.view", scope: "BRANCH" }, { key: "attendance.view", scope: "BRANCH" }, { key: "grades.view", scope: "BRANCH" },
             { key: "fees.view", scope: "BRANCH" }, { key: "staff.view", scope: "BRANCH" }, { key: "staff.manage", scope: "BRANCH" },
         ],
     },
