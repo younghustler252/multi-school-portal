@@ -5,7 +5,7 @@ import { PlatformSettingsController } from "../controllers/platform-settings.con
 
 import { validate } from "../../../infrastructure/middleware/validate.middleware";
 import { authenticate } from "../../../infrastructure/middleware/auth.middleware";
-import { requireSuperAdmin } from "../../../infrastructure/middleware/rbac.middleware";
+import { requirePermission } from "../../../infrastructure/middleware/rbac.middleware";
 
 import { UpdatePlatformSettingsDto } from "../dtos/platform-settings.dto";
 
@@ -30,7 +30,7 @@ router.get(
 router.put(
     "/",
     authenticate,
-    requireSuperAdmin,
+    requirePermission("platform.settings.manage"),
     validate(UpdatePlatformSettingsDto),
     (req, res, next) => ctrl().updateSettings(req, res, next),
 );

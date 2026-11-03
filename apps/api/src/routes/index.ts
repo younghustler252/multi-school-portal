@@ -44,8 +44,8 @@ import platformSchoolsRouter from "../modules/school/routes/school.platform.rout
 import platformPlansRouter from "../modules/plans/routes/plan.platform.routes";
 import platformBillingRouter from "../modules/subscriptions/routes/billing.platform.routes";
 import platformAuditRouter from "../modules/audit/routes/audit.platform.routes";
-// import platformsettingsRouter from "../modules/platform-settings/routes/platform-settings.route"
-// import feedbackRouter from "../modules/feedback/routes/feedback.routes"
+import platformSettingsRouter from "../modules/platform-settings/routes/platform-settings.route";
+import feedbackRouter from "../modules/feedback/routes/feedback.routes";
 
 const router = Router();
 
@@ -95,7 +95,7 @@ router.use("/platform/schools", platformSchoolsRouter);
 router.use("/platform/plans", platformPlansRouter);
 router.use("/platform/subscriptions", platformBillingRouter);
 router.use("/platform/audit", platformAuditRouter);
-// router.use("/platform-settings", platformsettingsRouter)
-// router.use("/feedback", feedbackRouter)
+router.use("/platform/settings", platformSettingsRouter);
+router.use("/feedback", feedbackRouter);
 
 export default router;

@@ -3,10 +3,7 @@ import { container }           from "../../../container";
 import { FeedbackController }  from "../controllers/feedback.controller";
 import { validate }            from "../../../infrastructure/middleware/validate.middleware";
 import { authenticate }        from "../../../infrastructure/middleware/auth.middleware";
-import {
-    requireSchoolAdmin,
-    requireStaff,
-}                              from "../../../infrastructure/middleware/rbac.middleware";
+import { requirePermission }  from "../../../infrastructure/middleware/rbac.middleware";
 import {
     SubmitFeedbackDto,
     ListFeedbackDto,
@@ -42,7 +39,7 @@ router.get(
 router.get(
     "/",
     authenticate,
-    requireStaff,
+    requirePermission("platform.feedback.manage"),
     validate(ListFeedbackDto, "query"),
     (req, res, next) => ctrl().listFeedback(req, res, next),
 );
@@ -51,7 +48,7 @@ router.get(
 router.get(
     "/:id",
     authenticate,
-    requireStaff,
+    requirePermission("platform.feedback.manage"),
     (req, res, next) => ctrl().getFeedback(req, res, next),
 );
 
@@ -59,7 +56,7 @@ router.get(
 router.patch(
     "/:id/status",
     authenticate,
-    requireSchoolAdmin,
+    requirePermission("platform.feedback.manage"),
     validate(UpdateFeedbackStatusDto),
     (req, res, next) => ctrl().updateFeedbackStatus(req, res, next),
 );
@@ -68,7 +65,7 @@ router.patch(
 router.patch(
     "/:id/respond",
     authenticate,
-    requireSchoolAdmin,
+    requirePermission("platform.feedback.manage"),
     validate(RespondToFeedbackDto),
     (req, res, next) => ctrl().respondToFeedback(req, res, next),
 );
@@ -77,7 +74,7 @@ router.patch(
 router.delete(
     "/:id",
     authenticate,
-    requireSchoolAdmin,
+    requirePermission("platform.feedback.manage"),
     (req, res, next) => ctrl().deleteFeedback(req, res, next),
 );
 
