@@ -8,7 +8,7 @@ import { loadAccess, requirePermission } from "../../../infrastructure/middlewar
 import { validateTenantOwnership } from "../../../infrastructure/middleware/tenant-resolver.middleware";
 import { reestablishTenantContext } from "../../../infrastructure/middleware/reestablish-tenant-context";
 import { AppError }            from "../../../shared/errors/domain.errors";
-import { UpdateProfileDto, ChangePasswordDto, ResetAdminPasswordDto } from "../dtos/user.dto";
+import { UpdateProfileDto, ChangePasswordDto, ResetAdminPasswordDto, DeactivateUserDto } from "../dtos/user.dto";
 
 /*
 | USER ROUTES
@@ -58,5 +58,12 @@ router.post(
     authenticate, requirePermission("platform.users.manage"), validate(ResetAdminPasswordDto),
     (q, s, n) => ctrl().resetSchoolAdminPassword(q, s, n),
 );
+
+// ── Platform support: platform-wide account deactivation ──────────────────
+// Flips the public User.isActive flag, which every auth flow already checks — locks the account out
+// of EVERY school at once (independent of any school's own staff/student status). Self-action blocked.
+router.get("/:id", authenticate, requirePermission("platform.users.manage"), (q, s, n) => ctrl().getPlatformUser(q, s, n));
+router.post("/:id/deactivate", authenticate, requirePermission("platform.users.manage"), validate(DeactivateUserDto), (q, s, n) => ctrl().deactivatePlatformUser(q, s, n));
+router.post("/:id/reactivate", authenticate, requirePermission("platform.users.manage"), (q, s, n) => ctrl().reactivatePlatformUser(q, s, n));
 
 export default router;

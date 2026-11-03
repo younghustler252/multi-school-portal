@@ -14,4 +14,5 @@ export const userErrors = {
     schoolNotFound:          () => new NotFoundError("School"),
     adminNotFound:           () => new NotFoundError("School administrator"),
     adminAmbiguous:          () => new AppError("This school has more than one administrator. Specify which one", 409, true, "ADMIN_AMBIGUOUS"),
+    cannotActOnSelf:         () => new ForbiddenError("You cannot deactivate or reactivate your own account", "USER_SELF_ACTION"),
 };

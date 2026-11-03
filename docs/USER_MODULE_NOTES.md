@@ -27,6 +27,26 @@ Remove avatar, list my access (profile + school switchers), list/revoke my sessi
 - `GET /me/sessions`: `[{ id, device, ipAddress, schoolId, lastActiveAt, current }]`; `DELETE /me/sessions/:id` (response `signedOut: true` when it was the current one).
 - `POST /schools/:schoolId/admin/reset-password` body `{ userId? }` (platform host, needs `platform.users.manage`); codes `ADMIN_AMBIGUOUS` (several administrators: send `userId`), NOT_FOUND.
 
+## Platform-wide user deactivation (closes a previously-flagged gap)
+`User.isActive` already gated every auth flow (login, refresh, switch-persona, impersonation exchange,
+forgot/reset password, invite acceptance, resend-otp) — but nothing could ever flip it to `false` except
+registration's own initial unverified state. There was no platform support action to suspend or restore
+an account. `ManagePlatformUsersUseCase` (`modules/user/usecases/manage-platform-users.usecase.ts`) adds it:
+- `GET /users/:id` — look up any user by id (`platform.users.manage`): `{ id, email, firstName, lastName, isActive, lastLoginAt }`.
+- `POST /users/:id/deactivate` body `{ reason? }` — sets `isActive=false`, revokes every refresh-token
+  session immediately (not just future logins), audits `user.deactivated` (reason in `metadata`, never shown
+  to the user). Idempotent: deactivating an already-inactive user is a no-op that returns the current state.
+- `POST /users/:id/reactivate` — sets `isActive=true`, clears `failedLoginCount`/`lockedUntil`, audits
+  `user.reactivated`. Idempotent the same way.
+- Self-action is always refused (`USER_SELF_ACTION`, 403) — a platform user can never deactivate or
+  reactivate their own account through this route.
+- Deliberately independent of any school's own tenant Membership/Staff/Student status: a school can still
+  suspend its own staff or students locally (`modules/staff`, `modules/students`) without this ever being
+  involved. This route locks the account out of **every** school at once (the public cross-school login
+  identity), for abuse/fraud/offboarding-level platform action — not for day-to-day school admin use.
+- Tests: `apps/api/tests/user/manage-platform-users.test.ts` (9 cases: self-action block, not-found, happy
+  path + audit + session revocation, idempotency both directions, reactivate clears lockout state).
+
 ## Open / deferred
 - Change email is not built: it needs a pending-email field and a verification step, which belongs with a later settings pass.
 - Old avatar files stay in the bucket until the storage service gets a delete method.

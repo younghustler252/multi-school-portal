@@ -7,6 +7,7 @@ import { RemoveAvatarUseCase }          from "../usecases/remove-avatar.usecase"
 import { ListMyAccessUseCase }          from "../usecases/list-my-access.usecase";
 import { ManageMySessionsUseCase }      from "../usecases/manage-my-sessions.usecase";
 import { ResetSchoolAdminPasswordUseCase } from "../usecases/reset-school-admin-password.usecase";
+import { ManagePlatformUsersUseCase }   from "../usecases/manage-platform-users.usecase";
 import { sendSuccess }                  from "../../../shared/utils/api-response";
 import { setAuthCookies, clearAuthCookies } from "../../../infrastructure/middleware/auth.middleware";
 import { getAccess }                    from "../../../infrastructure/middleware/rbac.middleware";
@@ -22,6 +23,7 @@ interface Dependencies {
     listMyAccessUseCase:    ListMyAccessUseCase;
     manageMySessionsUseCase: ManageMySessionsUseCase;
     resetSchoolAdminPasswordUseCase: ResetSchoolAdminPasswordUseCase;
+    managePlatformUsersUseCase: ManagePlatformUsersUseCase;
 }
 
 /*
@@ -107,5 +109,20 @@ export class UserController {
             const r = await this.d.resetSchoolAdminPasswordUseCase.execute(String(req.params.schoolId), req.body, ctxOf(req));
             sendSuccess(res, null, r.message);
         } catch (e) { next(e); }
+    };
+
+    getPlatformUser = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.managePlatformUsersUseCase.find(String(req.params.id)), "User retrieved successfully"); }
+        catch (e) { next(e); }
+    };
+
+    deactivatePlatformUser = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.managePlatformUsersUseCase.deactivate(String(req.params.id), req.body, ctxOf(req)), "Account deactivated"); }
+        catch (e) { next(e); }
+    };
+
+    reactivatePlatformUser = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.managePlatformUsersUseCase.reactivate(String(req.params.id), ctxOf(req)), "Account reactivated"); }
+        catch (e) { next(e); }
     };
 }

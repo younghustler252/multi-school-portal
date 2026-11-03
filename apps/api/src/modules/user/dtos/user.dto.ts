@@ -14,5 +14,11 @@ export const ResetAdminPasswordDto = z.object({
     userId: z.string().min(1).max(64).optional(),   // needed only when the school has several administrators
 }).strict();
 
+// Platform-wide account suspension/restoration (platform.users.manage). reason is audit-only, never shown to the user.
+export const DeactivateUserDto = z.object({
+    reason: z.string().trim().min(3).max(500).optional(),
+}).strict();
+
 export type UpdateProfileDtoType      = z.infer<typeof UpdateProfileDto>;
 export type ResetAdminPasswordDtoType = z.infer<typeof ResetAdminPasswordDto>;
+export type DeactivateUserDtoType     = z.infer<typeof DeactivateUserDto>;
