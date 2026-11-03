@@ -4,6 +4,7 @@ import { IClassRepository } from "../../repositories/class.repository";
 import { classErrors } from "../../domain/class.errors";
 import { ClassActor } from "../../domain/class.types";
 import { classUsage } from "../../services/class-rules";
+import { assertCanManage } from "../../services/class-branch";
 
 interface Dependencies { classRepository: IClassRepository; auditService: AuditService }
 
@@ -18,6 +19,7 @@ export class DeleteClassUseCase {
     async execute(schoolId: string, id: string, actor: ClassActor): Promise<{ deleted: true; name: string }> {
         const cls = await this.d.classRepository.findClassById(id);
         if (!cls) throw classErrors.notFound();
+        assertCanManage(cls, actor.access);
 
         try {
             await getTenantClient().$transaction(async tx => {

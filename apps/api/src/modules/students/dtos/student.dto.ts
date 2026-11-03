@@ -33,6 +33,7 @@ export const CreateStudentDto = z.object({
     nationality:     optText(50),
     stateOfOrigin:   optText(50),
     admittedAt:      z.preprocess(blank(undefined), admitDate.optional()),
+    branchId:        z.string().uuid().optional(),     // left out = your own branch (when you work in one), else the main branch
     confirmNotDuplicate: z.boolean().optional(),
 }).strict();
 
@@ -69,6 +70,7 @@ export const ListStudentsQuery = z.object({
     search: z.string().trim().max(100).optional(),
     gender: z.enum(GENDERS).optional(),
     status: z.enum(["active", "inactive", "graduated", "all"]).default("active"),
+    branchId: z.string().uuid().optional(),             // narrows the list to one branch (never widens what you may see)
 });
 
 // ── CSV import row (used by the import use case, which is not switched on yet) ──

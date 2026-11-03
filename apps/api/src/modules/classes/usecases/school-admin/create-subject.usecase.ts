@@ -5,6 +5,7 @@ import { classErrors } from "../../domain/class.errors";
 import { subjectWriteError } from "../../domain/class.conflicts";
 import { ClassActor } from "../../domain/class.types";
 import { CreateSubjectDtoType } from "../../dtos/class.dto";
+import { requireAll } from "../../services/class-branch";
 
 interface Dependencies { classRepository: IClassRepository; subjectPresenter: SubjectPresenter; auditService: AuditService }
 const same = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
@@ -14,6 +15,7 @@ export class CreateSubjectUseCase {
     constructor(private readonly d: Dependencies) {}
 
     async execute(schoolId: string, dto: CreateSubjectDtoType, actor: ClassActor): Promise<SubjectResponse> {
+        requireAll(actor.access);
         const all = await this.d.classRepository.findAllSubjects();
         if (all.some(s => same(s.name, dto.name))) throw classErrors.subjectNameTaken();
         if (dto.code && all.some(s => s.code && same(s.code, dto.code!))) throw classErrors.subjectCodeTaken();

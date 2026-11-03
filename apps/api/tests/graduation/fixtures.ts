@@ -1,5 +1,6 @@
 /* Real repositories and use cases for the graduation database tests (one throwaway school, real Postgres). */
 import { getTenantClient } from "../../src/infrastructure/database/prisma/prisma.client";
+import { mainBranchId } from "../helpers/test-database";
 import { StudentMapper } from "../../src/modules/students/mappers/student.mapper";
 import { StudentRepositoryImpl } from "../../src/modules/students/repositories/student.repository.impl";
 import { EnrolmentMapper } from "../../src/modules/enrolment/mappers/enrolment.mapper";
@@ -31,8 +32,9 @@ export async function seed() {
     const session = await db.session.create({ data: { name: "2026/2027", startDate: new Date("2026-09-01"), endDate: new Date("2027-07-31"), isCurrent: true } });
     const t1 = await db.term.create({ data: { sessionId: session.id, name: "first",  startDate: new Date("2026-09-01"), endDate: new Date("2026-12-15"), isCurrent: true } });
     const t2 = await db.term.create({ data: { sessionId: session.id, name: "second", startDate: new Date("2027-01-10"), endDate: new Date("2027-04-10"), isCurrent: false } });
-    const jss2 = await db.class.create({ data: { name: "JSS 2", capacity: 5 } });
-    const jss3 = await db.class.create({ data: { name: "JSS 3", capacity: 5 } });
+    const branchId = await mainBranchId(db);
+    const jss2 = await db.class.create({ data: { name: "JSS 2", branchId, capacity: 5 } });
+    const jss3 = await db.class.create({ data: { name: "JSS 3", branchId, capacity: 5 } });
     await db.classProgression.create({ data: { fromClassId: jss2.id, toClassId: jss3.id } });
     await db.classProgression.create({ data: { fromClassId: jss3.id, toClassId: null } });   // final class: graduates
 

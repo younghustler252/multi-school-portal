@@ -4,6 +4,7 @@ export interface ClassResponseData {
     level: string | null;
     capacity: number | null;
     classTeacherId: string | null;
+    branchId: string;
     classTeacherName: string | null;
     studentCount: number;
     createdAt: Date;
@@ -15,6 +16,7 @@ export interface EnrichedClass {
     level: string | null;
     capacity: number | null;
     classTeacherId: string | null;
+    branchId: string;
     classTeacherName: string | null;
     studentCount: number;
     createdAt: Date;

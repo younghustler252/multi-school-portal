@@ -32,8 +32,8 @@ import {
 // The school is the host's school; the acting person comes ONLY from the verified session (req.auth).
 const schoolIdOf = (req: Request): string => req.schoolId as string;
 const actorOf = (req: Request): ClassActor => {
-    if (!req.auth) throw classErrors.notFound();
-    return { userId: req.auth.userId };
+    if (!req.auth || !req.access) throw classErrors.notFound();
+    return { userId: req.auth.userId, access: req.access };
 };
 
 interface Dependencies {
@@ -117,7 +117,8 @@ export class ClassController {
     getClasses = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             const termId = typeof req.query.termId === "string" ? req.query.termId : undefined;
-            sendSuccess(res, await this.getClassesUseCase.execute(termId), "Classes retrieved successfully");
+            const branchId = typeof req.query.branchId === "string" ? req.query.branchId : undefined;
+            sendSuccess(res, await this.getClassesUseCase.execute(actorOf(req).access, termId, branchId), "Classes retrieved successfully");
         } catch (err) { next(err); }
     };
 
@@ -129,7 +130,7 @@ export class ClassController {
     getClassById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             const termId = typeof req.query.termId === "string" ? req.query.termId : undefined;
-            sendSuccess(res, await this.getClassByIdUseCase.execute(String(req.params.id), termId), "Class retrieved successfully");
+            sendSuccess(res, await this.getClassByIdUseCase.execute(actorOf(req).access, String(req.params.id), termId), "Class retrieved successfully");
         } catch (err) { next(err); }
     };
 
@@ -168,7 +169,7 @@ export class ClassController {
     getClassSubjects = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             const termId = typeof req.query.termId === "string" ? req.query.termId : undefined;
-            sendSuccess(res, await this.getClassSubjectsUseCase.execute(String(req.params.id), termId), "Class subjects retrieved successfully");
+            sendSuccess(res, await this.getClassSubjectsUseCase.execute(actorOf(req).access, String(req.params.id), termId), "Class subjects retrieved successfully");
         } catch (err) { next(err); }
     };
 

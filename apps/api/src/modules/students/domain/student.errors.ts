@@ -19,6 +19,7 @@ export const studentErrors = {
     reopenNotFound:       () => new AppError("The final-term enrolment of this student could not be found, so it cannot be reopened", 409, true, "GRADUATION_ENROLMENT_NOT_FOUND"),
     reopenClassFull:      (name: string) => new AppError(`${name} is full, so the student cannot go back into it. Raise its capacity or undo the graduation without reopening`, 409, true, "GRADUATION_CLASS_FULL"),
     reopenInactive:       () => new AppError("Reactivate this student first: an inactive student cannot be put back in a class", 409, true, "STUDENT_INACTIVE"),
+    branchInvalid:        () => new AppError("Choose an active branch of this school", 400, true, "STUDENT_BRANCH_INVALID"),
     nothingToUpdate:      () => new BadRequestError("Nothing to change"),
     invalidImage:         () => new AppError("Upload a JPG, PNG or WebP image of 2 MB or less", 400, true, "INVALID_IMAGE"),
     noPhotoFile:          () => new AppError("Choose a photo to upload", 400, true, "INVALID_IMAGE"),

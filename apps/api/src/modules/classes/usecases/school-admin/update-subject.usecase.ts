@@ -5,6 +5,7 @@ import { classErrors } from "../../domain/class.errors";
 import { subjectWriteError } from "../../domain/class.conflicts";
 import { ClassActor } from "../../domain/class.types";
 import { UpdateSubjectDtoType } from "../../dtos/class.dto";
+import { requireAll } from "../../services/class-branch";
 
 interface Dependencies { classRepository: IClassRepository; subjectPresenter: SubjectPresenter; auditService: AuditService }
 const same = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
@@ -14,6 +15,7 @@ export class UpdateSubjectUseCase {
     constructor(private readonly d: Dependencies) {}
 
     async execute(schoolId: string, id: string, dto: UpdateSubjectDtoType, actor: ClassActor): Promise<SubjectResponse> {
+        requireAll(actor.access);
         const { classRepository: repo } = this.d;
         const subject = await repo.findSubjectById(id);
         if (!subject) throw classErrors.subjectNotFound();

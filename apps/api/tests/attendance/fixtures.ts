@@ -1,5 +1,6 @@
 /* Real repositories and a seeded school for the attendance database tests. Dates are relative to "today" at the school. */
 import { getTenantClient } from "../../src/infrastructure/database/prisma/prisma.client";
+import { mainBranchId } from "../helpers/test-database";
 import { Access } from "../../src/foundation/access.service";
 import { AttendanceRepository } from "../../src/modules/attendance/repositories/attendance.repository";
 import { AttendancePresenter } from "../../src/modules/attendance/services/attendance-presenter";
@@ -32,8 +33,9 @@ export async function seed() {
     const staff = (firstName: string) => db.staff.create({ data: { firstName, lastName: "Teacher" } });
     const tA = await staff("Tola"), tB = await staff("Bisi"), tC = await staff("Chuka");
 
-    const C1 = await db.class.create({ data: { name: "JSS 1A", classTeacherId: tA.id } });
-    const C2 = await db.class.create({ data: { name: "JSS 2A" } });
+    const branchId = await mainBranchId(db);
+    const C1 = await db.class.create({ data: { name: "JSS 1A", branchId, classTeacherId: tA.id } });
+    const C2 = await db.class.create({ data: { name: "JSS 2A", branchId } });
     const subject = await db.subject.create({ data: { name: "Maths" } });
     const subject2 = await db.subject.create({ data: { name: "English" } });
     await db.classSubject.create({ data: { classId: C2.id, subjectId: subject.id, staffId: tB.id, termId: term.id } });      // Bisi teaches JSS 2A this term

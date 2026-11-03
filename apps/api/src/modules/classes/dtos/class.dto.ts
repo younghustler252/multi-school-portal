@@ -15,6 +15,7 @@ export const CreateClassDto = z.object({
     name:     z.string().trim().min(1).max(50),
     level:    z.preprocess(blank(undefined), z.string().trim().max(30).optional()),
     capacity: capacity.optional(),
+    branchId: z.string().uuid().optional(),     // default: your only branch, else the main branch
 }).strict();
 
 // ── Update class (send only what changes; null or "" clears level, null clears capacity) ──
@@ -22,6 +23,7 @@ export const UpdateClassDto = z.object({
     name:     z.string().trim().min(1).max(50).optional(),
     level:    z.preprocess(blank(null), z.string().trim().max(30).nullable().optional()),
     capacity: capacity.nullable().optional(),
+    branchId: z.string().uuid().optional(),     // moves the class (only while it has no enrolments this term)
 }).strict().refine(o => Object.keys(o).length > 0, "Send at least one field to change");
 
 // ── Class teacher and progression ─────────────────────────────────────────

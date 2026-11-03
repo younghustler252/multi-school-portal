@@ -9,6 +9,7 @@ import { ClassSubjectAssignmentSource } from "../../domain/class.enums";
 import { classErrors } from "../../domain/class.errors";
 import { ClassActor } from "../../domain/class.types";
 import { AssignSubjectDtoType } from "../../dtos/class.dto";
+import { loadManageable } from "../../services/class-branch";
 
 interface Dependencies {
     classRepository: IClassRepository; staffRepository: IStaffRepository; sessionRepository: ISessionRepository;
@@ -25,7 +26,7 @@ export class AssignSubjectUseCase {
 
     async execute(schoolId: string, classId: string, dto: AssignSubjectDtoType, actor: ClassActor): Promise<AssignmentResponse> {
         const d = this.d;
-        if (!(await d.classRepository.findClassById(classId))) throw classErrors.notFound();
+        await loadManageable(d.classRepository, classId, actor.access);
         if (!(await d.classRepository.findSubjectById(dto.subjectId))) throw classErrors.subjectNotFound();
         if (!(await d.sessionRepository.findTermById(dto.termId))) throw classErrors.termNotFound();
         await requireTeachingStaff(d.staffRepository, dto.staffId, classErrors.subjectTeacherInvalid);

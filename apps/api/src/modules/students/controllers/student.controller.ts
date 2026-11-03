@@ -31,7 +31,8 @@ const schoolIdOf = (req: Request): string => req.schoolId as string;
 const idOf = (req: Request): string => String(req.params.id);
 const actorOf = (req: Request): StudentActor => {
     if (!req.auth) throw studentErrors.notFound();
-    return { userId: req.auth.userId };
+    const access = req.access;
+    return { userId: req.auth.userId, staffId: access?.persona === "STAFF" ? access.personaEntityId ?? null : null };
 };
 
 export class StudentController {

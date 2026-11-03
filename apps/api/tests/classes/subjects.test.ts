@@ -13,7 +13,7 @@ import { GetClassSubjectsUseCase } from "../../src/modules/classes/usecases/scho
 
 const U = (n: number) => `${n}${n}${n}${n}${n}${n}${n}${n}-${n}${n}${n}${n}-4${n}${n}${n}-8${n}${n}${n}-${String(n).repeat(12)}`;
 const CLASS = U(1), SUBJ = U(2), SUBJ2 = U(3), TEACHER = U(4), TEACHER2 = U(5), TERM = U(6), SESSION = U(7);
-const actor = { userId: "u1" };
+const actor = { userId: "u1", access: { scopeOf: () => "ALL", branchScope: () => "ALL", canActInBranch: () => true } as any };
 
 describe("subject DTOs", () => {
     it("code is saved in capitals; bad codes, unknown fields and blank names are refused", () => {
@@ -177,9 +177,9 @@ describe("subjects of a class", () => {
             { classSubjectId: null, classId: CLASS, subjectId: SUBJ2, subjectName: "English", subjectCode: null, staffId: null, termId: TERM, assignedVia: null },
         ];
         const { deps } = world({ rows });
-        const out = await new GetClassSubjectsUseCase(deps).execute(CLASS);
+        const out = await new GetClassSubjectsUseCase(deps).execute(actor.access, CLASS);
         assert.equal(out[0].subject.name, "Maths"); assert.ok(out[0].teacher?.name.startsWith("Ada"));
         assert.deepEqual([out[1].id, out[1].teacher], [null, null]);
-        await assert.rejects(new GetClassSubjectsUseCase(deps).execute(U(9)), { code: "NOT_FOUND" });
+        await assert.rejects(new GetClassSubjectsUseCase(deps).execute(actor.access, U(9)), { code: "NOT_FOUND" });
     });
 });

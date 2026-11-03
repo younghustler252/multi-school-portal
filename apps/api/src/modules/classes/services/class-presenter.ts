@@ -7,6 +7,7 @@ import { StaffNameLookup, StaffRef } from "./staff-names";
 export interface ClassRow {
     id: string; name: string; level: string | null; capacity: number | null;
     classTeacherId: string | null; studentCount: number; createdAt: Date;
+    branchId: string; branchName: string | null;
 }
 export interface NameRef { id: string; name: string }
 
@@ -16,6 +17,7 @@ export interface ClassResponse {
     level:        string | null;
     capacity:     number | null;
     classTeacher: StaffRef | null;
+    branch:       NameRef;
     studentCount: number;
     nextClass?:   NameRef | null;
     createdAt:    Date;
@@ -35,6 +37,6 @@ export class ClassPresenter {
     }
 
     private build(r: ClassRow, classTeacher: StaffRef | null): ClassResponse {
-        return { id: r.id, name: r.name, level: r.level, capacity: r.capacity, classTeacher, studentCount: r.studentCount, createdAt: r.createdAt };
+        return { id: r.id, name: r.name, level: r.level, capacity: r.capacity, classTeacher, branch: { id: r.branchId, name: r.branchName ?? "" }, studentCount: r.studentCount, createdAt: r.createdAt };
     }
 }

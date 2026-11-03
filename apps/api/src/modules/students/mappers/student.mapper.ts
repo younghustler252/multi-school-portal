@@ -28,6 +28,8 @@ export interface StudentResponseData {
     lifecycle:       StudentLifecycle;     // active | graduated | inactive
     graduatedAt:     Date | null;
     admittedAt:      Date | null;
+    branchId:        string;
+    branch:          { id: string; name: string } | null;   // filled in by StudentPhotoService (one lookup per page)
     createdAt:       Date;
 }
 
@@ -53,6 +55,7 @@ export class StudentMapper implements IMapper<any, StudentEntity> {
             graduatedAt:     raw.graduatedAt     ?? null,
             graduatedTermId: raw.graduatedTermId ?? null,
             admittedAt:      raw.admittedAt      ?? null,
+            branchId:        raw.branchId,
             createdAt:       raw.createdAt,
             updatedAt:       raw.updatedAt,
         };
@@ -79,6 +82,8 @@ export class StudentMapper implements IMapper<any, StudentEntity> {
             lifecycle:       studentLifecycle(entity),
             graduatedAt:     entity.graduatedAt,
             admittedAt:      entity.admittedAt,
+            branchId:        entity.branchId,
+            branch:          null,
             createdAt:       entity.createdAt,
         };
     }

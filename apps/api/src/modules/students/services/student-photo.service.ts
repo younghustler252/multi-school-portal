@@ -2,6 +2,7 @@ import { SupabaseStorageService } from "../../../infrastructure/storage/supabase
 import { StudentEntity } from "../domain/student.entity";
 import { StudentMapper, StudentResponseData } from "../mappers/student.mapper";
 import { PHOTO_URL_TTL_SECONDS } from "../domain/student.policy";
+import { branchNames } from "./student-branch";
 
 /*
 | STUDENT PHOTO LINKS. Photos live in the PRIVATE bucket. A student is only ever read through a use case that has
@@ -18,8 +19,13 @@ export class StudentPhotoService {
         try { links = await this.d.storageService.getSignedUrls(paths, undefined, PHOTO_URL_TTL_SECONDS); }
         catch (err) { console.warn("Student photo links could not be created:", (err as Error).message); }
 
+        // Like photo links: if the branch names cannot be read the student is still returned, just without the name.
+        let branches = new Map<string, string>();
+        try { branches = await branchNames(students.map(s => s.branchId)); }
+        catch (err) { console.warn("Student branch names could not be read:", (err as Error).message); }
         return students.map(s => ({
             ...this.d.studentMapper.toResponse(s),
+            branch: branches.has(s.branchId) ? { id: s.branchId, name: branches.get(s.branchId)! } : null,
             // An old full web address (from before photos were private) is passed through unchanged
             photoUrl: s.photoUrl ? (/^https?:\/\//.test(s.photoUrl) ? s.photoUrl : links.get(s.photoUrl) ?? null) : null,
         }));

@@ -4,6 +4,7 @@ import { IClassRepository } from "../../repositories/class.repository";
 import { SubjectPresenter, AssignmentResponse } from "../../services/subject-presenter";
 import { classErrors } from "../../domain/class.errors";
 import { ClassActor } from "../../domain/class.types";
+import { loadManageable } from "../../services/class-branch";
 
 interface Dependencies { classRepository: IClassRepository; subjectPresenter: SubjectPresenter; auditService: AuditService }
 
@@ -11,6 +12,7 @@ interface Dependencies { classRepository: IClassRepository; subjectPresenter: Su
 export async function removeAssignment(d: Dependencies, schoolId: string, classSubjectId: string, actor: ClassActor, action: string): Promise<AssignmentResponse> {
     const existing = await d.classRepository.findClassSubjectById(classSubjectId);
     if (!existing) throw classErrors.assignmentNotFound();
+    await loadManageable(d.classRepository, existing.classId, actor.access);
     const grades = await getTenantClient().grade.count({ where: { classSubjectId } });
     if (grades > 0) throw classErrors.assignmentInUse(grades);
 

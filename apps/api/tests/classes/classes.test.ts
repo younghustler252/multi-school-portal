@@ -9,11 +9,20 @@ import { ClassPresenter } from "../../src/modules/classes/services/class-present
 import { CreateClassUseCase } from "../../src/modules/classes/usecases/school-admin/create-class.usecase";
 import { UpdateClassUseCase } from "../../src/modules/classes/usecases/school-admin/update-class.usecase";
 import { SetClassTeacherUseCase } from "../../src/modules/classes/usecases/school-admin/set-classteacher.usecase";
+import { GetClassesUseCase } from "../../src/modules/classes/usecases/school-admin/get-classes.usecase";
+import { GetClassByIdUseCase } from "../../src/modules/classes/usecases/school-admin/get-class-by-id.usecase";
 import { SetClassProgressionUseCase } from "../../src/modules/classes/usecases/school-admin/set-class-progression.usecase";
 
 const C1 = "11111111-1111-4111-8111-111111111111", C2 = "22222222-2222-4222-8222-222222222222", C3 = "33333333-3333-4333-8333-333333333333";
 const T1 = "44444444-4444-4444-8444-444444444444";
-const actor = { userId: "u1" };
+// A person's reach, as the Access service answers it: school-wide, or limited to some branches.
+const accessFor = (branches: "ALL" | string[]): any => ({
+    scopeOf: () => (branches === "ALL" ? "ALL" : "BRANCH"),
+    branchScope: () => branches,
+    canActInBranch: (_k: string, b: string) => branches === "ALL" || branches.includes(b),
+});
+const MAIN = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb", NORTH = "cccccccc-cccc-4ccc-8ccc-cccccccccccc";
+const actor = { userId: "u1", access: accessFor("ALL") };
 
 describe("class permissions and templates", () => {
     it("registry is valid; both keys exist once; staff roles can view classes, only the admin manages", () => {
@@ -22,7 +31,10 @@ describe("class permissions and templates", () => {
         assert.equal(PERMISSION_REGISTRY.find(p => p.key === "classes.manage")?.isSensitive, true);
         for (const k of ["principal", "branch_principal", "teacher", "bursar"])
             assert.ok(ROLE_TEMPLATES.find(t => t.key === k)!.permissions.some(p => p.key === "classes.view"), `${k} cannot view classes`);
-        for (const t of ROLE_TEMPLATES) assert.ok(!t.permissions.some(p => p.key === "classes.manage"));
+        for (const t of ROLE_TEMPLATES.filter(t => t.key !== "branch_principal")) assert.ok(!t.permissions.some(p => p.key === "classes.manage"));
+        const bp = ROLE_TEMPLATES.find(t => t.key === "branch_principal")!.permissions;
+        for (const k of ["classes.view", "classes.manage", "grades.view"]) assert.equal(bp.find(p => p.key === k)?.scope, "BRANCH", `${k} should be BRANCH for a branch principal`);
+        for (const k of ["classes.view", "classes.manage"]) assert.deepEqual(PERMISSION_REGISTRY.find(p => p.key === k)?.scopes, ["ALL", "BRANCH"]);
         for (const k of ["student", "guardian"]) assert.ok(!ROLE_TEMPLATES.find(t => t.key === k)!.permissions.some(p => p.key === "classes.view"));
     });
 });
@@ -81,7 +93,7 @@ describe("staff names", () => {
 });
 
 // ── use cases with in-memory fakes ───────────────────────────────────────────
-const row = (o: any = {}) => ({ id: C1, name: "JSS 1", level: "JSS", capacity: 30, classTeacherId: null, studentCount: 25, createdAt: new Date("2025-01-01"), ...o });
+const row = (o: any = {}) => ({ id: C1, name: "JSS 1", level: "JSS", capacity: 30, classTeacherId: null, branchId: MAIN, branchName: "Main", studentCount: 25, createdAt: new Date("2025-01-01"), ...o });
 function fakes(over: any = {}) {
     const state = { updates: [] as any[], audits: [] as any[], progress: [] as any[], recascades: [] as any[] };
     const classes = [row(), row({ id: C2, name: "JSS 2", classTeacherId: null }), row({ id: C3, name: "JSS 3" })];
@@ -94,6 +106,9 @@ function fakes(over: any = {}) {
         findClassProgression: async (id: string) => (over.progression ?? {})[id] ?? null,
         findClassProgressionEnriched: async () => null,
         setClassProgression: async (d: any) => { state.progress.push(d); return d; },
+        findMainBranch: async () => ({ id: MAIN, name: "Main" }),
+        findBranchById: async (id: string) => ({ [MAIN]: { id: MAIN, name: "Main", isActive: true, deletedAt: null }, [NORTH]: { id: NORTH, name: "North", isActive: over.northActive ?? true, deletedAt: null } } as any)[id] ?? null,
+        countEnrolmentsForMove: async () => over.enrolments ?? 0,
     };
     const staffRepository: any = { findById: async (id: string) => over.staff?.[id] ?? null };
     const sessionRepository: any = { findCurrentTerm: async () => ({ id: "term1" }) };
@@ -165,5 +180,56 @@ describe("class progression", () => {
     it("a valid next class is answered with names", async () => {
         const { deps } = fakes();
         assert.deepEqual(await new SetClassProgressionUseCase(deps).execute("s", C1, C2, actor), { class: { id: C1, name: "JSS 1" }, nextClass: { id: C2, name: "JSS 2" } });
+    });
+});
+
+describe("classes and branches", () => {
+    const north = accessFor([NORTH]), both = accessFor([MAIN, NORTH]), nobody = accessFor([]);
+    it("a new class goes to the asked branch, else your only branch, else the main branch; several branches means you must choose", async () => {
+        const { deps, state } = fakes();
+        assert.equal((await new CreateClassUseCase(deps).execute("s", { name: "SS 1" } as any, actor)).branch.id, MAIN);
+        assert.equal((await new CreateClassUseCase(deps).execute("s", { name: "SS 2" } as any, { userId: "u", access: north })).branch.id, NORTH);
+        assert.equal((await new CreateClassUseCase(deps).execute("s", { name: "SS 3", branchId: NORTH } as any, actor)).branch.name, "North");
+        assert.equal(state.audits.at(-1).newValue.branch, "North");
+        await assert.rejects(new CreateClassUseCase(deps).execute("s", { name: "SS 4" } as any, { userId: "u", access: both }), { code: "BRANCH_REQUIRED" });
+        await assert.rejects(new CreateClassUseCase(deps).execute("s", { name: "SS 5" } as any, { userId: "u", access: nobody }), { code: "BRANCH_OUT_OF_SCOPE" });
+    });
+    it("a branch person cannot create in another branch; an inactive or unknown branch is refused", async () => {
+        const { deps } = fakes({ northActive: false });
+        await assert.rejects(new CreateClassUseCase(deps).execute("s", { name: "SS 1", branchId: MAIN } as any, { userId: "u", access: accessFor([NORTH]) }), { code: "BRANCH_OUT_OF_SCOPE" });
+        await assert.rejects(new CreateClassUseCase(deps).execute("s", { name: "SS 1", branchId: NORTH } as any, actor), { code: "BRANCH_INVALID" });
+        await assert.rejects(new CreateClassUseCase(deps).execute("s", { name: "SS 1", branchId: C1 } as any, actor), { code: "BRANCH_INVALID" });
+    });
+    it("a class of another branch looks missing to view and is refused for every change", async () => {
+        const { deps } = fakes();
+        const other = { userId: "u", access: accessFor([NORTH]) };      // the fake classes all sit in MAIN
+        await assert.rejects(new GetClassByIdUseCase(deps).execute(other.access, C1), { code: "NOT_FOUND" });
+        await assert.rejects(new UpdateClassUseCase(deps).execute("s", C1, { capacity: 35 }, other), { code: "NOT_FOUND" });
+        const viewOnly: any = { ...accessFor([MAIN]), canActInBranch: (k: string) => k === "classes.view" };
+        await assert.rejects(new UpdateClassUseCase(deps).execute("s", C1, { capacity: 35 }, { userId: "u", access: viewOnly }), { code: "BRANCH_OUT_OF_SCOPE" });
+        await assert.rejects(new SetClassTeacherUseCase(deps).execute("s", C1, null, { userId: "u", access: viewOnly }), { code: "BRANCH_OUT_OF_SCOPE" });
+        await assert.rejects(new SetClassProgressionUseCase(deps).execute("s", C1, C2, { userId: "u", access: viewOnly }), { code: "BRANCH_OUT_OF_SCOPE" });
+    });
+    it("the list shows only your branches, and the filter can only narrow it", async () => {
+        const seen: any[] = [];
+        const deps: any = { sessionRepository: { findCurrentTerm: async () => ({ id: "t" }) }, classPresenter: { many: async (r: any) => r }, classRepository: { findAllClassesEnriched: async (_t: any, b: any) => { seen.push(b); return []; } } };
+        const uc = new GetClassesUseCase(deps);
+        await uc.execute(actor.access); await uc.execute(actor.access, undefined, NORTH);
+        await uc.execute(both, undefined, undefined); await uc.execute(accessFor([NORTH]), undefined, NORTH);
+        assert.deepEqual(seen, [undefined, [NORTH], [MAIN, NORTH], [NORTH]]);
+        seen.length = 0;
+        assert.deepEqual(await uc.execute(accessFor([NORTH]), undefined, MAIN), []); assert.deepEqual(await uc.execute(nobody), []);
+        assert.equal(seen.length, 0);                                       // nothing allowed: the database is not even asked
+    });
+    it("a class moves branch only while it has no enrolments this term; the move is audited with branch names", async () => {
+        const stuck = fakes({ enrolments: 3 });
+        await assert.rejects(new UpdateClassUseCase(stuck.deps).execute("s", C1, { branchId: NORTH }, actor), { code: "CLASS_BRANCH_HAS_STUDENTS", details: { students: 3 } });
+        const ok = fakes();
+        await new UpdateClassUseCase(ok.deps).execute("s", C1, { branchId: NORTH }, actor);
+        assert.deepEqual(ok.state.updates[0], { branchId: NORTH });
+        assert.equal(ok.state.audits[0].oldValue.branch, "Main"); assert.equal(ok.state.audits[0].newValue.branch, "North");
+        await new UpdateClassUseCase(ok.deps).execute("s", C1, { branchId: MAIN }, actor);   // same branch: nothing to do
+        assert.equal(ok.state.updates.length, 1);
+        await assert.rejects(new UpdateClassUseCase(ok.deps).execute("s", C1, { branchId: NORTH }, { userId: "u", access: accessFor([MAIN]) }), { code: "BRANCH_OUT_OF_SCOPE" });
     });
 });

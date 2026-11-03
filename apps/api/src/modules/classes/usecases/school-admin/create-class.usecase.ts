@@ -5,6 +5,7 @@ import { classErrors } from "../../domain/class.errors";
 import { classWriteError } from "../../domain/class.conflicts";
 import { ClassActor } from "../../domain/class.types";
 import { CreateClassDtoType } from "../../dtos/class.dto";
+import { resolveNewClassBranch } from "../../services/class-branch";
 
 interface Dependencies { classRepository: IClassRepository; classPresenter: ClassPresenter; auditService: AuditService }
 export const sameName = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
@@ -17,8 +18,9 @@ export class CreateClassUseCase {
         const { classRepository: repo } = this.d;
         if ((await repo.findAllClasses()).some(c => sameName(c.name, dto.name))) throw classErrors.nameTaken();
 
-        const created = await repo.createClass({ name: dto.name, level: dto.level, capacity: dto.capacity }).catch(err => { throw classWriteError(err); });
-        await this.d.auditService.log({ userId: actor.userId, schoolId, action: "class.created", entity: "Class", entityId: created.id, newValue: { name: created.name, level: created.level, capacity: created.capacity } });
-        return this.d.classPresenter.one({ id: created.id, name: created.name, level: created.level, capacity: created.capacity, classTeacherId: null, studentCount: 0, createdAt: created.createdAt });
+        const branch = await resolveNewClassBranch(repo, dto.branchId, actor.access);
+        const created = await repo.createClass({ name: dto.name, level: dto.level, capacity: dto.capacity, branchId: branch.id }).catch(err => { throw classWriteError(err); });
+        await this.d.auditService.log({ userId: actor.userId, schoolId, action: "class.created", entity: "Class", entityId: created.id, newValue: { name: created.name, level: created.level, capacity: created.capacity, branch: branch.name } });
+        return this.d.classPresenter.one({ id: created.id, name: created.name, level: created.level, capacity: created.capacity, classTeacherId: null, branchId: branch.id, branchName: branch.name, studentCount: 0, createdAt: created.createdAt });
     }
 }

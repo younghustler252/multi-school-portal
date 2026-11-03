@@ -5,6 +5,7 @@
 import { describe, it, before, after } from "node:test";
 import assert from "node:assert/strict";
 import { createTestSchool, dbTestsEnabled, skipReason, TestSchool } from "../helpers/test-database";
+import { mainBranchId } from "../helpers/test-database";
 import { Access } from "../../src/foundation/access.service";
 import { GradesSheetsRepository } from "../../src/modules/grades/repositories/grades-sheets.repository";
 import { GradeRepositoryImpl } from "../../src/modules/grades/repositories/grade.repository.impl";
@@ -47,8 +48,9 @@ describe("mark sheets (real database)", { skip: dbTestsEnabled ? false : skipRea
             const term = await d.term.create({ data: { sessionId: session.id, name: "first", startDate: new Date("2026-09-01"), endDate: new Date("2026-12-15"), isCurrent: true } });
             const staff = (n: string) => d.staff.create({ data: { firstName: n, lastName: "Teacher" } });
             const tA = await staff("Tola"), tB = await staff("Bisi"), tC = await staff("Chuka");
-            const C1 = await d.class.create({ data: { name: "JSS 1A", level: "JSS", classTeacherId: tA.id } });
-            const C2 = await d.class.create({ data: { name: "JSS 1B", level: "JSS" } });
+            const branchId = await mainBranchId(d);
+            const C1 = await d.class.create({ data: { name: "JSS 1A", branchId, level: "JSS", classTeacherId: tA.id } });
+            const C2 = await d.class.create({ data: { name: "JSS 1B", branchId, level: "JSS" } });
             const maths = await d.subject.create({ data: { name: "Maths" } }), eng = await d.subject.create({ data: { name: "English" } }), sci = await d.subject.create({ data: { name: "Science" } });
             const csMaths = await d.classSubject.create({ data: { classId: C1.id, subjectId: maths.id, staffId: tB.id, termId: term.id } });
             const csEng = await d.classSubject.create({ data: { classId: C1.id, subjectId: eng.id, staffId: tC.id, termId: term.id } });

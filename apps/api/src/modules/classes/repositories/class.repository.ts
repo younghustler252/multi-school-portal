@@ -67,12 +67,14 @@ export interface IClassRepository {
 
     findSubjectNamesByClassSubjectIds(ids: string[]): Promise<Map<string, string>>;
 
-    findAllClassesEnriched(termId: string | null): Promise<Array<{
+    findAllClassesEnriched(termId: string | null, branchIds?: string[]): Promise<Array<{
         id:             string;
         name:           string;
         level:          string | null;
         capacity:       number | null;
         classTeacherId: string | null;
+        branchId:       string;
+        branchName:     string | null;
         studentCount:   number;
         createdAt:      Date;
     }>>;
@@ -83,9 +85,17 @@ export interface IClassRepository {
         level:          string | null;
         capacity:       number | null;
         classTeacherId: string | null;
+        branchId:       string;
+        branchName:     string | null;
         studentCount:   number;
         createdAt:      Date;
     } | null>;
+
+    // ── Branches (a class belongs to exactly one) ─────────────────────────
+    findBranchById(id: string):   Promise<{ id: string; name: string; isActive: boolean; deletedAt: Date | null } | null>;
+    findMainBranch():             Promise<{ id: string; name: string } | null>;
+    /** Enrolments that would be left behind by moving the class: this term's (any status), or the active ones when no term is current. */
+    countEnrolmentsForMove(classId: string, termId: string | null): Promise<number>;
 
     findAllClassProgressions(): Promise<Array<{ fromClassId: string; toClassId: string | null }>>;
     findClassProgression(fromClassId: string):      Promise<ClassProgressionEntity | null>;

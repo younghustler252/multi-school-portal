@@ -7,11 +7,13 @@ import { StudentMapper, StudentResponseData } from "../mappers/student.mapper";
 import { studentErrors } from "../domain/student.errors";
 import { ADMISSION_NUMBER_SEQUENCE, MAX_ADMISSION_TRIES, admissionYear, formatAdmissionNumber } from "../domain/student.policy";
 import { StudentActor } from "../domain/student.types";
+import { StudentPhotoService } from "../services/student-photo.service";
+import { resolveNewStudentBranch } from "../services/student-branch";
 import { CreateStudentDtoType } from "../dtos/student.dto";
 
 interface Dependencies {
     studentRepository: IStudentRepository; studentMapper: StudentMapper;
-    numberSequenceService: NumberSequenceService; auditService: AuditService;
+    numberSequenceService: NumberSequenceService; auditService: AuditService; studentPhotoService: StudentPhotoService;
 }
 
 type Tx = Parameters<NumberSequenceService["next"]>[2] & { student: ReturnType<typeof getTenantClient>["student"] };
@@ -36,6 +38,7 @@ export async function nextAdmissionNumber(seq: NumberSequenceService, tx: Tx, ad
 | invitation (the old version emailed a temporary password and made a login for everyone).
 |  - the plan's student limit is checked first
 |  - same admission number is refused; same name + date of birth asks for confirmation
+|  - the student goes to the branch asked for, else the creator's own branch (when they work in exactly one), else the main branch
 |  - the admission number is made automatically (2026/0001) inside the same transaction as the record,
 |    unless one was typed
 |--------------------------------------------------------------------------
@@ -57,6 +60,7 @@ export class CreateStudentUseCase {
             if (dup) throw studentErrors.possibleDuplicate(dup.id);
         }
 
+        const branch = await resolveNewStudentBranch(dto.branchId, actor.staffId);
         const admittedAt = dto.admittedAt ? new Date(dto.admittedAt) : new Date();
         const db = getTenantClient();
         let created;
@@ -68,7 +72,7 @@ export class CreateStudentUseCase {
                         admissionNumber, firstName: dto.firstName, lastName: dto.lastName, middleName: dto.middleName,
                         dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : undefined,
                         gender: dto.gender, bloodGroup: dto.bloodGroup, address: dto.address, religion: dto.religion,
-                        nationality: dto.nationality, stateOfOrigin: dto.stateOfOrigin, admittedAt, isActive: true,
+                        nationality: dto.nationality, stateOfOrigin: dto.stateOfOrigin, admittedAt, isActive: true, branchId: branch.id,
                     },
                 });
             });
@@ -79,8 +83,8 @@ export class CreateStudentUseCase {
 
         await d.auditService.log({
             userId: actor.userId, schoolId, action: "student.created", entity: "Student", entityId: created.id,
-            newValue: { name: `${dto.firstName} ${dto.lastName}`, admissionNumber: created.admissionNumber },
+            newValue: { name: `${dto.firstName} ${dto.lastName}`, admissionNumber: created.admissionNumber, branch: branch.name },
         });
-        return d.studentMapper.toResponse(d.studentMapper.toDomain(created));
+        return d.studentPhotoService.toResponse(d.studentMapper.toDomain(created));
     }
 }

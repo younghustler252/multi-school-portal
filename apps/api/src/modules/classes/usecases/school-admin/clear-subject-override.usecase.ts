@@ -6,6 +6,7 @@ import { SubjectPresenter, AssignmentResponse } from "../../services/subject-pre
 import { classErrors } from "../../domain/class.errors";
 import { ClassActor } from "../../domain/class.types";
 import { removeAssignment } from "./remove-subject.usecase";
+import { loadManageable } from "../../services/class-branch";
 
 interface Dependencies {
     classRepository: IClassRepository; classSubjectResolutionService: ClassSubjectResolutionService;
@@ -23,6 +24,7 @@ export class ClearSubjectOverrideUseCase {
         const d = this.d;
         const existing = await d.classRepository.findClassSubjectById(classSubjectId);
         if (!existing) throw classErrors.assignmentNotFound();
+        await loadManageable(d.classRepository, existing.classId, actor.access);
         const resolved = await d.classSubjectResolutionService.resolve(existing.classId, existing.subjectId);
         if (!resolved) return { removed: true, assignment: await removeAssignment(d, schoolId, classSubjectId, actor, "class_subject.override_cleared") };
 

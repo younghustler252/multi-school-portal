@@ -24,6 +24,7 @@ export interface StudentEntity {
     graduatedAt:     Date | null;       // set only by the promotion run; separate from isActive
     graduatedTermId: string | null;
     admittedAt:      Date | null;
+    branchId:        string;
     createdAt:       Date;
     updatedAt:       Date;
 }

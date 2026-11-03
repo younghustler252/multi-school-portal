@@ -89,3 +89,9 @@ export async function createTestSchool(): Promise<TestSchool> {
         },
     };
 }
+
+/** Every class belongs to a branch. Provisioning creates the main branch; test schemas get it here (once). */
+export async function mainBranchId(db: any): Promise<string> {
+    const found = await db.branch.findFirst({ where: { isMain: true, deletedAt: null }, select: { id: true } });
+    return found?.id ?? (await db.branch.create({ data: { name: "Main", code: "MAIN", isMain: true } })).id;
+}

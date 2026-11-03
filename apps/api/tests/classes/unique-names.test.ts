@@ -43,10 +43,10 @@ describe("class and subject conflicts", () => {
     it("CreateClass reports the clash a race produced, with no audit entry", async () => {
         const audits: any[] = [];
         const d: any = {
-            classRepository: { findAllClasses: async () => [], createClass: async () => { throw adapterError(["lower(btrim(name"]); } },
+            classRepository: { findAllClasses: async () => [], findMainBranch: async () => ({ id: "b1", name: "Main" }), findBranchById: async () => ({ id: "b1", name: "Main", isActive: true, deletedAt: null }), createClass: async () => { throw adapterError(["lower(btrim(name"]); } },
             auditService: { log: async (p: any) => audits.push(p) }, classPresenter: {},
         };
-        await assert.rejects(() => new CreateClassUseCase(d).execute("sch", { name: "JSS 1", level: "JSS", capacity: 30 } as any, { userId: "u" } as any), (e: any) => e.code === "CLASS_NAME_TAKEN");
+        await assert.rejects(() => new CreateClassUseCase(d).execute("sch", { name: "JSS 1", level: "JSS", capacity: 30 } as any, { userId: "u", access: { branchScope: () => "ALL", canActInBranch: () => true } } as any), (e: any) => e.code === "CLASS_NAME_TAKEN");
         assert.equal(audits.length, 0);
     });
 });

@@ -7,6 +7,7 @@ import { planTermAssignments } from "../../services/class-subject-plan";
 import { ClassSubjectAssignmentSource } from "../../domain/class.enums";
 import { classErrors } from "../../domain/class.errors";
 import { ClassActor } from "../../domain/class.types";
+import { requireAll } from "../../services/class-branch";
 
 interface Dependencies { classRepository: IClassRepository; sessionRepository: ISessionRepository; teachingModelReader: TeachingModelReader; auditService: AuditService }
 
@@ -19,6 +20,7 @@ export class ApplyDefaultsUseCase {
     constructor(private readonly d: Dependencies) {}
 
     async execute(schoolId: string, actor: ClassActor): Promise<{ applied: number; message: string }> {
+        requireAll(actor.access);
         const d = this.d;
         const term = await d.sessionRepository.findCurrentTerm();
         if (!term) throw classErrors.noCurrentTerm();

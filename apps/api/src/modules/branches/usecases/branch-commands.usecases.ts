@@ -97,8 +97,9 @@ export class SetBranchActiveUseCase {
 
         if (!active) {
             if (branch.isMain) throw branchErrors.mainProtected("deactivated");
-            const inUse = await d.branchUsageService.inUse(id);
-            if (inUse > 0) throw branchErrors.inUse(inUse);
+            const parts = await d.branchUsageService.breakdown(id);
+            const inUse = Object.values(parts).reduce((a, b) => a + b, 0);
+            if (inUse > 0) throw branchErrors.inUse(inUse, parts);
         } else {
             await assertWithinPlanLimit(schoolId, "branch", 1);
         }
@@ -118,8 +119,9 @@ export class DeleteBranchUseCase {
         if (!branch) throw branchErrors.notFound();
         if (branch.isMain) throw branchErrors.mainProtected("deleted");
         if (branch.isActive) throw branchErrors.notDeactivated();
-        const inUse = await d.branchUsageService.inUse(id);
-        if (inUse > 0) throw branchErrors.inUse(inUse);
+        const parts = await d.branchUsageService.breakdown(id);
+        const inUse = Object.values(parts).reduce((a, b) => a + b, 0);
+        if (inUse > 0) throw branchErrors.inUse(inUse, parts);
 
         await d.branchRepository.delete(id);
         await d.auditService.log({ userId: actorUserId, schoolId, action: "branch.deleted", entity: "Branch", entityId: id });

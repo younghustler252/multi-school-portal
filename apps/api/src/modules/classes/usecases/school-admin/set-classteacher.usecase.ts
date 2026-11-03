@@ -8,6 +8,7 @@ import { StaffNameLookup } from "../../services/staff-names";
 import { ClassPresenter, ClassResponse } from "../../services/class-presenter";
 import { classErrors } from "../../domain/class.errors";
 import { ClassActor } from "../../domain/class.types";
+import { assertCanManage } from "../../services/class-branch";
 
 interface Dependencies {
     classRepository: IClassRepository; staffRepository: IStaffRepository; sessionRepository: ISessionRepository;
@@ -27,6 +28,7 @@ export class SetClassTeacherUseCase {
         const d = this.d;
         const cls = await d.classRepository.findClassById(classId);
         if (!cls) throw classErrors.notFound();
+        assertCanManage(cls, actor.access);
         if (staffId) {
             const staff = await d.staffRepository.findById(staffId);
             if (!staff) throw classErrors.staffNotFound();

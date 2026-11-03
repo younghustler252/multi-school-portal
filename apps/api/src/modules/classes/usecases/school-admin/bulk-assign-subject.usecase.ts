@@ -11,6 +11,7 @@ import { ClassSubjectAssignmentSource } from "../../domain/class.enums";
 import { classErrors } from "../../domain/class.errors";
 import { ClassActor } from "../../domain/class.types";
 import { BulkAssignSubjectsDtoType } from "../../dtos/class.dto";
+import { assertCanManage } from "../../services/class-branch";
 
 interface Dependencies {
     classRepository: IClassRepository; staffRepository: IStaffRepository; sessionRepository: ISessionRepository;
@@ -30,6 +31,7 @@ export class BulkAssignSubjectsUseCase {
         const d = this.d;
         const cls = await d.classRepository.findClassById(classId);
         if (!cls) throw classErrors.notFound();
+        assertCanManage(cls, actor.access);
         const term = await d.subjectPresenter.term(dto.termId);
         if (!term) throw classErrors.termNotFound();
         await requireTeachingStaff(d.staffRepository, dto.staffId, classErrors.subjectTeacherInvalid);

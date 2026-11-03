@@ -31,6 +31,7 @@ export class ListStudentsUseCase {
                 studentScopeWhere(access),
                 statusWhere(query.status),
                 query.gender ? { gender: query.gender } : {},
+                query.branchId ? { branchId: query.branchId } : {},
             ],
         };
         const params = { page: query.page, limit: query.limit, where, orderBy: { createdAt: "desc" } };

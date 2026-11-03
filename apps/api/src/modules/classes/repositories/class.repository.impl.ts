@@ -299,16 +299,21 @@ export class ClassRepositoryImpl
 
     async findAllClassesEnriched(
         termId: string | null,
+        branchIds?: string[],
     ): Promise<Array<{
         id: string;
         name: string;
         level: string | null;
         capacity: number | null;
         classTeacherId: string | null;
+        branchId: string;
+        branchName: string | null;
         studentCount: number;
         createdAt: Date;
     }>> {
         const classes = await this.prisma.class.findMany({
+            where: branchIds ? { branchId: { in: branchIds } } : {},
+            include: { branch: { select: { name: true } } },
             orderBy: { name: "asc" },
         });
 
@@ -336,6 +341,8 @@ export class ClassRepositoryImpl
             level: c.level,
             capacity: c.capacity,
             classTeacherId: c.classTeacherId,
+            branchId: c.branchId,
+            branchName: c.branch.name,
             studentCount: countMap.get(c.id) ?? 0,
             createdAt: c.createdAt,
         }));
@@ -350,11 +357,14 @@ export class ClassRepositoryImpl
         level: string | null;
         capacity: number | null;
         classTeacherId: string | null;
+        branchId: string;
+        branchName: string | null;
         studentCount: number;
         createdAt: Date;
     } | null> {
         const cls = await this.prisma.class.findUnique({
             where: { id },
+            include: { branch: { select: { name: true } } },
         });
 
         if (!cls) return null;
@@ -377,9 +387,23 @@ export class ClassRepositoryImpl
             level: cls.level,
             capacity: cls.capacity,
             classTeacherId: cls.classTeacherId,
+            branchId: cls.branchId,
+            branchName: cls.branch.name,
             studentCount,
             createdAt: cls.createdAt,
         };
+    }
+
+    async findBranchById(id: string) {
+        return this.prisma.branch.findUnique({ where: { id }, select: { id: true, name: true, isActive: true, deletedAt: true } });
+    }
+
+    async findMainBranch() {
+        return this.prisma.branch.findFirst({ where: { isMain: true, deletedAt: null }, select: { id: true, name: true } });
+    }
+
+    async countEnrolmentsForMove(classId: string, termId: string | null): Promise<number> {
+        return this.prisma.enrolment.count({ where: termId ? { classId, termId } : { classId, status: "active" } });
     }
 
     async findAllClassProgressions(): Promise<Array<{ fromClassId: string; toClassId: string | null }>> {

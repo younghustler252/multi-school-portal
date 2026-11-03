@@ -29,6 +29,7 @@ export class ClassMapper implements IMapper<any, ClassEntity> {
             level: raw.level ?? null,
             capacity: raw.capacity ?? null,
             classTeacherId: raw.classTeacherId ?? null,
+            branchId: raw.branchId,
             createdAt: raw.createdAt,
             updatedAt: raw.updatedAt,
         };
@@ -41,6 +42,7 @@ export class ClassMapper implements IMapper<any, ClassEntity> {
             level: entity.level,
             capacity: entity.capacity,
             classTeacherId: entity.classTeacherId,
+            branchId: entity.branchId,
             classTeacherName: null,
             studentCount: 0,
             createdAt: entity.createdAt,

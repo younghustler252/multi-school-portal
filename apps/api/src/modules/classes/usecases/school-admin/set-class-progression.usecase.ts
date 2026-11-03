@@ -4,6 +4,7 @@ import { classErrors } from "../../domain/class.errors";
 import { ClassActor } from "../../domain/class.types";
 import { findProgressionLoop } from "../../services/class-rules";
 import { NameRef } from "../../services/class-presenter";
+import { assertCanManage } from "../../services/class-branch";
 
 interface Dependencies { classRepository: IClassRepository; auditService: AuditService }
 export interface ClassProgressionResponse { class: NameRef; nextClass: NameRef | null }
@@ -20,11 +21,13 @@ export class SetClassProgressionUseCase {
         const { classRepository: repo } = this.d;
         const from = await repo.findClassById(fromId);
         if (!from) throw classErrors.notFound();
+        assertCanManage(from, actor.access);
         let to = null;
         if (toId) {
             if (toId === fromId) throw classErrors.progressionSelf();
             to = await repo.findClassById(toId);
             if (!to) throw classErrors.notFound();
+            assertCanManage(to, actor.access);
             const names = new Map((await repo.findAllClasses()).map(c => [c.id, c.name]));
             const loop = await findProgressionLoop(fromId, toId, async id => (await repo.findClassProgression(id))?.toClassId ?? null, id => names.get(id) ?? id);
             if (loop) throw classErrors.progressionLoop(loop);

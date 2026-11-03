@@ -3,6 +3,8 @@ import { ISessionRepository } from "../../../sessions/repositories/session.repos
 import { StaffNameLookup, StaffRef } from "../../services/staff-names";
 import { SubjectRef } from "../../services/subject-presenter";
 import { classErrors } from "../../domain/class.errors";
+import type { Access } from "../../../../foundation/access.service";
+import { assertCanView } from "../../services/class-branch";
 
 interface Dependencies { classRepository: IClassRepository; sessionRepository: ISessionRepository; staffNameLookup: StaffNameLookup }
 
@@ -13,10 +15,12 @@ export interface ClassSubjectLine { id: string | null; subject: SubjectRef; teac
 export class GetClassSubjectsUseCase {
     constructor(private readonly d: Dependencies) {}
 
-    async execute(classId: string, termId?: string): Promise<ClassSubjectLine[]> {
+    async execute(access: Access, classId: string, termId?: string): Promise<ClassSubjectLine[]> {
         const resolved = termId ?? (await this.d.sessionRepository.findCurrentTerm())?.id;
         if (!resolved) throw classErrors.termNotFound();
-        if (!(await this.d.classRepository.findClassById(classId))) throw classErrors.notFound();
+        const cls = await this.d.classRepository.findClassById(classId);
+        if (!cls) throw classErrors.notFound();
+        assertCanView(cls, access);
 
         const rows = await this.d.classRepository.findClassSubjectsEnriched(classId, resolved);
         const teachers = await this.d.staffNameLookup.byIds(rows.map(r => r.staffId));

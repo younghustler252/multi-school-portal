@@ -5,7 +5,8 @@ import type { Access } from "../../../foundation/access.service";
 |   scope ALL      -> every student
 |   scope OWN      -> a student sees only themselves; a guardian sees only their linked children
 |   scope ASSIGNED -> a teacher: students enrolled THIS term in a class they lead, or a class they teach this term
-|   BRANCH, or no permission -> nobody (a student has no branch of their own; classes are not linked to branches yet)
+|   scope BRANCH   -> the students whose own branch is one of the viewer's branches
+|   no permission  -> nobody
 */
 const NOBODY = { id: { in: [] as string[] } };
 
@@ -13,6 +14,7 @@ const NOBODY = { id: { in: [] as string[] } };
 export function studentScopeWhere(access: Access): Record<string, unknown> {
     const scope = access.scopeOf("students.view");
     if (scope === "ALL") return {};
+    if (scope === "BRANCH") return { branchId: { in: access.branchScope("students.view") as string[] } };
     if (scope === "ASSIGNED" && access.persona === "STAFF" && access.personaEntityId) {
         const me = access.personaEntityId;
         return { enrolments: { some: { term: { isCurrent: true }, class: { OR: [

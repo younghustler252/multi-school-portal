@@ -1,4 +1,4 @@
-import { AppError, NotFoundError } from "../../../shared/errors/domain.errors";
+import { AppError, ForbiddenError, NotFoundError } from "../../../shared/errors/domain.errors";
 
 /* The only place the classes module builds domain errors. Codes are stable; the frontend switches on them. */
 const conflict = (message: string, code: string, details?: Record<string, unknown>) => new AppError(message, 409, true, code, details);
@@ -20,5 +20,10 @@ export const classErrors = {
     subjectTeacherInvalid: () => invalid("A subject teacher must be an active teaching staff member", "SUBJECT_TEACHER_INVALID"),
     assignmentInUse: (grades: number) => conflict(`This subject already has ${grades} grade record(s) in this class, so it cannot be removed`, "CLASS_SUBJECT_IN_USE", { grades }),
     noCurrentTerm:   () => invalid("No current term is set. Choose the current term first", "NO_CURRENT_TERM"),
+    branchInvalid:   () => invalid("Choose an active branch of this school", "BRANCH_INVALID"),
+    branchRequired:  () => invalid("Choose which branch this class belongs to", "BRANCH_REQUIRED"),
+    branchOutOfScope: () => new ForbiddenError("You can only work with classes of your own branch", "BRANCH_OUT_OF_SCOPE"),
+    allBranchesRequired: () => new ForbiddenError("This action affects the whole school, so it needs school-wide access", "ALL_BRANCHES_REQUIRED"),
+    branchMoveBlocked: (students: number) => conflict(`The class has ${students} enrolment(s) this term. Move or finish them before moving the class to another branch`, "CLASS_BRANCH_HAS_STUDENTS", { students }),
     progressionLoop: (chain: string) => conflict(`This would make a loop (${chain})`, "PROGRESSION_LOOP", { chain }),
 };

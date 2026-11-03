@@ -12,6 +12,7 @@ export interface ClassEntity {
     level:          string | null;
     capacity:       number | null;
     classTeacherId: string | null;
+    branchId:       string;
     createdAt:      Date;
     updatedAt:      Date;
 }

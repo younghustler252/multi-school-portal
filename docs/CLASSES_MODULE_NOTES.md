@@ -88,6 +88,13 @@ Unlike before, the old fields (`subjectName`, `subjectCode`, `teacherName`, `sta
 - Bodies are strict (unknown fields rejected); bulk assign is capped at 50 subjects.
 - `DELETE .../subjects/:classSubjectId` returns `{ removed: assignment }` (it used to return nothing).
 
+## Branches
+- Create takes an optional `branchId`: the one asked for, else your only branch, else the main branch (`BRANCH_REQUIRED` if you have several and name none).
+- Responses carry `branch { id, name }`. The list takes `?branchId=` and shows only the classes of your branches.
+- Edit can move a class (`branchId`), only while it has no enrolments this term (`CLASS_BRANCH_HAS_STUDENTS`). The audit shows the branch names.
+- `classes.view` / `classes.manage` accept ALL or BRANCH. A class outside your branches looks missing on view (404) and gives `BRANCH_OUT_OF_SCOPE` on change. Subjects and teaching defaults are school-wide and need ALL scope (`ALL_BRANCHES_REQUIRED`).
+- Promotion order (`setClassProgression`) needs both classes to be ones you may manage.
+
 ## Left for later
 Deleting a subject; levels and arms (planned); per-period timetable.
 

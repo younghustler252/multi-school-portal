@@ -8,6 +8,7 @@ import { SubjectPresenter, SubjectResponse } from "../../services/subject-presen
 import { requireTeachingStaff } from "../../services/teacher-rule";
 import { classErrors } from "../../domain/class.errors";
 import { ClassActor } from "../../domain/class.types";
+import { requireAll } from "../../services/class-branch";
 
 interface Dependencies {
     classRepository: IClassRepository; staffRepository: IStaffRepository; sessionRepository: ISessionRepository;
@@ -23,6 +24,7 @@ export class SetSubjectDefaultTeacherUseCase {
     constructor(private readonly d: Dependencies) {}
 
     async execute(schoolId: string, subjectId: string, staffId: string | null, actor: ClassActor): Promise<SubjectResponse> {
+        requireAll(actor.access);
         const d = this.d;
         const subject = await d.classRepository.findSubjectById(subjectId);
         if (!subject) throw classErrors.subjectNotFound();

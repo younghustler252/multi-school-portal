@@ -7,6 +7,7 @@ import { classWriteError } from "../../domain/class.conflicts";
 import { ClassActor } from "../../domain/class.types";
 import { UpdateClassDtoType } from "../../dtos/class.dto";
 import { sameName } from "./create-class.usecase";
+import { assertCanManage, requireUsableBranch } from "../../services/class-branch";
 
 interface Dependencies { classRepository: IClassRepository; sessionRepository: ISessionRepository; classPresenter: ClassPresenter; auditService: AuditService }
 
@@ -21,11 +22,20 @@ export class UpdateClassUseCase {
         const { classRepository: repo } = this.d;
         const cls = await repo.findClassById(id);
         if (!cls) throw classErrors.notFound();
+        assertCanManage(cls, actor.access);
         const termId = (await this.d.sessionRepository.findCurrentTerm())?.id ?? null;
 
         const data: Record<string, unknown> = {}, before: Record<string, unknown> = {}, after: Record<string, unknown> = {};
         const set = (k: "name" | "level" | "capacity", now: unknown) => { if (now !== undefined && now !== cls[k]) { data[k] = now; before[k] = cls[k]; after[k] = now; } };
         set("name", dto.name); set("level", dto.level); set("capacity", dto.capacity);
+
+        if (dto.branchId !== undefined && dto.branchId !== cls.branchId) {
+            const movedTo = await requireUsableBranch(repo, dto.branchId, actor.access);
+            const left = await repo.countEnrolmentsForMove(id, termId);
+            if (left > 0) throw classErrors.branchMoveBlocked(left);
+            const from = await repo.findBranchById(cls.branchId);
+            data.branchId = movedTo.id; before.branch = from?.name ?? null; after.branch = movedTo.name;
+        }
 
         if (typeof data.name === "string" && (await repo.findAllClasses()).some(c => c.id !== id && sameName(c.name, data.name as string))) throw classErrors.nameTaken();
         if (typeof data.capacity === "number") {
