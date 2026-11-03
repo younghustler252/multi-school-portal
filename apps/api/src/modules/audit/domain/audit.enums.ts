@@ -5,46 +5,13 @@ export enum ActorType {
     WEBHOOK     = "webhook",
 }
 
-export enum AuditAction {
-    // Auth
-    USER_LOGIN           = "user.login",
-    USER_LOGOUT          = "user.logout",
-    USER_REGISTER        = "user.register",
-    USER_PASSWORD_RESET  = "user.password_reset",
-    USER_PASSWORD_CHANGE = "user.password_change",
-
-    // School
-    SCHOOL_CREATED       = "school.created",
-    SCHOOL_UPDATED       = "school.updated",
-    SCHOOL_VERIFIED      = "school.verified",
-    SCHOOL_REJECTED      = "school.rejected",
-    SCHOOL_SUSPENDED     = "school.suspended",
-    SCHOOL_ACTIVATED     = "school.activated",
-
-    // Staff
-    STAFF_CREATED        = "staff.created",
-    STAFF_UPDATED        = "staff.updated",
-    STAFF_DEACTIVATED    = "staff.deactivated",
-
-    // Student
-    STUDENT_CREATED      = "student.created",
-    STUDENT_UPDATED      = "student.updated",
-    STUDENT_DEACTIVATED  = "student.deactivated",
-
-    // Enrolment
-    STUDENT_ENROLLED     = "student.enrolled",
-    STUDENT_WITHDRAWN    = "student.withdrawn",
-
-    // Grades
-    GRADE_ENTERED        = "grade.entered",
-    GRADE_PUBLISHED      = "grade.published",
-
-    // Fees
-    INVOICE_CREATED      = "invoice.created",
-    PAYMENT_RECORDED     = "payment.recorded",
-    PAYMENT_CONFIRMED    = "payment.confirmed",
-
-    // Plans
-    PLAN_UPGRADED        = "subscription.upgraded",
-    PLAN_CANCELLED       = "subscription.cancelled",
-}
+/*
+| Action codes are a free-form "<module>.<verb>" string convention (e.g. "roles.created",
+| "user.deactivated", "staff.deactivated"), passed directly to AuditService.log({ action, ... }) /
+| AuthAuditService.record({ action, ... }). There used to be a canonical AuditAction enum here, but
+| no call site ever imported or used it (every module always passed a raw string), and it had already
+| drifted out of sync with the real action codes in use. Removed rather than left to rot further; if a
+| closed catalog of action codes is wanted again, regenerate it from a repo-wide grep of actual
+| `action: "..."` call sites rather than hand-maintaining a parallel list.
+|--------------------------------------------------------------------------
+*/
