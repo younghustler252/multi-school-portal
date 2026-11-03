@@ -29,6 +29,7 @@ import { registerPlans }         from "../modules/plans/plans.container";
 import { registerSubscriptions } from "../modules/subscriptions/subscription.container";
 import { registerBranches } from "../modules/branches/branches.container";
 import { registerStaff }         from "../modules/staff/staff.container";
+import { registerRoles }         from "../modules/roles/roles.container";
 import { registerLedger } from "../modules/ledger/ledger.container";
 import { registerStudents }      from "../modules/students/students.container";
 import { registerGuardians }     from "../modules/guardians/guardians.container";
@@ -64,6 +65,7 @@ const modules: Array<(c: AwilixContainer) => void> = [
     registerSubscriptions,
     registerBranches,
     registerStaff,
+    registerRoles,
     registerLedger,
     registerStudents,
     registerGuardians,

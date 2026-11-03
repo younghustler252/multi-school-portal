@@ -8,6 +8,7 @@ import plansRouter from "../modules/plans/routes/plan.routes";
 import subscriptionRouter from "../modules/subscriptions/routes/billing.routes";
 import branchRouter from "../modules/branches/routes/branch.routes"
 import staffRouter from "../modules/staff/routes/staff.routes";
+import rolesRouter, { permissionsRouter } from "../modules/roles/routes/roles.routes";
 import studentRouter from "../modules/students/routes/student.routes";
 import guardianRouter from "../modules/guardians/routes/guardian.routes";
 import classRouter from "../modules/classes/routes/class.routes";
@@ -56,6 +57,8 @@ router.use("/plans", plansRouter);
 router.use("/subscriptions", subscriptionRouter);
 router.use("/audit", auditRouter)   
 router.use("/staff", staffRouter);
+router.use("/roles", rolesRouter);
+router.use("/permissions", permissionsRouter);
 router.use("/branches", branchRouter);
 router.use("/finance/settings", financeSettingsRouter);
 router.use("/finance/reconciliation", bankReconciliationRouter);
