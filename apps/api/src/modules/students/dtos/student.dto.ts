@@ -63,6 +63,13 @@ export const DeactivateStudentDto = z.object({
     reason: optText(300),
 }).strict().default({});
 
+// ── Transfer to another branch (always needs a reason: it is audited and kept as history) ──
+export const TransferStudentDto = z.object({
+    toBranchId: z.string().uuid(),
+    classId:    z.string().uuid().optional(),     // required when the student has a class place this term: a class of the NEW branch
+    reason:     z.string().trim().min(5, "Please say why (at least 5 characters)").max(500),
+}).strict();
+
 // ── List students (parsed in the controller: the validate middleware does not write query values back) ──
 export const ListStudentsQuery = z.object({
     page:   z.coerce.number().int().min(1).default(1),
@@ -93,4 +100,5 @@ export type CreateStudentDtoType     = z.infer<typeof CreateStudentDto>;
 export type UpdateStudentDtoType     = z.infer<typeof UpdateStudentDto>;
 export type DeactivateStudentDtoType = z.infer<typeof DeactivateStudentDto>;
 export type UndoGraduationDtoType    = z.infer<typeof UndoGraduationDto>;
+export type TransferStudentDtoType   = z.infer<typeof TransferStudentDto>;
 export type ListStudentsQueryType    = z.infer<typeof ListStudentsQuery>;

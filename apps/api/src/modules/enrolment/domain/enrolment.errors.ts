@@ -17,6 +17,10 @@ export const enrolmentErrors = {
     statusInvalid:   (from: string, to: string) => conflict(`An enrolment cannot change from ${from} to ${to}`, "ENROLMENT_STATUS_INVALID", { from, to }),
     promotionClassesFull: (classes: Array<{ name: string; capacity: number; enrolled: number; incoming: number }>) =>
         conflict(`These classes would be over capacity: ${classes.map(c => c.name).join(", ")}`, "CLASS_FULL", { classes }),
+    studentBranchMismatch: (details: { student?: string | null; class?: string | null }) =>
+        conflict("A student can only be placed in a class of their own branch. To move a student to another branch, use a student transfer", "STUDENT_BRANCH_MISMATCH", details),
+    promotionBranchMismatch: (students: Array<{ student: string | null; toClass: string | null }>) =>
+        conflict(`${students.length} student(s) would be promoted into a class of another branch. Promotion stays inside a branch: fix the class order or the exceptions, or transfer the student first. Nothing was saved`, "PROMOTION_BRANCH_MISMATCH", { students: students.slice(0, 50), total: students.length }),
     sameClass:       () => invalid("The student is already in that class", "ENROLMENT_SAME_CLASS"),
     notActive:       () => conflict("Only an active enrolment can be moved to another class", "ENROLMENT_NOT_ACTIVE"),
     promotionSameTerm:  () => invalid("The new term must be a different term", "PROMOTION_SAME_TERM"),

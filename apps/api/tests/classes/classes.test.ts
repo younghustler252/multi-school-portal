@@ -104,6 +104,7 @@ function fakes(over: any = {}) {
         createClass: async (d: any) => ({ id: "new", createdAt: new Date("2025-01-01"), level: null, capacity: null, ...d }),
         updateClass: async (_i: string, d: any) => { state.updates.push(d); return classes[0]; },
         findClassProgression: async (id: string) => (over.progression ?? {})[id] ?? null,
+        findAllClassProgressions: async () => over.links ?? [],
         findClassProgressionEnriched: async () => null,
         setClassProgression: async (d: any) => { state.progress.push(d); return d; },
         findMainBranch: async () => ({ id: MAIN, name: "Main" }),
@@ -233,3 +234,23 @@ describe("classes and branches", () => {
         await assert.rejects(new UpdateClassUseCase(ok.deps).execute("s", C1, { branchId: NORTH }, { userId: "u", access: accessFor([MAIN]) }), { code: "BRANCH_OUT_OF_SCOPE" });
     });
 });
+
+describe("promotion never crosses a branch (class order)", () => {
+    it("a class can only be promoted into a class of its own branch, for everyone", async () => {
+        const { deps, state } = fakes();
+        // make JSS 2 live in the North branch; the person is school-wide, so this is a rule for everyone, not a permission
+        const north = { ...deps.classRepository, findClassById: async (id: string) => (id === C2 ? row({ id: C2, name: "JSS 2", branchId: NORTH }) : row({ id })) };
+        await assert.rejects(new SetClassProgressionUseCase({ ...deps, classRepository: north }).execute("s", C1, C2, actor), { code: "PROGRESSION_BRANCH_MISMATCH" });
+        assert.equal(state.progress.length, 0);
+        await new SetClassProgressionUseCase(deps).execute("s", C1, C2, actor);         // same branch: fine
+        assert.equal(state.progress.length, 1);
+    });
+    it("a class cannot move to another branch while it is chained to classes of the old branch", async () => {
+        const { deps } = fakes({ links: [{ fromClassId: C1, toClassId: C2 }] });
+        await assert.rejects(new UpdateClassUseCase(deps).execute("s", C1, { branchId: NORTH }, actor), { code: "CLASS_BRANCH_PROGRESSION", details: { classes: ["JSS 2"] } });
+        await assert.rejects(new UpdateClassUseCase(deps).execute("s", C2, { branchId: NORTH }, actor), { code: "CLASS_BRANCH_PROGRESSION" });   // from the other end too
+        const unlinked = fakes({ links: [{ fromClassId: C2, toClassId: null }] });
+        await new UpdateClassUseCase(unlinked.deps).execute("s", C1, { branchId: NORTH }, actor);                                           // no links: fine
+    });
+});
+

@@ -33,6 +33,13 @@ export class UpdateClassUseCase {
             const movedTo = await requireUsableBranch(repo, dto.branchId, actor.access);
             const left = await repo.countEnrolmentsForMove(id, termId);
             if (left > 0) throw classErrors.branchMoveBlocked(left);
+            // Promotion stays inside a branch, so a class cannot move away from the classes it is chained to.
+            const all = new Map((await repo.findAllClasses()).map(c => [c.id, c]));
+            const stranded = (await repo.findAllClassProgressions())
+                .filter(p => (p.fromClassId === id || p.toClassId === id) && p.toClassId)
+                .map(p => all.get(p.fromClassId === id ? p.toClassId! : p.fromClassId))
+                .filter(c => c && c.branchId !== movedTo.id).map(c => c!.name);
+            if (stranded.length) throw classErrors.branchMoveBreaksProgression(stranded);
             const from = await repo.findBranchById(cls.branchId);
             data.branchId = movedTo.id; before.branch = from?.name ?? null; after.branch = movedTo.name;
         }

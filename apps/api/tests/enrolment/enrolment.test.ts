@@ -74,7 +74,7 @@ describe("who may see which enrolments", () => {
         const w: any = studentScopeWhere(access("ASSIGNED", "STAFF", "t1", "students.view"));
         assert.equal(w.enrolments.some.term.isCurrent, true);
         assert.deepEqual(w.enrolments.some.class.OR[0], { classTeacherId: "t1" });
-        assert.deepEqual(studentScopeWhere(access("BRANCH", "STAFF", "t1", "students.view")), { id: { in: [] } });
+        assert.deepEqual(studentScopeWhere(access("BRANCH", "STAFF", "t1", "students.view")), { branchId: { in: [] } });
         assert.deepEqual(studentScopeWhere(access("ASSIGNED", "GUARDIAN", "g1", "students.view")), { id: { in: [] } });
     });
 });
@@ -105,13 +105,15 @@ describe("promotion plan", () => {
     });
 });
 
+const BR1 = "b1000000-0000-4000-8000-000000000001", BR2 = "b2000000-0000-4000-8000-000000000002";
 // ── fakes ────────────────────────────────────────────────────────────────────
 const students: Record<string, any> = {
-    [S1]: { id: S1, firstName: "Ada", lastName: "Obi", admissionNumber: "2026/0001", isActive: true },
-    [S2]: { id: S2, firstName: "Bayo", lastName: "Eze", admissionNumber: "2026/0002", isActive: true },
-    [S3]: { id: S3, firstName: "Chi", lastName: "Ode", admissionNumber: null, isActive: false },
+    [S1]: { id: S1, firstName: "Ada", lastName: "Obi", admissionNumber: "2026/0001", isActive: true, branchId: BR1 },
+    [S2]: { id: S2, firstName: "Bayo", lastName: "Eze", admissionNumber: "2026/0002", isActive: true, branchId: BR1 },
+    [S3]: { id: S3, firstName: "Chi", lastName: "Ode", admissionNumber: null, isActive: false, branchId: BR1 },
 };
-const classes = [{ id: C1, name: "JSS 1", capacity: 30 }, { id: C2, name: "JSS 2", capacity: 30 }, { id: C3, name: "JSS 3", capacity: null }];
+// JSS 1 and JSS 2 are in the main branch (BR1), JSS 3 is in another branch (BR2)
+const classes = [{ id: C1, name: "JSS 1", capacity: 30, branchId: BR1 }, { id: C2, name: "JSS 2", capacity: 30, branchId: BR1 }, { id: C3, name: "JSS 3", capacity: null, branchId: BR2 }];
 const sessions = [{ id: SES, name: "2025/2026", terms: [{ id: T1, name: "first" }, { id: T2, name: "second" }] }];
 const row = (o: any = {}) => ({ id: E1, studentId: S1, classId: C1, termId: T1, status: "active", createdAt: new Date("2025-09-01"), ...o });
 
@@ -208,8 +210,8 @@ describe("promotion", () => {
     it("the preview comes from the saved class order, with names, and flags students already placed in the new term", async () => {
         const { deps } = world({ progression, findMany: active });
         const out = await new PreviewPromotionUseCase(deps).execute({ termId: T1, newTermId: T2 });
-        assert.deepEqual(out.summary, { total: 2, promote: 1, graduate: 1, needsDecision: 0, alreadyEnrolled: 1 });
-        assert.deepEqual(out.rows[0], { student: { id: S1, name: "Ada Obi", admissionNumber: "2026/0001" }, fromClass: { id: C1, name: "JSS 1" }, toClass: { id: C2, name: "JSS 2" }, action: "promote", alreadyEnrolled: true, outcome: "already_enrolled" });
+        assert.deepEqual(out.summary, { total: 2, promote: 1, graduate: 1, needsDecision: 0, alreadyEnrolled: 1, branchMismatch: 0 });
+        assert.deepEqual(out.rows[0], { student: { id: S1, name: "Ada Obi", admissionNumber: "2026/0001" }, fromClass: { id: C1, name: "JSS 1" }, toClass: { id: C2, name: "JSS 2" }, action: "promote", alreadyEnrolled: true, branchMismatch: false, outcome: "already_enrolled" });
         assert.equal(out.rows[1].toClass, null);
         assert.equal(out.rows[1].outcome, "graduated");
         assert.deepEqual(out.planImpact, { activeStudentsNow: 4, graduating: 1, activeStudentsAfter: 3 });
@@ -224,5 +226,42 @@ describe("promotion", () => {
         await assert.rejects(d().execute("s", { currentTermId: T1, newTermId: T2, overrides: [{ studentId: S3, action: "graduate" }] }, actor), { code: "PROMOTION_UNKNOWN_STUDENT" });
         await assert.rejects(d({ progression: [] }).execute("s", { currentTermId: T1, newTermId: T2, overrides: [] }, actor), { code: "PROMOTION_NEEDS_DECISIONS", details: { classes: ["JSS 1", "JSS 2"] } });
         await assert.rejects(d().execute("s", { currentTermId: T1, newTermId: T2, overrides: [{ studentId: S1, action: "promote", classId: U(9) }] }, actor), { code: "NOT_FOUND" });
+    });
+});
+
+describe("branch boundaries: a student is only placed in a class of their own branch", () => {
+    it("enrolling into a class of another branch is refused", async () => {
+        await assert.rejects(new EnrolStudentUseCase(world().deps).execute("s", { studentId: S1, classId: C3, termId: T1 }, actor), { code: "STUDENT_BRANCH_MISMATCH" });
+    });
+    it("an enrolled list skips (and names) students of another branch, and enrols nobody into the wrong branch", async () => {
+        const { deps, state } = world();
+        const out = await new BulkEnrolUseCase(deps).execute("s", { studentIds: [S1, S2], classId: C3, termId: T1 }, actor);
+        assert.deepEqual(out.enrolled, []);
+        assert.deepEqual(out.skipped.map(s => [s.student.name, s.reason]), [["Ada Obi", "wrong_branch"], ["Bayo Eze", "wrong_branch"]]);
+        assert.equal(state.audits.length, 0);
+    });
+    it("moving an active enrolment into a class of another branch is refused", async () => {
+        await assert.rejects(new UpdateEnrolmentUseCase(world().deps).execute("s", E1, { classId: C3 }, actor), { code: "STUDENT_BRANCH_MISMATCH" });
+    });
+    it("the promotion preview flags students whose next class is in another branch", async () => {
+        const progression = [{ fromClassId: C1, toClassId: C3 }, { fromClassId: C2, toClassId: null }];
+        const rows = (w: any) => (w.termId === T1 && w.status === "active" ? [row(), row({ id: "e2", studentId: S2, classId: C2 })] : []);
+        const out = await new PreviewPromotionUseCase(world({ progression, findMany: rows }).deps).execute({ termId: T1, newTermId: T2 });
+        assert.equal(out.summary.branchMismatch, 1);
+        assert.deepEqual(out.rows.map(r => r.branchMismatch), [true, false]);
+    });
+    it("the promotion run refuses a cross-branch class order, for everyone, and saves nothing", async () => {
+        const progression = [{ fromClassId: C1, toClassId: C3 }, { fromClassId: C2, toClassId: null }];
+        const rows = (w: any) => (w.termId === T1 && w.status === "active" ? [row(), row({ id: "e2", studentId: S2, classId: C2 })] : []);
+        const { deps, state } = world({ progression, findMany: rows });
+        await assert.rejects(new PromoteStudentsUseCase(deps).execute("s", { currentTermId: T1, newTermId: T2, overrides: [] }, actor),
+            (e: any) => e.code === "PROMOTION_BRANCH_MISMATCH" && e.details.total === 1 && e.details.students[0].student === "Ada Obi" && e.details.students[0].toClass === "JSS 3");
+        assert.equal(state.audits.length, 0);
+    });
+    it("a one-off exception cannot send a student to another branch either", async () => {
+        const progression = [{ fromClassId: C1, toClassId: C2 }, { fromClassId: C2, toClassId: null }];
+        const rows = (w: any) => (w.termId === T1 && w.status === "active" ? [row()] : []);
+        await assert.rejects(new PromoteStudentsUseCase(world({ progression, findMany: rows }).deps).execute("s",
+            { currentTermId: T1, newTermId: T2, overrides: [{ studentId: S1, action: "promote", classId: C3 }] }, actor), { code: "PROMOTION_BRANCH_MISMATCH" });
     });
 });

@@ -10,6 +10,7 @@ import { DeactivateStudentUseCase } from "./usecases/deactivate-student.usecase"
 import { ReactivateStudentUseCase } from "./usecases/reactivate-student.usecase";
 import { UndoGraduationUseCase } from "./usecases/undo-graduation.usecase";
 import { ListStudentsUseCase, GetStudentUseCase, GetMyStudentProfileUseCase } from "./usecases/student-queries.usecases";
+import { TransferStudentUseCase } from "./usecases/transfer-student.usecase";
 import { UploadStudentPhotoUseCase } from "./usecases/upload-photo.usecase";
 import { PreviewStudentImportUseCase, ImportStudentsUseCase } from "./usecases/student-import.usecases";
 import { StudentController } from "./controllers/student.controller";
@@ -36,6 +37,7 @@ export const registerStudents = (container: AwilixContainer): void => {
         previewStudentImportUseCase: asClass(PreviewStudentImportUseCase).scoped(),
         importStudentsUseCase:       asClass(ImportStudentsUseCase).scoped(),
         uploadStudentPhotoUseCase:   asClass(UploadStudentPhotoUseCase).scoped(),
+        transferStudentUseCase:      asClass(TransferStudentUseCase).scoped(),
 
         studentController:           asClass(StudentController).scoped(),
     });

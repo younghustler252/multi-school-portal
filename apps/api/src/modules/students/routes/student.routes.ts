@@ -11,7 +11,7 @@ import { reestablishTenantContext } from "../../../infrastructure/middleware/ree
 import { AppError } from "../../../shared/errors/domain.errors";
 import { MAX_PHOTO_BYTES } from "../domain/student.policy";
 import { MAX_IMPORT_BYTES } from "../domain/student-import.policy";
-import { CreateStudentDto, UpdateStudentDto, DeactivateStudentDto, UndoGraduationDto } from "../dtos/student.dto";
+import { CreateStudentDto, UpdateStudentDto, DeactivateStudentDto, UndoGraduationDto, TransferStudentDto } from "../dtos/student.dto";
 
 /*
 | STUDENT ROUTES (school realm, mounted at /students on the school's host).
@@ -20,12 +20,14 @@ import { CreateStudentDto, UpdateStudentDto, DeactivateStudentDto, UndoGraduatio
 | The plan's student limit is checked inside create and reactivate.
 | Fixed paths ("/me") come before "/:id".
 | Upload route: authenticate -> permission -> limiter -> multer -> reestablishTenantContext -> controller.
+| students.transfer = move a student to another branch (the only way a student changes branch)
 | students.import = preview and run a CSV import (fixed paths come before "/:id")
 */
 const router = Router();
 const ctrl   = () => container.resolve<StudentController>("studentController");
 const view   = [authenticate, requireTenant, requirePermission("students.view")] as const;
 const manage = [authenticate, requireTenant, requirePermission("students.manage")] as const;
+const transfer = [authenticate, requireTenant, requirePermission("students.transfer")] as const;
 const importer = [authenticate, requireTenant, requirePermission("students.import")] as const;
 const self   = [authenticate, requireTenant, requirePersona("STUDENT")] as const;
 
@@ -60,6 +62,7 @@ router.put("/:id", ...manage, validate(UpdateStudentDto), (q, s, n) => ctrl().up
 router.post("/:id/deactivate", ...manage, validate(DeactivateStudentDto), (q, s, n) => ctrl().deactivate(q, s, n));
 router.post("/:id/reactivate", ...manage, (q, s, n) => ctrl().reactivate(q, s, n));
 router.post("/:id/undo-graduation", ...manage, validate(UndoGraduationDto), (q, s, n) => ctrl().undoGraduation(q, s, n));
+router.post("/:id/transfer", ...transfer, validate(TransferStudentDto), (q, s, n) => ctrl().transfer(q, s, n));
 router.post("/:id/photo", ...manage, uploadLimiter, photo, reestablishTenantContext, (q, s, n) => ctrl().uploadPhoto(q, s, n));
 
 export default router;

@@ -25,5 +25,7 @@ export const classErrors = {
     branchOutOfScope: () => new ForbiddenError("You can only work with classes of your own branch", "BRANCH_OUT_OF_SCOPE"),
     allBranchesRequired: () => new ForbiddenError("This action affects the whole school, so it needs school-wide access", "ALL_BRANCHES_REQUIRED"),
     branchMoveBlocked: (students: number) => conflict(`The class has ${students} enrolment(s) this term. Move or finish them before moving the class to another branch`, "CLASS_BRANCH_HAS_STUDENTS", { students }),
+    progressionBranchMismatch: (from: string, to: string) => conflict(`${from} and ${to} are in different branches. A class can only be promoted into a class of its own branch`, "PROGRESSION_BRANCH_MISMATCH", { from, to }),
+    branchMoveBreaksProgression: (names: string[]) => conflict(`Moving the class would link it to a class of another branch (${names.join(", ")}). Change the "promoted into" order first`, "CLASS_BRANCH_PROGRESSION", { classes: names }),
     progressionLoop: (chain: string) => conflict(`This would make a loop (${chain})`, "PROGRESSION_LOOP", { chain }),
 };

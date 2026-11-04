@@ -6,6 +6,7 @@ import { IClassRepository } from "../../classes/repositories/class.repository";
 import { ISessionRepository } from "../../sessions/repositories/session.repository";
 import { EnrolmentPresenter, EnrolmentResponse } from "../services/enrolment-presenter";
 import { lockClass, activeInClass, wouldOverflow } from "../services/class-seats";
+import { sameBranch } from "../services/branch-rule";
 import { enrolmentErrors } from "../domain/enrolment.errors";
 import { EnrolmentActor } from "../domain/enrolment.types";
 import { EnrolStudentDtoType } from "../dtos/enrolment.dto";
@@ -16,7 +17,7 @@ interface Dependencies {
 }
 
 /*
-| ENROL ONE STUDENT in a class for a term. The student must be active, the class and term must exist, and a student
+| ENROL ONE STUDENT in a class for a term. The class must be in the student's own branch. The student must be active, the class and term must exist, and a student
 | has ONE enrolment per term (the existing one is named in the error). A class with a capacity may not go over it:
 | the count and the save happen together while the class row is locked, so two requests cannot both take the last seat.
 */
@@ -31,6 +32,7 @@ export class EnrolStudentUseCase {
         if (student.graduatedAt) throw enrolmentErrors.studentGraduated();
         const cls = await d.classRepository.findClassById(dto.classId);
         if (!cls) throw enrolmentErrors.classNotFound();
+        if (!sameBranch(student.branchId, cls.branchId)) throw enrolmentErrors.studentBranchMismatch({ class: cls.name });
         if (!(await d.sessionRepository.findTermById(dto.termId))) throw enrolmentErrors.termNotFound();
 
         const clash = async () => {

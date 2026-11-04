@@ -7,6 +7,7 @@ import { ISessionRepository } from "../../sessions/repositories/session.reposito
 import { EnrolmentPresenter, NameRef, StudentLite, TermRef } from "../services/enrolment-presenter";
 import { planPromotion, moves, promotionOutcome, willGraduate, PromotionOutcome, PlanRow, PlanAction } from "../services/promotion-plan";
 import { ACTIVE_STUDENT_WHERE } from "../../students/domain/student-eligibility";
+import { findBranchMismatches } from "../services/branch-rule";
 import { lockClass, activeInClass, wouldOverflow } from "../services/class-seats";
 import { enrolmentErrors } from "../domain/enrolment.errors";
 import { EnrolmentActor } from "../domain/enrolment.types";
@@ -29,11 +30,12 @@ async function loadPlan(d: Dependencies, termId: string, overrides: PromotionOve
 export interface PromotionPreviewRow {
     student: StudentLite | null; fromClass: NameRef | null; toClass: NameRef | null;
     action: "promote" | "graduate" | "needs_decision"; alreadyEnrolled: boolean;
+    branchMismatch: boolean;   // the target class is in another branch: the run will refuse until it is fixed
     outcome: PromotionOutcome | null;   // what the run will do with this student (null = needs a decision first)
 }
 export interface PromotionPreview {
     term: TermRef | null; newTerm: TermRef | null;
-    summary: { total: number; promote: number; graduate: number; needsDecision: number; alreadyEnrolled: number };
+    summary: { total: number; promote: number; graduate: number; needsDecision: number; alreadyEnrolled: number; branchMismatch: number };
     classesWithoutNextClass: NameRef[];
     // Graduates stop counting toward the plan's student limit: confirm this before running.
     planImpact: { activeStudentsNow: number; graduating: number; activeStudentsAfter: number };
@@ -59,11 +61,14 @@ export class PreviewPromotionUseCase {
             ? new Set((await d.enrolmentRepository.findMany({ termId: q.newTermId, studentId: { in: plan.rows.map(r => r.studentId) } })).map(e => e.studentId))
             : new Set<string>();
         const nameOf = (id: string): NameRef | null => classes.get(id) ?? null;
+        const studentBranch = new Map((await d.studentRepository.findMany({ id: { in: plan.rows.map(r => r.studentId) } })).map(s => [s.id, s.branchId]));
+        const classBranch = new Map((await d.classRepository.findAllClasses()).map(c => [c.id, c.branchId]));
+        const mismatched = new Set(findBranchMismatches(plan.rows.filter(r => !placed.has(r.studentId)), studentBranch, classBranch).map(r => r.studentId));
 
         const rows: PromotionPreviewRow[] = plan.rows.map(r => ({
             student: students.get(r.studentId) ?? null,
             fromClass: nameOf(r.fromClassId), toClass: r.toClassId ? nameOf(r.toClassId) : null,
-            action: r.action as PromotionPreviewRow["action"], alreadyEnrolled: placed.has(r.studentId),
+            action: r.action as PromotionPreviewRow["action"], alreadyEnrolled: placed.has(r.studentId), branchMismatch: mismatched.has(r.studentId),
             outcome: r.action === "needs_decision" ? null : promotionOutcome(r.action, placed.has(r.studentId)),
         }));
         const count = (a: PlanAction) => plan.rows.filter(r => r.action === a).length;
@@ -71,7 +76,7 @@ export class PreviewPromotionUseCase {
         const activeStudentsNow = await d.studentRepository.count({ ...ACTIVE_STUDENT_WHERE });
         return {
             term: terms.get(q.termId) ?? null, newTerm: q.newTermId ? terms.get(q.newTermId) ?? null : null,
-            summary: { total: rows.length, promote: count("promote"), graduate: graduating, needsDecision: count("needs_decision"), alreadyEnrolled: rows.filter(r => r.alreadyEnrolled).length },
+            summary: { total: rows.length, promote: count("promote"), graduate: graduating, needsDecision: count("needs_decision"), alreadyEnrolled: rows.filter(r => r.alreadyEnrolled).length, branchMismatch: mismatched.size },
             classesWithoutNextClass: plan.needsDecisionClassIds.map(nameOf).filter((c): c is NameRef => !!c),
             planImpact: { activeStudentsNow, graduating, activeStudentsAfter: activeStudentsNow - graduating }, rows,
         };
@@ -86,7 +91,9 @@ export interface PromotionResult {
 }
 
 /*
-| PROMOTE (end of year), all in ONE transaction. The server decides from the saved class order; the request only
+| PROMOTE (end of year), all in ONE transaction. Promotion never crosses a branch: a student can only go into a class of
+| their own branch (PROMOTION_BRANCH_MISMATCH lists who, nothing is saved). Moving a student between branches is a transfer.
+|  The server decides from the saved class order; the request only
 | carries exceptions. Checks first: both terms exist, the new term is a later term, every student in an exception is
 | in the plan, and no class lacks a decision. Then every target class is locked and its room checked: if any class
 | would go over capacity (CLASS_FULL, listing them) nothing is saved. Promoted, repeating and graduating students'
@@ -115,8 +122,15 @@ export class PromoteStudentsUseCase {
         const movers = plan.rows.filter(r => moves(r) && !placed.has(r.studentId));
         const incoming = new Map<string, number>();
         for (const r of movers) incoming.set(r.toClassId!, (incoming.get(r.toClassId!) ?? 0) + 1);
-        const capacity = new Map((await d.classRepository.findAllClasses()).map(c => [c.id, c.capacity]));
+        const allClasses = await d.classRepository.findAllClasses();
+        const capacity = new Map(allClasses.map(c => [c.id, c.capacity]));
+        const classBranch = new Map(allClasses.map(c => [c.id, c.branchId]));
+        const liteOf = await d.enrolmentPresenter.studentLites(plan.rows.map(r => r.studentId));
         const graduating = plan.rows.filter(r => willGraduate(r, placed.has(r.studentId))).map(r => r.studentId);
+        const refuseBranchMismatch = (bad: typeof movers) => { throw enrolmentErrors.promotionBranchMismatch(bad.map(r => ({ student: liteOf.get(r.studentId)?.name ?? null, toClass: nameOf(r.toClassId!)?.name ?? null }))); };
+        // Checked once here (nothing has been touched yet) and again inside the transaction with the branches as they are then.
+        const early = findBranchMismatches(movers, new Map((await d.studentRepository.findMany({ id: { in: movers.map(r => r.studentId) } })).map(s => [s.id, s.branchId])), classBranch);
+        if (early.length) refuseBranchMismatch(early);
         const closing = [...graduating, ...movers.map(r => r.studentId)];
         const graduatedAt = new Date();
 
@@ -128,6 +142,11 @@ export class PromoteStudentsUseCase {
                 if (wouldOverflow(capacity.get(classId), enrolled, incoming.get(classId)!)) full.push({ name: nameOf(classId)?.name ?? classId, capacity: capacity.get(classId)!, enrolled, incoming: incoming.get(classId)! });
             }
             if (full.length) throw enrolmentErrors.promotionClassesFull(full);
+            // THE BRANCH RULE, checked against the students' branches as they are right now (inside the transaction, so a
+            // transfer that happens at the same moment cannot slip past). One bad row stops the whole run: nothing is saved.
+            const branches = await tx.student.findMany({ where: { id: { in: movers.map(r => r.studentId) } }, select: { id: true, branchId: true } });
+            const bad = findBranchMismatches(movers, new Map(branches.map(s => [s.id, s.branchId])), classBranch);
+            if (bad.length) refuseBranchMismatch(bad);
             if (movers.length) await tx.enrolment.createMany({ data: movers.map(r => ({ studentId: r.studentId, classId: r.toClassId!, termId: dto.newTermId, status: "active" as const })), skipDuplicates: true });
             if (closing.length) await tx.enrolment.updateMany({ where: { termId: dto.currentTermId, status: "active", studentId: { in: closing } }, data: { status: "completed" } });
             // Graduation, closing the final-term enrolment and (no) place in the new term happen together or not at all.
@@ -135,7 +154,7 @@ export class PromoteStudentsUseCase {
             if (graduating.length) await tx.student.updateMany({ where: { id: { in: graduating }, graduatedAt: null }, data: { graduatedAt, graduatedTermId: dto.currentTermId } });
         }, { maxWait: 5000, timeout: 30000 });
 
-        const students = await d.enrolmentPresenter.studentLites(plan.rows.map(r => r.studentId));
+        const students = liteOf;
         const outcomeOf = (r: PlanRow): PromotionOutcome => promotionOutcome(r.action as Exclude<PlanAction, "needs_decision">, placed.has(r.studentId));
         const results = plan.rows.map(r => ({
             student: students.get(r.studentId) ?? null,

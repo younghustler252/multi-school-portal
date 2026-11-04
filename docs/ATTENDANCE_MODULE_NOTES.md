@@ -15,7 +15,7 @@ Attendance is now a **class register**: a teacher marks a whole class for one da
 **Removed:** `POST /attendance/bulk`, `GET /attendance/my-children`, the old `POST /attendance/:classId`, old `PUT`, and the old summary route. They were switched off and unsafe (no checks, `req.user`).
 
 ## Permissions (`attendance.permissions.ts`; `attendance.view` moved out of the core list)
-- `attendance.view`: ALL, BRANCH (shows nobody until classes have branches), ASSIGNED, OWN.
+- `attendance.view`: ALL, BRANCH (classes in your branches, view only), ASSIGNED, OWN.
 - `attendance.mark`: ALL or ASSIGNED. **Assigned** = you lead the class, or you teach it in the term of the date. Last term's assignment gives nothing.
 - `attendance.override` (sensitive, ALL only): correct marks after the edit window.
 - Default roles: principal view ALL; **teacher view ASSIGNED + mark ASSIGNED (new)**; student and guardian view OWN; school admin everything.

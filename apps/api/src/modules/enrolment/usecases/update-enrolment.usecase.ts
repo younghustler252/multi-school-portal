@@ -5,6 +5,7 @@ import { IStudentRepository } from "../../students/repositories/student.reposito
 import { IClassRepository } from "../../classes/repositories/class.repository";
 import { EnrolmentPresenter, EnrolmentResponse } from "../services/enrolment-presenter";
 import { lockClass, activeInClass, wouldOverflow } from "../services/class-seats";
+import { sameBranch } from "../services/branch-rule";
 import { enrolmentErrors } from "../domain/enrolment.errors";
 import { EnrolmentActor } from "../domain/enrolment.types";
 import { UpdateEnrolmentDtoType } from "../dtos/enrolment.dto";
@@ -38,7 +39,10 @@ export class UpdateEnrolmentUseCase {
         if (dto.classId !== undefined) {
             if (enrolment.status !== "active") throw enrolmentErrors.notActive();
             if (dto.classId === enrolment.classId) throw enrolmentErrors.sameClass();
-            if (!(await d.classRepository.findClassById(dto.classId))) throw enrolmentErrors.classNotFound();
+            const target = await d.classRepository.findClassById(dto.classId);
+            if (!target) throw enrolmentErrors.classNotFound();
+            const owner = await d.studentRepository.findById(enrolment.studentId);
+            if (!sameBranch(owner?.branchId, target.branchId)) throw enrolmentErrors.studentBranchMismatch({ student: before.student?.name ?? null, class: target.name });
             targetClassId = dto.classId; data = { classId: dto.classId }; action = "enrolment.moved";
         } else if (dto.status !== undefined) {
             if (dto.status === enrolment.status) return before;                       // nothing to change

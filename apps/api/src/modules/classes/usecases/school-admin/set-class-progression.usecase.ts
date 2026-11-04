@@ -12,7 +12,7 @@ export interface ClassProgressionResponse { class: NameRef; nextClass: NameRef |
 /*
 | SET CLASS PROGRESSION: the class a class is promoted into (null = its students graduate).
 | Both classes must exist, a class cannot be promoted into itself, and the chain may not loop back
-| (JSS 1 → JSS 2 → JSS 1). Enrolment's promotion uses this saved chain, not ids sent by the browser.
+| (JSS 1 → JSS 2 → JSS 1). Both classes must be in the SAME branch (promotion never crosses a branch). Enrolment's promotion uses this saved chain, not ids sent by the browser.
 */
 export class SetClassProgressionUseCase {
     constructor(private readonly d: Dependencies) {}
@@ -28,6 +28,7 @@ export class SetClassProgressionUseCase {
             to = await repo.findClassById(toId);
             if (!to) throw classErrors.notFound();
             assertCanManage(to, actor.access);
+            if (to.branchId !== from.branchId) throw classErrors.progressionBranchMismatch(from.name, to.name);   // for everyone, not only branch staff
             const names = new Map((await repo.findAllClasses()).map(c => [c.id, c.name]));
             const loop = await findProgressionLoop(fromId, toId, async id => (await repo.findClassProgression(id))?.toClassId ?? null, id => names.get(id) ?? id);
             if (loop) throw classErrors.progressionLoop(loop);

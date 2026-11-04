@@ -5,6 +5,7 @@ import { IStudentRepository } from "../../students/repositories/student.reposito
 import { IClassRepository } from "../../classes/repositories/class.repository";
 import { EnrolmentPresenter, NameRef, StudentLite, TermRef } from "../services/enrolment-presenter";
 import { lockClass, activeInClass, wouldOverflow } from "../services/class-seats";
+import { sameBranch } from "../services/branch-rule";
 import { enrolmentErrors } from "../domain/enrolment.errors";
 import { EnrolmentActor } from "../domain/enrolment.types";
 import { BulkEnrolDtoType } from "../dtos/enrolment.dto";
@@ -14,7 +15,7 @@ interface Dependencies {
     enrolmentPresenter: EnrolmentPresenter; auditService: AuditService;
 }
 
-export type SkipReason = "not_found" | "inactive" | "graduated" | "already_enrolled";
+export type SkipReason = "not_found" | "inactive" | "graduated" | "already_enrolled" | "wrong_branch";
 export interface BulkEnrolResult {
     class: NameRef; term: TermRef | null;
     enrolled: StudentLite[];
@@ -23,7 +24,7 @@ export interface BulkEnrolResult {
 
 /*
 | ENROL A LIST into one class. Students who cannot be enrolled are skipped and reported by NAME with a reason
-| (not found, not active, already enrolled this term); the rest are saved together in ONE transaction. If the
+| (not found, not active, already enrolled this term, a different branch from the class); the rest are saved together in ONE transaction. If the
 | class cannot hold all of them the whole request is refused (CLASS_FULL) and nothing is saved.
 */
 export class BulkEnrolUseCase {
@@ -47,6 +48,7 @@ export class BulkEnrolUseCase {
             if (!students.has(id)) skipped.push({ student: { id, name: null }, reason: "not_found" });
             else if (!students.get(id)!.isActive) skipped.push({ student: lite(id), reason: "inactive" });
             else if (students.get(id)!.graduatedAt) skipped.push({ student: lite(id), reason: "graduated" });
+            else if (!sameBranch(students.get(id)!.branchId, cls.branchId)) skipped.push({ student: lite(id), reason: "wrong_branch" });
             else if (taken.has(id)) skipped.push({ student: lite(id), reason: "already_enrolled" });
             else toEnrol.push(id);
         }
