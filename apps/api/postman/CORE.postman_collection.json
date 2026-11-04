@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "CORE API — Full Backend Route Verification",
-    "description": "Generated from apps/api/src/routes/index.ts and the registered module route files on refactor/modules. The collection is safety-gated: mutating requests are skipped unless environment variable runMutations is exactly true. Generic assertions prove route reachability and absence of unhandled 5xx errors; they do not prove business correctness. Fill DTO-specific bodies and IDs before functional workflow runs.\n\nSafety gate: every mutating HTTP method, including the Paystack webhook, is skipped unless environment variable runMutations is exactly true. Successful login automatically stores accessToken and refreshToken when the response is AUTHENTICATED.",
+    "description": "Generated from apps/api/src/routes/index.ts and the registered module route files on refactor/modules. The collection is safety-gated: mutating requests are skipped unless environment variable runMutations is exactly true. Generic assertions prove route reachability and absence of unhandled 5xx errors; they do not prove business correctness. Fill DTO-specific bodies and IDs before functional workflow runs.\n\nSafety gate: every mutating HTTP method, including the Paystack webhook, is skipped unless environment variable runMutations is exactly true. Successful login automatically stores accessToken and refreshToken when the response is AUTHENTICATED.\nA 404 for a missing record is allowed; the route-not-found fallback specifically returns a message beginning `Route METHOD URL not found`, which the smoke assertion distinguishes.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -54,6 +54,20 @@
             ],
             "url": "{{platformBaseUrl}}/admin/queues",
             "description": "Source: apps/api route registry. Read-only request."
+          }
+        },
+        {
+          "name": "GET /api/v1/report-cards/template-previews/{{templateAsset}}",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "*/*"
+              }
+            ],
+            "url": "{{publicBaseUrl}}/api/v1/report-cards/template-previews/{{templateAsset}}",
+            "description": "Static preview asset served before tenant resolution. Set templateAsset to an existing filename under apps/api/public/template-previews."
           }
         }
       ]
@@ -11744,7 +11758,13 @@
       "script": {
         "type": "text/javascript",
         "exec": [
-          "pm.test('Endpoint is registered (not 404)', function () { pm.expect(pm.response.code).to.not.equal(404); });",
+          "if (pm.response.code === 404) {",
+          "  let body = {}; try { body = pm.response.json(); } catch (_) {}",
+          "  const message = (body && body.message) || '';",
+          "  pm.test('404 is not the application route-not-found response', function () {",
+          "    pm.expect(message).to.not.match(/^Route .* not found$/);",
+          "  });",
+          "}",
           "pm.test('No unhandled server error', function () { pm.expect(pm.response.code).to.be.below(500); });",
           "if ((pm.response.headers.get('Content-Type') || '').includes('application/json') && pm.response.code !== 204) {",
           "  pm.test('JSON response is parseable', function () { pm.expect(() => pm.response.json()).to.not.throw(); });",
