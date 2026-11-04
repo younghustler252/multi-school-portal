@@ -31,7 +31,7 @@ The old 08:00 defaulter worker was removed; `fee.reminder_due_soon` replaces it 
 ## Deploy steps
 1. `npm run sync:registries` (new permission, feature and setting keys) then `npm run sync:school-roles`. New keys are not auto-given to existing editable roles; `school_admin` has everything. Principal templates carry the new keys for new schools.
 2. Activate `automation.rules.max` in the platform console and grant it per plan (it is inactive in code, so unlimited until then).
-3. Start the app: `initSchedulers` registers the 5-minute `automation-tick` and removes the old `defaulter-reminder-scheduler` once.
+3. Start the app: `initSchedulers` registers the 5-minute `automation-tick`. (The old `defaulter-reminder` queue and its cleanup code are deleted; the app was never hosted, so no old Redis job exists to remove.)
 
 ## Left alone on purpose
 Billing (hourly), school lifecycle (03:00), term lifecycle (07:00) are now started by `initWorkers` and scheduled by `initSchedulers`; the old every-minute subscription expiry job is replaced by billing and removed from Redis once. The payment reconciliation worker imported the billing engine from a path outside the repo, which would have stopped the API from starting: fixed. AUTH-01 is fixed (see below).

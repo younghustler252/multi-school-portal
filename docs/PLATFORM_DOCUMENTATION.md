@@ -166,3 +166,13 @@ After changing permissions or role templates, review whether `npm run sync:regis
 - [Testing Guide](TESTING_GUIDE.md): test commands, database setup, safety, and writing tests.
 - Module notes that remain in `docs/` are interim reference material. Treat source code as authoritative and replace stale implementation-history notes with current module contracts as each module is reviewed.
 - [Auth Audit](AUTH_AUDIT.md): source-based findings for the Auth module. It records security/correctness issues and verification gaps; findings remain open until fixed and tested.
+- [Settings and Automation Notes](SETTINGS_AUTOMATION_NOTES.md) and [Handoff](SETTINGS_AUTOMATION_HANDOFF.md): design, decisions, current state and open items for school settings, message templates, notifications and automation.
+
+### Route table: settings, templates, notifications, automation (school realm unless stated)
+| Mount | Routes | Permission |
+|---|---|---|
+| `/school-settings` | `GET /`, `PUT /`, `POST /stamp`, `POST /signature`, `GET /preferences`, `PUT /preferences` | `school_settings.view` (reads), `school_settings.manage` (writes) |
+| `/message-templates` | `GET /`, `GET /:key`, `PUT /:key/:channel`, `DELETE /:key/:channel`, `POST /:key/:channel/preview` | `message_templates.view`, `message_templates.manage` |
+| `/automations` | `GET /`, `GET /:id`, `PATCH /:id`, `POST /:id/dry-run`, `POST /:id/run`, `GET /:id/runs` | `automation.view`, `automation.manage` (sensitive) |
+| `/notifications` | `/school`, `/me`, `/me/read-all`, `/me/:id/read`, `/platform-inbox`, `/platform` | see `notifications.permissions.ts` |
+| `/platform/schools` (platform realm) | `GET /provisioning`, `POST /:id/provisioning/retry`, `POST /:id/impersonate`, `GET /overview` | `platform.*` keys, see the notes file |
