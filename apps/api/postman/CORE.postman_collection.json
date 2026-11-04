@@ -48,7 +48,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -237,6 +237,52 @@
                   "    pm.environment.set('refreshToken', data.tokens.refreshToken);",
                   "    console.log('Captured authenticated session tokens into the active environment.');",
                   "  } else { console.warn('Login did not return AUTHENTICATED; it may require persona or school selection. Resolve that flow before protected requests.'); }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login — Platform Host",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{platformBaseUrl}}/api/v1/auth/login",
+            "description": "Authenticate a platform administrator on the platform host. Captures platformAccessToken and platformRefreshToken.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"{{email}}\",\"password\":\"{{password}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Login response is JSON', function () { pm.expect(pm.response.headers.get('Content-Type') || '').to.include('application/json'); });",
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  const body = pm.response.json(); const data = body && body.data;",
+                  "  if (data && data.status === 'AUTHENTICATED' && data.tokens) {",
+                  "    pm.environment.set('platformAccessToken', data.tokens.accessToken);",
+                  "    pm.environment.set('platformRefreshToken', data.tokens.refreshToken);",
+                  "    console.log('Captured platform session tokens.');",
+                  "  } else { console.warn('Platform login did not return AUTHENTICATED; check platform membership / school selection.'); }",
                   "}"
                 ]
               }
@@ -805,7 +851,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -828,7 +874,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -860,7 +906,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -892,7 +938,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -10080,7 +10126,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -10103,7 +10149,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -10589,7 +10635,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -10612,7 +10658,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -10640,7 +10686,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -10659,7 +10705,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -10682,7 +10728,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -10714,7 +10760,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -10746,7 +10792,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -10778,7 +10824,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -10806,7 +10852,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -10829,7 +10875,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -10857,7 +10903,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -10880,7 +10926,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -10912,7 +10958,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -10944,7 +10990,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -10976,7 +11022,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -11194,7 +11240,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -11213,7 +11259,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -11232,7 +11278,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -11255,7 +11301,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -11287,7 +11333,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -11315,7 +11361,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -11338,7 +11384,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -11370,7 +11416,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -11398,7 +11444,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -11435,7 +11481,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -11514,7 +11560,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -11533,7 +11579,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -11556,7 +11602,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -11588,7 +11634,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
@@ -11620,7 +11666,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
+                "value": "Bearer {{platformAccessToken}}",
                 "type": "text"
               }
             ],
