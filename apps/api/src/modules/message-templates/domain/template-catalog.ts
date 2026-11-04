@@ -57,6 +57,32 @@ const REPORT_CARD_VARIABLES: readonly TemplateVariable[] = [
     { name: "class_name",    label: "Class",                 sample: "JSS 2" },
 ];
 
+const TRANSFER_VARIABLES: readonly TemplateVariable[] = [
+    { name: "guardian_name", label: "Guardian's first name", sample: "Mrs. Adeyemi" },
+    { name: "student_name",  label: "Student's name",        sample: "Tolu Adeyemi" },
+    { name: "school_name",   label: "School name",           sample: "Your School" },
+    { name: "from_branch",   label: "Branch they left",      sample: "Main Campus" },
+    { name: "to_branch",     label: "Branch they joined",    sample: "North Campus" },
+    { name: "class_name",    label: "New class (or a note)", sample: "JSS 2" },
+    { name: "date",          label: "Date of the transfer",  sample: "30 Oct 2026" },
+];
+
+const LOW_ATTENDANCE_VARIABLES: readonly TemplateVariable[] = [
+    { name: "guardian_name", label: "Guardian's first name", sample: "Mrs. Adeyemi" },
+    { name: "student_name",  label: "Student's name",        sample: "Tolu Adeyemi" },
+    { name: "school_name",   label: "School name",           sample: "Your School" },
+    { name: "class_name",    label: "Class",                 sample: "JSS 2" },
+    { name: "rate",          label: "Attendance rate so far this term", sample: "68%" },
+    { name: "days_marked",   label: "School days counted",   sample: "24" },
+];
+
+const REGISTER_VARIABLES: readonly TemplateVariable[] = [
+    { name: "staff_name",  label: "Teacher's first name", sample: "Mr. Bello" },
+    { name: "school_name", label: "School name",          sample: "Your School" },
+    { name: "class_name",  label: "Class",                sample: "JSS 2" },
+    { name: "date",        label: "Date",                 sample: "30 Oct 2026" },
+];
+
 export const TEMPLATE_CATALOG: readonly TemplateDef[] = [
     {
         key: "fee.reminder", name: "Fee reminder (due soon)", notificationType: "fee_reminder", variables: FEE_VARIABLES,
@@ -101,6 +127,33 @@ export const TEMPLATE_CATALOG: readonly TemplateDef[] = [
             IN_APP: { subject: "Attendance notice", body: "{{student_name}} ({{class_name}}) was marked {{status}} on {{date}}." },
             EMAIL:  { subject: "Attendance notice for {{student_name}}", body: "Hi {{guardian_name}},\n\n{{student_name}} ({{class_name}}) was marked {{status}} on {{date}}.\n\nIf this is a mistake, or you would like to explain the absence, please contact the school office.\n\n— {{school_name}}" },
             SMS:    { subject: null, body: "{{school_name}}: {{student_name}} ({{class_name}}) was marked {{status}} on {{date}}." },
+        },
+    },
+    {
+        key: "student.transferred", name: "Student moved to another branch", notificationType: "broadcast", variables: TRANSFER_VARIABLES,
+        description: "Sent to a student's guardians after the school transfers the student to another branch.",
+        defaults: {
+            IN_APP: { subject: "Branch change", body: "{{student_name}} has moved from {{from_branch}} to {{to_branch}} ({{class_name}}) on {{date}}." },
+            EMAIL:  { subject: "{{student_name}} has moved to {{to_branch}}", body: "Hi {{guardian_name}},\n\n{{student_name}} has moved from {{from_branch}} to {{to_branch}} ({{class_name}}) on {{date}}.\n\nIf you have any questions, please contact the school." },
+            SMS:    { subject: null, body: "{{school_name}}: {{student_name}} has moved to {{to_branch}} ({{class_name}}) on {{date}}." },
+        },
+    },
+    {
+        key: "attendance.low", name: "Low attendance warning", notificationType: "attendance_alert", variables: LOW_ATTENDANCE_VARIABLES,
+        description: "Sent to a student's guardians when the student's attendance this term falls below the school's line.",
+        defaults: {
+            IN_APP: { subject: "Low attendance", body: "{{student_name}} ({{class_name}}) has attended {{rate}} of {{days_marked}} school days this term. Please help them attend regularly." },
+            EMAIL:  { subject: "Attendance concern for {{student_name}}", body: "Hi {{guardian_name}},\n\n{{student_name}} ({{class_name}}) has attended {{rate}} of the {{days_marked}} school days counted so far this term.\n\nRegular attendance matters. If something is affecting {{student_name}}, please let the school know." },
+            SMS:    { subject: null, body: "{{school_name}}: {{student_name}}'s attendance this term is {{rate}} over {{days_marked}} days. Please help them attend regularly." },
+        },
+    },
+    {
+        key: "attendance.register_reminder", name: "Register not taken (teacher reminder)", notificationType: "attendance_alert", variables: REGISTER_VARIABLES,
+        description: "Sent to a class teacher when their class has no register for the day yet.",
+        defaults: {
+            IN_APP: { subject: "Register not taken", body: "The register for {{class_name}} has not been taken for {{date}}. Please take it now." },
+            EMAIL:  { subject: "Register not taken: {{class_name}}", body: "Hi {{staff_name}},\n\nThe register for {{class_name}} has not been taken for {{date}}. Please log in and take it." },
+            SMS:    { subject: null, body: "{{school_name}}: the register for {{class_name}} is not taken yet for {{date}}. Please take it." },
         },
     },
     {

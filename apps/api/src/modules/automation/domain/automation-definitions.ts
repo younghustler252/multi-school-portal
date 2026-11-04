@@ -46,6 +46,10 @@ export interface PaymentRow {
     paymentId: string; amountKobo: bigint; paidDay: string; receiptNumber: string | null; studentNames: string[]; guardian: GuardianRow;
 }
 
+export interface TransferRow { transferId: string; studentName: string; fromBranch: string; toBranch: string; toClass: string | null; day: string; guardians: GuardianRow[] }
+export interface LowAttendanceRow { studentId: string; termId: string; studentName: string; className: string | null; rate: number; daysMarked: number; guardians: GuardianRow[] }
+export interface MissingRegisterRow { classId: string; className: string; teacher: GuardianRow }   // the class teacher (same shape as a contact)
+
 /** Where definitions get their facts. The runner is given the real repository; tests give a fake. */
 export interface AutomationSources {
     /** Unpaid or partly paid invoices with a due date in the range (both ends inclusive), with the student's active guardians. */
@@ -56,10 +60,16 @@ export interface AutomationSources {
     findAttendanceOn(day: string, statuses: ("absent" | "late")[]): Promise<AbsenceRow[]>;
     /** Payments confirmed since this moment (not reversed) made by a guardian, with the students they were allocated to. */
     findConfirmedPaymentsSince(since: Date): Promise<PaymentRow[]>;
+    /** Branch transfers made since this moment, with the student's active guardians. */
+    findTransfersSince(since: Date): Promise<TransferRow[]>;
+    /** Students of the current term whose attendance rate (the attendance module's rule) is below `threshold` percent over at least `minDays` counted days. */
+    findLowAttendance(threshold: number, minDays: number): Promise<LowAttendanceRow[]>;
+    /** Classes that have a class teacher and active students this term, but no register at all on this day. */
+    findClassesWithoutRegister(day: string): Promise<MissingRegisterRow[]>;
 }
 
 /** One thing that needs a message: who gets it, the words' values, and the key that makes sure it is sent only once per occasion. */
-export interface Occurrence { key: string; guardians: GuardianRow[]; values: Record<string, string> }
+export interface Occurrence { key: string; guardians: GuardianRow[]; values: Record<string, string> }   // for a STAFF definition, `guardians` holds the staff to tell
 
 /** The pure part of a fee automation (also what the tests exercise). */
 export interface FeeOccurrence { row: InvoiceRow; key: string }
@@ -68,6 +78,8 @@ export interface AutomationDefinition {
     key:             string;
     name:            string;
     description:     string;
+    /** Who the message goes to. Left out = the student's guardians. */
+    audience?:       "STAFF";
     /** The catalog message this automation sends (message-templates module). */
     templateKey:     string;
     params:          readonly SettingDef[];
@@ -224,7 +236,76 @@ const ATTENDANCE_ABSENT: AutomationDefinition = {
     },
 };
 
-export const AUTOMATION_DEFINITIONS: readonly AutomationDefinition[] = [FEE_DUE_SOON, FEE_OVERDUE, FEE_RECEIPT, ATTENDANCE_ABSENT, FEE_INVOICE_ISSUED];
+/* ---------- a student moved to another branch: the guardians are told once (reads the transfer history, never writes) ---------- */
+const STUDENT_TRANSFERRED: AutomationDefinition = {
+    key: "student.transferred",
+    name: "Student moved to another branch",
+    description: "Tells a student's guardians when the school transfers the student to another branch. Each transfer is told once.",
+    templateKey: "student.transferred",
+    params: [
+        { key: "days_back", kind: "integer", group: "When", default: 3, min: 0, max: 14,
+          label: "Catch-up window (days)", description: "Transfers made in the last few days are still told if the system was down. Each transfer is only ever told once." },
+    ],
+    defaultChannels: ["IN_APP", "EMAIL"],
+    defaultSchedule: { type: "interval", minutes: 60 },
+    defaultEnabled: false,
+    async find(src, p, today) {
+        const since = new Date(parseDay(addDays(today, -num(p, "days_back"))).getTime() - 60 * 60 * 1000);   // midnight in Lagos
+        return (await src.findTransfersSince(since)).map(r => ({
+            key: r.transferId, guardians: r.guardians,
+            values: { student_name: r.studentName, from_branch: r.fromBranch, to_branch: r.toBranch, class_name: r.toClass ?? "a class to be confirmed", date: formatDay(r.day) },
+        }));
+    },
+};
+
+/* ---------- low attendance: told once per student per term, the first time the rate is below the line ---------- */
+const ATTENDANCE_LOW: AutomationDefinition = {
+    key: "attendance.low_rate",
+    name: "Attendance: low attendance warning",
+    description: "Tells a student's guardians when the student's attendance this term is below the line you choose. Each student is told once per term.",
+    templateKey: "attendance.low",
+    params: [
+        { key: "threshold_percent", kind: "integer", group: "When", default: 75, min: 40, max: 95,
+          label: "Warn below (%)", description: "A student whose attendance rate this term is under this number is flagged." },
+        { key: "min_days_marked", kind: "integer", group: "When", default: 10, min: 3, max: 60,
+          label: "Only after this many school days", description: "Early in a term a few absences swing the rate a lot, so wait until enough days are counted." },
+    ],
+    defaultChannels: ["IN_APP", "SMS"],
+    defaultSchedule: { type: "weekly", weekday: 1, time: "09:00" },     // Mondays, so the week ahead starts well
+    defaultEnabled: false,
+    async find(src, p) {
+        return (await src.findLowAttendance(num(p, "threshold_percent"), num(p, "min_days_marked"))).map(r => ({
+            key: `${r.studentId}:${r.termId}`, guardians: r.guardians,
+            values: { student_name: r.studentName, class_name: r.className ?? "your child's class", rate: `${r.rate}%`, days_marked: String(r.daysMarked) },
+        }));
+    },
+};
+
+/* ---------- a class has no register yet: the class teacher is reminded (staff, not guardians) ---------- */
+const REGISTER_REMINDER: AutomationDefinition = {
+    key: "attendance.register_missing",
+    name: "Attendance: register reminder for teachers",
+    description: "Reminds a class teacher when their class has no register for the day. Each class is reminded once per day.",
+    audience: "STAFF",
+    templateKey: "attendance.register_reminder",
+    params: [
+        { key: "weekdays_only", kind: "boolean", group: "When", default: true,
+          label: "Monday to Friday only", description: "Turn off if your school has classes on weekends." },
+    ],
+    defaultChannels: ["IN_APP"],
+    defaultSchedule: { type: "daily", time: "10:00" },
+    defaultEnabled: false,
+    async find(src, p, today) {
+        const weekday = parseDay(today).getUTCDay();
+        if (p.weekdays_only === true && (weekday === 0 || weekday === 6)) return [];
+        return (await src.findClassesWithoutRegister(today)).map(r => ({
+            key: `${r.classId}:${today}`, guardians: [r.teacher],
+            values: { class_name: r.className, date: formatDay(today) },
+        }));
+    },
+};
+
+export const AUTOMATION_DEFINITIONS: readonly AutomationDefinition[] = [FEE_DUE_SOON, FEE_OVERDUE, FEE_RECEIPT, ATTENDANCE_ABSENT, FEE_INVOICE_ISSUED, STUDENT_TRANSFERRED, ATTENDANCE_LOW, REGISTER_REMINDER];
 export const DEFINITION_BY_KEY: ReadonlyMap<string, AutomationDefinition> = new Map(AUTOMATION_DEFINITIONS.map(d => [d.key, d]));
 
 /** The default value of every number of a definition. */

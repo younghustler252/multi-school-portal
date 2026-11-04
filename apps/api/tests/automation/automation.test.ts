@@ -13,7 +13,7 @@ import type { InvoiceRow, IssuedInvoiceRow } from "../../src/modules/automation/
 const NOW = new Date("2026-10-30T07:00:00Z");           // 08:00 Lagos, Friday 2026-10-30
 const SCHOOL = "school-1";
 
-function world(opts: { prefs?: Record<string, unknown>; plan?: { email?: boolean; sms?: boolean; ruleLimit?: boolean }; invoices?: InvoiceRow[]; absences?: any[]; payments?: any[]; issued?: IssuedInvoiceRow[]; now?: () => Date } = {}) {
+function world(opts: { prefs?: Record<string, unknown>; plan?: { email?: boolean; sms?: boolean; ruleLimit?: boolean }; invoices?: InvoiceRow[]; absences?: any[]; payments?: any[]; issued?: IssuedInvoiceRow[]; extra?: Record<string, any>; now?: () => Date } = {}) {
     const rules: AutomationRuleRow[] = [];
     const logs: RunLogRow[] = [];
     const audits: any[] = [];
@@ -37,6 +37,7 @@ function world(opts: { prefs?: Record<string, unknown>; plan?: { email?: boolean
         latestForRules: async (ids: string[]) => new Map(ids.flatMap(id => { const l = logs.filter(x => x.ruleId === id).pop(); return l ? [[id, l] as [string, RunLogRow]] : []; })),
     };
     const source = { findUnpaidInvoicesDueBetween: async (from: string, to: string) => (opts.invoices ?? []).filter(i => i.dueDate >= from && i.dueDate <= to), findInvoicesIssuedBetween: async (from: string, to: string) => (opts.issued ?? []).filter(i => i.issueDate >= from && i.issueDate <= to), findConfirmedPaymentsSince: async (since: Date) => (opts.payments ?? []).filter(p => new Date(p.confirmedAt) >= since), findAttendanceOn: async (day: string, st: string[]) => (opts.absences ?? []).filter(a => a.day === day && st.includes(a.status)) };
+    Object.assign(source, opts.extra ?? {});            // fake sources for the newer automations
     const templates = new MessageTemplateService({ messageTemplateRepository: { find: async () => null } as any });
     const dispatch = {
         requeued: 0,
@@ -71,13 +72,13 @@ describe("default rules", () => {
     it("one rule per automation; the old reminder is ON and runs at the old time, new ones are OFF; calling twice adds nothing", async () => {
         const w = world();
         const rules = await ensureDefaultRules(w.d, NOW);
-        assert.equal(rules.length, 5);
+        assert.equal(rules.length, 8);
         const due = rules.find(r => r.definitionKey === "fee.reminder_due_soon")!;
         assert.equal(due.enabled, true);
         assert.deepEqual(due.channels, ["IN_APP", "EMAIL"]);
         assert.equal(due.nextRunAt?.toISOString(), "2026-10-31T07:00:00.000Z");
         assert.equal(rules.find(r => r.definitionKey === "fee.overdue_notice")!.enabled, false);
-        assert.equal((await ensureDefaultRules(w.d, NOW)).length, 5);
+        assert.equal((await ensureDefaultRules(w.d, NOW)).length, 8);
     });
 });
 
@@ -292,7 +293,7 @@ describe("changing a rule", () => {
     it("list shows the school switch, channel availability and each automation's settings", async () => {
         const w = world({ plan: { email: false } });
         const out = await new ListAutomationsUseCase(w.d, () => NOW).execute(SCHOOL);
-        assert.equal(out.schoolEnabled, true); assert.equal(out.automations.length, 5);
+        assert.equal(out.schoolEnabled, true); assert.equal(out.automations.length, 8);
         assert.ok(out.channels.blocked.some((b: any) => b.channel === "EMAIL" && b.reason === "plan"));
         assert.equal(out.automations[0].params[0].key, "days_before");
     });
@@ -338,5 +339,43 @@ describe("the tick", () => {
         const sum = await all.execute();
         assert.deepEqual(seen, ["a", "bad", "c"]); assert.equal(sum.ran, 2); assert.equal(sum.crashed.length, 1);
         assert.equal(audits[0].action, "automation.tick_failed");
+    });
+});
+
+describe("newer automations: transfer notice, low attendance, register reminder", () => {
+    const run = async (w: any, key: string, channels: string[] = ["IN_APP"]) => {
+        const rule = (await ensureDefaultRules(w.d, NOW)).find((r: any) => r.definitionKey === key)!;
+        await w.d.automationRuleRepository.update(rule.id, { enabled: true, channels });
+        return { rule, report: await w.d.automationRunnerService.run({ ...rule, enabled: true, channels }, { schoolId: SCHOOL, trigger: "MANUAL" }) };
+    };
+    it("a branch transfer tells the guardians once, with both branches and the new class", async () => {
+        const rows = [{ transferId: "t1", studentName: "Tolu Adeyemi", fromBranch: "Main", toBranch: "North", toClass: "JSS 2", day: "2026-10-30", guardians: [guardian("g1")] }];
+        const w = world({ extra: { findTransfersSince: async () => rows } });
+        const { report } = await run(w, "student.transferred");
+        assert.equal(report.created, 1);
+        assert.match(w.sent[0].message, /moved from Main to North \(JSS 2\)/);
+        assert.equal(w.sent[0].recipient.recipientType, "GUARDIAN");
+        const again = await run(w, "student.transferred");
+        assert.equal(again.report.created, 0); assert.equal(again.report.duplicates, 1);          // never told twice
+    });
+    it("low attendance is told once per student per term (the same term never repeats)", async () => {
+        const rows = [{ studentId: "s1", termId: "T1", studentName: "Tolu Adeyemi", className: "JSS 2", rate: 68, daysMarked: 24, guardians: [guardian("g1")] }];
+        const seen: any[] = [];
+        const w = world({ extra: { findLowAttendance: async (th: number, min: number) => { seen.push([th, min]); return rows; } } });
+        const first = await run(w, "attendance.low_rate");
+        assert.deepEqual(seen[0], [75, 10]);                                                          // the school's defaults reach the source
+        assert.equal(first.report.created, 1); assert.match(w.sent[0].message, /68% of 24 school days/);
+        const next = await run(w, "attendance.low_rate");                                             // next Monday, same term
+        assert.equal(next.report.created, 0);
+    });
+    it("the register reminder goes to the class TEACHER (staff), once per class per day, and skips weekends", async () => {
+        const rows = [{ classId: "c1", className: "JSS 2", teacher: guardian("t1", { firstName: "Bello" }) }];
+        const w = world({ extra: { findClassesWithoutRegister: async () => rows } });
+        const { report } = await run(w, "attendance.register_missing");      // NOW is Friday
+        assert.equal(report.created, 1);
+        assert.equal(w.sent[0].recipient.recipientType, "STAFF");
+        assert.match(w.sent[0].message, /register for JSS 2 has not been taken/);
+        const sunday = world({ now: () => new Date("2026-11-01T09:00:00Z"), extra: { findClassesWithoutRegister: async () => rows } });
+        assert.equal((await run(sunday, "attendance.register_missing")).report.matched, 0);          // Sunday: nothing
     });
 });

@@ -69,6 +69,7 @@ export class AutomationRunnerService {
         const texts = new Map<AutomationChannel, Awaited<ReturnType<MessageTemplateService["effective"]>>>();
         for (const c of policy.allowed) texts.set(c, await this.d.messageTemplateService.effective(def.templateKey, c));
 
+        const staff = def.audience === "STAFF";
         const people = new Set<string>();
         const messages: OutgoingMessage[] = [];
         let broken = 0;
@@ -77,12 +78,12 @@ export class AutomationRunnerService {
                 for (const channel of policy.allowed) {
                     if (channel === "EMAIL" && !g.email) continue;
                     if (channel === "SMS" && !g.phone) continue;
-                    const plain = renderPlain(texts.get(channel)!, { ...occ.values, guardian_name: g.firstName, school_name: school });
+                    const plain = renderPlain(texts.get(channel)!, { ...occ.values, guardian_name: g.firstName, staff_name: g.firstName, school_name: school });
                     if (plain.missing.length || !plain.body) { broken++; continue; }
                     people.add(g.id);
                     messages.push({
                         type, channel, title: plain.subject || def.name, message: plain.body,
-                        recipient: { recipientType: "GUARDIAN", recipientEntityId: g.id, userId: g.userId },
+                        recipient: { recipientType: staff ? "STAFF" : "GUARDIAN", recipientEntityId: g.id, userId: g.userId },
                         idempotencyKey: `auto:${rule.id}:${occ.key}:${g.id}:${channel}`,
                     });
                 }
@@ -97,7 +98,7 @@ export class AutomationRunnerService {
         }
         for (let i = 0; i < messages.length; i += CHUNK) {
             const res = await this.d.notificationDispatchService.dispatch({
-                sentById: o.actorId ?? rule.createdById ?? AUTOMATION_ACTOR_ID, targetType: "GUARDIAN", messages: messages.slice(i, i + CHUNK),
+                sentById: o.actorId ?? rule.createdById ?? AUTOMATION_ACTOR_ID, targetType: staff ? "STAFF" : "GUARDIAN", messages: messages.slice(i, i + CHUNK),
                 metadata: { source: "automation", ruleId: rule.id, definitionKey: rule.definitionKey, trigger: o.trigger, delivery: { skipGreeting: true, bodyOnly: true } },
             });
             r.created += res.created; r.duplicates += res.duplicates;
