@@ -1,0 +1,531 @@
+diff --git a/apps/api/src/modules/automation/domain/automation-definitions.ts b/apps/api/src/modules/automation/domain/automation-definitions.ts
+index 34963f1..eccd65b 100644
+--- a/apps/api/src/modules/automation/domain/automation-definitions.ts
++++ b/apps/api/src/modules/automation/domain/automation-definitions.ts
+@@ -40,6 +40,11 @@ export interface PaymentRow {
+     paymentId: string; amountKobo: bigint; paidDay: string; receiptNumber: string | null; studentNames: string[]; guardian: GuardianRow;
+ }
+ 
++export interface TransferRow { transferId: string; studentName: string; fromBranch: string; toBranch: string; toClass: string | null; day: string; guardians: GuardianRow[] }
++export interface InvoiceIssuedRow { invoiceId: string; invoiceNumber: string | null; studentName: string; dueDate: string | null; totalKobo: bigint; guardians: GuardianRow[] }
++export interface LowAttendanceRow { studentId: string; termId: string; studentName: string; className: string | null; rate: number; daysMarked: number; guardians: GuardianRow[] }
++export interface MissingRegisterRow { classId: string; className: string; teacher: GuardianRow }   // the class teacher (same shape as a contact)
++
+ /** Where definitions get their facts. The runner is given the real repository; tests give a fake. */
+ export interface AutomationSources {
+     /** Unpaid or partly paid invoices with a due date in the range (both ends inclusive), with the student's active guardians. */
+@@ -48,10 +53,18 @@ export interface AutomationSources {
+     findAttendanceOn(day: string, statuses: ("absent" | "late")[]): Promise<AbsenceRow[]>;
+     /** Payments confirmed since this moment (not reversed) made by a guardian, with the students they were allocated to. */
+     findConfirmedPaymentsSince(since: Date): Promise<PaymentRow[]>;
++    /** Branch transfers made since this moment, with the student's active guardians. */
++    findTransfersSince(since: Date): Promise<TransferRow[]>;
++    /** Invoices issued (not draft, not voided) since this moment, with the student's active guardians. */
++    findInvoicesIssuedSince(since: Date): Promise<InvoiceIssuedRow[]>;
++    /** Students of the current term whose attendance rate (the attendance module's rule) is below `threshold` percent over at least `minDays` counted days. */
++    findLowAttendance(threshold: number, minDays: number): Promise<LowAttendanceRow[]>;
++    /** Classes that have a class teacher and active students this term, but no register at all on this day. */
++    findClassesWithoutRegister(day: string): Promise<MissingRegisterRow[]>;
+ }
+ 
+ /** One thing that needs a message: who gets it, the words' values, and the key that makes sure it is sent only once per occasion. */
+-export interface Occurrence { key: string; guardians: GuardianRow[]; values: Record<string, string> }
++export interface Occurrence { key: string; guardians: GuardianRow[]; values: Record<string, string> }   // for a STAFF definition, `guardians` holds the staff to tell
+ 
+ /** The pure part of a fee automation (also what the tests exercise). */
+ export interface FeeOccurrence { row: InvoiceRow; key: string }
+@@ -60,6 +73,8 @@ export interface AutomationDefinition {
+     key:             string;
+     name:            string;
+     description:     string;
++    /** Who the message goes to. Left out = the student's guardians. */
++    audience?:       "STAFF";
+     /** The catalog message this automation sends (message-templates module). */
+     templateKey:     string;
+     params:          readonly SettingDef[];
+@@ -194,7 +209,98 @@ const ATTENDANCE_ABSENT: AutomationDefinition = {
+     },
+ };
+ 
+-export const AUTOMATION_DEFINITIONS: readonly AutomationDefinition[] = [FEE_DUE_SOON, FEE_OVERDUE, FEE_RECEIPT, ATTENDANCE_ABSENT];
++/* ---------- a student moved to another branch: the guardians are told once (reads the transfer history, never writes) ---------- */
++const STUDENT_TRANSFERRED: AutomationDefinition = {
++    key: "student.transferred",
++    name: "Student moved to another branch",
++    description: "Tells a student's guardians when the school transfers the student to another branch. Each transfer is told once.",
++    templateKey: "student.transferred",
++    params: [
++        { key: "days_back", kind: "integer", group: "When", default: 3, min: 0, max: 14,
++          label: "Catch-up window (days)", description: "Transfers made in the last few days are still told if the system was down. Each transfer is only ever told once." },
++    ],
++    defaultChannels: ["IN_APP", "EMAIL"],
++    defaultSchedule: { type: "interval", minutes: 60 },
++    defaultEnabled: false,
++    async find(src, p, today) {
++        const since = new Date(parseDay(addDays(today, -num(p, "days_back"))).getTime() - 60 * 60 * 1000);
++        return (await src.findTransfersSince(since)).map(r => ({
++            key: r.transferId, guardians: r.guardians,
++            values: { student_name: r.studentName, from_branch: r.fromBranch, to_branch: r.toBranch, class_name: r.toClass ?? "a class to be confirmed", date: formatDay(r.day) },
++        }));
++    },
++};
++
++/* ---------- a new invoice was issued ---------- */
++const FEE_INVOICE_ISSUED: AutomationDefinition = {
++    key: "fee.invoice_issued",
++    name: "New invoice issued",
++    description: "Tells a student's guardians when the school issues a new invoice. Each invoice is told once.",
++    templateKey: "fee.invoice",
++    params: [
++        { key: "days_back", kind: "integer", group: "When", default: 2, min: 0, max: 14,
++          label: "Catch-up window (days)", description: "Invoices issued in the last few days are still told if the system was down. Each invoice is only ever told once." },
++    ],
++    defaultChannels: ["IN_APP", "EMAIL"],
++    defaultSchedule: { type: "interval", minutes: 60 },
++    defaultEnabled: false,
++    async find(src, p, today) {
++        const since = new Date(parseDay(addDays(today, -num(p, "days_back"))).getTime() - 60 * 60 * 1000);
++        return (await src.findInvoicesIssuedSince(since)).map(r => ({
++            key: r.invoiceId, guardians: r.guardians,
++            values: { student_name: r.studentName, amount_total: formatNaira(r.totalKobo), due_date: r.dueDate ? formatDay(r.dueDate) : "the date shown on the invoice", invoice_number: r.invoiceNumber ?? "" },
++        }));
++    },
++};
++
++/* ---------- low attendance: told once per student per term, the first time the rate is below the line ---------- */
++const ATTENDANCE_LOW: AutomationDefinition = {
++    key: "attendance.low_rate",
++    name: "Attendance: low attendance warning",
++    description: "Tells a student's guardians when the student's attendance this term is below the line you choose. Each student is told once per term.",
++    templateKey: "attendance.low",
++    params: [
++        { key: "threshold_percent", kind: "integer", group: "When", default: 75, min: 40, max: 95,
++          label: "Warn below (%)", description: "A student whose attendance rate this term is under this number is flagged." },
++        { key: "min_days_marked", kind: "integer", group: "When", default: 10, min: 3, max: 60,
++          label: "Only after this many school days", description: "Early in a term a few absences swing the rate a lot, so wait until enough days are counted." },
++    ],
++    defaultChannels: ["IN_APP", "SMS"],
++    defaultSchedule: { type: "weekly", weekday: 1, time: "09:00" },     // Mondays, so the week ahead starts well
++    defaultEnabled: false,
++    async find(src, p) {
++        return (await src.findLowAttendance(num(p, "threshold_percent"), num(p, "min_days_marked"))).map(r => ({
++            key: `${r.studentId}:${r.termId}`, guardians: r.guardians,
++            values: { student_name: r.studentName, class_name: r.className ?? "your child's class", rate: `${r.rate}%`, days_marked: String(r.daysMarked) },
++        }));
++    },
++};
++
++/* ---------- a class has no register yet: the class teacher is reminded (staff, not guardians) ---------- */
++const REGISTER_REMINDER: AutomationDefinition = {
++    key: "attendance.register_missing",
++    name: "Attendance: register reminder for teachers",
++    description: "Reminds a class teacher when their class has no register for the day. Each class is reminded once per day.",
++    audience: "STAFF",
++    templateKey: "attendance.register_reminder",
++    params: [
++        { key: "weekdays_only", kind: "boolean", group: "When", default: true,
++          label: "Monday to Friday only", description: "Turn off if your school has classes on weekends." },
++    ],
++    defaultChannels: ["IN_APP"],
++    defaultSchedule: { type: "daily", time: "10:00" },
++    defaultEnabled: false,
++    async find(src, p, today) {
++        const weekday = parseDay(today).getUTCDay();
++        if (p.weekdays_only === true && (weekday === 0 || weekday === 6)) return [];
++        return (await src.findClassesWithoutRegister(today)).map(r => ({
++            key: `${r.classId}:${today}`, guardians: [r.teacher],
++            values: { class_name: r.className, date: formatDay(today) },
++        }));
++    },
++};
++
++export const AUTOMATION_DEFINITIONS: readonly AutomationDefinition[] = [FEE_DUE_SOON, FEE_OVERDUE, FEE_RECEIPT, ATTENDANCE_ABSENT, FEE_INVOICE_ISSUED, STUDENT_TRANSFERRED, ATTENDANCE_LOW, REGISTER_REMINDER];
+ export const DEFINITION_BY_KEY: ReadonlyMap<string, AutomationDefinition> = new Map(AUTOMATION_DEFINITIONS.map(d => [d.key, d]));
+ 
+ /** The default value of every number of a definition. */
+diff --git a/apps/api/src/modules/automation/repositories/automation.repository.impl.ts b/apps/api/src/modules/automation/repositories/automation.repository.impl.ts
+index 55320f0..fbc5cfc 100644
+--- a/apps/api/src/modules/automation/repositories/automation.repository.impl.ts
++++ b/apps/api/src/modules/automation/repositories/automation.repository.impl.ts
+@@ -1,5 +1,6 @@
+ import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
+-import type { InvoiceRow, AbsenceRow, GuardianRow, PaymentRow } from "../domain/automation-definitions";
++import type { InvoiceRow, AbsenceRow, GuardianRow, PaymentRow, TransferRow, InvoiceIssuedRow, LowAttendanceRow, MissingRegisterRow } from "../domain/automation-definitions";
++import { ACTIVE_STUDENT_WHERE } from "../../students/domain/student-eligibility";
+ import { dayString, parseDay, todayInFinanceZone } from "../../ledger/domain/ledger.dates";
+ import type {
+     IAutomationRuleRepository, IAutomationRunRepository, IAutomationSourceRepository,
+@@ -8,6 +9,9 @@ import type {
+ 
+ const db = () => getTenantClient();
+ const live = { deletedAt: null } as const;
++const GUARDIAN_SELECT = { id: true, firstName: true, email: true, phone: true, userId: true, isActive: true } as const;
++const activeGuardians = (links: { guardian: { id: string; firstName: string; email: string | null; phone: string | null; userId: string | null; isActive: boolean } }[]): GuardianRow[] =>
++    links.map(l => l.guardian).filter(g => g.isActive).map(g => ({ id: g.id, firstName: g.firstName, email: g.email || null, phone: g.phone, userId: g.userId }));
+ 
+ export class AutomationRuleRepositoryImpl implements IAutomationRuleRepository {
+     async list() { return (await db().automationRule.findMany({ where: live, orderBy: { createdAt: "asc" } })) as AutomationRuleRow[]; }
+@@ -109,4 +113,85 @@ export class AutomationSourceRepositoryImpl implements IAutomationSourceReposito
+             guardian: { id: r.guardian!.id, firstName: r.guardian!.firstName, email: r.guardian!.email || null, phone: r.guardian!.phone, userId: r.guardian!.userId },
+         }));
+     }
++
++    // ── Branch transfers (the transfer history is written by the students module; this only reads it) ──
++    async findTransfersSince(since: Date): Promise<TransferRow[]> {
++        const rows = await db().studentBranchTransfer.findMany({
++            where: { createdAt: { gte: since } }, orderBy: { createdAt: "asc" }, take: 5000,
++            select: {
++                id: true, createdAt: true, toClassId: true,
++                fromBranch: { select: { name: true } }, toBranch: { select: { name: true } },
++                student: { select: { firstName: true, lastName: true, guardianLinks: { select: { guardian: { select: GUARDIAN_SELECT } } } } },
++            },
++        });
++        const classIds = [...new Set(rows.map(r => r.toClassId).filter((x): x is string => !!x))];
++        const names = new Map((classIds.length ? await db().class.findMany({ where: { id: { in: classIds } }, select: { id: true, name: true } }) : []).map(c => [c.id, c.name]));
++        return rows.map(r => ({
++            transferId: r.id, studentName: `${r.student.firstName} ${r.student.lastName}`.trim(), fromBranch: r.fromBranch.name, toBranch: r.toBranch.name,
++            toClass: r.toClassId ? names.get(r.toClassId) ?? null : null, day: todayInFinanceZone(r.createdAt),
++            guardians: activeGuardians(r.student.guardianLinks),
++        }));
++    }
++
++    // ── Invoices issued (read only; the invoice date is the day the school issued it) ──
++    async findInvoicesIssuedSince(since: Date): Promise<InvoiceIssuedRow[]> {
++        const rows = await db().feeInvoice.findMany({
++            where: { status: { notIn: ["draft", "void"] }, voidedAt: null, issueDate: { gte: since } },
++            orderBy: { issueDate: "asc" }, take: 20000,
++            select: {
++                id: true, invoiceNumber: true, dueDate: true, totalKobo: true,
++                student: { select: { firstName: true, lastName: true, guardianLinks: { select: { guardian: { select: GUARDIAN_SELECT } } } } },
++            },
++        });
++        return rows.map(r => ({
++            invoiceId: r.id, invoiceNumber: r.invoiceNumber, studentName: `${r.student.firstName} ${r.student.lastName}`.trim(),
++            dueDate: r.dueDate ? dayString(r.dueDate as Date) : null, totalKobo: r.totalKobo, guardians: activeGuardians(r.student.guardianLinks),
++        }));
++    }
++
++    // ── Low attendance: the attendance module's rule: (present + late) / (present + late + absent); excused days are left out ──
++    async findLowAttendance(threshold: number, minDays: number): Promise<LowAttendanceRow[]> {
++        const term = await db().term.findFirst({ where: { isCurrent: true }, select: { id: true } });
++        if (!term) return [];
++        const groups = await db().attendance.groupBy({ by: ["studentId", "status"], where: { termId: term.id }, _count: { _all: true } });
++        const perStudent = new Map<string, { counted: number; present: number }>();
++        for (const g of groups) {
++            if (g.status === "excused") continue;
++            const e = perStudent.get(g.studentId) ?? { counted: 0, present: 0 };
++            e.counted += g._count._all; if (g.status === "present" || g.status === "late") e.present += g._count._all;
++            perStudent.set(g.studentId, e);
++        }
++        const low = [...perStudent].map(([studentId, e]) => ({ studentId, counted: e.counted, rate: Math.round((e.present / e.counted) * 1000) / 10 }))
++            .filter(x => x.counted >= minDays && x.rate < threshold);
++        if (low.length === 0) return [];
++        const students = await db().student.findMany({
++            where: { id: { in: low.map(x => x.studentId) }, ...ACTIVE_STUDENT_WHERE },
++            select: {
++                id: true, firstName: true, lastName: true,
++                enrolments: { where: { termId: term.id, status: "active" }, select: { class: { select: { name: true } } }, take: 1 },
++                guardianLinks: { select: { guardian: { select: GUARDIAN_SELECT } } },
++            },
++        });
++        const stat = new Map(low.map(x => [x.studentId, x]));
++        return students.map(s => ({
++            studentId: s.id, termId: term.id, studentName: `${s.firstName} ${s.lastName}`.trim(), className: s.enrolments[0]?.class.name ?? null,
++            rate: stat.get(s.id)!.rate, daysMarked: stat.get(s.id)!.counted, guardians: activeGuardians(s.guardianLinks),
++        }));
++    }
++
++    // ── Classes whose teacher has not taken the register today ──
++    async findClassesWithoutRegister(day: string): Promise<MissingRegisterRow[]> {
++        const term = await db().term.findFirst({ where: { isCurrent: true }, select: { id: true } });
++        if (!term) return [];
++        const classes = await db().class.findMany({
++            where: { classTeacherId: { not: null }, classTeacher: { isActive: true, deletedAt: null }, enrolments: { some: { termId: term.id, status: "active" } } },
++            select: { id: true, name: true, classTeacher: { select: { id: true, firstName: true, email: true, phone: true, userId: true } } },
++        });
++        if (classes.length === 0) return [];
++        const done = new Set((await db().attendance.groupBy({ by: ["classId"], where: { date: parseDay(day), classId: { in: classes.map(c => c.id) } } })).map(g => g.classId));
++        return classes.filter(c => !done.has(c.id) && c.classTeacher).map(c => ({
++            classId: c.id, className: c.name,
++            teacher: { id: c.classTeacher!.id, firstName: c.classTeacher!.firstName, email: c.classTeacher!.email || null, phone: c.classTeacher!.phone, userId: c.classTeacher!.userId },
++        }));
++    }
+ }
+diff --git a/apps/api/src/modules/automation/services/automation-runner.service.ts b/apps/api/src/modules/automation/services/automation-runner.service.ts
+index 49c0a7f..acdba05 100644
+--- a/apps/api/src/modules/automation/services/automation-runner.service.ts
++++ b/apps/api/src/modules/automation/services/automation-runner.service.ts
+@@ -69,6 +69,7 @@ export class AutomationRunnerService {
+         const texts = new Map<AutomationChannel, Awaited<ReturnType<MessageTemplateService["effective"]>>>();
+         for (const c of policy.allowed) texts.set(c, await this.d.messageTemplateService.effective(def.templateKey, c));
+ 
++        const staff = def.audience === "STAFF";
+         const people = new Set<string>();
+         const messages: OutgoingMessage[] = [];
+         let broken = 0;
+@@ -77,12 +78,12 @@ export class AutomationRunnerService {
+                 for (const channel of policy.allowed) {
+                     if (channel === "EMAIL" && !g.email) continue;
+                     if (channel === "SMS" && !g.phone) continue;
+-                    const plain = renderPlain(texts.get(channel)!, { ...occ.values, guardian_name: g.firstName, school_name: school });
++                    const plain = renderPlain(texts.get(channel)!, { ...occ.values, guardian_name: g.firstName, staff_name: g.firstName, school_name: school });
+                     if (plain.missing.length || !plain.body) { broken++; continue; }
+                     people.add(g.id);
+                     messages.push({
+                         type, channel, title: plain.subject || def.name, message: plain.body,
+-                        recipient: { recipientType: "GUARDIAN", recipientEntityId: g.id, userId: g.userId },
++                        recipient: { recipientType: staff ? "STAFF" : "GUARDIAN", recipientEntityId: g.id, userId: g.userId },
+                         idempotencyKey: `auto:${rule.id}:${occ.key}:${g.id}:${channel}`,
+                     });
+                 }
+@@ -97,7 +98,7 @@ export class AutomationRunnerService {
+         }
+         for (let i = 0; i < messages.length; i += CHUNK) {
+             const res = await this.d.notificationDispatchService.dispatch({
+-                sentById: o.actorId ?? rule.createdById ?? AUTOMATION_ACTOR_ID, targetType: "GUARDIAN", messages: messages.slice(i, i + CHUNK),
++                sentById: o.actorId ?? rule.createdById ?? AUTOMATION_ACTOR_ID, targetType: staff ? "STAFF" : "GUARDIAN", messages: messages.slice(i, i + CHUNK),
+                 metadata: { source: "automation", ruleId: rule.id, definitionKey: rule.definitionKey, trigger: o.trigger, delivery: { skipGreeting: true, bodyOnly: true } },
+             });
+             r.created += res.created; r.duplicates += res.duplicates;
+diff --git a/apps/api/src/modules/message-templates/domain/template-catalog.ts b/apps/api/src/modules/message-templates/domain/template-catalog.ts
+index a6819c2..4cf11e8 100644
+--- a/apps/api/src/modules/message-templates/domain/template-catalog.ts
++++ b/apps/api/src/modules/message-templates/domain/template-catalog.ts
+@@ -57,6 +57,41 @@ const REPORT_CARD_VARIABLES: readonly TemplateVariable[] = [
+     { name: "class_name",    label: "Class",                 sample: "JSS 2" },
+ ];
+ 
++const TRANSFER_VARIABLES: readonly TemplateVariable[] = [
++    { name: "guardian_name", label: "Guardian's first name", sample: "Mrs. Adeyemi" },
++    { name: "student_name",  label: "Student's name",        sample: "Tolu Adeyemi" },
++    { name: "school_name",   label: "School name",           sample: "Your School" },
++    { name: "from_branch",   label: "Branch they left",      sample: "Main Campus" },
++    { name: "to_branch",     label: "Branch they joined",    sample: "North Campus" },
++    { name: "class_name",    label: "New class (or a note)", sample: "JSS 2" },
++    { name: "date",          label: "Date of the transfer",  sample: "30 Oct 2026" },
++];
++
++const INVOICE_VARIABLES: readonly TemplateVariable[] = [
++    { name: "guardian_name",  label: "Guardian's first name", sample: "Mrs. Adeyemi" },
++    { name: "student_name",   label: "Student's name",        sample: "Tolu Adeyemi" },
++    { name: "school_name",    label: "School name",           sample: "Your School" },
++    { name: "amount_total",   label: "Invoice total",         sample: "₦45,000.00" },
++    { name: "due_date",       label: "Due date",              sample: "15 Nov 2026" },
++    { name: "invoice_number", label: "Invoice number",        sample: "INV-0042" },
++];
++
++const LOW_ATTENDANCE_VARIABLES: readonly TemplateVariable[] = [
++    { name: "guardian_name", label: "Guardian's first name", sample: "Mrs. Adeyemi" },
++    { name: "student_name",  label: "Student's name",        sample: "Tolu Adeyemi" },
++    { name: "school_name",   label: "School name",           sample: "Your School" },
++    { name: "class_name",    label: "Class",                 sample: "JSS 2" },
++    { name: "rate",          label: "Attendance rate so far this term", sample: "68%" },
++    { name: "days_marked",   label: "School days counted",   sample: "24" },
++];
++
++const REGISTER_VARIABLES: readonly TemplateVariable[] = [
++    { name: "staff_name",  label: "Teacher's first name", sample: "Mr. Bello" },
++    { name: "school_name", label: "School name",          sample: "Your School" },
++    { name: "class_name",  label: "Class",                sample: "JSS 2" },
++    { name: "date",        label: "Date",                 sample: "30 Oct 2026" },
++];
++
+ export const TEMPLATE_CATALOG: readonly TemplateDef[] = [
+     {
+         key: "fee.reminder", name: "Fee reminder (due soon)", notificationType: "fee_reminder", variables: FEE_VARIABLES,
+@@ -94,6 +129,42 @@ export const TEMPLATE_CATALOG: readonly TemplateDef[] = [
+             SMS:    { subject: null, body: "{{school_name}}: {{student_name}} ({{class_name}}) was marked {{status}} on {{date}}." },
+         },
+     },
++    {
++        key: "student.transferred", name: "Student moved to another branch", notificationType: "broadcast", variables: TRANSFER_VARIABLES,
++        description: "Sent to a student's guardians after the school transfers the student to another branch.",
++        defaults: {
++            IN_APP: { subject: "Branch change", body: "{{student_name}} has moved from {{from_branch}} to {{to_branch}} ({{class_name}}) on {{date}}." },
++            EMAIL:  { subject: "{{student_name}} has moved to {{to_branch}}", body: "Hi {{guardian_name}},\n\n{{student_name}} has moved from {{from_branch}} to {{to_branch}} ({{class_name}}) on {{date}}.\n\nIf you have any questions, please contact the school." },
++            SMS:    { subject: null, body: "{{school_name}}: {{student_name}} has moved to {{to_branch}} ({{class_name}}) on {{date}}." },
++        },
++    },
++    {
++        key: "fee.invoice", name: "New invoice", notificationType: "fee_invoice", variables: INVOICE_VARIABLES,
++        description: "Sent to a student's guardians when the school issues a new invoice.",
++        defaults: {
++            IN_APP: { subject: "New invoice", body: "A new invoice of {{amount_total}} for {{student_name}} has been issued, due on {{due_date}}. Please log in to view it." },
++            EMAIL:  { subject: "New invoice for {{student_name}}", body: "Hi {{guardian_name}},\n\nA new invoice of {{amount_total}} (invoice {{invoice_number}}) has been issued for {{student_name}}, due on {{due_date}}.\n\nPlease log in to the parent portal to view it and pay." },
++            SMS:    { subject: null, body: "{{school_name}}: a new invoice of {{amount_total}} for {{student_name}} is due on {{due_date}}. Please check the parent portal." },
++        },
++    },
++    {
++        key: "attendance.low", name: "Low attendance warning", notificationType: "attendance_alert", variables: LOW_ATTENDANCE_VARIABLES,
++        description: "Sent to a student's guardians when the student's attendance this term falls below the school's line.",
++        defaults: {
++            IN_APP: { subject: "Low attendance", body: "{{student_name}} ({{class_name}}) has attended {{rate}} of {{days_marked}} school days this term. Please help them attend regularly." },
++            EMAIL:  { subject: "Attendance concern for {{student_name}}", body: "Hi {{guardian_name}},\n\n{{student_name}} ({{class_name}}) has attended {{rate}} of the {{days_marked}} school days counted so far this term.\n\nRegular attendance matters. If something is affecting {{student_name}}, please let the school know." },
++            SMS:    { subject: null, body: "{{school_name}}: {{student_name}}'s attendance this term is {{rate}} over {{days_marked}} days. Please help them attend regularly." },
++        },
++    },
++    {
++        key: "attendance.register_reminder", name: "Register not taken (teacher reminder)", notificationType: "attendance_alert", variables: REGISTER_VARIABLES,
++        description: "Sent to a class teacher when their class has no register for the day yet.",
++        defaults: {
++            IN_APP: { subject: "Register not taken", body: "The register for {{class_name}} has not been taken for {{date}}. Please take it now." },
++            EMAIL:  { subject: "Register not taken: {{class_name}}", body: "Hi {{staff_name}},\n\nThe register for {{class_name}} has not been taken for {{date}}. Please log in and take it." },
++            SMS:    { subject: null, body: "{{school_name}}: the register for {{class_name}} is not taken yet for {{date}}. Please take it." },
++        },
++    },
+     {
+         key: "report_card.ready", name: "Report card ready", notificationType: "report_card_ready", variables: REPORT_CARD_VARIABLES,
+         description: "Sent to a student's guardians when the school publishes the student's report card.",
+diff --git a/apps/api/tests/automation/automation.test.ts b/apps/api/tests/automation/automation.test.ts
+index b9ed6ea..de597c2 100644
+--- a/apps/api/tests/automation/automation.test.ts
++++ b/apps/api/tests/automation/automation.test.ts
+@@ -13,7 +13,7 @@ import type { InvoiceRow } from "../../src/modules/automation/domain/automation-
+ const NOW = new Date("2026-10-30T07:00:00Z");           // 08:00 Lagos, Friday 2026-10-30
+ const SCHOOL = "school-1";
+ 
+-function world(opts: { prefs?: Record<string, unknown>; plan?: { email?: boolean; sms?: boolean; ruleLimit?: boolean }; invoices?: InvoiceRow[]; absences?: any[]; payments?: any[]; now?: () => Date } = {}) {
++function world(opts: { prefs?: Record<string, unknown>; plan?: { email?: boolean; sms?: boolean; ruleLimit?: boolean }; invoices?: InvoiceRow[]; absences?: any[]; payments?: any[]; extra?: Record<string, any>; now?: () => Date } = {}) {
+     const rules: AutomationRuleRow[] = [];
+     const logs: RunLogRow[] = [];
+     const audits: any[] = [];
+@@ -37,6 +37,7 @@ function world(opts: { prefs?: Record<string, unknown>; plan?: { email?: boolean
+         latestForRules: async (ids: string[]) => new Map(ids.flatMap(id => { const l = logs.filter(x => x.ruleId === id).pop(); return l ? [[id, l] as [string, RunLogRow]] : []; })),
+     };
+     const source = { findUnpaidInvoicesDueBetween: async (from: string, to: string) => (opts.invoices ?? []).filter(i => i.dueDate >= from && i.dueDate <= to), findConfirmedPaymentsSince: async (since: Date) => (opts.payments ?? []).filter(p => new Date(p.confirmedAt) >= since), findAttendanceOn: async (day: string, st: string[]) => (opts.absences ?? []).filter(a => a.day === day && st.includes(a.status)) };
++    Object.assign(source, opts.extra ?? {});            // fake sources for the newer automations
+     const templates = new MessageTemplateService({ messageTemplateRepository: { find: async () => null } as any });
+     const dispatch = {
+         requeued: 0,
+@@ -71,13 +72,13 @@ describe("default rules", () => {
+     it("one rule per automation; the old reminder is ON and runs at the old time, new ones are OFF; calling twice adds nothing", async () => {
+         const w = world();
+         const rules = await ensureDefaultRules(w.d, NOW);
+-        assert.equal(rules.length, 4);
++        assert.equal(rules.length, 8);
+         const due = rules.find(r => r.definitionKey === "fee.reminder_due_soon")!;
+         assert.equal(due.enabled, true);
+         assert.deepEqual(due.channels, ["IN_APP", "EMAIL"]);
+         assert.equal(due.nextRunAt?.toISOString(), "2026-10-31T07:00:00.000Z");
+         assert.equal(rules.find(r => r.definitionKey === "fee.overdue_notice")!.enabled, false);
+-        assert.equal((await ensureDefaultRules(w.d, NOW)).length, 4);
++        assert.equal((await ensureDefaultRules(w.d, NOW)).length, 8);
+     });
+ });
+ 
+@@ -261,7 +262,7 @@ describe("changing a rule", () => {
+     it("list shows the school switch, channel availability and each automation's settings", async () => {
+         const w = world({ plan: { email: false } });
+         const out = await new ListAutomationsUseCase(w.d, () => NOW).execute(SCHOOL);
+-        assert.equal(out.schoolEnabled, true); assert.equal(out.automations.length, 4);
++        assert.equal(out.schoolEnabled, true); assert.equal(out.automations.length, 8);
+         assert.ok(out.channels.blocked.some((b: any) => b.channel === "EMAIL" && b.reason === "plan"));
+         assert.equal(out.automations[0].params[0].key, "days_before");
+     });
+@@ -309,3 +310,48 @@ describe("the tick", () => {
+         assert.equal(audits[0].action, "automation.tick_failed");
+     });
+ });
++
++describe("newer automations: transfer notice, new invoice, low attendance, register reminder", () => {
++    const run = async (w: any, key: string, channels: string[] = ["IN_APP"]) => {
++        const rule = (await ensureDefaultRules(w.d, NOW)).find((r: any) => r.definitionKey === key)!;
++        await w.d.automationRuleRepository.update(rule.id, { enabled: true, channels });
++        return { rule, report: await w.d.automationRunnerService.run({ ...rule, enabled: true, channels }, { schoolId: SCHOOL, trigger: "MANUAL" }) };
++    };
++    it("a branch transfer tells the guardians once, with both branches and the new class", async () => {
++        const rows = [{ transferId: "t1", studentName: "Tolu Adeyemi", fromBranch: "Main", toBranch: "North", toClass: "JSS 2", day: "2026-10-30", guardians: [guardian("g1")] }];
++        const w = world({ extra: { findTransfersSince: async () => rows } });
++        const { report } = await run(w, "student.transferred");
++        assert.equal(report.created, 1);
++        assert.match(w.sent[0].message, /moved from Main to North \(JSS 2\)/);
++        assert.equal(w.sent[0].recipient.recipientType, "GUARDIAN");
++        const again = await run(w, "student.transferred");
++        assert.equal(again.report.created, 0); assert.equal(again.report.duplicates, 1);          // never told twice
++    });
++    it("a new invoice tells the guardians the total and due date, once", async () => {
++        const rows = [{ invoiceId: "i1", invoiceNumber: "INV-1", studentName: "Tolu Adeyemi", dueDate: "2026-11-15", totalKobo: 4500000n, guardians: [guardian("g1")] }];
++        const w = world({ extra: { findInvoicesIssuedSince: async () => rows } });
++        const { report } = await run(w, "fee.invoice_issued");
++        assert.equal(report.created, 1);
++        assert.match(w.sent[0].message, /₦45,000\.00/);
++    });
++    it("low attendance is told once per student per term (the same term never repeats)", async () => {
++        const rows = [{ studentId: "s1", termId: "T1", studentName: "Tolu Adeyemi", className: "JSS 2", rate: 68, daysMarked: 24, guardians: [guardian("g1")] }];
++        const seen: any[] = [];
++        const w = world({ extra: { findLowAttendance: async (th: number, min: number) => { seen.push([th, min]); return rows; } } });
++        const first = await run(w, "attendance.low_rate");
++        assert.deepEqual(seen[0], [75, 10]);                                                          // the school's defaults reach the source
++        assert.equal(first.report.created, 1); assert.match(w.sent[0].message, /68% of 24 school days/);
++        const next = await run(w, "attendance.low_rate");                                             // next Monday, same term
++        assert.equal(next.report.created, 0);
++    });
++    it("the register reminder goes to the class TEACHER (staff), once per class per day, and skips weekends", async () => {
++        const rows = [{ classId: "c1", className: "JSS 2", teacher: guardian("t1", { firstName: "Bello" }) }];
++        const w = world({ extra: { findClassesWithoutRegister: async () => rows } });
++        const { report } = await run(w, "attendance.register_missing");      // NOW is Friday
++        assert.equal(report.created, 1);
++        assert.equal(w.sent[0].recipient.recipientType, "STAFF");
++        assert.match(w.sent[0].message, /register for JSS 2 has not been taken/);
++        const sunday = world({ now: () => new Date("2026-11-01T09:00:00Z"), extra: { findClassesWithoutRegister: async () => rows } });
++        assert.equal((await run(sunday, "attendance.register_missing")).report.matched, 0);          // Sunday: nothing
++    });
++});
+diff --git a/docs/GO_LIVE_CHECKLIST.md b/docs/GO_LIVE_CHECKLIST.md
+new file mode 100644
+index 0000000..484c06b
+--- /dev/null
++++ b/docs/GO_LIVE_CHECKLIST.md
+@@ -0,0 +1,52 @@
++# Go-live checklist: branches, attendance, notifications
++
++Run these in order on a copy of production data first (a staging database), then on production. Each step says what "good" looks like.
++Commands run from `apps/api`.
++
++## 1. Bring the code in
++1. Apply the patches in order: A1, A2, A3, A4, B1, B2, B3, B4, N1, N2 (and the attendance note fix). `git apply --check` each one first.
++2. `npm run prisma:generate` (public and tenant). **Good:** no errors. The type errors about `branchId` and `studentBranchTransfer` disappear.
++3. `npm run typecheck`. **Good:** no errors at all.
++
++## 2. Database changes (do a backup first: `npm run db:backup`)
++1. `npm run migrate:apply-to-existing-schools:dry-run`. It lists what would run for every school. Read the list. **Good:** each school shows the new migrations (`class_branch`, `student_branch`, and the attendance one if it has not run yet).
++2. `npm run migrate:apply-to-existing-schools`. **Good:** every school reports success.
++   - If a school stops with "has classes but no main branch" (or students), that school has no main branch. Create or restore its main branch, then run the command again for that school.
++3. Spot check one school in SQL: no class and no student has an empty `branchId`; `select count(*) from "Student" where "branchId" is null` is 0.
++
++## 3. Permissions and roles
++1. `npm run sync:registries` (new keys: `students.transfer`, the BRANCH scopes for classes, guardians and notifications, the new automations).
++2. `npm run sync:school-roles:dry-run`, read it, then `npm run sync:school-roles`.
++3. New keys are **not** handed to existing editable roles. Grant by hand where you want them:
++   - `attendance.mark` to the teacher roles (without it, existing teachers cannot take attendance).
++   - `students.transfer` only to roles that should be allowed to move students between branches (school admin already has it).
++   - `notifications.send` at BRANCH scope to branch principals who should message their own branch.
++   - `classes.view` / `classes.manage` at BRANCH, and `grades.view` at BRANCH, for branch principals in existing schools.
++
++## 4. Tests
++1. `npm test`. **Good:** 0 failures. The database tests are skipped unless `TEST_DATABASE_URL` is set.
++2. Set `TEST_DATABASE_URL` (the database name must contain "test") and run `npm test` again. **Good:** the database tests now run and pass. Send me any failure.
++
++## 5. Start the app and try it for real (use a test school)
++1. Start the API and the worker (`npm run dev` and `npm run dev:worker`, or the production start commands). **Good:** both start; Redis is reachable.
++2. Branches: create a second branch. Create a class in it. Create a student in it (give `branchId`).
++3. The branch rules (each should be refused with the code shown):
++   - Enrol that student in a class of the first branch: `STUDENT_BRANCH_MISMATCH`.
++   - Set a class order from a class in one branch into a class in the other: `PROGRESSION_BRANCH_MISMATCH`.
++   - Run promotion with such a class order: `PROMOTION_BRANCH_MISMATCH`, and nothing is saved.
++4. Transfer: `POST /students/:id/transfer` with `toBranchId`, the new `classId` (if the student has a class this term) and a `reason`. **Good:** the student appears in the new branch, the old attendance and grades stay under the old class, and a transfer record exists.
++5. Branch principal: log in as one. **Good:** lists of classes, students, enrolments, attendance and grades show only their branch.
++6. Attendance: as a teacher, take a register; look at it again with `?date=` for a past day; correct a mark inside 48 hours.
++7. Announcements: send one to "all parents" with a `branchIds` filter. **Good:** only that branch's parents get it. A branch principal asking for another branch gets `AUDIENCE_OUT_OF_SCOPE`.
++
++## 6. Real message delivery (needs live keys)
++1. Set `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` and `TERMII_API_KEY`, `TERMII_SENDER_ID`.
++2. In the platform console, activate the plan features `notifications.email` and `notifications.sms` for the plans that should have them, and `automation.rules.max` if you want to limit automations.
++3. In a test school switch on the school preferences `automation.enabled`, `notifications.email_enabled` and (if wanted) `notifications.sms_enabled`.
++4. Send one announcement to yourself by email and by SMS. **Good:** both arrive; the message shows as SENT in the sent list.
++5. For each automation you want, open it, use **dry run**, read the sample messages, then switch it on. Automations (all off by default except the old fee reminder): fee reminder, overdue notice, payment received, new invoice issued, absence notice, low attendance warning, register reminder for teachers, student moved to another branch.
++6. Check the queue board (bull-board) shows no stuck jobs after a few minutes.
++
++## 7. After go-live
++- Watch the audit log and the automation run log for the first few days.
++- Tell the finance developer: when a student is transferred, their old invoices and payments keep the branch they were created under.

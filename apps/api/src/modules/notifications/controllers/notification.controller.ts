@@ -31,7 +31,7 @@ export class NotificationController {
 	constructor(private readonly d: Dependencies) {}
 
 	sendSchoolNotification = async (req: Request, res: Response, next: NextFunction) => {
-		try { sendCreated(res, await this.d.sendSchoolNotificationUseCase.execute(req.body, schoolIdOf(req), userIdOf(req)), "Notification sent successfully"); } catch (e) { next(e); }
+		try { sendCreated(res, await this.d.sendSchoolNotificationUseCase.execute(req.body, schoolIdOf(req), userIdOf(req), req.access), "Notification sent successfully"); } catch (e) { next(e); }
 	};
 
 	getSchoolNotifications = async (req: Request, res: Response, next: NextFunction) => {

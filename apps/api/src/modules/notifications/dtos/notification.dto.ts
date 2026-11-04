@@ -26,6 +26,11 @@ export const SendSchoolNotificationDto = z.object({
     // General (school-wide) messages skip graduates and the families of graduates only; set true to include them.
     includeGraduates: z.boolean().default(false),
 
+    // Narrow a group message (all parents / students / staff) to some branches and, for students and parents, some classes.
+    // A branch person is always limited to their own branches (the server enforces it).
+    branchIds:   z.array(z.string().uuid()).max(20).optional(),
+    classIds:    z.array(z.string().uuid()).max(50).optional(),
+
     // Specific recipients (optional)
     studentIds:  z.array(z.string().uuid()).max(500).optional(),
     guardianIds: z.array(z.string().uuid()).max(500).optional(),
