@@ -9,11 +9,6 @@ datasource db {
 
 // ===== PLATFORM AUTHORITY =====
 
-enum LegacyPlatformRole {
-  super_admin
-}
-
-
 enum Role {
   super_admin
   school_admin
@@ -373,9 +368,8 @@ model User {
   email        String @unique
   passwordHash String
 
-  // Legacy authorization fields retained during migration.
+  // Legacy authorization field retained during migration (written by auth from the role template).
   role         Role
-  platformRole LegacyPlatformRole?
 
   firstName String?
   lastName  String?
@@ -404,7 +398,6 @@ model User {
   feedback         Feedback[]
 
   @@index([schoolId])
-  @@index([platformRole])
 }
 
 model UserSchool {
@@ -496,11 +489,6 @@ model Plan {
   systemKey   String? @unique
   description String?
 
-  // Legacy fields retained until final cleanup
-  studentLimit Int  @default(0)
-  staffLimit   Int  @default(0)
-  features     Json @default("{}")
-
   // Pricing
   monthlyPriceKobo Int @default(0)
   yearlyPriceKobo  Int @default(0)
@@ -536,18 +524,12 @@ model Subscription {
   discountedPriceKobo      Int?
   autoRenew                Boolean            @default(false)
 
-  // Legacy Paystack and billing fields retained during migration
-  paystackAuthorizationCode String?
-  paystackCustomerCode      String?
-  paystackSubscriptionCode  String?
+  // Plan changes and billing schedule
   scheduledDowngradePlanId  String?
-  setupFeePaid              Boolean            @default(false)
-  setupFeePaidAt            DateTime?
   nextBillingDate           DateTime?
-  lastBillingAttemptAt      DateTime?
   failedBillingCount        Int                @default(0)
 
-  // New billing-engine fields
+  // Billing-engine fields
   paymentMethodId String?
   billingAnchorDay Int @default(1)
   lapsedPlanId     String?

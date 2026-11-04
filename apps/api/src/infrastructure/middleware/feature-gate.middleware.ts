@@ -2,15 +2,13 @@ import { Request, Response, NextFunction } from "express";
 import { container } from "../../container";
 import { FeatureNotAvailableError, PlanLimitError } from "../../shared/errors/domain.errors";
 import { EntitlementsService } from "../../foundation/entitlements.service";
-import { FEATURE_BY_LEGACY_FLAG, LegacyFlag } from "../../foundation/features.registry";
 
 /*
 |--------------------------------------------------------------------------
 | FEATURE GATE
 | Same signatures as before, now backed by entitlements (plan + school override).
 |
-|   requireFeature("smsNotifications")   old flag names still work (mapped to notifications.sms)
-|   requireFeature("notifications.sms")  new keys work too
+|   requireFeature("notifications.sms")  a feature key from the registry (foundation/features.registry.ts)
 |   requirePlanLimit("student")          one more record is about to be created
 |   assertWithinPlanLimit(...)           for use cases that add records (bulk imports pass the batch size)
 |
@@ -18,14 +16,13 @@ import { FEATURE_BY_LEGACY_FLAG, LegacyFlag } from "../../foundation/features.re
 |--------------------------------------------------------------------------
 */
 
-export type FeatureArg = LegacyFlag | (string & {});
+export type FeatureArg = string;
 
 const LIMIT_KEYS = { student: "students.max", staff: "staff.max", branch: "branches.max" } as const;
 const LIMIT_LABEL = { student: "students", staff: "staff members", branch: "branches" } as const;
 export type LimitType = keyof typeof LIMIT_KEYS;
 
 const entitlements = () => container.resolve<EntitlementsService>("entitlementsService");
-const toKey = (feature: FeatureArg): string => FEATURE_BY_LEGACY_FLAG.get(feature)?.key ?? feature;
 
 // The resolved tenant wins; the token's school is only a fallback.
 const schoolIdOf = (req: Request): string | null =>
@@ -41,7 +38,7 @@ export const requireFeature = (feature: FeatureArg) => {
             const schoolId = schoolIdOf(req);
             if (!schoolId) { next(new FeatureNotAvailableError(feature)); return; }
 
-            const key      = toKey(feature);
+            const key      = feature;
             const decision = await entitlements().checkFeature(schoolId, key);
 
             if (!decision.allowed) { next(new FeatureNotAvailableError(feature)); return; }

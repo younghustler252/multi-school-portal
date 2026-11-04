@@ -18,11 +18,16 @@ Every Prisma model was compared with the code. Every `*.routes.ts` is mounted, e
 - Public tables `BillingHistory` and `AutomationRuleDefinition` (and their enums `PaymentStatus`, `AutomationTrigger`) were never used and are dropped by public migration `20261107090000_drop_unused_billing_history_and_automation_definition`. Run `npm run prisma:generate` afterwards.
 - `PlatformMemberRole` and `InstalmentLine` look unused to a text search but are used through nested Prisma queries (`include` / nested `create`). They are fine.
 
+## Cleanup done 2026-11-04
+- Dropped legacy columns: `Plan.studentLimit/staffLimit/features`, `Subscription` Paystack codes, setup-fee and last-attempt columns, `User.platformRole` (+ enum `LegacyPlatformRole`); removed the one-time `backfill-entitlements.ts`, the `legacyFlag` mapping in the feature registry and the feature gate. Public migration `20261107100000_drop_legacy_plan_subscription_and_user_fields`.
+- Still legacy, in use by auth, not touched: `User.role`, `User.schoolId`, `Invite.role` (written from the role template by `auth/services/legacy-role.ts`). Removing them needs an auth pass (create user, invite, token, tests).
+- Left on purpose: `Subscription.scheduledDowngradePlanId`, `nextBillingDate`, `failedBillingCount` (used by the billing engine).
+
 ## Still open
-1. Activate `automation.rules.max` in the platform console and set a limit per plan. The enforcement code exists; until the key is active the number of rules is unlimited.
+1. Done: `automation.rules.max` is active and granted in the default plans (see the notes file, deploy step 2).
 2. Optional new automations (term start, results published, birthdays...). Add a definition plus a catalog message; nothing else changes.
-3. WhatsApp channel is a stub (`infrastructure/notifications/providers/whatsapp.channel.ts`).
-4. `modules/feedback/usecases/submit-feedback.usecase.ts` has a hard-coded support email fallback (TODO: make it a setting).
+3. Done: the WhatsApp stub and its inactive feature key are removed; add a real channel (enum value, provider, feature key) when a provider is chosen.
+4. Done: the feedback notification goes to the platform support email (Platform settings); nothing is sent if it is empty.
 5. Web UI: no settings tabs yet for preferences, message templates or automation rules (`apps/web`). Types are in `packages/contracts`.
 6. Run the full test suite on a machine with dependencies installed. The sandbox cannot (npm install crashes).
 

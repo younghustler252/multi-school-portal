@@ -26,14 +26,6 @@ export interface FeatureDefinitionRow {
     isActive:      boolean;
 }
 
-export interface PlanRow {
-    id:           string;
-    name:         string;
-    studentLimit: number;
-    staffLimit:   number;
-    features:     unknown;
-}
-
 export interface PlanEntitlementRow {
     planId:     string;
     featureKey: string;
@@ -47,9 +39,6 @@ export interface FoundationDb {
         findMany(): Promise<FeatureDefinitionRow[]>;
         create(args: { data: FeatureDefinitionRow }): Promise<unknown>;
         update(args: { where: { key: string }; data: Partial<FeatureDefinitionRow> }): Promise<unknown>;
-    };
-    plan: {
-        findMany(): Promise<PlanRow[]>;
     };
     planEntitlement: {
         findMany(args: { where: { planId: string } }): Promise<PlanEntitlementRow[]>;

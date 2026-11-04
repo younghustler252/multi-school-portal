@@ -11,7 +11,7 @@ import type { PrismaClient } from "../../generated/public/client";
 |   - an existing plan is never overwritten.
 | `grants` values: true = switched on; number = limit; null = unlimited.
 | A key whose feature definition does not exist (or is not active yet) is skipped, so the seed never advertises
-| something the platform cannot deliver (multiple branches, API access and WhatsApp are not in any plan yet).
+| something the platform cannot deliver (multiple branches and API access are not in any plan yet).
 |--------------------------------------------------------------------------
 */
 
@@ -27,14 +27,16 @@ const FREE: Grants = {
     "notifications.email": true, "modules.attendance": true, "modules.grades": true,
     "portal.guardian": true,        // parents seeing results and fees is core value on every plan
     "branches.max": 1,              // the main branch
+    "automation.rules.max": 1,      // switched-on automatic messages: just the fee reminder every school starts with (change in the console)
 };
 const STARTER: Grants = {
     ...FREE, "students.max": 200, "staff.max": 20,
-    "notifications.sms": true, "report_cards.pdf": true,
+    "notifications.sms": true, "report_cards.pdf": true, "automation.rules.max": 3,
     "modules.fees": true, "fees.online_payments": true, "fees.receipts": true,
 };
 const STANDARD: Grants = {
     ...STARTER, "students.max": 1000, "staff.max": 100,
+    "automation.rules.max": null,   // every automatic message the platform offers
     "grading.custom": true, "notifications.bulk_sms": true, "reports.advanced": true, "report_cards.letterhead": true,
     "modules.expenses": true, "finance.budgets": true, "finance.reports.accountant": true, "finance.bank_reconciliation": true,        // expenses, budgets and bank reconciliation start on Standard (change in the console)
 };

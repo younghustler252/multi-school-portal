@@ -36,7 +36,7 @@ export const registerShared = (container: AwilixContainer): void => {
         mailService:   asClass(MailService).singleton(),
         smsService:    asClass(SmsService).singleton(),
 
-        // One delivery road per channel (email, SMS, in-app). WhatsApp has no provider yet, so it is not registered.
+        // One delivery road per channel (email, SMS, in-app).
         channelRegistry: asFunction(({ mailService, smsService }: { mailService: MailService; smsService: SmsService }) => {
             const registry = new ChannelRegistry();
             registry.register(new EmailNotificationChannel(mailService));

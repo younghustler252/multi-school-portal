@@ -1,24 +1,28 @@
 import { MailService } from "../../../infrastructure/mail/mail.service";
-import { env } from "../../../config/env";
 
 import { IFeedbackRepository } from "../repositories/feedback.repository";
+import { IPlatformSettingsRepository } from "../../platform-settings/repositories/platform-settings.repository";
 import { SubmitFeedbackDtoType } from "../dtos/feedback.dto";
 
 interface Dependencies {
     feedbackRepository: IFeedbackRepository;
     mailService: MailService;
+    platformSettingsRepository: IPlatformSettingsRepository;
 }
 
 export class SubmitFeedbackUseCase {
     private readonly feedbackRepository: IFeedbackRepository;
     private readonly mailService: MailService;
+    private readonly platformSettings: IPlatformSettingsRepository;
 
     constructor({
         feedbackRepository,
         mailService,
+        platformSettingsRepository,
     }: Dependencies) {
         this.feedbackRepository = feedbackRepository;
         this.mailService = mailService;
+        this.platformSettings = platformSettingsRepository;
     }
 
     async execute(
@@ -35,8 +39,12 @@ export class SubmitFeedbackUseCase {
             });
 
         try {
+            // The team's address is the platform's support email (Platform settings); nobody is emailed when it is empty.
+            const supportEmail = (await this.platformSettings.find()).supportEmail?.trim();
+            if (!supportEmail) return feedback;
+
             await this.mailService.sendLetter(
-                "support@schoolportal.com",   // TODO: make this a setting (the old env.APP_BASE_DOMAIN never existed, so this was always the fallback)
+                supportEmail,
                 {
                     subject: `New feedback: ${feedback.type}`,
                     title: "New feedback received",

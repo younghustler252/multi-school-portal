@@ -16,6 +16,6 @@ export interface NotificationSendResult {
 }
 
 export interface INotificationChannel {
-    readonly channel: "EMAIL" | "SMS" | "IN_APP" | "WHATSAPP";
+    readonly channel: "EMAIL" | "SMS" | "IN_APP";
     send(payload: NotificationChannelPayload): Promise<NotificationSendResult>;
 }

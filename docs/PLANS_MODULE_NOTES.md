@@ -2,7 +2,7 @@
 
 ## 1. Schema (public.prisma), then migrate
 `Plan`: add `systemKey String? @unique`; give the two legacy columns defaults so new plans no longer need them:
-`studentLimit Int @default(0)`, `staffLimit Int @default(0)` (they and `features` are dropped in the final cleanup; nothing reads them after this pass).
+`studentLimit Int @default(0)`, `staffLimit Int @default(0)` (DONE: `studentLimit`, `staffLimit` and `features` are dropped by public migration `20261107100000_drop_legacy_plan_subscription_and_user_fields`; limits and features are `PlanEntitlement` rows).
 
 ## 2. Apply
 1. **Delete** from the old plans module: `domain/plan-features.interface.ts`, `domain/plan.enums.ts`, `usecases/public/`, `usecases/super-admin/`, the old routes file.

@@ -43,8 +43,8 @@ Request → helmet → CORS (regex-matched subdomain pattern) → rate limiter
 | `Otp` | Email verification / password reset codes |
 | `RefreshToken` | Active sessions, rotated on every refresh |
 | `Invite` | Generic invite mechanism (token-based) — not currently used by staff/guardian creation (those create accounts inline), kept for future flows |
-| `Plan` | Subscription plans. `features` (JSON, typed via `PlanFeatures` interface), `studentLimit`/`staffLimit` (null = unlimited), `monthlyPriceKobo`/`yearlyPriceKobo` |
-| `Subscription` | One active subscription per school. `status` (trialing/active/past_due/suspended/cancelled/expired), `autoRenew`, `paystackAuthorizationCode` (for recurring card charges), `scheduledDowngradePlanId` (applied at period end by the expiry worker) |
+| `Plan` | Subscription plans. What a plan includes (features and limits such as `students.max`; null = unlimited) is `PlanEntitlement` rows, edited in the platform console. Prices: `monthlyPriceKobo`/`yearlyPriceKobo` |
+| `Subscription` | One active subscription per school. `status` (trialing/active/past_due/suspended/cancelled/expired), `autoRenew`, `scheduledDowngradePlanId` (applied at period end by the expiry worker) |
 | `BillingHistory` | Platform billing transactions (subscription payments) |
 | `AuditLog` | System-wide audit trail. `actorType` (user/system/super_admin/webhook) |
 | `PlatformNotification` / `PlatformNotificationRecipient` | School-admin-facing notifications (schoolId-keyed, not per-person) |
