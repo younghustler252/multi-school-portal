@@ -24,9 +24,11 @@ The tenant resolver determines school/platform context from the request hostname
 If your local `BASE_DOMAIN` differs from `localhost`, adjust these URLs to match it. The API must receive the school hostname for school-tenant routes; sending every request to plain localhost will resolve the public/platform context instead.
 
 ## Authentication
-The login endpoint is on the host being tested. A successful login returns tokens in its response and also sets auth cookies. Copy `tokens.accessToken` into the environment's `accessToken` and `tokens.refreshToken` into `refreshToken` if Postman does not retain the cookies automatically. The login response can also return persona or school selection instead of tokens; resolve that flow before protected requests.
+The collection has two separate login requests:
+- `Login — School Host` uses `schoolBaseUrl` and captures `accessToken` / `refreshToken`.
+- `Login — Platform Host` uses `platformBaseUrl` and captures `platformAccessToken` / `platformRefreshToken`.
 
-Set Authorization as a bearer token automatically on requests marked as authenticated. Platform requests use the platform host and a platform session; school tokens cannot be used as platform sessions.
+A successful login also sets auth cookies. The login response can return persona or school selection instead of tokens; resolve that flow before protected requests. Protected school requests use the school bearer token. Platform routes and `/admin/queues` use the separate platform bearer token. A school session is not interchangeable with a platform session.
 
 ## Safety
 Mutating requests (POST/PUT/PATCH/DELETE) are skipped by default. This prevents accidental creation, payment, promotion, payroll, refund, transfer, notification, or deletion operations while simply checking the route inventory.
@@ -65,3 +67,13 @@ These are **route-reachability smoke checks**, not proof that every endpoint's b
 
 ## Not yet verified
 This is a source-derived collection. No live HTTP requests, Postman/Newman run, database migrations, or backend test suite execution has been performed in the GitHub connector environment. Functional assertions and valid request examples should be added module by module after inspecting each DTO and controller response.
+
+
+## Recommended first run
+1. Run `GET /api/v1/health` first. Expect HTTP 200 with both `database: true` and `redis: true`.
+2. Run the school-host login and confirm the environment captures `accessToken`.
+3. Run a few safe school GET requests such as `GET /api/v1/users/me`, `GET /api/v1/schools/`, and `GET /api/v1/classes/`.
+4. Run platform-host login separately before platform requests.
+5. Keep `runMutations=false` until you have reviewed request bodies and are using disposable data.
+
+For local development, the tenant resolver also supports a development-only `x-school-id` + `x-tenant-schema` override, but the pair is validated against an existing school record. This collection currently uses hostname-based routing; if you choose the header override approach, add those headers only to school requests and use the exact school ID and schema name from your local test database.
