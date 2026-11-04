@@ -9,6 +9,7 @@ This collection was assembled from the `refactor/modules` branch route registry:
 API base path: `/api/v1`. The queue dashboard is mounted separately at `/admin/queues`.
 
 ## Import
+The generated collection currently contains 438 requests across 14 folders. See `API-ROUTE-AUDIT.md` for the route coverage and source-review findings.
 1. Import `CORE.postman_collection.json` into Postman.
 2. Import `CORE.local.postman_environment.json`.
 3. Select **CORE API — Local Development**.
@@ -44,7 +45,7 @@ The Paystack webhook is excluded from this mutation skip only because it is a pr
 
 ## What the generic assertions mean
 Each request checks:
-- The response is not a 404 (route not found).
+- A 404 is not the Express route-not-found fallback (`Route METHOD URL not found`); a registered resource returning 404 for a missing ID is allowed.
 - The server did not return an unhandled 5xx.
 - JSON responses parse when the content type is JSON.
 
@@ -77,3 +78,14 @@ This is a source-derived collection. No live HTTP requests, Postman/Newman run, 
 5. Keep `runMutations=false` until you have reviewed request bodies and are using disposable data.
 
 For local development, the tenant resolver also supports a development-only `x-school-id` + `x-tenant-schema` override, but the pair is validated against an existing school record. This collection currently uses hostname-based routing; if you choose the header override approach, add those headers only to school requests and use the exact school ID and schema name from your local test database.
+
+## Run with Newman
+From the repository root:
+
+```bash
+bash apps/api/postman/run-smoke.sh
+```
+
+The script uses `npx newman` and writes `apps/api/postman/newman-results.json`. Select and configure the environment first; for CLI runs, edit the exported environment values with local test values before executing. The collection's mutation gate defaults to false.
+
+See `API-ROUTE-AUDIT.md` for current source-review findings and explicit verification limits.
