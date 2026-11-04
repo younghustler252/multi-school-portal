@@ -210,7 +210,7 @@
                 "value": "application/json"
               }
             ],
-            "url": "{{publicBaseUrl}}/api/v1/auth/login",
+            "url": "{{schoolBaseUrl}}/api/v1/auth/login",
             "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data.",
             "body": {
               "mode": "raw",
@@ -257,7 +257,7 @@
                 "value": "application/json"
               }
             ],
-            "url": "{{publicBaseUrl}}/api/v1/auth/refresh",
+            "url": "{{schoolBaseUrl}}/api/v1/auth/refresh",
             "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data.",
             "body": {
               "mode": "raw",
@@ -284,7 +284,7 @@
                 "value": "application/json"
               }
             ],
-            "url": "{{publicBaseUrl}}/api/v1/auth/logout",
+            "url": "{{schoolBaseUrl}}/api/v1/auth/logout",
             "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data.",
             "body": {
               "mode": "raw",
