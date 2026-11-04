@@ -1,4 +1,5 @@
 import { asClass } from "awilix";
+import { TransferWebhookHandler } from "./webhooks/transfer.webhook-handler";
 import type { AwilixContainer } from "awilix";
 import { SalaryTransferRepositoryImpl } from "./repositories/salary-transfer.repository.impl";
 import { TransferMapper } from "./mappers";
@@ -18,6 +19,7 @@ export const registerPayrollTransfers = (container: AwilixContainer): void => {
         reconcileTransfersUseCase: asClass(ReconcileTransfersUseCase).scoped(), retryTransferUseCase: asClass(RetryTransferUseCase).scoped(),
         cancelTransferUseCase: asClass(CancelTransferUseCase).scoped(), getRunTransfersUseCase: asClass(GetRunTransfersUseCase).scoped(),
         listTransfersUseCase: asClass(ListTransfersUseCase).scoped(), handleTransferEventUseCase: asClass(HandleTransferEventUseCase).scoped(),
+        transferWebhookHandler: asClass(TransferWebhookHandler).scoped(),
         transferController: asClass(TransferController).scoped(),
     });
 };

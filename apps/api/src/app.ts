@@ -12,7 +12,7 @@ import { resolveTenant, validateTenantOwnership }    from "./infrastructure/midd
 import { requireSuperAdmin } from "./infrastructure/middleware/rbac.middleware";
 import { optionalAuthenticate, authenticate }                      from "./infrastructure/middleware/auth.middleware";
 import { createBullBoardRouter } from "./infrastructure/jobs/bull-board";
-import { handlePaystackWebhook } from "./modules/payments/controllers/webhook-entry.controller";
+import { webhookEntryRouter } from "./modules/webhooks/routes/webhook.routes";
 import routes                                        from "./routes";
 import { join } from "node:path";
 const app = express();
@@ -39,13 +39,10 @@ app.use(cors({
     credentials: true,
 }));
 
-app.use(globalLimiter);
+// Provider webhooks come BEFORE the global rate limit and the JSON parser (own higher limit, raw body for the signature).
+app.use("/api/v1/webhooks", webhookEntryRouter);
 
-app.post(
-    "/api/v1/payments/webhook",
-    express.raw({ type: "application/json" }),
-    handlePaystackWebhook,
-);
+app.use(globalLimiter);
 // ── Static assets (no auth/tenant context needed at all) ───────────────────
 app.use("/api/v1/report-cards/template-previews", express.static(
     join(__dirname, "..", "public", "template-previews"),

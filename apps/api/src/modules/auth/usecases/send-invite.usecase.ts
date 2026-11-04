@@ -4,7 +4,6 @@ import { TokenService }      from "../../../shared/services/token.service";
 import { InviteService }     from "../services/invite.service";
 import { MembershipService, RoleRecord } from "../services/membership.service";
 import { AuthAuditService }  from "../services/auth-audit.service";
-import { legacyUserRole }    from "../services/legacy-role";
 import { canDelegateRole } from "../../../foundation/access.service";
 import { authErrors }        from "../domain/auth.errors";
 import { SendInviteDtoType } from "../dtos/invite.dto";
@@ -88,7 +87,6 @@ export class SendInviteUseCase {
             personaEntityId: dto.personaEntityId ?? null,
             accepted:        false,
             expiresAt,
-            role:            legacyUserRole(dto.persona, role.sourceTemplateKey), // transitional
         });
 
         const school = await d.inviteService.getSchool(schoolId);

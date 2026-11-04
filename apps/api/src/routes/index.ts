@@ -45,6 +45,7 @@ import platformPlansRouter from "../modules/plans/routes/plan.platform.routes";
 import platformBillingRouter from "../modules/subscriptions/routes/billing.platform.routes";
 import platformAuditRouter from "../modules/audit/routes/audit.platform.routes";
 import platformSettingsRouter from "../modules/platform-settings/routes/platform-settings.route";
+import platformWebhooksRouter from "../modules/webhooks/routes/webhook.routes";
 import feedbackRouter from "../modules/feedback/routes/feedback.routes";
 
 const router = Router();
@@ -96,6 +97,7 @@ router.use("/platform/plans", platformPlansRouter);
 router.use("/platform/subscriptions", platformBillingRouter);
 router.use("/platform/audit", platformAuditRouter);
 router.use("/platform/settings", platformSettingsRouter);
+router.use("/platform/webhooks", platformWebhooksRouter);
 router.use("/feedback", feedbackRouter);
 
 export default router;

@@ -29,6 +29,7 @@ import { NOTIFICATION_PERMISSIONS } from "../modules/notifications/notifications
 import { AUTOMATION_PERMISSIONS } from "../modules/automation/automation.permissions";
 import { PLATFORM_SETTINGS_PERMISSIONS } from "../modules/platform-settings/platform-settings.permissions";
 import { FEEDBACK_PERMISSIONS } from "../modules/feedback/feedback.permissions";
+import { WEBHOOK_PERMISSIONS } from "../modules/webhooks/webhooks.permissions";
 
 /*
 |--------------------------------------------------------------------------
@@ -99,6 +100,7 @@ const ALL: readonly PermissionDef[] = [
     ...AUTOMATION_PERMISSIONS,
     ...PLATFORM_SETTINGS_PERMISSIONS,
     ...FEEDBACK_PERMISSIONS,
+    ...WEBHOOK_PERMISSIONS,
     ...CORE_PERMISSIONS,
 ];
 

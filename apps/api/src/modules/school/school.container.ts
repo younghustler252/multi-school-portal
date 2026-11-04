@@ -3,6 +3,7 @@ import type { AwilixContainer } from "awilix";
 import { SchoolMapper, SchoolDocumentMapper } from "./mappers/school.mapper";
 import { SchoolRepositoryImpl } from "./repositories/school.repository.impl";
 import { SchoolApprovalCheckerService } from "./services/school-approval-checker.service";
+import { SchoolAdminDirectory } from "./services/school-admin-directory.service";
 import { WorkspaceActivationService } from "./services/workspace-activation.service";
 
 // School realm
@@ -46,6 +47,7 @@ export const registerSchool = (container: AwilixContainer): void => {
 
         schoolApprovalCheckerService: asClass(SchoolApprovalCheckerService).scoped(),
         workspaceActivationService:   asClass(WorkspaceActivationService).scoped(),
+        schoolAdminDirectory:         asClass(SchoolAdminDirectory).scoped(),
 
         // ── School realm ──
         getSchoolUseCase:          asClass(GetSchoolUseCase).scoped(),

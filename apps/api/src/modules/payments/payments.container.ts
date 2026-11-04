@@ -12,7 +12,7 @@ import { CreditService } from "./services/credit.service";
 import { GetCreditUseCase, ApplyCreditUseCase } from "./usecases/credit.usecases";
 import { ListRefundsUseCase, GetRefundUseCase, RequestRefundUseCase, DecideRefundUseCase, PayRefundUseCase } from "./usecases/refund.usecases";
 import { InitializeOnlinePaymentUseCase, ConfirmOnlinePaymentUseCase, RecordSettlementUseCase } from "./usecases/online-payment.usecases";
-import { HandleWebhookUseCase } from "./usecases/handle-webhook.usecase";
+import { FeePaymentWebhookHandler } from "./webhooks/fee-payment.webhook-handler";
 import { ReversePaymentUseCase } from "./usecases/payment-reverse.usecase";
 import { PaymentController } from "./controllers/payment.controller";
 
@@ -48,7 +48,7 @@ export const registerPayments = (container: AwilixContainer): void => {
         initializeOnlinePaymentUseCase: asClass(InitializeOnlinePaymentUseCase).scoped(),
         confirmOnlinePaymentUseCase:   asClass(ConfirmOnlinePaymentUseCase).scoped(),
         recordSettlementUseCase:       asClass(RecordSettlementUseCase).scoped(),
-        handleWebhookUseCase:          asClass(HandleWebhookUseCase).scoped(),
+        feePaymentWebhookHandler:      asClass(FeePaymentWebhookHandler).scoped(),
         reversePaymentUseCase:        asClass(ReversePaymentUseCase).scoped(),
 
         paymentController:         asClass(PaymentController).scoped(),

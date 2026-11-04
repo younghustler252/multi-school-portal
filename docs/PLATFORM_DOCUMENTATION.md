@@ -43,7 +43,7 @@ The application-level order in `src/app.ts` is:
 
 1. Helmet security headers and CORS.
 2. Global rate limiter.
-3. Paystack webhook route at `POST /api/v1/payments/webhook`, using raw JSON body parsing.
+3. Provider webhook entry at `POST /api/v1/webhooks/:provider` (for example `/webhooks/paystack`), mounted before the global rate limit and the JSON parser, using raw body parsing (see the webhooks module).
 4. Static report-card template previews.
 5. JSON and URL-encoded body parsers and cookie parser.
 6. Morgan request logging outside the test environment.
@@ -166,6 +166,7 @@ After changing permissions or role templates, review whether `npm run sync:regis
 - [Testing Guide](TESTING_GUIDE.md): test commands, database setup, safety, and writing tests.
 - Module notes that remain in `docs/` are interim reference material. Treat source code as authoritative and replace stale implementation-history notes with current module contracts as each module is reviewed.
 - [Auth Audit](AUTH_AUDIT.md): source-based findings for the Auth module. It records security/correctness issues and verification gaps; findings remain open until fixed and tested.
+- [Webhooks Notes](WEBHOOKS_MODULE_NOTES.md): the provider webhook front door, handlers, retry console and deploy steps.
 - [Settings and Automation Notes](SETTINGS_AUTOMATION_NOTES.md) and [Handoff](SETTINGS_AUTOMATION_HANDOFF.md): design, decisions, current state and open items for school settings, message templates, notifications and automation.
 
 ### Route table: settings, templates, notifications, automation (school realm unless stated)
@@ -175,4 +176,5 @@ After changing permissions or role templates, review whether `npm run sync:regis
 | `/message-templates` | `GET /`, `GET /:key`, `PUT /:key/:channel`, `DELETE /:key/:channel`, `POST /:key/:channel/preview` | `message_templates.view`, `message_templates.manage` |
 | `/automations` | `GET /`, `GET /:id`, `PATCH /:id`, `POST /:id/dry-run`, `POST /:id/run`, `GET /:id/runs` | `automation.view`, `automation.manage` (sensitive) |
 | `/notifications` | `/school`, `/me`, `/me/read-all`, `/me/:id/read`, `/platform-inbox`, `/platform` | see `notifications.permissions.ts` |
+| `/platform/webhooks` (platform realm) | `GET /`, `GET /summary`, `GET /:id`, `POST /:id/retry` | `platform.webhooks.view`, `platform.webhooks.retry` |
 | `/platform/schools` (platform realm) | `GET /provisioning`, `POST /:id/provisioning/retry`, `POST /:id/impersonate`, `GET /overview` | `platform.*` keys, see the notes file |

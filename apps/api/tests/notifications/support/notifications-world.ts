@@ -81,6 +81,7 @@ export function notificationsWorld(opts: { plan?: { email?: boolean; sms?: boole
         guardianRepository: { async findById(id: string) { return people.guardians.find(g => g.id === id) ?? null; } } as any,
         staffRepository: { async findById(id: string) { return people.staff.find(s => s.id === id) ?? null; } } as any,
         userRepository: { async findById(id: string) { return people.users.find(u => u.id === id) ?? null; } } as any,
+        schoolAdminDirectory: { async firstContactOf() { return null; } } as any,
     });
 
     const send = new SendSchoolNotificationUseCase({

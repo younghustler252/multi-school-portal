@@ -9,16 +9,6 @@ datasource db {
 
 // ===== PLATFORM AUTHORITY =====
 
-enum Role {
-  super_admin
-  school_admin
-  principal
-  teacher
-  bursar
-  student
-  guardian
-}
-
 enum Persona {
   STAFF
   STUDENT
@@ -316,7 +306,6 @@ model School {
   updatedAt DateTime @updatedAt
 
   // Relationships
-  users                          User[]
   userSchools                    UserSchool[]
   subscriptions                  Subscription[]
   documents                      SchoolDocument[]
@@ -362,14 +351,8 @@ model SchoolDocument {
 model User {
   id String @id @default(uuid())
 
-  // Legacy tenant context retained until the final migration stage.
-  schoolId String?
-
   email        String @unique
   passwordHash String
-
-  // Legacy authorization field retained during migration (written by auth from the role template).
-  role         Role
 
   firstName String?
   lastName  String?
@@ -389,15 +372,12 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  school          School?          @relation(fields: [schoolId], references: [id])
   platformMember  PlatformMember?
   schools          UserSchool[]
   refreshTokens    RefreshToken[]
   otps             Otp[]
   invitesSent      Invite[]         @relation("InviteSender")
   feedback         Feedback[]
-
-  @@index([schoolId])
 }
 
 model UserSchool {
@@ -456,9 +436,6 @@ model Invite {
   id String @id @default(uuid())
 
   email String
-
-  // Legacy role retained until the final migration stage.
-  role Role
 
   persona    Persona  @default(STAFF)
   personaEntityId String?
@@ -683,8 +660,11 @@ model WebhookEvent {
   reference   String?
   status      WebhookEventStatus @default(received)
   error       String?
+  attempts    Int                @default(0)
+  payload     Json?
   receivedAt  DateTime           @default(now())
   processedAt DateTime?
+  lastAttemptAt DateTime?
 
   @@unique([provider, eventKey])
   @@index([status, receivedAt])

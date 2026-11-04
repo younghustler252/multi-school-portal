@@ -47,8 +47,8 @@ Adds `Student.graduatedAt`, `Student.graduatedTermId`, a check that they are bot
 Also run for real, not shipped as automated tests: the existing-school runner (`apply-migration-to-existing-schools.ts`) against two populated schools: dry run changed nothing, the real run applied only this migration, counts unchanged, nobody graduated, second run "already up to date".
 **Not run:** HTTP calls to the new route (the app was not started); a real fee-reminder or Paystack payment; the report-card module (switched off, not audited: we only checked it does not filter graduates).
 
-## Known problem on the branch (not from this change)
-`src/modules/payments/usecases/handle-webhook.usecase.ts` imports `../domain/payment.enums`, which does not exist, so the app container cannot load (it is in the TypeScript errors list too). The undo tests use a test-only empty stand-in (`tests/graduation/payment-enums-stub.cjs`); delete it and the hook in `graduation.db.test.ts` once the Finance work adds the file. Please tell the Finance developer.
+## Resolved
+The old payments webhook use case that imported a missing `payment.enums` file is gone (webhooks now have their own module), so the container loads and the test-only stand-in was deleted.
 
 ## Not done
 - A fee-reminder sender (does not exist yet).

@@ -1,4 +1,5 @@
 import { INotificationRepository } from "../repositories/notification.repository";
+import type { SchoolAdminDirectory } from "../../school/services/school-admin-directory.service";
 import { IStudentRepository }      from "../../students/repositories/student.repository";
 import { IGuardianRepository }     from "../../guardians/repositories/guardian.repository";
 import { IStaffRepository }        from "../../staff/repositories/staff.repository";
@@ -13,6 +14,7 @@ interface Dependencies {
     staffRepository:        IStaffRepository;
     userRepository:         IUserRepository;
     channelRegistry:        ChannelRegistry;
+    schoolAdminDirectory:   SchoolAdminDirectory;
 }
 
 const TERMINAL_STATUSES = new Set(["SENT", "DELIVERED", "READ", "CANCELLED"]);
@@ -71,7 +73,7 @@ export class NotificationDeliveryService {
             return { outcome: "undeliverable", reason: "Parent notification no longer exists" };
         }
 
-        const adminUser = await this.d.notificationRepository.findSchoolAdminContact(recipient.schoolId);
+        const adminUser = await this.d.schoolAdminDirectory.firstContactOf(recipient.schoolId);
         const to = recipient.channel === "EMAIL" ? adminUser?.email : adminUser?.phone;
         if (!to) {
             await this.d.notificationRepository.markPlatformRecipientFailed(recipientId, "No school admin contact on file");

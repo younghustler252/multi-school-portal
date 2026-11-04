@@ -3,7 +3,6 @@ import { PrismaClient } from "../../../generated/public/client";
 import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
 import { UrlService } from "../../../shared/services/url.service";
 import { PersonaType } from "../types/auth.types";
-import { legacyStaffRole } from "./legacy-role";
 import { authErrors } from "../domain/auth.errors";
 import { EMPLOYEE_ID_SEQUENCE, formatEmployeeId } from "../../staff/domain/staff.policy";
 
@@ -166,7 +165,7 @@ export class MembershipService {
                     data: {
                         userId, employeeId: formatEmployeeId(seq.nextValue - 1),
                         firstName: user?.firstName ?? "Staff", lastName: user?.lastName ?? "Member", email: user?.email, phone: user?.phone,
-                        isActive: true, category: templateKey === "teacher" ? "teaching" : "non_teaching", role: legacyStaffRole(templateKey),
+                        isActive: true, category: templateKey === "teacher" ? "teaching" : "non_teaching",
                     },
                 });
                 const main = await tx.branch.findFirst({ where: { isMain: true, deletedAt: null }, select: { id: true } });

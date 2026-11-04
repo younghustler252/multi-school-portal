@@ -13,6 +13,7 @@ import { PlanChangeService } from "./services/plan-change.service";
 import { BillingNotifier } from "./services/billing-notifier.service";
 import { BillingEngine } from "./services/billing-engine.service";
 import { BillingLifecycleService } from "./services/billing-lifecycle.service";
+import { SubscriptionWebhookHandler } from "./webhooks/subscription.webhook-handler";
 
 import { GetBillingSummaryUseCase, ListMyInvoicesUseCase, GetMyInvoiceUseCase } from "./usecases/billing-summary.usecases";
 import { PreviewPlanChangeUseCase, ChangePlanUseCase, RequestDowngradeUseCase } from "./usecases/plan-change.usecases";
@@ -42,6 +43,7 @@ export const registerSubscriptions = (container: AwilixContainer): void => {
         planChangeService:      asClass(PlanChangeService).scoped(),
         billingNotifier:        asClass(BillingNotifier).scoped(),
         billingEngine:          asClass(BillingEngine).scoped(),
+        subscriptionWebhookHandler: asClass(SubscriptionWebhookHandler).scoped(),
         billingLifecycleService: asClass(BillingLifecycleService).scoped(),
 
         getBillingSummaryUseCase: asClass(GetBillingSummaryUseCase).scoped(),

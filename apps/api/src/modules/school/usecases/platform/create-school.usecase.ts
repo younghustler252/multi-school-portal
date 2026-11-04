@@ -4,7 +4,6 @@ import { IPlanRepository } from "../../../plans/repositories/plan.repository";
 import { PasswordService } from "../../../../shared/services/password.service";
 import { UrlService } from "../../../../shared/services/url.service";
 import { AuthMessageService } from "../../../auth/services/auth-message.service";
-import { legacyUserRole } from "../../../auth/services/legacy-role";
 import { RESERVED_SUBDOMAINS } from "../../../auth/domain/auth.enums";
 import { AuditService } from "../../../audit/services/audit.service";
 import { addProvisionSchemaJob } from "../../../../infrastructure/jobs/queues/provision-schema.queue";
@@ -65,7 +64,6 @@ export class CreatePlatformSchoolUseCase {
                 data: {
                     email: dto.admin.email, passwordHash: passwordHash!, firstName: dto.admin.firstName, lastName: dto.admin.lastName,
                     phone: dto.admin.phone, isActive: true, isEmailVerified: true, emailVerifiedAt: now, mustChangePassword: true,
-                    role: legacyUserRole("STAFF", "school_admin"), schoolId: school.id,   // transitional legacy columns
                 },
             })).id;
             await tx.userSchool.create({ data: { userId, schoolId: school.id } });

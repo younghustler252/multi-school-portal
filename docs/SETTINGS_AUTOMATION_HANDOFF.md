@@ -20,7 +20,7 @@ Every Prisma model was compared with the code. Every `*.routes.ts` is mounted, e
 
 ## Cleanup done 2026-11-04
 - Dropped legacy columns: `Plan.studentLimit/staffLimit/features`, `Subscription` Paystack codes, setup-fee and last-attempt columns, `User.platformRole` (+ enum `LegacyPlatformRole`); removed the one-time `backfill-entitlements.ts`, the `legacyFlag` mapping in the feature registry and the feature gate. Public migration `20261107100000_drop_legacy_plan_subscription_and_user_fields`.
-- Still legacy, in use by auth, not touched: `User.role`, `User.schoolId`, `Invite.role` (written from the role template by `auth/services/legacy-role.ts`). Removing them needs an auth pass (create user, invite, token, tests).
+- Also dropped (public migration `20261107110000_drop_legacy_user_and_invite_role`, tenant migration `20261107110000_drop_legacy_staff_role`): `User.role`, `User.schoolId`, `Invite.role`, `Staff.role` and the enums `Role` and `StaffRole`. Nothing read them for authority. The only readers were the platform notices, which now find a school's admins through the school's own memberships (`school/services/school-admin-directory.service.ts`), so they follow role changes. `auth/services/legacy-role.ts` is deleted.
 - Left on purpose: `Subscription.scheduledDowngradePlanId`, `nextBillingDate`, `failedBillingCount` (used by the billing engine).
 
 ## Still open

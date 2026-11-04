@@ -6,7 +6,6 @@ import { OtpService }        from "../services/otp.service";
 import { AuthMessageService } from "../services/auth-message.service";
 import { AuthPolicyService } from "../services/auth-policy.service";
 import { AuthAuditService }  from "../services/auth-audit.service";
-import { legacyUserRole }    from "../services/legacy-role";
 import { authErrors }        from "../domain/auth.errors";
 import { RESERVED_SUBDOMAINS } from "../domain/auth.enums";
 import { RegisterDtoType }   from "../dtos/register.dto";
@@ -127,9 +126,6 @@ export class RegisterUseCase {
                     phone:           dto.phone,
                     isActive:        true,
                     isEmailVerified: false,
-                    // transitional legacy columns (see legacy-role.ts)
-                    role:            legacyUserRole("STAFF", "school_admin"),
-                    schoolId:        s.id,
                 },
             });
 

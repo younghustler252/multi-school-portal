@@ -98,7 +98,6 @@ export interface INotificationRepository {
 	markPlatformRecipientFailed(id: string, reason: string): Promise<void>;
 
 	/** The contact of the school's admin account (platform messages go to this person). */
-	findSchoolAdminContact(schoolId: string): Promise<{ email: string; phone: string | null; firstName: string | null } | null>;
 
 	/** Marks one platform message read, only if it was sent to this school. */
 	markPlatformRecipientRead(recipientId: string, schoolId: string): Promise<boolean>;

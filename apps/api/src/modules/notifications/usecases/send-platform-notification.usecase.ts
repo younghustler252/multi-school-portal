@@ -1,4 +1,5 @@
 import { INotificationRepository }           from "../repositories/notification.repository";
+import type { SchoolAdminDirectory } from "../../school/services/school-admin-directory.service";
 import { PlatformNotificationMapper }        from "../mappers/notification.mapper";
 import { PlatformNotificationResponseData }  from "../mappers/notification.mapper";
 import { MailService }                       from "../../../infrastructure/mail/mail.service";
@@ -18,6 +19,7 @@ interface Dependencies {
     platformNotificationMapper:  PlatformNotificationMapper;
     schoolRepository:            ISchoolRepository;
     mailService:                 MailService;
+    schoolAdminDirectory:        SchoolAdminDirectory;
 }
 
 export class SendPlatformNotificationUseCase {
@@ -25,17 +27,20 @@ export class SendPlatformNotificationUseCase {
     private readonly platformNotificationMapper: PlatformNotificationMapper;
     private readonly schoolRepository:           ISchoolRepository;
     private readonly mailService:                MailService;
+    private readonly schoolAdminDirectory:       SchoolAdminDirectory;
 
     constructor({
         notificationRepository,
         platformNotificationMapper,
         schoolRepository,
         mailService,
+        schoolAdminDirectory,
     }: Dependencies) {
         this.notificationRepository     = notificationRepository;
         this.platformNotificationMapper = platformNotificationMapper;
         this.schoolRepository           = schoolRepository;
         this.mailService                = mailService;
+        this.schoolAdminDirectory       = schoolAdminDirectory;
     }
 
     async execute(
@@ -82,14 +87,9 @@ export class SendPlatformNotificationUseCase {
 
         // ── Send emails to school admins ──────────────────────────────────
         if (dto.channels.includes("EMAIL")) {
-            const admins = await prisma.user.findMany({
-                where: {
-                    schoolId: { in: schoolIds },
-                    role:     "school_admin",
-                    isActive: true,
-                },
-                select: { email: true, firstName: true },
-            });
+            // The school admins are found from each school's own memberships (not from a column on the user).
+            const admins = await this.schoolAdminDirectory.contactsOfSchools(schoolIds,
+                (id, e) => console.error(`Platform notification: could not read the admins of school ${id}:`, e.message));
 
             for (const admin of admins) {
                 await this.mailService.sendLetter(admin.email, {

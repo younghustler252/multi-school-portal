@@ -191,14 +191,6 @@ export class NotificationRepositoryImpl implements INotificationRepository {
         });
     }
 
-    async findSchoolAdminContact(schoolId: string) {
-        const user = await prisma.user.findFirst({
-            where: { schoolId, role: "school_admin", isActive: true }, orderBy: { createdAt: "asc" },
-            select: { email: true, phone: true, firstName: true },
-        });
-        return user ? { email: user.email, phone: user.phone ?? null, firstName: user.firstName ?? null } : null;
-    }
-
     async markPlatformRecipientRead(recipientId: string, schoolId: string): Promise<boolean> {
         const res = await prisma.platformNotificationRecipient.updateMany({
             where: { id: recipientId, schoolId }, data: { readAt: new Date(), status: "READ" },

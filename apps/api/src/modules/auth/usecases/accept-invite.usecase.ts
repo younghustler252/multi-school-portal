@@ -9,7 +9,6 @@ import { AuthSessionService } from "../services/auth-session.service";
 import { LoginAttemptService } from "../services/login-attempt.service";
 import { AuthMessageService } from "../services/auth-message.service";
 import { AuthAuditService }  from "../services/auth-audit.service";
-import { legacyUserRole }    from "../services/legacy-role";
 import { UrlService }        from "../../../shared/services/url.service";
 import { authErrors }        from "../domain/auth.errors";
 import { AcceptInviteDtoType } from "../dtos/invite.dto";
@@ -93,8 +92,6 @@ export class AcceptInviteUseCase {
                 isActive:        true,
                 isEmailVerified: true,                 // the invite reached this inbox
                 emailVerifiedAt: new Date(),
-                role:            legacyUserRole(invite.persona, role.sourceTemplateKey), // transitional
-                schoolId:        invite.schoolId,                                       // transitional
             });
             if (!existing) createdUserId = user.id;
             else if (!existing.isEmailVerified) {

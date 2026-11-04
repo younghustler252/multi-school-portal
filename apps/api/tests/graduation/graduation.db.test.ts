@@ -8,15 +8,6 @@ import assert from "node:assert/strict";
 import { asValue } from "awilix";
 import { createTestSchool, dbTestsEnabled, skipReason, TestSchool } from "../helpers/test-database";
 
-// TEST-ONLY: see payment-enums-stub.cjs (a file the branch's payments module imports but does not have yet).
-import Module from "node:module";
-import { join } from "node:path";
-const originalResolve = (Module as any)._resolveFilename;
-(Module as any)._resolveFilename = function (request: string, parent: any, ...rest: unknown[]) {
-    if (request === "../domain/payment.enums" && /handle-webhook/.test(parent?.filename ?? "")) return join(process.cwd(), "tests/graduation/payment-enums-stub.cjs");
-    return originalResolve.call(this, request, parent, ...rest);
-};
-
 type Seed = Awaited<ReturnType<typeof import("./fixtures")["seed"]>>;
 
 describe("graduation (real database)", { skip: dbTestsEnabled ? false : skipReason }, () => {

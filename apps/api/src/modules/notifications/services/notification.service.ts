@@ -2,6 +2,7 @@ import { INotificationRepository } from "../repositories/notification.repository
 import { ISchoolRepository }       from "../../school/repositories/school.repository";
 import { IUserRepository }         from "../../auth/repositories/user.repository";
 import { MailService } from "../../../infrastructure/mail/mail.service";
+import type { SchoolAdminDirectory } from "../../school/services/school-admin-directory.service";
 import { PlatformNotificationType } from "../../../generated/public";
 import { escapeHtml, singleLine, textToParagraphs } from "../../../shared/utils/html";
 
@@ -10,6 +11,7 @@ interface Dependencies {
     schoolRepository:       ISchoolRepository;
     userRepository:         IUserRepository;
     mailService:            MailService;
+    schoolAdminDirectory:   SchoolAdminDirectory;
 }
 
 export interface SendPlatformNotificationParams {
@@ -25,17 +27,20 @@ export class NotificationService {
     private readonly schoolRepository:       ISchoolRepository;
     private readonly userRepository:         IUserRepository;
     private readonly mailService:            MailService;
+    private readonly schoolAdminDirectory:   SchoolAdminDirectory;
 
     constructor({
         notificationRepository,
         schoolRepository,
         userRepository,
         mailService,
+        schoolAdminDirectory,
     }: Dependencies) {
         this.notificationRepository = notificationRepository;
         this.schoolRepository       = schoolRepository;
         this.userRepository         = userRepository;
         this.mailService            = mailService;
+        this.schoolAdminDirectory   = schoolAdminDirectory;
     }
 
     async sendPlatformNotification(params: SendPlatformNotificationParams): Promise<void> {
@@ -65,7 +70,7 @@ export class NotificationService {
         });
 
         try {
-            const adminUser = await this.notificationRepository.findSchoolAdminContact(params.schoolId);
+            const adminUser = await this.schoolAdminDirectory.firstContactOf(params.schoolId);
 
             if (adminUser) {
                 await this.mailService.sendLetter(adminUser.email, {
