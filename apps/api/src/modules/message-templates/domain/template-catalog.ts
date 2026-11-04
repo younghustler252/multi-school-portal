@@ -68,6 +68,15 @@ export const TEMPLATE_CATALOG: readonly TemplateDef[] = [
         },
     },
     {
+        key: "fee.invoice", name: "Fee invoice issued", notificationType: "fee_invoice", variables: FEE_VARIABLES,
+        description: "Sent to a student's guardians when the school issues a new fee invoice.",
+        defaults: {
+            IN_APP: { subject: "New fee invoice", body: "A new fee invoice of {{amount_due}} has been issued for {{student_name}} (invoice {{invoice_number}}), due {{due_date}}. Please log in to view it and make payment." },
+            EMAIL:  { subject: "New fee invoice for {{student_name}}", body: "Hi {{guardian_name}},\n\nA new fee invoice of {{amount_due}} has been issued for {{student_name}} (invoice {{invoice_number}}), due {{due_date}}.\n\nPlease log in to your parent portal to view the full invoice and make payment.\n\n— {{school_name}}" },
+            SMS:    { subject: null, body: "{{school_name}}: a new fee invoice of {{amount_due}} for {{student_name}} is due {{due_date}}. Please pay through the parent portal." },
+        },
+    },
+    {
         key: "fee.overdue", name: "Fee overdue notice", notificationType: "fee_reminder", variables: FEE_VARIABLES,
         description: "Sent to a student's guardians when an invoice is past its due date and still unpaid.",
         defaults: {

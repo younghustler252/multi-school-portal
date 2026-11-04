@@ -28,7 +28,11 @@ The old 08:00 defaulter worker was removed; `fee.reminder_due_soon` replaces it 
 ## Attendance absence notice
 `attendance.absent_today` (off by default; in-app + SMS; daily 11:00) tells guardians when today's register marks their child absent, optionally late too. It only READS the attendance table (the attendance module is another developer's) and is stored as an `attendance_alert` message. One message per student per day.
 
+## Invoice issued
+`fee.invoice_issued` (off by default; in-app + email; checks every hour) tells a student's guardians when the school issues a new invoice (catalog message `fee.invoice`, stored as a `fee_invoice` notification). It READS issued invoices (status unpaid or partial, not void, balance above zero, issue date inside a catch-up window of 0 to 14 days, default 2); drafts, late fees and opening-balance invoices are never announced. One message per invoice, ever (idempotency key is the invoice). Switching the rule on for the first time tells the invoices issued inside the catch-up window; set the window to 0 to avoid that. An invoice with no due date reads "due on the date shown on the invoice".
+
 ## Deploy steps
+0. Apply the public migration `20261107090000_drop_unused_billing_history_and_automation_definition` (`npm run prisma:migrate:deploy:public`) and run `npm run prisma:generate` (the generated client in `src/generated` still lists the two dropped tables until you do).
 1. `npm run sync:registries` (new permission, feature and setting keys) then `npm run sync:school-roles`. New keys are not auto-given to existing editable roles; `school_admin` has everything. Principal templates carry the new keys for new schools.
 2. Activate `automation.rules.max` in the platform console and grant it per plan (it is inactive in code, so unlimited until then).
 3. Start the app: `initSchedulers` registers the 5-minute `automation-tick`. (The old `defaulter-reminder` queue and its cleanup code are deleted; the app was never hosted, so no old Redis job exists to remove.)

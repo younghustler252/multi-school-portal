@@ -31,6 +31,12 @@ export interface InvoiceRow {
     guardians:     GuardianRow[];
 }
 
+/** An issued invoice (not a draft) for the "invoice issued" message. `dueDate` can be empty: an invoice need not have one. */
+export interface IssuedInvoiceRow {
+    invoiceId: string; invoiceNumber: string | null; studentName: string;
+    issueDate: string; dueDate: string | null; balanceKobo: bigint; guardians: GuardianRow[];
+}
+
 export interface AbsenceRow {
     attendanceId: string; studentId: string; studentName: string; className: string | null;
     status: "absent" | "late"; day: string; guardians: GuardianRow[];
@@ -44,6 +50,8 @@ export interface PaymentRow {
 export interface AutomationSources {
     /** Unpaid or partly paid invoices with a due date in the range (both ends inclusive), with the student's active guardians. */
     findUnpaidInvoicesDueBetween(from: string, to: string, limit?: number): Promise<InvoiceRow[]>;
+    /** Invoices issued (not draft, not void, still owing) with an issue date in the range (both ends inclusive), with the student's active guardians. Late fees and opening balances are left out. */
+    findInvoicesIssuedBetween(from: string, to: string, limit?: number): Promise<IssuedInvoiceRow[]>;
     /** Attendance rows of one day with one of these statuses, with the student's active guardians. */
     findAttendanceOn(day: string, statuses: ("absent" | "late")[]): Promise<AbsenceRow[]>;
     /** Payments confirmed since this moment (not reversed) made by a guardian, with the students they were allocated to. */
@@ -149,6 +157,28 @@ export const FEE_OVERDUE: FeeDefinition = feeDefinition({
     },
 });
 
+/* ---------- invoice issued: the guardians hear about a new invoice once, when the school issues it ---------- */
+export const FEE_INVOICE_ISSUED: AutomationDefinition = {
+    key: "fee.invoice_issued",
+    name: "Fee invoice issued",
+    description: "Tells a student's guardians when the school issues a new fee invoice, with the amount and due date. Each invoice is told once. Late fees and opening balances are not announced.",
+    templateKey: "fee.invoice",
+    params: [
+        { key: "days_back", kind: "integer", group: "When", default: 2, min: 0, max: 14,
+          label: "Catch-up window (days)", description: "Invoices issued in the last few days are still told if the system was down, or when the rule is first switched on. Each invoice is only ever told once." },
+    ],
+    defaultChannels: ["IN_APP", "EMAIL"],
+    defaultSchedule: { type: "interval", minutes: 60 },
+    defaultEnabled: false,
+    async find(src, p, today) {
+        const rows = await src.findInvoicesIssuedBetween(addDays(today, -num(p, "days_back")), today);
+        return rows.filter(r => receivesFeeReminder(Number(r.balanceKobo))).map(r => ({
+            key: r.invoiceId, guardians: r.guardians,
+            values: { student_name: r.studentName, amount_due: formatNaira(r.balanceKobo), due_date: r.dueDate ? formatDay(r.dueDate) : "on the date shown on the invoice", invoice_number: r.invoiceNumber ?? "" },
+        }));
+    },
+};
+
 /* ---------- payment received: the guardian who paid hears it once the school has confirmed the payment ---------- */
 const FEE_RECEIPT: AutomationDefinition = {
     key: "fee.payment_received",
@@ -194,7 +224,7 @@ const ATTENDANCE_ABSENT: AutomationDefinition = {
     },
 };
 
-export const AUTOMATION_DEFINITIONS: readonly AutomationDefinition[] = [FEE_DUE_SOON, FEE_OVERDUE, FEE_RECEIPT, ATTENDANCE_ABSENT];
+export const AUTOMATION_DEFINITIONS: readonly AutomationDefinition[] = [FEE_DUE_SOON, FEE_OVERDUE, FEE_RECEIPT, ATTENDANCE_ABSENT, FEE_INVOICE_ISSUED];
 export const DEFINITION_BY_KEY: ReadonlyMap<string, AutomationDefinition> = new Map(AUTOMATION_DEFINITIONS.map(d => [d.key, d]));
 
 /** The default value of every number of a definition. */

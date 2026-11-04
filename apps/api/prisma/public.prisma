@@ -127,13 +127,6 @@ enum DiscountType {
   fixed_amount
 }
 
-enum PaymentStatus {
-  pending
-  success
-  failed
-  refunded
-}
-
 enum BillingInvoiceStatus {
   open
   paid
@@ -202,13 +195,6 @@ enum SettingType {
   STRING_LIST
   INTEGER_LIST
   ENTITY_REF
-}
-
-enum AutomationTrigger {
-  EVENT
-  SCHEDULE
-  OFFSET_BEFORE
-  OFFSET_AFTER
 }
 
 enum TemplateCategory {
@@ -572,7 +558,6 @@ model Subscription {
   school         School           @relation(fields: [schoolId], references: [id])
   plan           Plan             @relation(fields: [planId], references: [id])
   coupon         Coupon?          @relation(fields: [couponId], references: [id])
-  billingHistory BillingHistory[]
 
   invoices SubscriptionInvoice[]
 
@@ -602,28 +587,6 @@ model Coupon {
   updatedAt DateTime @updatedAt
 
   subscriptions Subscription[]
-}
-
-model BillingHistory {
-  id String @id @default(uuid())
-
-  subscriptionId String
-
-  amountKobo Int
-  status     PaymentStatus @default(pending)
-
-  billingCycle      BillingCycle
-  paystackReference String?
-
-  paidAt        DateTime?
-  failureReason String?
-
-  createdAt DateTime @default(now())
-
-  subscription Subscription @relation(fields: [subscriptionId], references: [id])
-
-  @@index([subscriptionId, createdAt])
-  @@index([status])
 }
 
 // ===== BILLING ENGINE =====
@@ -960,31 +923,6 @@ model SettingDefinition {
 }
 
 // ===== AUTOMATION DEFINITIONS =====
-
-model AutomationRuleDefinition {
-  key              String             @id
-  module           String
-  trigger          AutomationTrigger
-  eventKey         String?
-  anchor           String?
-  paramsSchema     Json
-  allowedChannels  NotificationChannel[]
-  allowedAudiences String[]
-  templateKey      String
-  allowMultiple    Boolean            @default(false)
-  requiresFeature  String?
-  name             String
-  description      String?
-  defaultEnabled   Boolean            @default(false)
-  defaultParams    Json
-  defaultChannels  NotificationChannel[]
-  isActive         Boolean            @default(true)
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-
-  @@index([module, isActive])
-  @@index([trigger])
-}
 
 // ===== MESSAGE TEMPLATES =====
 

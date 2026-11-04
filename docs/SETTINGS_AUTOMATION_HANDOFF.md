@@ -9,18 +9,18 @@ Updated 2026-11-04. The settings, message templates, notifications and automatio
 | School preferences | `/school-settings/preferences` + `foundation/settings.engine.ts`, `settings.registry.ts` | Registry holds `notifications.*` and `automation.*` keys. Finance settings stay in `modules/finance-settings`. |
 | Message templates | `modules/message-templates` | Platform catalog in code (`template-catalog.ts`); schools edit wording only. |
 | Notifications | `modules/notifications` | One dispatch road, channel policy (plan feature AND school preference), delivery worker, inbox. |
-| Automation | `modules/automation` | Definitions in code: `fee.reminder_due_soon`, `fee.overdue_notice`, `fee.payment_received`, `attendance.absent_today`. 5-minute tick, dry-run, run-now, run log, idempotency keys. Report-card-ready is event-driven in `modules/report-cards`. |
+| Automation | `modules/automation` | Definitions in code: `fee.reminder_due_soon`, `fee.overdue_notice`, `fee.payment_received`, `attendance.absent_today`, `fee.invoice_issued`. 5-minute tick, dry-run, run-now, run log, idempotency keys. Report-card-ready is event-driven in `modules/report-cards`. |
 | Platform side | `/platform/schools/provisioning`, impersonation, overview | See the notes file. |
 
 ## Backend coverage check (2026-11-04)
 Every Prisma model was compared with the code. Every `*.routes.ts` is mounted, every `*.container.ts` is registered, and 124 of 125 permission keys are enforced by a route or use case. Findings:
-- `StudentBranchTransfer` (tenant table, migration `20261106100000_student_branch`) and the permission `students.transfer` exist, but `students/usecases/transfer-student.usecase.ts`, its route and controller do NOT. A student's branch can currently only be set when the student is created. Belongs to the students/branches owner.
-- Public tables `BillingHistory` and `AutomationRuleDefinition` are never read or written (superseded by `SubscriptionInvoice` / `PaymentAttempt` and by code-defined automation definitions). Harmless; drop them in a public migration when convenient.
+- `StudentBranchTransfer` and `students.transfer` were the only unfinished pair; the workflow (`POST /students/:id/transfer`, use case, policy, audit, tests) arrived in commit `e42e7cd`. Nothing is left unenforced.
+- Public tables `BillingHistory` and `AutomationRuleDefinition` (and their enums `PaymentStatus`, `AutomationTrigger`) were never used and are dropped by public migration `20261107090000_drop_unused_billing_history_and_automation_definition`. Run `npm run prisma:generate` afterwards.
 - `PlatformMemberRole` and `InstalmentLine` look unused to a text search but are used through nested Prisma queries (`include` / nested `create`). They are fine.
 
 ## Still open
 1. Activate `automation.rules.max` in the platform console and set a limit per plan. The enforcement code exists; until the key is active the number of rules is unlimited.
-2. Optional new automations: invoice issued (`fee_invoice` type has no catalog message yet), term start. Add a definition plus a catalog message; nothing else changes.
+2. Optional new automations (term start, results published, birthdays...). Add a definition plus a catalog message; nothing else changes.
 3. WhatsApp channel is a stub (`infrastructure/notifications/providers/whatsapp.channel.ts`).
 4. `modules/feedback/usecases/submit-feedback.usecase.ts` has a hard-coded support email fallback (TODO: make it a setting).
 5. Web UI: no settings tabs yet for preferences, message templates or automation rules (`apps/web`). Types are in `packages/contracts`.

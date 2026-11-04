@@ -1,5 +1,5 @@
 import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
-import type { InvoiceRow, AbsenceRow, GuardianRow, PaymentRow } from "../domain/automation-definitions";
+import type { InvoiceRow, IssuedInvoiceRow, AbsenceRow, GuardianRow, PaymentRow } from "../domain/automation-definitions";
 import { dayString, parseDay, todayInFinanceZone } from "../../ledger/domain/ledger.dates";
 import type {
     IAutomationRuleRepository, IAutomationRunRepository, IAutomationSourceRepository,
@@ -70,6 +70,27 @@ export class AutomationSourceRepositoryImpl implements IAutomationSourceReposito
             dueDate: dayString(r.dueDate as Date), balanceKobo: r.balanceKobo,
             guardians: r.student.guardianLinks.map(l => l.guardian).filter(g => g.isActive)
                 .map(g => ({ id: g.id, firstName: g.firstName, email: g.email || null, phone: g.phone, userId: g.userId })),
+        }));
+    }
+
+    async findInvoicesIssuedBetween(from: string, to: string, limit = 20000): Promise<IssuedInvoiceRow[]> {
+        const rows = await db().feeInvoice.findMany({
+            where: {
+                status: { in: ["unpaid", "partial"] }, voidedAt: null, balanceKobo: { gt: 0n }, lateFeeOfInvoiceId: null,
+                type: { in: ["TERM_FEES", "ADMISSION", "ADHOC"] }, issueDate: { gte: parseDay(from), lte: parseDay(to) },
+            },
+            select: {
+                id: true, invoiceNumber: true, issueDate: true, dueDate: true, balanceKobo: true,
+                student: { select: { firstName: true, lastName: true, guardianLinks: { select: { guardian: {
+                    select: { id: true, firstName: true, email: true, phone: true, userId: true, isActive: true } } } } } },
+            },
+            orderBy: { issueDate: "asc" }, take: limit,
+        });
+        return rows.map(r => ({
+            invoiceId: r.id, invoiceNumber: r.invoiceNumber, studentName: `${r.student.firstName} ${r.student.lastName}`.trim(),
+            issueDate: dayString(r.issueDate as Date), dueDate: r.dueDate ? dayString(r.dueDate) : null, balanceKobo: r.balanceKobo,
+            guardians: r.student.guardianLinks.map(l => l.guardian).filter(g => g.isActive)
+                .map((g): GuardianRow => ({ id: g.id, firstName: g.firstName, email: g.email || null, phone: g.phone, userId: g.userId })),
         }));
     }
 

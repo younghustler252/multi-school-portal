@@ -2,7 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { validateSchedule, nextRunAfter, readSchedule, describeSchedule, DEFAULT_SCHEDULE } from "../../src/modules/automation/domain/schedule";
 import { formatNaira, formatDay, daysBetween, addDays } from "../../src/modules/automation/domain/automation-format";
-import { AUTOMATION_DEFINITIONS, FEE_DUE_SOON, FEE_OVERDUE, defaultParams, resolveParams, InvoiceRow } from "../../src/modules/automation/domain/automation-definitions";
+import { AUTOMATION_DEFINITIONS, FEE_DUE_SOON, FEE_OVERDUE, FEE_INVOICE_ISSUED, defaultParams, resolveParams, InvoiceRow } from "../../src/modules/automation/domain/automation-definitions";
 import { TEMPLATE_BY_KEY } from "../../src/modules/message-templates/domain/template-catalog";
 import { validateDefinitions } from "../../src/foundation/settings.engine";
 import { renderPlain, renderMessage } from "../../src/modules/message-templates/domain/template-engine";
@@ -85,6 +85,12 @@ describe("definitions", () => {
             assert.ok(d.defaultChannels.length > 0);
         }
         assert.equal(new Set(AUTOMATION_DEFINITIONS.map(d => d.key)).size, AUTOMATION_DEFINITIONS.length);
+    });
+    it("invoice issued: off by default, its catch-up window is bounded, and it uses the invoice message", () => {
+        assert.equal(FEE_INVOICE_ISSUED.defaultEnabled, false);
+        assert.equal(FEE_INVOICE_ISSUED.templateKey, "fee.invoice");
+        assert.deepEqual(defaultParams(FEE_INVOICE_ISSUED), { days_back: 2 });
+        assert.deepEqual(resolveParams(FEE_INVOICE_ISSUED, { days_back: 99 }), { days_back: 2 }, "a value above the limit falls back to the default");
     });
     it("the due-soon default equals the old worker: two days ahead, in-app and email, every day at 08:00", () => {
         assert.deepEqual(defaultParams(dueSoon), { days_before: 2 });
