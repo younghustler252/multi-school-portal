@@ -40,6 +40,7 @@ Source code on `refactor/modules` is authoritative when a document and implement
 | [Report Cards Module](backend/modules/report-cards.md) | Report-card snapshots, calculation, remarks, publication, guardian notifications and PDF rendering | Source-reviewed; migration/HTTP/worker verification outstanding |
 | [Student Graduation Lifecycle](backend/modules/graduation-lifecycle.md) | Graduation through promotion, undo, plan eligibility, enrolment and term rollover | Source-reviewed; DB/migration execution, HTTP and quota-concurrency verification outstanding |
 | [Fees Module](backend/modules/fees.md) | Fee setup, invoices, discounts, adjustments, instalments, opening balances, late fees and fee reports | Source-reviewed; migration/HTTP/runtime verification and remediation outstanding |
+| [Payments Module](backend/modules/payments.md) | Manual/online payments, allocation, receipts, credit, refunds, settlement and reversal | Source-reviewed; PostgreSQL concurrency, HTTP/runtime and webhook verification outstanding |
 
 ## Workstream handoffs and operational guides
 
