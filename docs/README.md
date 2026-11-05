@@ -13,6 +13,13 @@ Source code on `refactor/modules` is authoritative when a document and implement
 | [Testing Guide](TESTING_GUIDE.md) | Workspace test commands, test database, safeguards and migration workflow | Current guide; update when test setup changes |
 | [Auth Audit](AUTH_AUDIT.md) | Auth security findings and follow-up statuses | Source-reviewed; remediation and runtime verification remain outstanding |
 
+## Backend module documentation
+
+| Document | Purpose | Status |
+|---|---|---|
+| [Backend Documentation](backend/README.md) | Backend documentation reading path and module audit sequence | Active |
+| [Auth Module](backend/modules/auth.md) | Authentication, sessions, password recovery, invitations and impersonation | Source-reviewed; runtime and integration verification outstanding |
+
 ## Workstream handoffs and operational guides
 
 | Document | Purpose | Review status |
