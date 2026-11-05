@@ -1,16 +1,15 @@
-import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
 import { AuditService } from "../../audit/services/audit.service";
 import { IStudentRepository } from "../../students/repositories/student.repository";
+import { IGuardianRepository } from "../repositories/guardian.repository";
 import { GuardianMapper, GuardianResponseData } from "../mappers/guardian.mapper";
 import { guardianErrors } from "../domain/guardian.errors";
 import { normalizeEmail, isGuardianEmailConflict } from "../domain/guardian.policy";
 import { GuardianActor, GuardianOutcome, InviteStatus } from "../domain/guardian.types";
 import { CreateGuardianDtoType } from "../dtos/guardian.dto";
-import { createOrReuseGuardianInTx } from "../services/guardian-linking";
 import { InviteGuardianUseCase, tryInvite } from "./guardian-invites.usecases";
 
 interface Dependencies {
-    studentRepository: IStudentRepository; guardianMapper: GuardianMapper; auditService: AuditService; inviteGuardianUseCase: InviteGuardianUseCase;
+    studentRepository: IStudentRepository; guardianRepository: IGuardianRepository; guardianMapper: GuardianMapper; auditService: AuditService; inviteGuardianUseCase: InviteGuardianUseCase;
 }
 
 export interface CreateGuardianResult { guardian: GuardianResponseData; outcome: GuardianOutcome; invite?: InviteStatus }
@@ -35,11 +34,10 @@ export class CreateGuardianUseCase {
         const d = this.d;
         if (!(await d.studentRepository.findById(dto.studentId))) throw guardianErrors.studentNotFound();
 
-        const attempt = () => getTenantClient().$transaction(tx => createOrReuseGuardianInTx(
-            tx as any,
+        const attempt = () => d.guardianRepository.createOrReuseAndLink(
             { firstName: dto.firstName, lastName: dto.lastName, email: normalizeEmail(dto.email), phone: dto.phone, occupation: dto.occupation, address: dto.address },
             { studentId: dto.studentId, relation: dto.relation, isPrimary: dto.isPrimary },
-        ));
+        );
 
         let saved;
         try {

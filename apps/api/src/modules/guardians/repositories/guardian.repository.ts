@@ -1,3 +1,4 @@
+import type { LinkInput, NewGuardian } from "../services/guardian-linking";
 import { Prisma } from "../../../generated/tenant";
 import { GuardianEntity, StudentGuardianEntity } from "../domain/guardian.entity";
 import {
@@ -54,4 +55,11 @@ export interface IGuardianRepository {
 
     getChildStudentIds(userId: string): Promise<string[]>;
 
+    // ── Links (each runs as one transaction) ─────────────────────────────
+    /** Links an existing guardian; "already_linked" when the link exists. Choosing primary hands the role over. */
+    linkExisting(input: LinkInput): Promise<"linked" | "already_linked">;
+    /** Finds the guardian by email in this school or creates one, then links to the student. */
+    createOrReuseAndLink(guardian: NewGuardian, link: Omit<LinkInput, "guardianId">): Promise<{ guardian: any; outcome: "created" | "reused" | "already_linked" }>;
+    /** Changes a link; making it primary un-primaries the student's other guardian first. */
+    changeLink(studentId: string, guardianId: string, data: { relation?: string; isPrimary?: boolean }): Promise<void>;
 }

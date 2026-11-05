@@ -1,11 +1,9 @@
-import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
 import { AuditService } from "../../audit/services/audit.service";
 import { IGuardianRepository } from "../repositories/guardian.repository";
 import { IStudentRepository } from "../../students/repositories/student.repository";
 import { guardianErrors } from "../domain/guardian.errors";
 import { GuardianActor } from "../domain/guardian.types";
 import { LinkGuardianDtoType, UpdateGuardianLinkDtoType } from "../dtos/guardian.dto";
-import { linkInTx } from "../services/guardian-linking";
 import { GuardianLinkData, GuardianRef, StudentRef, linkData, guardianRef, studentRef } from "../services/guardian-link.presenter";
 
 interface Dependencies { guardianRepository: IGuardianRepository; studentRepository: IStudentRepository; auditService: AuditService }
@@ -29,7 +27,7 @@ export class LinkGuardianUseCase {
         if (!student) throw guardianErrors.studentNotFound();
 
         let result;
-        try { result = await getTenantClient().$transaction(tx => linkInTx(tx as any, { guardianId, studentId: dto.studentId, relation: dto.relation, isPrimary: dto.isPrimary })); }
+        try { result = await d.guardianRepository.linkExisting({ guardianId, studentId: dto.studentId, relation: dto.relation, isPrimary: dto.isPrimary }); }
         catch (err) { throw asPrimaryOrAlreadyLinked(err, dto.isPrimary); }
         if (result === "already_linked") throw guardianErrors.alreadyLinked();
 
@@ -57,10 +55,7 @@ export class UpdateGuardianLinkUseCase {
         if (Object.keys(data).length === 0) return linkData(guardian, student, link);
 
         try {
-            await getTenantClient().$transaction(async tx => {
-                if (data.isPrimary === true) await tx.studentGuardian.updateMany({ where: { studentId, isPrimary: true, NOT: { guardianId } }, data: { isPrimary: false } });
-                await tx.studentGuardian.update({ where: { studentId_guardianId: { studentId, guardianId } }, data });
-            });
+            await d.guardianRepository.changeLink(studentId, guardianId, data);
         } catch (err) { throw asPrimaryOrAlreadyLinked(err, data.isPrimary === true); }
 
         const now = { relation: (data.relation as string) ?? link.relation, isPrimary: (data.isPrimary as boolean) ?? link.isPrimary };

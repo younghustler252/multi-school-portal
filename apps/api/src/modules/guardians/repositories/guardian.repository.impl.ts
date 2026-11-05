@@ -3,6 +3,7 @@ import { BaseTenantRepository, PaginateParams, PaginatedResult } from "../../../
 import { GuardianMapper } from "../mappers/guardian.mapper";
 import { GuardianEntity, StudentGuardianEntity } from "../domain/guardian.entity";
 import { IGuardianRepository } from "./guardian.repository";
+import { LinkInput, NewGuardian, linkInTx, createOrReuseGuardianInTx } from "../services/guardian-linking";
 
 export class GuardianRepositoryImpl
     extends BaseTenantRepository<GuardianEntity>
@@ -104,5 +105,20 @@ export class GuardianRepositoryImpl
         });
 
         return links.map(l => l.studentId);
+    }
+
+    linkExisting(input: LinkInput) {
+        return this.prisma.$transaction(tx => linkInTx(tx as any, input));
+    }
+
+    createOrReuseAndLink(guardian: NewGuardian, link: Omit<LinkInput, "guardianId">) {
+        return this.prisma.$transaction(tx => createOrReuseGuardianInTx(tx as any, guardian, link));
+    }
+
+    async changeLink(studentId: string, guardianId: string, data: { relation?: string; isPrimary?: boolean }): Promise<void> {
+        await this.prisma.$transaction(async tx => {
+            if (data.isPrimary === true) await tx.studentGuardian.updateMany({ where: { studentId, isPrimary: true, NOT: { guardianId } }, data: { isPrimary: false } });
+            await tx.studentGuardian.update({ where: { studentId_guardianId: { studentId, guardianId } }, data: data as any });
+        });
     }
 }
