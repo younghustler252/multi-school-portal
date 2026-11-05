@@ -2,18 +2,13 @@
 
 > **Documentation status:** Historical apply handoff. Do not execute its copy/delete/migration steps as written. Verify the current school, auth, provisioning code, migrations and API workspace scripts first. Current backend source lives under `apps/api/`.
 
-## 1. Apply, in this order
-1. **Schema (public.prisma)**, then migrate:
-   - `School`: add `verificationNote String?`, `activatedAt DateTime?`, `settlementAccountName String?`, `settlementAccountLast4 String?`, and `@@index([status, activatedAt])`.
-   - `PlatformSettings`: add `unconfirmedRegistrationHours Int @default(72)`, `unverifiedSchoolTrialDays Int @default(30)`, `unverifiedSchoolRetentionDays Int @default(60)`.
-   - Dev data only: `UPDATE "School" SET "activatedAt" = now() WHERE status = 'active' AND "activatedAt" IS NULL;` (optional). Existing `settlementAccountNumber` values were plain text and are now stored encrypted; clear them in dev.
-2. **Delete the old files**: `usecases/school-admin/`, `usecases/super-admin/`, `domain/school.enum.ts`, `types/school-status.types.ts`, `services/tenant-provisioning.service.ts` (dead code; the provision worker does this job and does it correctly), the old routes file.
-3. **Copy** `modules/school/*`, `shared/utils/file-sniff.ts`, the three files in `infrastructure/` (middleware, queue, worker), and the patched `tenant-resolver.middleware.ts`.
-4. **Auth patches** (4 files in `modules/auth/`): `usecases/verify-email.usecase.ts`, `usecases/register.usecase.ts`, `controllers/auth.controller.ts`, `domain/auth.errors.ts`, and `auth.templates.ts` (3 new emails: re-run the template sync).
-5. **Mount the routes** in `routes/index.ts`: `/school` -> `school.routes`, `/platform/schools` -> `school.platform.routes`. Remove the old `/school` mount that served super-admin routes.
-6. **worker.ts**: import `schoolLifecycleWorker` and call `scheduleSchoolLifecycle()` once at start (BullMQ 5.16 or newer).
-7. `registerSchool` must come after `registerAuth`, plans, subscriptions, audit and notifications in the container list.
-8. **Permissions** (see `school.permissions.ts`): register these keys, and give `school_admin` (all-access) everything. Until the permission registry exists, only all-access roles can use these routes.
+## 1. Current implementation status
+
+The old schema/migration, file deletion/copy, route-mount and worker-wiring checklist has been removed from this working guide. Those were one-time refactor instructions and must not be repeated against the current branch.
+
+The current implementation is under `apps/api/src/modules/school/`. The School module is registered through `registerSchool` in `apps/api/src/container/index.ts`; school routes are mounted from `apps/api/src/routes/index.ts`; lifecycle scheduling is initialized through `apps/api/src/infrastructure/jobs/schedulers/index.ts` and the worker's `initSchedulers()` call.
+
+This status is based on source inspection on 2026-11-05. It is not a claim that migrations were run in this pass or that the lifecycle has been exercised in a live environment.
 
 ## 2. The new school flow
 register (school reserved, status "pending") -> confirm email -> school becomes "active" and is built -> admin signs in right away, school is "unverified" with locked features -> uploads documents -> verified (payments, SMS, result publishing unlock).
@@ -30,9 +25,37 @@ Daily job (03:00 Lagos), windows editable in PlatformSettings:
 4. Still suspended 60 days later AND holding no data: released (schema dropped, subdomain freed). A school with any data (students, extra staff, payments) is never deleted automatically; it is left for a person (`heldForReview`).
 Also: at most 5 school registrations per network (IP) per day.
 
-## 4. Routes (frontend contract)
-School realm (school host): `GET/PUT /school`, `POST /school/logo`, `GET/POST /school/documents`, `POST /school/payment-setup`, `GET /school/dashboard`, `GET /school/setup-checklist`, public `GET /school/public/:subdomain`. (The old `/school/me/...` paths are gone.)
-Platform realm (admin host): `GET/POST /platform/schools`, `GET/PUT /platform/schools/:id`, `PUT /:id/verify` `{note?, override?}`, `/:id/reject` `{reason}`, `/:id/suspend` `{reason}`, `/:id/reactivate`, `GET /:id/documents`, `PUT /platform/schools/documents/:documentId/approve|reject`.
+## 4. Routes (current mounted paths; API contract detail)
+All paths below are prefixed with `/api/v1`. The school realm is tenant-host scoped; the platform realm is for platform sessions.
+
+| Method | Path | Request body / input | Permission / notes |
+|---|---|---|---|
+| GET | `/schools` | — | `school.view`; current school resolved from host, never from body |
+| PUT | `/schools` | School profile fields from `UpdateSchoolDto` | `school.update`; strict, at least one field |
+| POST | `/schools/logo` | multipart field `logo`, max 2 MB | `school.update`; image validation |
+| GET | `/schools/documents` | — | `school.documents.manage` |
+| POST | `/schools/documents` | multipart field `document` plus `type`; proprietor ID types additionally require `idDocumentType`, `idNumber`, `proprietorFullName`; max 5 MB | `school.documents.manage`; returns created response |
+| POST | `/schools/payment-setup` | `{ bankCode, accountNumber, password? }` | `school.payments.manage` and verified school required; password required when replacing an existing account |
+| GET | `/schools/dashboard` | — | `school.dashboard.view`; sections are permission-filtered |
+| GET | `/schools/setup-checklist` | — | `school.update` |
+| GET | `/schools/public/:subdomain` | URL parameter | Public; no authentication |
+| GET | `/platform/schools` | Query: `page?`, `limit?`, `status?`, `verificationStatus?`, `search?` | `platform.schools.view`; paginated |
+| POST | `/platform/schools` | `{ name, subdomain, email, phone?, schoolCategory, schoolOwnership, admin: { firstName, lastName, email, phone? } }` | `platform.schools.create`; creates school and admin |
+| GET | `/platform/schools/overview` | — | `platform.overview.view` |
+| GET | `/platform/schools/provisioning` | Parsed provisioning query | `platform.schools.provisioning` |
+| POST | `/platform/schools/:id/provisioning/retry` | — | `platform.schools.provisioning.retry` |
+| PUT | `/platform/schools/documents/:documentId/approve` | — | `platform.schools.verify` |
+| PUT | `/platform/schools/documents/:documentId/reject` | `{ reason }` (10–500 chars) | `platform.schools.verify` |
+| POST | `/platform/schools/:id/impersonate` | Reason DTO parsed by controller | `platform.schools.impersonate` |
+| GET | `/platform/schools/:id` | — | `platform.schools.view` |
+| PUT | `/platform/schools/:id` | School profile fields from `UpdateSchoolDto` | `platform.schools.manage` |
+| GET | `/platform/schools/:id/documents` | — | `platform.schools.documents` |
+| PUT | `/platform/schools/:id/verify` | `{ note?, override? }` | `platform.schools.verify`; override defaults false |
+| PUT | `/platform/schools/:id/reject` | `{ reason }` (10–500 chars) | `platform.schools.verify` |
+| PUT | `/platform/schools/:id/suspend` | `{ reason }` (10–500 chars) | `platform.schools.suspend` |
+| PUT | `/platform/schools/:id/reactivate` | — | `platform.schools.suspend` |
+
+The route table is grounded in the current route files and DTOs. For exact response payloads, consult the named controller/use-case mapper path until the response examples in this guide are expanded; do not infer response fields from route names.
 Response changes:
 - School: `status` is now one of `active | setting_up | suspended | unavailable`; `verification {status, note, verifiedAt, requiredDocuments}`; `payment {setupComplete, bankCode, accountName, accountLast4}`; `website` added. The account number is never returned.
 - Setup checklist: now `{ items[{key,group,label,done,locked,required}], completionPercent, verification{status,note,documents[{type,status}]} }` (a list, not fixed keys).
@@ -50,8 +73,8 @@ Response changes:
 - Each school's database client stays in memory once created. Fine for hundreds of schools; for thousands, add an eviction cap to `prisma.client.ts` (later, not now).
 - Not built here: renaming a subdomain, custom-domain verification, document download for the school after approval. All are small and can be added when needed.
 
-## 6. Docs update (section 0.3)
-Fields: School +4; PlatformSettings +3. Permissions: `school.view|update|documents.manage|payments.manage|dashboard.view`, `platform.schools.view|create|manage|verify|suspend|documents`. Templates: `auth.account_created_by_platform`, `school.payment_account_changed`. Middleware: `requireVerifiedSchool`, resolver `SCHOOL_SETTING_UP`. Module status: school Done. Defects: provisioning dead service removed.
+## 6. Implementation inventory (historical design context)
+The old implementation checklist and permission summary are not current execution instructions. Current permission declarations are in `apps/api/src/modules/school/school.permissions.ts`; current route middleware is visible in the two School route files. The permission registry/sync pipeline and deployed grants still require separate verification. Current schema definitions and migrations must be checked in the Prisma schema/migration directories before any database operation.
 
 
 ---
