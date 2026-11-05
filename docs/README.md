@@ -19,6 +19,7 @@ Source code on `refactor/modules` is authoritative when a document and implement
 |---|---|---|
 | [Backend Documentation](backend/README.md) | Backend documentation reading path and module audit sequence | Active |
 | [Auth Module](backend/modules/auth.md) | Authentication, sessions, password recovery, invitations and impersonation | Source-reviewed; runtime and integration verification outstanding |
+| [Users Module](backend/modules/users.md) | Profiles, passwords, avatars, sessions and platform user administration | Source-reviewed; runtime and integration verification outstanding |
 
 ## Workstream handoffs and operational guides
 
