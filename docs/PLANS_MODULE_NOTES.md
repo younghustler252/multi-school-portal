@@ -1,5 +1,7 @@
 # Plans module pass: apply notes
 
+> **Documentation status:** Historical apply handoff. Do not execute its copy/delete/migration steps as written. Verify the current plans module, entitlement schema, migrations and API workspace scripts first. Current backend source lives under `apps/api/`.
+
 ## 1. Schema (public.prisma), then migrate
 `Plan`: add `systemKey String? @unique`; give the two legacy columns defaults so new plans no longer need them:
 `studentLimit Int @default(0)`, `staffLimit Int @default(0)` (DONE: `studentLimit`, `staffLimit` and `features` are dropped by public migration `20261107100000_drop_legacy_plan_subscription_and_user_fields`; limits and features are `PlanEntitlement` rows).
