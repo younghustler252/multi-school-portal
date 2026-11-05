@@ -141,7 +141,6 @@ exports.Prisma.StaffScalarFieldEnum = {
   joinDate: 'joinDate',
   exitDate: 'exitDate',
   exitReason: 'exitReason',
-  role: 'role',
   isActive: 'isActive',
   createdById: 'createdById',
   updatedById: 'updatedById',
@@ -169,8 +168,23 @@ exports.Prisma.StudentScalarFieldEnum = {
   graduatedAt: 'graduatedAt',
   graduatedTermId: 'graduatedTermId',
   admittedAt: 'admittedAt',
+  branchId: 'branchId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.StudentBranchTransferScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  fromBranchId: 'fromBranchId',
+  toBranchId: 'toBranchId',
+  termId: 'termId',
+  enrolmentId: 'enrolmentId',
+  fromClassId: 'fromClassId',
+  toClassId: 'toClassId',
+  reason: 'reason',
+  transferredById: 'transferredById',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.GuardianScalarFieldEnum = {
@@ -238,6 +252,7 @@ exports.Prisma.ClassScalarFieldEnum = {
   level: 'level',
   capacity: 'capacity',
   classTeacherId: 'classTeacherId',
+  branchId: 'branchId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -360,6 +375,12 @@ exports.Prisma.ReportCardScalarFieldEnum = {
   emailSentAt: 'emailSentAt',
   smsSentAt: 'smsSentAt',
   generatedAt: 'generatedAt',
+  classId: 'classId',
+  snapshot: 'snapshot',
+  generatedById: 'generatedById',
+  publishedAt: 'publishedAt',
+  publishedById: 'publishedById',
+  unpublishReason: 'unpublishReason',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -1356,14 +1377,6 @@ exports.EmploymentType = exports.$Enums.EmploymentType = {
   volunteer: 'volunteer'
 };
 
-exports.StaffRole = exports.$Enums.StaffRole = {
-  school_admin: 'school_admin',
-  principal: 'principal',
-  teacher: 'teacher',
-  bursar: 'bursar',
-  other: 'other'
-};
-
 exports.GuardianRelation = exports.$Enums.GuardianRelation = {
   father: 'father',
   mother: 'mother',
@@ -1727,6 +1740,7 @@ exports.ResultSheetStatus = exports.$Enums.ResultSheetStatus = {
 exports.Prisma.ModelName = {
   Staff: 'Staff',
   Student: 'Student',
+  StudentBranchTransfer: 'StudentBranchTransfer',
   Guardian: 'Guardian',
   StudentGuardian: 'StudentGuardian',
   CalendarEvent: 'CalendarEvent',
