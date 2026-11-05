@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "CORE API — Full Backend Route Verification",
-    "description": "Generated from apps/api/src/routes/index.ts and the registered module route files on refactor/modules. The collection is safety-gated: mutating requests are skipped unless environment variable runMutations is exactly true. Generic assertions prove route reachability and absence of unhandled 5xx errors; they do not prove business correctness. Fill DTO-specific bodies and IDs before functional workflow runs.\n\nSafety gate: every mutating HTTP method, including the Paystack webhook, is skipped unless environment variable runMutations is exactly true. Successful login automatically stores accessToken and refreshToken when the response is AUTHENTICATED.\nA 404 for a missing record is allowed; the route-not-found fallback specifically returns a message beginning `Route METHOD URL not found`, which the smoke assertion distinguishes.",
+    "description": "Generated from apps/api/src/routes/index.ts and the registered module route files on refactor/modules. The collection is safety-gated: mutating requests are skipped unless environment variable runMutations is exactly true. Generic assertions prove route reachability and absence of unhandled 5xx errors; they do not prove business correctness. Fill DTO-specific bodies and IDs before functional workflow runs.\n\nSafety gate: every mutating HTTP method, including the Paystack webhook, is skipped unless environment variable runMutations is exactly true. Successful login automatically stores accessToken and refreshToken when the response is AUTHENTICATED.\nA 404 for a missing record is allowed; the route-not-found fallback specifically returns a message beginning `Route METHOD URL not found`, which the smoke assertion distinguishes.\n\nFunctional examples: source-verified DTO payloads are provided for the core student, guardian, staff, branch, class and subject setup workflow. Some endpoints remain route-inventory entries because their DTOs require additional module-specific inspection; do not treat an empty body as a valid test case.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -1666,17 +1666,32 @@
               }
             ],
             "url": "{{schoolBaseUrl}}/api/v1/branches/",
-            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data.",
+            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data. Example payload is based on the module Zod DTO; replace linked IDs with IDs from the same test school.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"name\": \"CORE Test Branch\",\n  \"code\": \"CORE-TEST\",\n  \"address\": \"25 Test Road, Ikeja, Lagos\",\n  \"phone\": \"+2348011112222\",\n  \"email\": \"branch-test@example.com\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
                 }
               }
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  try { const body = pm.response.json(); const data = body && body.data; const entity = data && (data.student || data.guardian || data.staff || data.class || data.subject || data.branch || data); const id = entity && (entity.id || entity.studentId || entity.guardianId || entity.staffId || entity.classId || entity.subjectId || entity.branchId);",
+                  "    if (id) { pm.environment.set(\"branchId\", id); console.log(\"Captured branchId: \" + id); }",
+                  "  } catch (e) { console.warn('Could not capture created resource ID:', e.message); }",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "GET /api/v1/branches/{{branchId}}",
@@ -1940,17 +1955,32 @@
               }
             ],
             "url": "{{schoolBaseUrl}}/api/v1/staff/",
-            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data.",
+            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data. Example payload is based on the module Zod DTO; replace linked IDs with IDs from the same test school.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"firstName\": \"Tunde\",\n  \"lastName\": \"Adeyemi\",\n  \"email\": \"{{staffEmail}}\",\n  \"phone\": \"+2348022223333\",\n  \"gender\": \"male\",\n  \"address\": \"8 Sample Close, Ikeja, Lagos\",\n  \"department\": \"Academics\",\n  \"designation\": \"Mathematics Teacher\",\n  \"qualification\": \"B.Ed Mathematics\",\n  \"category\": \"teaching\",\n  \"employmentType\": \"full_time\",\n  \"joinDate\": \"2026-09-01\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
                 }
               }
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  try { const body = pm.response.json(); const data = body && body.data; const entity = data && (data.student || data.guardian || data.staff || data.class || data.subject || data.branch || data); const id = entity && (entity.id || entity.studentId || entity.guardianId || entity.staffId || entity.classId || entity.subjectId || entity.branchId);",
+                  "    if (id) { pm.environment.set(\"staffId\", id); console.log(\"Captured staffId: \" + id); }",
+                  "  } catch (e) { console.warn('Could not capture created resource ID:', e.message); }",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "GET /api/v1/staff/{{staffId}}",
@@ -2010,10 +2040,10 @@
               }
             ],
             "url": "{{schoolBaseUrl}}/api/v1/staff/{{staffId}}",
-            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data.",
+            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data. Example payload is based on the module Zod DTO; replace linked IDs with IDs from the same test school.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"designation\": \"Senior Mathematics Teacher\",\n  \"department\": \"Academics\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2500,17 +2530,32 @@
               }
             ],
             "url": "{{schoolBaseUrl}}/api/v1/students/",
-            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data.",
+            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data. Example payload is based on the module Zod DTO; replace linked IDs with IDs from the same test school.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"firstName\": \"Ada\",\n  \"lastName\": \"Okafor\",\n  \"middleName\": \"Chinwe\",\n  \"dateOfBirth\": \"2014-03-12\",\n  \"gender\": \"female\",\n  \"nationality\": \"Nigerian\",\n  \"stateOfOrigin\": \"Lagos\",\n  \"admittedAt\": \"2026-09-01\",\n  \"confirmNotDuplicate\": true\n}",
               "options": {
                 "raw": {
                   "language": "json"
                 }
               }
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  try { const body = pm.response.json(); const data = body && body.data; const entity = data && (data.student || data.guardian || data.staff || data.class || data.subject || data.branch || data); const id = entity && (entity.id || entity.studentId || entity.guardianId || entity.staffId || entity.classId || entity.subjectId || entity.branchId);",
+                  "    if (id) { pm.environment.set(\"studentId\", id); console.log(\"Captured studentId: \" + id); }",
+                  "  } catch (e) { console.warn('Could not capture created resource ID:', e.message); }",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "GET /api/v1/students/{{studentId}}",
@@ -2551,10 +2596,10 @@
               }
             ],
             "url": "{{schoolBaseUrl}}/api/v1/students/{{studentId}}",
-            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data.",
+            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data. Example payload is based on the module Zod DTO; replace linked IDs with IDs from the same test school.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"middleName\": \"Chinwe N.\",\n  \"address\": \"12 Test Avenue, Ikeja, Lagos\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2583,10 +2628,10 @@
               }
             ],
             "url": "{{schoolBaseUrl}}/api/v1/students/{{studentId}}/deactivate",
-            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data.",
+            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data. Example payload is based on the module Zod DTO; replace linked IDs with IDs from the same test school.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"reason\": \"Postman lifecycle test\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2647,10 +2692,10 @@
               }
             ],
             "url": "{{schoolBaseUrl}}/api/v1/students/{{studentId}}/undo-graduation",
-            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data.",
+            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data. Example payload is based on the module Zod DTO; replace linked IDs with IDs from the same test school.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"reason\": \"Postman lifecycle test correction\",\n  \"reopenEnrolment\": false\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2679,10 +2724,10 @@
               }
             ],
             "url": "{{schoolBaseUrl}}/api/v1/students/{{studentId}}/transfer",
-            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data.",
+            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data. Example payload is based on the module Zod DTO; replace linked IDs with IDs from the same test school.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"toBranchId\": \"{{destinationBranchId}}\",\n  \"reason\": \"Postman branch-transfer test\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2813,17 +2858,32 @@
               }
             ],
             "url": "{{schoolBaseUrl}}/api/v1/guardians/",
-            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data.",
+            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data. Example payload is based on the module Zod DTO; replace linked IDs with IDs from the same test school.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"firstName\": \"Chika\",\n  \"lastName\": \"Okafor\",\n  \"email\": \"{{guardianEmail}}\",\n  \"phone\": \"+2348012345678\",\n  \"occupation\": \"Accountant\",\n  \"address\": \"12 Test Avenue, Ikeja, Lagos\",\n  \"studentId\": \"{{studentId}}\",\n  \"relation\": \"mother\",\n  \"isPrimary\": true,\n  \"invite\": false\n}",
               "options": {
                 "raw": {
                   "language": "json"
                 }
               }
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  try { const body = pm.response.json(); const data = body && body.data; const entity = data && (data.student || data.guardian || data.staff || data.class || data.subject || data.branch || data); const id = entity && (entity.id || entity.studentId || entity.guardianId || entity.staffId || entity.classId || entity.subjectId || entity.branchId);",
+                  "    if (id) { pm.environment.set(\"guardianId\", id); console.log(\"Captured guardianId: \" + id); }",
+                  "  } catch (e) { console.warn('Could not capture created resource ID:', e.message); }",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "GET /api/v1/guardians/{{guardianId}}",
@@ -2864,10 +2924,10 @@
               }
             ],
             "url": "{{schoolBaseUrl}}/api/v1/guardians/{{guardianId}}",
-            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data.",
+            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data. Example payload is based on the module Zod DTO; replace linked IDs with IDs from the same test school.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"phone\": \"+2348098765432\",\n  \"occupation\": \"Senior Accountant\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2928,10 +2988,10 @@
               }
             ],
             "url": "{{schoolBaseUrl}}/api/v1/guardians/{{guardianId}}/link",
-            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data.",
+            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data. Example payload is based on the module Zod DTO; replace linked IDs with IDs from the same test school.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"studentId\": \"{{studentId}}\",\n  \"relation\": \"mother\",\n  \"isPrimary\": true\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2960,10 +3020,10 @@
               }
             ],
             "url": "{{schoolBaseUrl}}/api/v1/guardians/{{guardianId}}/students/{{studentId}}",
-            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data.",
+            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data. Example payload is based on the module Zod DTO; replace linked IDs with IDs from the same test school.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"relation\": \"mother\",\n  \"isPrimary\": true\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3214,17 +3274,32 @@
               }
             ],
             "url": "{{schoolBaseUrl}}/api/v1/classes/",
-            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data.",
+            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data. Example payload is based on the module Zod DTO; replace linked IDs with IDs from the same test school.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"name\": \"JSS 1 Blue\",\n  \"level\": \"JSS 1\",\n  \"capacity\": 35\n}",
               "options": {
                 "raw": {
                   "language": "json"
                 }
               }
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  try { const body = pm.response.json(); const data = body && body.data; const entity = data && (data.student || data.guardian || data.staff || data.class || data.subject || data.branch || data); const id = entity && (entity.id || entity.studentId || entity.guardianId || entity.staffId || entity.classId || entity.subjectId || entity.branchId);",
+                  "    if (id) { pm.environment.set(\"classId\", id); console.log(\"Captured classId: \" + id); }",
+                  "  } catch (e) { console.warn('Could not capture created resource ID:', e.message); }",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "POST /api/v1/classes/apply-teaching-defaults",
@@ -3297,17 +3372,32 @@
               }
             ],
             "url": "{{schoolBaseUrl}}/api/v1/classes/subjects",
-            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data.",
+            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data. Example payload is based on the module Zod DTO; replace linked IDs with IDs from the same test school.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"name\": \"Mathematics\",\n  \"code\": \"MATH\",\n  \"description\": \"Core mathematics subject for junior secondary\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
                 }
               }
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  try { const body = pm.response.json(); const data = body && body.data; const entity = data && (data.student || data.guardian || data.staff || data.class || data.subject || data.branch || data); const id = entity && (entity.id || entity.studentId || entity.guardianId || entity.staffId || entity.classId || entity.subjectId || entity.branchId);",
+                  "    if (id) { pm.environment.set(\"subjectId\", id); console.log(\"Captured subjectId: \" + id); }",
+                  "  } catch (e) { console.warn('Could not capture created resource ID:', e.message); }",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "PUT /api/v1/classes/subjects/{{subjectId}}",
@@ -3476,10 +3566,10 @@
               }
             ],
             "url": "{{schoolBaseUrl}}/api/v1/classes/{{classId}}/class-teacher",
-            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data.",
+            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data. Example payload is based on the module Zod DTO; replace linked IDs with IDs from the same test school.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"staffId\": \"{{staffId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3508,10 +3598,10 @@
               }
             ],
             "url": "{{schoolBaseUrl}}/api/v1/classes/{{classId}}/progression",
-            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data.",
+            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data. Example payload is based on the module Zod DTO; replace linked IDs with IDs from the same test school.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"toClassId\": null\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3559,10 +3649,10 @@
               }
             ],
             "url": "{{schoolBaseUrl}}/api/v1/classes/{{classId}}/subjects",
-            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data.",
+            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data. Example payload is based on the module Zod DTO; replace linked IDs with IDs from the same test school.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"subjectId\": \"{{subjectId}}\",\n  \"staffId\": \"{{staffId}}\",\n  \"termId\": \"{{termId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3591,10 +3681,10 @@
               }
             ],
             "url": "{{schoolBaseUrl}}/api/v1/classes/{{classId}}/subjects/bulk-assign",
-            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data.",
+            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data. Example payload is based on the module Zod DTO; replace linked IDs with IDs from the same test school.",
             "body": {
               "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"staffId\": \"{{staffId}}\",\n  \"termId\": \"{{termId}}\",\n  \"subjectIds\": [\n    \"{{subjectId}}\"\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
