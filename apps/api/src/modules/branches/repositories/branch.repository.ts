@@ -14,4 +14,12 @@ export interface IBranchRepository {
     findMain(): Promise<BranchEntity | null>;
     findByName(name: string): Promise<BranchEntity | null>;
     findByCode(code: string): Promise<BranchEntity | null>;
+
+    /** Is this an active staff member (a valid principal)? */
+    isActiveStaff(staffId: string): Promise<boolean>;
+    /** Active staff working in the branch, primary-branch members first. */
+    listMembers(branchId: string): Promise<Array<{
+        isPrimary: boolean; assignedAt: Date;
+        staff: { id: string; employeeId: string; firstName: string; lastName: string; category: string | null; designation: string | null };
+    }>>;
 }

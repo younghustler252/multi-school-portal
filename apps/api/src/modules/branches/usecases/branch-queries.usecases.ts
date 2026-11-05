@@ -1,4 +1,3 @@
-import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
 import type { Access } from "../../../foundation/access.service";
 import { IBranchRepository } from "../repositories/branch.repository";
 import { BranchMapper, BranchResponseData } from "../mappers/branch.mapper";
@@ -51,14 +50,7 @@ export class ListBranchMembersUseCase {
 
     async execute(id: string) {
         if (!(await this.d.branchRepository.findById(id))) throw branchErrors.notFound();
-        const rows = await getTenantClient().staffBranch.findMany({
-            where: { branchId: id, staff: { isActive: true, deletedAt: null } },
-            select: {
-                isPrimary: true, assignedAt: true,
-                staff: { select: { id: true, employeeId: true, firstName: true, lastName: true, category: true, designation: true } },
-            },
-            orderBy: [{ isPrimary: "desc" }, { assignedAt: "asc" }],
-        });
+        const rows = await this.d.branchRepository.listMembers(id);
         return rows.map(r => ({
             staffId: r.staff.id, employeeId: r.staff.employeeId, name: `${r.staff.firstName} ${r.staff.lastName}`,
             category: r.staff.category, designation: r.staff.designation, isPrimary: r.isPrimary, assignedAt: r.assignedAt,

@@ -61,8 +61,6 @@ describe("architecture rules", () => {
         const WAITING = new Set([
         "src/modules/automation/usecases/automation.usecases.ts",
         "src/modules/bank-reconciliation/usecases/reconciliation-shared.ts",
-        "src/modules/branches/usecases/branch-commands.usecases.ts",
-        "src/modules/branches/usecases/branch-queries.usecases.ts",
         "src/modules/enrolment/usecases/bulk-enrol.usecase.ts",
         "src/modules/enrolment/usecases/enrol-student.usecase.ts",
         "src/modules/enrolment/usecases/promotion.usecases.ts",

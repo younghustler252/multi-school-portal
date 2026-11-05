@@ -17,4 +17,19 @@ export class BranchRepositoryImpl extends BaseTenantRepository<BranchEntity> imp
     }
 
     async findByCode(code: string): Promise<BranchEntity | null> { return this.findOne({ code: code.toUpperCase() }); }
+
+    async isActiveStaff(staffId: string): Promise<boolean> {
+        return !!(await this.prisma.staff.findFirst({ where: { id: staffId, isActive: true }, select: { id: true } }));
+    }
+
+    listMembers(branchId: string) {
+        return this.prisma.staffBranch.findMany({
+            where: { branchId, staff: { isActive: true, deletedAt: null } },
+            select: {
+                isPrimary: true, assignedAt: true,
+                staff: { select: { id: true, employeeId: true, firstName: true, lastName: true, category: true, designation: true } },
+            },
+            orderBy: [{ isPrimary: "desc" }, { assignedAt: "asc" }],
+        }) as any;
+    }
 }

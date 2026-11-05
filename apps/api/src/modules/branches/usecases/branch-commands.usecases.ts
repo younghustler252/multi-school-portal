@@ -1,4 +1,3 @@
-import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
 import { assertWithinPlanLimit } from "../../../infrastructure/middleware/feature-gate.middleware";
 import { AuditService } from "../../audit/services/audit.service";
 import { IBranchRepository } from "../repositories/branch.repository";
@@ -20,9 +19,8 @@ function codeFromName(name: string): string {
     return base;
 }
 
-async function assertPrincipal(staffId: string): Promise<void> {
-    const staff = await getTenantClient().staff.findFirst({ where: { id: staffId, isActive: true }, select: { id: true } });
-    if (!staff) throw branchErrors.principalInvalid();
+async function assertPrincipal(repo: IBranchRepository, staffId: string): Promise<void> {
+    if (!(await repo.isActiveStaff(staffId))) throw branchErrors.principalInvalid();
 }
 
 /*
@@ -38,7 +36,7 @@ export class CreateBranchUseCase {
         await assertWithinPlanLimit(schoolId, "branch", 1);
 
         if (await d.branchRepository.findByName(dto.name)) throw branchErrors.nameTaken();
-        if (dto.principalStaffId) await assertPrincipal(dto.principalStaffId);
+        if (dto.principalStaffId) await assertPrincipal(d.branchRepository, dto.principalStaffId);
 
         let code = dto.code;
         if (code) { if (await d.branchRepository.findByCode(code)) throw branchErrors.codeTaken(); }
@@ -69,7 +67,7 @@ export class UpdateBranchUseCase {
         if (!branch) throw branchErrors.notFound();
 
         if (dto.name && dto.name.toLowerCase() !== branch.name.toLowerCase() && await d.branchRepository.findByName(dto.name)) throw branchErrors.nameTaken();
-        if (dto.principalStaffId) await assertPrincipal(dto.principalStaffId);
+        if (dto.principalStaffId) await assertPrincipal(d.branchRepository, dto.principalStaffId);
 
         const before: Record<string, unknown> = {};
         const after:  Record<string, unknown> = {};
