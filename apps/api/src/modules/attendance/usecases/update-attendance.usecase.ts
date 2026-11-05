@@ -1,6 +1,5 @@
 import type { Access } from "../../../foundation/access.service";
 import { AuditService } from "../../audit/services/audit.service";
-import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
 import { AttendanceRepository } from "../repositories/attendance.repository";
 import { AttendancePresenter, AttendanceResponse } from "../services/attendance-presenter";
 import { classInScope } from "../services/attendance-scope";
@@ -26,20 +25,19 @@ export class UpdateAttendanceUseCase {
         if (!row) throw attendanceErrors.recordNotFound();
 
         const markScope = access.scopeOf("attendance.mark");
-        const allowed = markScope === "ALL" || (!!row.classId && await classInScope(access, "attendance.mark", row.classId, row.termId));
+        const allowed = markScope === "ALL" || (!!row.classId && await classInScope(repo, access, "attendance.mark", row.classId, row.termId));
         if (!allowed) throw attendanceErrors.notYourClass();
         if (!withinEditWindow(row.createdAt) && !access.can("attendance.override")) throw attendanceErrors.editWindowClosed();
 
-        const data: Record<string, unknown> = {};
+        const data: { status?: typeof row.status; note?: string | null } = {};
         if (dto.status !== undefined && dto.status !== row.status) data.status = dto.status;
         if (dto.note !== undefined && (dto.note ?? null) !== (row.note ?? null)) data.note = dto.note ?? null;
         if (Object.keys(data).length === 0) return (await this.d.attendancePresenter.many([row]))[0];
 
-        const updated = await getTenantClient().attendance.update({ where: { id }, data: { ...data, markedById: actor.userId } });
-        const db = getTenantClient();
+        const updated = await repo.updateMark(id, data, actor.userId);
         const [student, cls] = await Promise.all([
-            db.student.findUnique({ where: { id: row.studentId }, select: { firstName: true, lastName: true } }),
-            row.classId ? db.class.findUnique({ where: { id: row.classId }, select: { name: true } }) : Promise.resolve(null),
+            repo.findStudent(row.studentId),
+            row.classId ? repo.findClass(row.classId) : Promise.resolve(null),
         ]);
         await this.d.auditService.log({
             userId: actor.userId, schoolId, action: "attendance.updated", entity: "Attendance", entityId: id,

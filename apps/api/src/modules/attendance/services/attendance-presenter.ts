@@ -1,4 +1,3 @@
-import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
 import { IUserRepository } from "../../auth/repositories/user.repository";
 import { dayKey } from "../domain/attendance.policy";
 import { AttendanceRepository } from "../repositories/attendance.repository";
@@ -35,12 +34,11 @@ export class AttendancePresenter {
 
     async many(rows: Array<{ id: string; studentId: string; classId: string | null; termId: string; date: Date; status: string; note: string | null; markedById: string | null; createdAt: Date; updatedAt: Date }>): Promise<AttendanceResponse[]> {
         if (rows.length === 0) return [];
-        const db = getTenantClient();
         const studentIds = [...new Set(rows.map(r => r.studentId))];
         const classIds = [...new Set(rows.map(r => r.classId).filter((x): x is string => !!x))];
         const [students, classes, terms, markers] = await Promise.all([
-            db.student.findMany({ where: { id: { in: studentIds } }, select: { id: true, firstName: true, lastName: true, admissionNumber: true } }),
-            classIds.length ? db.class.findMany({ where: { id: { in: classIds } }, select: { id: true, name: true } }) : Promise.resolve([]),
+            this.d.attendanceRepository.findStudents(studentIds),
+            this.d.attendanceRepository.findClassNames(classIds),
             this.d.attendanceRepository.allTerms(),
             this.markers(rows.map(r => r.markedById)),
         ]);

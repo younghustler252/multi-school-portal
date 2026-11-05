@@ -33,14 +33,14 @@ export class GetRegisterUseCase {
         const sd = await resolveSchoolDay(repo, dateText, false);
         const cls = await repo.findClass(classId);
         if (!cls) throw attendanceErrors.classNotFound();
-        if (!(await classInScope(access, "attendance.view", classId, sd.term.id))) throw attendanceErrors.classNotVisible();
+        if (!(await classInScope(repo, access, "attendance.view", classId, sd.term.id))) throw attendanceErrors.classNotVisible();
 
         const enrolled = await repo.studentsOnRegister(classId, sd.term.id);
         const rows = enrolled.length ? await repo.rowsForDay(enrolled.map(e => e.studentId), sd.date) : [];
         const rowBy = new Map(rows.map(r => [r.studentId, r]));
         const markers = await this.d.attendancePresenter.markers(rows.map(r => r.markedById));
 
-        const canMark = access.can("attendance.mark") && !sd.holiday && !isFutureDay(dateText) && await classInScope(access, "attendance.mark", classId, sd.term.id);
+        const canMark = access.can("attendance.mark") && !sd.holiday && !isFutureDay(dateText) && await classInScope(repo, access, "attendance.mark", classId, sd.term.id);
         const canOverride = access.can("attendance.override");
         const summary = { present: 0, absent: 0, late: 0, excused: 0, unmarked: 0 };
         const students: RegisterRow[] = enrolled.map(e => {

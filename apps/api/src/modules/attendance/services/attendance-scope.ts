@@ -1,5 +1,5 @@
 import type { Access } from "../../../foundation/access.service";
-import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
+import type { AttendanceRepository } from "../repositories/attendance.repository";
 
 /*
 | WHO MAY SEE OR MARK WHICH ATTENDANCE
@@ -31,15 +31,10 @@ export function attendanceViewWhere(access: Access): Record<string, unknown> {
 }
 
 /** Is this class one the person's scope covers, in this term? (a class register is opened, or taken, class by class) */
-export async function classInScope(access: Access, permission: "attendance.view" | "attendance.mark", classId: string, termId: string): Promise<boolean> {
+export async function classInScope(repo: Pick<AttendanceRepository, "staffCoversClass">, access: Access, permission: "attendance.view" | "attendance.mark", classId: string, termId: string): Promise<boolean> {
     const scope = access.scopeOf(permission);
     const me = access.personaEntityId;
     if (scope === "ALL") return true;
     if (scope !== "ASSIGNED" || access.persona !== "STAFF" || !me) return false;   // OWN / BRANCH / none: not by class
-    const db = getTenantClient();
-    const [leads, teaches] = await Promise.all([
-        db.class.count({ where: { id: classId, classTeacherId: me } }),
-        db.classSubject.count({ where: { classId, termId, staffId: me } }),
-    ]);
-    return leads > 0 || teaches > 0;
+    return repo.staffCoversClass(me, classId, termId);
 }

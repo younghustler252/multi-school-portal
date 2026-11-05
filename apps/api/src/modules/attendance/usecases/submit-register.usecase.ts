@@ -1,13 +1,11 @@
 import type { Access } from "../../../foundation/access.service";
 import { AuditService } from "../../audit/services/audit.service";
-import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
-import { lockClass } from "../../enrolment/services/class-seats";
-import { AttendanceRepository } from "../repositories/attendance.repository";
+import { AttendanceRepository, AttendanceStatusValue } from "../repositories/attendance.repository";
 import { NameRef, StudentRef, TermRef, studentRef, termRef } from "../services/attendance-presenter";
 import { classInScope } from "../services/attendance-scope";
 import { resolveSchoolDay } from "../services/attendance-day";
 import { attendanceErrors } from "../domain/attendance.errors";
-import { addDays, withinEditWindow } from "../domain/attendance.policy";
+import { withinEditWindow } from "../domain/attendance.policy";
 import { AttendanceActor } from "../domain/attendance.types";
 import { SubmitRegisterDtoType } from "../dtos/attendance.dto";
 
@@ -40,7 +38,7 @@ export class SubmitRegisterUseCase {
         const sd = await resolveSchoolDay(repo, dto.date, true);
         const cls = await repo.findClass(classId);
         if (!cls) throw attendanceErrors.classNotFound();
-        if (!(await classInScope(access, "attendance.mark", classId, sd.term.id))) throw attendanceErrors.notYourClass();
+        if (!(await classInScope(repo, access, "attendance.mark", classId, sd.term.id))) throw attendanceErrors.notYourClass();
 
         const enrolled = await repo.studentsOnRegister(classId, sd.term.id);
         const onList = new Map(enrolled.map(e => [e.studentId, studentRef(e.student)]));
@@ -57,7 +55,7 @@ export class SubmitRegisterUseCase {
             valid.push(e);
         }
         if (strangers.length) {
-            const found = await getTenantClient().student.findMany({ where: { id: { in: strangers } }, select: { id: true, firstName: true, lastName: true, admissionNumber: true } });
+            const found = await repo.findStudents(strangers);
             const byId = new Map(found.map(s => [s.id, studentRef(s)]));
             for (const id of strangers) skipped.push({ student: byId.get(id) ?? null, studentId: id, reason: "not_on_class_list" });
         }
@@ -69,13 +67,12 @@ export class SubmitRegisterUseCase {
         const markedIds = new Set<string>();
 
         if (valid.length) {
-            await getTenantClient().$transaction(async tx => {
-                await lockClass(tx as any, classId);
-                const existing = await tx.attendance.findMany({ where: { studentId: { in: valid.map(v => v.studentId) }, date: { gte: sd.date, lt: addDays(sd.date, 1) } }, orderBy: { createdAt: "asc" } });
+            await repo.inRegisterTransaction(classId, async tx => {
+                const existing = await tx.rowsForDay(valid.map(v => v.studentId), sd.date);
                 const rowsOf = new Map<string, typeof existing>();
                 for (const r of existing) rowsOf.set(r.studentId, [...(rowsOf.get(r.studentId) ?? []), r]);
 
-                const toCreate: Array<{ studentId: string; termId: string; classId: string; date: Date; status: any; note: string | null; markedById: string }> = [];
+                const toCreate: Array<{ studentId: string; termId: string; classId: string; date: Date; status: AttendanceStatusValue; note: string | null; markedById: string }> = [];
                 for (const e of valid) {
                     const mine = rowsOf.get(e.studentId) ?? [];
                     const row = mine.find(r => r.date.getTime() === sd.date.getTime()) ?? mine[0];   // normally one; old data could hold two
@@ -88,14 +85,11 @@ export class SubmitRegisterUseCase {
                     markedIds.add(e.studentId);
                     if (row.status === e.status && (row.note ?? null) === note) { unchanged++; continue; }
                     if (!withinEditWindow(row.createdAt, now) && !canOverride) { skipped.push({ student: onList.get(e.studentId)!, studentId: e.studentId, reason: "edit_window_closed" }); continue; }
-                    await tx.attendance.update({
-                        where: { id: row.id },
-                        data: { status: e.status, note, classId, termId: sd.term.id, markedById: actor.userId, ...(mine.length === 1 ? { date: sd.date } : {}) },
-                    });
+                    await tx.update(row.id, { status: e.status, note, classId, termId: sd.term.id, markedById: actor.userId, ...(mine.length === 1 ? { date: sd.date } : {}) });
                     updated++; changes.push({ student: onList.get(e.studentId)!.name, from: row.status, to: e.status });
                 }
-                if (toCreate.length) { await tx.attendance.createMany({ data: toCreate }); created = toCreate.length; }
-            }, { maxWait: 5000, timeout: 30000 });
+                if (toCreate.length) { await tx.createMany(toCreate); created = toCreate.length; }
+            });
         }
 
         // who on the class list still has no mark for the day

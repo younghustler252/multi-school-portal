@@ -1,5 +1,4 @@
 import type { Access } from "../../../foundation/access.service";
-import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
 import { AttendanceRepository } from "../repositories/attendance.repository";
 import { NameRef, StudentRef, TermRef, studentRef, termRef } from "../services/attendance-presenter";
 import { attendanceViewWhere, classInScope } from "../services/attendance-scope";
@@ -27,16 +26,15 @@ export class StudentSummaryUseCase {
 
     async execute(query: StudentSummaryQueryType, access: Access): Promise<{ student: StudentRef; term: TermRef; class: NameRef | null } & SummaryWithRegisters> {
         const repo = this.d.attendanceRepository;
-        const db = getTenantClient();
-        const student = await db.student.findUnique({ where: { id: query.studentId }, select: { id: true, firstName: true, lastName: true, admissionNumber: true } });
+        const student = await repo.findStudent(query.studentId);
         if (!student) throw attendanceErrors.studentNotFound();
         const term = await termOf(repo, query.termId);
 
         // what this person may see of this student (a teacher sees only their classes; a guardian only their child)
         const where = { AND: [attendanceViewWhere(access), { studentId: student.id, termId: term.id }] };
-        const grouped = await db.attendance.groupBy({ by: ["status"], where, _count: { _all: true } });
+        const grouped = await repo.statusCounts(where);
         const counts: Counts = {};
-        for (const g of grouped) counts[g.status as keyof Counts] = g._count._all;
+        for (const g of grouped) counts[g.status as keyof Counts] = g.count;
 
         const enrolment = await repo.studentClassIn(student.id, term.id);
         const registerDays = enrolment ? await repo.registerDays(enrolment.classId, term.id) : 0;
@@ -52,17 +50,17 @@ export class ClassSummaryUseCase {
         const term = await termOf(repo, query.termId);
         const cls = await repo.findClass(classId);
         if (!cls) throw attendanceErrors.classNotFound();
-        if (!(await classInScope(access, "attendance.view", classId, term.id))) throw attendanceErrors.classNotVisible();
+        if (!(await classInScope(repo, access, "attendance.view", classId, term.id))) throw attendanceErrors.classNotVisible();
 
         const [enrolled, grouped, registerDays] = await Promise.all([
             repo.studentsOnRegister(classId, term.id),
-            getTenantClient().attendance.groupBy({ by: ["studentId", "status"], where: { classId, termId: term.id }, _count: { _all: true } }),
+            repo.statusCountsByStudent(classId, term.id),
             repo.registerDays(classId, term.id),
         ]);
         const perStudent = new Map<string, Counts>();
         for (const g of grouped) {
             const c = perStudent.get(g.studentId) ?? {};
-            c[g.status as keyof Counts] = g._count._all;
+            c[g.status as keyof Counts] = g.count;
             perStudent.set(g.studentId, c);
         }
         const total: Counts = {};

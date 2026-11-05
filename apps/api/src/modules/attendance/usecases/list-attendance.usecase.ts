@@ -1,5 +1,5 @@
 import type { Access } from "../../../foundation/access.service";
-import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
+import { AttendanceRepository } from "../repositories/attendance.repository";
 import { buildPaginationMeta } from "../../../shared/utils/pagination";
 import { AttendancePresenter, AttendanceResponse } from "../services/attendance-presenter";
 import { attendanceViewWhere } from "../services/attendance-scope";
@@ -7,7 +7,7 @@ import { attendanceErrors } from "../domain/attendance.errors";
 import { addDays, parseSchoolDay } from "../domain/attendance.policy";
 import { ListAttendanceQueryType } from "../dtos/attendance.dto";
 
-interface Dependencies { attendancePresenter: AttendancePresenter }
+interface Dependencies { attendanceRepository: AttendanceRepository; attendancePresenter: AttendancePresenter }
 
 /*
 | SCOPED LIST of attendance marks (page size at most 100). What you see depends on attendance.view: everything (ALL), the
@@ -30,11 +30,7 @@ export class ListAttendanceUseCase {
             filters.push({ date: { ...(from ? { gte: from } : {}), ...(to ? { lt: addDays(to, 1) } : {}) } });
         }
         const where = { AND: filters };
-        const db = getTenantClient();
-        const [total, rows] = await Promise.all([
-            db.attendance.count({ where }),
-            db.attendance.findMany({ where, orderBy: [{ date: "desc" }, { createdAt: "desc" }], skip: (query.page - 1) * query.limit, take: query.limit }),
-        ]);
+        const { total, rows } = await this.d.attendanceRepository.page(where, (query.page - 1) * query.limit, query.limit);
         return { data: await this.d.attendancePresenter.many(rows), meta: buildPaginationMeta(total, query.page, query.limit) };
     }
 }
