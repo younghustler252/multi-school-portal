@@ -317,5 +317,5 @@ The Auth test directory also contains `role-delegation.test.ts`, which exercises
 - [Auth module](auth.md)
 - [Users module](users.md)
 - [School module](school.md)
-- [Authentication and authorization architecture](../../../architecture/authentication-and-authorization.md)
-- [Multi-tenancy and database architecture](../../../architecture/multi-tenancy-and-database.md)
+- [Authentication and authorization architecture](../../architecture/authentication-and-authorization.md)
+- [Multi-tenancy and database architecture](../../architecture/multi-tenancy-and-database.md)
