@@ -16,6 +16,8 @@ This section documents the backend implementation for developers building and ma
 |---|---|---|
 | Auth | [Auth module](modules/auth.md) | Source-reviewed; runtime and integration verification outstanding |
 | Users | [Users module](modules/users.md) | Source-reviewed; runtime and integration verification outstanding |
+| School | [School module](modules/school.md) | Source-reviewed; provider/runtime verification outstanding |
+| Roles and permissions | [Roles and permissions](modules/roles.md) | Source-reviewed; registry sync/runtime verification outstanding |
 
 ## Documentation contract
 
