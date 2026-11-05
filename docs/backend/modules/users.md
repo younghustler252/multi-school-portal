@@ -270,7 +270,7 @@ No tests were found in the inspected User test directory for profile update, pas
 ## Related documentation
 
 - [Auth module](auth.md)
-- [Authentication and authorization architecture](../../../architecture/authentication-and-authorization.md)
+- [Authentication and authorization architecture](../../architecture/authentication-and-authorization.md)
 - [Auth security audit](../../AUTH_AUDIT.md)
 - [School module](school.md)
 - [Roles module](roles.md)
