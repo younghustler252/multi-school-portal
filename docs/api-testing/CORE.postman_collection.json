@@ -698,6 +698,10 @@
                 "key": "x-tenant-schema",
                 "value": "{{tenantSchema}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
               }
             ],
             "url": {
@@ -722,6 +726,15 @@
                   "type": "string"
                 }
               ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{loginEmail}}\",\n  \"password\": \"{{loginPassword}}\",\n  \"persona\": \"STAFF\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           },
           "event": [
@@ -733,6 +746,19 @@
                   "pm.test('Response is not a server error', function () { pm.expect(pm.response.code).to.be.below(500); });",
                   "pm.test('Response time under 5 seconds (baseline)', function () { pm.expect(pm.response.responseTime).to.be.below(5000); });",
                   "if ((pm.response.headers.get('Content-Type') || '').includes('application/json')) { pm.test('JSON response parses', function () { pm.response.json(); }); }"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  const body = pm.response.json(); const tokens = body.data && body.data.tokens;",
+                  "  if (tokens && tokens.accessToken) pm.environment.set('accessToken', tokens.accessToken);",
+                  "  if (tokens && tokens.refreshToken) pm.environment.set('refreshToken', tokens.refreshToken);",
+                  "}"
                 ]
               }
             }
@@ -756,6 +782,10 @@
                 "key": "x-tenant-schema",
                 "value": "{{tenantSchema}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
               }
             ],
             "url": {
@@ -780,6 +810,15 @@
                   "type": "string"
                 }
               ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           },
           "event": [
@@ -791,6 +830,19 @@
                   "pm.test('Response is not a server error', function () { pm.expect(pm.response.code).to.be.below(500); });",
                   "pm.test('Response time under 5 seconds (baseline)', function () { pm.expect(pm.response.responseTime).to.be.below(5000); });",
                   "if ((pm.response.headers.get('Content-Type') || '').includes('application/json')) { pm.test('JSON response parses', function () { pm.response.json(); }); }"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  const body = pm.response.json(); const tokens = body.data && body.data.tokens;",
+                  "  if (tokens && tokens.accessToken) pm.environment.set('accessToken', tokens.accessToken);",
+                  "  if (tokens && tokens.refreshToken) pm.environment.set('refreshToken', tokens.refreshToken);",
+                  "}"
                 ]
               }
             }
@@ -814,6 +866,10 @@
                 "key": "x-tenant-schema",
                 "value": "{{tenantSchema}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
               }
             ],
             "url": {
@@ -838,6 +894,15 @@
                   "type": "string"
                 }
               ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           },
           "event": [
@@ -930,6 +995,10 @@
                 "key": "x-tenant-schema",
                 "value": "{{tenantSchema}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
               }
             ],
             "url": {
@@ -954,6 +1023,15 @@
                   "type": "string"
                 }
               ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           },
           "event": [
