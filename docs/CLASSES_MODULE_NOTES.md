@@ -2,6 +2,8 @@
 
 > Branch `refactor/modules`. Follows `docs/ACADEMIC_STRUCTURE_AUDIT.md`. Build: no new TypeScript errors (73 before, 64 after; none left in classes). Tests: 14 new unit tests for part A and 14 for part B pass; no database or API test was run.
 
+> **Documentation status:** Historical implementation snapshot. Verify route contracts, scopes, migrations and tests against current code before relying on it. Backend source now lives under `apps/api/`; this note is not proof of current implementation or runtime verification.
+
 ## What is switched on
 `registerClasses` is in the container list and `/classes` is mounted. Every route now uses permissions.
 
