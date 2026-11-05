@@ -6,9 +6,7 @@ import { StudentPhotoService } from "../services/student-photo.service";
 import { studentErrors } from "../domain/student.errors";
 import { StudentActor } from "../domain/student.types";
 import { UndoGraduationDtoType } from "../dtos/student.dto";
-import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
 import { assertWithinPlanLimit } from "../../../infrastructure/middleware/feature-gate.middleware";
-import { lockClass, activeInClass, wouldOverflow } from "../../enrolment/services/class-seats";
 
 interface Dependencies { studentRepository: IStudentRepository; sessionRepository: ISessionRepository; studentPhotoService: StudentPhotoService; auditService: AuditService; }
 
@@ -38,22 +36,11 @@ export class UndoGraduationUseCase {
         }
         if (student.isActive) await assertWithinPlanLimit(schoolId, "student", 1);
 
-        let reopenedClass: string | null = null;
-        await getTenantClient().$transaction(async tx => {
-            if (dto.reopenEnrolment) {
-                const old = await tx.enrolment.findFirst({ where: { studentId: id, termId: student.graduatedTermId!, status: "completed" }, select: { id: true, classId: true } });
-                if (!old) throw studentErrors.reopenNotFound();
-                await lockClass(tx as any, old.classId);
-                const cls = await tx.class.findUnique({ where: { id: old.classId }, select: { name: true, capacity: true } });
-                const enrolled = await activeInClass(tx as any, old.classId, student.graduatedTermId!);
-                if (wouldOverflow(cls?.capacity, enrolled, 1)) throw studentErrors.reopenClassFull(cls?.name ?? "The class");
-                await tx.enrolment.update({ where: { id: old.id }, data: { status: "active" } });
-                reopenedClass = cls?.name ?? null;
-            }
-            // Only if still graduated: two people undoing at once cannot both succeed.
-            const done = await tx.student.updateMany({ where: { id, graduatedAt: { not: null } }, data: { graduatedAt: null, graduatedTermId: null } });
-            if (done.count === 0) throw studentErrors.notGraduated();
-        }, { maxWait: 5000, timeout: 30000 });
+        const outcome = await d.studentRepository.undoGraduation(id, dto.reopenEnrolment ? { termId: student.graduatedTermId! } : null);
+        if (outcome.status === "no_enrolment") throw studentErrors.reopenNotFound();
+        if (outcome.status === "class_full") throw studentErrors.reopenClassFull(outcome.className);
+        if (outcome.status === "not_graduated") throw studentErrors.notGraduated();
+        const reopenedClass = outcome.reopenedClass;
 
         const termLabel = graduatedTerm ? `${graduatedTerm.name}` : null;
         await d.auditService.log({

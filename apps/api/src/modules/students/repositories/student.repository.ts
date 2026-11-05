@@ -28,4 +28,16 @@ export interface IStudentRepository {
         query:  string,
         params: PaginateParams,
     ):                                              Promise<PaginatedResult<StudentEntity>>;
+
+    /**
+     * Clears the graduation in ONE transaction. With `reopen`, the final enrolment goes back to active under the class lock
+     * and a free seat is required. Nothing changes unless the result is "ok".
+     */
+    undoGraduation(studentId: string, reopen: { termId: string } | null): Promise<UndoGraduationOutcome>;
 }
+
+export type UndoGraduationOutcome =
+    | { status: "ok"; reopenedClass: string | null }
+    | { status: "not_graduated" }
+    | { status: "no_enrolment" }
+    | { status: "class_full"; className: string };
