@@ -171,6 +171,39 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Owner/workstream:** Report cards/backend developer
 - **Acceptance criteria:** Typecheck validates adapter calls against the generated client; no manually duplicated field contract is required for migrated columns.
 
+### REM-015 — Undo graduation plan-capacity check is outside the lifecycle transaction
+
+- **Module:** Student graduation / plan entitlements
+- **Priority:** P2 — quota integrity under concurrency
+- **Status:** Potential race established by source ordering; not reproduced
+- **Evidence:** `UndoGraduationUseCase` calls `assertWithinPlanLimit` before `StudentRepositoryImpl.undoGraduation` opens its database transaction. The transaction protects the one-student graduation clear, but it does not serialize the plan-count check with concurrent undo/create/reactivate operations.
+- **Risk:** Two concurrent operations can both observe available capacity and then both restore active-student eligibility, potentially exceeding the configured student limit.
+- **Recommended action:** Decide whether plan limits must be strictly concurrency-safe. If yes, introduce a shared quota reservation/lock/counter strategy covering student creation, reactivation and undo graduation—not a local lock used by only one endpoint. Add concurrent tests at the shared quota boundary.
+- **Owner/workstream:** Entitlements/platform + students developer
+- **Acceptance criteria:** Concurrent operations cannot exceed the plan limit, or the documented product policy explicitly accepts temporary overage and provides reconciliation.
+
+### REM-016 — Promotion and undo-graduation audit writes occur after lifecycle commits
+
+- **Module:** Student graduation / audit
+- **Priority:** P2 — audit reliability
+- **Status:** Confirmed sequencing; failure impact needs validation
+- **Evidence:** Promotion commits enrolment/graduation updates before calling `auditService.log`; undo graduation commits the repository transaction before writing `student.graduation_undone`.
+- **Risk:** Audit persistence failure can leave committed lifecycle changes without the corresponding audit record while the API returns an error.
+- **Recommended action:** Align with the shared audit policy. If mandatory, use a transaction-aware audit write or durable outbox; if best-effort, return a successful domain outcome while surfacing audit delivery failure operationally.
+- **Owner/workstream:** Platform/audit + enrolment/students developers
+- **Acceptance criteria:** Forced audit failure has defined, tested API and persistence behavior.
+
+### REM-017 — Graduation has no HTTP-level route tests in the inspected suite
+
+- **Module:** Student graduation / Enrolment
+- **Priority:** P2 — verification gap
+- **Status:** Confirmed test inventory finding
+- **Evidence:** The inspected `apps/api/tests/graduation/` suite covers pure rules and real-Postgres use cases/migrations, but no router/application test mounts the student and enrolment routes.
+- **Risk:** Middleware permission enforcement, tenant context, route ordering, request validation and HTTP response envelopes are not verified end-to-end for graduation.
+- **Recommended action:** Add HTTP integration tests for promotion preview/run and undo graduation, including missing permission, wrong tenant context, invalid payload/reason, non-graduate, plan limit, reopen-current-term and class-capacity outcomes.
+- **Owner/workstream:** Students/Enrolment backend + QA
+- **Acceptance criteria:** The endpoints are exercised through the Express router with test tenant isolation and asserted status/error envelopes.
+
 ## Cross-module verification queue
 
 These are not necessarily defects. They are unfinished verification tasks recorded so the team does not mistake source documentation for production validation.
@@ -181,6 +214,7 @@ These are not necessarily defects. They are unfinished verification tasks record
 | Enrolment | Inspect remaining schema/migration/tests/runtime paths; decide and close REM-002 |
 | Grades | Execute DB/migration tests, typecheck/build and add HTTP route tests; close REM-003 through REM-008 |
 | Report Cards | Add two-tenant queue collision, publication concurrency, HTTP and populated-migration tests; close REM-009 through REM-014 |
+| Graduation | Validate quota concurrency, audit failure policy and HTTP routes; execute DB/migration tests; close REM-015 through REM-017 |
 | Other module guides | Complete remaining source/schema/migration/test review as stated in each guide before declaring the module fully verified |
 
 ## Developer handoff protocol
@@ -197,3 +231,4 @@ These are not necessarily defects. They are unfinished verification tasks record
 
 - 2026-11-06: Initial register created from the attendance, enrolment and grades audits. More findings will be appended as remaining backend modules are reviewed.
 - 2026-11-06: Added report-card queue isolation, publication consistency, override-policy, HTTP/migration coverage and Prisma type-safety findings.
+- 2026-11-06: Added graduation plan-capacity concurrency, audit reliability and HTTP route coverage findings.
