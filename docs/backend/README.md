@@ -30,7 +30,7 @@ This section documents the backend implementation for developers building and ma
 | Grades | [Grades module](modules/grades.md) | Source-reviewed; DB/migration execution, HTTP tests and runtime verification outstanding |
 | Report cards | [Report cards module](modules/report-cards.md) | Source-reviewed; migration/HTTP/worker verification outstanding |
 | Report cards | Planned | Audit after grades |
-| Graduation | Planned | Module existence and implementation to be established from source |
+| Graduation lifecycle | [Student graduation lifecycle](modules/graduation-lifecycle.md) | Source-reviewed across Students, Enrolment and Sessions; DB/migration execution, HTTP and quota-concurrency verification outstanding |
 
 ## Documentation contract
 
