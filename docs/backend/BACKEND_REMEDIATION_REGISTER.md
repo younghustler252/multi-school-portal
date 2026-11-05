@@ -248,6 +248,72 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Owner/workstream:** Fees/reporting developer
 - **Acceptance criteria:** Family overdue counts, ageing reports and late-fee calculations use the same school-local business date.
 
+### REM-022 — Credit allocation rows can be mutated from stale snapshots
+
+- **Module:** Payments / credit application and refund payout
+- **Priority:** P1 — financial integrity under concurrency
+- **Status:** Potential race established by source/repository implementation; not reproduced against PostgreSQL
+- **Evidence:** `CreditService.applyToInvoice` and `PayRefundUseCase` read a credit allocation row, calculate a remaining amount and call `PaymentRepositoryImpl.setAllocationAmount`. That repository method performs an unconditional absolute update/delete by allocation ID; it has no amount/version predicate or row lock. Payment `unallocatedKobo` is changed separately using an atomic increment/decrement.
+- **Risk:** Two concurrent credit applications or refund payouts can read the same starting allocation and overwrite one another's remaining amount while independently decrementing the payment's unallocated amount. Allocation totals, visible credit and the ledger liability can diverge.
+- **Recommended action:** Introduce a shared atomic credit-consumption operation. Lock the payment/credit allocation rows in a tenant transaction or use conditional decrement/update predicates that guarantee the amount is still available. Ensure credit application and refund payout share the same serialization boundary. Add concurrent PostgreSQL tests for two invoices consuming one credit row and two refunds paying from one row.
+- **Owner/workstream:** Payments/ledger developer
+- **Acceptance criteria:** Concurrent operations cannot consume more than the original credit; payment unallocated balance, credit allocations, invoice allocations and Advance Payments ledger balance remain equal.
+
+### REM-023 — Refund requests can over-reserve credit under concurrent requests
+
+- **Module:** Payments / refunds
+- **Priority:** P1 — financial integrity under concurrency
+- **Status:** Potential race established by source ordering; not reproduced
+- **Evidence:** `RequestRefundUseCase` calculates available credit after querying REQUESTED/APPROVED refunds, then creates a new refund in a separate operation. The read/check and insert are not enclosed in a transaction or serialized by a per-payment/student lock; the refund table has no aggregate constraint enforcing total open refunds <= credit.
+- **Risk:** Two requests can both observe the same available credit and create reservations whose combined amount exceeds the credit. Later payouts may fail, and the approval queue can contain refunds that cannot all be paid.
+- **Recommended action:** Make refund reservation atomic with credit availability. Serialize on the underlying payment/credit row or create a reservation counter with a database-enforced bound. Coordinate this with REM-022 so credit application and refund reservation/payout cannot race each other.
+- **Owner/workstream:** Payments developer
+- **Acceptance criteria:** Concurrent refund requests cannot reserve more than available credit; test with two requests whose combined amount exceeds the held credit.
+
+### REM-024 — Gateway settlement response converts BigInt kobo amounts to Number
+
+- **Module:** Payments / settlements
+- **Priority:** P1 — financial precision
+- **Status:** Confirmed unsafe conversion; large-value regression not present
+- **Evidence:** `RecordSettlementUseCase` returns `receivedKobo`, `feeKobo` and `grossKobo` via `Number(...)`. The DTO accepts up to 18-digit kobo strings, beyond JavaScript's exact integer range.
+- **Risk:** Large settlement values can be posted correctly by the BigInt ledger path but reported to the caller with rounded amounts.
+- **Recommended action:** Use the shared `koboOut` serializer for all three response fields and preserve BigInt for calculations.
+- **Owner/workstream:** Payments developer
+- **Acceptance criteria:** A settlement with values above `Number.MAX_SAFE_INTEGER` kobo returns exact digit strings and matches the posted journal amounts.
+
+### REM-025 — Settlement idempotency is bypassed when reference is omitted
+
+- **Module:** Payments / settlements
+- **Priority:** P2 — duplicate posting risk
+- **Status:** Confirmed behavior
+- **Evidence:** `RecordSettlementDto.reference` is optional. The use case uses the reference as `sourceId` for the ledger posting idempotency key, but generates a fresh UUID when reference is absent.
+- **Risk:** Retrying the same settlement request without a reference creates a new idempotency key and can post the same settlement more than once.
+- **Recommended action:** Require a stable gateway settlement reference or a client-supplied idempotency key. If manual settlements may lack a gateway reference, still require a stable unique operation ID and persist it.
+- **Owner/workstream:** Payments developer
+- **Acceptance criteria:** Repeating the same settlement operation returns/recognizes the first posting even when no external bank reference exists.
+
+### REM-026 — Payment routes and credit/refund concurrency lack HTTP/real-DB coverage
+
+- **Module:** Payments
+- **Priority:** P2 — verification gap
+- **Status:** Confirmed test inventory finding
+- **Evidence:** The inspected payment tests use in-memory repositories and the posting test harness. No payment router integration test or dedicated populated-schema migration test was found in the inspected suite.
+- **Risk:** The current suite does not prove middleware/tenant/permission behavior or real PostgreSQL isolation and concurrent credit/refund behavior.
+- **Recommended action:** Add HTTP tests for guardian ownership, staff permissions, payment confirmation, webhook/online verification boundaries and settlement routes. Add PostgreSQL concurrency tests for REM-022/023 and populated migration tests for payment targets/refund approval columns.
+- **Owner/workstream:** Payments backend/QA
+- **Acceptance criteria:** HTTP and real-DB tests run in CI with disposable tenant schemas and assert financial invariants under concurrent operations.
+
+### REM-027 — Fee-payment webhook event filtering and tenant metadata need end-to-end verification
+
+- **Module:** Payments / Webhooks
+- **Priority:** P2 — integration boundary verification
+- **Status:** Verification task; no exploit established
+- **Evidence:** `FeePaymentWebhookHandler.handles` accepts `charge.success` events with a reference when metadata type is not `subscription_invoice`. `handle` requires `metadata.schoolId`, resolves the tenant schema and confirms by reference; it does not use metadata `paymentId` or `invoiceId` as an additional consistency check.
+- **Risk:** Unrelated successful charge events may be routed to this handler and fail for missing school metadata; metadata/reference mismatch behavior is not covered by the inspected tests.
+- **Recommended action:** Verify handler ordering/filtering with all registered webhook handlers. Cross-check event metadata payment ID/invoice ID against the payment resolved by reference where those fields are required. Add tests for unrelated events, missing metadata, wrong school and mismatched payment IDs.
+- **Owner/workstream:** Payments/Webhooks developer
+- **Acceptance criteria:** Only intended school-fee events reach this handler, tenant resolution is verified, and metadata/reference mismatches are rejected without confirming the wrong payment.
+
 ## Cross-module verification queue
 
 These are not necessarily defects. They are unfinished verification tasks recorded so the team does not mistake source documentation for production validation.
@@ -260,6 +326,7 @@ These are not necessarily defects. They are unfinished verification tasks record
 | Report Cards | Add two-tenant queue collision, publication concurrency, HTTP and populated-migration tests; close REM-009 through REM-014 |
 | Graduation | Validate quota concurrency, audit failure policy and HTTP routes; execute DB/migration tests; close REM-015 through REM-017 |
 | Fees | Fix statement arithmetic and BigInt serialization; align grace-days/timezone settings; add regression, HTTP and DB migration tests; close REM-018 through REM-021 |
+| Payments | Serialize credit consumption/refund reservation; fix settlement precision/idempotency; verify webhook filtering; add HTTP and PostgreSQL concurrency tests; close REM-022 through REM-027 |
 | Other module guides | Complete remaining source/schema/migration/test review as stated in each guide before declaring the module fully verified |
 
 ## Developer handoff protocol
@@ -278,3 +345,4 @@ These are not necessarily defects. They are unfinished verification tasks record
 - 2026-11-06: Added report-card queue isolation, publication consistency, override-policy, HTTP/migration coverage and Prisma type-safety findings.
 - 2026-11-06: Added graduation plan-capacity concurrency, audit reliability and HTTP route coverage findings.
 - 2026-11-06: Added fee-statement arithmetic, BigInt precision, grace-days configuration and finance-timezone findings.
+- 2026-11-06: Added payment-credit concurrency, refund reservation, settlement precision/idempotency and webhook verification findings.
