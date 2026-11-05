@@ -51,4 +51,47 @@ describe("architecture rules", () => {
         const offenders = FILES.filter(f => /\.controller\.ts$/.test(f) && /prisma\.client/.test(readFileSync(f, "utf8"))).map(rel);
         assert.deepEqual(offenders, [], "controllers must call use cases, not the database");
     });
+
+    /*
+    | Use cases ask repositories for data; they do not open the database client themselves. These modules still do
+    | (money transactions that span several tables) and are being moved one at a time: REMOVE a file from this list when
+    | it is converted. A file NOT on the list that imports the client fails the build, so the list can only shrink.
+    */
+    it("use cases do not import the database client (except the modules still waiting to be converted)", () => {
+        const WAITING = new Set([
+        "src/modules/automation/usecases/automation.usecases.ts",
+        "src/modules/bank-reconciliation/usecases/reconciliation-shared.ts",
+        "src/modules/branches/usecases/branch-commands.usecases.ts",
+        "src/modules/branches/usecases/branch-queries.usecases.ts",
+        "src/modules/enrolment/usecases/bulk-enrol.usecase.ts",
+        "src/modules/enrolment/usecases/enrol-student.usecase.ts",
+        "src/modules/enrolment/usecases/promotion.usecases.ts",
+        "src/modules/enrolment/usecases/update-enrolment.usecase.ts",
+        "src/modules/expenses/usecases/expense-shared.ts",
+        "src/modules/expenses/usecases/recurring.usecases.ts",
+        "src/modules/fees/usecases/fee-adjustment.usecases.ts",
+        "src/modules/fees/usecases/invoice-issue.usecases.ts",
+        "src/modules/finance-settings/usecases/finance-settings.usecases.ts",
+        "src/modules/gateway-settlements/usecases/settlement.usecases.ts",
+        "src/modules/grades/usecases/grades-sheets-read.usecases.ts",
+        "src/modules/grades/usecases/save-scores.usecase.ts",
+        "src/modules/grades/usecases/sheet-transition.usecase.ts",
+        "src/modules/ledger/usecases/ledger-integrity.usecases.ts",
+        "src/modules/payments/usecases/credit.usecases.ts",
+        "src/modules/payments/usecases/payment-record.usecases.ts",
+        "src/modules/payments/usecases/payment-reverse.usecase.ts",
+        "src/modules/payments/usecases/refund.usecases.ts",
+        "src/modules/payroll-transfers/usecases/transfer-outcome.service.ts",
+        "src/modules/payroll-transfers/usecases/transfer.usecases.ts",
+        "src/modules/payroll/usecases/payroll-shared.ts",
+        "src/modules/school-settings/usecases/school-preferences.usecases.ts",
+        "src/modules/students/usecases/create-student.usecase.ts",
+        "src/modules/students/usecases/student-import.usecases.ts",
+        "src/modules/students/usecases/transfer-student.usecase.ts",
+        ]);
+        const offenders = FILES.filter(f => /\/modules\/[^/]+\/usecases\//.test(f) && /prisma\.client/.test(code(f)) && !WAITING.has(rel(f)));
+        assert.deepEqual(offenders.map(rel), [], "these use cases import the database client; add a repository method instead");
+        const stale = [...WAITING].filter(f => existsSync(join(process.cwd(), f)) && !/prisma\.client/.test(code(join(process.cwd(), f))));
+        assert.deepEqual(stale, [], "these are converted already: remove them from the waiting list");
+    });
 });

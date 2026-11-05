@@ -5,7 +5,6 @@ import { PlatformNotificationResponseData }  from "../mappers/notification.mappe
 import { MailService }                       from "../../../infrastructure/mail/mail.service";
 import { ISchoolRepository }                 from "../../school/repositories/school.repository";
 import { SendPlatformNotificationDtoType }   from "../dtos/notification.dto";
-import { prisma }                            from "../../../infrastructure/database/prisma/prisma.client";
 
 /*
 |--------------------------------------------------------------------------
@@ -74,13 +73,11 @@ export class SendPlatformNotificationUseCase {
         // ── Create recipient records ──────────────────────────────────────
         for (const schoolId of schoolIds) {
             for (const channel of dto.channels) {
-                await prisma.platformNotificationRecipient.create({
-                    data: {
-                        notificationId: notification.id,
-                        schoolId,
-                        channel,
-                        status: "PENDING",
-                    },
+                await this.notificationRepository.createPlatformRecipient({
+                    notificationId: notification.id,
+                    schoolId,
+                    channel,
+                    status: "PENDING",
                 });
             }
         }
