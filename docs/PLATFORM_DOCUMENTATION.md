@@ -1,180 +1,187 @@
 # CORE Platform Documentation
 
-> Repository-grounded architecture and developer handoff for the multi-school portal API.
->
-> **Branch:** `refactor/modules`  
-> **Reviewed commit:** `2bcbf58b685041e7887a1fa9053bb66947be1145`  
-> **Review date:** 2026-10-26  
->
-> Source code on the reviewed branch is authoritative. This document records the architecture and wiring observed at that revision; verify the relevant files before changing behavior. A registered module is not automatically routed, fully implemented, tested, or production-ready.
+> **Purpose:** Current architecture guide for developers and future implementation work.  
+> **Source snapshot:** branch `refactor/modules`, commit `23a5e0a5538f747de27ddff29b24a913791eaac2` (2026-11-05).  
+> Application code, Prisma schemas/migrations, tests and runtime configuration remain authoritative. This is a source-checked snapshot, not a substitute for inspecting the module being changed.
 
-## 1. Product and tenancy model
+## 1. Repository architecture
 
-CORE is a multi-tenant school-management SaaS initially aimed at Nigerian primary and secondary schools. The platform separates platform operations from each school's operational data.
+CORE is an npm-workspaces monorepo. Deployable applications live under `apps/`; reusable contracts live under `packages/`.
 
-- **Public schema:** platform-level records such as schools, users, plans, subscriptions, and billing.
-- **Tenant schemas:** school-owned operational records. Each school has its own PostgreSQL schema.
-- **Tenant context:** tenant-owned database work must run in the active tenant context and use `getTenantClient()`; never trust a client-supplied school ID as the tenant boundary.
-- **Identity and membership:** a user login is distinct from a persona or membership within a school.
-- **Authorization:** permissions and scope answer what an actor may do and to which records. Subscription entitlements and limits answer what the school's plan permits. Do not conflate them.
-- **Financial integrity:** financial workflows should use the shared ledger posting service rather than writing journal rows independently.
-
-## 2. Technology and key files
-
-| Concern | Implementation |
-|---|---|
-| Runtime / language | Node.js, TypeScript |
-| HTTP API | Express 5 |
-| Database | PostgreSQL, Prisma 7 |
-| Database schemas | `prisma/public.prisma`, `prisma/tenant.prisma` |
-| Prisma configuration | `prisma.public.config.ts`, `prisma.tenant.config.ts` |
-| Dependency injection | Awilix, proxy injection |
-| Shared DI registrations | `src/container/shared.container.ts` |
-| Module DI registrations | `src/container/index.ts` |
-| API route mounts | `src/routes/index.ts` |
-| Middleware / request pipeline | `src/app.ts`, `src/infrastructure/middleware/` |
-| Background jobs | `src/infrastructure/jobs/`, started by `src/worker.ts` |
-| Cross-cutting access and entitlements | `src/foundation/` |
-| Tests | `tests/**/*.test.ts`, Node test runner through `tsx` |
-
-## 3. Request lifecycle
-
-The application-level order in `src/app.ts` is:
-
-1. Helmet security headers and CORS.
-2. Global rate limiter.
-3. Provider webhook entry at `POST /api/v1/webhooks/:provider` (for example `/webhooks/paystack`), mounted before the global rate limit and the JSON parser, using raw body parsing (see the webhooks module).
-4. Static report-card template previews.
-5. JSON and URL-encoded body parsers and cookie parser.
-6. Morgan request logging outside the test environment.
-7. Optional authentication.
-8. Tenant resolution from request context/host.
-9. Tenant ownership validation.
-10. Health endpoint and API route mounts.
-11. Bull Board at `/admin/queues`, protected by authentication and super-admin authorization.
-12. JSON 404 response and global error handler.
-
-Route-specific middleware remains responsible for enforcing authentication, tenant requirements, permissions/scopes, plan entitlements, and validation. Check each route rather than assuming those checks are global.
-
-**Deployment configuration to revisit:** `src/app.ts` currently allows production CORS origins only when they match `https://.*\.yourapp.com`. Confirm and replace that placeholder-domain policy with the intended production origins before deploying the frontend. Development mode currently allows any origin.
-
-The intended module layering is:
-
-- **Routes:** compose middleware and map HTTP methods/paths.
-- **Controllers:** translate HTTP requests and responses; avoid owning business rules.
-- **Use cases/services:** enforce business rules and coordinate work.
-- **Repositories:** encapsulate persistence.
-- **Foundation/infrastructure:** shared authorization, tenant context, database access, queues, providers, and common services.
-
-Preserve established module patterns rather than introducing a parallel architecture for an isolated feature.
-
-## 4. Dependency injection and module wiring
-
-`src/container/index.ts` determines which module containers are registered. `src/routes/index.ts` separately determines which routers are mounted. Check both, plus dependencies, permissions, entitlements, migrations, workers, and tests, before calling a module integrated.
-
-### Container registrations enabled at the reviewed commit
-
-Shared services, Foundation, Auth, School, User, Plans, Subscriptions, Branches, Staff, Ledger, Students, Guardians, Classes, Sessions, Fees, Payments, Expenses, Payroll, Finance Reports, and Audit.
-
-The following registrations are commented out and are considered **in progress / not enabled** for this snapshot: Enrolment, Attendance, Grades, Report Cards, Notifications, Super Admin, School Settings, Platform Settings, and Feedback. Do not treat their commented wiring alone as a defect or enable them as part of unrelated work.
-
-### API route mounts at the reviewed commit
-
-All paths below are mounted under `/api/v1`, except the separately mounted health, webhook, static assets, and queue dashboard.
-
-| API prefix | Router / area |
-|---|---|
-| `/auth` | Auth |
-| `/users` | User |
-| `/schools` | School |
-| `/plans` | Plans |
-| `/subscriptions` | Subscription billing routes |
-| `/audit` | Audit |
-| `/staff` | Staff |
-| `/finance/settings` | Finance settings (approval threshold, self-approval, budget enforcement, fiscal year start, grace days, reconciliation rules) |
-| `/finance/settlements` | Gateway (Paystack) settlements: match payout reports to online payments |
-| `/payroll/transfers` | Pay approved payroll runs by Paystack bank transfer (off by default, safety-first) |
-| `/finance/reconciliation` | Bank reconciliation (statement import, matching, month sign-off) |
-| `/finance` | Ledger |
-| `/students` | Students |
-| `/guardians` | Guardians |
-| `/classes` | Classes |
-| `/sessions` | Sessions |
-| `/finance` | Finance reports (also mounted at this prefix) |
-| `/expenses` | Expenses |
-| `/vendors` | Vendors |
-| `/budgets` | Budgets |
-| `/recurring-expenses` | Recurring expenses |
-| `/payroll` | Payroll |
-| `/my/payslips` | Current user's payslips |
-| `/fees/invoices` | Fee invoices |
-| `/fees/adjustments` | Fee adjustments |
-| `/fees` | Fee reports and fee setup |
-| `/payments` | Payments |
-
-**Known wiring discrepancy:** Branches is registered in the container and its router is imported, but there is no active `router.use("/branches", branchRouter)` mount in `src/routes/index.ts` at the reviewed commit. Do not describe its API as mounted until this is resolved and verified. The subscription router is mounted at `/subscriptions`; confirm its actual route definitions before describing individual billing endpoints.
-
-Routes for Enrolment, Attendance, Grades, Report Cards, Super Admin, Notifications, School Settings, Platform Settings, and Feedback are commented out in `src/routes/index.ts`. They are not active API mounts in this snapshot.
-
-## 5. Tenant database and migrations
-
-- Public Prisma schema: `prisma/public.prisma`; migration directory: `prisma/migrations/`.
-- Tenant Prisma schema: `prisma/tenant.prisma`; migration directory: `prisma/tenant-migrations/`.
-- Public and tenant Prisma generation/migration commands are configured separately in `package.json` and the corresponding Prisma config files.
-- New-school provisioning and existing-school migration application are separate concerns. A migration file existing in the repository does not prove it has been applied to every existing school schema.
-- For tenant queries, establish tenant context and use the tenant client. For platform-level data, use the public Prisma client.
-- Never use development or production databases for destructive tests.
-
-## 6. Validation and error handling
-
-The app has a shared error handler and a standard not-found response. Route-level request validation and domain errors should be checked in the module being changed; do not infer exact error codes or response DTOs from this overview.
-
-For frontend-facing contracts, document the current source behavior: HTTP method and path, required permissions/persona, query parameters, request body, response JSON, nullability, pagination, and error codes. Use actual DTOs, mappers, controllers, and route definitions as evidence. Do not copy a historical note without checking it against source.
-
-## 7. Testing and local commands
-
-The supported scripts are defined in `package.json`:
-
-```bash
-npm run build
-npm test
-npm run sync:registries
-npm run prisma:generate
-npm run prisma:generate:public
-npm run prisma:generate:tenant
+```text
+/
+├── apps/
+│   ├── api/                 Express + Prisma + BullMQ backend
+│   │   ├── prisma/          public/tenant schemas and migrations
+│   │   ├── src/
+│   │   │   ├── foundation/  access, permissions, entitlements, settings
+│   │   │   ├── infrastructure/ database, middleware, jobs, providers
+│   │   │   ├── modules/     feature modules
+│   │   │   ├── shared/      cross-module utilities and services
+│   │   │   ├── container/
+│   │   │   ├── routes/
+│   │   │   ├── app.ts, server.ts, worker.ts
+│   │   └── tests/
+│   └── web/                 Next.js 16 / React 19 dashboard
+├── packages/
+│   └── contracts/           shared frontend/backend contracts
+├── docs/
+├── package.json             npm workspaces and root scripts
+└── tsconfig.base.json
 ```
 
-Database test setup and safeguards are documented in [Testing Guide](TESTING_GUIDE.md). `npm test` may skip database-backed tests when `TEST_DATABASE_URL` is absent; a passing command therefore does not necessarily mean database tests ran. Always inspect the test output.
+The root workspace configuration includes `apps/*` and `packages/*`. Root scripts include `build:api`, `build:web`, `typecheck`, `typecheck:web`, `typecheck:all`, `test`, `check`, `db:up`, and development commands. Backend-specific commands belong to `apps/api/package.json`; do not assume root scripts named `build`, `sync:registries`, or `prisma:generate` exist.
 
-After changing permissions or role templates, review whether `npm run sync:registries` is required. After schema changes, verify generated clients and the correct migration path, including the strategy for existing school schemas.
+## 2. Technology and backend boundaries
 
-## 8. Working rules for future changes
+| Area | Current implementation |
+|---|---|
+| API | Node.js 22+, TypeScript, Express 5 |
+| Web | Next.js 16, React 19, TypeScript |
+| Database | PostgreSQL, Prisma 7 |
+| Tenant model | Public schema plus a separate PostgreSQL schema per school |
+| Dependency injection | Awilix, proxy injection |
+| Background work | Redis + BullMQ; API and worker are separate processes |
+| Validation | Zod 4 DTOs |
+| Tests | Node test runner through `tsx` |
+| Shared contracts | `packages/contracts` |
 
-1. Inspect current source before relying on a note or historical audit.
-2. Keep changes scoped; avoid unrelated application-code changes during documentation or module work.
-3. Follow the existing route → controller → use case → repository layering.
-4. Enforce tenant isolation and check authorization, scope, and entitlements independently.
-5. For tenant operations, preserve tenant context and transactional boundaries.
-6. For financial operations, use the shared ledger posting service and preserve idempotency/reversal rules.
-7. Verify container registration and route mounting separately.
-8. Add or update tests for changed behavior. State clearly whether tests were run and whether database-backed tests were skipped.
-9. Update durable module documentation in the same change set as the implementation.
-10. Do not enable modules whose registrations/routes remain commented out without an explicit scoped audit and integration pass.
+The backend is a modular monolith, not a set of independently deployed services. Feature boundaries live under `apps/api/src/modules/<module>/`. The established pattern is routes → controllers → use cases/services → repositories, with cross-cutting concerns in `foundation/`, `infrastructure/`, and `shared/`.
 
-## 9. Documentation map
+Some use cases still access Prisma directly for multi-table transactions. The architecture test keeps an explicit allow-list for those files; do not assume all use cases are repository-only.
 
-- [Testing Guide](TESTING_GUIDE.md): test commands, database setup, safety, and writing tests.
-- Module notes that remain in `docs/` are interim reference material. Treat source code as authoritative and replace stale implementation-history notes with current module contracts as each module is reviewed.
-- [Auth Audit](AUTH_AUDIT.md): source-based findings for the Auth module. It records security/correctness issues and verification gaps; findings remain open until fixed and tested.
-- [Webhooks Notes](WEBHOOKS_MODULE_NOTES.md): the provider webhook front door, handlers, retry console and deploy steps.
-- [Settings and Automation Notes](SETTINGS_AUTOMATION_NOTES.md) and [Handoff](SETTINGS_AUTOMATION_HANDOFF.md): design, decisions, current state and open items for school settings, message templates, notifications and automation.
+## 3. Multi-tenancy and persistence
 
-### Route table: settings, templates, notifications, automation (school realm unless stated)
-| Mount | Routes | Permission |
-|---|---|---|
-| `/school-settings` | `GET /`, `PUT /`, `POST /stamp`, `POST /signature`, `GET /preferences`, `PUT /preferences` | `school_settings.view` (reads), `school_settings.manage` (writes) |
-| `/message-templates` | `GET /`, `GET /:key`, `PUT /:key/:channel`, `DELETE /:key/:channel`, `POST /:key/:channel/preview` | `message_templates.view`, `message_templates.manage` |
-| `/automations` | `GET /`, `GET /:id`, `PATCH /:id`, `POST /:id/dry-run`, `POST /:id/run`, `GET /:id/runs` | `automation.view`, `automation.manage` (sensitive) |
-| `/notifications` | `/school`, `/me`, `/me/read-all`, `/me/:id/read`, `/platform-inbox`, `/platform` | see `notifications.permissions.ts`; `GET/POST /platform` need `platform.notifications.view` / `platform.notifications.send` (platform realm) |
-| `/platform/webhooks` (platform realm) | `GET /`, `GET /summary`, `GET /:id`, `POST /:id/retry` | `platform.webhooks.view`, `platform.webhooks.retry` |
-| `/platform/schools` (platform realm) | `GET /provisioning`, `POST /:id/provisioning/retry`, `POST /:id/impersonate`, `GET /overview` | `platform.*` keys, see the notes file |
+- Public schema: `apps/api/prisma/public.prisma`; migrations: `apps/api/prisma/migrations/`.
+- Tenant schema: `apps/api/prisma/tenant.prisma`; migrations: `apps/api/prisma/tenant-migrations/`.
+- Prisma configs: `apps/api/prisma.public.config.ts` and `apps/api/prisma.tenant.config.ts`.
+- Each school has its own PostgreSQL schema. Tenant-owned work must run inside the active tenant context and use the tenant client (normally `getTenantClient()`).
+- Public identity and school membership/persona are separate concepts. Do not reintroduce legacy role or school ownership fields as authorization authority.
+- A migration existing in Git does not prove it has been applied to every existing school schema. Review new-school provisioning and existing-school migration application separately.
+
+Never use a client-supplied school ID as the tenant isolation boundary.
+
+## 4. Authorization and entitlements
+
+Authorization and plan access are separate:
+- **Permissions + scopes** decide what an actor may do and which records they may access (`ALL`, `BRANCH`, `ASSIGNED`, `OWN`).
+- **Plan entitlements/features/limits** decide what the school's subscription permits.
+
+Platform permissions use the `platform.*` namespace. School permissions are evaluated in the school realm. Role names are not authorization authority; the architecture test rejects legacy role-name guards and `req.user`.
+
+Permission, role, feature and entitlement registries live under `apps/api/src/foundation/`. Review the target sync command and environment before running it.
+
+## 5. API lifecycle
+
+The current application is `apps/api/src/app.ts`. Its observed middleware order is:
+
+1. Helmet and CORS.
+2. Provider webhook entry at `/api/v1/webhooks` (before the global limiter and JSON parser; webhook signature verification needs the raw body).
+3. Global rate limiter.
+4. Static report-card template previews at `/api/v1/report-cards/template-previews`.
+5. JSON/url-encoded parsers and cookie parser.
+6. Morgan logging outside test.
+7. Optional authentication.
+8. Tenant resolution.
+9. Tenant ownership validation.
+10. Health endpoint and versioned router at `/api/v1`.
+11. Bull Board at `/admin/queues`, guarded by authentication and `platform.queues.view`.
+12. JSON 404 and global error handler.
+
+Route-level middleware remains responsible for authentication, tenant requirements, permissions/scopes, feature entitlements and DTO validation.
+
+**Deployment warning:** `apps/api/src/app.ts` currently permits production browser origins matching the placeholder pattern `https://.*\\.yourapp.com`. Replace it with the intended production-domain allow-list before deployment. Development mode currently permits any origin.
+
+## 6. Active dependency-injection registrations
+
+The current `apps/api/src/container/index.ts` registers:
+
+- Shared and Foundation
+- Auth, School, User, Plans, Subscriptions, Branches, Staff, Roles
+- Ledger, Students, Guardians, Classes, Sessions, Enrolment, Attendance, Grades Setup, Report Cards
+- Fees, Payments, Webhooks, Expenses, Payroll, Finance Reports, Finance Settings
+- Bank Reconciliation, Gateway Settlements, Payroll Transfers
+- Audit, Notifications, School Settings, Message Templates, Automation, Platform Settings, Feedback
+
+All listed registrations are active in the current module array. The October documentation that described Enrolment, Attendance, Grades, Report Cards, Notifications, Settings, Automation and Feedback as commented-out modules is obsolete.
+
+Registration does not prove route mounting, migration readiness, runtime correctness or test coverage. Check each independently.
+
+## 7. Current API mount index
+
+All prefixes are mounted under `/api/v1` by `apps/api/src/routes/index.ts`.
+
+| Prefix | Area |
+|---|---|
+| `/auth`, `/users` | Authentication, identity, profile, sessions and user administration |
+| `/schools`, `/platform/schools` | School operations and platform school operations |
+| `/plans`, `/platform/plans` | Public plan catalogue and platform plan management |
+| `/subscriptions`, `/platform/subscriptions` | School subscriptions and platform billing |
+| `/audit`, `/platform/audit` | School and platform audit |
+| `/staff`, `/students`, `/guardians`, `/branches` | People and branch management |
+| `/roles`, `/permissions` | School roles and permissions |
+| `/classes`, `/enrolments`, `/attendance`, `/grades`, `/sessions`, `/report-cards` | Academic operations |
+| `/fees`, `/fees/invoices`, `/fees/adjustments`, `/payments` | Fees, invoices, adjustments and payments |
+| `/finance` | Ledger and finance reports (two routers share this prefix) |
+| `/finance/settings`, `/finance/reconciliation`, `/finance/settlements` | Finance settings, bank reconciliation and gateway settlements |
+| `/expenses`, `/vendors`, `/budgets`, `/recurring-expenses` | Expense management |
+| `/payroll`, `/payroll/transfers`, `/my/payslips` | Payroll, salary transfers and personal payslips |
+| `/notifications`, `/message-templates`, `/automations`, `/school-settings` | School settings and communications automation |
+| `/platform/settings`, `/platform/webhooks`, `/feedback` | Platform settings, webhook operations and feedback |
+
+This is an index, not a complete API contract. Exact methods, DTOs, permissions, scopes and response shapes belong to each route/controller/DTO implementation.
+
+## 8. Background processing
+
+- API entry: `apps/api/src/server.ts`.
+- Worker entry: `apps/api/src/worker.ts`.
+- Worker registration: `apps/api/src/infrastructure/jobs/index.ts`.
+- The current worker set includes provisioning, notifications, automation, billing, school lifecycle, term lifecycle, payment reconciliation, ledger integrity, recurring expenses and class PDF work.
+- The worker starts scheduler initialization separately. Inspect the current scheduler implementation before changing cadence or deployment expectations.
+
+Workers performing tenant-owned work must establish tenant context before accessing tenant data.
+
+## 9. Finance invariants
+
+- Persist monetary values as integer kobo (`BigInt`).
+- Route financial postings through the shared posting service; do not write journal entries independently.
+- Preserve balanced double-entry journals, idempotency, reversal behavior, approval separation and audit history.
+- Bank reconciliation, gateway settlements and salary transfers are separate modules with their own permissions/features and lifecycle rules. Salary transfers have an additional platform/school settings gate.
+
+See [Finance Handoff](FINANCE_HANDOFF.md) for the current finance workstream snapshot.
+
+## 10. Development commands
+
+Run from the repository root:
+
+```bash
+npm install
+npm run db:up
+npm run dev:api
+npm run dev:worker
+npm run dev:web
+npm run build:api
+npm run build:web
+npm run typecheck:all
+npm test
+npm run check
+```
+
+Backend-owned scripts use the API workspace:
+
+```bash
+npm run prisma:generate -w apps/api
+npm run sync:registries -w apps/api
+npm run sync:school-roles -w apps/api
+npm run migrate:apply-to-existing-schools -w apps/api
+```
+
+See [Testing Guide](TESTING_GUIDE.md) for database-test setup and safeguards. A passing test command does not prove database-backed tests ran; inspect the output.
+
+## 11. Documentation policy
+
+- [Documentation Index](README.md) distinguishes current guides, workstream handoffs and historical module notes.
+- [Testing Guide](TESTING_GUIDE.md) is authoritative for the workspace test setup.
+- [Auth Audit](AUTH_AUDIT.md) is a security-review snapshot; finding statuses must be updated when fixes are verified.
+- [Finance Handoff](FINANCE_HANDOFF.md) and [Settings/Automation Handoff](SETTINGS_AUTOMATION_HANDOFF.md) preserve workstream context.
+- Module notes are implementation snapshots. Do not execute old “copy/delete these files” instructions without rechecking the current branch.
