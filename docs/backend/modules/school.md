@@ -324,6 +324,6 @@ No broad tests were found in the inspected School test directory for registratio
 
 - [Auth module](auth.md)
 - [Users module](users.md)
-- [Multi-tenancy and database architecture](../../../architecture/multi-tenancy-and-database.md)
-- [Authentication and authorization architecture](../../../architecture/authentication-and-authorization.md)
+- [Multi-tenancy and database architecture](../../architecture/multi-tenancy-and-database.md)
+- [Authentication and authorization architecture](../../architecture/authentication-and-authorization.md)
 - [Roles module](roles.md)
