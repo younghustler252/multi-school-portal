@@ -1,6 +1,6 @@
 # Documentation Architecture and Migration Map
 
-> **Status:** Phase 2 — proposed target structure and migration decisions.
+> **Status:** Phase 4 in progress — target structure approved; core architecture guides split; backend module source audits underway.
 > **Branch reviewed:** `refactor/modules`.
 > **Scope:** Documentation planning only. This file does not move, rewrite, archive, or delete existing documents.
 > **Authority:** Application source, Prisma schemas and migrations, tests, runtime configuration, and shared contracts remain authoritative. Documentation must not claim runtime verification unless it was performed.
@@ -127,6 +127,7 @@ docs/
 | `docs/STUDENT_IMPORT_NOTES.md` | `docs/backend/modules/student-import.md` or students page | Consolidate | Likely a subsection of students documentation unless import complexity warrants a separate page. |
 | `docs/SCHOOL_MODULE_NOTES.md` | `docs/backend/modules/school.md` | Source-audit, rewrite | Current source comparison exists; verify its final formatting and route table before moving. |
 | `docs/USER_MODULE_NOTES.md` | `docs/backend/modules/users.md` | Source-audit, rewrite | Historical apply section remains; preserve current source comparison and remove stale executable instructions during rewrite. |
+| Auth module (new source documentation) | `docs/backend/modules/auth.md` | Source-audit, document | Created from current Auth routes, controllers, DTOs, use cases, services, repositories and focused tests. Runtime/integration verification remains outstanding. |
 | `docs/ROLES_MODULE_NOTES.md` | `docs/backend/modules/roles-and-permissions.md` | Source-audit, rewrite | Explain RBAC administration and permission semantics. Link to shared authorization architecture. |
 | `docs/ROLE_SYNC_NOTES.md` | `docs/operations/permission-registry-sync.md` or backend RBAC page | Consolidate | Operational procedure only if still required; otherwise fold into roles/permissions documentation. |
 | `docs/GRADES_SETUP_NOTES.md` | `docs/backend/modules/grades.md` | Consolidate | Combine with mark-sheet workflow after source audit. |
@@ -138,6 +139,8 @@ docs/
 | `docs/SMALL_FIXES_NOTES.md` | `docs/archive/` after extraction | Extract then archive | This is a mixed hardening change log. Move lasting behaviour into the owning module docs; retain only useful historical context. |
 
 ## 4. Frontend documentation sources and boundaries
+
+**Sequencing decision (2026-11-05):** Frontend documentation is deferred. The existing frontend is behind the backend and is not the architecture source of truth for the upcoming frontend implementation. Complete the backend module guides and HTTP/shared-contract audit first; then write frontend implementation specifications against those verified contracts.
 
 The frontend guide must be written from `apps/web`, not inferred from backend docs. The inspected structure currently includes:
 
