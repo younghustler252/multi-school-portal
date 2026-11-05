@@ -1,5 +1,8 @@
 # Documentation Index
 
+> **Architecture refactor:** See [Documentation Architecture and Migration Map](DOCUMENTATION_MIGRATION_MAP.md) for the approved target structure, ownership boundaries, existing-file destinations, and migration sequence. The map is a plan; it does not mean files have already been moved.
+
+
 Source code on `refactor/modules` is authoritative when a document and implementation disagree. This index records the documents currently present; it does **not** imply every listed document has already been verified against the implementation.
 
 ## Current engineering guides
