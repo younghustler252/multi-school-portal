@@ -204,6 +204,50 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Owner/workstream:** Students/Enrolment backend + QA
 - **Acceptance criteria:** The endpoints are exercised through the Express router with test tenant isolation and asserted status/error envelopes.
 
+### REM-018 — Additional discounts are deducted twice in student statements
+
+- **Module:** Fees / financial reporting
+- **Priority:** P1 — financial statement accuracy
+- **Status:** Confirmed by source calculation; regression case not yet executed
+- **Evidence:** Approving an `ADDITIONAL_DISCOUNT` increases `FeeInvoice.discountKobo` and reduces `totalKobo`. `FeeReportRepositoryImpl.statementSource` also returns every approved adjustment, and `buildStatement` adds every adjustment as a separate negative statement entry. The invoice entry is already calculated as `subtotalKobo - discountKobo`, so the same additional discount is reflected in both the invoice charge and the adjustment entry.
+- **Risk:** Student/family statement running balance is understated by the additional-discount amount, even though the invoice and ledger totals may be correct.
+- **Recommended action:** Choose one representation for additional discounts in statements: either keep the discount in the invoice charge and omit it from adjustment entries, or represent invoice charge before the additional discount and show the discount as a separate adjustment. Keep the statement model consistent with invoice/ledger totals.
+- **Owner/workstream:** Fees/reporting developer
+- **Acceptance criteria:** Regression test for an issued invoice followed by an approved additional discount proves statement closing balance equals the authoritative invoice balance/ledger receivable; waiver, write-off and credit-note statement cases still pass.
+
+### REM-019 — Opening-balance response/audit converts whole-kobo BigInt through Number
+
+- **Module:** Fees / opening balances
+- **Priority:** P1 — financial precision
+- **Status:** Confirmed unsafe conversion; large-value regression not present
+- **Evidence:** The request schema accepts up to 18-digit kobo strings. `OpeningBalancesUseCase` stores `Number(e.amountKobo)` in its created result, then calculates audit `totalKobo` by converting that potentially rounded number back to BigInt. JavaScript Number cannot exactly represent every integer above `Number.MAX_SAFE_INTEGER`.
+- **Risk:** Large opening balances can be posted accurately to the invoice/journal using BigInt but returned and audited with a different amount.
+- **Recommended action:** Keep amounts as BigInt internally and serialize each result with the shared `koboOut` helper (number when safe, digit string otherwise). Compute the audit total directly from original BigInt values, never from serialized numbers.
+- **Owner/workstream:** Fees developer
+- **Acceptance criteria:** Test an amount above `Number.MAX_SAFE_INTEGER` kobo and assert exact response serialization, audit total and posted invoice amount.
+
+### REM-020 — Persisted finance grace-days setting is not used by late-fee execution
+
+- **Module:** Fees / Finance Settings
+- **Priority:** P2 — configuration contract mismatch
+- **Status:** Confirmed behavior
+- **Evidence:** `finance.grace_days` is defined in `FINANCE_SETTING_DEFS` and described as the school's late-fee grace period. `RunLateFeesUseCase` instead uses the request DTO's `graceDays`, whose default is zero; it does not read `FinanceSettingsReader`.
+- **Risk:** Changing the school finance setting has no effect on late-fee runs unless the caller independently supplies the matching request value. A client that omits it can charge fees earlier than the configured policy.
+- **Recommended action:** Decide whether the request is an intentional override. If the school setting is authoritative, inject the settings reader and use its grace-days value (or define a permissioned explicit override with clear precedence). Add tests for default, configured and override cases.
+- **Owner/workstream:** Fees/finance-settings developer
+- **Acceptance criteria:** Effective late-fee grace period matches the documented school policy and is covered by use-case tests.
+
+### REM-021 — Family fee-summary overdue count uses server UTC date instead of finance timezone
+
+- **Module:** Fees / family reporting
+- **Priority:** P3 — date-boundary consistency
+- **Status:** Confirmed implementation inconsistency; impact is time-window dependent
+- **Evidence:** `FeeReportRepositoryImpl.familySummary` calculates `today` with `dayString(new Date())`, while fee reports and late-fee operations use `todayInFinanceZone`.
+- **Risk:** Around midnight, a family may see an overdue-invoice count that differs from staff ageing/late-fee calculations because the server date and school finance date can differ.
+- **Recommended action:** Inject/use the same finance-zone clock/date helper as the other fee reports. Add tests around the UTC/local date boundary.
+- **Owner/workstream:** Fees/reporting developer
+- **Acceptance criteria:** Family overdue counts, ageing reports and late-fee calculations use the same school-local business date.
+
 ## Cross-module verification queue
 
 These are not necessarily defects. They are unfinished verification tasks recorded so the team does not mistake source documentation for production validation.
@@ -215,6 +259,7 @@ These are not necessarily defects. They are unfinished verification tasks record
 | Grades | Execute DB/migration tests, typecheck/build and add HTTP route tests; close REM-003 through REM-008 |
 | Report Cards | Add two-tenant queue collision, publication concurrency, HTTP and populated-migration tests; close REM-009 through REM-014 |
 | Graduation | Validate quota concurrency, audit failure policy and HTTP routes; execute DB/migration tests; close REM-015 through REM-017 |
+| Fees | Fix statement arithmetic and BigInt serialization; align grace-days/timezone settings; add regression, HTTP and DB migration tests; close REM-018 through REM-021 |
 | Other module guides | Complete remaining source/schema/migration/test review as stated in each guide before declaring the module fully verified |
 
 ## Developer handoff protocol
@@ -232,3 +277,4 @@ These are not necessarily defects. They are unfinished verification tasks record
 - 2026-11-06: Initial register created from the attendance, enrolment and grades audits. More findings will be appended as remaining backend modules are reviewed.
 - 2026-11-06: Added report-card queue isolation, publication consistency, override-policy, HTTP/migration coverage and Prisma type-safety findings.
 - 2026-11-06: Added graduation plan-capacity concurrency, audit reliability and HTTP route coverage findings.
+- 2026-11-06: Added fee-statement arithmetic, BigInt precision, grace-days configuration and finance-timezone findings.
