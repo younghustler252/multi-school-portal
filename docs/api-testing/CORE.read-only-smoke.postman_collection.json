@@ -8382,7 +8382,17 @@
                 "schools"
               ]
             },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
@@ -8422,7 +8432,17 @@
                 "overview"
               ]
             },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
@@ -8462,7 +8482,17 @@
                 "provisioning"
               ]
             },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
@@ -8509,7 +8539,17 @@
                 }
               ]
             },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
@@ -8557,7 +8597,17 @@
                 }
               ]
             },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
@@ -8596,7 +8646,17 @@
                 "plans"
               ]
             },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
@@ -8643,7 +8703,17 @@
                 }
               ]
             },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
@@ -8682,7 +8752,17 @@
                 "subscriptions"
               ]
             },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
@@ -8722,7 +8802,17 @@
                 "stats"
               ]
             },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
@@ -8762,7 +8852,17 @@
                 "invoices"
               ]
             },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
@@ -8809,7 +8909,17 @@
                 }
               ]
             },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
@@ -8848,7 +8958,17 @@
                 "audit"
               ]
             },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
@@ -8887,7 +9007,17 @@
                 "settings"
               ]
             },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
@@ -8926,7 +9056,17 @@
                 "webhooks"
               ]
             },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
@@ -8966,7 +9106,17 @@
                 "summary"
               ]
             },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
@@ -9013,7 +9163,17 @@
                 }
               ]
             },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
