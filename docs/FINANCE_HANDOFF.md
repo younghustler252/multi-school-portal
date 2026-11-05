@@ -1,56 +1,90 @@
-# SchoolOS Finance Module: Handoff (read this first in a new chat)
+# CORE Finance Module — Current Handoff
 
-Repo: https://github.com/younghustler252/multi-school-portal  | Branch: `refactor/modules` | Last commit: `49c5fd5` (Phase 5)
-Specs: `FINANCE_MODULE_BRIEF.md` and `SCHOOLOS_PLATFORM_DOCUMENTATION.md` (attach both to the new chat if they are not in the repo).
-Stack: Node 22, TypeScript, Express 5, Awilix DI (PROXY injection), Prisma 7 tenant client, Postgres schema-per-school, BullMQ, zod 4 (`.strict()` DTOs), node:test via `npm test` (tsx).
+> **Repository:** `younghustler252/multi-school-portal`  
+> **Branch:** `refactor/modules`  
+> **Source snapshot:** `23a5e0a5538f747de27ddff29b24a913791eaac2` (2026-11-05)  
+> **Important:** This handoff records source-visible structure and decisions. It does not claim that migrations have been applied to every school or that the current test suite has passed.
 
-## Decisions (brief F1–F11)
-Double-entry books underneath; money is BigInt kobo; maker-checker approvals; every money event posts through `PostingService`
-(`post()` / `reverse()`, idempotency key `sourceType:sourceId:purpose`); phases 0–6.
+## 1. Core accounting decisions
 
-## Status
-| Phase | Scope | State |
+- Double-entry accounting is the foundation.
+- Monetary amounts are persisted as integer kobo (`BigInt`).
+- Financial events must post through the shared posting service and preserve idempotency and reversal behavior.
+- Approval-sensitive actions must preserve separation of duties and audit history.
+- Tenant-owned finance records live in the school's tenant schema.
+- Dates and finance reporting must follow the agreed Africa/Lagos business timezone conventions.
+- Finance modules may read data owned by other modules, but should not silently take ownership of their write workflows.
+
+## 2. Current implementation map
+
+The following finance-related containers are registered in `apps/api/src/container/index.ts`, and their routers are mounted in `apps/api/src/routes/index.ts`:
+
+| Area | API mount | Current responsibility |
 |---|---|---|
-| 0–2 | Ledger, chart of accounts, fees, invoices, payments | Done, pushed; 467 tests passed locally at that point |
-| 3 | Expenses, vendors, budgets, recurring (6b0511c) | Done, pushed. **Tests never run** |
-| 4 | Period close/reopen, statements, report engine + CSV, dashboard (08e6917) | Done, pushed. **Tests never run** |
-| 5 | Payroll (49c5fd5) | Done, pushed. **Tests never run** |
-| 6 | Advanced | Not started. See below |
+| Ledger | `/finance` | Accounts, journals, opening balances, transfers, periods and close/reopen |
+| Finance reports | `/finance` | Report catalogue, report execution/export and dashboard |
+| Finance settings | `/finance/settings` | School-level finance configuration |
+| Bank reconciliation | `/finance/reconciliation` | Statement import, bank/book line matching, adjustments, reconciliation sign-off/reopen |
+| Gateway settlements | `/finance/settlements` | Paystack settlement report preview/recording, manual settlement, reversal |
+| Fees and invoices | `/fees`, `/fees/invoices`, `/fees/adjustments` | Fee structures, invoice lifecycle, adjustments and fee reports |
+| Payments | `/payments` | Payment recording/confirmation, online payment, allocation, credit, refunds and reversal |
+| Expenses | `/expenses` | Expense lifecycle, approval, payment, reversal, reports and petty cash |
+| Vendors | `/vendors` | Vendor records |
+| Budgets | `/budgets` | Budget management |
+| Recurring expenses | `/recurring-expenses` | Recurring expense rules |
+| Payroll | `/payroll` | Components, staff pay profiles, runs, payslips, loans and remittances |
+| Salary transfers | `/payroll/transfers` | Start/send/reconcile/retry/cancel bank-transfer attempts |
+| Personal payslips | `/my/payslips` | Signed-in user's payslips |
 
-**First action in the new chat:** user runs `npx prisma generate`, applies tenant migrations (`20261025090000_expenses_phase3`, Phase 4 changes, `20261026090000_payroll_phase5`), runs the registry/plan sync, then `npm test`, and pastes failures. Fix those before building more. The sandbox cannot run tests (no node_modules, npm blocked).
+The API prefixes are mounted under `/api/v1`.
 
-## Conventions to follow
-- Module layout: `<module>.container.ts`, `<module>.permissions.ts`, controllers, usecases, repositories (interface + `.impl.ts` extending `BaseTenantRepository`), mappers (`toDomain`, `toResponse`), dtos, domain. Use cases take one deps object plus optional `{now, transaction}`.
-- Routes: `[authenticate, requireTenant, requirePermission(key), requireFeature(feature)]` + `validate(Dto)`. Responses via `sendSuccess/sendCreated`; lists `{success,message,data,meta}`.
-- Responses: `koboOut` (number, or digit string if unsafe), `dayOut`, dates parsed with `parseDay`, zone Africa/Lagos (`todayInFinanceZone`).
-- Constants stand in for the missing settings service: expenses approval threshold ₦50,000, self-approval false, budget enforcement "warn"; payroll `ALLOW_SELF_APPROVAL=false`, prefixes `PR` / `PSL`; `DEFAULT_FISCAL_YEAR_START_MONTH=1`.
-- Tests: in-memory "worlds" over the real PostingService (`tests/finance/support/*-world.ts`: fees, expenses, payroll). No DB needed.
-- No PDF/Excel library in the project: exports are CSV; payslip document is self-contained HTML.
+## 3. Phase status
 
-## What exists (routes)
-Ledger: `/finance/...` accounts, journals, periods (+ `/periods/:id/close-checklist`, `/close`, `/reopen`), opening balances, transfers.
-Reports: `/finance/reports`, `/reports/:key`, `/reports/:key/export`, `/finance/dashboard` (13 reports incl. `payroll-summary`).
-Fees/payments: `/fees/...`, `/payments/...`. Expenses: `/expenses`, `/vendors`, `/budgets`, `/recurring-expenses`.
-Payroll: `/payroll/components|profiles|runs|payslips|loans|remittances` (+ `/runs/:id/calculate|submit|approve|reject|cancel|reverse|pay`, `/payslips/:id/document`, `/remittances/due`), and `/my/payslips`.
-Permission keys: `finance.*` (11), `expenses.*`/`vendors.manage`/`budgets.*`, `payroll.*` (9). Features: `modules.fees`, `modules.expenses`, `finance.budgets`, `finance.reports.accountant` (Standard), `modules.payroll` (Premium).
-Integrity controls: receivable, advance, payable, expense-paid, payroll (salaries payable), loan (staff loans receivable).
+The older phase table in the previous handoff stopped at Payroll Phase 5 and described Phase 6 as not started. That status is obsolete.
 
-## Payroll design (Phase 5)
-Payslip numbers assigned at approval (no gaps on recalculation). Approval posts accrual dated min(month end, today): Dr Salaries expense / Employer pension expense, Cr Salaries payable (per staff), Staff loans receivable, and each component's liability account. Pay: Dr Salaries payable / Cr money account. Approved-unpaid run can be reversed (accrual reversed, loan repayments restored, payslips VOID); no change after payment. Negative net blocks the whole run (`PAYROLL_CALC_PROBLEMS`). One non-cancelled run per month (code only). Loans disburse with sourceType PAYROLL_PAYMENT, purpose LOAN. `payroll.payslips.view` scopes ALL/OWN (OWN uses `personaEntityId`; only FINAL/PAID payslips).
+The current source contains and wires the Phase 6 workstreams:
 
-## Known gaps
-No PDF/email for payslips; one-run-per-month not a DB constraint; settings are constants; expense attachments not built; petty cash counts not built; existing schools do not get new role grants (templates applied once).
+- **Finance settings:** registered and mounted at `/api/v1/finance/settings`.
+- **Bank reconciliation:** registered and mounted at `/api/v1/finance/reconciliation`; the routes enforce the `finance.bank_reconciliation` plan feature and granular `finance.bank_reconciliation.*` permissions.
+- **Gateway settlements:** registered and mounted at `/api/v1/finance/settlements`; the routes use payment permissions and the `modules.fees` feature.
+- **Payroll bank transfers:** registered and mounted at `/api/v1/payroll/transfers`; the routes use payroll permissions and `modules.payroll`. The route documentation states that sending is off until both platform and school finance settings allow it.
 
-## Phase 6 proposal (agreed direction, order matters)
-1. Bank statement import + reconciliation (`finance.bank_reconciliation`), reconciled mark per account/period feeding the close checklist.
-2. Paystack settlement matching (replaces manual "mark as settled"; fee to Bank charges).
-3. Multi-step approvals by amount (replaces hard-coded threshold; expenses, payroll runs, reversals).
-4. Tax/VAT lines (optional, may defer).
-5. Paystack salary transfers (`payroll.bank_transfers`), last, own approval step, idempotent references.
-Also suggested before/alongside: a real settings service.
+These statements confirm source wiring, not deployment readiness. Verify public/tenant migrations, generated Prisma clients, provider credentials, worker behavior, settings values, and tests in the target environment before enabling financial operations.
 
-## Still owed at the end
-Update brief and platform docs; frontend contract (routes, shapes, error codes); settings/entitlements note (list of constants); HTTP/Postman smoke test + dev seed; a beginner-friendly deep explanation of Phases 1–2.
+## 4. Important route-level controls
 
-## Open question for the user
-Start Phase 6 with the settings service or with reconciliation? (After the local test run is green.)
+- Ledger routes use finance permissions and the `modules.fees` feature gate.
+- Bank reconciliation routes use `finance.bank_reconciliation` plus separate view/import/match/post/complete permissions.
+- Gateway settlement routes use payment permissions and `modules.fees`.
+- Payroll routes use payroll permissions and `modules.payroll`.
+- Salary transfer routes use `payroll.transfers.send` / `payroll.transfers.reconcile`, plus `modules.payroll`; sending has an additional settings gate.
+- Every tenant finance route must retain authentication, tenant resolution, permission checks, feature checks where defined, and strict DTO validation.
+
+Inspect the actual route and use-case code before changing permission names, entitlement keys, or state transitions.
+
+## 5. Background processing and provider boundaries
+
+The API and worker are separate processes. The worker entry is `apps/api/src/worker.ts`; worker registrations are in `apps/api/src/infrastructure/jobs/index.ts`. The current worker set includes payment reconciliation, ledger integrity, recurring expenses, and other platform/school lifecycle workers.
+
+Paystack settlement matching and salary transfers are distinct from the incoming webhook front door. Confirm the current provider callbacks, reconciliation behavior, idempotency keys, and unknown-outcome handling before modifying transfer behavior.
+
+## 6. Database and deployment checklist
+
+Before deploying finance changes:
+
+1. Identify whether the change affects the public schema, tenant schema, or both.
+2. Add/review the correct migration under `apps/api/prisma/migrations/` or `apps/api/prisma/tenant-migrations/`.
+3. Generate Prisma clients with `npm run prisma:generate -w apps/api`.
+4. Apply public migrations and tenant migrations using the documented API workspace scripts and the correct environment.
+5. Apply tenant migrations to existing schools where required; new-school provisioning alone is not sufficient.
+6. Run `npm test` with a dedicated test database configured if the changed tests need database access.
+7. Verify registry/role sync when permission or entitlement definitions change.
+8. Keep salary transfers disabled until provider configuration, school/platform settings, permissions, and operational reconciliation have been checked.
+
+## 7. Verification status and remaining work
+
+This documentation review verified registration and route mounting for the finance areas listed above and inspected the route definitions for ledger, finance settings, bank reconciliation, gateway settlements, payroll, payments, expenses and salary transfers.
+
+It did **not** run builds, tests, migrations, provider calls, or live API requests. Do not reuse the old handoff's phase-specific test counts or migration instructions as current evidence.
+
+For the next finance task, first identify the exact module and inspect its current implementation, tests, migrations, and frontend contract. Update this handoff only when a verified source change alters the workstream state.
