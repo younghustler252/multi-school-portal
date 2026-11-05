@@ -16,11 +16,11 @@ const GID = "22222222-2222-4222-8222-222222222222";
 const base = { firstName: "Ada", lastName: "Obi", email: "mum@x.com", studentId: SID, relation: "mother" };
 
 describe("guardian permissions", () => {
-    it("registry is valid; guardians.view and guardians.manage exist once, are sensitive and ALL-only", () => {
+    it("registry is valid; guardians.view and guardians.manage exist once, are sensitive; manage is ALL-only, view also allows BRANCH", () => {
         assert.deepEqual(validatePermissionRegistry(), []);
         for (const key of ["guardians.view", "guardians.manage"]) {
             const p = PERMISSION_REGISTRY.filter(x => x.key === key);
-            assert.equal(p.length, 1); assert.equal(p[0].isSensitive, true); assert.deepEqual([...p[0].scopes], ["ALL"]);
+            assert.equal(p.length, 1); assert.equal(p[0].isSensitive, true); assert.deepEqual([...p[0].scopes], key === "guardians.view" ? ["ALL", "BRANCH"] : ["ALL"]);
         }
     });
 });

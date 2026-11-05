@@ -39,7 +39,7 @@ describe("student import (real database)", { skip: dbTestsEnabled ? false : skip
             const branchId = await mainBranchId(d);
             const small = await d.class.create({ data: { name: "JSS 1A", branchId, capacity: 3 } });
             const big = await d.class.create({ data: { name: "JSS 2A", branchId } });
-            const old = await d.student.create({ data: { firstName: "Efe", lastName: "Old", dateOfBirth: new Date("2013-05-05T00:00:00Z"), admissionNumber: "OLD/001" } });
+            const old = await d.student.create({ data: { firstName: "Efe", lastName: "Old", dateOfBirth: new Date("2013-05-05T00:00:00Z"), admissionNumber: "OLD/001", branchId } });
             await d.enrolment.create({ data: { studentId: old.id, classId: big.id, termId: term.id, status: "active" } });
             const parent = await d.guardian.create({ data: { firstName: "Ola", lastName: "Old", email: "ola@x.com" } });
             await d.studentGuardian.create({ data: { guardianId: parent.id, studentId: old.id, relation: "father", isPrimary: true } });

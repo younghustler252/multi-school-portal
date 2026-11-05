@@ -38,7 +38,7 @@ export async function seed() {
     await db.classProgression.create({ data: { fromClassId: jss2.id, toClassId: jss3.id } });
     await db.classProgression.create({ data: { fromClassId: jss3.id, toClassId: null } });   // final class: graduates
 
-    const mk = async (firstName: string, extra: Record<string, unknown> = {}) => db.student.create({ data: { firstName, lastName: "Test", ...extra } });
+    const mk = async (firstName: string, extra: Record<string, unknown> = {}) => db.student.create({ data: { firstName, lastName: "Test", branchId, ...extra } });
     const A = await mk("Ada");                       // graduating
     const B = await mk("Bola");                      // graduating
     const C = await mk("Chidi");                     // continuing: JSS2 -> JSS3

@@ -3,6 +3,7 @@ import { PaginatedResult } from "../../../infrastructure/repository/base.reposit
 import { IGuardianRepository } from "../repositories/guardian.repository";
 import { IStudentRepository } from "../../students/repositories/student.repository";
 import { StudentPhotoService } from "../../students/services/student-photo.service";
+import { guardianScopeWhere, guardianChildrenWhere } from "../services/guardian-scope";
 import { studentScopeWhere } from "../../students/services/student-scope";
 import { StudentResponseData } from "../../students/mappers/student.mapper";
 import { GuardianMapper, GuardianResponseData, GuardianWithStudentsResponseData } from "../mappers/guardian.mapper";
@@ -21,7 +22,7 @@ interface Dependencies {
 async function childrenOf(d: Dependencies, guardianId: string, access: Access): Promise<Array<StudentResponseData & { relation: string; isPrimary: boolean }>> {
     const links = await d.guardianRepository.findStudentLinksByGuardianId(guardianId);
     if (links.length === 0) return [];
-    const students = await d.studentRepository.findMany({ AND: [{ id: { in: links.map(l => l.studentId) } }, studentScopeWhere(access)] });
+    const students = await d.studentRepository.findMany({ AND: [{ id: { in: links.map(l => l.studentId) } }, studentScopeWhere(access), guardianChildrenWhere(access)] });
     const responses = await d.studentPhotoService.toResponses(students);
     const byId = new Map(links.map(l => [l.studentId, l]));
     return responses.map(r => ({ ...r, relation: byId.get(r.id)!.relation, isPrimary: byId.get(r.id)!.isPrimary }));
@@ -30,11 +31,11 @@ async function childrenOf(d: Dependencies, guardianId: string, access: Access): 
 export class ListGuardiansUseCase {
     constructor(private readonly d: Dependencies) {}
 
-    async execute(query: ListGuardiansQueryType): Promise<PaginatedResult<GuardianResponseData>> {
+    async execute(query: ListGuardiansQueryType, access: Access): Promise<PaginatedResult<GuardianResponseData>> {
         const { guardianRepository: repo, guardianMapper: mapper } = this.d;
         const params = {
             page: query.page, limit: query.limit, orderBy: { createdAt: "desc" },
-            where: query.studentId ? { studentLinks: { some: { studentId: query.studentId } } } : {},
+            where: guardianScopeWhere(access, query.studentId),
         };
         const result = query.search ? await repo.searchGuardians(query.search, params) : await repo.paginate(params);
         return { data: result.data.map(g => mapper.toResponse(g)), meta: result.meta };
@@ -45,7 +46,7 @@ export class GetGuardianUseCase {
     constructor(private readonly d: Dependencies) {}
 
     async execute(id: string, access: Access): Promise<GuardianWithStudentsResponseData> {
-        const guardian = await this.d.guardianRepository.findById(id);
+        const guardian = await this.d.guardianRepository.findOne({ AND: [{ id }, guardianScopeWhere(access)] });   // outside your scope = not found
         if (!guardian) throw guardianErrors.notFound();
         return { ...this.d.guardianMapper.toResponse(guardian), students: await childrenOf(this.d, id, access) };
     }

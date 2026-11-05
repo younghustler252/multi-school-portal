@@ -60,3 +60,9 @@ Branch scope (needs a branch on classes); deactivating graduates; a class-by-cla
 
 ## Next
 Attendance, then Grades (both now have enrolment, classes and terms to stand on).
+
+
+## Branch boundaries
+- A student is only placed in a class of their own branch: enrol, bulk enrol (skipped with reason `wrong_branch`) and move class give `STUDENT_BRANCH_MISMATCH`.
+- Promotion never crosses a branch, for everyone. The preview marks rows with `branchMismatch` (and counts them in `summary.branchMismatch`). The run refuses with `PROMOTION_BRANCH_MISMATCH` (lists the students and target classes) before saving anything, and checks again inside the transaction. The class order (`PUT /classes/:id/progression`) also refuses a class of another branch.
+- To move a student across branches, transfer them first (`POST /students/:id/transfer`), then promote as usual.

@@ -37,8 +37,10 @@ async function itemsFromStructure(types: IFeeTypeRepository, structure: FeeStruc
 }
 
 /*
-| GENERATE DRAFT INVOICES (brief 8.1). For each active student enrolled in the term (optionally one class, or named students):
-| find the best structure (class, new or returning, campus), copy its fees, work out the student's discounts, save a DRAFT.
+| GENERATE DRAFT INVOICES (brief 8.1). For each active student enrolled in the term (optionally one class, one branch, or named students):
+| find the best structure (class, new or returning, and the STUDENT'S OWN branch), copy its fees, work out the student's discounts, save a DRAFT.
+| Every invoice carries the branch the student is in when it is made, and keeps it for good: a later branch transfer does not
+| move old invoices (the money was earned there). `branchId` in the request means "only bill the students of this branch".
 | Drafts are not in the books and not visible to families until issued. Running it again is safe: a student who already has
 | an invoice from a structure is skipped. Students with no matching structure are listed so the bursar can fix the set-up.
 */
@@ -50,7 +52,8 @@ export class GenerateInvoicesUseCase {
         const term = await gen.termInfo(dto.termId);
         if (!term) throw feeErrors.termNotFound();
 
-        const students = await gen.enrolledStudents(dto.termId, { classId: dto.classId, studentIds: dto.studentIds });
+        const students = (await gen.enrolledStudents(dto.termId, { classId: dto.classId, studentIds: dto.studentIds }))
+            .filter(s => !dto.branchId || s.branchId === dto.branchId);
         const ids = students.map(s => s.studentId);
         const structures = await this.d.feeStructureRepository.listFiltered({ termId: dto.termId, status: "active" });
         const [earlier, discounts] = await Promise.all([gen.studentsWithEarlierEnrolment(ids, term.startDate), gen.activeDiscounts(ids, term.sessionId)]);
@@ -58,7 +61,7 @@ export class GenerateInvoicesUseCase {
         const byStructure = new Map<string, { structure: FeeStructureEntity; students: EnrolledStudent[] }>();
         const noStructure: EnrolledStudent[] = [];
         for (const s of students) {
-            const structure = pickStructure(structures, { classId: s.classId, studentType: earlier.has(s.studentId) ? "RETURNING" : "NEW", branchId: dto.branchId ?? null });
+            const structure = pickStructure(structures, { classId: s.classId, studentType: earlier.has(s.studentId) ? "RETURNING" : "NEW", branchId: s.branchId });
             if (!structure) { noStructure.push(s); continue; }
             const group = byStructure.get(structure.id) ?? { structure, students: [] };
             group.students.push(s);
@@ -77,7 +80,7 @@ export class GenerateInvoicesUseCase {
                 try {
                     const draft = await this.d.feeInvoiceRepository.createDraft({
                         type: "TERM_FEES", studentId: s.studentId, sessionId: term.sessionId, termId: term.id, classId: s.classId,
-                        branchId: dto.branchId ?? structure.branchId, sourceStructureId: structure.id,
+                        branchId: s.branchId, sourceStructureId: structure.id,
                         dueDate: dto.dueDate ? parseDay(dto.dueDate) : structure.dueDate,
                         ...totalsOf(items, worked.totalKobo), createdById: actorUserId, updatedById: actorUserId,
                     }, items, worked.lines);
@@ -100,13 +103,14 @@ export class GenerateInvoicesUseCase {
     }
 }
 
-/* ONE DRAFT BY HAND: an admission fee or a one-off charge. Given a term, the student's discounts for that session apply. */
+/* ONE DRAFT BY HAND: an admission fee or a one-off charge. It carries the student's branch unless one is named. Given a term, the student's discounts for that session apply. */
 export class CreateInvoiceUseCase {
     constructor(private readonly d: Dependencies) {}
 
     async execute(schoolId: string, actorUserId: string, dto: CreateInvoiceDtoType) {
         const gen = this.d.invoiceGenerationRepository;
-        if (!(await gen.studentExists(dto.studentId))) throw feeErrors.studentNotFound();
+        const studentBranch = await gen.studentBranchId(dto.studentId);
+        if (!studentBranch) throw feeErrors.studentNotFound();
         const term = dto.termId ? await gen.termInfo(dto.termId) : null;
         if (dto.termId && !term) throw feeErrors.termNotFound();
 
@@ -115,7 +119,7 @@ export class CreateInvoiceUseCase {
         const worked = computeDiscounts(items, rules);
 
         const draft = await this.d.feeInvoiceRepository.createDraft({
-            type: dto.type, studentId: dto.studentId, sessionId: term?.sessionId ?? null, termId: term?.id ?? null, branchId: dto.branchId ?? null,
+            type: dto.type, studentId: dto.studentId, sessionId: term?.sessionId ?? null, termId: term?.id ?? null, branchId: dto.branchId ?? studentBranch,
             dueDate: dto.dueDate ? parseDay(dto.dueDate) : null, note: dto.note ?? null,
             ...totalsOf(items, worked.totalKobo), createdById: actorUserId, updatedById: actorUserId,
         }, items, worked.lines);

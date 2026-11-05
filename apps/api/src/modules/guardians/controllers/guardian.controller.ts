@@ -39,7 +39,7 @@ export class GuardianController {
     list = async (req: Request, res: Response, next: NextFunction) => {
         try {
             // The validate middleware does not write query values back, so the query is parsed here
-            const r = await this.d.listGuardiansUseCase.execute(ListGuardiansQuery.parse(req.query));
+            const r = await this.d.listGuardiansUseCase.execute(ListGuardiansQuery.parse(req.query), getAccess(req));
             res.status(200).json({ success: true, message: "Guardians retrieved successfully", data: r.data, meta: r.meta });
         } catch (e) { next(e); }
     };

@@ -50,3 +50,9 @@
 
 ## Next step
 Guardians (it already depends on `studentRepository`), then Classes, Sessions and Enrolment.
+
+
+## Branches and transfers
+- Every student has one branch. Create takes an optional `branchId` (else the creator's only branch, else the main branch); responses carry `branchId` and `branch { id, name }`; the list takes `?branchId=`. `students.view` at BRANCH sees the students of your branches.
+- Edit does NOT change the branch. The only way is `POST /students/:id/transfer` (permission `students.transfer`, school-wide, sensitive): body `{ toBranchId, classId?, reason }`. A student with an active class place this term must be given a class of the new branch (room checked); a student with no active place only changes branch and sends no class. Graduates and "already in that branch" are refused. Branch change, class move and the permanent `StudentBranchTransfer` record happen in one transaction; past terms are not touched. Errors: `STUDENT_ALREADY_IN_BRANCH`, `STUDENT_GRADUATED`, `TRANSFER_CLASS_REQUIRED`, `TRANSFER_CLASS_NOT_NEEDED`, `TRANSFER_CLASS_INVALID`, `TRANSFER_CLASS_BRANCH_MISMATCH`, `CLASS_FULL`, `TRANSFER_CONFLICT`.
+- CSV import: a student takes the branch of the class named in their row, else the importer's default branch.

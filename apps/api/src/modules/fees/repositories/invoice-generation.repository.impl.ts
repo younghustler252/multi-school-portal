@@ -17,10 +17,10 @@ export class InvoiceGenerationRepositoryImpl implements IInvoiceGenerationReposi
                 termId, status: "active", student: { isActive: true },
                 ...(f.classId && { classId: f.classId }), ...(f.studentIds && { studentId: { in: f.studentIds } }),
             },
-            select: { studentId: true, classId: true, student: { select: { firstName: true, lastName: true, admissionNumber: true } } },
+            select: { studentId: true, classId: true, student: { select: { firstName: true, lastName: true, admissionNumber: true, branchId: true } } },
             orderBy: [{ student: { lastName: "asc" } }, { student: { firstName: "asc" } }],
         });
-        return rows.map(r => ({ studentId: r.studentId, classId: r.classId, name: `${r.student.firstName} ${r.student.lastName}`, admissionNumber: r.student.admissionNumber }));
+        return rows.map(r => ({ studentId: r.studentId, classId: r.classId, name: `${r.student.firstName} ${r.student.lastName}`, admissionNumber: r.student.admissionNumber, branchId: r.student.branchId }));
     }
 
     async studentsWithEarlierEnrolment(studentIds: string[], before: Date): Promise<Set<string>> {
@@ -48,6 +48,8 @@ export class InvoiceGenerationRepositoryImpl implements IInvoiceGenerationReposi
         }
         return out;
     }
+
+    async studentBranchId(id: string): Promise<string | null> { return (await this.db.student.findUnique({ where: { id }, select: { branchId: true } }))?.branchId ?? null; }
 
     async studentExists(id: string): Promise<boolean> { return (await this.db.student.count({ where: { id } })) > 0; }
 }

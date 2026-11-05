@@ -4,13 +4,14 @@ import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.
 | BRANCH USAGE: is anything still attached to this branch?
 | A branch can be deactivated or deleted only when nothing active depends on it. Each records module adds its own
 | check to CHECKS as it is built (classes, students, fees...), so the rule grows without this file knowing the details.
-| Today: active staff placed in the branch, and classes (every class belongs to one branch).
+| Today: active staff placed in the branch, classes and students (each belongs to one branch; a graduate or inactive student still counts, their records stay in the branch).
 */
 type Check = (branchId: string) => Promise<number>;
 
 const CHECKS: Record<string, Check> = {
     staff:   branchId => getTenantClient().staffBranch.count({ where: { branchId, staff: { isActive: true, deletedAt: null } } }),
     classes: branchId => getTenantClient().class.count({ where: { branchId } }),
+    students: branchId => getTenantClient().student.count({ where: { branchId } }),
 };
 
 export class BranchUsageService {

@@ -6,7 +6,7 @@
 import { describe, it, before, after } from "node:test";
 import assert from "node:assert/strict";
 import { asValue } from "awilix";
-import { createTestSchool, dbTestsEnabled, skipReason, TestSchool } from "../helpers/test-database";
+import { mainBranchId, createTestSchool, dbTestsEnabled, skipReason, TestSchool } from "../helpers/test-database";
 
 // TEST-ONLY: see payment-enums-stub.cjs (a file the branch's payments module imports but does not have yet).
 import Module from "node:module";
@@ -191,7 +191,7 @@ describe("graduation (real database)", { skip: dbTestsEnabled ? false : skipReas
             assert.equal(deps.audits.filter((x: any) => x.action === "student.graduation_undone").pop().newValue.class, "JSS 3");
         }));
         it("reopen is refused when the class is full or the term is no longer current, and nothing is half-done", () => school.run(async () => {
-            const F = await db().student.create({ data: { firstName: "Femi", lastName: "Test", graduatedAt: new Date(), graduatedTermId: S.t1.id } });
+            const F = await db().student.create({ data: { firstName: "Femi", lastName: "Test", branchId: await mainBranchId(db()), graduatedAt: new Date(), graduatedTermId: S.t1.id } });
             await db().enrolment.create({ data: { studentId: F.id, classId: S.jss3.id, termId: S.t1.id, status: "completed" } });
             await db().class.update({ where: { id: S.jss3.id }, data: { capacity: 2 } });         // Dayo + Bola already fill it
             await assert.rejects(() => undo(F.id, { reason: "Wrongly marked as final class", reopenEnrolment: true }), (e: any) => e.code === "GRADUATION_CLASS_FULL");
@@ -206,7 +206,7 @@ describe("graduation (real database)", { skip: dbTestsEnabled ? false : skipReas
         }));
         it("an inactive graduate does not count either way, so no plan room is needed; reopening them is refused", () => school.run(async () => {
             await limit(0);
-            const H = await db().student.create({ data: { firstName: "Hope", lastName: "Test", isActive: false, graduatedAt: new Date(), graduatedTermId: S.t1.id } });
+            const H = await db().student.create({ data: { firstName: "Hope", lastName: "Test", branchId: await mainBranchId(db()), isActive: false, graduatedAt: new Date(), graduatedTermId: S.t1.id } });
             await assert.rejects(() => undo(H.id, { reason: "Wrongly marked as final class", reopenEnrolment: true }), (e: any) => e.code === "STUDENT_INACTIVE");
             await undo(H.id, { reason: "Wrongly marked as final class", reopenEnrolment: false });
             assert.equal((await db().student.findUnique({ where: { id: H.id } })).graduatedAt, null);

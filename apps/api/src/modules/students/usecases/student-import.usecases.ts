@@ -8,6 +8,7 @@ import { createOrReuseGuardianInTx } from "../../guardians/services/guardian-lin
 import { studentErrors } from "../domain/student.errors";
 import { StudentActor } from "../domain/student.types";
 import { ImportContext, PlannedRow, isFileProblem, parseBirthDate, parseImportCsv, personKey, planImportRows } from "../domain/student-import.policy";
+import { resolveNewStudentBranch } from "../services/student-branch";
 import { nextAdmissionNumber } from "./create-student.usecase";
 
 interface Dependencies { numberSequenceService: NumberSequenceService; auditService: AuditService }
@@ -20,7 +21,7 @@ async function analyse(buffer: Buffer, now: Date) {
     const db = getTenantClient();
 
     const term = await db.term.findFirst({ where: { isCurrent: true }, select: { id: true, name: true } });
-    const classRows = await db.class.findMany({ select: { id: true, name: true, capacity: true } });
+    const classRows = await db.class.findMany({ select: { id: true, name: true, capacity: true, branchId: true } });
     const enrolled = term ? await db.enrolment.groupBy({ by: ["classId"], where: { termId: term.id, status: { in: ["active", "completed"] } }, _count: { _all: true } }) : [];
     const enrolledBy = new Map(enrolled.map(e => [e.classId, e._count._all]));
 
@@ -35,7 +36,7 @@ async function analyse(buffer: Buffer, now: Date) {
     }
     const ctx: ImportContext = {
         now, hasCurrentTerm: !!term, existingAdmissionNumbers: new Set(known.map(k => k.admissionNumber!).filter(Boolean)), existingPeople: people,
-        classes: new Map(classRows.map(c => [c.name.trim().toLowerCase(), { id: c.id, name: c.name, capacity: c.capacity, enrolled: enrolledBy.get(c.id) ?? 0 }])),
+        classes: new Map(classRows.map(c => [c.name.trim().toLowerCase(), { id: c.id, name: c.name, capacity: c.capacity, enrolled: enrolledBy.get(c.id) ?? 0, branchId: c.branchId }])),
     };
     return { ...planImportRows(parsed.rows, ctx), term, ignoredColumns: parsed.ignoredColumns, classes: ctx.classes };
 }
@@ -66,6 +67,7 @@ export class PreviewStudentImportUseCase {
 |  - all the valid rows are saved in ONE transaction (student, class place, guardian and link together), so a row is never half
 |    saved, and if something unexpected fails nothing is saved at all;
 |  - rows that are not valid (or are duplicates) are returned with their reasons and are not saved;
+|  - each student gets a branch: the branch of the class named in their row, else the importer's default branch;
 |  - blank admission numbers are generated (the next free one); a guardian with the same email is reused, so brothers and
 |    sisters share one parent; the first guardian of a student is their primary guardian.
 */
@@ -82,6 +84,9 @@ export class ImportStudentsUseCase {
         if (ok.length > 0) {
             await assertWithinPlanLimit(schoolId, "student", ok.length);
             const termId = a.term?.id;
+            // A student with a class takes that class's branch; the others go to the importer's default branch (their own, else main).
+            const defaultBranch = await resolveNewStudentBranch(undefined, actor.staffId);
+            const branchOfClass = new Map([...a.classes.values()].map(c => [c.id, c.branchId!]));
             try {
                 await getTenantClient().$transaction(async tx => {
                     // the class seats are checked again under a lock: another person may have filled a class since the preview
@@ -97,6 +102,7 @@ export class ImportStudentsUseCase {
                         const admissionNumber = s.admissionNumber ?? await nextAdmissionNumber(this.d.numberSequenceService, tx as unknown as Tx, now);
                         const row = await tx.student.create({ data: {
                             admissionNumber, firstName: s.firstName, lastName: s.lastName, middleName: s.middleName, dateOfBirth: s.dateOfBirth, gender: s.gender, admittedAt: now, isActive: true,
+                            branchId: r.classId ? branchOfClass.get(r.classId)! : defaultBranch.id,
                         } });
                         if (r.classId) await tx.enrolment.create({ data: { studentId: row.id, classId: r.classId, termId: termId!, status: "active" } });
                         if (r.guardian) {

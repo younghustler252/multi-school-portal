@@ -15,6 +15,8 @@ interface Dependencies { studentRepository: IStudentRepository; studentPhotoServ
 
 export interface TransferResult {
     student: StudentResponseData;
+    /** Money the student still owes. It stays with the branch it was billed in; the school may want to follow it up. */
+    finance: { openInvoices: number; outstandingKobo: number };
     transfer: { id: string; fromBranch: { id: string; name: string }; toBranch: { id: string; name: string }; fromClass: string | null; toClass: string | null; reason: string; createdAt: Date };
 }
 
@@ -24,7 +26,8 @@ export interface TransferResult {
 | In ONE transaction: the student's branch changes, their place in the current term moves to the chosen class of the
 | new branch (room is checked while the class is locked), and a permanent transfer record is written (who, when, from
 | and to, why). Past terms are not touched. The rules are in domain/student-transfer.policy.ts.
-| Money records (invoices, payments) keep the branch they were created under: finance is handled separately.
+| Money records (invoices, payments) keep the branch they were created under (that is where the money was earned). The result
+| tells the school how much the student still owes, so someone can follow it up.
 |--------------------------------------------------------------------------
 */
 export class TransferStudentUseCase {
@@ -70,8 +73,10 @@ export class TransferStudentUseCase {
             oldValue: { branch: fromBranch?.name ?? null, class: fromClass }, newValue: { branch: toBranch.name, class: toClass, reason: dto.reason },
         });
         const updated = (await d.studentRepository.findById(studentId))!;
+        const owed = await db.feeInvoice.aggregate({ where: { studentId, voidedAt: null, status: { in: ["unpaid", "partial"] } }, _count: { _all: true }, _sum: { balanceKobo: true } });
         return {
             student: await d.studentPhotoService.toResponse(updated),
+            finance: { openInvoices: owed._count._all, outstandingKobo: Number(owed._sum.balanceKobo ?? 0n) },
             transfer: { id: record.id, fromBranch: { id: fromBranch?.id ?? student.branchId, name: fromBranch?.name ?? "" }, toBranch, fromClass, toClass, reason: record.reason, createdAt: record.createdAt },
         };
     }

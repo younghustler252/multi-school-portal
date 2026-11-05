@@ -71,7 +71,7 @@ const dayText = (d: Date) => d.toISOString().slice(0, 10);
 export const personKey = (first: string, last: string, dob: Date) => `${first.trim().toLowerCase()}|${last.trim().toLowerCase()}|${dayText(dob)}`;
 
 /* ---------- deciding every row ---------- */
-export interface ClassInfo { id: string; name: string; capacity: number | null; enrolled: number }
+export interface ClassInfo { id: string; name: string; capacity: number | null; enrolled: number; branchId?: string }   // a student imported with a class takes that class's branch
 export interface ImportContext {
     now: Date;
     hasCurrentTerm: boolean;

@@ -149,9 +149,9 @@ function world() {
         ] }),
     ];
     const students = [
-        { studentId: "stu-1", name: "Ada Obi", admissionNumber: "A1", classId: "jss1" },
-        { studentId: "stu-2", name: "Bayo Ade", admissionNumber: "A2", classId: "jss1" },
-        { studentId: "stu-3", name: "Chi Eze", admissionNumber: "A3", classId: "ss3" },          // no structure for ss3
+        { studentId: "stu-1", name: "Ada Obi", admissionNumber: "A1", classId: "jss1", branchId: "b-main" },
+        { studentId: "stu-2", name: "Bayo Ade", admissionNumber: "A2", classId: "jss1", branchId: "b-main" },
+        { studentId: "stu-3", name: "Chi Eze", admissionNumber: "A3", classId: "ss3", branchId: "b-north" },          // no structure for ss3
     ];
     const discounts = new Map<string, DiscountInput[]>([["stu-1", [pct(1000, null, "sibling")]]]);
     const payments = new Map<string, number>();
@@ -187,6 +187,7 @@ function world() {
         async studentsWithEarlierEnrolment() { return new Set<string>(["stu-2"]); },
         async activeDiscounts(ids: string[]) { return new Map([...discounts].filter(([k]) => ids.includes(k))); },
         async studentExists(id: string) { return students.some(s => s.studentId === id); },
+        async studentBranchId(id: string) { return students.find(s => s.studentId === id)?.branchId ?? null; },
     };
     const feeStructureRepository: any = { async listFiltered() { return structures; } };
     const feeTypeRepository: any = { async findByIds(ids: string[]) { return ids.map(i => feeTypes.get(i)).filter(Boolean); } };
@@ -224,6 +225,26 @@ describe("generate draft invoices", () => {
         const bayo = [...w.invoices.values()].find(i => i.studentId === "stu-2")!;
         assert.equal(bayo.discountKobo, 0n);
         assert.equal(w.audit.at(-1).action, "fees.invoices.generated");
+    });
+
+    it("every invoice carries its STUDENT'S branch, whatever else is asked", async () => {
+        await generate();
+        assert.deepEqual([...w.invoices.values()].map(i => [i.studentId, i.branchId]), [["stu-1", "b-main"], ["stu-2", "b-main"]]);
+    });
+
+    it("a branch in the request means only that branch's students are billed (and still carry their own branch)", async () => {
+        const none = await generate({ branchId: "b-north" });                    // stu-3 is in the north but has no structure
+        assert.equal(none.created, 0); assert.deepEqual(none.withoutStructure.map(s => s.studentId), ["stu-3"]);
+        const main = await generate({ branchId: "b-main" });
+        assert.equal(main.created, 2); assert.ok([...w.invoices.values()].every(i => i.branchId === "b-main"));
+    });
+
+    it("a branch-specific structure applies only to students of that branch", async () => {
+        w.structures.push(structure({ id: "st-north", classId: "ss3", branchId: "b-north", termId: TERM.id, items: w.structures[0].items }));
+        const r = await generate({ classId: "ss3" });
+        assert.equal(r.created, 1);
+        const inv = [...w.invoices.values()][0];
+        assert.equal(inv.studentId, "stu-3"); assert.equal(inv.branchId, "b-north"); assert.equal(inv.sourceStructureId, "st-north");
     });
 
     it("is safe to run again: nobody is billed twice", async () => {
@@ -273,6 +294,13 @@ describe("hand-made and edited drafts", () => {
         assert.equal(r.type, "ADMISSION");
         assert.equal(r.totalKobo, 500_000);
         assert.equal(r.items[0].description, "Tuition");
+    });
+
+    it("a one-off draft carries the student's branch unless another is named", async () => {
+        const mk = (extra: any = {}) => new CreateInvoiceUseCase(w.d).execute("s", "u", { studentId: "stu-3", type: "ADMISSION", items: [{ feeTypeId: "ft-tuition", amountKobo: N(5_000) }], ...extra });
+        const a = await mk(); const b = await mk({ branchId: "b-main" });
+        const branches = [...w.invoices.values()].map(i => i.branchId);
+        assert.deepEqual(branches, ["b-north", "b-main"]); assert.ok(a && b);
     });
 
     it("applies discounts only when the invoice belongs to a term", async () => {

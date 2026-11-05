@@ -19,7 +19,7 @@ const InvoiceItem = z.object({
 export const GenerateInvoicesDto = z.object({
     termId:     id,
     classId:    id.optional(),
-    branchId:   id.optional(),                  // the campus being billed (students are not tied to a campus yet)
+    branchId:   id.optional(),                  // only bill the students of this branch (each invoice carries its student's own branch)
     studentIds: z.array(id).min(1).max(500).optional(),
     dueDate:    day.optional(),                 // overrides the structure's due date
 }).strict();

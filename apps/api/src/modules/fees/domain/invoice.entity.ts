@@ -30,7 +30,7 @@ export interface NewInvoiceItem { feeTypeId: string | null; description: string;
 export interface NewInvoiceDiscount { ruleId: string | null; feeTypeId: string | null; label: string; amountKobo: bigint }
 
 // A student found by generation
-export interface EnrolledStudent { studentId: string; name: string; admissionNumber: string | null; classId: string }
+export interface EnrolledStudent { studentId: string; name: string; admissionNumber: string | null; classId: string; branchId: string }   // the student's own branch
 export interface TermInfo { id: string; sessionId: string; startDate: Date }
 
 // A discount a student holds, ready to be worked out

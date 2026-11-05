@@ -61,3 +61,7 @@ Class and attendance on "my children", guardian deactivate/reactivate, a guardia
 
 ## Next step
 Classes, Sessions and Enrolment (they unlock class names on "my children" and the branch and assigned scopes for Students).
+
+
+## Branches
+`guardians.view` accepts ALL or BRANCH. With BRANCH the list and a single guardian only include guardians linked to a student of your branches (outside your scope reads as not found); "guardians of student X" counts only when X is in your branches; a guardian's page shows only the children of your branches. `guardians.manage` stays school-wide.

@@ -66,7 +66,7 @@ function extrasWorld(openRows: any[] = []) {
             deleteDraft: async (id: string) => drafts.delete(id),
             lateFeeLinks: async (ids: string[]) => ({ charged: new Set([...charged].filter(c => ids.includes(c))), areLateFees: new Set(ids.filter(i => i.startsWith("lf"))) }),
         },
-        invoiceGenerationRepository: { studentExists: async (id: string) => id !== "ghost" },
+        invoiceGenerationRepository: { studentExists: async (id: string) => id !== "ghost", studentBranchId: async (id: string) => (id === "ghost" ? null : "b-main") },
         feeTypeRepository: { findByIds: async (ids: string[]) => ids[0] === "ft1" ? [{ id: "ft1", name: "Late fee", isActive: true, incomeAccountId: "a-late" }] : [] },
         instalmentRepository: { save: async (invoiceId: string, lines: any[]) => (plan = { id: "p1", status: "ACTIVE", lines }), findByInvoice: async () => plan, cancel: async () => !!plan },
         feeReportRepository: { openInvoices: async () => openRows },

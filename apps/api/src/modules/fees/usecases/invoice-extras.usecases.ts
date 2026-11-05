@@ -91,10 +91,11 @@ export class OpeningBalancesUseCase {
         for (const e of dto.entries) {
             let draftId: string | null = null;
             try {
-                if (!(await d.invoiceGenerationRepository.studentExists(e.studentId))) throw feeErrors.studentNotFound();
+                const studentBranch = await d.invoiceGenerationRepository.studentBranchId(e.studentId);
+                if (!studentBranch) throw feeErrors.studentNotFound();
                 const items = [{ feeTypeId: null, description: "Balance brought forward", incomeAccountId: equity.id, amountKobo: e.amountKobo, sortOrder: 0 }];
                 const draft = await d.feeInvoiceRepository.createDraft({
-                    type: "OPENING_BALANCE", studentId: e.studentId, branchId: dto.branchId ?? null, dueDate: parseDay(dto.dueDate ?? dto.asOf), note: e.note ?? null,
+                    type: "OPENING_BALANCE", studentId: e.studentId, branchId: dto.branchId ?? studentBranch, dueDate: parseDay(dto.dueDate ?? dto.asOf), note: e.note ?? null,
                     ...totalsOf(items, 0n), createdById: actorUserId, updatedById: actorUserId,
                 }, items, []);
                 draftId = draft.id;
