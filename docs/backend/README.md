@@ -8,7 +8,8 @@ This section documents the backend implementation for developers building and ma
 2. [Multi-tenancy and database architecture](../architecture/multi-tenancy-and-database.md)
 3. [Authentication and authorization architecture](../architecture/authentication-and-authorization.md)
 4. [Background processing architecture](../architecture/background-processing.md)
-5. API conventions — planned; create after the response/error middleware audit.
+5. [Backend remediation register](BACKEND_REMEDIATION_REGISTER.md) — cumulative developer handoff of confirmed findings, potential risks and verification tasks.
+6. API conventions — planned; create after the response/error middleware audit.
 
 ## Module guides
 
@@ -26,6 +27,9 @@ This section documents the backend implementation for developers building and ma
 | Enrolment | [Enrolment module](modules/enrolment.md) | Partially source-verified; schema/migration/runtime verification outstanding |
 | Sessions and calendar | [Sessions module](modules/sessions.md) | Partially source-verified; schema/migration/runtime verification outstanding |
 | Attendance | [Attendance module](modules/attendance.md) | Partially source-verified; tests/runtime and summary authorization review outstanding |
+| Grades | [Grades module](modules/grades.md) | Source-reviewed; DB/migration execution, HTTP tests and runtime verification outstanding |
+| Report cards | Planned | Audit after grades |
+| Graduation | Planned | Module existence and implementation to be established from source |
 
 ## Documentation contract
 
@@ -42,7 +46,7 @@ Do not treat a module guide as a replacement for OpenAPI. The API specification 
 
 ## Module audit sequence
 
-Foundation modules are being documented first because other modules depend on their identity and authorization behavior:
+Foundation modules were documented first because other modules depend on their identity and authorization behavior:
 
 1. Auth
 2. Users
@@ -56,5 +60,13 @@ Foundation modules are being documented first because other modules depend on th
 10. Enrolment
 11. Sessions and calendar
 12. Attendance
+
+The next academic modules are:
+
+13. Grades
+14. Report cards
+15. Graduation (if a distinct backend module exists; otherwise document the actual student lifecycle implementation and legacy graduation notes)
+
+Then continue through finance, platform administration, settings/automation, integrations and API conventions/OpenAPI.
 
 The frontend is intentionally not being documented as the current implementation while it remains behind the backend. Frontend implementation documentation will follow the backend contract audit.
