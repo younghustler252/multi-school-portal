@@ -1,12 +1,10 @@
+import type { SchoolTenantRepository } from "../../repositories/school-tenant.repository";
 import { ISchoolRepository } from "../../repositories/school.repository";
 import { SchoolMapper, PlatformSchoolResponseData } from "../../mappers/school.mapper";
-import { getTenantClient } from "../../../../infrastructure/database/prisma/prisma.client";
-import { TenantContext } from "../../../../infrastructure/database/prisma/tenant.context";
 import { schoolErrors } from "../../domain/school.errors";
 import { schoolState } from "../../domain/school.policy";
-import { ACTIVE_STUDENT_WHERE } from "../../../students/domain/student-eligibility";
 
-interface Dependencies { schoolRepository: ISchoolRepository; schoolMapper: SchoolMapper }
+interface Dependencies { schoolRepository: ISchoolRepository; schoolTenantRepository: SchoolTenantRepository; schoolMapper: SchoolMapper }
 
 export class GetPlatformSchoolUseCase {
     constructor(private readonly d: Dependencies) {}
@@ -19,10 +17,8 @@ export class GetPlatformSchoolUseCase {
         let staffCount:   number | null = null;
         if (row.school.schemaName && schoolState(row.school) === "active") {
             try {
-                [studentCount, staffCount] = await TenantContext.run(
-                    { tenantSchema: row.school.schemaName, schoolId: row.school.id },
-                    async () => { const db = getTenantClient(); return Promise.all([db.student.count({ where: ACTIVE_STUDENT_WHERE }), db.staff.count({ where: { isActive: true } })]); },
-                );
+                const c = await this.d.schoolTenantRepository.activeCounts({ id: row.school.id, schemaName: row.school.schemaName });
+                studentCount = c.students; staffCount = c.staff;
             } catch { /* the school's schema may be unavailable: counts stay null */ }
         }
         return { ...this.d.schoolMapper.toPlatformResponse(row.school, row.plan, row.mrrKobo), studentCount, staffCount };

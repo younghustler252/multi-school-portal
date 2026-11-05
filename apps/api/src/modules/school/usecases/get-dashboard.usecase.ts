@@ -1,14 +1,13 @@
 import { PrismaClient } from "../../../generated/public";
-import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
+import type { SchoolTenantRepository } from "../repositories/school-tenant.repository";
 import { ISchoolRepository } from "../repositories/school.repository";
 import { ISubscriptionRepository } from "../../subscriptions/repositories/subscription.repository";
 import { IPlanRepository } from "../../plans/repositories/plan.repository";
 import { schoolErrors } from "../domain/school.errors";
 import { schoolState } from "../domain/school.policy";
-import { ACTIVE_STUDENT_WHERE } from "../../students/domain/student-eligibility";
 
 interface Dependencies {
-    prismaClient: PrismaClient; schoolRepository: ISchoolRepository;
+    prismaClient: PrismaClient; schoolRepository: ISchoolRepository; schoolTenantRepository: SchoolTenantRepository;
     subscriptionRepository: ISubscriptionRepository; planRepository: IPlanRepository;
 }
 
@@ -52,7 +51,7 @@ export class GetDashboardUseCase {
 
     async execute(schoolId: string, can: (key: string) => boolean): Promise<SchoolDashboard> {
         const d = this.d;
-        const db = getTenantClient();
+        const tenant = d.schoolTenantRepository;
 
         const [school, subscription] = await Promise.all([
             d.schoolRepository.findById(schoolId),
@@ -66,53 +65,26 @@ export class GetDashboardUseCase {
             this.limitFor(schoolId, plan?.id ?? null, "staff.max"),
         ]);
 
-        const term = await db.term.findFirst({ where: { isCurrent: true }, include: { session: true } });
+        const term = await tenant.currentTermWithSession();
         const termLabel = term ? `${term.session.name} ${term.name}` : null;
 
         const showPeople = can("students.view") || can("staff.view");
-        const people = showPeople ? await (async () => {
-            const [totalStaff, activeStaff, totalStudents, activeStudents, graduatedStudents, totalGuardians] = await Promise.all([
-                db.staff.count(), db.staff.count({ where: { isActive: true } }),
-                db.student.count(), db.student.count({ where: ACTIVE_STUDENT_WHERE }), db.student.count({ where: { graduatedAt: { not: null } } }), db.guardian.count(),
-            ]);
-            return { totalStaff, activeStaff, totalStudents, activeStudents, graduatedStudents, totalGuardians };
-        })() : null;
+        const people = showPeople ? await tenant.peopleCounts() : null;
 
-        const academics = can("students.view") ? await (async () => {
-            const [totalClasses, totalSubjects, activeEnrolments] = await Promise.all([
-                db.class.count(), db.subject.count(), db.enrolment.count({ where: { status: "active" } }),
-            ]);
-            return { currentTerm: termLabel, totalClasses, totalSubjects, activeEnrolments };
-        })() : null;
+        const academics = can("students.view") ? { currentTerm: termLabel, ...(await tenant.academicCounts()) } : null;
 
         const fees = can("fees.view") ? await (async () => {
             if (!term) return { term: null, totalInvoicedKobo: 0, totalCollectedKobo: 0, totalPendingKobo: 0, overdueInvoices: 0 };
-            const grace = await db.schoolSettingValue.findUnique({ where: { key: "finance.grace_days" } });
-            const graceDays = Math.max(0, Number(grace?.value ?? 0) || 0);
-            const cutoff = new Date(Date.now() - graceDays * 86_400_000);
-            // Invoices of the current term that still count (not draft, waived or void). Amounts are whole kobo (BigInt in the database).
-            const live = { termId: term.id, status: { in: ["unpaid", "partial", "paid"] as ("unpaid" | "partial" | "paid")[] }, voidedAt: null };
-
-            const [sums, overdue] = await Promise.all([
-                db.feeInvoice.aggregate({ _sum: { totalKobo: true, paidKobo: true, balanceKobo: true }, where: live }),
-                db.feeInvoice.count({ where: { ...live, status: { in: ["unpaid", "partial"] }, dueDate: { lt: cutoff } } }),
-            ]);
-            return {
-                term: termLabel,
-                totalInvoicedKobo:  Number(sums._sum.totalKobo ?? 0n),
-                totalCollectedKobo: Number(sums._sum.paidKobo ?? 0n),
-                totalPendingKobo:   Number(sums._sum.balanceKobo ?? 0n),
-                overdueInvoices: overdue,
-            };
+            const cutoff = new Date(Date.now() - (await tenant.graceDays()) * 86_400_000);
+            return { term: termLabel, ...(await tenant.termInvoiceTotals(term.id, cutoff)) };
         })() : null;
 
         const attendance = can("attendance.view") ? await (async () => {
             const day   = todayIn(school.timezone);
             const start = new Date(`${day}T00:00:00.000Z`);
             const end   = new Date(start.getTime() + 86_400_000);
-            const groups = await db.attendance.groupBy({ by: ["status"], where: { date: { gte: start, lt: end } }, _count: { _all: true } });
-            const n = (s: string) => groups.find(g => g.status === s)?._count._all ?? 0;
-            return { date: day, present: n("present"), absent: n("absent"), late: n("late"), excused: n("excused") };
+            const n = await tenant.attendanceCountsBetween(start, end);
+            return { date: day, present: n.present ?? 0, absent: n.absent ?? 0, late: n.late ?? 0, excused: n.excused ?? 0 };
         })() : null;
 
         return {

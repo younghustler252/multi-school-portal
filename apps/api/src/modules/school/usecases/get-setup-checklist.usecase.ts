@@ -1,10 +1,9 @@
-import { PrismaClient } from "../../../generated/public";
-import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
+import type { SchoolTenantRepository } from "../repositories/school-tenant.repository";
 import { ISchoolRepository } from "../repositories/school.repository";
 import { schoolErrors } from "../domain/school.errors";
 import { requiredDocsFor } from "../domain/school.policy";
 
-interface Dependencies { prismaClient: PrismaClient; schoolRepository: ISchoolRepository }
+interface Dependencies { schoolRepository: ISchoolRepository; schoolTenantRepository: SchoolTenantRepository }
 
 export interface ChecklistItem {
     key:      string;
@@ -37,14 +36,13 @@ export class GetSetupChecklistUseCase {
         const d = this.d;
         const school = await d.schoolRepository.findById(schoolId);
         if (!school) throw schoolErrors.notFound();
-        const db = getTenantClient();
 
-        const [docs, staff, students, classes, subjects, sessions, currentTerm, enrolments, pendingInvites] = await Promise.all([
+        const [docs, counts, pendingInvites] = await Promise.all([
             d.schoolRepository.findDocumentsBySchoolId(schoolId),
-            db.staff.count(), db.student.count(), db.class.count(), db.subject.count(),
-            db.session.count(), db.term.count({ where: { isCurrent: true } }), db.enrolment.count(),
-            d.prismaClient.invite.count({ where: { schoolId, accepted: false, revokedAt: null, expiresAt: { gt: new Date() } } }),
+            d.schoolTenantRepository.setupCounts(),
+            d.schoolRepository.countOpenInvites(schoolId),
         ]);
+        const { staff, students, classes, subjects, sessions, currentTerms: currentTerm, enrolments } = counts;
 
         const verified = school.verificationStatus === "verified";
         const documents = requiredDocsFor(school.schoolOwnership).map(type => {

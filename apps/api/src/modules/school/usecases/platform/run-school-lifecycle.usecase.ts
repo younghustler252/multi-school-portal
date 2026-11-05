@@ -3,15 +3,14 @@ import { ISchoolRepository } from "../../repositories/school.repository";
 import { NotificationService } from "../../../notifications/services/notification.service";
 import { AuditService } from "../../../audit/services/audit.service";
 import { addProvisionSchemaJob } from "../../../../infrastructure/jobs/queues/provision-schema.queue";
-import { getTenantClient } from "../../../../infrastructure/database/prisma/prisma.client";
-import { TenantContext } from "../../../../infrastructure/database/prisma/tenant.context";
+import type { SchoolTenantRepository } from "../../repositories/school-tenant.repository";
 import {
     DEFAULT_UNCONFIRMED_REGISTRATION_HOURS, DEFAULT_UNVERIFIED_TRIAL_DAYS, DEFAULT_UNVERIFIED_RETENTION_DAYS,
     TRIAL_REMINDER_DAYS, PROVISIONING_STUCK_MINUTES, SUSPENSION_VERIFICATION_EXPIRED, SYSTEM_ACTOR_ID,
 } from "../../domain/school.policy";
 
 interface Dependencies {
-    prismaClient: PrismaClient; schoolRepository: ISchoolRepository;
+    prismaClient: PrismaClient; schoolRepository: ISchoolRepository; schoolTenantRepository: SchoolTenantRepository;
     notificationService: NotificationService; auditService: AuditService;
 }
 
@@ -78,11 +77,7 @@ export class RunSchoolLifecycleUseCase {
     }
 
     private async hasData(schemaName: string, schoolId: string): Promise<boolean> {
-        return TenantContext.run({ tenantSchema: schemaName, schoolId }, async () => {
-            const db = getTenantClient();
-            const [students, staff, payments] = await Promise.all([db.student.count(), db.staff.count(), db.payment.count()]);
-            return students > 0 || staff > 1 || payments > 0;     // staff > 1: more than just the founding admin
-        });
+        return this.d.schoolTenantRepository.hasData({ id: schoolId, schemaName });
     }
 
     async execute(): Promise<LifecycleSummary> {

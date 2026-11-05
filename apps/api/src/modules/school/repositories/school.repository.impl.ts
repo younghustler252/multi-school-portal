@@ -115,4 +115,8 @@ export class SchoolRepositoryImpl extends BasePublicRepository<SchoolEntity> imp
     async updateDocument(id: string, data: Prisma.SchoolDocumentUncheckedUpdateInput): Promise<SchoolDocumentEntity> {
         return this.documentMapper.toDomain(await this.prisma.schoolDocument.update({ where: { id }, data }));
     }
+
+    countOpenInvites(schoolId: string): Promise<number> {
+        return this.prisma.invite.count({ where: { schoolId, accepted: false, revokedAt: null, expiresAt: { gt: new Date() } } });
+    }
 }

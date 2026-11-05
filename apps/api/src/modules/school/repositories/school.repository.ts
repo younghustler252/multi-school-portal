@@ -44,4 +44,7 @@ export interface ISchoolRepository {
     findDocumentById(id: string):                                     Promise<SchoolDocumentEntity | null>;
     findDocumentsBySchoolId(schoolId: string):                        Promise<SchoolDocumentEntity[]>;
     updateDocument(id: string, data: Prisma.SchoolDocumentUncheckedUpdateInput): Promise<SchoolDocumentEntity>;
+
+    /** Invitations to this school that are still waiting for an answer. */
+    countOpenInvites(schoolId: string): Promise<number>;
 }

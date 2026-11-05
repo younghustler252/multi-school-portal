@@ -1,10 +1,9 @@
 import { ISchoolRepository } from "../repositories/school.repository";
-import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
-import { TenantContext } from "../../../infrastructure/database/prisma/tenant.context";
+import type { SchoolTenantRepository } from "../repositories/school-tenant.repository";
 import { schoolErrors } from "../domain/school.errors";
 import { schoolState, SchoolState } from "../domain/school.policy";
 
-interface Dependencies { schoolRepository: ISchoolRepository }
+interface Dependencies { schoolRepository: ISchoolRepository; schoolTenantRepository: SchoolTenantRepository }
 
 // Safe to show to anyone (login screen): no verification details, no internals
 export interface PublicSchoolInfo {
@@ -35,10 +34,7 @@ export class GetPublicSchoolInfoUseCase {
         // Branding colours and motto live in the school's own schema, which exists only once it is built
         if (state === "active" && school.schemaName) {
             try {
-                settings = await TenantContext.run(
-                    { tenantSchema: school.schemaName, schoolId: school.id },
-                    async () => getTenantClient().schoolSettings.findFirst({ select: { primaryColor: true, secondaryColor: true, motto: true } }),
-                );
+                settings = await this.d.schoolTenantRepository.branding({ id: school.id, schemaName: school.schemaName });
             } catch { /* settings are optional: fall back to defaults */ }
         }
 

@@ -10,17 +10,6 @@ import { TenantContext } from "../../../../infrastructure/database/prisma/tenant
 */
 export interface StudentCounter { count(school: { id: string; schemaName: string }): Promise<number> }
 
-export function tenantStudentCounter(): StudentCounter {
-    return {
-        // loaded on first use so that importing this file never opens a database connection
-        async count(s) {
-            const { getTenantClient } = await import("../../../../infrastructure/database/prisma/prisma.client");
-            const { ACTIVE_STUDENT_WHERE } = await import("../../../students/domain/student-eligibility");
-            return TenantContext.run({ tenantSchema: s.schemaName, schoolId: s.id }, () => getTenantClient().student.count({ where: ACTIVE_STUDENT_WHERE }));
-        },
-    };
-}
-
 const STATUSES = ["pending", "active", "suspended", "deactivated"] as const;
 
 export class PlatformOverviewUseCase {

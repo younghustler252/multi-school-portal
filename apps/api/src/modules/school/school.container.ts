@@ -1,4 +1,5 @@
 import { asClass, asFunction } from "awilix";
+import { SchoolTenantRepository } from "./repositories/school-tenant.repository";
 import type { AwilixContainer } from "awilix";
 import { SchoolMapper, SchoolDocumentMapper } from "./mappers/school.mapper";
 import { SchoolRepositoryImpl } from "./repositories/school.repository.impl";
@@ -27,7 +28,7 @@ import { RejectSchoolUseCase } from "./usecases/platform/reject-school.usecase";
 import { SuspendSchoolUseCase, ReactivateSchoolUseCase } from "./usecases/platform/suspend-school.usecase";
 import { SchoolDocumentsReviewUseCase } from "./usecases/platform/school-documents.usecases";
 import { ImpersonateSchoolUseCase, redisTicketStore } from "./usecases/platform/impersonate-school.usecase";
-import { PlatformOverviewUseCase, tenantStudentCounter } from "./usecases/platform/platform-overview.usecase";
+import { PlatformOverviewUseCase } from "./usecases/platform/platform-overview.usecase";
 import { ListSchoolProvisioningUseCase, RetrySchoolProvisioningUseCase, bullProvisionQueue } from "./usecases/platform/school-provisioning.usecases";
 import { RunSchoolLifecycleUseCase } from "./usecases/platform/run-school-lifecycle.usecase";
 
@@ -44,6 +45,7 @@ export const registerSchool = (container: AwilixContainer): void => {
         schoolMapper:         asClass(SchoolMapper).singleton(),
         schoolDocumentMapper: asClass(SchoolDocumentMapper).singleton(),
         schoolRepository:     asClass(SchoolRepositoryImpl).scoped(),
+        schoolTenantRepository: asClass(SchoolTenantRepository).scoped(),
 
         schoolApprovalCheckerService: asClass(SchoolApprovalCheckerService).scoped(),
         workspaceActivationService:   asClass(WorkspaceActivationService).scoped(),
@@ -75,7 +77,7 @@ export const registerSchool = (container: AwilixContainer): void => {
         retrySchoolProvisioningUseCase: asClass(RetrySchoolProvisioningUseCase).scoped(),
         ticketStore:                  asFunction(() => redisTicketStore()).singleton(),
         impersonateSchoolUseCase:     asClass(ImpersonateSchoolUseCase).scoped(),
-        studentCounter:               asFunction(() => tenantStudentCounter()).singleton(),
+        studentCounter:               asFunction(({ schoolTenantRepository }: { schoolTenantRepository: SchoolTenantRepository }) => ({ count: async (s: { id: string; schemaName: string }) => (await schoolTenantRepository.activeCounts(s)).students })).scoped(),
         platformOverviewUseCase:      asClass(PlatformOverviewUseCase).scoped(),
         runSchoolLifecycleUseCase:    asClass(RunSchoolLifecycleUseCase).scoped(),
 
