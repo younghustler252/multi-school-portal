@@ -211,44 +211,6 @@
               }
             }
           ]
-        },
-        {
-          "name": "GET /api/v1/platform/settings",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{platformBaseUrl}}/api/v1/platform/settings",
-              "host": [
-                "{{platformBaseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "platform",
-                "settings"
-              ]
-            },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Response is not a server error', function () { pm.expect(pm.response.code).to.be.below(500); });",
-                  "pm.test('Response time under 5 seconds (baseline)', function () { pm.expect(pm.response.responseTime).to.be.below(5000); });",
-                  "if ((pm.response.headers.get('Content-Type') || '').includes('application/json')) { pm.test('JSON response parses', function () { pm.response.json(); }); }"
-                ]
-              }
-            }
-          ]
         }
       ]
     },
@@ -20999,43 +20961,6 @@
                 "v1",
                 "feedback",
                 "my"
-              ]
-            },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Response is not a server error', function () { pm.expect(pm.response.code).to.be.below(500); });",
-                  "pm.test('Response time under 5 seconds (baseline)', function () { pm.expect(pm.response.responseTime).to.be.below(5000); });",
-                  "if ((pm.response.headers.get('Content-Type') || '').includes('application/json')) { pm.test('JSON response parses', function () { pm.response.json(); }); }"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "GET /api/v1/feedback",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/feedback",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "feedback"
               ]
             },
             "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
