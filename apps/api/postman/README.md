@@ -14,7 +14,7 @@ The generated collection currently contains 438 requests across 14 folders. See 
 2. Import `CORE.local.postman_environment.json`.
 3. Select **CORE API — Local Development**.
 4. Start the API and its required PostgreSQL and Redis services.
-5. Set `schoolSubdomain`, `email`, and `password` to test-account values.
+5. Set `schoolSubdomain`, `email`, and `password` to a real local test administrator account. Synthetic guardian/staff emails are prefilled in the environment.
 
 ## Host / tenant resolution
 The tenant resolver determines school/platform context from the request hostname, not a custom tenant header. The local environment therefore uses:
@@ -89,3 +89,19 @@ bash apps/api/postman/run-smoke.sh
 The script uses `npx newman` and writes `apps/api/postman/newman-results.json`. Select and configure the environment first; for CLI runs, edit the exported environment values with local test values before executing. The collection's mutation gate defaults to false.
 
 See `API-ROUTE-AUDIT.md` for current source-review findings and explicit verification limits.
+
+
+## Core synthetic test scenario (DTO-checked examples)
+
+The collection now includes source-checked example bodies for a starter school workflow:
+1. Create a branch (captured as `destinationBranchId`).
+2. Create a staff member (captures `staffId`).
+3. Create a class (captures `classId`).
+4. Create a subject (captures `subjectId`).
+5. Create a student (captures `studentId`).
+6. Create a guardian linked to that student (captures `guardianId`).
+7. Assign the subject and teacher to the class using `classId`, `subjectId`, `staffId`, and `termId`.
+
+The sample names and contact details are synthetic. The guardian and staff emails are set to `guardian.core-test@example.com` and `teacher.core-test@example.com`; change them if you re-run against a database that enforces unique emails.
+
+**Important limits:** The examples are not a database seeder and cannot create the first school administrator or platform administrator. Login still requires an account already provisioned in your local test database and a verified school tenant. The current route inventory contains many more mutation endpoints than the DTOs inspected for this first workflow; requests without an example body are intentionally left unguessed rather than populated with potentially invalid data. Replace `{{termId}}` with a current term ID before assigning subjects. Keep `runMutations=false` until you are ready to execute this workflow against disposable data.
