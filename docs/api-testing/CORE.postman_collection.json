@@ -166,6 +166,12 @@
       "value": "00000000-0000-4000-8000-000000000018",
       "type": "string",
       "description": "Safe placeholder only. Replace with real IDs/values for a real workflow."
+    },
+    {
+      "key": "tenantSchoolId",
+      "value": "",
+      "type": "string",
+      "description": "Development-only school ID used for x-school-id header."
     }
   ],
   "item": [
@@ -184,7 +190,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -231,7 +237,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -278,7 +284,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -333,7 +339,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -395,7 +401,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -453,7 +459,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -511,7 +517,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -569,7 +575,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -627,7 +633,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -685,7 +691,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -743,7 +749,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -801,7 +807,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -859,7 +865,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -917,7 +923,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -975,7 +981,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -1033,7 +1039,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -1092,7 +1098,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -1151,7 +1157,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -1210,7 +1216,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -1258,7 +1264,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -1325,7 +1331,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -1398,7 +1404,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -1446,7 +1452,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -1504,7 +1510,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -1563,7 +1569,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -1622,7 +1628,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -1681,7 +1687,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -1730,7 +1736,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -1779,7 +1785,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -1846,7 +1852,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -1914,7 +1920,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -1969,7 +1975,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -2035,7 +2041,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -2101,7 +2107,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -2149,7 +2155,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -2197,7 +2203,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -2246,7 +2252,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -2293,7 +2299,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -2350,7 +2356,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -2405,7 +2411,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -2461,7 +2467,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -2526,7 +2532,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -2592,7 +2598,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -2658,7 +2664,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -2724,7 +2730,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -2790,7 +2796,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -2856,7 +2862,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -2912,7 +2918,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -2975,7 +2981,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -3022,7 +3028,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -3079,7 +3085,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -3134,7 +3140,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -3190,7 +3196,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -3255,7 +3261,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -3320,7 +3326,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -3373,7 +3379,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -3420,7 +3426,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -3477,7 +3483,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -3535,7 +3541,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -3583,7 +3589,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -3641,7 +3647,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -3699,7 +3705,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -3747,7 +3753,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -3795,7 +3801,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -3842,7 +3848,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -3890,7 +3896,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -3947,7 +3953,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -4002,7 +4008,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -4058,7 +4064,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -4123,7 +4129,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -4189,7 +4195,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -4255,7 +4261,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -4320,7 +4326,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -4367,7 +4373,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -4415,7 +4421,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -4463,7 +4469,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -4511,7 +4517,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -4559,7 +4565,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -4615,7 +4621,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -4672,7 +4678,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -4720,7 +4726,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -4768,7 +4774,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -4816,7 +4822,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -4864,7 +4870,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -4912,7 +4918,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -4960,7 +4966,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -5022,7 +5028,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -5071,7 +5077,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -5130,7 +5136,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -5188,7 +5194,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -5236,7 +5242,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -5283,7 +5289,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -5340,7 +5346,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -5395,7 +5401,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -5460,7 +5466,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -5526,7 +5532,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -5592,7 +5598,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -5658,7 +5664,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -5724,7 +5730,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -5790,7 +5796,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -5839,7 +5845,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -5898,7 +5904,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -5945,7 +5951,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -6002,7 +6008,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -6057,7 +6063,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -6122,7 +6128,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -6188,7 +6194,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -6254,7 +6260,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -6326,7 +6332,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -6404,7 +6410,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -6451,7 +6457,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -6508,7 +6514,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -6566,7 +6572,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -6615,7 +6621,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -6673,7 +6679,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -6739,7 +6745,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -6806,7 +6812,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -6861,7 +6867,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -6926,7 +6932,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -6991,7 +6997,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -7057,7 +7063,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -7123,7 +7129,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -7179,7 +7185,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -7245,7 +7251,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -7312,7 +7318,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -7385,7 +7391,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -7457,7 +7463,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -7504,7 +7510,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -7561,7 +7567,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -7619,7 +7625,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -7667,7 +7673,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -7725,7 +7731,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -7796,7 +7802,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -7843,7 +7849,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -7891,7 +7897,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -7948,7 +7954,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -8005,7 +8011,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -8071,7 +8077,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -8136,7 +8142,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -8184,7 +8190,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -8250,7 +8256,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -8316,7 +8322,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -8364,7 +8370,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -8430,7 +8436,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -8496,7 +8502,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -8543,7 +8549,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -8591,7 +8597,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -8647,7 +8653,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -8714,7 +8720,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -8781,7 +8787,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -8848,7 +8854,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -8915,7 +8921,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -8982,7 +8988,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -9049,7 +9055,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -9096,7 +9102,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -9144,7 +9150,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -9192,7 +9198,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -9240,7 +9246,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -9288,7 +9294,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -9345,7 +9351,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -9403,7 +9409,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -9461,7 +9467,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -9519,7 +9525,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -9574,7 +9580,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -9630,7 +9636,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -9686,7 +9692,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -9758,7 +9764,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -9806,7 +9812,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -9855,7 +9861,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -9914,7 +9920,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -9981,7 +9987,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -10048,7 +10054,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -10106,7 +10112,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -10172,7 +10178,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -10239,7 +10245,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -10286,7 +10292,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -10343,7 +10349,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -10408,7 +10414,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -10474,7 +10480,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -10521,7 +10527,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -10578,7 +10584,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -10626,7 +10632,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -10684,7 +10690,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -10742,7 +10748,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -10806,7 +10812,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -10854,7 +10860,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -10912,7 +10918,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -10968,7 +10974,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -11034,7 +11040,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -11100,7 +11106,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -11148,7 +11154,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -11206,7 +11212,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -11262,7 +11268,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -11328,7 +11334,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -11394,7 +11400,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -11442,7 +11448,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -11500,7 +11506,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -11566,7 +11572,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -11632,7 +11638,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -11689,7 +11695,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -11756,7 +11762,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -11829,7 +11835,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -11877,7 +11883,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -11935,7 +11941,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -11994,7 +12000,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -12053,7 +12059,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -12112,7 +12118,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -12172,7 +12178,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -12228,7 +12234,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -12294,7 +12300,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -12360,7 +12366,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -12427,7 +12433,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -12494,7 +12500,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -12561,7 +12567,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -12618,7 +12624,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -12685,7 +12691,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -12734,7 +12740,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -12783,7 +12789,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -12832,7 +12838,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -12888,7 +12894,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -12937,7 +12943,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -12986,7 +12992,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -13043,7 +13049,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -13091,7 +13097,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -13149,7 +13155,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -13205,7 +13211,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -13272,7 +13278,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -13339,7 +13345,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -13386,7 +13392,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -13443,7 +13449,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -13501,7 +13507,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -13549,7 +13555,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -13608,7 +13614,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -13665,7 +13671,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -13724,7 +13730,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -13780,7 +13786,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -13839,7 +13845,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -13887,7 +13893,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -13945,7 +13951,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -14001,7 +14007,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -14068,7 +14074,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -14135,7 +14141,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -14202,7 +14208,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -14257,7 +14263,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -14313,7 +14319,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -14379,7 +14385,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -14445,7 +14451,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -14517,7 +14523,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -14566,7 +14572,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -14615,7 +14621,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -14663,7 +14669,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -14710,7 +14716,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -14767,7 +14773,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -14822,7 +14828,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -14887,7 +14893,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -14952,7 +14958,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -15018,7 +15024,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -15084,7 +15090,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -15150,7 +15156,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -15216,7 +15222,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -15282,7 +15288,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -15355,7 +15361,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -15402,7 +15408,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -15459,7 +15465,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -15514,7 +15520,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -15579,7 +15585,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -15645,7 +15651,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -15711,7 +15717,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -15776,7 +15782,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -15823,7 +15829,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -15880,7 +15886,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -15935,7 +15941,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -15991,7 +15997,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -16056,7 +16062,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -16122,7 +16128,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -16188,7 +16194,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -16254,7 +16260,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -16319,7 +16325,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -16366,7 +16372,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -16423,7 +16429,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -16481,7 +16487,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -16536,7 +16542,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -16601,7 +16607,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -16667,7 +16673,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -16733,7 +16739,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -16804,7 +16810,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -16852,7 +16858,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -16910,7 +16916,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -16966,7 +16972,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -17032,7 +17038,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -17099,7 +17105,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -17166,7 +17172,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -17232,7 +17238,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -17280,7 +17286,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -17338,7 +17344,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -17394,7 +17400,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -17461,7 +17467,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -17519,7 +17525,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -17577,7 +17583,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -17625,7 +17631,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -17682,7 +17688,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -17749,7 +17755,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -17816,7 +17822,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -17865,7 +17871,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -17914,7 +17920,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -17962,7 +17968,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -18018,7 +18024,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -18075,7 +18081,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -18123,7 +18129,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -18171,7 +18177,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -18229,7 +18235,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -18278,7 +18284,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -18327,7 +18333,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -18386,7 +18392,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -18453,7 +18459,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -18502,7 +18508,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -18551,7 +18557,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -18600,7 +18606,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -18659,7 +18665,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -18718,7 +18724,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -18785,7 +18791,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -18853,7 +18859,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -18913,7 +18919,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -18962,7 +18968,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -19011,7 +19017,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -19070,7 +19076,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -19138,7 +19144,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -19187,7 +19193,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -19235,7 +19241,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -19295,7 +19301,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -19354,7 +19360,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -19412,7 +19418,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -19468,7 +19474,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -19541,7 +19547,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -19589,7 +19595,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -19647,7 +19653,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -19703,7 +19709,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -19769,7 +19775,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -19836,7 +19842,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -19903,7 +19909,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -19969,7 +19975,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -20017,7 +20023,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -20075,7 +20081,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -20131,7 +20137,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -20179,7 +20185,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -20237,7 +20243,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -20293,7 +20299,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -20360,7 +20366,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -20427,7 +20433,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -20494,7 +20500,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -20561,7 +20567,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -20628,7 +20634,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -20695,7 +20701,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -20762,7 +20768,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -20810,7 +20816,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -20866,7 +20872,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -20923,7 +20929,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -20971,7 +20977,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -21029,7 +21035,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -21085,7 +21091,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -21152,7 +21158,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -21200,7 +21206,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -21249,7 +21255,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -21307,7 +21313,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -21374,7 +21380,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -21422,7 +21428,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -21479,7 +21485,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -21547,7 +21553,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -21615,7 +21621,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -21674,7 +21680,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -21741,7 +21747,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -21808,7 +21814,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -21862,7 +21868,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -21910,7 +21916,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -21968,7 +21974,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -22016,7 +22022,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -22075,7 +22081,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -22142,7 +22148,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -22190,7 +22196,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -22257,7 +22263,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -22305,7 +22311,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -22363,7 +22369,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -22410,7 +22416,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -22465,7 +22471,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -22530,7 +22536,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -22596,7 +22602,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -22662,7 +22668,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -22718,7 +22724,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -22765,7 +22771,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -22820,7 +22826,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -22891,7 +22897,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -22962,7 +22968,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
@@ -25279,7 +25285,7 @@
               },
               {
                 "key": "x-school-id",
-                "value": "{{schoolId}}",
+                "value": "{{tenantSchoolId}}",
                 "description": "Development only; tenant resolver validates the school ID. Remove when using production school host."
               },
               {
