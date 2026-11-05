@@ -27,8 +27,7 @@ For deployed environments, use the school's actual subdomain/custom domain for `
 Import and run **CORE API — Read-only Smoke Tests** first. It contains GET requests only and checks for 5xx responses, Express route-not-found responses, slow responses and malformed JSON. The default path IDs are placeholders; 400/404 responses from business-level validation or missing records are possible and do not prove a successful business workflow. Set `accessToken`, `tenantSchoolId` and `tenantSchema` to exercise authenticated school routes. For a command-line run, install/use Newman and run:
 
 ```bash
-npx newman run docs/api-testing/CORE.read-only-smoke.postman_collection.json \\
-  -e docs/api-testing/CORE.local.postman_environment.json
+npx newman run docs/api-testing/CORE.read-only-smoke.postman_collection.json -e docs/api-testing/CORE.local.postman_environment.json
 ```
 
 ## Important execution safety
