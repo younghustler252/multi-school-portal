@@ -23114,6 +23114,55 @@
       "description": "Routes copied from apps/api/src/routes/index.ts and their module route files on refactor/modules. Dynamic IDs and request DTOs must be populated before execution.",
       "item": [
         {
+          "name": "POST /api/v1/auth/login (platform host)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{platformBaseUrl}}/api/v1/auth/login",
+              "host": [
+                "{{platformBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{platformLoginEmail}}\",\n  \"password\": \"{{platformLoginPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Authenticate on the platform/admin host. Uses separate platform credentials and saves platformAccessToken."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) { const body = pm.response.json(); const tokens = body.data && body.data.tokens; if (tokens && tokens.accessToken) pm.environment.set('platformAccessToken', tokens.accessToken); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "GET /api/v1/platform/schools",
           "request": {
             "method": "GET",
@@ -23135,7 +23184,17 @@
                 "schools"
               ]
             },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
@@ -23179,7 +23238,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{platformAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -23222,7 +23281,17 @@
                 "overview"
               ]
             },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
@@ -23261,7 +23330,17 @@
                 "provisioning"
               ]
             },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
@@ -23315,7 +23394,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{platformAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -23373,7 +23452,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{platformAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -23431,7 +23510,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{platformAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -23488,7 +23567,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{platformAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -23538,7 +23617,17 @@
                 }
               ]
             },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
@@ -23590,7 +23679,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{platformAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -23641,7 +23730,17 @@
                 }
               ]
             },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
@@ -23694,7 +23793,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{platformAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -23751,7 +23850,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{platformAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -23808,7 +23907,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{platformAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -23865,7 +23964,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{platformAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -23907,7 +24006,17 @@
                 "plans"
               ]
             },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
@@ -23951,7 +24060,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{platformAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -24001,7 +24110,17 @@
                 }
               ]
             },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
@@ -24053,7 +24172,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{platformAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -24110,7 +24229,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{platformAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -24167,7 +24286,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{platformAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -24224,7 +24343,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{platformAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -24281,7 +24400,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{platformAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -24323,7 +24442,17 @@
                 "subscriptions"
               ]
             },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
@@ -24362,7 +24491,17 @@
                 "stats"
               ]
             },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
@@ -24401,7 +24540,17 @@
                 "invoices"
               ]
             },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
@@ -24455,7 +24604,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{platformAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -24513,7 +24662,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{platformAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -24563,7 +24712,17 @@
                 }
               ]
             },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
@@ -24616,7 +24775,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{platformAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -24673,7 +24832,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{platformAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -24715,7 +24874,17 @@
                 "audit"
               ]
             },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
@@ -24753,7 +24922,17 @@
                 "settings"
               ]
             },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
@@ -24797,7 +24976,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{platformAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -24839,7 +25018,17 @@
                 "webhooks"
               ]
             },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
@@ -24878,7 +25067,17 @@
                 "summary"
               ]
             },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
@@ -24924,7 +25123,17 @@
                 }
               ]
             },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
@@ -24977,7 +25186,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{accessToken}}",
+                  "value": "{{platformAccessToken}}",
                   "type": "string"
                 }
               ]
@@ -25008,9 +25217,9 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/feedback",
+              "raw": "{{platformBaseUrl}}/api/v1/feedback",
               "host": [
-                "{{baseUrl}}"
+                "{{platformBaseUrl}}"
               ],
               "path": [
                 "api",
@@ -25018,7 +25227,17 @@
                 "feedback"
               ]
             },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
@@ -25120,9 +25339,9 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/feedback/{{id}}",
+              "raw": "{{platformBaseUrl}}/api/v1/feedback/{{id}}",
               "host": [
-                "{{baseUrl}}"
+                "{{platformBaseUrl}}"
               ],
               "path": [
                 "api",
@@ -25138,7 +25357,17 @@
                 }
               ]
             },
-            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
@@ -25165,9 +25394,9 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/feedback/{{id}}/status",
+              "raw": "{{platformBaseUrl}}/api/v1/feedback/{{id}}/status",
               "host": [
-                "{{baseUrl}}"
+                "{{platformBaseUrl}}"
               ],
               "path": [
                 "api",
@@ -25184,7 +25413,17 @@
                 }
               ]
             },
-            "description": "STATE-CHANGING: manual execution only. Supply the exact DTO body and valid IDs before sending. Do not run blindly in Collection Runner."
+            "description": "STATE-CHANGING: manual execution only. Supply the exact DTO body and valid IDs before sending. Do not run blindly in Collection Runner.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
@@ -25211,9 +25450,9 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/feedback/{{id}}/respond",
+              "raw": "{{platformBaseUrl}}/api/v1/feedback/{{id}}/respond",
               "host": [
-                "{{baseUrl}}"
+                "{{platformBaseUrl}}"
               ],
               "path": [
                 "api",
@@ -25230,7 +25469,17 @@
                 }
               ]
             },
-            "description": "STATE-CHANGING: manual execution only. Supply the exact DTO body and valid IDs before sending. Do not run blindly in Collection Runner."
+            "description": "STATE-CHANGING: manual execution only. Supply the exact DTO body and valid IDs before sending. Do not run blindly in Collection Runner.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
@@ -25257,9 +25506,9 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/feedback/{{id}}",
+              "raw": "{{platformBaseUrl}}/api/v1/feedback/{{id}}",
               "host": [
-                "{{baseUrl}}"
+                "{{platformBaseUrl}}"
               ],
               "path": [
                 "api",
@@ -25275,7 +25524,17 @@
                 }
               ]
             },
-            "description": "STATE-CHANGING: manual execution only. Supply the exact DTO body and valid IDs before sending. Do not run blindly in Collection Runner."
+            "description": "STATE-CHANGING: manual execution only. Supply the exact DTO body and valid IDs before sending. Do not run blindly in Collection Runner.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{platformAccessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
           },
           "event": [
             {
