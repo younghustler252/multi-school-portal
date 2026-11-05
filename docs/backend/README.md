@@ -15,6 +15,7 @@ This section documents the backend implementation for developers building and ma
 | Module | Guide | Verification |
 |---|---|---|
 | Auth | [Auth module](modules/auth.md) | Source-reviewed; runtime and integration verification outstanding |
+| Users | [Users module](modules/users.md) | Source-reviewed; runtime and integration verification outstanding |
 
 ## Documentation contract
 
