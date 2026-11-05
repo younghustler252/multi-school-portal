@@ -60,7 +60,7 @@ The application mounts optional authentication and tenant resolution globally, b
 ### AUTH-01 — Role invitation checks permission keys but ignores permission scope
 
 **Severity: High (P1)**  
-<badge color="success">Fixed in source</badge> **Follow-up status: FIXED as of 2026-11-05**
+**Status: FIXED in source as of 2026-11-05.**
 
 The original finding was valid: checking only permission keys could allow an inviter with a narrow scope to grant a role with a broader scope.
 
