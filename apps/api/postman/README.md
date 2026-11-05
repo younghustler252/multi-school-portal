@@ -105,3 +105,17 @@ The collection now includes source-checked example bodies for a starter school w
 The sample names and contact details are synthetic. The guardian and staff emails are set to `guardian.core-test@example.com` and `teacher.core-test@example.com`; change them if you re-run against a database that enforces unique emails.
 
 **Important limits:** The examples are not a database seeder and cannot create the first school administrator or platform administrator. Login still requires an account already provisioned in your local test database and a verified school tenant. The current route inventory contains many more mutation endpoints than the DTOs inspected for this first workflow; requests without an example body are intentionally left unguessed rather than populated with potentially invalid data. Replace `{{termId}}` with a current term ID before assigning subjects. Keep `runMutations=false` until you are ready to execute this workflow against disposable data.
+
+
+## Latest backend route refresh
+
+The collection has been reconciled against `refactor/modules` after the Webhooks module landed.
+
+- Public provider entry: `POST /api/v1/webhooks/paystack` (raw body; Paystack signature required).
+- Platform console: `GET /api/v1/platform/webhooks/`, `GET /summary?hours=24`, `GET /:id`, and `POST /:id/retry`.
+- The old `POST /api/v1/payments/webhook` request has been removed. The Paystack dashboard URL must now point to `/api/v1/webhooks/paystack`.
+- `webhookEventId` is an environment variable; set it to an event ID returned by the platform webhook list before running detail/retry requests.
+
+The public webhook request currently uses a deliberately synthetic body without a valid Paystack signature. A 401 is the expected result; this checks rejection of unsigned callbacks, not successful payment processing. Do not treat it as a successful-payment fixture. A successful signed webhook test needs a test secret and an exact signature generated from the exact raw payload, and should be handled separately.
+
+The webhook console endpoints require a **platform** session with `platform.webhooks.view` or `platform.webhooks.retry`. A school access token is not sufficient.
