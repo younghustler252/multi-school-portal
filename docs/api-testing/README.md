@@ -11,10 +11,14 @@ Branch: `api-test-suite` (based on `refactor/modules`).
 ## Local configuration
 - `baseUrl`: school host/base URL, normally `http://localhost:5000`.
 - `platformBaseUrl`: platform/admin host. Use the same local base URL for development.
-- `accessToken`: access token returned by login.
+- `accessToken`: school access token returned by the school-host login request.
+- `platformAccessToken`: separate platform access token returned by the platform-host login request.
+- `loginEmail` / `loginPassword` and `platformLoginEmail` / `platformLoginPassword`: credentials for the respective test accounts.
 - `tenantSchoolId` and `tenantSchema`: development tenant override values. `schoolId` is a separate path parameter.
 
-The tenant resolver only accepts `x-school-id` and `x-tenant-schema` in development and validates the school ID against the public database. The collection automatically adds these development headers to school-scoped requests:
+The tenant resolver only accepts `x-school-id` and `x-tenant-schema` in development and validates the school ID against the public database. Use the `POST /api/v1/auth/login` request in the Authentication folder to save a school access token. Use `POST /api/v1/auth/login (platform host)` in Platform administration to save a separate platform token. Platform requests use `platformAccessToken`; school requests use `accessToken`.
+
+The collection automatically adds these development headers to school-scoped requests:
 - `x-school-id: {{tenantSchoolId}}`
 - `x-tenant-schema: {{tenantSchema}}`
 
