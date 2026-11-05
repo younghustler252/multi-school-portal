@@ -1,5 +1,7 @@
 # School module pass: apply notes
 
+> **Documentation status:** Historical apply handoff. Do not execute its copy/delete/migration steps as written. Verify the current school, auth, provisioning code, migrations and API workspace scripts first. Current backend source lives under `apps/api/`.
+
 ## 1. Apply, in this order
 1. **Schema (public.prisma)**, then migrate:
    - `School`: add `verificationNote String?`, `activatedAt DateTime?`, `settlementAccountName String?`, `settlementAccountLast4 String?`, and `@@index([status, activatedAt])`.
