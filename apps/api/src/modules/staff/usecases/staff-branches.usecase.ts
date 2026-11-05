@@ -1,4 +1,3 @@
-import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
 import { AuditService } from "../../audit/services/audit.service";
 import type { AccessService } from "../../../foundation/access.service";
 import { IStaffRepository } from "../repositories/staff.repository";
@@ -26,7 +25,6 @@ export class SetStaffBranchesUseCase {
 
     async execute(schoolId: string, id: string, dto: SetStaffBranchesDtoType, actor: StaffActor) {
         const d = this.d;
-        const db = getTenantClient();
         const staff = await d.staffRepository.findWithBranches(id);
         if (!staff) throw staffErrors.notFound();
         const current = (staff.branches ?? []).map(b => b.id);
@@ -35,17 +33,14 @@ export class SetStaffBranchesUseCase {
         const requested = [...new Set(dto.branchIds)];
         const scope = actor.access.branchScope("staff.manage");
         if (Array.isArray(scope) && requested.some(b => !scope.includes(b))) throw staffErrors.branchOutOfScope();
-        if ((await db.branch.count({ where: { id: { in: requested }, isActive: true, deletedAt: null } })) !== requested.length) throw staffErrors.branchesInvalid();
+        if ((await d.staffRepository.countActiveBranches(requested)) !== requested.length) throw staffErrors.branchesInvalid();
 
         // Branches outside the manager's reach are not theirs to remove
         const kept = Array.isArray(scope) ? current.filter(b => !scope.includes(b)) : [];
         const finalIds = [...new Set([...requested, ...kept])];
         const primary = dto.primaryBranchId && finalIds.includes(dto.primaryBranchId) ? dto.primaryBranchId : finalIds[0];
 
-        await db.$transaction([
-            db.staffBranch.deleteMany({ where: { staffId: id } }),
-            db.staffBranch.createMany({ data: finalIds.map(branchId => ({ staffId: id, branchId, isPrimary: branchId === primary, assignedById: actor.userId })) }),
-        ]);
+        await d.staffRepository.replaceBranches(id, finalIds, primary, actor.userId);
 
         const membership = await d.membershipService.findByEntity("STAFF", id);
         if (membership) d.accessService.invalidate(membership.id);

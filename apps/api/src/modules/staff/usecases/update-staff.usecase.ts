@@ -1,4 +1,3 @@
-import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
 import { AuditService } from "../../audit/services/audit.service";
 import { IStaffRepository } from "../repositories/staff.repository";
 import { StaffMapper, StaffResponseData } from "../mappers/staff.mapper";
@@ -13,14 +12,7 @@ interface Dependencies {
 }
 
 // Class and subject assignments a staff member currently holds (this term's subjects + classes they are teacher of)
-export async function activeAssignments(staffId: string): Promise<number> {
-    const db = getTenantClient();
-    const [subjects, classes] = await Promise.all([
-        db.classSubject.count({ where: { staffId, term: { isCurrent: true } } }),
-        db.class.count({ where: { classTeacherId: staffId } }),
-    ]);
-    return subjects + classes;
-}
+export const activeAssignments = (repo: IStaffRepository, staffId: string): Promise<number> => repo.countActiveAssignments(staffId);
 
 const DATE_FIELDS = ["dateOfBirth", "joinDate"] as const;
 
@@ -41,7 +33,7 @@ export class UpdateStaffUseCase {
         if (dto.email && dto.email.toLowerCase() !== (staff.email ?? "").toLowerCase() && await d.staffRepository.findByEmail(dto.email)) throw staffErrors.emailTaken();
         if (dto.employeeId && dto.employeeId !== staff.employeeId && await d.staffRepository.findByEmployeeId(dto.employeeId)) throw staffErrors.employeeIdTaken();
         if (dto.category === "non_teaching" && staff.category === "teaching") {
-            const n = await activeAssignments(staff.id);
+            const n = await activeAssignments(d.staffRepository, staff.id);
             if (n > 0) throw staffErrors.hasAssignments(n);
         }
 

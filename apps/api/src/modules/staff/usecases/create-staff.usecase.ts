@@ -1,4 +1,3 @@
-import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
 import { assertWithinPlanLimit } from "../../../infrastructure/middleware/feature-gate.middleware";
 import { AuditService } from "../../audit/services/audit.service";
 import { NumberSequenceService } from "../../../shared/services/number-sequence.service";
@@ -18,8 +17,7 @@ interface Dependencies {
 }
 
 // Which branches does a new staff member start in? Validates scope and that every branch exists and is active.
-export async function resolveBranchIds(requested: string[] | undefined, access: Access): Promise<string[]> {
-    const db = getTenantClient();
+export async function resolveBranchIds(repo: IStaffRepository, requested: string[] | undefined, access: Access): Promise<string[]> {
     const scope = access.branchScope("staff.manage");
     let ids = requested ? [...new Set(requested)] : undefined;
 
@@ -27,13 +25,13 @@ export async function resolveBranchIds(requested: string[] | undefined, access: 
         if (Array.isArray(scope) && scope.length === 1) ids = [scope[0]];
         else if (Array.isArray(scope) && scope.length > 1) throw staffErrors.branchesInvalid();   // several branches: the person must choose
         else {
-            const main = await db.branch.findFirst({ where: { isMain: true, deletedAt: null }, select: { id: true } });
-            if (!main) throw staffErrors.branchesInvalid();
-            ids = [main.id];
+            const mainId = await repo.findMainBranchId();
+            if (!mainId) throw staffErrors.branchesInvalid();
+            ids = [mainId];
         }
     }
     if (Array.isArray(scope) && ids.some(b => !scope.includes(b))) throw staffErrors.branchOutOfScope();
-    const valid = await db.branch.count({ where: { id: { in: ids }, isActive: true, deletedAt: null } });
+    const valid = await repo.countActiveBranches(ids);
     if (valid !== ids.length) throw staffErrors.branchesInvalid();
     return ids;
 }
@@ -59,7 +57,7 @@ export class CreateStaffUseCase {
         const d = this.d;
         await assertWithinPlanLimit(schoolId, "staff", 1);
 
-        const branchIds = await resolveBranchIds(dto.branchIds, actor.access);
+        const branchIds = await resolveBranchIds(d.staffRepository, dto.branchIds, actor.access);
 
         if (dto.email && await d.staffRepository.findByEmail(dto.email)) throw staffErrors.emailTaken();
         if (dto.employeeId && await d.staffRepository.findByEmployeeId(dto.employeeId)) throw staffErrors.employeeIdTaken();
@@ -70,26 +68,21 @@ export class CreateStaffUseCase {
             if (dup) throw staffErrors.possibleDuplicate(dup.id);
         }
 
-        const db = getTenantClient();
         let created: { id: string } | null = null;
         // One attempt is normally enough: the number is the next FREE one, chosen inside the transaction.
         // A second attempt only covers two requests that picked the same free number at the same moment.
         for (let attempt = 0; attempt < 3 && !created; attempt++) {
             try {
-                created = await db.$transaction(async tx => {
-                    const employeeId = dto.employeeId ?? await nextEmployeeId(d.numberSequenceService, tx as any);
-                    const s = await tx.staff.create({
-                        data: {
-                            employeeId, firstName: dto.firstName, lastName: dto.lastName, middleName: dto.middleName, email: dto.email, phone: dto.phone,
-                            gender: dto.gender, dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : undefined, address: dto.address,
-                            department: dto.department, designation: dto.designation, qualification: dto.qualification,
-                            category: dto.category, employmentType: dto.employmentType, joinDate: dto.joinDate ? new Date(dto.joinDate) : undefined,
-                            isActive: true, createdById: actor.userId,
-                        },
-                        select: { id: true },
-                    });
-                    await tx.staffBranch.createMany({ data: branchIds.map((branchId, i) => ({ staffId: s.id, branchId, isPrimary: i === 0, assignedById: actor.userId })) });
-                    return s;
+                created = await d.staffRepository.createWithBranches({
+                    branchIds, assignedById: actor.userId,
+                    employeeId: dto.employeeId ?? (tx => nextEmployeeId(d.numberSequenceService, tx as any)),
+                    data: {
+                        firstName: dto.firstName, lastName: dto.lastName, middleName: dto.middleName, email: dto.email, phone: dto.phone,
+                        gender: dto.gender, dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : undefined, address: dto.address,
+                        department: dto.department, designation: dto.designation, qualification: dto.qualification,
+                        category: dto.category, employmentType: dto.employmentType, joinDate: dto.joinDate ? new Date(dto.joinDate) : undefined,
+                        isActive: true, createdById: actor.userId,
+                    },
                 });
             } catch (err: any) {
                 // Two requests chose the same free number at the same moment: the loser starts again and gets the next one

@@ -17,4 +17,18 @@ export interface IStaffRepository {
     findByEmployeeId(employeeId: string): Promise<StaffEntity | null>;
     findByEmail(email: string): Promise<StaffEntity | null>;
     findWithBranches(id: string): Promise<StaffEntity | null>;
+
+    // ── Assignments and branches ─────────────────────────────────────────
+    /** Subjects taught this term plus classes the person is class teacher of. */
+    countActiveAssignments(staffId: string): Promise<number>;
+    findMainBranchId(): Promise<string | null>;
+    /** How many of these branches exist and are active (not deleted). */
+    countActiveBranches(ids: string[]): Promise<number>;
+    /** Replaces all of a person's branches in one step. */
+    replaceBranches(staffId: string, branchIds: string[], primaryBranchId: string, assignedById: string): Promise<void>;
+    /** Creates the staff row and its branches in one transaction. `employeeId` may be worked out inside that transaction. */
+    createWithBranches(input: {
+        data: Record<string, unknown>; branchIds: string[]; assignedById: string;
+        employeeId: string | ((tx: unknown) => Promise<string>);
+    }): Promise<{ id: string }>;
 }
