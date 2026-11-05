@@ -25,6 +25,7 @@ This section documents the backend implementation for developers building and ma
 | Classes and subjects | [Classes and subjects](modules/classes.md) | Partially source-verified; remaining use cases/schema/test verification outstanding |
 | Enrolment | [Enrolment module](modules/enrolment.md) | Partially source-verified; schema/migration/runtime verification outstanding |
 | Sessions and calendar | [Sessions module](modules/sessions.md) | Partially source-verified; schema/migration/runtime verification outstanding |
+| Attendance | [Attendance module](modules/attendance.md) | Partially source-verified; tests/runtime and summary authorization review outstanding |
 
 ## Documentation contract
 
@@ -54,5 +55,6 @@ Foundation modules are being documented first because other modules depend on th
 9. Classes and subjects
 10. Enrolment
 11. Sessions and calendar
+12. Attendance
 
 The frontend is intentionally not being documented as the current implementation while it remains behind the backend. Frontend implementation documentation will follow the backend contract audit.
