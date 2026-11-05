@@ -3,15 +3,16 @@
 Branch: `api-test-suite` (based on `refactor/modules`).
 
 ## Import
-1. Import `CORE.postman_collection.json`.
-2. Import `CORE.local.postman_environment.json`.
-3. Select **CORE Local API**.
+1. Import `CORE.postman_collection.json` (439 unique method + path requests across 16 folders).
+2. Import `CORE.read-only-smoke.postman_collection.json` (176 GET-only requests across 16 folders; safe first run).
+3. Import `CORE.local.postman_environment.json`.
+4. Select **CORE Local API**.
 
 ## Local configuration
 - `baseUrl`: school host/base URL, normally `http://localhost:5000`.
 - `platformBaseUrl`: platform/admin host. Use the same local base URL for development.
 - `accessToken`: access token returned by login.
-- `schoolId` and `tenantSchema`: development tenant override values.
+- `tenantSchoolId` and `tenantSchema`: development tenant override values. `schoolId` is a separate path parameter.
 
 The tenant resolver only accepts `x-school-id` and `x-tenant-schema` in development and validates the school ID against the public database. The collection automatically adds these development headers to school-scoped requests:
 - `x-school-id: {{tenantSchoolId}}`
