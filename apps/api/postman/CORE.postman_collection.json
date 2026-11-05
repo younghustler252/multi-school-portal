@@ -11850,6 +11850,95 @@
             "url": "{{schoolBaseUrl}}/api/v1/audit/",
             "description": "Source: apps/api route registry. Read-only request."
           }
+        },
+        {
+          "name": "GET /api/v1/platform/webhooks/",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{platformAccessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{platformBaseUrl}}/api/v1/platform/webhooks/",
+            "description": "Platform webhook event inspection endpoint; requires platform.webhooks.view."
+          }
+        },
+        {
+          "name": "GET /api/v1/platform/webhooks/summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{platformAccessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{platformBaseUrl}}/api/v1/platform/webhooks/summary?hours=24",
+            "description": "Platform webhook event inspection endpoint; requires platform.webhooks.view."
+          }
+        },
+        {
+          "name": "GET /api/v1/platform/webhooks/{{webhookEventId}}",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{platformAccessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{platformBaseUrl}}/api/v1/platform/webhooks/{{webhookEventId}}",
+            "description": "Platform webhook event inspection endpoint; requires platform.webhooks.view."
+          }
+        },
+        {
+          "name": "POST /api/v1/platform/webhooks/{{webhookEventId}}/retry",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{platformAccessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{platformBaseUrl}}/api/v1/platform/webhooks/{{webhookEventId}}/retry",
+            "description": "Platform webhook retry is a state-changing operation. Review event status and use disposable test events only.",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
         }
       ]
     },
@@ -11857,7 +11946,7 @@
       "name": "Webhooks & External Callbacks",
       "item": [
         {
-          "name": "POST /api/v1/payments/webhook",
+          "name": "POST /api/v1/webhooks/paystack",
           "request": {
             "method": "POST",
             "header": [
@@ -11866,8 +11955,8 @@
                 "value": "application/json"
               }
             ],
-            "url": "{{schoolBaseUrl}}/api/v1/payments/webhook",
-            "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data."
+            "url": "{{publicBaseUrl}}/api/v1/webhooks/paystack",
+            "description": "Public provider callback. The current implementation verifies Paystack's signature against the raw request bytes. This synthetic body has no valid signature and should be rejected (401); do not use it to simulate a successful payment. Real provider integration tests require a correctly signed fixture."
           }
         }
       ]
