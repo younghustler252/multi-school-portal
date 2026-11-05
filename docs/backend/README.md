@@ -4,11 +4,11 @@ This section documents the backend implementation for developers building and ma
 
 ## Reading order
 
-1. [System and monorepo architecture](../../architecture/system-and-monorepo.md)
-2. [Multi-tenancy and database architecture](../../architecture/multi-tenancy-and-database.md)
-3. [Authentication and authorization architecture](../../architecture/authentication-and-authorization.md)
-4. [Background processing architecture](../../architecture/background-processing.md)
-5. [API conventions](api-conventions.md) — planned; create after the response/error middleware audit.
+1. [System and monorepo architecture](../architecture/system-and-monorepo.md)
+2. [Multi-tenancy and database architecture](../architecture/multi-tenancy-and-database.md)
+3. [Authentication and authorization architecture](../architecture/authentication-and-authorization.md)
+4. [Background processing architecture](../architecture/background-processing.md)
+5. API conventions — planned; create after the response/error middleware audit.
 
 ## Module guides
 
