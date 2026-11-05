@@ -9,7 +9,12 @@ Source code on `refactor/modules` is authoritative when a document and implement
 
 | Document | Purpose | Status |
 |---|---|---|
-| [System and Monorepo Architecture](architecture/system-and-monorepo.md) | System shape, workspace boundaries, technology baseline and backend module conventions | Current source-checked guide |\n| [Multi-Tenancy and Database Architecture](architecture/multi-tenancy-and-database.md) | PostgreSQL schema-per-school model, tenant context and migration boundaries | Current source-checked guide |\n| [Authentication and Authorization](architecture/authentication-and-authorization.md) | Permission realms, scopes, entitlements and enforcement boundaries | Current source-checked guide |\n| [Background Processing](architecture/background-processing.md) | API/worker separation, queues, schedulers and tenant context | Current source-checked guide |\n| [Finance Architecture](architecture/finance-architecture.md) | Cross-module accounting invariants and finance boundaries | Current source-checked guide |\n| [Legacy Platform Documentation](PLATFORM_DOCUMENTATION.md) | Redirect to the split architecture guides | Retained for backward compatibility |
+| [System and Monorepo Architecture](architecture/system-and-monorepo.md) | System shape, workspace boundaries, technology baseline and backend module conventions | Current source-checked guide |
+| [Multi-Tenancy and Database Architecture](architecture/multi-tenancy-and-database.md) | PostgreSQL schema-per-school model, tenant context and migration boundaries | Current source-checked guide |
+| [Authentication and Authorization](architecture/authentication-and-authorization.md) | Permission realms, scopes, entitlements and enforcement boundaries | Current source-checked guide |
+| [Background Processing](architecture/background-processing.md) | API/worker separation, queues, schedulers and tenant context | Current source-checked guide |
+| [Finance Architecture](architecture/finance-architecture.md) | Cross-module accounting invariants and finance boundaries | Current source-checked guide |
+| [Legacy Platform Documentation](PLATFORM_DOCUMENTATION.md) | Redirect to the split architecture guides | Retained for backward compatibility |
 | [Testing Guide](TESTING_GUIDE.md) | Workspace test commands, test database, safeguards and migration workflow | Current guide; update when test setup changes |
 | [Auth Audit](AUTH_AUDIT.md) | Auth security findings and follow-up statuses | Source-reviewed; remediation and runtime verification remain outstanding |
 
