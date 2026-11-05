@@ -32,6 +32,8 @@ Source code on `refactor/modules` is authoritative when a document and implement
 | [Students Module](backend/modules/students.md) | Student records, lifecycle, branch transfer, photos and CSV import | Partially source-verified; remaining lifecycle/photo/schema/test verification outstanding |
 | [Guardians Module](backend/modules/guardians.md) | Guardian records, student links and portal invitations | Partially source-verified; update/repository/schema/test verification outstanding |
 | [Classes and Subjects](backend/modules/classes.md) | Class setup, subjects, teaching assignments and progression | Partially source-verified; remaining use cases/schema/test verification outstanding |
+| [Enrolment Module](backend/modules/enrolment.md) | Term-specific student placement, class capacity, scoped lists and promotion | Partially source-verified; schema/migration/runtime verification outstanding |
+| [Sessions Module](backend/modules/sessions.md) | Academic sessions, terms, current period, calendar events and rollover | Partially source-verified; schema/migration/runtime verification outstanding |
 
 ## Workstream handoffs and operational guides
 
@@ -59,7 +61,7 @@ These documents are retained for their potential implementation context. They ar
 - [Graduation](GRADUATION_NOTES.md)
 - [Guardians](GUARDIANS_MODULE_NOTES.md)
 - [Plans](PLANS_MODULE_NOTES.md)
-- [Report cards](REPORT_CARDS_NOTES.md)
+- [Report cards](REPORT_CARDS_MODULE_NOTES.md)
 - [Roles](ROLES_MODULE_NOTES.md)
 - [School](SCHOOL_MODULE_NOTES.md)
 - [Sessions](SESSIONS_MODULE_NOTES.md)
