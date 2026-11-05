@@ -13,9 +13,11 @@ Branch: `api-test-suite` (based on `refactor/modules`).
 - `accessToken`: access token returned by login.
 - `schoolId` and `tenantSchema`: development tenant override values.
 
-The tenant resolver only accepts `x-school-id` and `x-tenant-schema` in development and validates the school ID against the public database. The collection currently defines these environment values, but does not automatically add the development headers; add them to the collection's Authorization/Headers configuration when testing locally:
-- `x-school-id: {{schoolId}}`
+The tenant resolver only accepts `x-school-id` and `x-tenant-schema` in development and validates the school ID against the public database. The collection automatically adds these development headers to school-scoped requests:
+- `x-school-id: {{tenantSchoolId}}`
 - `x-tenant-schema: {{tenantSchema}}`
+
+Set `tenantSchoolId` to the public database School ID and `tenantSchema` to that school's schema name. `schoolId` is a separate path-parameter placeholder used by platform routes.
 
 For deployed environments, use the school's actual subdomain/custom domain for `baseUrl`; do not use development tenant headers.
 
