@@ -1685,7 +1685,7 @@
                 "exec": [
                   "if (pm.response.code >= 200 && pm.response.code < 300) {",
                   "  try { const body = pm.response.json(); const data = body && body.data; const entity = data && (data.student || data.guardian || data.staff || data.class || data.subject || data.branch || data); const id = entity && (entity.id || entity.studentId || entity.guardianId || entity.staffId || entity.classId || entity.subjectId || entity.destinationBranchId);",
-                  "    if (id) { pm.environment.set(\"destinationBranchId\", id); console.log(\"Captured branchId: \" + id); }",
+                  "    if (id) { pm.environment.set(\"destinationBranchId\", id); console.log(\"Captured destinationBranchId: \" + id); }",
                   "  } catch (e) { console.warn('Could not capture created resource ID:', e.message); }",
                   "}"
                 ]
@@ -3929,7 +3929,7 @@
             "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data. Example payload checked against the module DTO.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"sessionId\": \"{{sessionId}}\",\n  \"name\": \"FIRST_TERM\",\n  \"startDate\": \"2026-09-01\",\n  \"endDate\": \"2026-12-18\"\n}",
+              "raw": "{\n  \"sessionId\": \"{{sessionId}}\",\n  \"name\": \"first\",\n  \"startDate\": \"2026-09-01\",\n  \"endDate\": \"2026-12-18\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -4246,7 +4246,7 @@
             "description": "Source: apps/api route registry. Mutation is guarded by the collection safety switch; set runMutations=true only on disposable test data. Example payload checked against the module DTO.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"date\": \"2026-11-05\",\n  \"entries\": [\n    {\n      \"studentId\": \"{{studentId}}\",\n      \"status\": \"PRESENT\",\n      \"note\": \"Postman attendance fixture\"\n    }\n  ]\n}",
+              "raw": "{\n  \"date\": \"2026-11-05\",\n  \"entries\": [\n    {\n      \"studentId\": \"{{studentId}}\",\n      \"status\": \"present\",\n      \"note\": \"Postman attendance fixture\"\n    }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
