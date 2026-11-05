@@ -8,19 +8,19 @@
 
 ## 1. Executive summary
 
-Auth is registered in `src/container/index.ts` and its router is mounted at `/api/v1/auth`. It covers school registration, email verification, login, refresh-token rotation, logout, password recovery, persona switching, invitation lifecycle, and one-time impersonation-ticket exchange.
+Auth is registered in `apps/api/src/container/index.ts` and its router is mounted at `/api/v1/auth`. It covers school registration, email verification, login, refresh-token rotation, logout, password recovery, persona switching, invitation lifecycle, and one-time impersonation-ticket exchange.
 
 The design has several sound controls: HMAC storage for refresh/OTP/invite tokens, refresh-token rotation and reuse detection, membership revalidation during refresh, generic responses for account-enumerating recovery flows, password hashing with bcrypt, tenant-bound invite validation, and audit events.
 
-The audit found two important correctness/security issues to address before treating the module as hardened: invite role delegation compares permission keys without comparing scopes, and invite acceptance compensation does not undo all tenant-side changes after a later failure. It also identified a session-invalidation gap after password reset and a lack of Auth-specific automated tests.
+The original audit identified scope-unsafe role delegation, incomplete invite-acceptance compensation, an access-token invalidation question after password reset, and a lack of Auth regression coverage. The scope-delegation issue (AUTH-01) has since been fixed and has a focused regression test. AUTH-02, AUTH-03 and the broader lifecycle-coverage gap remain items to verify or address.
 
-**This is an audit report, not a claim that any finding has been fixed.**
+**This is a source-review record. Finding statuses below include the 2026-11-05 follow-up; they do not imply a build, full test suite, database test or live API verification was run.**
 
 ## 2. Auth architecture
 
 ### Registration and dependencies
 
-`src/modules/auth/auth.container.ts` registers the Auth controller, repositories, services, and use cases. It depends on shared `prismaClient`, `tokenService`, `passwordService`, and `mailService`, and on the Plans module's `planRepository`.
+`apps/api/src/modules/auth/auth.container.ts` registers the Auth controller, repositories, services, and use cases. It depends on shared `prismaClient`, `tokenService`, `passwordService`, and `mailService`, and on the Plans module's `planRepository`.
 
 - Public identity/session records use the public Prisma client: `User`, `UserSchool`, `PlatformMember`, `Otp`, `Invite`, and `RefreshToken`.
 - School memberships, school roles, staff/guardian/student persona links, and tenant role assignments use `getTenantClient()` inside the active tenant context.
@@ -60,26 +60,22 @@ The application mounts optional authentication and tenant resolution globally, b
 ### AUTH-01 — Role invitation checks permission keys but ignores permission scope
 
 **Severity: High (P1)**  
-**Status: FIXED (scope-aware delegation, `canDelegateRole`; also applied to staff role changes; tests in `tests/auth/role-delegation.test.ts`)**
+<badge color="success">Fixed in source</badge> **Follow-up status: FIXED as of 2026-11-05**
 
-In `src/modules/auth/usecases/send-invite.usecase.ts`, the inviter's ability to grant a non-`grantsAll` staff role is checked using:
+The original finding was valid: checking only permission keys could allow an inviter with a narrow scope to grant a role with a broader scope.
 
-```ts
-role.permissionKeys.every(k => actor.can(k))
-```
+The current implementation adds `canDelegateRole()` in `apps/api/src/foundation/access.service.ts`. It requires the inviter's effective scope to cover each permission scope being granted. The invite use case uses this check, and the staff-role change path also applies scope-aware delegation. The separate restriction for `grantsAll` roles remains.
 
-However, `MembershipService.getRole()` in `src/modules/auth/services/membership.service.ts` selects only `permissionKey` from `SchoolRolePermission`, discarding each permission's `scope`. `Access.can()` in `src/foundation/access.service.ts` checks whether a key is held, while `Access.scopeOf()` returns the effective scope. A permission held at `OWN`, `ASSIGNED`, or `BRANCH` scope can therefore satisfy the key-only comparison for a role that grants the same permission at `ALL` scope.
+Regression coverage exists in `apps/api/tests/auth/role-delegation.test.ts`, including `OWN → ALL`, `BRANCH → ALL`, equal-scope and narrower-scope cases.
 
-The route's `users.invite` guard limits who can reach this use case, and `grantsAll` roles have a separate school-admin check. Those controls do not make the key-only comparison equivalent to checking the scope of every permission being granted.
-
-**Recommended correction:** include permission scopes in the role record and require the target role's scope for every permission to be no broader than the inviter's effective scope. Preserve the separate rule that only an authorized school administrator can grant `grantsAll` roles. Add tests for same-key/different-scope cases, including `OWN → ALL`, `BRANCH → ALL`, and valid equal/narrower grants.
+**Verification limit:** the focused test file is present and was inspected; it was not executed as part of this documentation review. Re-run it and the full suite when dependencies and the test environment are available.
 
 ### AUTH-02 — Invite acceptance does not fully compensate tenant-side writes after failure
 
 **Severity: Medium (P2)**  
 **Status: Confirmed by source inspection; failure scenario not runtime-tested**
 
-`src/modules/auth/usecases/accept-invite.usecase.ts` claims the invite, then performs several operations across public and tenant data: create or update the public user, link the tenant persona record, create the tenant membership and role assignment, add the public `UserSchool` discovery link, issue a refresh session, and send/audit the result.
+`apps/api/src/modules/auth/usecases/accept-invite.usecase.ts` claims the invite, then performs several operations across public and tenant data: create or update the public user, link the tenant persona record, create the tenant membership and role assignment, add the public `UserSchool` discovery link, issue a refresh session, and send/audit the result.
 
 Its catch block releases the invite claim and deletes the public user only when this flow created a new user. It does not reverse a successful tenant persona link or a tenant membership if a later step fails. `MembershipService.linkPersonaEntity()` updates `Staff.userId`, `Guardian.userId`, or `Student.userId`; those writes are not reversed by the catch block. If a later step fails, a retry may encounter an already-linked persona or an orphaned tenant membership even though the invite was unclaimed.
 
@@ -90,29 +86,29 @@ Its catch block releases the invite claim and deletes the public user only when 
 **Severity: Medium (P2)**  
 **Status: Confirmed by source inspection**
 
-`src/modules/auth/usecases/reset-password.usecase.ts` updates `passwordChangedAt` and revokes all refresh-token rows. Its own comment says access tokens issued before `passwordChangedAt` should be rejected by authentication middleware.
+`apps/api/src/modules/auth/usecases/reset-password.usecase.ts` updates `passwordChangedAt` and revokes all refresh-token rows. Its own comment says access tokens issued before `passwordChangedAt` should be rejected by authentication middleware.
 
-However, `src/infrastructure/middleware/auth.middleware.ts` verifies the JWT and checks the `mustChangePassword` claim; it does not load the user or compare token issuance time against `passwordChangedAt`. `TokenService.verifyAccessToken()` returns only the defined identity claims and does not expose `iat` for this check. Consequently, an already-issued access token can remain usable until its normal expiry even after a password reset or change.
+However, `apps/api/src/infrastructure/middleware/auth.middleware.ts` verifies the JWT and checks the `mustChangePassword` claim; it does not load the user or compare token issuance time against `passwordChangedAt`. `TokenService.verifyAccessToken()` returns only the defined identity claims and does not expose `iat` for this check. Consequently, an already-issued access token can remain usable until its normal expiry even after a password reset or change.
 
 **Recommended correction:** either implement a reliable invalidation check (including a defined cache strategy) or explicitly document and accept the bounded access-token lifetime as the policy. If implementing the check, test password reset/change against previously issued access tokens and avoid adding an unbounded database query to every request without considering performance.
 
-### AUTH-04 — No Auth-specific automated test files are present
+### AUTH-04 — Auth regression coverage remains incomplete
 
 **Severity: Medium (P2)**  
-**Status: Confirmed in the repository tree**
+**Status: Partially improved; comprehensive lifecycle coverage still missing**
 
-The current `tests/` tree contains tests for areas such as Classes, Guardians, Sessions, Students, Foundation, infrastructure, and Finance, but no `tests/**/auth*.test.ts` or Auth test directory was present in the reviewed branch.
+The original audit found no Auth-specific test directory. The current tree now contains at least the focused `apps/api/tests/auth/role-delegation.test.ts` regression test for AUTH-01.
 
-That leaves the module's highest-risk flows without visible dedicated regression coverage: login/session selection, refresh rotation and reuse detection, OTP attempts and single-use behavior, password recovery, invitation authorization/acceptance, impersonation-ticket exchange, and tenant/session mismatch handling.
+That does not establish coverage for the broader security-sensitive lifecycle: login/session selection, refresh rotation and reuse detection, OTP attempts and single-use behavior, password recovery, invitation acceptance and compensation, impersonation-ticket exchange, and tenant/session mismatch handling.
 
-**Recommended correction:** add focused Auth tests before or alongside fixes. Start with the security boundaries in AUTH-01 through AUTH-03, then cover the public lifecycle endpoints and their generic responses. Use mocks for isolated use-case tests and a dedicated disposable test database for integration coverage where persistence/tenant context is material.
+**Recommended correction:** add focused use-case tests for AUTH-02 and AUTH-03, then integration coverage for persistence and tenant-context boundaries. Use the dedicated disposable test database where public/tenant persistence is material.
 
 ### AUTH-05 — IP rate limiters use the default in-memory store
 
 **Severity: Medium (P2, deployment-dependent)**  
 **Status: Confirmed by source inspection**
 
-`src/infrastructure/middleware/rate-limit.middleware.ts` creates `express-rate-limit` limiters without a shared store. The IP-based `authLimiter` and `otpLimiter` therefore use the package's default process-local store. The module adds Redis-backed per-(email + IP) login failure tracking and a Redis registration counter, plus a database-backed OTP cooldown, which are useful additional controls.
+`apps/api/src/infrastructure/middleware/rate-limit.middleware.ts` creates `express-rate-limit` limiters without a shared store. The IP-based `authLimiter` and `otpLimiter` therefore use the package's default process-local store. The module adds Redis-backed per-(email + IP) login failure tracking and a Redis registration counter, plus a database-backed OTP cooldown, which are useful additional controls.
 
 In a multi-instance deployment, process-local IP counters are not shared across instances and are reset when an instance restarts. This weakens the intended IP-level limit for routes such as OTP and invite operations.
 
@@ -129,8 +125,8 @@ In a multi-instance deployment, process-local IP counters are not shared across 
 
 ## 4. Controls observed that should be preserved
 
-- Passwords are hashed with bcrypt using 12 salt rounds in `src/shared/services/password.service.ts`.
-- Email DTOs trim and lowercase addresses in `src/modules/auth/dtos/common.ts`.
+- Passwords are hashed with bcrypt using 12 salt rounds in `apps/api/src/shared/services/password.service.ts`.
+- Email DTOs trim and lowercase addresses in `apps/api/src/modules/auth/dtos/common.ts`.
 - Login performs a dummy bcrypt comparison for unknown email addresses and uses a generic invalid-credentials response for bad passwords/no access.
 - Password-reset and resend-OTP flows return generic messages rather than disclosing whether an account exists.
 - OTPs, invite tokens, and refresh tokens are stored as keyed HMACs; comparisons use `timingSafeEqual`.
@@ -151,8 +147,7 @@ In a multi-instance deployment, process-local IP counters are not shared across 
 
 ## 6. Recommended remediation order
 
-1. **AUTH-01:** enforce permission-scope-safe role delegation and add regression tests.
-2. **AUTH-02:** make invitation acceptance safely recoverable across tenant/public writes; add failure-injection tests.
-3. **AUTH-03:** choose and implement the access-token invalidation policy after password reset/change.
-4. **AUTH-04:** build the Auth test suite around those security boundaries and the main lifecycle flows.
-5. **AUTH-05 / AUTH-06:** confirm deployment topology and decide the rate-limit and lockout policy before production scaling.
+1. **AUTH-02:** make invitation acceptance safely recoverable across tenant/public writes; add failure-injection tests.
+2. **AUTH-03:** choose and implement the access-token invalidation policy after password reset/change.
+3. **AUTH-04:** build the Auth test suite around those security boundaries and the main lifecycle flows.
+4. **AUTH-05 / AUTH-06:** confirm deployment topology and decide the rate-limit and lockout policy before production scaling.
