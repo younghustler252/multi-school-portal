@@ -85,7 +85,6 @@ model Staff {
   joinDate       DateTime?
   exitDate       DateTime?
   exitReason     String?
-  role           StaffRole      @default(other)
   isActive       Boolean        @default(true)
   createdById    String?
   updatedById    String?
@@ -102,14 +101,6 @@ model Staff {
   @@index([category])
   @@index([email])
   @@index([deletedAt])
-}
-
-enum StaffRole {
-  school_admin
-  principal
-  teacher
-  bursar
-  other
 }
 
 enum Gender {
@@ -136,20 +127,46 @@ model Student {
   graduatedAt     DateTime?
   graduatedTermId String?
   admittedAt      DateTime?
+  branchId        String
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
-  enrolments    Enrolment[]
-  guardianLinks StudentGuardian[]
-  attendances   Attendance[]
-  grades        Grade[]
-  feeInvoices   FeeInvoice[]
-  reportCards   ReportCard[]
-  discounts     StudentDiscount[]
-  allocations   PaymentAllocation[]
-  refunds       Refund[]
+  branch          Branch                  @relation(fields: [branchId], references: [id])
+  branchTransfers StudentBranchTransfer[]
+  enrolments      Enrolment[]
+  guardianLinks   StudentGuardian[]
+  attendances     Attendance[]
+  grades          Grade[]
+  feeInvoices     FeeInvoice[]
+  reportCards     ReportCard[]
+  discounts       StudentDiscount[]
+  allocations     PaymentAllocation[]
+  refunds         Refund[]
 
   @@index([graduatedAt])
+  @@index([branchId])
+}
+
+// History of a student moving between branches. One row per transfer, never edited or deleted.
+// Class and term ids are plain text on purpose: the history must survive a class being deleted later.
+model StudentBranchTransfer {
+  id              String   @id @default(uuid())
+  studentId       String
+  fromBranchId    String
+  toBranchId      String
+  termId          String?
+  enrolmentId     String?
+  fromClassId     String?
+  toClassId       String?
+  reason          String
+  transferredById String
+  createdAt       DateTime @default(now())
+
+  student    Student @relation(fields: [studentId], references: [id])
+  fromBranch Branch  @relation("TransferFromBranch", fields: [fromBranchId], references: [id])
+  toBranch   Branch  @relation("TransferToBranch", fields: [toBranchId], references: [id])
+
+  @@index([studentId, createdAt])
 }
 
 model Guardian {
@@ -276,9 +293,11 @@ model Class {
   level          String?
   capacity       Int?
   classTeacherId String?
+  branchId       String
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
+  branch           Branch             @relation(fields: [branchId], references: [id])
   classTeacher     Staff?             @relation(fields: [classTeacherId], references: [id])
   enrolments       Enrolment[]
   classSubjects    ClassSubject[]
@@ -287,6 +306,9 @@ model Class {
   feeStructures    FeeStructure[]
   feeInvoices      FeeInvoice[]
   attendance       Attendance[]
+  reportCards      ReportCard[]
+
+  @@index([branchId])
 }
 
 model Subject {
@@ -475,13 +497,22 @@ model ReportCard {
   emailSentAt     DateTime?
   smsSentAt       DateTime?
   generatedAt     DateTime?
+  classId         String? // the class the card was made for
+  snapshot        Json? // everything the card shows, frozen when it is generated (see report-cards/domain/report-card.policy.ts)
+  generatedById   String?
+  publishedAt     DateTime?
+  publishedById   String?
+  unpublishReason String?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
   student Student @relation(fields: [studentId], references: [id])
   term    Term    @relation(fields: [termId], references: [id])
+  class   Class?  @relation(fields: [classId], references: [id], onDelete: SetNull)
 
   @@unique([studentId, termId])
+  @@index([termId, classId])
+  @@index([status])
 }
 
 enum ReportCardStatus {
@@ -1048,6 +1079,10 @@ model Branch {
   deletedAt        DateTime?
 
   staff          StaffBranch[]
+  classes        Class[]
+  students       Student[]
+  transfersFrom  StudentBranchTransfer[] @relation("TransferFromBranch")
+  transfersTo    StudentBranchTransfer[] @relation("TransferToBranch")
   journalEntries JournalEntry[]
   feeStructures  FeeStructure[]
   feeInvoices    FeeInvoice[]

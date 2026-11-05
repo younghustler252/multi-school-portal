@@ -15,6 +15,7 @@ import { createBullBoardRouter } from "./infrastructure/jobs/bull-board";
 import { webhookEntryRouter } from "./modules/webhooks/routes/webhook.routes";
 import routes                                        from "./routes";
 import { join } from "node:path";
+import { isAllowedOrigin } from "./infrastructure/middleware/cors-origin";
 const app = express();
 
 // ── Security ──────────────────────────────────────────────────────────────
@@ -27,14 +28,8 @@ app.use(
 );
 app.use(cors({
     origin: (origin, callback) => {
-        if (!origin) return callback(null, true);
-        if (/https:\/\/.*\.yourapp\.com$/.test(origin)) {
-            callback(null, true);
-        } else if (env.NODE_ENV === "development") {
-            callback(null, true);
-        } else {
-            callback(new Error("Not allowed by CORS"));
-        }
+        if (isAllowedOrigin(origin, env.BASE_DOMAIN, env.NODE_ENV)) callback(null, true);
+        else callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
 }));

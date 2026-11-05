@@ -48,6 +48,9 @@ router.delete("/me/avatar", authenticate, loadAccess, (q, s, n) => ctrl().remove
 // ── What this login can enter (profile + school switchers) ────────────────
 router.get("/me/access", authenticate, loadAccess, (q, s, n) => ctrl().listMyAccess(q, s, n));
 
+// ── What this session may do (permissions + scopes + branches), for menus and buttons ─────────────
+router.get("/me/permissions", authenticate, loadAccess, (q, s, n) => ctrl().myPermissions(q, s, n));
+
 // ── Signed-in devices ─────────────────────────────────────────────────────
 router.get("/me/sessions", authenticate, validateTenantOwnership, (q, s, n) => ctrl().listMySessions(q, s, n));
 router.delete("/me/sessions/:id", authenticate, validateTenantOwnership, (q, s, n) => ctrl().revokeMySession(q, s, n));

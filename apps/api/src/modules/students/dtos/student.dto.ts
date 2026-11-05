@@ -80,7 +80,7 @@ export const ListStudentsQuery = z.object({
     branchId: z.string().uuid().optional(),             // narrows the list to one branch (never widens what you may see)
 });
 
-// ── CSV import row (used by the import use case, which is not switched on yet) ──
+// ── CSV import row (used by the student import use cases: preview and import) ──
 export const ImportStudentRowSchema = z.object({
     firstName:        z.string().min(1),
     lastName:         z.string().min(1),

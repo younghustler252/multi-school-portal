@@ -180,11 +180,8 @@ exports.Prisma.SchoolDocumentScalarFieldEnum = {
 
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
-  schoolId: 'schoolId',
   email: 'email',
   passwordHash: 'passwordHash',
-  role: 'role',
-  platformRole: 'platformRole',
   firstName: 'firstName',
   lastName: 'lastName',
   phone: 'phone',
@@ -239,7 +236,6 @@ exports.Prisma.RefreshTokenScalarFieldEnum = {
 exports.Prisma.InviteScalarFieldEnum = {
   id: 'id',
   email: 'email',
-  role: 'role',
   persona: 'persona',
   personaEntityId: 'personaEntityId',
   roleId: 'roleId',
@@ -259,9 +255,6 @@ exports.Prisma.PlanScalarFieldEnum = {
   name: 'name',
   systemKey: 'systemKey',
   description: 'description',
-  studentLimit: 'studentLimit',
-  staffLimit: 'staffLimit',
-  features: 'features',
   monthlyPriceKobo: 'monthlyPriceKobo',
   yearlyPriceKobo: 'yearlyPriceKobo',
   setupFeeKobo: 'setupFeeKobo',
@@ -286,14 +279,8 @@ exports.Prisma.SubscriptionScalarFieldEnum = {
   couponId: 'couponId',
   discountedPriceKobo: 'discountedPriceKobo',
   autoRenew: 'autoRenew',
-  paystackAuthorizationCode: 'paystackAuthorizationCode',
-  paystackCustomerCode: 'paystackCustomerCode',
-  paystackSubscriptionCode: 'paystackSubscriptionCode',
   scheduledDowngradePlanId: 'scheduledDowngradePlanId',
-  setupFeePaid: 'setupFeePaid',
-  setupFeePaidAt: 'setupFeePaidAt',
   nextBillingDate: 'nextBillingDate',
-  lastBillingAttemptAt: 'lastBillingAttemptAt',
   failedBillingCount: 'failedBillingCount',
   paymentMethodId: 'paymentMethodId',
   billingAnchorDay: 'billingAnchorDay',
@@ -315,18 +302,6 @@ exports.Prisma.CouponScalarFieldEnum = {
   isActive: 'isActive',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
-};
-
-exports.Prisma.BillingHistoryScalarFieldEnum = {
-  id: 'id',
-  subscriptionId: 'subscriptionId',
-  amountKobo: 'amountKobo',
-  status: 'status',
-  billingCycle: 'billingCycle',
-  paystackReference: 'paystackReference',
-  paidAt: 'paidAt',
-  failureReason: 'failureReason',
-  createdAt: 'createdAt'
 };
 
 exports.Prisma.SubscriptionInvoiceScalarFieldEnum = {
@@ -407,8 +382,11 @@ exports.Prisma.WebhookEventScalarFieldEnum = {
   reference: 'reference',
   status: 'status',
   error: 'error',
+  attempts: 'attempts',
+  payload: 'payload',
   receivedAt: 'receivedAt',
-  processedAt: 'processedAt'
+  processedAt: 'processedAt',
+  lastAttemptAt: 'lastAttemptAt'
 };
 
 exports.Prisma.BillingNoticeScalarFieldEnum = {
@@ -548,28 +526,6 @@ exports.Prisma.SettingDefinitionScalarFieldEnum = {
   defaultValue: 'defaultValue',
   isSchoolEditable: 'isSchoolEditable',
   sortOrder: 'sortOrder',
-  isActive: 'isActive',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
-exports.Prisma.AutomationRuleDefinitionScalarFieldEnum = {
-  key: 'key',
-  module: 'module',
-  trigger: 'trigger',
-  eventKey: 'eventKey',
-  anchor: 'anchor',
-  paramsSchema: 'paramsSchema',
-  allowedChannels: 'allowedChannels',
-  allowedAudiences: 'allowedAudiences',
-  templateKey: 'templateKey',
-  allowMultiple: 'allowMultiple',
-  requiresFeature: 'requiresFeature',
-  name: 'name',
-  description: 'description',
-  defaultEnabled: 'defaultEnabled',
-  defaultParams: 'defaultParams',
-  defaultChannels: 'defaultChannels',
   isActive: 'isActive',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -798,20 +754,6 @@ exports.DocumentStatus = exports.$Enums.DocumentStatus = {
   rejected: 'rejected'
 };
 
-exports.Role = exports.$Enums.Role = {
-  super_admin: 'super_admin',
-  school_admin: 'school_admin',
-  principal: 'principal',
-  teacher: 'teacher',
-  bursar: 'bursar',
-  student: 'student',
-  guardian: 'guardian'
-};
-
-exports.LegacyPlatformRole = exports.$Enums.LegacyPlatformRole = {
-  super_admin: 'super_admin'
-};
-
 exports.OtpType = exports.$Enums.OtpType = {
   email_verification: 'email_verification',
   password_reset: 'password_reset',
@@ -841,13 +783,6 @@ exports.BillingCycle = exports.$Enums.BillingCycle = {
 exports.DiscountType = exports.$Enums.DiscountType = {
   percentage: 'percentage',
   fixed_amount: 'fixed_amount'
-};
-
-exports.PaymentStatus = exports.$Enums.PaymentStatus = {
-  pending: 'pending',
-  success: 'success',
-  failed: 'failed',
-  refunded: 'refunded'
 };
 
 exports.BillingInvoiceReason = exports.$Enums.BillingInvoiceReason = {
@@ -943,13 +878,6 @@ exports.SettingType = exports.$Enums.SettingType = {
   ENTITY_REF: 'ENTITY_REF'
 };
 
-exports.AutomationTrigger = exports.$Enums.AutomationTrigger = {
-  EVENT: 'EVENT',
-  SCHEDULE: 'SCHEDULE',
-  OFFSET_BEFORE: 'OFFSET_BEFORE',
-  OFFSET_AFTER: 'OFFSET_AFTER'
-};
-
 exports.NotificationChannel = exports.$Enums.NotificationChannel = {
   IN_APP: 'IN_APP',
   EMAIL: 'EMAIL',
@@ -1035,7 +963,6 @@ exports.Prisma.ModelName = {
   Plan: 'Plan',
   Subscription: 'Subscription',
   Coupon: 'Coupon',
-  BillingHistory: 'BillingHistory',
   SubscriptionInvoice: 'SubscriptionInvoice',
   SubscriptionInvoiceItem: 'SubscriptionInvoiceItem',
   PaymentAttempt: 'PaymentAttempt',
@@ -1054,7 +981,6 @@ exports.Prisma.ModelName = {
   PlanEntitlement: 'PlanEntitlement',
   SchoolEntitlementOverride: 'SchoolEntitlementOverride',
   SettingDefinition: 'SettingDefinition',
-  AutomationRuleDefinition: 'AutomationRuleDefinition',
   MessageTemplate: 'MessageTemplate',
   AuditLog: 'AuditLog',
   PlatformNotification: 'PlatformNotification',

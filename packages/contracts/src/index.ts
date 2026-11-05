@@ -12,3 +12,4 @@ export * from "./provisioning";
 export * from "./school-settings";
 export * from "./platform";
 export * from "./report-cards";
+export * from "./me-permissions";

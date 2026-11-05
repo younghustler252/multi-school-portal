@@ -9,7 +9,7 @@ import { authLimiter } from "../../../infrastructure/middleware/rate-limit.middl
 import { PreviewChangeDto, ChangePlanDto, RequestDowngradeDto, CancelSubscriptionDto, ToggleAutoRenewDto } from "../dtos/subscription.dto";
 
 /*
-| BILLING ROUTES (school realm, mounted at /billing on the school's host).
+| BILLING ROUTES (school realm, mounted at /subscriptions on the school's host).
 | view = see; manage = spend money or change the plan. Nothing here needs the school to be verified:
 | a school must always be able to pay us.
 */

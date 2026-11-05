@@ -1,0 +1,298 @@
+diff --git a/apps/api/src/foundation/access.service.ts b/apps/api/src/foundation/access.service.ts
+index ddd7c5d..2d3d757 100644
+--- a/apps/api/src/foundation/access.service.ts
++++ b/apps/api/src/foundation/access.service.ts
+@@ -87,6 +87,18 @@ export class Access {
+         return s === "ALL" || (Array.isArray(s) && s.includes(branchId));
+     }
+ 
++    /** True for a role that holds every permission of its realm (a school admin). */
++    get holdsEverything(): boolean { return this.grantsAll; }
++
++    /**
++     * Every permission this person holds, with its scope, sorted by key. A role that grants everything is expanded to
++     * `allKeys` (the registry's keys), so callers (the web app) only ever need to look at one list.
++     */
++    listPermissions(allKeys: ReadonlyArray<string>): Array<{ key: string; scope: Scope }> {
++        const keys = this.grantsAll ? allKeys.filter(k => this.applies(k)) : [...this.permissions.keys()].filter(k => this.applies(k));
++        return [...new Set(keys)].sort().map(key => ({ key, scope: this.scopeOf(key)! }));
++    }
++
+     hasRoleKey(key: string): boolean {
+         return this.roleKeys.has(key);
+     }
+diff --git a/apps/api/src/modules/user/controllers/user.controller.ts b/apps/api/src/modules/user/controllers/user.controller.ts
+index b31c597..34ef4bc 100644
+--- a/apps/api/src/modules/user/controllers/user.controller.ts
++++ b/apps/api/src/modules/user/controllers/user.controller.ts
+@@ -13,6 +13,7 @@ import { setAuthCookies, clearAuthCookies } from "../../../infrastructure/middle
+ import { getAccess }                    from "../../../infrastructure/middleware/rbac.middleware";
+ import { userErrors }                   from "../domain/user.errors";
+ import { UserActionContext }            from "../domain/user.types";
++import { MyPermissionsUseCase } from "../usecases/my-permissions.usecase";
+ 
+ interface Dependencies {
+     getProfileUseCase:      GetProfileUseCase;
+@@ -21,6 +22,7 @@ interface Dependencies {
+     uploadAvatarUseCase:    UploadAvatarUseCase;
+     removeAvatarUseCase:    RemoveAvatarUseCase;
+     listMyAccessUseCase:    ListMyAccessUseCase;
++    myPermissionsUseCase:   MyPermissionsUseCase;
+     manageMySessionsUseCase: ManageMySessionsUseCase;
+     resetSchoolAdminPasswordUseCase: ResetSchoolAdminPasswordUseCase;
+     managePlatformUsersUseCase: ManagePlatformUsersUseCase;
+@@ -86,6 +88,12 @@ export class UserController {
+         catch (e) { next(e); }
+     };
+ 
++    // What this session may do (permissions with scopes and the branches to offer): the web app builds menus and buttons from it
++    myPermissions = async (req: Request, res: Response, next: NextFunction) => {
++        try { sendSuccess(res, await this.d.myPermissionsUseCase.execute(getAccess(req)), "Permissions retrieved successfully"); }
++        catch (e) { next(e); }
++    };
++
+     listMyAccess = async (req: Request, res: Response, next: NextFunction) => {
+         try { sendSuccess(res, await this.d.listMyAccessUseCase.execute(ctxOf(req)), "Access retrieved successfully"); }
+         catch (e) { next(e); }
+diff --git a/apps/api/src/modules/user/domain/my-permissions.ts b/apps/api/src/modules/user/domain/my-permissions.ts
+new file mode 100644
+index 0000000..ab5f0db
+--- /dev/null
++++ b/apps/api/src/modules/user/domain/my-permissions.ts
+@@ -0,0 +1,38 @@
++import type { Access, Scope } from "../../../foundation/access.service";
++
++/*
++| WHAT THE SIGNED-IN PERSON MAY DO (for the web app: menus, buttons, branch pickers). The API still checks every request;
++| this only tells the screen what to show.
++|   permissions   every permission with its scope: ALL (whole school), BRANCH (only your branches), ASSIGNED, OWN
++|   branches      all    = the school's active branches, for staff only (a student or guardian is not shown the list)
++|                 assigned = the branches this person works in (what a BRANCH-scoped permission is limited to)
++|                 schoolHasSeveral = more than one active branch: when false, hide every branch picker
++| For a given permission: scope ALL -> offer `branches.all`; scope BRANCH -> offer `branches.assigned`.
++*/
++export interface BranchRef { id: string; name: string; isMain: boolean }
++
++export interface MyPermissionsResponse {
++    realm: "school" | "platform";
++    persona: "STAFF" | "STUDENT" | "GUARDIAN" | null;
++    roles: string[];
++    holdsEverything: boolean;
++    permissions: Array<{ key: string; scope: Scope }>;
++    branches: { all: BranchRef[]; assigned: BranchRef[]; schoolHasSeveral: boolean };
++}
++
++export function buildMyPermissions(access: Access, allKeys: ReadonlyArray<string>, activeBranches: BranchRef[]): MyPermissionsResponse {
++    const school = access.realm === "school";
++    const staff = school && access.persona === "STAFF";
++    return {
++        realm: access.realm,
++        persona: access.persona,
++        roles: [...access.roleKeys].sort(),
++        holdsEverything: access.holdsEverything,
++        permissions: access.listPermissions(allKeys),
++        branches: {
++            all: staff ? activeBranches : [],
++            assigned: staff ? activeBranches.filter(b => access.branchIds.has(b.id)) : [],
++            schoolHasSeveral: school && activeBranches.length > 1,
++        },
++    };
++}
+diff --git a/apps/api/src/modules/user/routes/user.routes.ts b/apps/api/src/modules/user/routes/user.routes.ts
+index 5ee67cd..e58f24f 100644
+--- a/apps/api/src/modules/user/routes/user.routes.ts
++++ b/apps/api/src/modules/user/routes/user.routes.ts
+@@ -48,6 +48,9 @@ router.delete("/me/avatar", authenticate, loadAccess, (q, s, n) => ctrl().remove
+ // ── What this login can enter (profile + school switchers) ────────────────
+ router.get("/me/access", authenticate, loadAccess, (q, s, n) => ctrl().listMyAccess(q, s, n));
+ 
++// ── What this session may do (permissions + scopes + branches), for menus and buttons ─────────────
++router.get("/me/permissions", authenticate, loadAccess, (q, s, n) => ctrl().myPermissions(q, s, n));
++
+ // ── Signed-in devices ─────────────────────────────────────────────────────
+ router.get("/me/sessions", authenticate, validateTenantOwnership, (q, s, n) => ctrl().listMySessions(q, s, n));
+ router.delete("/me/sessions/:id", authenticate, validateTenantOwnership, (q, s, n) => ctrl().revokeMySession(q, s, n));
+diff --git a/apps/api/src/modules/user/usecases/my-permissions.usecase.ts b/apps/api/src/modules/user/usecases/my-permissions.usecase.ts
+new file mode 100644
+index 0000000..763a5b4
+--- /dev/null
++++ b/apps/api/src/modules/user/usecases/my-permissions.usecase.ts
+@@ -0,0 +1,21 @@
++import type { Access } from "../../../foundation/access.service";
++import { PERMISSION_REGISTRY } from "../../../foundation/permissions.registry";
++import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
++import { BranchRef, buildMyPermissions, MyPermissionsResponse } from "../domain/my-permissions";
++
++type LoadBranches = () => Promise<BranchRef[]>;
++
++// Active, not deleted, main branch first. Only school sessions have a school database to read.
++const loadActiveBranches: LoadBranches = async () =>
++    (await getTenantClient().branch.findMany({ where: { isActive: true, deletedAt: null }, select: { id: true, name: true, isMain: true }, orderBy: [{ isMain: "desc" }, { name: "asc" }] }));
++
++/* GET /users/me/permissions: what this session may do. Never reads anything about other people. */
++export class MyPermissionsUseCase {
++    // The container passes its dependencies as the first argument (none are needed); the second is only for tests.
++    constructor(_deps: object = {}, private readonly loadBranches: LoadBranches = loadActiveBranches) {}
++
++    async execute(access: Access): Promise<MyPermissionsResponse> {
++        const branches = access.realm === "school" ? await this.loadBranches() : [];
++        return buildMyPermissions(access, PERMISSION_REGISTRY.map(p => p.key), branches);
++    }
++}
+diff --git a/apps/api/src/modules/user/user.container.ts b/apps/api/src/modules/user/user.container.ts
+index 97cf785..133bda3 100644
+--- a/apps/api/src/modules/user/user.container.ts
++++ b/apps/api/src/modules/user/user.container.ts
+@@ -7,6 +7,7 @@ import { ChangePasswordUseCase } from "./usecases/change-password.usecase";
+ import { UploadAvatarUseCase }  from "./usecases/upload-avatar.usecase";
+ import { RemoveAvatarUseCase }  from "./usecases/remove-avatar.usecase";
+ import { ListMyAccessUseCase }  from "./usecases/list-my-access.usecase";
++import { MyPermissionsUseCase } from "./usecases/my-permissions.usecase";
+ import { ManageMySessionsUseCase } from "./usecases/manage-my-sessions.usecase";
+ import { ResetSchoolAdminPasswordUseCase } from "./usecases/reset-school-admin-password.usecase";
+ import { ManagePlatformUsersUseCase } from "./usecases/manage-platform-users.usecase";
+@@ -25,6 +26,7 @@ export const registerUser = (container: AwilixContainer): void => {
+         uploadAvatarUseCase:      asClass(UploadAvatarUseCase).scoped(),
+         removeAvatarUseCase:      asClass(RemoveAvatarUseCase).scoped(),
+         listMyAccessUseCase:      asClass(ListMyAccessUseCase).scoped(),
++        myPermissionsUseCase:     asClass(MyPermissionsUseCase).scoped(),
+         manageMySessionsUseCase:  asClass(ManageMySessionsUseCase).scoped(),
+         resetSchoolAdminPasswordUseCase: asClass(ResetSchoolAdminPasswordUseCase).scoped(),
+         managePlatformUsersUseCase: asClass(ManagePlatformUsersUseCase).scoped(),
+diff --git a/apps/api/tests/user/my-permissions.test.ts b/apps/api/tests/user/my-permissions.test.ts
+new file mode 100644
+index 0000000..5432c8b
+--- /dev/null
++++ b/apps/api/tests/user/my-permissions.test.ts
+@@ -0,0 +1,70 @@
++import { describe, it } from "node:test";
++import assert from "node:assert/strict";
++import { Access } from "../../src/foundation/access.service";
++import { MyPermissionsUseCase } from "../../src/modules/user/usecases/my-permissions.usecase";
++import { PERMISSION_REGISTRY } from "../../src/foundation/permissions.registry";
++
++const MAIN = { id: "b-main", name: "Main", isMain: true }, NORTH = { id: "b-north", name: "North", isMain: false };
++const staff = (perms: Array<[string, any]>, opts: { all?: boolean; branches?: string[]; persona?: any } = {}) =>
++    new Access("school", "u1", "m1", opts.persona ?? "STAFF", "s1", new Set(["role_x"]), !!opts.all, new Map(perms), new Set(opts.branches ?? []));
++const run = (a: Access, branches = [MAIN, NORTH]) => new MyPermissionsUseCase({}, async () => branches).execute(a);
++
++describe("GET /users/me/permissions: what this session may do", () => {
++    it("a role that holds everything is expanded to every school permission at ALL scope (and no platform ones)", async () => {
++        const out = await run(staff([], { all: true }));
++        const schoolKeys = PERMISSION_REGISTRY.filter(p => !p.key.startsWith("platform.")).map(p => p.key).sort();
++        assert.deepEqual(out.permissions.map(p => p.key), schoolKeys);
++        assert.ok(out.permissions.every(p => p.scope === "ALL"));
++        assert.equal(out.holdsEverything, true);
++    });
++    it("a branch principal gets exactly their permissions with their scopes, sorted, and the branches they work in", async () => {
++        const out = await run(staff([["students.view", "BRANCH"], ["classes.view", "BRANCH"], ["sessions.view", "ALL"]], { branches: ["b-north"] }));
++        assert.deepEqual(out.permissions, [{ key: "classes.view", scope: "BRANCH" }, { key: "sessions.view", scope: "ALL" }, { key: "students.view", scope: "BRANCH" }]);
++        assert.deepEqual(out.branches.assigned, [NORTH]);
++        assert.deepEqual(out.branches.all, [MAIN, NORTH]);
++        assert.equal(out.branches.schoolHasSeveral, true);
++        assert.equal(out.holdsEverything, false);
++    });
++    it("a school with one branch tells the screen to hide every branch picker", async () => {
++        assert.equal((await run(staff([["classes.view", "ALL"]]), [MAIN])).branches.schoolHasSeveral, false);
++    });
++    it("a student or guardian never gets the branch list, and platform permissions never appear in a school session", async () => {
++        for (const persona of ["STUDENT", "GUARDIAN"]) {
++            const out = await run(staff([["grades.view", "OWN"], ["platform.settings.manage", "ALL"]], { persona }));
++            assert.deepEqual(out.branches.all, []); assert.deepEqual(out.branches.assigned, []);
++            assert.deepEqual(out.permissions, [{ key: "grades.view", scope: "OWN" }]);
++        }
++    });
++    it("a platform session reads no school branches and shows only platform permissions", async () => {
++        const a = new Access("platform", "u9", "pm1", null, null, new Set(["super_admin"]), false, new Map([["platform.settings.manage", "ALL"], ["students.view", "ALL"]] as any));
++        let asked = false;
++        const out = await new MyPermissionsUseCase({}, async () => { asked = true; return [MAIN]; }).execute(a);
++        assert.equal(asked, false);
++        assert.deepEqual(out.permissions.map(p => p.key), ["platform.settings.manage"]);
++        assert.equal(out.branches.schoolHasSeveral, false);
++    });
++});
++
++import { accessOf, type MyPermissions } from "../../../../packages/contracts/src/me-permissions";
++describe("the web helper built on the response", () => {
++    const base: MyPermissions = {
++        realm: "school", persona: "STAFF", roles: ["branch_principal"], holdsEverything: false,
++        permissions: [{ key: "students.view", scope: "BRANCH" }, { key: "sessions.view", scope: "ALL" }, { key: "grades.view", scope: "OWN" }],
++        branches: { all: [MAIN, NORTH], assigned: [NORTH], schoolHasSeveral: true },
++    };
++    it("can / canAtLeast / scopeOf / canAny", () => {
++        const me = accessOf(base);
++        assert.equal(me.can("students.view"), true); assert.equal(me.can("students.transfer"), false);
++        assert.equal(me.canAtLeast("students.view", "BRANCH"), true); assert.equal(me.canAtLeast("students.view", "ALL"), false);
++        assert.equal(me.canAtLeast("grades.view", "ASSIGNED"), false);
++        assert.equal(me.scopeOf("sessions.view"), "ALL"); assert.equal(me.scopeOf("nope"), null);
++        assert.equal(me.canAny("students.transfer", "sessions.view"), true); assert.equal(me.canAny("a", "b"), false);
++    });
++    it("branch pickers: ALL sees every branch, BRANCH only theirs, and none at all when the school has one branch", () => {
++        const me = accessOf(base);
++        assert.deepEqual(me.branchChoices("sessions.view"), [MAIN, NORTH]);
++        assert.deepEqual(me.branchChoices("students.view"), [NORTH]);
++        assert.deepEqual(me.branchChoices("grades.view"), []);
++        assert.deepEqual(accessOf({ ...base, branches: { ...base.branches, schoolHasSeveral: false } }).branchChoices("sessions.view"), []);
++    });
++});
+diff --git a/packages/contracts/src/index.ts b/packages/contracts/src/index.ts
+index 3ec41cf..e3923da 100644
+--- a/packages/contracts/src/index.ts
++++ b/packages/contracts/src/index.ts
+@@ -12,3 +12,4 @@ export * from "./provisioning";
+ export * from "./school-settings";
+ export * from "./platform";
+ export * from "./report-cards";
++export * from "./me-permissions";
+diff --git a/packages/contracts/src/me-permissions.ts b/packages/contracts/src/me-permissions.ts
+new file mode 100644
+index 0000000..c2d6dfa
+--- /dev/null
++++ b/packages/contracts/src/me-permissions.ts
+@@ -0,0 +1,46 @@
++/*
++| GET /users/me/permissions: what the signed-in session may do. Build menus, buttons and branch pickers from this.
++| The API checks every request anyway; this only decides what to SHOW.
++*/
++export type Scope = "ALL" | "BRANCH" | "ASSIGNED" | "OWN";
++export interface BranchRef { id: string; name: string; isMain: boolean }
++
++export interface MyPermissions {
++    realm: "school" | "platform";
++    persona: "STAFF" | "STUDENT" | "GUARDIAN" | null;
++    roles: string[];
++    /** A school admin: holds every permission (they are all listed, at scope ALL). */
++    holdsEverything: boolean;
++    permissions: Array<{ key: string; scope: Scope }>;
++    branches: {
++        /** The school's active branches (staff only). Offer these for a permission held at scope ALL. */
++        all: BranchRef[];
++        /** The branches this person works in. Offer these for a permission held at scope BRANCH. */
++        assigned: BranchRef[];
++        /** false = the school has one branch: hide every branch picker. */
++        schoolHasSeveral: boolean;
++    };
++}
++
++const RANK: Record<Scope, number> = { OWN: 1, ASSIGNED: 2, BRANCH: 3, ALL: 4 };
++
++/** The small helper the web app uses everywhere:  const me = accessOf(response);  me.can("students.transfer") */
++export function accessOf(p: MyPermissions) {
++    const scopes = new Map(p.permissions.map(x => [x.key, x.scope] as const));
++    const scopeOf = (key: string): Scope | null => scopes.get(key) ?? null;
++    return {
++        /** Does the person hold this permission (at any scope)? */
++        can: (key: string): boolean => scopes.has(key),
++        /** Do they hold it at least as widely as `needed`? (ALL > BRANCH > ASSIGNED > OWN) */
++        canAtLeast: (key: string, needed: Scope): boolean => { const s = scopeOf(key); return s !== null && RANK[s] >= RANK[needed]; },
++        scopeOf,
++        /** The branches to offer in a picker for this permission: all of them (scope ALL), only theirs (BRANCH), none otherwise. Empty when the school has one branch. */
++        branchChoices: (key: string): BranchRef[] => {
++            if (!p.branches.schoolHasSeveral) return [];
++            const s = scopeOf(key);
++            return s === "ALL" ? p.branches.all : s === "BRANCH" ? p.branches.assigned : [];
++        },
++        /** Is any of these held? (for a menu entry that several permissions can open) */
++        canAny: (...keys: string[]): boolean => keys.some(k => scopes.has(k)),
++    };
++}

@@ -13,6 +13,7 @@ import { setAuthCookies, clearAuthCookies } from "../../../infrastructure/middle
 import { getAccess }                    from "../../../infrastructure/middleware/rbac.middleware";
 import { userErrors }                   from "../domain/user.errors";
 import { UserActionContext }            from "../domain/user.types";
+import { MyPermissionsUseCase } from "../usecases/my-permissions.usecase";
 
 interface Dependencies {
     getProfileUseCase:      GetProfileUseCase;
@@ -21,6 +22,7 @@ interface Dependencies {
     uploadAvatarUseCase:    UploadAvatarUseCase;
     removeAvatarUseCase:    RemoveAvatarUseCase;
     listMyAccessUseCase:    ListMyAccessUseCase;
+    myPermissionsUseCase:   MyPermissionsUseCase;
     manageMySessionsUseCase: ManageMySessionsUseCase;
     resetSchoolAdminPasswordUseCase: ResetSchoolAdminPasswordUseCase;
     managePlatformUsersUseCase: ManagePlatformUsersUseCase;
@@ -83,6 +85,12 @@ export class UserController {
 
     removeAvatar = async (req: Request, res: Response, next: NextFunction) => {
         try { sendSuccess(res, await this.d.removeAvatarUseCase.execute(ctxOf(req), personaOf(req)), "Avatar removed"); }
+        catch (e) { next(e); }
+    };
+
+    // What this session may do (permissions with scopes and the branches to offer): the web app builds menus and buttons from it
+    myPermissions = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.myPermissionsUseCase.execute(getAccess(req)), "Permissions retrieved successfully"); }
         catch (e) { next(e); }
     };
 

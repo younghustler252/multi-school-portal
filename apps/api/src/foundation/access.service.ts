@@ -86,6 +86,18 @@ export class Access {
         return s === "ALL" || (Array.isArray(s) && s.includes(branchId));
     }
 
+    /** True for a role that holds every permission of its realm (a school admin). */
+    get holdsEverything(): boolean { return this.grantsAll; }
+
+    /**
+     * Every permission this person holds, with its scope, sorted by key. A role that grants everything is expanded to
+     * `allKeys` (the registry's keys), so callers (the web app) only ever need to look at one list.
+     */
+    listPermissions(allKeys: ReadonlyArray<string>): Array<{ key: string; scope: Scope }> {
+        const keys = this.grantsAll ? allKeys.filter(k => this.applies(k)) : [...this.permissions.keys()].filter(k => this.applies(k));
+        return [...new Set(keys)].sort().map(key => ({ key, scope: this.scopeOf(key)! }));
+    }
+
     hasRoleKey(key: string): boolean {
         return this.roleKeys.has(key);
     }

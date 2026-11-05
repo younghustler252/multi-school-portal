@@ -1,0 +1,114 @@
+diff --git a/apps/api/src/app.ts b/apps/api/src/app.ts
+index 00f3f61..c708a52 100644
+--- a/apps/api/src/app.ts
++++ b/apps/api/src/app.ts
+@@ -15,6 +15,7 @@ import { createBullBoardRouter } from "./infrastructure/jobs/bull-board";
+ import { webhookEntryRouter } from "./modules/webhooks/routes/webhook.routes";
+ import routes                                        from "./routes";
+ import { join } from "node:path";
++import { isAllowedOrigin } from "./infrastructure/middleware/cors-origin";
+ const app = express();
+ 
+ // ── Security ──────────────────────────────────────────────────────────────
+@@ -27,14 +28,8 @@ app.use(
+ );
+ app.use(cors({
+     origin: (origin, callback) => {
+-        if (!origin) return callback(null, true);
+-        if (/https:\/\/.*\.yourapp\.com$/.test(origin)) {
+-            callback(null, true);
+-        } else if (env.NODE_ENV === "development") {
+-            callback(null, true);
+-        } else {
+-            callback(new Error("Not allowed by CORS"));
+-        }
++        if (isAllowedOrigin(origin, env.BASE_DOMAIN, env.NODE_ENV)) callback(null, true);
++        else callback(new Error("Not allowed by CORS"));
+     },
+     credentials: true,
+ }));
+diff --git a/apps/api/src/infrastructure/middleware/cors-origin.ts b/apps/api/src/infrastructure/middleware/cors-origin.ts
+new file mode 100644
+index 0000000..5e46d6d
+--- /dev/null
++++ b/apps/api/src/infrastructure/middleware/cors-origin.ts
+@@ -0,0 +1,16 @@
++/*
++| WHICH BROWSER ORIGINS MAY CALL THE API.
++| Allowed: the platform's own domain and any subdomain of it, over https (BASE_DOMAIN in the environment: the school hosts,
++| the admin host and the marketing site all live there). Requests with no Origin (server to server, health checks) pass.
++| In development every origin is allowed. The match is anchored at both ends, so "https://evil.com/?a.yourschool.com" or
++| "https://notyourschool.com" never match.
++*/
++const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
++
++export function isAllowedOrigin(origin: string | undefined, baseDomain: string, nodeEnv: string): boolean {
++    if (!origin) return true;
++    if (nodeEnv === "development") return true;
++    const host = baseDomain.trim().toLowerCase();
++    if (!host) return false;
++    return new RegExp(`^https://([a-z0-9-]+\\.)*${escape(host)}$`, "i").test(origin);
++}
+diff --git a/apps/api/src/modules/students/dtos/student.dto.ts b/apps/api/src/modules/students/dtos/student.dto.ts
+index dd2534f..3310bdb 100644
+--- a/apps/api/src/modules/students/dtos/student.dto.ts
++++ b/apps/api/src/modules/students/dtos/student.dto.ts
+@@ -80,7 +80,7 @@ export const ListStudentsQuery = z.object({
+     branchId: z.string().uuid().optional(),             // narrows the list to one branch (never widens what you may see)
+ });
+ 
+-// ── CSV import row (used by the import use case, which is not switched on yet) ──
++// ── CSV import row (used by the student import use cases: preview and import) ──
+ export const ImportStudentRowSchema = z.object({
+     firstName:        z.string().min(1),
+     lastName:         z.string().min(1),
+diff --git a/apps/api/src/modules/subscriptions/routes/billing.routes.ts b/apps/api/src/modules/subscriptions/routes/billing.routes.ts
+index 8ef7820..57e4a57 100644
+--- a/apps/api/src/modules/subscriptions/routes/billing.routes.ts
++++ b/apps/api/src/modules/subscriptions/routes/billing.routes.ts
+@@ -9,7 +9,7 @@ import { authLimiter } from "../../../infrastructure/middleware/rate-limit.middl
+ import { PreviewChangeDto, ChangePlanDto, RequestDowngradeDto, CancelSubscriptionDto, ToggleAutoRenewDto } from "../dtos/subscription.dto";
+ 
+ /*
+-| BILLING ROUTES (school realm, mounted at /billing on the school's host).
++| BILLING ROUTES (school realm, mounted at /subscriptions on the school's host).
+ | view = see; manage = spend money or change the plan. Nothing here needs the school to be verified:
+ | a school must always be able to pay us.
+ */
+diff --git a/apps/api/tests/security/cors-origin.test.ts b/apps/api/tests/security/cors-origin.test.ts
+new file mode 100644
+index 0000000..61bebc0
+--- /dev/null
++++ b/apps/api/tests/security/cors-origin.test.ts
+@@ -0,0 +1,31 @@
++import { describe, it } from "node:test";
++import assert from "node:assert/strict";
++import { isAllowedOrigin } from "../../src/infrastructure/middleware/cors-origin";
++import { PlatformSettingsMapper } from "../../src/modules/platform-settings/mappers/platform-settings.mapper";
++
++describe("CORS origins follow the platform's own domain", () => {
++    const ok = (o: string | undefined, base = "schoolos.ng", env = "production") => isAllowedOrigin(o, base, env);
++    it("allows the platform domain and its subdomains over https", () => {
++        for (const o of ["https://schoolos.ng", "https://greenfield.schoolos.ng", "https://admin.schoolos.ng", "https://a.b.schoolos.ng"]) assert.equal(ok(o), true, o);
++    });
++    it("refuses look-alikes, other schemes and other domains", () => {
++        for (const o of ["http://greenfield.schoolos.ng", "https://schoolos.ng.evil.com", "https://notschoolos.ng", "https://evil.com/?x=greenfield.schoolos.ng", "https://yourapp.com", "https://greenfield.yourapp.com"])
++            assert.equal(ok(o), false, o);
++    });
++    it("lets requests with no origin through, allows everything in development, and refuses all when no domain is set", () => {
++        assert.equal(ok(undefined), true);
++        assert.equal(ok("https://anything.example", "schoolos.ng", "development"), true);
++        assert.equal(isAllowedOrigin("https://schoolos.ng", "", "production"), false);
++    });
++    it("a dot in the domain is a dot, not 'any character'", () => assert.equal(ok("https://schoolosXng"), false));
++});
++
++describe("the public platform settings response never carries anything private", () => {
++    it("only a fixed list of branding, support, legal and status fields can come out, whatever the database row holds", () => {
++        const row: any = { id: "p1", platformName: "SchoolOS", supportEmail: "a@b.c", subscriptionGracePeriodDays: 7, reminderDaysBeforeExpiry: 7, defaultTrialDays: 0, allowNewRegistrations: true, maintenanceMode: false,
++            createdAt: new Date(), updatedAt: new Date(), updatedById: "u1", smtpPassword: "secret", paystackSecretKey: "sk_live", apiKey: "k" };
++        const out = new PlatformSettingsMapper().toResponse(new PlatformSettingsMapper().toDomain(row));
++        for (const k of ["updatedById", "smtpPassword", "paystackSecretKey", "apiKey"]) assert.equal(k in out, false, k);
++        assert.deepEqual(Object.keys(out).sort(), ["allowNewRegistrations", "announcementBanner", "createdAt", "defaultTrialDays", "id", "logoUrl", "maintenanceMessage", "maintenanceMode", "platformName", "privacyPolicyUrl", "reminderDaysBeforeExpiry", "subscriptionGracePeriodDays", "supportEmail", "supportPhone", "termsUrl", "updatedAt"]);
++    });
++});

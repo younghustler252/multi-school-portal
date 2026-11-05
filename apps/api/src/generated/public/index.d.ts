@@ -64,11 +64,6 @@ export type Subscription = $Result.DefaultSelection<Prisma.$SubscriptionPayload>
  */
 export type Coupon = $Result.DefaultSelection<Prisma.$CouponPayload>
 /**
- * Model BillingHistory
- * 
- */
-export type BillingHistory = $Result.DefaultSelection<Prisma.$BillingHistoryPayload>
-/**
  * Model SubscriptionInvoice
  * 
  */
@@ -159,11 +154,6 @@ export type SchoolEntitlementOverride = $Result.DefaultSelection<Prisma.$SchoolE
  */
 export type SettingDefinition = $Result.DefaultSelection<Prisma.$SettingDefinitionPayload>
 /**
- * Model AutomationRuleDefinition
- * 
- */
-export type AutomationRuleDefinition = $Result.DefaultSelection<Prisma.$AutomationRuleDefinitionPayload>
-/**
  * Model MessageTemplate
  * 
  */
@@ -203,27 +193,7 @@ export type LedgerAccountTemplate = $Result.DefaultSelection<Prisma.$LedgerAccou
  * Enums
  */
 export namespace $Enums {
-  export const LegacyPlatformRole: {
-  super_admin: 'super_admin'
-};
-
-export type LegacyPlatformRole = (typeof LegacyPlatformRole)[keyof typeof LegacyPlatformRole]
-
-
-export const Role: {
-  super_admin: 'super_admin',
-  school_admin: 'school_admin',
-  principal: 'principal',
-  teacher: 'teacher',
-  bursar: 'bursar',
-  student: 'student',
-  guardian: 'guardian'
-};
-
-export type Role = (typeof Role)[keyof typeof Role]
-
-
-export const Persona: {
+  export const Persona: {
   STAFF: 'STAFF',
   STUDENT: 'STUDENT',
   GUARDIAN: 'GUARDIAN'
@@ -375,16 +345,6 @@ export const DiscountType: {
 export type DiscountType = (typeof DiscountType)[keyof typeof DiscountType]
 
 
-export const PaymentStatus: {
-  pending: 'pending',
-  success: 'success',
-  failed: 'failed',
-  refunded: 'refunded'
-};
-
-export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus]
-
-
 export const BillingInvoiceStatus: {
   open: 'open',
   paid: 'paid',
@@ -483,16 +443,6 @@ export const SettingType: {
 };
 
 export type SettingType = (typeof SettingType)[keyof typeof SettingType]
-
-
-export const AutomationTrigger: {
-  EVENT: 'EVENT',
-  SCHEDULE: 'SCHEDULE',
-  OFFSET_BEFORE: 'OFFSET_BEFORE',
-  OFFSET_AFTER: 'OFFSET_AFTER'
-};
-
-export type AutomationTrigger = (typeof AutomationTrigger)[keyof typeof AutomationTrigger]
 
 
 export const TemplateCategory: {
@@ -597,14 +547,6 @@ export type LedgerAccountType = (typeof LedgerAccountType)[keyof typeof LedgerAc
 
 }
 
-export type LegacyPlatformRole = $Enums.LegacyPlatformRole
-
-export const LegacyPlatformRole: typeof $Enums.LegacyPlatformRole
-
-export type Role = $Enums.Role
-
-export const Role: typeof $Enums.Role
-
 export type Persona = $Enums.Persona
 
 export const Persona: typeof $Enums.Persona
@@ -669,10 +611,6 @@ export type DiscountType = $Enums.DiscountType
 
 export const DiscountType: typeof $Enums.DiscountType
 
-export type PaymentStatus = $Enums.PaymentStatus
-
-export const PaymentStatus: typeof $Enums.PaymentStatus
-
 export type BillingInvoiceStatus = $Enums.BillingInvoiceStatus
 
 export const BillingInvoiceStatus: typeof $Enums.BillingInvoiceStatus
@@ -712,10 +650,6 @@ export const DefinitionOrigin: typeof $Enums.DefinitionOrigin
 export type SettingType = $Enums.SettingType
 
 export const SettingType: typeof $Enums.SettingType
-
-export type AutomationTrigger = $Enums.AutomationTrigger
-
-export const AutomationTrigger: typeof $Enums.AutomationTrigger
 
 export type TemplateCategory = $Enums.TemplateCategory
 
@@ -975,16 +909,6 @@ export class PrismaClient<
   get coupon(): Prisma.CouponDelegate<ExtArgs, ClientOptions>;
 
   /**
-   * `prisma.billingHistory`: Exposes CRUD operations for the **BillingHistory** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more BillingHistories
-    * const billingHistories = await prisma.billingHistory.findMany()
-    * ```
-    */
-  get billingHistory(): Prisma.BillingHistoryDelegate<ExtArgs, ClientOptions>;
-
-  /**
    * `prisma.subscriptionInvoice`: Exposes CRUD operations for the **SubscriptionInvoice** model.
     * Example usage:
     * ```ts
@@ -1163,16 +1087,6 @@ export class PrismaClient<
     * ```
     */
   get settingDefinition(): Prisma.SettingDefinitionDelegate<ExtArgs, ClientOptions>;
-
-  /**
-   * `prisma.automationRuleDefinition`: Exposes CRUD operations for the **AutomationRuleDefinition** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more AutomationRuleDefinitions
-    * const automationRuleDefinitions = await prisma.automationRuleDefinition.findMany()
-    * ```
-    */
-  get automationRuleDefinition(): Prisma.AutomationRuleDefinitionDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.messageTemplate`: Exposes CRUD operations for the **MessageTemplate** model.
@@ -1700,7 +1614,6 @@ export namespace Prisma {
     Plan: 'Plan',
     Subscription: 'Subscription',
     Coupon: 'Coupon',
-    BillingHistory: 'BillingHistory',
     SubscriptionInvoice: 'SubscriptionInvoice',
     SubscriptionInvoiceItem: 'SubscriptionInvoiceItem',
     PaymentAttempt: 'PaymentAttempt',
@@ -1719,7 +1632,6 @@ export namespace Prisma {
     PlanEntitlement: 'PlanEntitlement',
     SchoolEntitlementOverride: 'SchoolEntitlementOverride',
     SettingDefinition: 'SettingDefinition',
-    AutomationRuleDefinition: 'AutomationRuleDefinition',
     MessageTemplate: 'MessageTemplate',
     AuditLog: 'AuditLog',
     PlatformNotification: 'PlatformNotification',
@@ -1742,7 +1654,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "school" | "schoolDocument" | "user" | "userSchool" | "otp" | "refreshToken" | "invite" | "plan" | "subscription" | "coupon" | "billingHistory" | "subscriptionInvoice" | "subscriptionInvoiceItem" | "paymentAttempt" | "paymentMethod" | "webhookEvent" | "billingNotice" | "platformSequence" | "platformRole" | "platformRolePermission" | "platformMember" | "platformMemberRole" | "permissionDefinition" | "roleTemplate" | "roleTemplatePermission" | "featureDefinition" | "planEntitlement" | "schoolEntitlementOverride" | "settingDefinition" | "automationRuleDefinition" | "messageTemplate" | "auditLog" | "platformNotification" | "platformNotificationRecipient" | "platformSettings" | "feedback" | "ledgerAccountTemplate"
+      modelProps: "school" | "schoolDocument" | "user" | "userSchool" | "otp" | "refreshToken" | "invite" | "plan" | "subscription" | "coupon" | "subscriptionInvoice" | "subscriptionInvoiceItem" | "paymentAttempt" | "paymentMethod" | "webhookEvent" | "billingNotice" | "platformSequence" | "platformRole" | "platformRolePermission" | "platformMember" | "platformMemberRole" | "permissionDefinition" | "roleTemplate" | "roleTemplatePermission" | "featureDefinition" | "planEntitlement" | "schoolEntitlementOverride" | "settingDefinition" | "messageTemplate" | "auditLog" | "platformNotification" | "platformNotificationRecipient" | "platformSettings" | "feedback" | "ledgerAccountTemplate"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2483,80 +2395,6 @@ export namespace Prisma {
           count: {
             args: Prisma.CouponCountArgs<ExtArgs>
             result: $Utils.Optional<CouponCountAggregateOutputType> | number
-          }
-        }
-      }
-      BillingHistory: {
-        payload: Prisma.$BillingHistoryPayload<ExtArgs>
-        fields: Prisma.BillingHistoryFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.BillingHistoryFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$BillingHistoryPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.BillingHistoryFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$BillingHistoryPayload>
-          }
-          findFirst: {
-            args: Prisma.BillingHistoryFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$BillingHistoryPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.BillingHistoryFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$BillingHistoryPayload>
-          }
-          findMany: {
-            args: Prisma.BillingHistoryFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$BillingHistoryPayload>[]
-          }
-          create: {
-            args: Prisma.BillingHistoryCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$BillingHistoryPayload>
-          }
-          createMany: {
-            args: Prisma.BillingHistoryCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.BillingHistoryCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$BillingHistoryPayload>[]
-          }
-          delete: {
-            args: Prisma.BillingHistoryDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$BillingHistoryPayload>
-          }
-          update: {
-            args: Prisma.BillingHistoryUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$BillingHistoryPayload>
-          }
-          deleteMany: {
-            args: Prisma.BillingHistoryDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.BillingHistoryUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.BillingHistoryUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$BillingHistoryPayload>[]
-          }
-          upsert: {
-            args: Prisma.BillingHistoryUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$BillingHistoryPayload>
-          }
-          aggregate: {
-            args: Prisma.BillingHistoryAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateBillingHistory>
-          }
-          groupBy: {
-            args: Prisma.BillingHistoryGroupByArgs<ExtArgs>
-            result: $Utils.Optional<BillingHistoryGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.BillingHistoryCountArgs<ExtArgs>
-            result: $Utils.Optional<BillingHistoryCountAggregateOutputType> | number
           }
         }
       }
@@ -3892,80 +3730,6 @@ export namespace Prisma {
           }
         }
       }
-      AutomationRuleDefinition: {
-        payload: Prisma.$AutomationRuleDefinitionPayload<ExtArgs>
-        fields: Prisma.AutomationRuleDefinitionFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.AutomationRuleDefinitionFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AutomationRuleDefinitionPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.AutomationRuleDefinitionFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AutomationRuleDefinitionPayload>
-          }
-          findFirst: {
-            args: Prisma.AutomationRuleDefinitionFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AutomationRuleDefinitionPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.AutomationRuleDefinitionFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AutomationRuleDefinitionPayload>
-          }
-          findMany: {
-            args: Prisma.AutomationRuleDefinitionFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AutomationRuleDefinitionPayload>[]
-          }
-          create: {
-            args: Prisma.AutomationRuleDefinitionCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AutomationRuleDefinitionPayload>
-          }
-          createMany: {
-            args: Prisma.AutomationRuleDefinitionCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.AutomationRuleDefinitionCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AutomationRuleDefinitionPayload>[]
-          }
-          delete: {
-            args: Prisma.AutomationRuleDefinitionDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AutomationRuleDefinitionPayload>
-          }
-          update: {
-            args: Prisma.AutomationRuleDefinitionUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AutomationRuleDefinitionPayload>
-          }
-          deleteMany: {
-            args: Prisma.AutomationRuleDefinitionDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.AutomationRuleDefinitionUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.AutomationRuleDefinitionUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AutomationRuleDefinitionPayload>[]
-          }
-          upsert: {
-            args: Prisma.AutomationRuleDefinitionUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AutomationRuleDefinitionPayload>
-          }
-          aggregate: {
-            args: Prisma.AutomationRuleDefinitionAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateAutomationRuleDefinition>
-          }
-          groupBy: {
-            args: Prisma.AutomationRuleDefinitionGroupByArgs<ExtArgs>
-            result: $Utils.Optional<AutomationRuleDefinitionGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.AutomationRuleDefinitionCountArgs<ExtArgs>
-            result: $Utils.Optional<AutomationRuleDefinitionCountAggregateOutputType> | number
-          }
-        }
-      }
       MessageTemplate: {
         payload: Prisma.$MessageTemplatePayload<ExtArgs>
         fields: Prisma.MessageTemplateFieldRefs
@@ -4617,7 +4381,6 @@ export namespace Prisma {
     plan?: PlanOmit
     subscription?: SubscriptionOmit
     coupon?: CouponOmit
-    billingHistory?: BillingHistoryOmit
     subscriptionInvoice?: SubscriptionInvoiceOmit
     subscriptionInvoiceItem?: SubscriptionInvoiceItemOmit
     paymentAttempt?: PaymentAttemptOmit
@@ -4636,7 +4399,6 @@ export namespace Prisma {
     planEntitlement?: PlanEntitlementOmit
     schoolEntitlementOverride?: SchoolEntitlementOverrideOmit
     settingDefinition?: SettingDefinitionOmit
-    automationRuleDefinition?: AutomationRuleDefinitionOmit
     messageTemplate?: MessageTemplateOmit
     auditLog?: AuditLogOmit
     platformNotification?: PlatformNotificationOmit
@@ -4724,7 +4486,6 @@ export namespace Prisma {
    */
 
   export type SchoolCountOutputType = {
-    users: number
     userSchools: number
     subscriptions: number
     documents: number
@@ -4737,7 +4498,6 @@ export namespace Prisma {
   }
 
   export type SchoolCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    users?: boolean | SchoolCountOutputTypeCountUsersArgs
     userSchools?: boolean | SchoolCountOutputTypeCountUserSchoolsArgs
     subscriptions?: boolean | SchoolCountOutputTypeCountSubscriptionsArgs
     documents?: boolean | SchoolCountOutputTypeCountDocumentsArgs
@@ -4758,13 +4518,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the SchoolCountOutputType
      */
     select?: SchoolCountOutputTypeSelect<ExtArgs> | null
-  }
-
-  /**
-   * SchoolCountOutputType without action
-   */
-  export type SchoolCountOutputTypeCountUsersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: UserWhereInput
   }
 
   /**
@@ -4952,12 +4705,10 @@ export namespace Prisma {
    */
 
   export type SubscriptionCountOutputType = {
-    billingHistory: number
     invoices: number
   }
 
   export type SubscriptionCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    billingHistory?: boolean | SubscriptionCountOutputTypeCountBillingHistoryArgs
     invoices?: boolean | SubscriptionCountOutputTypeCountInvoicesArgs
   }
 
@@ -4970,13 +4721,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the SubscriptionCountOutputType
      */
     select?: SubscriptionCountOutputTypeSelect<ExtArgs> | null
-  }
-
-  /**
-   * SubscriptionCountOutputType without action
-   */
-  export type SubscriptionCountOutputTypeCountBillingHistoryArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: BillingHistoryWhereInput
   }
 
   /**
@@ -5687,7 +5431,6 @@ export namespace Prisma {
     settlementAccountLast4?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    users?: boolean | School$usersArgs<ExtArgs>
     userSchools?: boolean | School$userSchoolsArgs<ExtArgs>
     subscriptions?: boolean | School$subscriptionsArgs<ExtArgs>
     documents?: boolean | School$documentsArgs<ExtArgs>
@@ -5819,7 +5562,6 @@ export namespace Prisma {
 
   export type SchoolOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "subdomain" | "customDomain" | "customDomainVerifiedAt" | "email" | "phone" | "website" | "logoUrl" | "address" | "city" | "state" | "country" | "timezone" | "schoolCategory" | "schoolOwnership" | "status" | "verificationStatus" | "verificationNote" | "verifiedAt" | "verifiedById" | "activatedAt" | "isActive" | "suspendedAt" | "suspensionReason" | "deletedAt" | "schemaName" | "schemaProvisionedAt" | "paystackSubaccountCode" | "paystackSubaccountId" | "settlementBankCode" | "settlementAccountNumber" | "settlementAccountName" | "settlementAccountLast4" | "createdAt" | "updatedAt", ExtArgs["result"]["school"]>
   export type SchoolInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    users?: boolean | School$usersArgs<ExtArgs>
     userSchools?: boolean | School$userSchoolsArgs<ExtArgs>
     subscriptions?: boolean | School$subscriptionsArgs<ExtArgs>
     documents?: boolean | School$documentsArgs<ExtArgs>
@@ -5837,7 +5579,6 @@ export namespace Prisma {
   export type $SchoolPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "School"
     objects: {
-      users: Prisma.$UserPayload<ExtArgs>[]
       userSchools: Prisma.$UserSchoolPayload<ExtArgs>[]
       subscriptions: Prisma.$SubscriptionPayload<ExtArgs>[]
       documents: Prisma.$SchoolDocumentPayload<ExtArgs>[]
@@ -6279,7 +6020,6 @@ export namespace Prisma {
    */
   export interface Prisma__SchoolClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    users<T extends School$usersArgs<ExtArgs> = {}>(args?: Subset<T, School$usersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     userSchools<T extends School$userSchoolsArgs<ExtArgs> = {}>(args?: Subset<T, School$userSchoolsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserSchoolPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     subscriptions<T extends School$subscriptionsArgs<ExtArgs> = {}>(args?: Subset<T, School$subscriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     documents<T extends School$documentsArgs<ExtArgs> = {}>(args?: Subset<T, School$documentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SchoolDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -6744,30 +6484,6 @@ export namespace Prisma {
      * Limit how many Schools to delete.
      */
     limit?: number
-  }
-
-  /**
-   * School.users
-   */
-  export type School$usersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the User
-     */
-    select?: UserSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the User
-     */
-    omit?: UserOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: UserInclude<ExtArgs> | null
-    where?: UserWhereInput
-    orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
-    cursor?: UserWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
   }
 
   /**
@@ -8229,11 +7945,8 @@ export namespace Prisma {
 
   export type UserMinAggregateOutputType = {
     id: string | null
-    schoolId: string | null
     email: string | null
     passwordHash: string | null
-    role: $Enums.Role | null
-    platformRole: $Enums.LegacyPlatformRole | null
     firstName: string | null
     lastName: string | null
     phone: string | null
@@ -8253,11 +7966,8 @@ export namespace Prisma {
 
   export type UserMaxAggregateOutputType = {
     id: string | null
-    schoolId: string | null
     email: string | null
     passwordHash: string | null
-    role: $Enums.Role | null
-    platformRole: $Enums.LegacyPlatformRole | null
     firstName: string | null
     lastName: string | null
     phone: string | null
@@ -8277,11 +7987,8 @@ export namespace Prisma {
 
   export type UserCountAggregateOutputType = {
     id: number
-    schoolId: number
     email: number
     passwordHash: number
-    role: number
-    platformRole: number
     firstName: number
     lastName: number
     phone: number
@@ -8311,11 +8018,8 @@ export namespace Prisma {
 
   export type UserMinAggregateInputType = {
     id?: true
-    schoolId?: true
     email?: true
     passwordHash?: true
-    role?: true
-    platformRole?: true
     firstName?: true
     lastName?: true
     phone?: true
@@ -8335,11 +8039,8 @@ export namespace Prisma {
 
   export type UserMaxAggregateInputType = {
     id?: true
-    schoolId?: true
     email?: true
     passwordHash?: true
-    role?: true
-    platformRole?: true
     firstName?: true
     lastName?: true
     phone?: true
@@ -8359,11 +8060,8 @@ export namespace Prisma {
 
   export type UserCountAggregateInputType = {
     id?: true
-    schoolId?: true
     email?: true
     passwordHash?: true
-    role?: true
-    platformRole?: true
     firstName?: true
     lastName?: true
     phone?: true
@@ -8470,11 +8168,8 @@ export namespace Prisma {
 
   export type UserGroupByOutputType = {
     id: string
-    schoolId: string | null
     email: string
     passwordHash: string
-    role: $Enums.Role
-    platformRole: $Enums.LegacyPlatformRole | null
     firstName: string | null
     lastName: string | null
     phone: string | null
@@ -8513,11 +8208,8 @@ export namespace Prisma {
 
   export type UserSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    schoolId?: boolean
     email?: boolean
     passwordHash?: boolean
-    role?: boolean
-    platformRole?: boolean
     firstName?: boolean
     lastName?: boolean
     phone?: boolean
@@ -8533,7 +8225,6 @@ export namespace Prisma {
     mustChangePassword?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    school?: boolean | User$schoolArgs<ExtArgs>
     platformMember?: boolean | User$platformMemberArgs<ExtArgs>
     schools?: boolean | User$schoolsArgs<ExtArgs>
     refreshTokens?: boolean | User$refreshTokensArgs<ExtArgs>
@@ -8545,11 +8236,8 @@ export namespace Prisma {
 
   export type UserSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    schoolId?: boolean
     email?: boolean
     passwordHash?: boolean
-    role?: boolean
-    platformRole?: boolean
     firstName?: boolean
     lastName?: boolean
     phone?: boolean
@@ -8565,16 +8253,12 @@ export namespace Prisma {
     mustChangePassword?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    school?: boolean | User$schoolArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    schoolId?: boolean
     email?: boolean
     passwordHash?: boolean
-    role?: boolean
-    platformRole?: boolean
     firstName?: boolean
     lastName?: boolean
     phone?: boolean
@@ -8590,16 +8274,12 @@ export namespace Prisma {
     mustChangePassword?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    school?: boolean | User$schoolArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectScalar = {
     id?: boolean
-    schoolId?: boolean
     email?: boolean
     passwordHash?: boolean
-    role?: boolean
-    platformRole?: boolean
     firstName?: boolean
     lastName?: boolean
     phone?: boolean
@@ -8617,9 +8297,8 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolId" | "email" | "passwordHash" | "role" | "platformRole" | "firstName" | "lastName" | "phone" | "photoUrl" | "isActive" | "isEmailVerified" | "emailVerifiedAt" | "lastLoginAt" | "lastLoginIp" | "failedLoginCount" | "lockedUntil" | "passwordChangedAt" | "mustChangePassword" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "passwordHash" | "firstName" | "lastName" | "phone" | "photoUrl" | "isActive" | "isEmailVerified" | "emailVerifiedAt" | "lastLoginAt" | "lastLoginIp" | "failedLoginCount" | "lockedUntil" | "passwordChangedAt" | "mustChangePassword" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    school?: boolean | User$schoolArgs<ExtArgs>
     platformMember?: boolean | User$platformMemberArgs<ExtArgs>
     schools?: boolean | User$schoolsArgs<ExtArgs>
     refreshTokens?: boolean | User$refreshTokensArgs<ExtArgs>
@@ -8628,17 +8307,12 @@ export namespace Prisma {
     feedback?: boolean | User$feedbackArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
-  export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    school?: boolean | User$schoolArgs<ExtArgs>
-  }
-  export type UserIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    school?: boolean | User$schoolArgs<ExtArgs>
-  }
+  export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type UserIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
   export type $UserPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "User"
     objects: {
-      school: Prisma.$SchoolPayload<ExtArgs> | null
       platformMember: Prisma.$PlatformMemberPayload<ExtArgs> | null
       schools: Prisma.$UserSchoolPayload<ExtArgs>[]
       refreshTokens: Prisma.$RefreshTokenPayload<ExtArgs>[]
@@ -8648,11 +8322,8 @@ export namespace Prisma {
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      schoolId: string | null
       email: string
       passwordHash: string
-      role: $Enums.Role
-      platformRole: $Enums.LegacyPlatformRole | null
       firstName: string | null
       lastName: string | null
       phone: string | null
@@ -9062,7 +8733,6 @@ export namespace Prisma {
    */
   export interface Prisma__UserClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    school<T extends User$schoolArgs<ExtArgs> = {}>(args?: Subset<T, User$schoolArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     platformMember<T extends User$platformMemberArgs<ExtArgs> = {}>(args?: Subset<T, User$platformMemberArgs<ExtArgs>>): Prisma__PlatformMemberClient<$Result.GetResult<Prisma.$PlatformMemberPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     schools<T extends User$schoolsArgs<ExtArgs> = {}>(args?: Subset<T, User$schoolsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserSchoolPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     refreshTokens<T extends User$refreshTokensArgs<ExtArgs> = {}>(args?: Subset<T, User$refreshTokensArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -9099,11 +8769,8 @@ export namespace Prisma {
    */
   interface UserFieldRefs {
     readonly id: FieldRef<"User", 'String'>
-    readonly schoolId: FieldRef<"User", 'String'>
     readonly email: FieldRef<"User", 'String'>
     readonly passwordHash: FieldRef<"User", 'String'>
-    readonly role: FieldRef<"User", 'Role'>
-    readonly platformRole: FieldRef<"User", 'LegacyPlatformRole'>
     readonly firstName: FieldRef<"User", 'String'>
     readonly lastName: FieldRef<"User", 'String'>
     readonly phone: FieldRef<"User", 'String'>
@@ -9373,10 +9040,6 @@ export namespace Prisma {
      */
     data: UserCreateManyInput | UserCreateManyInput[]
     skipDuplicates?: boolean
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: UserIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -9447,10 +9110,6 @@ export namespace Prisma {
      * Limit how many Users to update.
      */
     limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: UserIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -9517,25 +9176,6 @@ export namespace Prisma {
      * Limit how many Users to delete.
      */
     limit?: number
-  }
-
-  /**
-   * User.school
-   */
-  export type User$schoolArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the School
-     */
-    select?: SchoolSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the School
-     */
-    omit?: SchoolOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SchoolInclude<ExtArgs> | null
-    where?: SchoolWhereInput
   }
 
   /**
@@ -13070,7 +12710,6 @@ export namespace Prisma {
   export type InviteMinAggregateOutputType = {
     id: string | null
     email: string | null
-    role: $Enums.Role | null
     persona: $Enums.Persona | null
     personaEntityId: string | null
     roleId: string | null
@@ -13088,7 +12727,6 @@ export namespace Prisma {
   export type InviteMaxAggregateOutputType = {
     id: string | null
     email: string | null
-    role: $Enums.Role | null
     persona: $Enums.Persona | null
     personaEntityId: string | null
     roleId: string | null
@@ -13106,7 +12744,6 @@ export namespace Prisma {
   export type InviteCountAggregateOutputType = {
     id: number
     email: number
-    role: number
     persona: number
     personaEntityId: number
     roleId: number
@@ -13126,7 +12763,6 @@ export namespace Prisma {
   export type InviteMinAggregateInputType = {
     id?: true
     email?: true
-    role?: true
     persona?: true
     personaEntityId?: true
     roleId?: true
@@ -13144,7 +12780,6 @@ export namespace Prisma {
   export type InviteMaxAggregateInputType = {
     id?: true
     email?: true
-    role?: true
     persona?: true
     personaEntityId?: true
     roleId?: true
@@ -13162,7 +12797,6 @@ export namespace Prisma {
   export type InviteCountAggregateInputType = {
     id?: true
     email?: true
-    role?: true
     persona?: true
     personaEntityId?: true
     roleId?: true
@@ -13253,7 +12887,6 @@ export namespace Prisma {
   export type InviteGroupByOutputType = {
     id: string
     email: string
-    role: $Enums.Role
     persona: $Enums.Persona
     personaEntityId: string | null
     roleId: string | null
@@ -13288,7 +12921,6 @@ export namespace Prisma {
   export type InviteSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     email?: boolean
-    role?: boolean
     persona?: boolean
     personaEntityId?: boolean
     roleId?: boolean
@@ -13307,7 +12939,6 @@ export namespace Prisma {
   export type InviteSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     email?: boolean
-    role?: boolean
     persona?: boolean
     personaEntityId?: boolean
     roleId?: boolean
@@ -13326,7 +12957,6 @@ export namespace Prisma {
   export type InviteSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     email?: boolean
-    role?: boolean
     persona?: boolean
     personaEntityId?: boolean
     roleId?: boolean
@@ -13345,7 +12975,6 @@ export namespace Prisma {
   export type InviteSelectScalar = {
     id?: boolean
     email?: boolean
-    role?: boolean
     persona?: boolean
     personaEntityId?: boolean
     roleId?: boolean
@@ -13360,7 +12989,7 @@ export namespace Prisma {
     createdAt?: boolean
   }
 
-  export type InviteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "role" | "persona" | "personaEntityId" | "roleId" | "roleKey" | "token" | "schoolId" | "sentById" | "accepted" | "acceptedAt" | "revokedAt" | "expiresAt" | "createdAt", ExtArgs["result"]["invite"]>
+  export type InviteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "persona" | "personaEntityId" | "roleId" | "roleKey" | "token" | "schoolId" | "sentById" | "accepted" | "acceptedAt" | "revokedAt" | "expiresAt" | "createdAt", ExtArgs["result"]["invite"]>
   export type InviteInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     sentBy?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -13379,7 +13008,6 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       email: string
-      role: $Enums.Role
       persona: $Enums.Persona
       personaEntityId: string | null
       roleId: string | null
@@ -13818,7 +13446,6 @@ export namespace Prisma {
   interface InviteFieldRefs {
     readonly id: FieldRef<"Invite", 'String'>
     readonly email: FieldRef<"Invite", 'String'>
-    readonly role: FieldRef<"Invite", 'Role'>
     readonly persona: FieldRef<"Invite", 'Persona'>
     readonly personaEntityId: FieldRef<"Invite", 'String'>
     readonly roleId: FieldRef<"Invite", 'String'>
@@ -14263,16 +13890,12 @@ export namespace Prisma {
   }
 
   export type PlanAvgAggregateOutputType = {
-    studentLimit: number | null
-    staffLimit: number | null
     monthlyPriceKobo: number | null
     yearlyPriceKobo: number | null
     setupFeeKobo: number | null
   }
 
   export type PlanSumAggregateOutputType = {
-    studentLimit: number | null
-    staffLimit: number | null
     monthlyPriceKobo: number | null
     yearlyPriceKobo: number | null
     setupFeeKobo: number | null
@@ -14283,8 +13906,6 @@ export namespace Prisma {
     name: string | null
     systemKey: string | null
     description: string | null
-    studentLimit: number | null
-    staffLimit: number | null
     monthlyPriceKobo: number | null
     yearlyPriceKobo: number | null
     setupFeeKobo: number | null
@@ -14300,8 +13921,6 @@ export namespace Prisma {
     name: string | null
     systemKey: string | null
     description: string | null
-    studentLimit: number | null
-    staffLimit: number | null
     monthlyPriceKobo: number | null
     yearlyPriceKobo: number | null
     setupFeeKobo: number | null
@@ -14317,9 +13936,6 @@ export namespace Prisma {
     name: number
     systemKey: number
     description: number
-    studentLimit: number
-    staffLimit: number
-    features: number
     monthlyPriceKobo: number
     yearlyPriceKobo: number
     setupFeeKobo: number
@@ -14333,16 +13949,12 @@ export namespace Prisma {
 
 
   export type PlanAvgAggregateInputType = {
-    studentLimit?: true
-    staffLimit?: true
     monthlyPriceKobo?: true
     yearlyPriceKobo?: true
     setupFeeKobo?: true
   }
 
   export type PlanSumAggregateInputType = {
-    studentLimit?: true
-    staffLimit?: true
     monthlyPriceKobo?: true
     yearlyPriceKobo?: true
     setupFeeKobo?: true
@@ -14353,8 +13965,6 @@ export namespace Prisma {
     name?: true
     systemKey?: true
     description?: true
-    studentLimit?: true
-    staffLimit?: true
     monthlyPriceKobo?: true
     yearlyPriceKobo?: true
     setupFeeKobo?: true
@@ -14370,8 +13980,6 @@ export namespace Prisma {
     name?: true
     systemKey?: true
     description?: true
-    studentLimit?: true
-    staffLimit?: true
     monthlyPriceKobo?: true
     yearlyPriceKobo?: true
     setupFeeKobo?: true
@@ -14387,9 +13995,6 @@ export namespace Prisma {
     name?: true
     systemKey?: true
     description?: true
-    studentLimit?: true
-    staffLimit?: true
-    features?: true
     monthlyPriceKobo?: true
     yearlyPriceKobo?: true
     setupFeeKobo?: true
@@ -14492,9 +14097,6 @@ export namespace Prisma {
     name: string
     systemKey: string | null
     description: string | null
-    studentLimit: number
-    staffLimit: number
-    features: JsonValue
     monthlyPriceKobo: number
     yearlyPriceKobo: number
     setupFeeKobo: number
@@ -14529,9 +14131,6 @@ export namespace Prisma {
     name?: boolean
     systemKey?: boolean
     description?: boolean
-    studentLimit?: boolean
-    staffLimit?: boolean
-    features?: boolean
     monthlyPriceKobo?: boolean
     yearlyPriceKobo?: boolean
     setupFeeKobo?: boolean
@@ -14551,9 +14150,6 @@ export namespace Prisma {
     name?: boolean
     systemKey?: boolean
     description?: boolean
-    studentLimit?: boolean
-    staffLimit?: boolean
-    features?: boolean
     monthlyPriceKobo?: boolean
     yearlyPriceKobo?: boolean
     setupFeeKobo?: boolean
@@ -14569,9 +14165,6 @@ export namespace Prisma {
     name?: boolean
     systemKey?: boolean
     description?: boolean
-    studentLimit?: boolean
-    staffLimit?: boolean
-    features?: boolean
     monthlyPriceKobo?: boolean
     yearlyPriceKobo?: boolean
     setupFeeKobo?: boolean
@@ -14587,9 +14180,6 @@ export namespace Prisma {
     name?: boolean
     systemKey?: boolean
     description?: boolean
-    studentLimit?: boolean
-    staffLimit?: boolean
-    features?: boolean
     monthlyPriceKobo?: boolean
     yearlyPriceKobo?: boolean
     setupFeeKobo?: boolean
@@ -14600,7 +14190,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type PlanOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "systemKey" | "description" | "studentLimit" | "staffLimit" | "features" | "monthlyPriceKobo" | "yearlyPriceKobo" | "setupFeeKobo" | "isPublic" | "isActive" | "isCustom" | "createdAt" | "updatedAt", ExtArgs["result"]["plan"]>
+  export type PlanOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "systemKey" | "description" | "monthlyPriceKobo" | "yearlyPriceKobo" | "setupFeeKobo" | "isPublic" | "isActive" | "isCustom" | "createdAt" | "updatedAt", ExtArgs["result"]["plan"]>
   export type PlanInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     subscriptions?: boolean | Plan$subscriptionsArgs<ExtArgs>
     entitlements?: boolean | Plan$entitlementsArgs<ExtArgs>
@@ -14622,9 +14212,6 @@ export namespace Prisma {
       name: string
       systemKey: string | null
       description: string | null
-      studentLimit: number
-      staffLimit: number
-      features: Prisma.JsonValue
       monthlyPriceKobo: number
       yearlyPriceKobo: number
       setupFeeKobo: number
@@ -15063,9 +14650,6 @@ export namespace Prisma {
     readonly name: FieldRef<"Plan", 'String'>
     readonly systemKey: FieldRef<"Plan", 'String'>
     readonly description: FieldRef<"Plan", 'String'>
-    readonly studentLimit: FieldRef<"Plan", 'Int'>
-    readonly staffLimit: FieldRef<"Plan", 'Int'>
-    readonly features: FieldRef<"Plan", 'Json'>
     readonly monthlyPriceKobo: FieldRef<"Plan", 'Int'>
     readonly yearlyPriceKobo: FieldRef<"Plan", 'Int'>
     readonly setupFeeKobo: FieldRef<"Plan", 'Int'>
@@ -15595,14 +15179,8 @@ export namespace Prisma {
     couponId: string | null
     discountedPriceKobo: number | null
     autoRenew: boolean | null
-    paystackAuthorizationCode: string | null
-    paystackCustomerCode: string | null
-    paystackSubscriptionCode: string | null
     scheduledDowngradePlanId: string | null
-    setupFeePaid: boolean | null
-    setupFeePaidAt: Date | null
     nextBillingDate: Date | null
-    lastBillingAttemptAt: Date | null
     failedBillingCount: number | null
     paymentMethodId: string | null
     billingAnchorDay: number | null
@@ -15625,14 +15203,8 @@ export namespace Prisma {
     couponId: string | null
     discountedPriceKobo: number | null
     autoRenew: boolean | null
-    paystackAuthorizationCode: string | null
-    paystackCustomerCode: string | null
-    paystackSubscriptionCode: string | null
     scheduledDowngradePlanId: string | null
-    setupFeePaid: boolean | null
-    setupFeePaidAt: Date | null
     nextBillingDate: Date | null
-    lastBillingAttemptAt: Date | null
     failedBillingCount: number | null
     paymentMethodId: string | null
     billingAnchorDay: number | null
@@ -15655,14 +15227,8 @@ export namespace Prisma {
     couponId: number
     discountedPriceKobo: number
     autoRenew: number
-    paystackAuthorizationCode: number
-    paystackCustomerCode: number
-    paystackSubscriptionCode: number
     scheduledDowngradePlanId: number
-    setupFeePaid: number
-    setupFeePaidAt: number
     nextBillingDate: number
-    lastBillingAttemptAt: number
     failedBillingCount: number
     paymentMethodId: number
     billingAnchorDay: number
@@ -15699,14 +15265,8 @@ export namespace Prisma {
     couponId?: true
     discountedPriceKobo?: true
     autoRenew?: true
-    paystackAuthorizationCode?: true
-    paystackCustomerCode?: true
-    paystackSubscriptionCode?: true
     scheduledDowngradePlanId?: true
-    setupFeePaid?: true
-    setupFeePaidAt?: true
     nextBillingDate?: true
-    lastBillingAttemptAt?: true
     failedBillingCount?: true
     paymentMethodId?: true
     billingAnchorDay?: true
@@ -15729,14 +15289,8 @@ export namespace Prisma {
     couponId?: true
     discountedPriceKobo?: true
     autoRenew?: true
-    paystackAuthorizationCode?: true
-    paystackCustomerCode?: true
-    paystackSubscriptionCode?: true
     scheduledDowngradePlanId?: true
-    setupFeePaid?: true
-    setupFeePaidAt?: true
     nextBillingDate?: true
-    lastBillingAttemptAt?: true
     failedBillingCount?: true
     paymentMethodId?: true
     billingAnchorDay?: true
@@ -15759,14 +15313,8 @@ export namespace Prisma {
     couponId?: true
     discountedPriceKobo?: true
     autoRenew?: true
-    paystackAuthorizationCode?: true
-    paystackCustomerCode?: true
-    paystackSubscriptionCode?: true
     scheduledDowngradePlanId?: true
-    setupFeePaid?: true
-    setupFeePaidAt?: true
     nextBillingDate?: true
-    lastBillingAttemptAt?: true
     failedBillingCount?: true
     paymentMethodId?: true
     billingAnchorDay?: true
@@ -15876,14 +15424,8 @@ export namespace Prisma {
     couponId: string | null
     discountedPriceKobo: number | null
     autoRenew: boolean
-    paystackAuthorizationCode: string | null
-    paystackCustomerCode: string | null
-    paystackSubscriptionCode: string | null
     scheduledDowngradePlanId: string | null
-    setupFeePaid: boolean
-    setupFeePaidAt: Date | null
     nextBillingDate: Date | null
-    lastBillingAttemptAt: Date | null
     failedBillingCount: number
     paymentMethodId: string | null
     billingAnchorDay: number
@@ -15925,14 +15467,8 @@ export namespace Prisma {
     couponId?: boolean
     discountedPriceKobo?: boolean
     autoRenew?: boolean
-    paystackAuthorizationCode?: boolean
-    paystackCustomerCode?: boolean
-    paystackSubscriptionCode?: boolean
     scheduledDowngradePlanId?: boolean
-    setupFeePaid?: boolean
-    setupFeePaidAt?: boolean
     nextBillingDate?: boolean
-    lastBillingAttemptAt?: boolean
     failedBillingCount?: boolean
     paymentMethodId?: boolean
     billingAnchorDay?: boolean
@@ -15942,7 +15478,6 @@ export namespace Prisma {
     school?: boolean | SchoolDefaultArgs<ExtArgs>
     plan?: boolean | PlanDefaultArgs<ExtArgs>
     coupon?: boolean | Subscription$couponArgs<ExtArgs>
-    billingHistory?: boolean | Subscription$billingHistoryArgs<ExtArgs>
     invoices?: boolean | Subscription$invoicesArgs<ExtArgs>
     _count?: boolean | SubscriptionCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["subscription"]>
@@ -15961,14 +15496,8 @@ export namespace Prisma {
     couponId?: boolean
     discountedPriceKobo?: boolean
     autoRenew?: boolean
-    paystackAuthorizationCode?: boolean
-    paystackCustomerCode?: boolean
-    paystackSubscriptionCode?: boolean
     scheduledDowngradePlanId?: boolean
-    setupFeePaid?: boolean
-    setupFeePaidAt?: boolean
     nextBillingDate?: boolean
-    lastBillingAttemptAt?: boolean
     failedBillingCount?: boolean
     paymentMethodId?: boolean
     billingAnchorDay?: boolean
@@ -15994,14 +15523,8 @@ export namespace Prisma {
     couponId?: boolean
     discountedPriceKobo?: boolean
     autoRenew?: boolean
-    paystackAuthorizationCode?: boolean
-    paystackCustomerCode?: boolean
-    paystackSubscriptionCode?: boolean
     scheduledDowngradePlanId?: boolean
-    setupFeePaid?: boolean
-    setupFeePaidAt?: boolean
     nextBillingDate?: boolean
-    lastBillingAttemptAt?: boolean
     failedBillingCount?: boolean
     paymentMethodId?: boolean
     billingAnchorDay?: boolean
@@ -16027,14 +15550,8 @@ export namespace Prisma {
     couponId?: boolean
     discountedPriceKobo?: boolean
     autoRenew?: boolean
-    paystackAuthorizationCode?: boolean
-    paystackCustomerCode?: boolean
-    paystackSubscriptionCode?: boolean
     scheduledDowngradePlanId?: boolean
-    setupFeePaid?: boolean
-    setupFeePaidAt?: boolean
     nextBillingDate?: boolean
-    lastBillingAttemptAt?: boolean
     failedBillingCount?: boolean
     paymentMethodId?: boolean
     billingAnchorDay?: boolean
@@ -16043,12 +15560,11 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type SubscriptionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolId" | "planId" | "status" | "billingCycle" | "currentPeriodStart" | "currentPeriodEnd" | "trialEndsAt" | "cancelAtPeriodEnd" | "cancelledAt" | "couponId" | "discountedPriceKobo" | "autoRenew" | "paystackAuthorizationCode" | "paystackCustomerCode" | "paystackSubscriptionCode" | "scheduledDowngradePlanId" | "setupFeePaid" | "setupFeePaidAt" | "nextBillingDate" | "lastBillingAttemptAt" | "failedBillingCount" | "paymentMethodId" | "billingAnchorDay" | "lapsedPlanId" | "createdAt" | "updatedAt", ExtArgs["result"]["subscription"]>
+  export type SubscriptionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolId" | "planId" | "status" | "billingCycle" | "currentPeriodStart" | "currentPeriodEnd" | "trialEndsAt" | "cancelAtPeriodEnd" | "cancelledAt" | "couponId" | "discountedPriceKobo" | "autoRenew" | "scheduledDowngradePlanId" | "nextBillingDate" | "failedBillingCount" | "paymentMethodId" | "billingAnchorDay" | "lapsedPlanId" | "createdAt" | "updatedAt", ExtArgs["result"]["subscription"]>
   export type SubscriptionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     school?: boolean | SchoolDefaultArgs<ExtArgs>
     plan?: boolean | PlanDefaultArgs<ExtArgs>
     coupon?: boolean | Subscription$couponArgs<ExtArgs>
-    billingHistory?: boolean | Subscription$billingHistoryArgs<ExtArgs>
     invoices?: boolean | Subscription$invoicesArgs<ExtArgs>
     _count?: boolean | SubscriptionCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -16069,7 +15585,6 @@ export namespace Prisma {
       school: Prisma.$SchoolPayload<ExtArgs>
       plan: Prisma.$PlanPayload<ExtArgs>
       coupon: Prisma.$CouponPayload<ExtArgs> | null
-      billingHistory: Prisma.$BillingHistoryPayload<ExtArgs>[]
       invoices: Prisma.$SubscriptionInvoicePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -16086,14 +15601,8 @@ export namespace Prisma {
       couponId: string | null
       discountedPriceKobo: number | null
       autoRenew: boolean
-      paystackAuthorizationCode: string | null
-      paystackCustomerCode: string | null
-      paystackSubscriptionCode: string | null
       scheduledDowngradePlanId: string | null
-      setupFeePaid: boolean
-      setupFeePaidAt: Date | null
       nextBillingDate: Date | null
-      lastBillingAttemptAt: Date | null
       failedBillingCount: number
       paymentMethodId: string | null
       billingAnchorDay: number
@@ -16497,7 +16006,6 @@ export namespace Prisma {
     school<T extends SchoolDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SchoolDefaultArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     plan<T extends PlanDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PlanDefaultArgs<ExtArgs>>): Prisma__PlanClient<$Result.GetResult<Prisma.$PlanPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     coupon<T extends Subscription$couponArgs<ExtArgs> = {}>(args?: Subset<T, Subscription$couponArgs<ExtArgs>>): Prisma__CouponClient<$Result.GetResult<Prisma.$CouponPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    billingHistory<T extends Subscription$billingHistoryArgs<ExtArgs> = {}>(args?: Subset<T, Subscription$billingHistoryArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BillingHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     invoices<T extends Subscription$invoicesArgs<ExtArgs> = {}>(args?: Subset<T, Subscription$invoicesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubscriptionInvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -16541,14 +16049,8 @@ export namespace Prisma {
     readonly couponId: FieldRef<"Subscription", 'String'>
     readonly discountedPriceKobo: FieldRef<"Subscription", 'Int'>
     readonly autoRenew: FieldRef<"Subscription", 'Boolean'>
-    readonly paystackAuthorizationCode: FieldRef<"Subscription", 'String'>
-    readonly paystackCustomerCode: FieldRef<"Subscription", 'String'>
-    readonly paystackSubscriptionCode: FieldRef<"Subscription", 'String'>
     readonly scheduledDowngradePlanId: FieldRef<"Subscription", 'String'>
-    readonly setupFeePaid: FieldRef<"Subscription", 'Boolean'>
-    readonly setupFeePaidAt: FieldRef<"Subscription", 'DateTime'>
     readonly nextBillingDate: FieldRef<"Subscription", 'DateTime'>
-    readonly lastBillingAttemptAt: FieldRef<"Subscription", 'DateTime'>
     readonly failedBillingCount: FieldRef<"Subscription", 'Int'>
     readonly paymentMethodId: FieldRef<"Subscription", 'String'>
     readonly billingAnchorDay: FieldRef<"Subscription", 'Int'>
@@ -16972,30 +16474,6 @@ export namespace Prisma {
      */
     include?: CouponInclude<ExtArgs> | null
     where?: CouponWhereInput
-  }
-
-  /**
-   * Subscription.billingHistory
-   */
-  export type Subscription$billingHistoryArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the BillingHistory
-     */
-    select?: BillingHistorySelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the BillingHistory
-     */
-    omit?: BillingHistoryOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: BillingHistoryInclude<ExtArgs> | null
-    where?: BillingHistoryWhereInput
-    orderBy?: BillingHistoryOrderByWithRelationInput | BillingHistoryOrderByWithRelationInput[]
-    cursor?: BillingHistoryWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: BillingHistoryScalarFieldEnum | BillingHistoryScalarFieldEnum[]
   }
 
   /**
@@ -18246,1155 +17724,6 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: CouponInclude<ExtArgs> | null
-  }
-
-
-  /**
-   * Model BillingHistory
-   */
-
-  export type AggregateBillingHistory = {
-    _count: BillingHistoryCountAggregateOutputType | null
-    _avg: BillingHistoryAvgAggregateOutputType | null
-    _sum: BillingHistorySumAggregateOutputType | null
-    _min: BillingHistoryMinAggregateOutputType | null
-    _max: BillingHistoryMaxAggregateOutputType | null
-  }
-
-  export type BillingHistoryAvgAggregateOutputType = {
-    amountKobo: number | null
-  }
-
-  export type BillingHistorySumAggregateOutputType = {
-    amountKobo: number | null
-  }
-
-  export type BillingHistoryMinAggregateOutputType = {
-    id: string | null
-    subscriptionId: string | null
-    amountKobo: number | null
-    status: $Enums.PaymentStatus | null
-    billingCycle: $Enums.BillingCycle | null
-    paystackReference: string | null
-    paidAt: Date | null
-    failureReason: string | null
-    createdAt: Date | null
-  }
-
-  export type BillingHistoryMaxAggregateOutputType = {
-    id: string | null
-    subscriptionId: string | null
-    amountKobo: number | null
-    status: $Enums.PaymentStatus | null
-    billingCycle: $Enums.BillingCycle | null
-    paystackReference: string | null
-    paidAt: Date | null
-    failureReason: string | null
-    createdAt: Date | null
-  }
-
-  export type BillingHistoryCountAggregateOutputType = {
-    id: number
-    subscriptionId: number
-    amountKobo: number
-    status: number
-    billingCycle: number
-    paystackReference: number
-    paidAt: number
-    failureReason: number
-    createdAt: number
-    _all: number
-  }
-
-
-  export type BillingHistoryAvgAggregateInputType = {
-    amountKobo?: true
-  }
-
-  export type BillingHistorySumAggregateInputType = {
-    amountKobo?: true
-  }
-
-  export type BillingHistoryMinAggregateInputType = {
-    id?: true
-    subscriptionId?: true
-    amountKobo?: true
-    status?: true
-    billingCycle?: true
-    paystackReference?: true
-    paidAt?: true
-    failureReason?: true
-    createdAt?: true
-  }
-
-  export type BillingHistoryMaxAggregateInputType = {
-    id?: true
-    subscriptionId?: true
-    amountKobo?: true
-    status?: true
-    billingCycle?: true
-    paystackReference?: true
-    paidAt?: true
-    failureReason?: true
-    createdAt?: true
-  }
-
-  export type BillingHistoryCountAggregateInputType = {
-    id?: true
-    subscriptionId?: true
-    amountKobo?: true
-    status?: true
-    billingCycle?: true
-    paystackReference?: true
-    paidAt?: true
-    failureReason?: true
-    createdAt?: true
-    _all?: true
-  }
-
-  export type BillingHistoryAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which BillingHistory to aggregate.
-     */
-    where?: BillingHistoryWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of BillingHistories to fetch.
-     */
-    orderBy?: BillingHistoryOrderByWithRelationInput | BillingHistoryOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: BillingHistoryWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` BillingHistories from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` BillingHistories.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned BillingHistories
-    **/
-    _count?: true | BillingHistoryCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: BillingHistoryAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: BillingHistorySumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: BillingHistoryMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: BillingHistoryMaxAggregateInputType
-  }
-
-  export type GetBillingHistoryAggregateType<T extends BillingHistoryAggregateArgs> = {
-        [P in keyof T & keyof AggregateBillingHistory]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateBillingHistory[P]>
-      : GetScalarType<T[P], AggregateBillingHistory[P]>
-  }
-
-
-
-
-  export type BillingHistoryGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: BillingHistoryWhereInput
-    orderBy?: BillingHistoryOrderByWithAggregationInput | BillingHistoryOrderByWithAggregationInput[]
-    by: BillingHistoryScalarFieldEnum[] | BillingHistoryScalarFieldEnum
-    having?: BillingHistoryScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: BillingHistoryCountAggregateInputType | true
-    _avg?: BillingHistoryAvgAggregateInputType
-    _sum?: BillingHistorySumAggregateInputType
-    _min?: BillingHistoryMinAggregateInputType
-    _max?: BillingHistoryMaxAggregateInputType
-  }
-
-  export type BillingHistoryGroupByOutputType = {
-    id: string
-    subscriptionId: string
-    amountKobo: number
-    status: $Enums.PaymentStatus
-    billingCycle: $Enums.BillingCycle
-    paystackReference: string | null
-    paidAt: Date | null
-    failureReason: string | null
-    createdAt: Date
-    _count: BillingHistoryCountAggregateOutputType | null
-    _avg: BillingHistoryAvgAggregateOutputType | null
-    _sum: BillingHistorySumAggregateOutputType | null
-    _min: BillingHistoryMinAggregateOutputType | null
-    _max: BillingHistoryMaxAggregateOutputType | null
-  }
-
-  type GetBillingHistoryGroupByPayload<T extends BillingHistoryGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<BillingHistoryGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof BillingHistoryGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], BillingHistoryGroupByOutputType[P]>
-            : GetScalarType<T[P], BillingHistoryGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type BillingHistorySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    subscriptionId?: boolean
-    amountKobo?: boolean
-    status?: boolean
-    billingCycle?: boolean
-    paystackReference?: boolean
-    paidAt?: boolean
-    failureReason?: boolean
-    createdAt?: boolean
-    subscription?: boolean | SubscriptionDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["billingHistory"]>
-
-  export type BillingHistorySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    subscriptionId?: boolean
-    amountKobo?: boolean
-    status?: boolean
-    billingCycle?: boolean
-    paystackReference?: boolean
-    paidAt?: boolean
-    failureReason?: boolean
-    createdAt?: boolean
-    subscription?: boolean | SubscriptionDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["billingHistory"]>
-
-  export type BillingHistorySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    subscriptionId?: boolean
-    amountKobo?: boolean
-    status?: boolean
-    billingCycle?: boolean
-    paystackReference?: boolean
-    paidAt?: boolean
-    failureReason?: boolean
-    createdAt?: boolean
-    subscription?: boolean | SubscriptionDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["billingHistory"]>
-
-  export type BillingHistorySelectScalar = {
-    id?: boolean
-    subscriptionId?: boolean
-    amountKobo?: boolean
-    status?: boolean
-    billingCycle?: boolean
-    paystackReference?: boolean
-    paidAt?: boolean
-    failureReason?: boolean
-    createdAt?: boolean
-  }
-
-  export type BillingHistoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "subscriptionId" | "amountKobo" | "status" | "billingCycle" | "paystackReference" | "paidAt" | "failureReason" | "createdAt", ExtArgs["result"]["billingHistory"]>
-  export type BillingHistoryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    subscription?: boolean | SubscriptionDefaultArgs<ExtArgs>
-  }
-  export type BillingHistoryIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    subscription?: boolean | SubscriptionDefaultArgs<ExtArgs>
-  }
-  export type BillingHistoryIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    subscription?: boolean | SubscriptionDefaultArgs<ExtArgs>
-  }
-
-  export type $BillingHistoryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "BillingHistory"
-    objects: {
-      subscription: Prisma.$SubscriptionPayload<ExtArgs>
-    }
-    scalars: $Extensions.GetPayloadResult<{
-      id: string
-      subscriptionId: string
-      amountKobo: number
-      status: $Enums.PaymentStatus
-      billingCycle: $Enums.BillingCycle
-      paystackReference: string | null
-      paidAt: Date | null
-      failureReason: string | null
-      createdAt: Date
-    }, ExtArgs["result"]["billingHistory"]>
-    composites: {}
-  }
-
-  type BillingHistoryGetPayload<S extends boolean | null | undefined | BillingHistoryDefaultArgs> = $Result.GetResult<Prisma.$BillingHistoryPayload, S>
-
-  type BillingHistoryCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<BillingHistoryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: BillingHistoryCountAggregateInputType | true
-    }
-
-  export interface BillingHistoryDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['BillingHistory'], meta: { name: 'BillingHistory' } }
-    /**
-     * Find zero or one BillingHistory that matches the filter.
-     * @param {BillingHistoryFindUniqueArgs} args - Arguments to find a BillingHistory
-     * @example
-     * // Get one BillingHistory
-     * const billingHistory = await prisma.billingHistory.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends BillingHistoryFindUniqueArgs>(args: SelectSubset<T, BillingHistoryFindUniqueArgs<ExtArgs>>): Prisma__BillingHistoryClient<$Result.GetResult<Prisma.$BillingHistoryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one BillingHistory that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {BillingHistoryFindUniqueOrThrowArgs} args - Arguments to find a BillingHistory
-     * @example
-     * // Get one BillingHistory
-     * const billingHistory = await prisma.billingHistory.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends BillingHistoryFindUniqueOrThrowArgs>(args: SelectSubset<T, BillingHistoryFindUniqueOrThrowArgs<ExtArgs>>): Prisma__BillingHistoryClient<$Result.GetResult<Prisma.$BillingHistoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first BillingHistory that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {BillingHistoryFindFirstArgs} args - Arguments to find a BillingHistory
-     * @example
-     * // Get one BillingHistory
-     * const billingHistory = await prisma.billingHistory.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends BillingHistoryFindFirstArgs>(args?: SelectSubset<T, BillingHistoryFindFirstArgs<ExtArgs>>): Prisma__BillingHistoryClient<$Result.GetResult<Prisma.$BillingHistoryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first BillingHistory that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {BillingHistoryFindFirstOrThrowArgs} args - Arguments to find a BillingHistory
-     * @example
-     * // Get one BillingHistory
-     * const billingHistory = await prisma.billingHistory.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends BillingHistoryFindFirstOrThrowArgs>(args?: SelectSubset<T, BillingHistoryFindFirstOrThrowArgs<ExtArgs>>): Prisma__BillingHistoryClient<$Result.GetResult<Prisma.$BillingHistoryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more BillingHistories that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {BillingHistoryFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all BillingHistories
-     * const billingHistories = await prisma.billingHistory.findMany()
-     * 
-     * // Get first 10 BillingHistories
-     * const billingHistories = await prisma.billingHistory.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const billingHistoryWithIdOnly = await prisma.billingHistory.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends BillingHistoryFindManyArgs>(args?: SelectSubset<T, BillingHistoryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BillingHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a BillingHistory.
-     * @param {BillingHistoryCreateArgs} args - Arguments to create a BillingHistory.
-     * @example
-     * // Create one BillingHistory
-     * const BillingHistory = await prisma.billingHistory.create({
-     *   data: {
-     *     // ... data to create a BillingHistory
-     *   }
-     * })
-     * 
-     */
-    create<T extends BillingHistoryCreateArgs>(args: SelectSubset<T, BillingHistoryCreateArgs<ExtArgs>>): Prisma__BillingHistoryClient<$Result.GetResult<Prisma.$BillingHistoryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many BillingHistories.
-     * @param {BillingHistoryCreateManyArgs} args - Arguments to create many BillingHistories.
-     * @example
-     * // Create many BillingHistories
-     * const billingHistory = await prisma.billingHistory.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends BillingHistoryCreateManyArgs>(args?: SelectSubset<T, BillingHistoryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many BillingHistories and returns the data saved in the database.
-     * @param {BillingHistoryCreateManyAndReturnArgs} args - Arguments to create many BillingHistories.
-     * @example
-     * // Create many BillingHistories
-     * const billingHistory = await prisma.billingHistory.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many BillingHistories and only return the `id`
-     * const billingHistoryWithIdOnly = await prisma.billingHistory.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends BillingHistoryCreateManyAndReturnArgs>(args?: SelectSubset<T, BillingHistoryCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BillingHistoryPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a BillingHistory.
-     * @param {BillingHistoryDeleteArgs} args - Arguments to delete one BillingHistory.
-     * @example
-     * // Delete one BillingHistory
-     * const BillingHistory = await prisma.billingHistory.delete({
-     *   where: {
-     *     // ... filter to delete one BillingHistory
-     *   }
-     * })
-     * 
-     */
-    delete<T extends BillingHistoryDeleteArgs>(args: SelectSubset<T, BillingHistoryDeleteArgs<ExtArgs>>): Prisma__BillingHistoryClient<$Result.GetResult<Prisma.$BillingHistoryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one BillingHistory.
-     * @param {BillingHistoryUpdateArgs} args - Arguments to update one BillingHistory.
-     * @example
-     * // Update one BillingHistory
-     * const billingHistory = await prisma.billingHistory.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends BillingHistoryUpdateArgs>(args: SelectSubset<T, BillingHistoryUpdateArgs<ExtArgs>>): Prisma__BillingHistoryClient<$Result.GetResult<Prisma.$BillingHistoryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more BillingHistories.
-     * @param {BillingHistoryDeleteManyArgs} args - Arguments to filter BillingHistories to delete.
-     * @example
-     * // Delete a few BillingHistories
-     * const { count } = await prisma.billingHistory.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends BillingHistoryDeleteManyArgs>(args?: SelectSubset<T, BillingHistoryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more BillingHistories.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {BillingHistoryUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many BillingHistories
-     * const billingHistory = await prisma.billingHistory.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends BillingHistoryUpdateManyArgs>(args: SelectSubset<T, BillingHistoryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more BillingHistories and returns the data updated in the database.
-     * @param {BillingHistoryUpdateManyAndReturnArgs} args - Arguments to update many BillingHistories.
-     * @example
-     * // Update many BillingHistories
-     * const billingHistory = await prisma.billingHistory.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more BillingHistories and only return the `id`
-     * const billingHistoryWithIdOnly = await prisma.billingHistory.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends BillingHistoryUpdateManyAndReturnArgs>(args: SelectSubset<T, BillingHistoryUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BillingHistoryPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one BillingHistory.
-     * @param {BillingHistoryUpsertArgs} args - Arguments to update or create a BillingHistory.
-     * @example
-     * // Update or create a BillingHistory
-     * const billingHistory = await prisma.billingHistory.upsert({
-     *   create: {
-     *     // ... data to create a BillingHistory
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the BillingHistory we want to update
-     *   }
-     * })
-     */
-    upsert<T extends BillingHistoryUpsertArgs>(args: SelectSubset<T, BillingHistoryUpsertArgs<ExtArgs>>): Prisma__BillingHistoryClient<$Result.GetResult<Prisma.$BillingHistoryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of BillingHistories.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {BillingHistoryCountArgs} args - Arguments to filter BillingHistories to count.
-     * @example
-     * // Count the number of BillingHistories
-     * const count = await prisma.billingHistory.count({
-     *   where: {
-     *     // ... the filter for the BillingHistories we want to count
-     *   }
-     * })
-    **/
-    count<T extends BillingHistoryCountArgs>(
-      args?: Subset<T, BillingHistoryCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], BillingHistoryCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a BillingHistory.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {BillingHistoryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends BillingHistoryAggregateArgs>(args: Subset<T, BillingHistoryAggregateArgs>): Prisma.PrismaPromise<GetBillingHistoryAggregateType<T>>
-
-    /**
-     * Group by BillingHistory.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {BillingHistoryGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends BillingHistoryGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: BillingHistoryGroupByArgs['orderBy'] }
-        : { orderBy?: BillingHistoryGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, BillingHistoryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetBillingHistoryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the BillingHistory model
-   */
-  readonly fields: BillingHistoryFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for BillingHistory.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__BillingHistoryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    subscription<T extends SubscriptionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SubscriptionDefaultArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the BillingHistory model
-   */
-  interface BillingHistoryFieldRefs {
-    readonly id: FieldRef<"BillingHistory", 'String'>
-    readonly subscriptionId: FieldRef<"BillingHistory", 'String'>
-    readonly amountKobo: FieldRef<"BillingHistory", 'Int'>
-    readonly status: FieldRef<"BillingHistory", 'PaymentStatus'>
-    readonly billingCycle: FieldRef<"BillingHistory", 'BillingCycle'>
-    readonly paystackReference: FieldRef<"BillingHistory", 'String'>
-    readonly paidAt: FieldRef<"BillingHistory", 'DateTime'>
-    readonly failureReason: FieldRef<"BillingHistory", 'String'>
-    readonly createdAt: FieldRef<"BillingHistory", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * BillingHistory findUnique
-   */
-  export type BillingHistoryFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the BillingHistory
-     */
-    select?: BillingHistorySelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the BillingHistory
-     */
-    omit?: BillingHistoryOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: BillingHistoryInclude<ExtArgs> | null
-    /**
-     * Filter, which BillingHistory to fetch.
-     */
-    where: BillingHistoryWhereUniqueInput
-  }
-
-  /**
-   * BillingHistory findUniqueOrThrow
-   */
-  export type BillingHistoryFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the BillingHistory
-     */
-    select?: BillingHistorySelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the BillingHistory
-     */
-    omit?: BillingHistoryOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: BillingHistoryInclude<ExtArgs> | null
-    /**
-     * Filter, which BillingHistory to fetch.
-     */
-    where: BillingHistoryWhereUniqueInput
-  }
-
-  /**
-   * BillingHistory findFirst
-   */
-  export type BillingHistoryFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the BillingHistory
-     */
-    select?: BillingHistorySelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the BillingHistory
-     */
-    omit?: BillingHistoryOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: BillingHistoryInclude<ExtArgs> | null
-    /**
-     * Filter, which BillingHistory to fetch.
-     */
-    where?: BillingHistoryWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of BillingHistories to fetch.
-     */
-    orderBy?: BillingHistoryOrderByWithRelationInput | BillingHistoryOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for BillingHistories.
-     */
-    cursor?: BillingHistoryWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` BillingHistories from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` BillingHistories.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of BillingHistories.
-     */
-    distinct?: BillingHistoryScalarFieldEnum | BillingHistoryScalarFieldEnum[]
-  }
-
-  /**
-   * BillingHistory findFirstOrThrow
-   */
-  export type BillingHistoryFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the BillingHistory
-     */
-    select?: BillingHistorySelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the BillingHistory
-     */
-    omit?: BillingHistoryOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: BillingHistoryInclude<ExtArgs> | null
-    /**
-     * Filter, which BillingHistory to fetch.
-     */
-    where?: BillingHistoryWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of BillingHistories to fetch.
-     */
-    orderBy?: BillingHistoryOrderByWithRelationInput | BillingHistoryOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for BillingHistories.
-     */
-    cursor?: BillingHistoryWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` BillingHistories from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` BillingHistories.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of BillingHistories.
-     */
-    distinct?: BillingHistoryScalarFieldEnum | BillingHistoryScalarFieldEnum[]
-  }
-
-  /**
-   * BillingHistory findMany
-   */
-  export type BillingHistoryFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the BillingHistory
-     */
-    select?: BillingHistorySelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the BillingHistory
-     */
-    omit?: BillingHistoryOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: BillingHistoryInclude<ExtArgs> | null
-    /**
-     * Filter, which BillingHistories to fetch.
-     */
-    where?: BillingHistoryWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of BillingHistories to fetch.
-     */
-    orderBy?: BillingHistoryOrderByWithRelationInput | BillingHistoryOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing BillingHistories.
-     */
-    cursor?: BillingHistoryWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` BillingHistories from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` BillingHistories.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of BillingHistories.
-     */
-    distinct?: BillingHistoryScalarFieldEnum | BillingHistoryScalarFieldEnum[]
-  }
-
-  /**
-   * BillingHistory create
-   */
-  export type BillingHistoryCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the BillingHistory
-     */
-    select?: BillingHistorySelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the BillingHistory
-     */
-    omit?: BillingHistoryOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: BillingHistoryInclude<ExtArgs> | null
-    /**
-     * The data needed to create a BillingHistory.
-     */
-    data: XOR<BillingHistoryCreateInput, BillingHistoryUncheckedCreateInput>
-  }
-
-  /**
-   * BillingHistory createMany
-   */
-  export type BillingHistoryCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many BillingHistories.
-     */
-    data: BillingHistoryCreateManyInput | BillingHistoryCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * BillingHistory createManyAndReturn
-   */
-  export type BillingHistoryCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the BillingHistory
-     */
-    select?: BillingHistorySelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the BillingHistory
-     */
-    omit?: BillingHistoryOmit<ExtArgs> | null
-    /**
-     * The data used to create many BillingHistories.
-     */
-    data: BillingHistoryCreateManyInput | BillingHistoryCreateManyInput[]
-    skipDuplicates?: boolean
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: BillingHistoryIncludeCreateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * BillingHistory update
-   */
-  export type BillingHistoryUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the BillingHistory
-     */
-    select?: BillingHistorySelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the BillingHistory
-     */
-    omit?: BillingHistoryOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: BillingHistoryInclude<ExtArgs> | null
-    /**
-     * The data needed to update a BillingHistory.
-     */
-    data: XOR<BillingHistoryUpdateInput, BillingHistoryUncheckedUpdateInput>
-    /**
-     * Choose, which BillingHistory to update.
-     */
-    where: BillingHistoryWhereUniqueInput
-  }
-
-  /**
-   * BillingHistory updateMany
-   */
-  export type BillingHistoryUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update BillingHistories.
-     */
-    data: XOR<BillingHistoryUpdateManyMutationInput, BillingHistoryUncheckedUpdateManyInput>
-    /**
-     * Filter which BillingHistories to update
-     */
-    where?: BillingHistoryWhereInput
-    /**
-     * Limit how many BillingHistories to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * BillingHistory updateManyAndReturn
-   */
-  export type BillingHistoryUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the BillingHistory
-     */
-    select?: BillingHistorySelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the BillingHistory
-     */
-    omit?: BillingHistoryOmit<ExtArgs> | null
-    /**
-     * The data used to update BillingHistories.
-     */
-    data: XOR<BillingHistoryUpdateManyMutationInput, BillingHistoryUncheckedUpdateManyInput>
-    /**
-     * Filter which BillingHistories to update
-     */
-    where?: BillingHistoryWhereInput
-    /**
-     * Limit how many BillingHistories to update.
-     */
-    limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: BillingHistoryIncludeUpdateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * BillingHistory upsert
-   */
-  export type BillingHistoryUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the BillingHistory
-     */
-    select?: BillingHistorySelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the BillingHistory
-     */
-    omit?: BillingHistoryOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: BillingHistoryInclude<ExtArgs> | null
-    /**
-     * The filter to search for the BillingHistory to update in case it exists.
-     */
-    where: BillingHistoryWhereUniqueInput
-    /**
-     * In case the BillingHistory found by the `where` argument doesn't exist, create a new BillingHistory with this data.
-     */
-    create: XOR<BillingHistoryCreateInput, BillingHistoryUncheckedCreateInput>
-    /**
-     * In case the BillingHistory was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<BillingHistoryUpdateInput, BillingHistoryUncheckedUpdateInput>
-  }
-
-  /**
-   * BillingHistory delete
-   */
-  export type BillingHistoryDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the BillingHistory
-     */
-    select?: BillingHistorySelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the BillingHistory
-     */
-    omit?: BillingHistoryOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: BillingHistoryInclude<ExtArgs> | null
-    /**
-     * Filter which BillingHistory to delete.
-     */
-    where: BillingHistoryWhereUniqueInput
-  }
-
-  /**
-   * BillingHistory deleteMany
-   */
-  export type BillingHistoryDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which BillingHistories to delete
-     */
-    where?: BillingHistoryWhereInput
-    /**
-     * Limit how many BillingHistories to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * BillingHistory without action
-   */
-  export type BillingHistoryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the BillingHistory
-     */
-    select?: BillingHistorySelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the BillingHistory
-     */
-    omit?: BillingHistoryOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: BillingHistoryInclude<ExtArgs> | null
   }
 
 
@@ -24380,8 +22709,18 @@ export namespace Prisma {
 
   export type AggregateWebhookEvent = {
     _count: WebhookEventCountAggregateOutputType | null
+    _avg: WebhookEventAvgAggregateOutputType | null
+    _sum: WebhookEventSumAggregateOutputType | null
     _min: WebhookEventMinAggregateOutputType | null
     _max: WebhookEventMaxAggregateOutputType | null
+  }
+
+  export type WebhookEventAvgAggregateOutputType = {
+    attempts: number | null
+  }
+
+  export type WebhookEventSumAggregateOutputType = {
+    attempts: number | null
   }
 
   export type WebhookEventMinAggregateOutputType = {
@@ -24392,8 +22731,10 @@ export namespace Prisma {
     reference: string | null
     status: $Enums.WebhookEventStatus | null
     error: string | null
+    attempts: number | null
     receivedAt: Date | null
     processedAt: Date | null
+    lastAttemptAt: Date | null
   }
 
   export type WebhookEventMaxAggregateOutputType = {
@@ -24404,8 +22745,10 @@ export namespace Prisma {
     reference: string | null
     status: $Enums.WebhookEventStatus | null
     error: string | null
+    attempts: number | null
     receivedAt: Date | null
     processedAt: Date | null
+    lastAttemptAt: Date | null
   }
 
   export type WebhookEventCountAggregateOutputType = {
@@ -24416,11 +22759,22 @@ export namespace Prisma {
     reference: number
     status: number
     error: number
+    attempts: number
+    payload: number
     receivedAt: number
     processedAt: number
+    lastAttemptAt: number
     _all: number
   }
 
+
+  export type WebhookEventAvgAggregateInputType = {
+    attempts?: true
+  }
+
+  export type WebhookEventSumAggregateInputType = {
+    attempts?: true
+  }
 
   export type WebhookEventMinAggregateInputType = {
     id?: true
@@ -24430,8 +22784,10 @@ export namespace Prisma {
     reference?: true
     status?: true
     error?: true
+    attempts?: true
     receivedAt?: true
     processedAt?: true
+    lastAttemptAt?: true
   }
 
   export type WebhookEventMaxAggregateInputType = {
@@ -24442,8 +22798,10 @@ export namespace Prisma {
     reference?: true
     status?: true
     error?: true
+    attempts?: true
     receivedAt?: true
     processedAt?: true
+    lastAttemptAt?: true
   }
 
   export type WebhookEventCountAggregateInputType = {
@@ -24454,8 +22812,11 @@ export namespace Prisma {
     reference?: true
     status?: true
     error?: true
+    attempts?: true
+    payload?: true
     receivedAt?: true
     processedAt?: true
+    lastAttemptAt?: true
     _all?: true
   }
 
@@ -24497,6 +22858,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: WebhookEventAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: WebhookEventSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: WebhookEventMinAggregateInputType
@@ -24527,6 +22900,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: WebhookEventCountAggregateInputType | true
+    _avg?: WebhookEventAvgAggregateInputType
+    _sum?: WebhookEventSumAggregateInputType
     _min?: WebhookEventMinAggregateInputType
     _max?: WebhookEventMaxAggregateInputType
   }
@@ -24539,9 +22914,14 @@ export namespace Prisma {
     reference: string | null
     status: $Enums.WebhookEventStatus
     error: string | null
+    attempts: number
+    payload: JsonValue | null
     receivedAt: Date
     processedAt: Date | null
+    lastAttemptAt: Date | null
     _count: WebhookEventCountAggregateOutputType | null
+    _avg: WebhookEventAvgAggregateOutputType | null
+    _sum: WebhookEventSumAggregateOutputType | null
     _min: WebhookEventMinAggregateOutputType | null
     _max: WebhookEventMaxAggregateOutputType | null
   }
@@ -24568,8 +22948,11 @@ export namespace Prisma {
     reference?: boolean
     status?: boolean
     error?: boolean
+    attempts?: boolean
+    payload?: boolean
     receivedAt?: boolean
     processedAt?: boolean
+    lastAttemptAt?: boolean
   }, ExtArgs["result"]["webhookEvent"]>
 
   export type WebhookEventSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -24580,8 +22963,11 @@ export namespace Prisma {
     reference?: boolean
     status?: boolean
     error?: boolean
+    attempts?: boolean
+    payload?: boolean
     receivedAt?: boolean
     processedAt?: boolean
+    lastAttemptAt?: boolean
   }, ExtArgs["result"]["webhookEvent"]>
 
   export type WebhookEventSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -24592,8 +22978,11 @@ export namespace Prisma {
     reference?: boolean
     status?: boolean
     error?: boolean
+    attempts?: boolean
+    payload?: boolean
     receivedAt?: boolean
     processedAt?: boolean
+    lastAttemptAt?: boolean
   }, ExtArgs["result"]["webhookEvent"]>
 
   export type WebhookEventSelectScalar = {
@@ -24604,11 +22993,14 @@ export namespace Prisma {
     reference?: boolean
     status?: boolean
     error?: boolean
+    attempts?: boolean
+    payload?: boolean
     receivedAt?: boolean
     processedAt?: boolean
+    lastAttemptAt?: boolean
   }
 
-  export type WebhookEventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "provider" | "eventKey" | "eventType" | "reference" | "status" | "error" | "receivedAt" | "processedAt", ExtArgs["result"]["webhookEvent"]>
+  export type WebhookEventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "provider" | "eventKey" | "eventType" | "reference" | "status" | "error" | "attempts" | "payload" | "receivedAt" | "processedAt" | "lastAttemptAt", ExtArgs["result"]["webhookEvent"]>
 
   export type $WebhookEventPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "WebhookEvent"
@@ -24621,8 +23013,11 @@ export namespace Prisma {
       reference: string | null
       status: $Enums.WebhookEventStatus
       error: string | null
+      attempts: number
+      payload: Prisma.JsonValue | null
       receivedAt: Date
       processedAt: Date | null
+      lastAttemptAt: Date | null
     }, ExtArgs["result"]["webhookEvent"]>
     composites: {}
   }
@@ -25053,8 +23448,11 @@ export namespace Prisma {
     readonly reference: FieldRef<"WebhookEvent", 'String'>
     readonly status: FieldRef<"WebhookEvent", 'WebhookEventStatus'>
     readonly error: FieldRef<"WebhookEvent", 'String'>
+    readonly attempts: FieldRef<"WebhookEvent", 'Int'>
+    readonly payload: FieldRef<"WebhookEvent", 'Json'>
     readonly receivedAt: FieldRef<"WebhookEvent", 'DateTime'>
     readonly processedAt: FieldRef<"WebhookEvent", 'DateTime'>
+    readonly lastAttemptAt: FieldRef<"WebhookEvent", 'DateTime'>
   }
     
 
@@ -39945,1168 +38343,6 @@ export namespace Prisma {
 
 
   /**
-   * Model AutomationRuleDefinition
-   */
-
-  export type AggregateAutomationRuleDefinition = {
-    _count: AutomationRuleDefinitionCountAggregateOutputType | null
-    _min: AutomationRuleDefinitionMinAggregateOutputType | null
-    _max: AutomationRuleDefinitionMaxAggregateOutputType | null
-  }
-
-  export type AutomationRuleDefinitionMinAggregateOutputType = {
-    key: string | null
-    module: string | null
-    trigger: $Enums.AutomationTrigger | null
-    eventKey: string | null
-    anchor: string | null
-    templateKey: string | null
-    allowMultiple: boolean | null
-    requiresFeature: string | null
-    name: string | null
-    description: string | null
-    defaultEnabled: boolean | null
-    isActive: boolean | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type AutomationRuleDefinitionMaxAggregateOutputType = {
-    key: string | null
-    module: string | null
-    trigger: $Enums.AutomationTrigger | null
-    eventKey: string | null
-    anchor: string | null
-    templateKey: string | null
-    allowMultiple: boolean | null
-    requiresFeature: string | null
-    name: string | null
-    description: string | null
-    defaultEnabled: boolean | null
-    isActive: boolean | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type AutomationRuleDefinitionCountAggregateOutputType = {
-    key: number
-    module: number
-    trigger: number
-    eventKey: number
-    anchor: number
-    paramsSchema: number
-    allowedChannels: number
-    allowedAudiences: number
-    templateKey: number
-    allowMultiple: number
-    requiresFeature: number
-    name: number
-    description: number
-    defaultEnabled: number
-    defaultParams: number
-    defaultChannels: number
-    isActive: number
-    createdAt: number
-    updatedAt: number
-    _all: number
-  }
-
-
-  export type AutomationRuleDefinitionMinAggregateInputType = {
-    key?: true
-    module?: true
-    trigger?: true
-    eventKey?: true
-    anchor?: true
-    templateKey?: true
-    allowMultiple?: true
-    requiresFeature?: true
-    name?: true
-    description?: true
-    defaultEnabled?: true
-    isActive?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type AutomationRuleDefinitionMaxAggregateInputType = {
-    key?: true
-    module?: true
-    trigger?: true
-    eventKey?: true
-    anchor?: true
-    templateKey?: true
-    allowMultiple?: true
-    requiresFeature?: true
-    name?: true
-    description?: true
-    defaultEnabled?: true
-    isActive?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type AutomationRuleDefinitionCountAggregateInputType = {
-    key?: true
-    module?: true
-    trigger?: true
-    eventKey?: true
-    anchor?: true
-    paramsSchema?: true
-    allowedChannels?: true
-    allowedAudiences?: true
-    templateKey?: true
-    allowMultiple?: true
-    requiresFeature?: true
-    name?: true
-    description?: true
-    defaultEnabled?: true
-    defaultParams?: true
-    defaultChannels?: true
-    isActive?: true
-    createdAt?: true
-    updatedAt?: true
-    _all?: true
-  }
-
-  export type AutomationRuleDefinitionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which AutomationRuleDefinition to aggregate.
-     */
-    where?: AutomationRuleDefinitionWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of AutomationRuleDefinitions to fetch.
-     */
-    orderBy?: AutomationRuleDefinitionOrderByWithRelationInput | AutomationRuleDefinitionOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: AutomationRuleDefinitionWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` AutomationRuleDefinitions from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` AutomationRuleDefinitions.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned AutomationRuleDefinitions
-    **/
-    _count?: true | AutomationRuleDefinitionCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: AutomationRuleDefinitionMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: AutomationRuleDefinitionMaxAggregateInputType
-  }
-
-  export type GetAutomationRuleDefinitionAggregateType<T extends AutomationRuleDefinitionAggregateArgs> = {
-        [P in keyof T & keyof AggregateAutomationRuleDefinition]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateAutomationRuleDefinition[P]>
-      : GetScalarType<T[P], AggregateAutomationRuleDefinition[P]>
-  }
-
-
-
-
-  export type AutomationRuleDefinitionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: AutomationRuleDefinitionWhereInput
-    orderBy?: AutomationRuleDefinitionOrderByWithAggregationInput | AutomationRuleDefinitionOrderByWithAggregationInput[]
-    by: AutomationRuleDefinitionScalarFieldEnum[] | AutomationRuleDefinitionScalarFieldEnum
-    having?: AutomationRuleDefinitionScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: AutomationRuleDefinitionCountAggregateInputType | true
-    _min?: AutomationRuleDefinitionMinAggregateInputType
-    _max?: AutomationRuleDefinitionMaxAggregateInputType
-  }
-
-  export type AutomationRuleDefinitionGroupByOutputType = {
-    key: string
-    module: string
-    trigger: $Enums.AutomationTrigger
-    eventKey: string | null
-    anchor: string | null
-    paramsSchema: JsonValue
-    allowedChannels: $Enums.NotificationChannel[]
-    allowedAudiences: string[]
-    templateKey: string
-    allowMultiple: boolean
-    requiresFeature: string | null
-    name: string
-    description: string | null
-    defaultEnabled: boolean
-    defaultParams: JsonValue
-    defaultChannels: $Enums.NotificationChannel[]
-    isActive: boolean
-    createdAt: Date
-    updatedAt: Date
-    _count: AutomationRuleDefinitionCountAggregateOutputType | null
-    _min: AutomationRuleDefinitionMinAggregateOutputType | null
-    _max: AutomationRuleDefinitionMaxAggregateOutputType | null
-  }
-
-  type GetAutomationRuleDefinitionGroupByPayload<T extends AutomationRuleDefinitionGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<AutomationRuleDefinitionGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof AutomationRuleDefinitionGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], AutomationRuleDefinitionGroupByOutputType[P]>
-            : GetScalarType<T[P], AutomationRuleDefinitionGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type AutomationRuleDefinitionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    key?: boolean
-    module?: boolean
-    trigger?: boolean
-    eventKey?: boolean
-    anchor?: boolean
-    paramsSchema?: boolean
-    allowedChannels?: boolean
-    allowedAudiences?: boolean
-    templateKey?: boolean
-    allowMultiple?: boolean
-    requiresFeature?: boolean
-    name?: boolean
-    description?: boolean
-    defaultEnabled?: boolean
-    defaultParams?: boolean
-    defaultChannels?: boolean
-    isActive?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-  }, ExtArgs["result"]["automationRuleDefinition"]>
-
-  export type AutomationRuleDefinitionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    key?: boolean
-    module?: boolean
-    trigger?: boolean
-    eventKey?: boolean
-    anchor?: boolean
-    paramsSchema?: boolean
-    allowedChannels?: boolean
-    allowedAudiences?: boolean
-    templateKey?: boolean
-    allowMultiple?: boolean
-    requiresFeature?: boolean
-    name?: boolean
-    description?: boolean
-    defaultEnabled?: boolean
-    defaultParams?: boolean
-    defaultChannels?: boolean
-    isActive?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-  }, ExtArgs["result"]["automationRuleDefinition"]>
-
-  export type AutomationRuleDefinitionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    key?: boolean
-    module?: boolean
-    trigger?: boolean
-    eventKey?: boolean
-    anchor?: boolean
-    paramsSchema?: boolean
-    allowedChannels?: boolean
-    allowedAudiences?: boolean
-    templateKey?: boolean
-    allowMultiple?: boolean
-    requiresFeature?: boolean
-    name?: boolean
-    description?: boolean
-    defaultEnabled?: boolean
-    defaultParams?: boolean
-    defaultChannels?: boolean
-    isActive?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-  }, ExtArgs["result"]["automationRuleDefinition"]>
-
-  export type AutomationRuleDefinitionSelectScalar = {
-    key?: boolean
-    module?: boolean
-    trigger?: boolean
-    eventKey?: boolean
-    anchor?: boolean
-    paramsSchema?: boolean
-    allowedChannels?: boolean
-    allowedAudiences?: boolean
-    templateKey?: boolean
-    allowMultiple?: boolean
-    requiresFeature?: boolean
-    name?: boolean
-    description?: boolean
-    defaultEnabled?: boolean
-    defaultParams?: boolean
-    defaultChannels?: boolean
-    isActive?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-  }
-
-  export type AutomationRuleDefinitionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"key" | "module" | "trigger" | "eventKey" | "anchor" | "paramsSchema" | "allowedChannels" | "allowedAudiences" | "templateKey" | "allowMultiple" | "requiresFeature" | "name" | "description" | "defaultEnabled" | "defaultParams" | "defaultChannels" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["automationRuleDefinition"]>
-
-  export type $AutomationRuleDefinitionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "AutomationRuleDefinition"
-    objects: {}
-    scalars: $Extensions.GetPayloadResult<{
-      key: string
-      module: string
-      trigger: $Enums.AutomationTrigger
-      eventKey: string | null
-      anchor: string | null
-      paramsSchema: Prisma.JsonValue
-      allowedChannels: $Enums.NotificationChannel[]
-      allowedAudiences: string[]
-      templateKey: string
-      allowMultiple: boolean
-      requiresFeature: string | null
-      name: string
-      description: string | null
-      defaultEnabled: boolean
-      defaultParams: Prisma.JsonValue
-      defaultChannels: $Enums.NotificationChannel[]
-      isActive: boolean
-      createdAt: Date
-      updatedAt: Date
-    }, ExtArgs["result"]["automationRuleDefinition"]>
-    composites: {}
-  }
-
-  type AutomationRuleDefinitionGetPayload<S extends boolean | null | undefined | AutomationRuleDefinitionDefaultArgs> = $Result.GetResult<Prisma.$AutomationRuleDefinitionPayload, S>
-
-  type AutomationRuleDefinitionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<AutomationRuleDefinitionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: AutomationRuleDefinitionCountAggregateInputType | true
-    }
-
-  export interface AutomationRuleDefinitionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AutomationRuleDefinition'], meta: { name: 'AutomationRuleDefinition' } }
-    /**
-     * Find zero or one AutomationRuleDefinition that matches the filter.
-     * @param {AutomationRuleDefinitionFindUniqueArgs} args - Arguments to find a AutomationRuleDefinition
-     * @example
-     * // Get one AutomationRuleDefinition
-     * const automationRuleDefinition = await prisma.automationRuleDefinition.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends AutomationRuleDefinitionFindUniqueArgs>(args: SelectSubset<T, AutomationRuleDefinitionFindUniqueArgs<ExtArgs>>): Prisma__AutomationRuleDefinitionClient<$Result.GetResult<Prisma.$AutomationRuleDefinitionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one AutomationRuleDefinition that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {AutomationRuleDefinitionFindUniqueOrThrowArgs} args - Arguments to find a AutomationRuleDefinition
-     * @example
-     * // Get one AutomationRuleDefinition
-     * const automationRuleDefinition = await prisma.automationRuleDefinition.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends AutomationRuleDefinitionFindUniqueOrThrowArgs>(args: SelectSubset<T, AutomationRuleDefinitionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AutomationRuleDefinitionClient<$Result.GetResult<Prisma.$AutomationRuleDefinitionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first AutomationRuleDefinition that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {AutomationRuleDefinitionFindFirstArgs} args - Arguments to find a AutomationRuleDefinition
-     * @example
-     * // Get one AutomationRuleDefinition
-     * const automationRuleDefinition = await prisma.automationRuleDefinition.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends AutomationRuleDefinitionFindFirstArgs>(args?: SelectSubset<T, AutomationRuleDefinitionFindFirstArgs<ExtArgs>>): Prisma__AutomationRuleDefinitionClient<$Result.GetResult<Prisma.$AutomationRuleDefinitionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first AutomationRuleDefinition that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {AutomationRuleDefinitionFindFirstOrThrowArgs} args - Arguments to find a AutomationRuleDefinition
-     * @example
-     * // Get one AutomationRuleDefinition
-     * const automationRuleDefinition = await prisma.automationRuleDefinition.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends AutomationRuleDefinitionFindFirstOrThrowArgs>(args?: SelectSubset<T, AutomationRuleDefinitionFindFirstOrThrowArgs<ExtArgs>>): Prisma__AutomationRuleDefinitionClient<$Result.GetResult<Prisma.$AutomationRuleDefinitionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more AutomationRuleDefinitions that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {AutomationRuleDefinitionFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all AutomationRuleDefinitions
-     * const automationRuleDefinitions = await prisma.automationRuleDefinition.findMany()
-     * 
-     * // Get first 10 AutomationRuleDefinitions
-     * const automationRuleDefinitions = await prisma.automationRuleDefinition.findMany({ take: 10 })
-     * 
-     * // Only select the `key`
-     * const automationRuleDefinitionWithKeyOnly = await prisma.automationRuleDefinition.findMany({ select: { key: true } })
-     * 
-     */
-    findMany<T extends AutomationRuleDefinitionFindManyArgs>(args?: SelectSubset<T, AutomationRuleDefinitionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AutomationRuleDefinitionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a AutomationRuleDefinition.
-     * @param {AutomationRuleDefinitionCreateArgs} args - Arguments to create a AutomationRuleDefinition.
-     * @example
-     * // Create one AutomationRuleDefinition
-     * const AutomationRuleDefinition = await prisma.automationRuleDefinition.create({
-     *   data: {
-     *     // ... data to create a AutomationRuleDefinition
-     *   }
-     * })
-     * 
-     */
-    create<T extends AutomationRuleDefinitionCreateArgs>(args: SelectSubset<T, AutomationRuleDefinitionCreateArgs<ExtArgs>>): Prisma__AutomationRuleDefinitionClient<$Result.GetResult<Prisma.$AutomationRuleDefinitionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many AutomationRuleDefinitions.
-     * @param {AutomationRuleDefinitionCreateManyArgs} args - Arguments to create many AutomationRuleDefinitions.
-     * @example
-     * // Create many AutomationRuleDefinitions
-     * const automationRuleDefinition = await prisma.automationRuleDefinition.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends AutomationRuleDefinitionCreateManyArgs>(args?: SelectSubset<T, AutomationRuleDefinitionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many AutomationRuleDefinitions and returns the data saved in the database.
-     * @param {AutomationRuleDefinitionCreateManyAndReturnArgs} args - Arguments to create many AutomationRuleDefinitions.
-     * @example
-     * // Create many AutomationRuleDefinitions
-     * const automationRuleDefinition = await prisma.automationRuleDefinition.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many AutomationRuleDefinitions and only return the `key`
-     * const automationRuleDefinitionWithKeyOnly = await prisma.automationRuleDefinition.createManyAndReturn({
-     *   select: { key: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends AutomationRuleDefinitionCreateManyAndReturnArgs>(args?: SelectSubset<T, AutomationRuleDefinitionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AutomationRuleDefinitionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a AutomationRuleDefinition.
-     * @param {AutomationRuleDefinitionDeleteArgs} args - Arguments to delete one AutomationRuleDefinition.
-     * @example
-     * // Delete one AutomationRuleDefinition
-     * const AutomationRuleDefinition = await prisma.automationRuleDefinition.delete({
-     *   where: {
-     *     // ... filter to delete one AutomationRuleDefinition
-     *   }
-     * })
-     * 
-     */
-    delete<T extends AutomationRuleDefinitionDeleteArgs>(args: SelectSubset<T, AutomationRuleDefinitionDeleteArgs<ExtArgs>>): Prisma__AutomationRuleDefinitionClient<$Result.GetResult<Prisma.$AutomationRuleDefinitionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one AutomationRuleDefinition.
-     * @param {AutomationRuleDefinitionUpdateArgs} args - Arguments to update one AutomationRuleDefinition.
-     * @example
-     * // Update one AutomationRuleDefinition
-     * const automationRuleDefinition = await prisma.automationRuleDefinition.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends AutomationRuleDefinitionUpdateArgs>(args: SelectSubset<T, AutomationRuleDefinitionUpdateArgs<ExtArgs>>): Prisma__AutomationRuleDefinitionClient<$Result.GetResult<Prisma.$AutomationRuleDefinitionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more AutomationRuleDefinitions.
-     * @param {AutomationRuleDefinitionDeleteManyArgs} args - Arguments to filter AutomationRuleDefinitions to delete.
-     * @example
-     * // Delete a few AutomationRuleDefinitions
-     * const { count } = await prisma.automationRuleDefinition.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends AutomationRuleDefinitionDeleteManyArgs>(args?: SelectSubset<T, AutomationRuleDefinitionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more AutomationRuleDefinitions.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {AutomationRuleDefinitionUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many AutomationRuleDefinitions
-     * const automationRuleDefinition = await prisma.automationRuleDefinition.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends AutomationRuleDefinitionUpdateManyArgs>(args: SelectSubset<T, AutomationRuleDefinitionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more AutomationRuleDefinitions and returns the data updated in the database.
-     * @param {AutomationRuleDefinitionUpdateManyAndReturnArgs} args - Arguments to update many AutomationRuleDefinitions.
-     * @example
-     * // Update many AutomationRuleDefinitions
-     * const automationRuleDefinition = await prisma.automationRuleDefinition.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more AutomationRuleDefinitions and only return the `key`
-     * const automationRuleDefinitionWithKeyOnly = await prisma.automationRuleDefinition.updateManyAndReturn({
-     *   select: { key: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends AutomationRuleDefinitionUpdateManyAndReturnArgs>(args: SelectSubset<T, AutomationRuleDefinitionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AutomationRuleDefinitionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one AutomationRuleDefinition.
-     * @param {AutomationRuleDefinitionUpsertArgs} args - Arguments to update or create a AutomationRuleDefinition.
-     * @example
-     * // Update or create a AutomationRuleDefinition
-     * const automationRuleDefinition = await prisma.automationRuleDefinition.upsert({
-     *   create: {
-     *     // ... data to create a AutomationRuleDefinition
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the AutomationRuleDefinition we want to update
-     *   }
-     * })
-     */
-    upsert<T extends AutomationRuleDefinitionUpsertArgs>(args: SelectSubset<T, AutomationRuleDefinitionUpsertArgs<ExtArgs>>): Prisma__AutomationRuleDefinitionClient<$Result.GetResult<Prisma.$AutomationRuleDefinitionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of AutomationRuleDefinitions.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {AutomationRuleDefinitionCountArgs} args - Arguments to filter AutomationRuleDefinitions to count.
-     * @example
-     * // Count the number of AutomationRuleDefinitions
-     * const count = await prisma.automationRuleDefinition.count({
-     *   where: {
-     *     // ... the filter for the AutomationRuleDefinitions we want to count
-     *   }
-     * })
-    **/
-    count<T extends AutomationRuleDefinitionCountArgs>(
-      args?: Subset<T, AutomationRuleDefinitionCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], AutomationRuleDefinitionCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a AutomationRuleDefinition.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {AutomationRuleDefinitionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends AutomationRuleDefinitionAggregateArgs>(args: Subset<T, AutomationRuleDefinitionAggregateArgs>): Prisma.PrismaPromise<GetAutomationRuleDefinitionAggregateType<T>>
-
-    /**
-     * Group by AutomationRuleDefinition.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {AutomationRuleDefinitionGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends AutomationRuleDefinitionGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: AutomationRuleDefinitionGroupByArgs['orderBy'] }
-        : { orderBy?: AutomationRuleDefinitionGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, AutomationRuleDefinitionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAutomationRuleDefinitionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the AutomationRuleDefinition model
-   */
-  readonly fields: AutomationRuleDefinitionFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for AutomationRuleDefinition.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__AutomationRuleDefinitionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the AutomationRuleDefinition model
-   */
-  interface AutomationRuleDefinitionFieldRefs {
-    readonly key: FieldRef<"AutomationRuleDefinition", 'String'>
-    readonly module: FieldRef<"AutomationRuleDefinition", 'String'>
-    readonly trigger: FieldRef<"AutomationRuleDefinition", 'AutomationTrigger'>
-    readonly eventKey: FieldRef<"AutomationRuleDefinition", 'String'>
-    readonly anchor: FieldRef<"AutomationRuleDefinition", 'String'>
-    readonly paramsSchema: FieldRef<"AutomationRuleDefinition", 'Json'>
-    readonly allowedChannels: FieldRef<"AutomationRuleDefinition", 'NotificationChannel[]'>
-    readonly allowedAudiences: FieldRef<"AutomationRuleDefinition", 'String[]'>
-    readonly templateKey: FieldRef<"AutomationRuleDefinition", 'String'>
-    readonly allowMultiple: FieldRef<"AutomationRuleDefinition", 'Boolean'>
-    readonly requiresFeature: FieldRef<"AutomationRuleDefinition", 'String'>
-    readonly name: FieldRef<"AutomationRuleDefinition", 'String'>
-    readonly description: FieldRef<"AutomationRuleDefinition", 'String'>
-    readonly defaultEnabled: FieldRef<"AutomationRuleDefinition", 'Boolean'>
-    readonly defaultParams: FieldRef<"AutomationRuleDefinition", 'Json'>
-    readonly defaultChannels: FieldRef<"AutomationRuleDefinition", 'NotificationChannel[]'>
-    readonly isActive: FieldRef<"AutomationRuleDefinition", 'Boolean'>
-    readonly createdAt: FieldRef<"AutomationRuleDefinition", 'DateTime'>
-    readonly updatedAt: FieldRef<"AutomationRuleDefinition", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * AutomationRuleDefinition findUnique
-   */
-  export type AutomationRuleDefinitionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the AutomationRuleDefinition
-     */
-    select?: AutomationRuleDefinitionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the AutomationRuleDefinition
-     */
-    omit?: AutomationRuleDefinitionOmit<ExtArgs> | null
-    /**
-     * Filter, which AutomationRuleDefinition to fetch.
-     */
-    where: AutomationRuleDefinitionWhereUniqueInput
-  }
-
-  /**
-   * AutomationRuleDefinition findUniqueOrThrow
-   */
-  export type AutomationRuleDefinitionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the AutomationRuleDefinition
-     */
-    select?: AutomationRuleDefinitionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the AutomationRuleDefinition
-     */
-    omit?: AutomationRuleDefinitionOmit<ExtArgs> | null
-    /**
-     * Filter, which AutomationRuleDefinition to fetch.
-     */
-    where: AutomationRuleDefinitionWhereUniqueInput
-  }
-
-  /**
-   * AutomationRuleDefinition findFirst
-   */
-  export type AutomationRuleDefinitionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the AutomationRuleDefinition
-     */
-    select?: AutomationRuleDefinitionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the AutomationRuleDefinition
-     */
-    omit?: AutomationRuleDefinitionOmit<ExtArgs> | null
-    /**
-     * Filter, which AutomationRuleDefinition to fetch.
-     */
-    where?: AutomationRuleDefinitionWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of AutomationRuleDefinitions to fetch.
-     */
-    orderBy?: AutomationRuleDefinitionOrderByWithRelationInput | AutomationRuleDefinitionOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for AutomationRuleDefinitions.
-     */
-    cursor?: AutomationRuleDefinitionWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` AutomationRuleDefinitions from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` AutomationRuleDefinitions.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of AutomationRuleDefinitions.
-     */
-    distinct?: AutomationRuleDefinitionScalarFieldEnum | AutomationRuleDefinitionScalarFieldEnum[]
-  }
-
-  /**
-   * AutomationRuleDefinition findFirstOrThrow
-   */
-  export type AutomationRuleDefinitionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the AutomationRuleDefinition
-     */
-    select?: AutomationRuleDefinitionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the AutomationRuleDefinition
-     */
-    omit?: AutomationRuleDefinitionOmit<ExtArgs> | null
-    /**
-     * Filter, which AutomationRuleDefinition to fetch.
-     */
-    where?: AutomationRuleDefinitionWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of AutomationRuleDefinitions to fetch.
-     */
-    orderBy?: AutomationRuleDefinitionOrderByWithRelationInput | AutomationRuleDefinitionOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for AutomationRuleDefinitions.
-     */
-    cursor?: AutomationRuleDefinitionWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` AutomationRuleDefinitions from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` AutomationRuleDefinitions.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of AutomationRuleDefinitions.
-     */
-    distinct?: AutomationRuleDefinitionScalarFieldEnum | AutomationRuleDefinitionScalarFieldEnum[]
-  }
-
-  /**
-   * AutomationRuleDefinition findMany
-   */
-  export type AutomationRuleDefinitionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the AutomationRuleDefinition
-     */
-    select?: AutomationRuleDefinitionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the AutomationRuleDefinition
-     */
-    omit?: AutomationRuleDefinitionOmit<ExtArgs> | null
-    /**
-     * Filter, which AutomationRuleDefinitions to fetch.
-     */
-    where?: AutomationRuleDefinitionWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of AutomationRuleDefinitions to fetch.
-     */
-    orderBy?: AutomationRuleDefinitionOrderByWithRelationInput | AutomationRuleDefinitionOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing AutomationRuleDefinitions.
-     */
-    cursor?: AutomationRuleDefinitionWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` AutomationRuleDefinitions from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` AutomationRuleDefinitions.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of AutomationRuleDefinitions.
-     */
-    distinct?: AutomationRuleDefinitionScalarFieldEnum | AutomationRuleDefinitionScalarFieldEnum[]
-  }
-
-  /**
-   * AutomationRuleDefinition create
-   */
-  export type AutomationRuleDefinitionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the AutomationRuleDefinition
-     */
-    select?: AutomationRuleDefinitionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the AutomationRuleDefinition
-     */
-    omit?: AutomationRuleDefinitionOmit<ExtArgs> | null
-    /**
-     * The data needed to create a AutomationRuleDefinition.
-     */
-    data: XOR<AutomationRuleDefinitionCreateInput, AutomationRuleDefinitionUncheckedCreateInput>
-  }
-
-  /**
-   * AutomationRuleDefinition createMany
-   */
-  export type AutomationRuleDefinitionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many AutomationRuleDefinitions.
-     */
-    data: AutomationRuleDefinitionCreateManyInput | AutomationRuleDefinitionCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * AutomationRuleDefinition createManyAndReturn
-   */
-  export type AutomationRuleDefinitionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the AutomationRuleDefinition
-     */
-    select?: AutomationRuleDefinitionSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the AutomationRuleDefinition
-     */
-    omit?: AutomationRuleDefinitionOmit<ExtArgs> | null
-    /**
-     * The data used to create many AutomationRuleDefinitions.
-     */
-    data: AutomationRuleDefinitionCreateManyInput | AutomationRuleDefinitionCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * AutomationRuleDefinition update
-   */
-  export type AutomationRuleDefinitionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the AutomationRuleDefinition
-     */
-    select?: AutomationRuleDefinitionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the AutomationRuleDefinition
-     */
-    omit?: AutomationRuleDefinitionOmit<ExtArgs> | null
-    /**
-     * The data needed to update a AutomationRuleDefinition.
-     */
-    data: XOR<AutomationRuleDefinitionUpdateInput, AutomationRuleDefinitionUncheckedUpdateInput>
-    /**
-     * Choose, which AutomationRuleDefinition to update.
-     */
-    where: AutomationRuleDefinitionWhereUniqueInput
-  }
-
-  /**
-   * AutomationRuleDefinition updateMany
-   */
-  export type AutomationRuleDefinitionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update AutomationRuleDefinitions.
-     */
-    data: XOR<AutomationRuleDefinitionUpdateManyMutationInput, AutomationRuleDefinitionUncheckedUpdateManyInput>
-    /**
-     * Filter which AutomationRuleDefinitions to update
-     */
-    where?: AutomationRuleDefinitionWhereInput
-    /**
-     * Limit how many AutomationRuleDefinitions to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * AutomationRuleDefinition updateManyAndReturn
-   */
-  export type AutomationRuleDefinitionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the AutomationRuleDefinition
-     */
-    select?: AutomationRuleDefinitionSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the AutomationRuleDefinition
-     */
-    omit?: AutomationRuleDefinitionOmit<ExtArgs> | null
-    /**
-     * The data used to update AutomationRuleDefinitions.
-     */
-    data: XOR<AutomationRuleDefinitionUpdateManyMutationInput, AutomationRuleDefinitionUncheckedUpdateManyInput>
-    /**
-     * Filter which AutomationRuleDefinitions to update
-     */
-    where?: AutomationRuleDefinitionWhereInput
-    /**
-     * Limit how many AutomationRuleDefinitions to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * AutomationRuleDefinition upsert
-   */
-  export type AutomationRuleDefinitionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the AutomationRuleDefinition
-     */
-    select?: AutomationRuleDefinitionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the AutomationRuleDefinition
-     */
-    omit?: AutomationRuleDefinitionOmit<ExtArgs> | null
-    /**
-     * The filter to search for the AutomationRuleDefinition to update in case it exists.
-     */
-    where: AutomationRuleDefinitionWhereUniqueInput
-    /**
-     * In case the AutomationRuleDefinition found by the `where` argument doesn't exist, create a new AutomationRuleDefinition with this data.
-     */
-    create: XOR<AutomationRuleDefinitionCreateInput, AutomationRuleDefinitionUncheckedCreateInput>
-    /**
-     * In case the AutomationRuleDefinition was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<AutomationRuleDefinitionUpdateInput, AutomationRuleDefinitionUncheckedUpdateInput>
-  }
-
-  /**
-   * AutomationRuleDefinition delete
-   */
-  export type AutomationRuleDefinitionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the AutomationRuleDefinition
-     */
-    select?: AutomationRuleDefinitionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the AutomationRuleDefinition
-     */
-    omit?: AutomationRuleDefinitionOmit<ExtArgs> | null
-    /**
-     * Filter which AutomationRuleDefinition to delete.
-     */
-    where: AutomationRuleDefinitionWhereUniqueInput
-  }
-
-  /**
-   * AutomationRuleDefinition deleteMany
-   */
-  export type AutomationRuleDefinitionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which AutomationRuleDefinitions to delete
-     */
-    where?: AutomationRuleDefinitionWhereInput
-    /**
-     * Limit how many AutomationRuleDefinitions to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * AutomationRuleDefinition without action
-   */
-  export type AutomationRuleDefinitionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the AutomationRuleDefinition
-     */
-    select?: AutomationRuleDefinitionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the AutomationRuleDefinition
-     */
-    omit?: AutomationRuleDefinitionOmit<ExtArgs> | null
-  }
-
-
-  /**
    * Model MessageTemplate
    */
 
@@ -49803,11 +47039,8 @@ export namespace Prisma {
 
   export const UserScalarFieldEnum: {
     id: 'id',
-    schoolId: 'schoolId',
     email: 'email',
     passwordHash: 'passwordHash',
-    role: 'role',
-    platformRole: 'platformRole',
     firstName: 'firstName',
     lastName: 'lastName',
     phone: 'phone',
@@ -49874,7 +47107,6 @@ export namespace Prisma {
   export const InviteScalarFieldEnum: {
     id: 'id',
     email: 'email',
-    role: 'role',
     persona: 'persona',
     personaEntityId: 'personaEntityId',
     roleId: 'roleId',
@@ -49897,9 +47129,6 @@ export namespace Prisma {
     name: 'name',
     systemKey: 'systemKey',
     description: 'description',
-    studentLimit: 'studentLimit',
-    staffLimit: 'staffLimit',
-    features: 'features',
     monthlyPriceKobo: 'monthlyPriceKobo',
     yearlyPriceKobo: 'yearlyPriceKobo',
     setupFeeKobo: 'setupFeeKobo',
@@ -49927,14 +47156,8 @@ export namespace Prisma {
     couponId: 'couponId',
     discountedPriceKobo: 'discountedPriceKobo',
     autoRenew: 'autoRenew',
-    paystackAuthorizationCode: 'paystackAuthorizationCode',
-    paystackCustomerCode: 'paystackCustomerCode',
-    paystackSubscriptionCode: 'paystackSubscriptionCode',
     scheduledDowngradePlanId: 'scheduledDowngradePlanId',
-    setupFeePaid: 'setupFeePaid',
-    setupFeePaidAt: 'setupFeePaidAt',
     nextBillingDate: 'nextBillingDate',
-    lastBillingAttemptAt: 'lastBillingAttemptAt',
     failedBillingCount: 'failedBillingCount',
     paymentMethodId: 'paymentMethodId',
     billingAnchorDay: 'billingAnchorDay',
@@ -49962,21 +47185,6 @@ export namespace Prisma {
   };
 
   export type CouponScalarFieldEnum = (typeof CouponScalarFieldEnum)[keyof typeof CouponScalarFieldEnum]
-
-
-  export const BillingHistoryScalarFieldEnum: {
-    id: 'id',
-    subscriptionId: 'subscriptionId',
-    amountKobo: 'amountKobo',
-    status: 'status',
-    billingCycle: 'billingCycle',
-    paystackReference: 'paystackReference',
-    paidAt: 'paidAt',
-    failureReason: 'failureReason',
-    createdAt: 'createdAt'
-  };
-
-  export type BillingHistoryScalarFieldEnum = (typeof BillingHistoryScalarFieldEnum)[keyof typeof BillingHistoryScalarFieldEnum]
 
 
   export const SubscriptionInvoiceScalarFieldEnum: {
@@ -50069,8 +47277,11 @@ export namespace Prisma {
     reference: 'reference',
     status: 'status',
     error: 'error',
+    attempts: 'attempts',
+    payload: 'payload',
     receivedAt: 'receivedAt',
-    processedAt: 'processedAt'
+    processedAt: 'processedAt',
+    lastAttemptAt: 'lastAttemptAt'
   };
 
   export type WebhookEventScalarFieldEnum = (typeof WebhookEventScalarFieldEnum)[keyof typeof WebhookEventScalarFieldEnum]
@@ -50255,31 +47466,6 @@ export namespace Prisma {
   };
 
   export type SettingDefinitionScalarFieldEnum = (typeof SettingDefinitionScalarFieldEnum)[keyof typeof SettingDefinitionScalarFieldEnum]
-
-
-  export const AutomationRuleDefinitionScalarFieldEnum: {
-    key: 'key',
-    module: 'module',
-    trigger: 'trigger',
-    eventKey: 'eventKey',
-    anchor: 'anchor',
-    paramsSchema: 'paramsSchema',
-    allowedChannels: 'allowedChannels',
-    allowedAudiences: 'allowedAudiences',
-    templateKey: 'templateKey',
-    allowMultiple: 'allowMultiple',
-    requiresFeature: 'requiresFeature',
-    name: 'name',
-    description: 'description',
-    defaultEnabled: 'defaultEnabled',
-    defaultParams: 'defaultParams',
-    defaultChannels: 'defaultChannels',
-    isActive: 'isActive',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  };
-
-  export type AutomationRuleDefinitionScalarFieldEnum = (typeof AutomationRuleDefinitionScalarFieldEnum)[keyof typeof AutomationRuleDefinitionScalarFieldEnum]
 
 
   export const MessageTemplateScalarFieldEnum: {
@@ -50648,34 +47834,6 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'Role'
-   */
-  export type EnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Role'>
-    
-
-
-  /**
-   * Reference to a field of type 'Role[]'
-   */
-  export type ListEnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Role[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'LegacyPlatformRole'
-   */
-  export type EnumLegacyPlatformRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LegacyPlatformRole'>
-    
-
-
-  /**
-   * Reference to a field of type 'LegacyPlatformRole[]'
-   */
-  export type ListEnumLegacyPlatformRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LegacyPlatformRole[]'>
-    
-
-
-  /**
    * Reference to a field of type 'Int'
    */
   export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -50756,20 +47914,6 @@ export namespace Prisma {
    * Reference to a field of type 'DiscountType[]'
    */
   export type ListEnumDiscountTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DiscountType[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'PaymentStatus'
-   */
-  export type EnumPaymentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentStatus'>
-    
-
-
-  /**
-   * Reference to a field of type 'PaymentStatus[]'
-   */
-  export type ListEnumPaymentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentStatus[]'>
     
 
 
@@ -50970,16 +48114,9 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'AutomationTrigger'
+   * Reference to a field of type 'NotificationChannel'
    */
-  export type EnumAutomationTriggerFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AutomationTrigger'>
-    
-
-
-  /**
-   * Reference to a field of type 'AutomationTrigger[]'
-   */
-  export type ListEnumAutomationTriggerFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AutomationTrigger[]'>
+  export type EnumNotificationChannelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotificationChannel'>
     
 
 
@@ -50987,13 +48124,6 @@ export namespace Prisma {
    * Reference to a field of type 'NotificationChannel[]'
    */
   export type ListEnumNotificationChannelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotificationChannel[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'NotificationChannel'
-   */
-  export type EnumNotificationChannelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotificationChannel'>
     
 
 
@@ -51166,7 +48296,6 @@ export namespace Prisma {
     settlementAccountLast4?: StringNullableFilter<"School"> | string | null
     createdAt?: DateTimeFilter<"School"> | Date | string
     updatedAt?: DateTimeFilter<"School"> | Date | string
-    users?: UserListRelationFilter
     userSchools?: UserSchoolListRelationFilter
     subscriptions?: SubscriptionListRelationFilter
     documents?: SchoolDocumentListRelationFilter
@@ -51215,7 +48344,6 @@ export namespace Prisma {
     settlementAccountLast4?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    users?: UserOrderByRelationAggregateInput
     userSchools?: UserSchoolOrderByRelationAggregateInput
     subscriptions?: SubscriptionOrderByRelationAggregateInput
     documents?: SchoolDocumentOrderByRelationAggregateInput
@@ -51267,7 +48395,6 @@ export namespace Prisma {
     settlementAccountLast4?: StringNullableFilter<"School"> | string | null
     createdAt?: DateTimeFilter<"School"> | Date | string
     updatedAt?: DateTimeFilter<"School"> | Date | string
-    users?: UserListRelationFilter
     userSchools?: UserSchoolListRelationFilter
     subscriptions?: SubscriptionListRelationFilter
     documents?: SchoolDocumentListRelationFilter
@@ -51478,11 +48605,8 @@ export namespace Prisma {
     OR?: UserWhereInput[]
     NOT?: UserWhereInput | UserWhereInput[]
     id?: StringFilter<"User"> | string
-    schoolId?: StringNullableFilter<"User"> | string | null
     email?: StringFilter<"User"> | string
     passwordHash?: StringFilter<"User"> | string
-    role?: EnumRoleFilter<"User"> | $Enums.Role
-    platformRole?: EnumLegacyPlatformRoleNullableFilter<"User"> | $Enums.LegacyPlatformRole | null
     firstName?: StringNullableFilter<"User"> | string | null
     lastName?: StringNullableFilter<"User"> | string | null
     phone?: StringNullableFilter<"User"> | string | null
@@ -51498,7 +48622,6 @@ export namespace Prisma {
     mustChangePassword?: BoolFilter<"User"> | boolean
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
-    school?: XOR<SchoolNullableScalarRelationFilter, SchoolWhereInput> | null
     platformMember?: XOR<PlatformMemberNullableScalarRelationFilter, PlatformMemberWhereInput> | null
     schools?: UserSchoolListRelationFilter
     refreshTokens?: RefreshTokenListRelationFilter
@@ -51509,11 +48632,8 @@ export namespace Prisma {
 
   export type UserOrderByWithRelationInput = {
     id?: SortOrder
-    schoolId?: SortOrderInput | SortOrder
     email?: SortOrder
     passwordHash?: SortOrder
-    role?: SortOrder
-    platformRole?: SortOrderInput | SortOrder
     firstName?: SortOrderInput | SortOrder
     lastName?: SortOrderInput | SortOrder
     phone?: SortOrderInput | SortOrder
@@ -51529,7 +48649,6 @@ export namespace Prisma {
     mustChangePassword?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    school?: SchoolOrderByWithRelationInput
     platformMember?: PlatformMemberOrderByWithRelationInput
     schools?: UserSchoolOrderByRelationAggregateInput
     refreshTokens?: RefreshTokenOrderByRelationAggregateInput
@@ -51544,10 +48663,7 @@ export namespace Prisma {
     AND?: UserWhereInput | UserWhereInput[]
     OR?: UserWhereInput[]
     NOT?: UserWhereInput | UserWhereInput[]
-    schoolId?: StringNullableFilter<"User"> | string | null
     passwordHash?: StringFilter<"User"> | string
-    role?: EnumRoleFilter<"User"> | $Enums.Role
-    platformRole?: EnumLegacyPlatformRoleNullableFilter<"User"> | $Enums.LegacyPlatformRole | null
     firstName?: StringNullableFilter<"User"> | string | null
     lastName?: StringNullableFilter<"User"> | string | null
     phone?: StringNullableFilter<"User"> | string | null
@@ -51563,7 +48679,6 @@ export namespace Prisma {
     mustChangePassword?: BoolFilter<"User"> | boolean
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
-    school?: XOR<SchoolNullableScalarRelationFilter, SchoolWhereInput> | null
     platformMember?: XOR<PlatformMemberNullableScalarRelationFilter, PlatformMemberWhereInput> | null
     schools?: UserSchoolListRelationFilter
     refreshTokens?: RefreshTokenListRelationFilter
@@ -51574,11 +48689,8 @@ export namespace Prisma {
 
   export type UserOrderByWithAggregationInput = {
     id?: SortOrder
-    schoolId?: SortOrderInput | SortOrder
     email?: SortOrder
     passwordHash?: SortOrder
-    role?: SortOrder
-    platformRole?: SortOrderInput | SortOrder
     firstName?: SortOrderInput | SortOrder
     lastName?: SortOrderInput | SortOrder
     phone?: SortOrderInput | SortOrder
@@ -51606,11 +48718,8 @@ export namespace Prisma {
     OR?: UserScalarWhereWithAggregatesInput[]
     NOT?: UserScalarWhereWithAggregatesInput | UserScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"User"> | string
-    schoolId?: StringNullableWithAggregatesFilter<"User"> | string | null
     email?: StringWithAggregatesFilter<"User"> | string
     passwordHash?: StringWithAggregatesFilter<"User"> | string
-    role?: EnumRoleWithAggregatesFilter<"User"> | $Enums.Role
-    platformRole?: EnumLegacyPlatformRoleNullableWithAggregatesFilter<"User"> | $Enums.LegacyPlatformRole | null
     firstName?: StringNullableWithAggregatesFilter<"User"> | string | null
     lastName?: StringNullableWithAggregatesFilter<"User"> | string | null
     phone?: StringNullableWithAggregatesFilter<"User"> | string | null
@@ -51855,7 +48964,6 @@ export namespace Prisma {
     NOT?: InviteWhereInput | InviteWhereInput[]
     id?: StringFilter<"Invite"> | string
     email?: StringFilter<"Invite"> | string
-    role?: EnumRoleFilter<"Invite"> | $Enums.Role
     persona?: EnumPersonaFilter<"Invite"> | $Enums.Persona
     personaEntityId?: StringNullableFilter<"Invite"> | string | null
     roleId?: StringNullableFilter<"Invite"> | string | null
@@ -51874,7 +48982,6 @@ export namespace Prisma {
   export type InviteOrderByWithRelationInput = {
     id?: SortOrder
     email?: SortOrder
-    role?: SortOrder
     persona?: SortOrder
     personaEntityId?: SortOrderInput | SortOrder
     roleId?: SortOrderInput | SortOrder
@@ -51897,7 +49004,6 @@ export namespace Prisma {
     OR?: InviteWhereInput[]
     NOT?: InviteWhereInput | InviteWhereInput[]
     email?: StringFilter<"Invite"> | string
-    role?: EnumRoleFilter<"Invite"> | $Enums.Role
     persona?: EnumPersonaFilter<"Invite"> | $Enums.Persona
     personaEntityId?: StringNullableFilter<"Invite"> | string | null
     roleId?: StringNullableFilter<"Invite"> | string | null
@@ -51915,7 +49021,6 @@ export namespace Prisma {
   export type InviteOrderByWithAggregationInput = {
     id?: SortOrder
     email?: SortOrder
-    role?: SortOrder
     persona?: SortOrder
     personaEntityId?: SortOrderInput | SortOrder
     roleId?: SortOrderInput | SortOrder
@@ -51939,7 +49044,6 @@ export namespace Prisma {
     NOT?: InviteScalarWhereWithAggregatesInput | InviteScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Invite"> | string
     email?: StringWithAggregatesFilter<"Invite"> | string
-    role?: EnumRoleWithAggregatesFilter<"Invite"> | $Enums.Role
     persona?: EnumPersonaWithAggregatesFilter<"Invite"> | $Enums.Persona
     personaEntityId?: StringNullableWithAggregatesFilter<"Invite"> | string | null
     roleId?: StringNullableWithAggregatesFilter<"Invite"> | string | null
@@ -51962,9 +49066,6 @@ export namespace Prisma {
     name?: StringFilter<"Plan"> | string
     systemKey?: StringNullableFilter<"Plan"> | string | null
     description?: StringNullableFilter<"Plan"> | string | null
-    studentLimit?: IntFilter<"Plan"> | number
-    staffLimit?: IntFilter<"Plan"> | number
-    features?: JsonFilter<"Plan">
     monthlyPriceKobo?: IntFilter<"Plan"> | number
     yearlyPriceKobo?: IntFilter<"Plan"> | number
     setupFeeKobo?: IntFilter<"Plan"> | number
@@ -51983,9 +49084,6 @@ export namespace Prisma {
     name?: SortOrder
     systemKey?: SortOrderInput | SortOrder
     description?: SortOrderInput | SortOrder
-    studentLimit?: SortOrder
-    staffLimit?: SortOrder
-    features?: SortOrder
     monthlyPriceKobo?: SortOrder
     yearlyPriceKobo?: SortOrder
     setupFeeKobo?: SortOrder
@@ -52007,9 +49105,6 @@ export namespace Prisma {
     OR?: PlanWhereInput[]
     NOT?: PlanWhereInput | PlanWhereInput[]
     description?: StringNullableFilter<"Plan"> | string | null
-    studentLimit?: IntFilter<"Plan"> | number
-    staffLimit?: IntFilter<"Plan"> | number
-    features?: JsonFilter<"Plan">
     monthlyPriceKobo?: IntFilter<"Plan"> | number
     yearlyPriceKobo?: IntFilter<"Plan"> | number
     setupFeeKobo?: IntFilter<"Plan"> | number
@@ -52028,9 +49123,6 @@ export namespace Prisma {
     name?: SortOrder
     systemKey?: SortOrderInput | SortOrder
     description?: SortOrderInput | SortOrder
-    studentLimit?: SortOrder
-    staffLimit?: SortOrder
-    features?: SortOrder
     monthlyPriceKobo?: SortOrder
     yearlyPriceKobo?: SortOrder
     setupFeeKobo?: SortOrder
@@ -52054,9 +49146,6 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"Plan"> | string
     systemKey?: StringNullableWithAggregatesFilter<"Plan"> | string | null
     description?: StringNullableWithAggregatesFilter<"Plan"> | string | null
-    studentLimit?: IntWithAggregatesFilter<"Plan"> | number
-    staffLimit?: IntWithAggregatesFilter<"Plan"> | number
-    features?: JsonWithAggregatesFilter<"Plan">
     monthlyPriceKobo?: IntWithAggregatesFilter<"Plan"> | number
     yearlyPriceKobo?: IntWithAggregatesFilter<"Plan"> | number
     setupFeeKobo?: IntWithAggregatesFilter<"Plan"> | number
@@ -52084,14 +49173,8 @@ export namespace Prisma {
     couponId?: StringNullableFilter<"Subscription"> | string | null
     discountedPriceKobo?: IntNullableFilter<"Subscription"> | number | null
     autoRenew?: BoolFilter<"Subscription"> | boolean
-    paystackAuthorizationCode?: StringNullableFilter<"Subscription"> | string | null
-    paystackCustomerCode?: StringNullableFilter<"Subscription"> | string | null
-    paystackSubscriptionCode?: StringNullableFilter<"Subscription"> | string | null
     scheduledDowngradePlanId?: StringNullableFilter<"Subscription"> | string | null
-    setupFeePaid?: BoolFilter<"Subscription"> | boolean
-    setupFeePaidAt?: DateTimeNullableFilter<"Subscription"> | Date | string | null
     nextBillingDate?: DateTimeNullableFilter<"Subscription"> | Date | string | null
-    lastBillingAttemptAt?: DateTimeNullableFilter<"Subscription"> | Date | string | null
     failedBillingCount?: IntFilter<"Subscription"> | number
     paymentMethodId?: StringNullableFilter<"Subscription"> | string | null
     billingAnchorDay?: IntFilter<"Subscription"> | number
@@ -52101,7 +49184,6 @@ export namespace Prisma {
     school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
     plan?: XOR<PlanScalarRelationFilter, PlanWhereInput>
     coupon?: XOR<CouponNullableScalarRelationFilter, CouponWhereInput> | null
-    billingHistory?: BillingHistoryListRelationFilter
     invoices?: SubscriptionInvoiceListRelationFilter
   }
 
@@ -52119,14 +49201,8 @@ export namespace Prisma {
     couponId?: SortOrderInput | SortOrder
     discountedPriceKobo?: SortOrderInput | SortOrder
     autoRenew?: SortOrder
-    paystackAuthorizationCode?: SortOrderInput | SortOrder
-    paystackCustomerCode?: SortOrderInput | SortOrder
-    paystackSubscriptionCode?: SortOrderInput | SortOrder
     scheduledDowngradePlanId?: SortOrderInput | SortOrder
-    setupFeePaid?: SortOrder
-    setupFeePaidAt?: SortOrderInput | SortOrder
     nextBillingDate?: SortOrderInput | SortOrder
-    lastBillingAttemptAt?: SortOrderInput | SortOrder
     failedBillingCount?: SortOrder
     paymentMethodId?: SortOrderInput | SortOrder
     billingAnchorDay?: SortOrder
@@ -52136,7 +49212,6 @@ export namespace Prisma {
     school?: SchoolOrderByWithRelationInput
     plan?: PlanOrderByWithRelationInput
     coupon?: CouponOrderByWithRelationInput
-    billingHistory?: BillingHistoryOrderByRelationAggregateInput
     invoices?: SubscriptionInvoiceOrderByRelationAggregateInput
   }
 
@@ -52157,14 +49232,8 @@ export namespace Prisma {
     couponId?: StringNullableFilter<"Subscription"> | string | null
     discountedPriceKobo?: IntNullableFilter<"Subscription"> | number | null
     autoRenew?: BoolFilter<"Subscription"> | boolean
-    paystackAuthorizationCode?: StringNullableFilter<"Subscription"> | string | null
-    paystackCustomerCode?: StringNullableFilter<"Subscription"> | string | null
-    paystackSubscriptionCode?: StringNullableFilter<"Subscription"> | string | null
     scheduledDowngradePlanId?: StringNullableFilter<"Subscription"> | string | null
-    setupFeePaid?: BoolFilter<"Subscription"> | boolean
-    setupFeePaidAt?: DateTimeNullableFilter<"Subscription"> | Date | string | null
     nextBillingDate?: DateTimeNullableFilter<"Subscription"> | Date | string | null
-    lastBillingAttemptAt?: DateTimeNullableFilter<"Subscription"> | Date | string | null
     failedBillingCount?: IntFilter<"Subscription"> | number
     paymentMethodId?: StringNullableFilter<"Subscription"> | string | null
     billingAnchorDay?: IntFilter<"Subscription"> | number
@@ -52174,7 +49243,6 @@ export namespace Prisma {
     school?: XOR<SchoolScalarRelationFilter, SchoolWhereInput>
     plan?: XOR<PlanScalarRelationFilter, PlanWhereInput>
     coupon?: XOR<CouponNullableScalarRelationFilter, CouponWhereInput> | null
-    billingHistory?: BillingHistoryListRelationFilter
     invoices?: SubscriptionInvoiceListRelationFilter
   }, "id">
 
@@ -52192,14 +49260,8 @@ export namespace Prisma {
     couponId?: SortOrderInput | SortOrder
     discountedPriceKobo?: SortOrderInput | SortOrder
     autoRenew?: SortOrder
-    paystackAuthorizationCode?: SortOrderInput | SortOrder
-    paystackCustomerCode?: SortOrderInput | SortOrder
-    paystackSubscriptionCode?: SortOrderInput | SortOrder
     scheduledDowngradePlanId?: SortOrderInput | SortOrder
-    setupFeePaid?: SortOrder
-    setupFeePaidAt?: SortOrderInput | SortOrder
     nextBillingDate?: SortOrderInput | SortOrder
-    lastBillingAttemptAt?: SortOrderInput | SortOrder
     failedBillingCount?: SortOrder
     paymentMethodId?: SortOrderInput | SortOrder
     billingAnchorDay?: SortOrder
@@ -52230,14 +49292,8 @@ export namespace Prisma {
     couponId?: StringNullableWithAggregatesFilter<"Subscription"> | string | null
     discountedPriceKobo?: IntNullableWithAggregatesFilter<"Subscription"> | number | null
     autoRenew?: BoolWithAggregatesFilter<"Subscription"> | boolean
-    paystackAuthorizationCode?: StringNullableWithAggregatesFilter<"Subscription"> | string | null
-    paystackCustomerCode?: StringNullableWithAggregatesFilter<"Subscription"> | string | null
-    paystackSubscriptionCode?: StringNullableWithAggregatesFilter<"Subscription"> | string | null
     scheduledDowngradePlanId?: StringNullableWithAggregatesFilter<"Subscription"> | string | null
-    setupFeePaid?: BoolWithAggregatesFilter<"Subscription"> | boolean
-    setupFeePaidAt?: DateTimeNullableWithAggregatesFilter<"Subscription"> | Date | string | null
     nextBillingDate?: DateTimeNullableWithAggregatesFilter<"Subscription"> | Date | string | null
-    lastBillingAttemptAt?: DateTimeNullableWithAggregatesFilter<"Subscription"> | Date | string | null
     failedBillingCount?: IntWithAggregatesFilter<"Subscription"> | number
     paymentMethodId?: StringNullableWithAggregatesFilter<"Subscription"> | string | null
     billingAnchorDay?: IntWithAggregatesFilter<"Subscription"> | number
@@ -52336,83 +49392,6 @@ export namespace Prisma {
     isActive?: BoolWithAggregatesFilter<"Coupon"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Coupon"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Coupon"> | Date | string
-  }
-
-  export type BillingHistoryWhereInput = {
-    AND?: BillingHistoryWhereInput | BillingHistoryWhereInput[]
-    OR?: BillingHistoryWhereInput[]
-    NOT?: BillingHistoryWhereInput | BillingHistoryWhereInput[]
-    id?: StringFilter<"BillingHistory"> | string
-    subscriptionId?: StringFilter<"BillingHistory"> | string
-    amountKobo?: IntFilter<"BillingHistory"> | number
-    status?: EnumPaymentStatusFilter<"BillingHistory"> | $Enums.PaymentStatus
-    billingCycle?: EnumBillingCycleFilter<"BillingHistory"> | $Enums.BillingCycle
-    paystackReference?: StringNullableFilter<"BillingHistory"> | string | null
-    paidAt?: DateTimeNullableFilter<"BillingHistory"> | Date | string | null
-    failureReason?: StringNullableFilter<"BillingHistory"> | string | null
-    createdAt?: DateTimeFilter<"BillingHistory"> | Date | string
-    subscription?: XOR<SubscriptionScalarRelationFilter, SubscriptionWhereInput>
-  }
-
-  export type BillingHistoryOrderByWithRelationInput = {
-    id?: SortOrder
-    subscriptionId?: SortOrder
-    amountKobo?: SortOrder
-    status?: SortOrder
-    billingCycle?: SortOrder
-    paystackReference?: SortOrderInput | SortOrder
-    paidAt?: SortOrderInput | SortOrder
-    failureReason?: SortOrderInput | SortOrder
-    createdAt?: SortOrder
-    subscription?: SubscriptionOrderByWithRelationInput
-  }
-
-  export type BillingHistoryWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    AND?: BillingHistoryWhereInput | BillingHistoryWhereInput[]
-    OR?: BillingHistoryWhereInput[]
-    NOT?: BillingHistoryWhereInput | BillingHistoryWhereInput[]
-    subscriptionId?: StringFilter<"BillingHistory"> | string
-    amountKobo?: IntFilter<"BillingHistory"> | number
-    status?: EnumPaymentStatusFilter<"BillingHistory"> | $Enums.PaymentStatus
-    billingCycle?: EnumBillingCycleFilter<"BillingHistory"> | $Enums.BillingCycle
-    paystackReference?: StringNullableFilter<"BillingHistory"> | string | null
-    paidAt?: DateTimeNullableFilter<"BillingHistory"> | Date | string | null
-    failureReason?: StringNullableFilter<"BillingHistory"> | string | null
-    createdAt?: DateTimeFilter<"BillingHistory"> | Date | string
-    subscription?: XOR<SubscriptionScalarRelationFilter, SubscriptionWhereInput>
-  }, "id">
-
-  export type BillingHistoryOrderByWithAggregationInput = {
-    id?: SortOrder
-    subscriptionId?: SortOrder
-    amountKobo?: SortOrder
-    status?: SortOrder
-    billingCycle?: SortOrder
-    paystackReference?: SortOrderInput | SortOrder
-    paidAt?: SortOrderInput | SortOrder
-    failureReason?: SortOrderInput | SortOrder
-    createdAt?: SortOrder
-    _count?: BillingHistoryCountOrderByAggregateInput
-    _avg?: BillingHistoryAvgOrderByAggregateInput
-    _max?: BillingHistoryMaxOrderByAggregateInput
-    _min?: BillingHistoryMinOrderByAggregateInput
-    _sum?: BillingHistorySumOrderByAggregateInput
-  }
-
-  export type BillingHistoryScalarWhereWithAggregatesInput = {
-    AND?: BillingHistoryScalarWhereWithAggregatesInput | BillingHistoryScalarWhereWithAggregatesInput[]
-    OR?: BillingHistoryScalarWhereWithAggregatesInput[]
-    NOT?: BillingHistoryScalarWhereWithAggregatesInput | BillingHistoryScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"BillingHistory"> | string
-    subscriptionId?: StringWithAggregatesFilter<"BillingHistory"> | string
-    amountKobo?: IntWithAggregatesFilter<"BillingHistory"> | number
-    status?: EnumPaymentStatusWithAggregatesFilter<"BillingHistory"> | $Enums.PaymentStatus
-    billingCycle?: EnumBillingCycleWithAggregatesFilter<"BillingHistory"> | $Enums.BillingCycle
-    paystackReference?: StringNullableWithAggregatesFilter<"BillingHistory"> | string | null
-    paidAt?: DateTimeNullableWithAggregatesFilter<"BillingHistory"> | Date | string | null
-    failureReason?: StringNullableWithAggregatesFilter<"BillingHistory"> | string | null
-    createdAt?: DateTimeWithAggregatesFilter<"BillingHistory"> | Date | string
   }
 
   export type SubscriptionInvoiceWhereInput = {
@@ -52857,8 +49836,11 @@ export namespace Prisma {
     reference?: StringNullableFilter<"WebhookEvent"> | string | null
     status?: EnumWebhookEventStatusFilter<"WebhookEvent"> | $Enums.WebhookEventStatus
     error?: StringNullableFilter<"WebhookEvent"> | string | null
+    attempts?: IntFilter<"WebhookEvent"> | number
+    payload?: JsonNullableFilter<"WebhookEvent">
     receivedAt?: DateTimeFilter<"WebhookEvent"> | Date | string
     processedAt?: DateTimeNullableFilter<"WebhookEvent"> | Date | string | null
+    lastAttemptAt?: DateTimeNullableFilter<"WebhookEvent"> | Date | string | null
   }
 
   export type WebhookEventOrderByWithRelationInput = {
@@ -52869,8 +49851,11 @@ export namespace Prisma {
     reference?: SortOrderInput | SortOrder
     status?: SortOrder
     error?: SortOrderInput | SortOrder
+    attempts?: SortOrder
+    payload?: SortOrderInput | SortOrder
     receivedAt?: SortOrder
     processedAt?: SortOrderInput | SortOrder
+    lastAttemptAt?: SortOrderInput | SortOrder
   }
 
   export type WebhookEventWhereUniqueInput = Prisma.AtLeast<{
@@ -52885,8 +49870,11 @@ export namespace Prisma {
     reference?: StringNullableFilter<"WebhookEvent"> | string | null
     status?: EnumWebhookEventStatusFilter<"WebhookEvent"> | $Enums.WebhookEventStatus
     error?: StringNullableFilter<"WebhookEvent"> | string | null
+    attempts?: IntFilter<"WebhookEvent"> | number
+    payload?: JsonNullableFilter<"WebhookEvent">
     receivedAt?: DateTimeFilter<"WebhookEvent"> | Date | string
     processedAt?: DateTimeNullableFilter<"WebhookEvent"> | Date | string | null
+    lastAttemptAt?: DateTimeNullableFilter<"WebhookEvent"> | Date | string | null
   }, "id" | "provider_eventKey">
 
   export type WebhookEventOrderByWithAggregationInput = {
@@ -52897,11 +49885,16 @@ export namespace Prisma {
     reference?: SortOrderInput | SortOrder
     status?: SortOrder
     error?: SortOrderInput | SortOrder
+    attempts?: SortOrder
+    payload?: SortOrderInput | SortOrder
     receivedAt?: SortOrder
     processedAt?: SortOrderInput | SortOrder
+    lastAttemptAt?: SortOrderInput | SortOrder
     _count?: WebhookEventCountOrderByAggregateInput
+    _avg?: WebhookEventAvgOrderByAggregateInput
     _max?: WebhookEventMaxOrderByAggregateInput
     _min?: WebhookEventMinOrderByAggregateInput
+    _sum?: WebhookEventSumOrderByAggregateInput
   }
 
   export type WebhookEventScalarWhereWithAggregatesInput = {
@@ -52915,8 +49908,11 @@ export namespace Prisma {
     reference?: StringNullableWithAggregatesFilter<"WebhookEvent"> | string | null
     status?: EnumWebhookEventStatusWithAggregatesFilter<"WebhookEvent"> | $Enums.WebhookEventStatus
     error?: StringNullableWithAggregatesFilter<"WebhookEvent"> | string | null
+    attempts?: IntWithAggregatesFilter<"WebhookEvent"> | number
+    payload?: JsonNullableWithAggregatesFilter<"WebhookEvent">
     receivedAt?: DateTimeWithAggregatesFilter<"WebhookEvent"> | Date | string
     processedAt?: DateTimeNullableWithAggregatesFilter<"WebhookEvent"> | Date | string | null
+    lastAttemptAt?: DateTimeNullableWithAggregatesFilter<"WebhookEvent"> | Date | string | null
   }
 
   export type BillingNoticeWhereInput = {
@@ -53861,128 +50857,6 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"SettingDefinition"> | Date | string
   }
 
-  export type AutomationRuleDefinitionWhereInput = {
-    AND?: AutomationRuleDefinitionWhereInput | AutomationRuleDefinitionWhereInput[]
-    OR?: AutomationRuleDefinitionWhereInput[]
-    NOT?: AutomationRuleDefinitionWhereInput | AutomationRuleDefinitionWhereInput[]
-    key?: StringFilter<"AutomationRuleDefinition"> | string
-    module?: StringFilter<"AutomationRuleDefinition"> | string
-    trigger?: EnumAutomationTriggerFilter<"AutomationRuleDefinition"> | $Enums.AutomationTrigger
-    eventKey?: StringNullableFilter<"AutomationRuleDefinition"> | string | null
-    anchor?: StringNullableFilter<"AutomationRuleDefinition"> | string | null
-    paramsSchema?: JsonFilter<"AutomationRuleDefinition">
-    allowedChannels?: EnumNotificationChannelNullableListFilter<"AutomationRuleDefinition">
-    allowedAudiences?: StringNullableListFilter<"AutomationRuleDefinition">
-    templateKey?: StringFilter<"AutomationRuleDefinition"> | string
-    allowMultiple?: BoolFilter<"AutomationRuleDefinition"> | boolean
-    requiresFeature?: StringNullableFilter<"AutomationRuleDefinition"> | string | null
-    name?: StringFilter<"AutomationRuleDefinition"> | string
-    description?: StringNullableFilter<"AutomationRuleDefinition"> | string | null
-    defaultEnabled?: BoolFilter<"AutomationRuleDefinition"> | boolean
-    defaultParams?: JsonFilter<"AutomationRuleDefinition">
-    defaultChannels?: EnumNotificationChannelNullableListFilter<"AutomationRuleDefinition">
-    isActive?: BoolFilter<"AutomationRuleDefinition"> | boolean
-    createdAt?: DateTimeFilter<"AutomationRuleDefinition"> | Date | string
-    updatedAt?: DateTimeFilter<"AutomationRuleDefinition"> | Date | string
-  }
-
-  export type AutomationRuleDefinitionOrderByWithRelationInput = {
-    key?: SortOrder
-    module?: SortOrder
-    trigger?: SortOrder
-    eventKey?: SortOrderInput | SortOrder
-    anchor?: SortOrderInput | SortOrder
-    paramsSchema?: SortOrder
-    allowedChannels?: SortOrder
-    allowedAudiences?: SortOrder
-    templateKey?: SortOrder
-    allowMultiple?: SortOrder
-    requiresFeature?: SortOrderInput | SortOrder
-    name?: SortOrder
-    description?: SortOrderInput | SortOrder
-    defaultEnabled?: SortOrder
-    defaultParams?: SortOrder
-    defaultChannels?: SortOrder
-    isActive?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type AutomationRuleDefinitionWhereUniqueInput = Prisma.AtLeast<{
-    key?: string
-    AND?: AutomationRuleDefinitionWhereInput | AutomationRuleDefinitionWhereInput[]
-    OR?: AutomationRuleDefinitionWhereInput[]
-    NOT?: AutomationRuleDefinitionWhereInput | AutomationRuleDefinitionWhereInput[]
-    module?: StringFilter<"AutomationRuleDefinition"> | string
-    trigger?: EnumAutomationTriggerFilter<"AutomationRuleDefinition"> | $Enums.AutomationTrigger
-    eventKey?: StringNullableFilter<"AutomationRuleDefinition"> | string | null
-    anchor?: StringNullableFilter<"AutomationRuleDefinition"> | string | null
-    paramsSchema?: JsonFilter<"AutomationRuleDefinition">
-    allowedChannels?: EnumNotificationChannelNullableListFilter<"AutomationRuleDefinition">
-    allowedAudiences?: StringNullableListFilter<"AutomationRuleDefinition">
-    templateKey?: StringFilter<"AutomationRuleDefinition"> | string
-    allowMultiple?: BoolFilter<"AutomationRuleDefinition"> | boolean
-    requiresFeature?: StringNullableFilter<"AutomationRuleDefinition"> | string | null
-    name?: StringFilter<"AutomationRuleDefinition"> | string
-    description?: StringNullableFilter<"AutomationRuleDefinition"> | string | null
-    defaultEnabled?: BoolFilter<"AutomationRuleDefinition"> | boolean
-    defaultParams?: JsonFilter<"AutomationRuleDefinition">
-    defaultChannels?: EnumNotificationChannelNullableListFilter<"AutomationRuleDefinition">
-    isActive?: BoolFilter<"AutomationRuleDefinition"> | boolean
-    createdAt?: DateTimeFilter<"AutomationRuleDefinition"> | Date | string
-    updatedAt?: DateTimeFilter<"AutomationRuleDefinition"> | Date | string
-  }, "key">
-
-  export type AutomationRuleDefinitionOrderByWithAggregationInput = {
-    key?: SortOrder
-    module?: SortOrder
-    trigger?: SortOrder
-    eventKey?: SortOrderInput | SortOrder
-    anchor?: SortOrderInput | SortOrder
-    paramsSchema?: SortOrder
-    allowedChannels?: SortOrder
-    allowedAudiences?: SortOrder
-    templateKey?: SortOrder
-    allowMultiple?: SortOrder
-    requiresFeature?: SortOrderInput | SortOrder
-    name?: SortOrder
-    description?: SortOrderInput | SortOrder
-    defaultEnabled?: SortOrder
-    defaultParams?: SortOrder
-    defaultChannels?: SortOrder
-    isActive?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    _count?: AutomationRuleDefinitionCountOrderByAggregateInput
-    _max?: AutomationRuleDefinitionMaxOrderByAggregateInput
-    _min?: AutomationRuleDefinitionMinOrderByAggregateInput
-  }
-
-  export type AutomationRuleDefinitionScalarWhereWithAggregatesInput = {
-    AND?: AutomationRuleDefinitionScalarWhereWithAggregatesInput | AutomationRuleDefinitionScalarWhereWithAggregatesInput[]
-    OR?: AutomationRuleDefinitionScalarWhereWithAggregatesInput[]
-    NOT?: AutomationRuleDefinitionScalarWhereWithAggregatesInput | AutomationRuleDefinitionScalarWhereWithAggregatesInput[]
-    key?: StringWithAggregatesFilter<"AutomationRuleDefinition"> | string
-    module?: StringWithAggregatesFilter<"AutomationRuleDefinition"> | string
-    trigger?: EnumAutomationTriggerWithAggregatesFilter<"AutomationRuleDefinition"> | $Enums.AutomationTrigger
-    eventKey?: StringNullableWithAggregatesFilter<"AutomationRuleDefinition"> | string | null
-    anchor?: StringNullableWithAggregatesFilter<"AutomationRuleDefinition"> | string | null
-    paramsSchema?: JsonWithAggregatesFilter<"AutomationRuleDefinition">
-    allowedChannels?: EnumNotificationChannelNullableListFilter<"AutomationRuleDefinition">
-    allowedAudiences?: StringNullableListFilter<"AutomationRuleDefinition">
-    templateKey?: StringWithAggregatesFilter<"AutomationRuleDefinition"> | string
-    allowMultiple?: BoolWithAggregatesFilter<"AutomationRuleDefinition"> | boolean
-    requiresFeature?: StringNullableWithAggregatesFilter<"AutomationRuleDefinition"> | string | null
-    name?: StringWithAggregatesFilter<"AutomationRuleDefinition"> | string
-    description?: StringNullableWithAggregatesFilter<"AutomationRuleDefinition"> | string | null
-    defaultEnabled?: BoolWithAggregatesFilter<"AutomationRuleDefinition"> | boolean
-    defaultParams?: JsonWithAggregatesFilter<"AutomationRuleDefinition">
-    defaultChannels?: EnumNotificationChannelNullableListFilter<"AutomationRuleDefinition">
-    isActive?: BoolWithAggregatesFilter<"AutomationRuleDefinition"> | boolean
-    createdAt?: DateTimeWithAggregatesFilter<"AutomationRuleDefinition"> | Date | string
-    updatedAt?: DateTimeWithAggregatesFilter<"AutomationRuleDefinition"> | Date | string
-  }
-
   export type MessageTemplateWhereInput = {
     AND?: MessageTemplateWhereInput | MessageTemplateWhereInput[]
     OR?: MessageTemplateWhereInput[]
@@ -54852,7 +51726,6 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    users?: UserCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentCreateNestedManyWithoutSchoolInput
@@ -54901,7 +51774,6 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolUncheckedCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentUncheckedCreateNestedManyWithoutSchoolInput
@@ -54950,7 +51822,6 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    users?: UserUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUpdateManyWithoutSchoolNestedInput
@@ -54999,7 +51870,6 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUncheckedUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUncheckedUpdateManyWithoutSchoolNestedInput
@@ -55264,8 +52134,6 @@ export namespace Prisma {
     id?: string
     email: string
     passwordHash: string
-    role: $Enums.Role
-    platformRole?: $Enums.LegacyPlatformRole | null
     firstName?: string | null
     lastName?: string | null
     phone?: string | null
@@ -55281,7 +52149,6 @@ export namespace Prisma {
     mustChangePassword?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    school?: SchoolCreateNestedOneWithoutUsersInput
     platformMember?: PlatformMemberCreateNestedOneWithoutUserInput
     schools?: UserSchoolCreateNestedManyWithoutUserInput
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
@@ -55292,11 +52159,8 @@ export namespace Prisma {
 
   export type UserUncheckedCreateInput = {
     id?: string
-    schoolId?: string | null
     email: string
     passwordHash: string
-    role: $Enums.Role
-    platformRole?: $Enums.LegacyPlatformRole | null
     firstName?: string | null
     lastName?: string | null
     phone?: string | null
@@ -55324,8 +52188,6 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
-    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    platformRole?: NullableEnumLegacyPlatformRoleFieldUpdateOperationsInput | $Enums.LegacyPlatformRole | null
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -55341,7 +52203,6 @@ export namespace Prisma {
     mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    school?: SchoolUpdateOneWithoutUsersNestedInput
     platformMember?: PlatformMemberUpdateOneWithoutUserNestedInput
     schools?: UserSchoolUpdateManyWithoutUserNestedInput
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
@@ -55352,11 +52213,8 @@ export namespace Prisma {
 
   export type UserUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    schoolId?: NullableStringFieldUpdateOperationsInput | string | null
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
-    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    platformRole?: NullableEnumLegacyPlatformRoleFieldUpdateOperationsInput | $Enums.LegacyPlatformRole | null
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -55382,11 +52240,8 @@ export namespace Prisma {
 
   export type UserCreateManyInput = {
     id?: string
-    schoolId?: string | null
     email: string
     passwordHash: string
-    role: $Enums.Role
-    platformRole?: $Enums.LegacyPlatformRole | null
     firstName?: string | null
     lastName?: string | null
     phone?: string | null
@@ -55408,8 +52263,6 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
-    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    platformRole?: NullableEnumLegacyPlatformRoleFieldUpdateOperationsInput | $Enums.LegacyPlatformRole | null
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -55429,11 +52282,8 @@ export namespace Prisma {
 
   export type UserUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    schoolId?: NullableStringFieldUpdateOperationsInput | string | null
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
-    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    platformRole?: NullableEnumLegacyPlatformRoleFieldUpdateOperationsInput | $Enums.LegacyPlatformRole | null
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -55688,7 +52538,6 @@ export namespace Prisma {
   export type InviteCreateInput = {
     id?: string
     email: string
-    role: $Enums.Role
     persona?: $Enums.Persona
     personaEntityId?: string | null
     roleId?: string | null
@@ -55706,7 +52555,6 @@ export namespace Prisma {
   export type InviteUncheckedCreateInput = {
     id?: string
     email: string
-    role: $Enums.Role
     persona?: $Enums.Persona
     personaEntityId?: string | null
     roleId?: string | null
@@ -55724,7 +52572,6 @@ export namespace Prisma {
   export type InviteUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     persona?: EnumPersonaFieldUpdateOperationsInput | $Enums.Persona
     personaEntityId?: NullableStringFieldUpdateOperationsInput | string | null
     roleId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -55742,7 +52589,6 @@ export namespace Prisma {
   export type InviteUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     persona?: EnumPersonaFieldUpdateOperationsInput | $Enums.Persona
     personaEntityId?: NullableStringFieldUpdateOperationsInput | string | null
     roleId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -55760,7 +52606,6 @@ export namespace Prisma {
   export type InviteCreateManyInput = {
     id?: string
     email: string
-    role: $Enums.Role
     persona?: $Enums.Persona
     personaEntityId?: string | null
     roleId?: string | null
@@ -55778,7 +52623,6 @@ export namespace Prisma {
   export type InviteUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     persona?: EnumPersonaFieldUpdateOperationsInput | $Enums.Persona
     personaEntityId?: NullableStringFieldUpdateOperationsInput | string | null
     roleId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -55795,7 +52639,6 @@ export namespace Prisma {
   export type InviteUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     persona?: EnumPersonaFieldUpdateOperationsInput | $Enums.Persona
     personaEntityId?: NullableStringFieldUpdateOperationsInput | string | null
     roleId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -55815,9 +52658,6 @@ export namespace Prisma {
     name: string
     systemKey?: string | null
     description?: string | null
-    studentLimit?: number
-    staffLimit?: number
-    features?: JsonNullValueInput | InputJsonValue
     monthlyPriceKobo?: number
     yearlyPriceKobo?: number
     setupFeeKobo?: number
@@ -55836,9 +52676,6 @@ export namespace Prisma {
     name: string
     systemKey?: string | null
     description?: string | null
-    studentLimit?: number
-    staffLimit?: number
-    features?: JsonNullValueInput | InputJsonValue
     monthlyPriceKobo?: number
     yearlyPriceKobo?: number
     setupFeeKobo?: number
@@ -55857,9 +52694,6 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     systemKey?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    studentLimit?: IntFieldUpdateOperationsInput | number
-    staffLimit?: IntFieldUpdateOperationsInput | number
-    features?: JsonNullValueInput | InputJsonValue
     monthlyPriceKobo?: IntFieldUpdateOperationsInput | number
     yearlyPriceKobo?: IntFieldUpdateOperationsInput | number
     setupFeeKobo?: IntFieldUpdateOperationsInput | number
@@ -55878,9 +52712,6 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     systemKey?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    studentLimit?: IntFieldUpdateOperationsInput | number
-    staffLimit?: IntFieldUpdateOperationsInput | number
-    features?: JsonNullValueInput | InputJsonValue
     monthlyPriceKobo?: IntFieldUpdateOperationsInput | number
     yearlyPriceKobo?: IntFieldUpdateOperationsInput | number
     setupFeeKobo?: IntFieldUpdateOperationsInput | number
@@ -55899,9 +52730,6 @@ export namespace Prisma {
     name: string
     systemKey?: string | null
     description?: string | null
-    studentLimit?: number
-    staffLimit?: number
-    features?: JsonNullValueInput | InputJsonValue
     monthlyPriceKobo?: number
     yearlyPriceKobo?: number
     setupFeeKobo?: number
@@ -55917,9 +52745,6 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     systemKey?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    studentLimit?: IntFieldUpdateOperationsInput | number
-    staffLimit?: IntFieldUpdateOperationsInput | number
-    features?: JsonNullValueInput | InputJsonValue
     monthlyPriceKobo?: IntFieldUpdateOperationsInput | number
     yearlyPriceKobo?: IntFieldUpdateOperationsInput | number
     setupFeeKobo?: IntFieldUpdateOperationsInput | number
@@ -55935,9 +52760,6 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     systemKey?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    studentLimit?: IntFieldUpdateOperationsInput | number
-    staffLimit?: IntFieldUpdateOperationsInput | number
-    features?: JsonNullValueInput | InputJsonValue
     monthlyPriceKobo?: IntFieldUpdateOperationsInput | number
     yearlyPriceKobo?: IntFieldUpdateOperationsInput | number
     setupFeeKobo?: IntFieldUpdateOperationsInput | number
@@ -55959,14 +52781,8 @@ export namespace Prisma {
     cancelledAt?: Date | string | null
     discountedPriceKobo?: number | null
     autoRenew?: boolean
-    paystackAuthorizationCode?: string | null
-    paystackCustomerCode?: string | null
-    paystackSubscriptionCode?: string | null
     scheduledDowngradePlanId?: string | null
-    setupFeePaid?: boolean
-    setupFeePaidAt?: Date | string | null
     nextBillingDate?: Date | string | null
-    lastBillingAttemptAt?: Date | string | null
     failedBillingCount?: number
     paymentMethodId?: string | null
     billingAnchorDay?: number
@@ -55976,7 +52792,6 @@ export namespace Prisma {
     school: SchoolCreateNestedOneWithoutSubscriptionsInput
     plan: PlanCreateNestedOneWithoutSubscriptionsInput
     coupon?: CouponCreateNestedOneWithoutSubscriptionsInput
-    billingHistory?: BillingHistoryCreateNestedManyWithoutSubscriptionInput
     invoices?: SubscriptionInvoiceCreateNestedManyWithoutSubscriptionInput
   }
 
@@ -55994,21 +52809,14 @@ export namespace Prisma {
     couponId?: string | null
     discountedPriceKobo?: number | null
     autoRenew?: boolean
-    paystackAuthorizationCode?: string | null
-    paystackCustomerCode?: string | null
-    paystackSubscriptionCode?: string | null
     scheduledDowngradePlanId?: string | null
-    setupFeePaid?: boolean
-    setupFeePaidAt?: Date | string | null
     nextBillingDate?: Date | string | null
-    lastBillingAttemptAt?: Date | string | null
     failedBillingCount?: number
     paymentMethodId?: string | null
     billingAnchorDay?: number
     lapsedPlanId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    billingHistory?: BillingHistoryUncheckedCreateNestedManyWithoutSubscriptionInput
     invoices?: SubscriptionInvoiceUncheckedCreateNestedManyWithoutSubscriptionInput
   }
 
@@ -56023,14 +52831,8 @@ export namespace Prisma {
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     discountedPriceKobo?: NullableIntFieldUpdateOperationsInput | number | null
     autoRenew?: BoolFieldUpdateOperationsInput | boolean
-    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     scheduledDowngradePlanId?: NullableStringFieldUpdateOperationsInput | string | null
-    setupFeePaid?: BoolFieldUpdateOperationsInput | boolean
-    setupFeePaidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextBillingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastBillingAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     failedBillingCount?: IntFieldUpdateOperationsInput | number
     paymentMethodId?: NullableStringFieldUpdateOperationsInput | string | null
     billingAnchorDay?: IntFieldUpdateOperationsInput | number
@@ -56040,7 +52842,6 @@ export namespace Prisma {
     school?: SchoolUpdateOneRequiredWithoutSubscriptionsNestedInput
     plan?: PlanUpdateOneRequiredWithoutSubscriptionsNestedInput
     coupon?: CouponUpdateOneWithoutSubscriptionsNestedInput
-    billingHistory?: BillingHistoryUpdateManyWithoutSubscriptionNestedInput
     invoices?: SubscriptionInvoiceUpdateManyWithoutSubscriptionNestedInput
   }
 
@@ -56058,21 +52859,14 @@ export namespace Prisma {
     couponId?: NullableStringFieldUpdateOperationsInput | string | null
     discountedPriceKobo?: NullableIntFieldUpdateOperationsInput | number | null
     autoRenew?: BoolFieldUpdateOperationsInput | boolean
-    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     scheduledDowngradePlanId?: NullableStringFieldUpdateOperationsInput | string | null
-    setupFeePaid?: BoolFieldUpdateOperationsInput | boolean
-    setupFeePaidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextBillingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastBillingAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     failedBillingCount?: IntFieldUpdateOperationsInput | number
     paymentMethodId?: NullableStringFieldUpdateOperationsInput | string | null
     billingAnchorDay?: IntFieldUpdateOperationsInput | number
     lapsedPlanId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    billingHistory?: BillingHistoryUncheckedUpdateManyWithoutSubscriptionNestedInput
     invoices?: SubscriptionInvoiceUncheckedUpdateManyWithoutSubscriptionNestedInput
   }
 
@@ -56090,14 +52884,8 @@ export namespace Prisma {
     couponId?: string | null
     discountedPriceKobo?: number | null
     autoRenew?: boolean
-    paystackAuthorizationCode?: string | null
-    paystackCustomerCode?: string | null
-    paystackSubscriptionCode?: string | null
     scheduledDowngradePlanId?: string | null
-    setupFeePaid?: boolean
-    setupFeePaidAt?: Date | string | null
     nextBillingDate?: Date | string | null
-    lastBillingAttemptAt?: Date | string | null
     failedBillingCount?: number
     paymentMethodId?: string | null
     billingAnchorDay?: number
@@ -56117,14 +52905,8 @@ export namespace Prisma {
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     discountedPriceKobo?: NullableIntFieldUpdateOperationsInput | number | null
     autoRenew?: BoolFieldUpdateOperationsInput | boolean
-    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     scheduledDowngradePlanId?: NullableStringFieldUpdateOperationsInput | string | null
-    setupFeePaid?: BoolFieldUpdateOperationsInput | boolean
-    setupFeePaidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextBillingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastBillingAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     failedBillingCount?: IntFieldUpdateOperationsInput | number
     paymentMethodId?: NullableStringFieldUpdateOperationsInput | string | null
     billingAnchorDay?: IntFieldUpdateOperationsInput | number
@@ -56147,14 +52929,8 @@ export namespace Prisma {
     couponId?: NullableStringFieldUpdateOperationsInput | string | null
     discountedPriceKobo?: NullableIntFieldUpdateOperationsInput | number | null
     autoRenew?: BoolFieldUpdateOperationsInput | boolean
-    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     scheduledDowngradePlanId?: NullableStringFieldUpdateOperationsInput | string | null
-    setupFeePaid?: BoolFieldUpdateOperationsInput | boolean
-    setupFeePaidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextBillingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastBillingAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     failedBillingCount?: IntFieldUpdateOperationsInput | number
     paymentMethodId?: NullableStringFieldUpdateOperationsInput | string | null
     billingAnchorDay?: IntFieldUpdateOperationsInput | number
@@ -56270,89 +53046,6 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type BillingHistoryCreateInput = {
-    id?: string
-    amountKobo: number
-    status?: $Enums.PaymentStatus
-    billingCycle: $Enums.BillingCycle
-    paystackReference?: string | null
-    paidAt?: Date | string | null
-    failureReason?: string | null
-    createdAt?: Date | string
-    subscription: SubscriptionCreateNestedOneWithoutBillingHistoryInput
-  }
-
-  export type BillingHistoryUncheckedCreateInput = {
-    id?: string
-    subscriptionId: string
-    amountKobo: number
-    status?: $Enums.PaymentStatus
-    billingCycle: $Enums.BillingCycle
-    paystackReference?: string | null
-    paidAt?: Date | string | null
-    failureReason?: string | null
-    createdAt?: Date | string
-  }
-
-  export type BillingHistoryUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    amountKobo?: IntFieldUpdateOperationsInput | number
-    status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
-    billingCycle?: EnumBillingCycleFieldUpdateOperationsInput | $Enums.BillingCycle
-    paystackReference?: NullableStringFieldUpdateOperationsInput | string | null
-    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    failureReason?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    subscription?: SubscriptionUpdateOneRequiredWithoutBillingHistoryNestedInput
-  }
-
-  export type BillingHistoryUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    subscriptionId?: StringFieldUpdateOperationsInput | string
-    amountKobo?: IntFieldUpdateOperationsInput | number
-    status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
-    billingCycle?: EnumBillingCycleFieldUpdateOperationsInput | $Enums.BillingCycle
-    paystackReference?: NullableStringFieldUpdateOperationsInput | string | null
-    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    failureReason?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type BillingHistoryCreateManyInput = {
-    id?: string
-    subscriptionId: string
-    amountKobo: number
-    status?: $Enums.PaymentStatus
-    billingCycle: $Enums.BillingCycle
-    paystackReference?: string | null
-    paidAt?: Date | string | null
-    failureReason?: string | null
-    createdAt?: Date | string
-  }
-
-  export type BillingHistoryUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    amountKobo?: IntFieldUpdateOperationsInput | number
-    status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
-    billingCycle?: EnumBillingCycleFieldUpdateOperationsInput | $Enums.BillingCycle
-    paystackReference?: NullableStringFieldUpdateOperationsInput | string | null
-    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    failureReason?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type BillingHistoryUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    subscriptionId?: StringFieldUpdateOperationsInput | string
-    amountKobo?: IntFieldUpdateOperationsInput | number
-    status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
-    billingCycle?: EnumBillingCycleFieldUpdateOperationsInput | $Enums.BillingCycle
-    paystackReference?: NullableStringFieldUpdateOperationsInput | string | null
-    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    failureReason?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SubscriptionInvoiceCreateInput = {
@@ -56855,8 +53548,11 @@ export namespace Prisma {
     reference?: string | null
     status?: $Enums.WebhookEventStatus
     error?: string | null
+    attempts?: number
+    payload?: NullableJsonNullValueInput | InputJsonValue
     receivedAt?: Date | string
     processedAt?: Date | string | null
+    lastAttemptAt?: Date | string | null
   }
 
   export type WebhookEventUncheckedCreateInput = {
@@ -56867,8 +53563,11 @@ export namespace Prisma {
     reference?: string | null
     status?: $Enums.WebhookEventStatus
     error?: string | null
+    attempts?: number
+    payload?: NullableJsonNullValueInput | InputJsonValue
     receivedAt?: Date | string
     processedAt?: Date | string | null
+    lastAttemptAt?: Date | string | null
   }
 
   export type WebhookEventUpdateInput = {
@@ -56879,8 +53578,11 @@ export namespace Prisma {
     reference?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumWebhookEventStatusFieldUpdateOperationsInput | $Enums.WebhookEventStatus
     error?: NullableStringFieldUpdateOperationsInput | string | null
+    attempts?: IntFieldUpdateOperationsInput | number
+    payload?: NullableJsonNullValueInput | InputJsonValue
     receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type WebhookEventUncheckedUpdateInput = {
@@ -56891,8 +53593,11 @@ export namespace Prisma {
     reference?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumWebhookEventStatusFieldUpdateOperationsInput | $Enums.WebhookEventStatus
     error?: NullableStringFieldUpdateOperationsInput | string | null
+    attempts?: IntFieldUpdateOperationsInput | number
+    payload?: NullableJsonNullValueInput | InputJsonValue
     receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type WebhookEventCreateManyInput = {
@@ -56903,8 +53608,11 @@ export namespace Prisma {
     reference?: string | null
     status?: $Enums.WebhookEventStatus
     error?: string | null
+    attempts?: number
+    payload?: NullableJsonNullValueInput | InputJsonValue
     receivedAt?: Date | string
     processedAt?: Date | string | null
+    lastAttemptAt?: Date | string | null
   }
 
   export type WebhookEventUpdateManyMutationInput = {
@@ -56915,8 +53623,11 @@ export namespace Prisma {
     reference?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumWebhookEventStatusFieldUpdateOperationsInput | $Enums.WebhookEventStatus
     error?: NullableStringFieldUpdateOperationsInput | string | null
+    attempts?: IntFieldUpdateOperationsInput | number
+    payload?: NullableJsonNullValueInput | InputJsonValue
     receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type WebhookEventUncheckedUpdateManyInput = {
@@ -56927,8 +53638,11 @@ export namespace Prisma {
     reference?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumWebhookEventStatusFieldUpdateOperationsInput | $Enums.WebhookEventStatus
     error?: NullableStringFieldUpdateOperationsInput | string | null
+    attempts?: IntFieldUpdateOperationsInput | number
+    payload?: NullableJsonNullValueInput | InputJsonValue
     receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type BillingNoticeCreateInput = {
@@ -57942,160 +54656,6 @@ export namespace Prisma {
     defaultValue?: JsonNullValueInput | InputJsonValue
     isSchoolEditable?: BoolFieldUpdateOperationsInput | boolean
     sortOrder?: IntFieldUpdateOperationsInput | number
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type AutomationRuleDefinitionCreateInput = {
-    key: string
-    module: string
-    trigger: $Enums.AutomationTrigger
-    eventKey?: string | null
-    anchor?: string | null
-    paramsSchema: JsonNullValueInput | InputJsonValue
-    allowedChannels?: AutomationRuleDefinitionCreateallowedChannelsInput | $Enums.NotificationChannel[]
-    allowedAudiences?: AutomationRuleDefinitionCreateallowedAudiencesInput | string[]
-    templateKey: string
-    allowMultiple?: boolean
-    requiresFeature?: string | null
-    name: string
-    description?: string | null
-    defaultEnabled?: boolean
-    defaultParams: JsonNullValueInput | InputJsonValue
-    defaultChannels?: AutomationRuleDefinitionCreatedefaultChannelsInput | $Enums.NotificationChannel[]
-    isActive?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type AutomationRuleDefinitionUncheckedCreateInput = {
-    key: string
-    module: string
-    trigger: $Enums.AutomationTrigger
-    eventKey?: string | null
-    anchor?: string | null
-    paramsSchema: JsonNullValueInput | InputJsonValue
-    allowedChannels?: AutomationRuleDefinitionCreateallowedChannelsInput | $Enums.NotificationChannel[]
-    allowedAudiences?: AutomationRuleDefinitionCreateallowedAudiencesInput | string[]
-    templateKey: string
-    allowMultiple?: boolean
-    requiresFeature?: string | null
-    name: string
-    description?: string | null
-    defaultEnabled?: boolean
-    defaultParams: JsonNullValueInput | InputJsonValue
-    defaultChannels?: AutomationRuleDefinitionCreatedefaultChannelsInput | $Enums.NotificationChannel[]
-    isActive?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type AutomationRuleDefinitionUpdateInput = {
-    key?: StringFieldUpdateOperationsInput | string
-    module?: StringFieldUpdateOperationsInput | string
-    trigger?: EnumAutomationTriggerFieldUpdateOperationsInput | $Enums.AutomationTrigger
-    eventKey?: NullableStringFieldUpdateOperationsInput | string | null
-    anchor?: NullableStringFieldUpdateOperationsInput | string | null
-    paramsSchema?: JsonNullValueInput | InputJsonValue
-    allowedChannels?: AutomationRuleDefinitionUpdateallowedChannelsInput | $Enums.NotificationChannel[]
-    allowedAudiences?: AutomationRuleDefinitionUpdateallowedAudiencesInput | string[]
-    templateKey?: StringFieldUpdateOperationsInput | string
-    allowMultiple?: BoolFieldUpdateOperationsInput | boolean
-    requiresFeature?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    defaultEnabled?: BoolFieldUpdateOperationsInput | boolean
-    defaultParams?: JsonNullValueInput | InputJsonValue
-    defaultChannels?: AutomationRuleDefinitionUpdatedefaultChannelsInput | $Enums.NotificationChannel[]
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type AutomationRuleDefinitionUncheckedUpdateInput = {
-    key?: StringFieldUpdateOperationsInput | string
-    module?: StringFieldUpdateOperationsInput | string
-    trigger?: EnumAutomationTriggerFieldUpdateOperationsInput | $Enums.AutomationTrigger
-    eventKey?: NullableStringFieldUpdateOperationsInput | string | null
-    anchor?: NullableStringFieldUpdateOperationsInput | string | null
-    paramsSchema?: JsonNullValueInput | InputJsonValue
-    allowedChannels?: AutomationRuleDefinitionUpdateallowedChannelsInput | $Enums.NotificationChannel[]
-    allowedAudiences?: AutomationRuleDefinitionUpdateallowedAudiencesInput | string[]
-    templateKey?: StringFieldUpdateOperationsInput | string
-    allowMultiple?: BoolFieldUpdateOperationsInput | boolean
-    requiresFeature?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    defaultEnabled?: BoolFieldUpdateOperationsInput | boolean
-    defaultParams?: JsonNullValueInput | InputJsonValue
-    defaultChannels?: AutomationRuleDefinitionUpdatedefaultChannelsInput | $Enums.NotificationChannel[]
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type AutomationRuleDefinitionCreateManyInput = {
-    key: string
-    module: string
-    trigger: $Enums.AutomationTrigger
-    eventKey?: string | null
-    anchor?: string | null
-    paramsSchema: JsonNullValueInput | InputJsonValue
-    allowedChannels?: AutomationRuleDefinitionCreateallowedChannelsInput | $Enums.NotificationChannel[]
-    allowedAudiences?: AutomationRuleDefinitionCreateallowedAudiencesInput | string[]
-    templateKey: string
-    allowMultiple?: boolean
-    requiresFeature?: string | null
-    name: string
-    description?: string | null
-    defaultEnabled?: boolean
-    defaultParams: JsonNullValueInput | InputJsonValue
-    defaultChannels?: AutomationRuleDefinitionCreatedefaultChannelsInput | $Enums.NotificationChannel[]
-    isActive?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type AutomationRuleDefinitionUpdateManyMutationInput = {
-    key?: StringFieldUpdateOperationsInput | string
-    module?: StringFieldUpdateOperationsInput | string
-    trigger?: EnumAutomationTriggerFieldUpdateOperationsInput | $Enums.AutomationTrigger
-    eventKey?: NullableStringFieldUpdateOperationsInput | string | null
-    anchor?: NullableStringFieldUpdateOperationsInput | string | null
-    paramsSchema?: JsonNullValueInput | InputJsonValue
-    allowedChannels?: AutomationRuleDefinitionUpdateallowedChannelsInput | $Enums.NotificationChannel[]
-    allowedAudiences?: AutomationRuleDefinitionUpdateallowedAudiencesInput | string[]
-    templateKey?: StringFieldUpdateOperationsInput | string
-    allowMultiple?: BoolFieldUpdateOperationsInput | boolean
-    requiresFeature?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    defaultEnabled?: BoolFieldUpdateOperationsInput | boolean
-    defaultParams?: JsonNullValueInput | InputJsonValue
-    defaultChannels?: AutomationRuleDefinitionUpdatedefaultChannelsInput | $Enums.NotificationChannel[]
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type AutomationRuleDefinitionUncheckedUpdateManyInput = {
-    key?: StringFieldUpdateOperationsInput | string
-    module?: StringFieldUpdateOperationsInput | string
-    trigger?: EnumAutomationTriggerFieldUpdateOperationsInput | $Enums.AutomationTrigger
-    eventKey?: NullableStringFieldUpdateOperationsInput | string | null
-    anchor?: NullableStringFieldUpdateOperationsInput | string | null
-    paramsSchema?: JsonNullValueInput | InputJsonValue
-    allowedChannels?: AutomationRuleDefinitionUpdateallowedChannelsInput | $Enums.NotificationChannel[]
-    allowedAudiences?: AutomationRuleDefinitionUpdateallowedAudiencesInput | string[]
-    templateKey?: StringFieldUpdateOperationsInput | string
-    allowMultiple?: BoolFieldUpdateOperationsInput | boolean
-    requiresFeature?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    defaultEnabled?: BoolFieldUpdateOperationsInput | boolean
-    defaultParams?: JsonNullValueInput | InputJsonValue
-    defaultChannels?: AutomationRuleDefinitionUpdatedefaultChannelsInput | $Enums.NotificationChannel[]
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -59193,12 +55753,6 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
-  export type UserListRelationFilter = {
-    every?: UserWhereInput
-    some?: UserWhereInput
-    none?: UserWhereInput
-  }
-
   export type UserSchoolListRelationFilter = {
     every?: UserSchoolWhereInput
     some?: UserSchoolWhereInput
@@ -59256,10 +55810,6 @@ export namespace Prisma {
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
-  }
-
-  export type UserOrderByRelationAggregateInput = {
-    _count?: SortOrder
   }
 
   export type UserSchoolOrderByRelationAggregateInput = {
@@ -59687,20 +56237,6 @@ export namespace Prisma {
     _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
-  export type EnumRoleFilter<$PrismaModel = never> = {
-    equals?: $Enums.Role | EnumRoleFieldRefInput<$PrismaModel>
-    in?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
-    notIn?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
-    not?: NestedEnumRoleFilter<$PrismaModel> | $Enums.Role
-  }
-
-  export type EnumLegacyPlatformRoleNullableFilter<$PrismaModel = never> = {
-    equals?: $Enums.LegacyPlatformRole | EnumLegacyPlatformRoleFieldRefInput<$PrismaModel> | null
-    in?: $Enums.LegacyPlatformRole[] | ListEnumLegacyPlatformRoleFieldRefInput<$PrismaModel> | null
-    notIn?: $Enums.LegacyPlatformRole[] | ListEnumLegacyPlatformRoleFieldRefInput<$PrismaModel> | null
-    not?: NestedEnumLegacyPlatformRoleNullableFilter<$PrismaModel> | $Enums.LegacyPlatformRole | null
-  }
-
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -59710,11 +56246,6 @@ export namespace Prisma {
     gt?: number | IntFieldRefInput<$PrismaModel>
     gte?: number | IntFieldRefInput<$PrismaModel>
     not?: NestedIntFilter<$PrismaModel> | number
-  }
-
-  export type SchoolNullableScalarRelationFilter = {
-    is?: SchoolWhereInput | null
-    isNot?: SchoolWhereInput | null
   }
 
   export type PlatformMemberNullableScalarRelationFilter = {
@@ -59754,11 +56285,8 @@ export namespace Prisma {
 
   export type UserCountOrderByAggregateInput = {
     id?: SortOrder
-    schoolId?: SortOrder
     email?: SortOrder
     passwordHash?: SortOrder
-    role?: SortOrder
-    platformRole?: SortOrder
     firstName?: SortOrder
     lastName?: SortOrder
     phone?: SortOrder
@@ -59782,11 +56310,8 @@ export namespace Prisma {
 
   export type UserMaxOrderByAggregateInput = {
     id?: SortOrder
-    schoolId?: SortOrder
     email?: SortOrder
     passwordHash?: SortOrder
-    role?: SortOrder
-    platformRole?: SortOrder
     firstName?: SortOrder
     lastName?: SortOrder
     phone?: SortOrder
@@ -59806,11 +56331,8 @@ export namespace Prisma {
 
   export type UserMinOrderByAggregateInput = {
     id?: SortOrder
-    schoolId?: SortOrder
     email?: SortOrder
     passwordHash?: SortOrder
-    role?: SortOrder
-    platformRole?: SortOrder
     firstName?: SortOrder
     lastName?: SortOrder
     phone?: SortOrder
@@ -59830,26 +56352,6 @@ export namespace Prisma {
 
   export type UserSumOrderByAggregateInput = {
     failedLoginCount?: SortOrder
-  }
-
-  export type EnumRoleWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.Role | EnumRoleFieldRefInput<$PrismaModel>
-    in?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
-    notIn?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
-    not?: NestedEnumRoleWithAggregatesFilter<$PrismaModel> | $Enums.Role
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumRoleFilter<$PrismaModel>
-    _max?: NestedEnumRoleFilter<$PrismaModel>
-  }
-
-  export type EnumLegacyPlatformRoleNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.LegacyPlatformRole | EnumLegacyPlatformRoleFieldRefInput<$PrismaModel> | null
-    in?: $Enums.LegacyPlatformRole[] | ListEnumLegacyPlatformRoleFieldRefInput<$PrismaModel> | null
-    notIn?: $Enums.LegacyPlatformRole[] | ListEnumLegacyPlatformRoleFieldRefInput<$PrismaModel> | null
-    not?: NestedEnumLegacyPlatformRoleNullableWithAggregatesFilter<$PrismaModel> | $Enums.LegacyPlatformRole | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedEnumLegacyPlatformRoleNullableFilter<$PrismaModel>
-    _max?: NestedEnumLegacyPlatformRoleNullableFilter<$PrismaModel>
   }
 
   export type IntWithAggregatesFilter<$PrismaModel = never> = {
@@ -60015,7 +56517,6 @@ export namespace Prisma {
   export type InviteCountOrderByAggregateInput = {
     id?: SortOrder
     email?: SortOrder
-    role?: SortOrder
     persona?: SortOrder
     personaEntityId?: SortOrder
     roleId?: SortOrder
@@ -60033,7 +56534,6 @@ export namespace Prisma {
   export type InviteMaxOrderByAggregateInput = {
     id?: SortOrder
     email?: SortOrder
-    role?: SortOrder
     persona?: SortOrder
     personaEntityId?: SortOrder
     roleId?: SortOrder
@@ -60051,7 +56551,6 @@ export namespace Prisma {
   export type InviteMinOrderByAggregateInput = {
     id?: SortOrder
     email?: SortOrder
-    role?: SortOrder
     persona?: SortOrder
     personaEntityId?: SortOrder
     roleId?: SortOrder
@@ -60075,29 +56574,6 @@ export namespace Prisma {
     _min?: NestedEnumPersonaFilter<$PrismaModel>
     _max?: NestedEnumPersonaFilter<$PrismaModel>
   }
-  export type JsonFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
 
   export type PlanEntitlementListRelationFilter = {
     every?: PlanEntitlementWhereInput
@@ -60114,9 +56590,6 @@ export namespace Prisma {
     name?: SortOrder
     systemKey?: SortOrder
     description?: SortOrder
-    studentLimit?: SortOrder
-    staffLimit?: SortOrder
-    features?: SortOrder
     monthlyPriceKobo?: SortOrder
     yearlyPriceKobo?: SortOrder
     setupFeeKobo?: SortOrder
@@ -60128,8 +56601,6 @@ export namespace Prisma {
   }
 
   export type PlanAvgOrderByAggregateInput = {
-    studentLimit?: SortOrder
-    staffLimit?: SortOrder
     monthlyPriceKobo?: SortOrder
     yearlyPriceKobo?: SortOrder
     setupFeeKobo?: SortOrder
@@ -60140,8 +56611,6 @@ export namespace Prisma {
     name?: SortOrder
     systemKey?: SortOrder
     description?: SortOrder
-    studentLimit?: SortOrder
-    staffLimit?: SortOrder
     monthlyPriceKobo?: SortOrder
     yearlyPriceKobo?: SortOrder
     setupFeeKobo?: SortOrder
@@ -60157,8 +56626,6 @@ export namespace Prisma {
     name?: SortOrder
     systemKey?: SortOrder
     description?: SortOrder
-    studentLimit?: SortOrder
-    staffLimit?: SortOrder
     monthlyPriceKobo?: SortOrder
     yearlyPriceKobo?: SortOrder
     setupFeeKobo?: SortOrder
@@ -60170,37 +56637,9 @@ export namespace Prisma {
   }
 
   export type PlanSumOrderByAggregateInput = {
-    studentLimit?: SortOrder
-    staffLimit?: SortOrder
     monthlyPriceKobo?: SortOrder
     yearlyPriceKobo?: SortOrder
     setupFeeKobo?: SortOrder
-  }
-  export type JsonWithAggregatesFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedJsonFilter<$PrismaModel>
-    _max?: NestedJsonFilter<$PrismaModel>
   }
 
   export type EnumSubscriptionStatusFilter<$PrismaModel = never> = {
@@ -60238,16 +56677,6 @@ export namespace Prisma {
     isNot?: CouponWhereInput | null
   }
 
-  export type BillingHistoryListRelationFilter = {
-    every?: BillingHistoryWhereInput
-    some?: BillingHistoryWhereInput
-    none?: BillingHistoryWhereInput
-  }
-
-  export type BillingHistoryOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
   export type SubscriptionCountOrderByAggregateInput = {
     id?: SortOrder
     schoolId?: SortOrder
@@ -60262,14 +56691,8 @@ export namespace Prisma {
     couponId?: SortOrder
     discountedPriceKobo?: SortOrder
     autoRenew?: SortOrder
-    paystackAuthorizationCode?: SortOrder
-    paystackCustomerCode?: SortOrder
-    paystackSubscriptionCode?: SortOrder
     scheduledDowngradePlanId?: SortOrder
-    setupFeePaid?: SortOrder
-    setupFeePaidAt?: SortOrder
     nextBillingDate?: SortOrder
-    lastBillingAttemptAt?: SortOrder
     failedBillingCount?: SortOrder
     paymentMethodId?: SortOrder
     billingAnchorDay?: SortOrder
@@ -60298,14 +56721,8 @@ export namespace Prisma {
     couponId?: SortOrder
     discountedPriceKobo?: SortOrder
     autoRenew?: SortOrder
-    paystackAuthorizationCode?: SortOrder
-    paystackCustomerCode?: SortOrder
-    paystackSubscriptionCode?: SortOrder
     scheduledDowngradePlanId?: SortOrder
-    setupFeePaid?: SortOrder
-    setupFeePaidAt?: SortOrder
     nextBillingDate?: SortOrder
-    lastBillingAttemptAt?: SortOrder
     failedBillingCount?: SortOrder
     paymentMethodId?: SortOrder
     billingAnchorDay?: SortOrder
@@ -60328,14 +56745,8 @@ export namespace Prisma {
     couponId?: SortOrder
     discountedPriceKobo?: SortOrder
     autoRenew?: SortOrder
-    paystackAuthorizationCode?: SortOrder
-    paystackCustomerCode?: SortOrder
-    paystackSubscriptionCode?: SortOrder
     scheduledDowngradePlanId?: SortOrder
-    setupFeePaid?: SortOrder
-    setupFeePaidAt?: SortOrder
     nextBillingDate?: SortOrder
-    lastBillingAttemptAt?: SortOrder
     failedBillingCount?: SortOrder
     paymentMethodId?: SortOrder
     billingAnchorDay?: SortOrder
@@ -60460,72 +56871,6 @@ export namespace Prisma {
     _max?: NestedEnumDiscountTypeFilter<$PrismaModel>
   }
 
-  export type EnumPaymentStatusFilter<$PrismaModel = never> = {
-    equals?: $Enums.PaymentStatus | EnumPaymentStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.PaymentStatus[] | ListEnumPaymentStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.PaymentStatus[] | ListEnumPaymentStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumPaymentStatusFilter<$PrismaModel> | $Enums.PaymentStatus
-  }
-
-  export type SubscriptionScalarRelationFilter = {
-    is?: SubscriptionWhereInput
-    isNot?: SubscriptionWhereInput
-  }
-
-  export type BillingHistoryCountOrderByAggregateInput = {
-    id?: SortOrder
-    subscriptionId?: SortOrder
-    amountKobo?: SortOrder
-    status?: SortOrder
-    billingCycle?: SortOrder
-    paystackReference?: SortOrder
-    paidAt?: SortOrder
-    failureReason?: SortOrder
-    createdAt?: SortOrder
-  }
-
-  export type BillingHistoryAvgOrderByAggregateInput = {
-    amountKobo?: SortOrder
-  }
-
-  export type BillingHistoryMaxOrderByAggregateInput = {
-    id?: SortOrder
-    subscriptionId?: SortOrder
-    amountKobo?: SortOrder
-    status?: SortOrder
-    billingCycle?: SortOrder
-    paystackReference?: SortOrder
-    paidAt?: SortOrder
-    failureReason?: SortOrder
-    createdAt?: SortOrder
-  }
-
-  export type BillingHistoryMinOrderByAggregateInput = {
-    id?: SortOrder
-    subscriptionId?: SortOrder
-    amountKobo?: SortOrder
-    status?: SortOrder
-    billingCycle?: SortOrder
-    paystackReference?: SortOrder
-    paidAt?: SortOrder
-    failureReason?: SortOrder
-    createdAt?: SortOrder
-  }
-
-  export type BillingHistorySumOrderByAggregateInput = {
-    amountKobo?: SortOrder
-  }
-
-  export type EnumPaymentStatusWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.PaymentStatus | EnumPaymentStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.PaymentStatus[] | ListEnumPaymentStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.PaymentStatus[] | ListEnumPaymentStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumPaymentStatusWithAggregatesFilter<$PrismaModel> | $Enums.PaymentStatus
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumPaymentStatusFilter<$PrismaModel>
-    _max?: NestedEnumPaymentStatusFilter<$PrismaModel>
-  }
-
   export type EnumBillingInvoiceReasonFilter<$PrismaModel = never> = {
     equals?: $Enums.BillingInvoiceReason | EnumBillingInvoiceReasonFieldRefInput<$PrismaModel>
     in?: $Enums.BillingInvoiceReason[] | ListEnumBillingInvoiceReasonFieldRefInput<$PrismaModel>
@@ -60538,6 +56883,11 @@ export namespace Prisma {
     in?: $Enums.BillingInvoiceStatus[] | ListEnumBillingInvoiceStatusFieldRefInput<$PrismaModel>
     notIn?: $Enums.BillingInvoiceStatus[] | ListEnumBillingInvoiceStatusFieldRefInput<$PrismaModel>
     not?: NestedEnumBillingInvoiceStatusFilter<$PrismaModel> | $Enums.BillingInvoiceStatus
+  }
+
+  export type SubscriptionScalarRelationFilter = {
+    is?: SubscriptionWhereInput
+    isNot?: SubscriptionWhereInput
   }
 
   export type SubscriptionInvoiceItemListRelationFilter = {
@@ -60913,8 +57263,15 @@ export namespace Prisma {
     reference?: SortOrder
     status?: SortOrder
     error?: SortOrder
+    attempts?: SortOrder
+    payload?: SortOrder
     receivedAt?: SortOrder
     processedAt?: SortOrder
+    lastAttemptAt?: SortOrder
+  }
+
+  export type WebhookEventAvgOrderByAggregateInput = {
+    attempts?: SortOrder
   }
 
   export type WebhookEventMaxOrderByAggregateInput = {
@@ -60925,8 +57282,10 @@ export namespace Prisma {
     reference?: SortOrder
     status?: SortOrder
     error?: SortOrder
+    attempts?: SortOrder
     receivedAt?: SortOrder
     processedAt?: SortOrder
+    lastAttemptAt?: SortOrder
   }
 
   export type WebhookEventMinOrderByAggregateInput = {
@@ -60937,8 +57296,14 @@ export namespace Prisma {
     reference?: SortOrder
     status?: SortOrder
     error?: SortOrder
+    attempts?: SortOrder
     receivedAt?: SortOrder
     processedAt?: SortOrder
+    lastAttemptAt?: SortOrder
+  }
+
+  export type WebhookEventSumOrderByAggregateInput = {
+    attempts?: SortOrder
   }
 
   export type EnumWebhookEventStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -61622,6 +57987,29 @@ export namespace Prisma {
     notIn?: $Enums.SettingType[] | ListEnumSettingTypeFieldRefInput<$PrismaModel>
     not?: NestedEnumSettingTypeFilter<$PrismaModel> | $Enums.SettingType
   }
+  export type JsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type SettingDefinitionCountOrderByAggregateInput = {
     key?: SortOrder
@@ -61691,94 +58079,31 @@ export namespace Prisma {
     _min?: NestedEnumSettingTypeFilter<$PrismaModel>
     _max?: NestedEnumSettingTypeFilter<$PrismaModel>
   }
+  export type JsonWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
 
-  export type EnumAutomationTriggerFilter<$PrismaModel = never> = {
-    equals?: $Enums.AutomationTrigger | EnumAutomationTriggerFieldRefInput<$PrismaModel>
-    in?: $Enums.AutomationTrigger[] | ListEnumAutomationTriggerFieldRefInput<$PrismaModel>
-    notIn?: $Enums.AutomationTrigger[] | ListEnumAutomationTriggerFieldRefInput<$PrismaModel>
-    not?: NestedEnumAutomationTriggerFilter<$PrismaModel> | $Enums.AutomationTrigger
-  }
-
-  export type EnumNotificationChannelNullableListFilter<$PrismaModel = never> = {
-    equals?: $Enums.NotificationChannel[] | ListEnumNotificationChannelFieldRefInput<$PrismaModel> | null
-    has?: $Enums.NotificationChannel | EnumNotificationChannelFieldRefInput<$PrismaModel> | null
-    hasEvery?: $Enums.NotificationChannel[] | ListEnumNotificationChannelFieldRefInput<$PrismaModel>
-    hasSome?: $Enums.NotificationChannel[] | ListEnumNotificationChannelFieldRefInput<$PrismaModel>
-    isEmpty?: boolean
-  }
-
-  export type StringNullableListFilter<$PrismaModel = never> = {
-    equals?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    has?: string | StringFieldRefInput<$PrismaModel> | null
-    hasEvery?: string[] | ListStringFieldRefInput<$PrismaModel>
-    hasSome?: string[] | ListStringFieldRefInput<$PrismaModel>
-    isEmpty?: boolean
-  }
-
-  export type AutomationRuleDefinitionCountOrderByAggregateInput = {
-    key?: SortOrder
-    module?: SortOrder
-    trigger?: SortOrder
-    eventKey?: SortOrder
-    anchor?: SortOrder
-    paramsSchema?: SortOrder
-    allowedChannels?: SortOrder
-    allowedAudiences?: SortOrder
-    templateKey?: SortOrder
-    allowMultiple?: SortOrder
-    requiresFeature?: SortOrder
-    name?: SortOrder
-    description?: SortOrder
-    defaultEnabled?: SortOrder
-    defaultParams?: SortOrder
-    defaultChannels?: SortOrder
-    isActive?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type AutomationRuleDefinitionMaxOrderByAggregateInput = {
-    key?: SortOrder
-    module?: SortOrder
-    trigger?: SortOrder
-    eventKey?: SortOrder
-    anchor?: SortOrder
-    templateKey?: SortOrder
-    allowMultiple?: SortOrder
-    requiresFeature?: SortOrder
-    name?: SortOrder
-    description?: SortOrder
-    defaultEnabled?: SortOrder
-    isActive?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type AutomationRuleDefinitionMinOrderByAggregateInput = {
-    key?: SortOrder
-    module?: SortOrder
-    trigger?: SortOrder
-    eventKey?: SortOrder
-    anchor?: SortOrder
-    templateKey?: SortOrder
-    allowMultiple?: SortOrder
-    requiresFeature?: SortOrder
-    name?: SortOrder
-    description?: SortOrder
-    defaultEnabled?: SortOrder
-    isActive?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type EnumAutomationTriggerWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.AutomationTrigger | EnumAutomationTriggerFieldRefInput<$PrismaModel>
-    in?: $Enums.AutomationTrigger[] | ListEnumAutomationTriggerFieldRefInput<$PrismaModel>
-    notIn?: $Enums.AutomationTrigger[] | ListEnumAutomationTriggerFieldRefInput<$PrismaModel>
-    not?: NestedEnumAutomationTriggerWithAggregatesFilter<$PrismaModel> | $Enums.AutomationTrigger
+  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumAutomationTriggerFilter<$PrismaModel>
-    _max?: NestedEnumAutomationTriggerFilter<$PrismaModel>
+    _min?: NestedJsonFilter<$PrismaModel>
+    _max?: NestedJsonFilter<$PrismaModel>
   }
 
   export type EnumNotificationChannelFilter<$PrismaModel = never> = {
@@ -61883,6 +58208,11 @@ export namespace Prisma {
     in?: $Enums.ActorType[] | ListEnumActorTypeFieldRefInput<$PrismaModel>
     notIn?: $Enums.ActorType[] | ListEnumActorTypeFieldRefInput<$PrismaModel>
     not?: NestedEnumActorTypeFilter<$PrismaModel> | $Enums.ActorType
+  }
+
+  export type SchoolNullableScalarRelationFilter = {
+    is?: SchoolWhereInput | null
+    isNot?: SchoolWhereInput | null
   }
 
   export type AuditLogCountOrderByAggregateInput = {
@@ -62420,13 +58750,6 @@ export namespace Prisma {
     _max?: NestedEnumLedgerAccountTypeFilter<$PrismaModel>
   }
 
-  export type UserCreateNestedManyWithoutSchoolInput = {
-    create?: XOR<UserCreateWithoutSchoolInput, UserUncheckedCreateWithoutSchoolInput> | UserCreateWithoutSchoolInput[] | UserUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: UserCreateOrConnectWithoutSchoolInput | UserCreateOrConnectWithoutSchoolInput[]
-    createMany?: UserCreateManySchoolInputEnvelope
-    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
-  }
-
   export type UserSchoolCreateNestedManyWithoutSchoolInput = {
     create?: XOR<UserSchoolCreateWithoutSchoolInput, UserSchoolUncheckedCreateWithoutSchoolInput> | UserSchoolCreateWithoutSchoolInput[] | UserSchoolUncheckedCreateWithoutSchoolInput[]
     connectOrCreate?: UserSchoolCreateOrConnectWithoutSchoolInput | UserSchoolCreateOrConnectWithoutSchoolInput[]
@@ -62488,13 +58811,6 @@ export namespace Prisma {
     connectOrCreate?: PaymentMethodCreateOrConnectWithoutSchoolInput | PaymentMethodCreateOrConnectWithoutSchoolInput[]
     createMany?: PaymentMethodCreateManySchoolInputEnvelope
     connect?: PaymentMethodWhereUniqueInput | PaymentMethodWhereUniqueInput[]
-  }
-
-  export type UserUncheckedCreateNestedManyWithoutSchoolInput = {
-    create?: XOR<UserCreateWithoutSchoolInput, UserUncheckedCreateWithoutSchoolInput> | UserCreateWithoutSchoolInput[] | UserUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: UserCreateOrConnectWithoutSchoolInput | UserCreateOrConnectWithoutSchoolInput[]
-    createMany?: UserCreateManySchoolInputEnvelope
-    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
   }
 
   export type UserSchoolUncheckedCreateNestedManyWithoutSchoolInput = {
@@ -62594,20 +58910,6 @@ export namespace Prisma {
 
   export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string
-  }
-
-  export type UserUpdateManyWithoutSchoolNestedInput = {
-    create?: XOR<UserCreateWithoutSchoolInput, UserUncheckedCreateWithoutSchoolInput> | UserCreateWithoutSchoolInput[] | UserUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: UserCreateOrConnectWithoutSchoolInput | UserCreateOrConnectWithoutSchoolInput[]
-    upsert?: UserUpsertWithWhereUniqueWithoutSchoolInput | UserUpsertWithWhereUniqueWithoutSchoolInput[]
-    createMany?: UserCreateManySchoolInputEnvelope
-    set?: UserWhereUniqueInput | UserWhereUniqueInput[]
-    disconnect?: UserWhereUniqueInput | UserWhereUniqueInput[]
-    delete?: UserWhereUniqueInput | UserWhereUniqueInput[]
-    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
-    update?: UserUpdateWithWhereUniqueWithoutSchoolInput | UserUpdateWithWhereUniqueWithoutSchoolInput[]
-    updateMany?: UserUpdateManyWithWhereWithoutSchoolInput | UserUpdateManyWithWhereWithoutSchoolInput[]
-    deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
   }
 
   export type UserSchoolUpdateManyWithoutSchoolNestedInput = {
@@ -62734,20 +59036,6 @@ export namespace Prisma {
     update?: PaymentMethodUpdateWithWhereUniqueWithoutSchoolInput | PaymentMethodUpdateWithWhereUniqueWithoutSchoolInput[]
     updateMany?: PaymentMethodUpdateManyWithWhereWithoutSchoolInput | PaymentMethodUpdateManyWithWhereWithoutSchoolInput[]
     deleteMany?: PaymentMethodScalarWhereInput | PaymentMethodScalarWhereInput[]
-  }
-
-  export type UserUncheckedUpdateManyWithoutSchoolNestedInput = {
-    create?: XOR<UserCreateWithoutSchoolInput, UserUncheckedCreateWithoutSchoolInput> | UserCreateWithoutSchoolInput[] | UserUncheckedCreateWithoutSchoolInput[]
-    connectOrCreate?: UserCreateOrConnectWithoutSchoolInput | UserCreateOrConnectWithoutSchoolInput[]
-    upsert?: UserUpsertWithWhereUniqueWithoutSchoolInput | UserUpsertWithWhereUniqueWithoutSchoolInput[]
-    createMany?: UserCreateManySchoolInputEnvelope
-    set?: UserWhereUniqueInput | UserWhereUniqueInput[]
-    disconnect?: UserWhereUniqueInput | UserWhereUniqueInput[]
-    delete?: UserWhereUniqueInput | UserWhereUniqueInput[]
-    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
-    update?: UserUpdateWithWhereUniqueWithoutSchoolInput | UserUpdateWithWhereUniqueWithoutSchoolInput[]
-    updateMany?: UserUpdateManyWithWhereWithoutSchoolInput | UserUpdateManyWithWhereWithoutSchoolInput[]
-    deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
   }
 
   export type UserSchoolUncheckedUpdateManyWithoutSchoolNestedInput = {
@@ -62902,12 +59190,6 @@ export namespace Prisma {
     update?: XOR<XOR<SchoolUpdateToOneWithWhereWithoutDocumentsInput, SchoolUpdateWithoutDocumentsInput>, SchoolUncheckedUpdateWithoutDocumentsInput>
   }
 
-  export type SchoolCreateNestedOneWithoutUsersInput = {
-    create?: XOR<SchoolCreateWithoutUsersInput, SchoolUncheckedCreateWithoutUsersInput>
-    connectOrCreate?: SchoolCreateOrConnectWithoutUsersInput
-    connect?: SchoolWhereUniqueInput
-  }
-
   export type PlatformMemberCreateNestedOneWithoutUserInput = {
     create?: XOR<PlatformMemberCreateWithoutUserInput, PlatformMemberUncheckedCreateWithoutUserInput>
     connectOrCreate?: PlatformMemberCreateOrConnectWithoutUserInput
@@ -62990,30 +59272,12 @@ export namespace Prisma {
     connect?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
   }
 
-  export type EnumRoleFieldUpdateOperationsInput = {
-    set?: $Enums.Role
-  }
-
-  export type NullableEnumLegacyPlatformRoleFieldUpdateOperationsInput = {
-    set?: $Enums.LegacyPlatformRole | null
-  }
-
   export type IntFieldUpdateOperationsInput = {
     set?: number
     increment?: number
     decrement?: number
     multiply?: number
     divide?: number
-  }
-
-  export type SchoolUpdateOneWithoutUsersNestedInput = {
-    create?: XOR<SchoolCreateWithoutUsersInput, SchoolUncheckedCreateWithoutUsersInput>
-    connectOrCreate?: SchoolCreateOrConnectWithoutUsersInput
-    upsert?: SchoolUpsertWithoutUsersInput
-    disconnect?: SchoolWhereInput | boolean
-    delete?: SchoolWhereInput | boolean
-    connect?: SchoolWhereUniqueInput
-    update?: XOR<XOR<SchoolUpdateToOneWithWhereWithoutUsersInput, SchoolUpdateWithoutUsersInput>, SchoolUncheckedUpdateWithoutUsersInput>
   }
 
   export type PlatformMemberUpdateOneWithoutUserNestedInput = {
@@ -63398,25 +59662,11 @@ export namespace Prisma {
     connect?: CouponWhereUniqueInput
   }
 
-  export type BillingHistoryCreateNestedManyWithoutSubscriptionInput = {
-    create?: XOR<BillingHistoryCreateWithoutSubscriptionInput, BillingHistoryUncheckedCreateWithoutSubscriptionInput> | BillingHistoryCreateWithoutSubscriptionInput[] | BillingHistoryUncheckedCreateWithoutSubscriptionInput[]
-    connectOrCreate?: BillingHistoryCreateOrConnectWithoutSubscriptionInput | BillingHistoryCreateOrConnectWithoutSubscriptionInput[]
-    createMany?: BillingHistoryCreateManySubscriptionInputEnvelope
-    connect?: BillingHistoryWhereUniqueInput | BillingHistoryWhereUniqueInput[]
-  }
-
   export type SubscriptionInvoiceCreateNestedManyWithoutSubscriptionInput = {
     create?: XOR<SubscriptionInvoiceCreateWithoutSubscriptionInput, SubscriptionInvoiceUncheckedCreateWithoutSubscriptionInput> | SubscriptionInvoiceCreateWithoutSubscriptionInput[] | SubscriptionInvoiceUncheckedCreateWithoutSubscriptionInput[]
     connectOrCreate?: SubscriptionInvoiceCreateOrConnectWithoutSubscriptionInput | SubscriptionInvoiceCreateOrConnectWithoutSubscriptionInput[]
     createMany?: SubscriptionInvoiceCreateManySubscriptionInputEnvelope
     connect?: SubscriptionInvoiceWhereUniqueInput | SubscriptionInvoiceWhereUniqueInput[]
-  }
-
-  export type BillingHistoryUncheckedCreateNestedManyWithoutSubscriptionInput = {
-    create?: XOR<BillingHistoryCreateWithoutSubscriptionInput, BillingHistoryUncheckedCreateWithoutSubscriptionInput> | BillingHistoryCreateWithoutSubscriptionInput[] | BillingHistoryUncheckedCreateWithoutSubscriptionInput[]
-    connectOrCreate?: BillingHistoryCreateOrConnectWithoutSubscriptionInput | BillingHistoryCreateOrConnectWithoutSubscriptionInput[]
-    createMany?: BillingHistoryCreateManySubscriptionInputEnvelope
-    connect?: BillingHistoryWhereUniqueInput | BillingHistoryWhereUniqueInput[]
   }
 
   export type SubscriptionInvoiceUncheckedCreateNestedManyWithoutSubscriptionInput = {
@@ -63468,20 +59718,6 @@ export namespace Prisma {
     update?: XOR<XOR<CouponUpdateToOneWithWhereWithoutSubscriptionsInput, CouponUpdateWithoutSubscriptionsInput>, CouponUncheckedUpdateWithoutSubscriptionsInput>
   }
 
-  export type BillingHistoryUpdateManyWithoutSubscriptionNestedInput = {
-    create?: XOR<BillingHistoryCreateWithoutSubscriptionInput, BillingHistoryUncheckedCreateWithoutSubscriptionInput> | BillingHistoryCreateWithoutSubscriptionInput[] | BillingHistoryUncheckedCreateWithoutSubscriptionInput[]
-    connectOrCreate?: BillingHistoryCreateOrConnectWithoutSubscriptionInput | BillingHistoryCreateOrConnectWithoutSubscriptionInput[]
-    upsert?: BillingHistoryUpsertWithWhereUniqueWithoutSubscriptionInput | BillingHistoryUpsertWithWhereUniqueWithoutSubscriptionInput[]
-    createMany?: BillingHistoryCreateManySubscriptionInputEnvelope
-    set?: BillingHistoryWhereUniqueInput | BillingHistoryWhereUniqueInput[]
-    disconnect?: BillingHistoryWhereUniqueInput | BillingHistoryWhereUniqueInput[]
-    delete?: BillingHistoryWhereUniqueInput | BillingHistoryWhereUniqueInput[]
-    connect?: BillingHistoryWhereUniqueInput | BillingHistoryWhereUniqueInput[]
-    update?: BillingHistoryUpdateWithWhereUniqueWithoutSubscriptionInput | BillingHistoryUpdateWithWhereUniqueWithoutSubscriptionInput[]
-    updateMany?: BillingHistoryUpdateManyWithWhereWithoutSubscriptionInput | BillingHistoryUpdateManyWithWhereWithoutSubscriptionInput[]
-    deleteMany?: BillingHistoryScalarWhereInput | BillingHistoryScalarWhereInput[]
-  }
-
   export type SubscriptionInvoiceUpdateManyWithoutSubscriptionNestedInput = {
     create?: XOR<SubscriptionInvoiceCreateWithoutSubscriptionInput, SubscriptionInvoiceUncheckedCreateWithoutSubscriptionInput> | SubscriptionInvoiceCreateWithoutSubscriptionInput[] | SubscriptionInvoiceUncheckedCreateWithoutSubscriptionInput[]
     connectOrCreate?: SubscriptionInvoiceCreateOrConnectWithoutSubscriptionInput | SubscriptionInvoiceCreateOrConnectWithoutSubscriptionInput[]
@@ -63494,20 +59730,6 @@ export namespace Prisma {
     update?: SubscriptionInvoiceUpdateWithWhereUniqueWithoutSubscriptionInput | SubscriptionInvoiceUpdateWithWhereUniqueWithoutSubscriptionInput[]
     updateMany?: SubscriptionInvoiceUpdateManyWithWhereWithoutSubscriptionInput | SubscriptionInvoiceUpdateManyWithWhereWithoutSubscriptionInput[]
     deleteMany?: SubscriptionInvoiceScalarWhereInput | SubscriptionInvoiceScalarWhereInput[]
-  }
-
-  export type BillingHistoryUncheckedUpdateManyWithoutSubscriptionNestedInput = {
-    create?: XOR<BillingHistoryCreateWithoutSubscriptionInput, BillingHistoryUncheckedCreateWithoutSubscriptionInput> | BillingHistoryCreateWithoutSubscriptionInput[] | BillingHistoryUncheckedCreateWithoutSubscriptionInput[]
-    connectOrCreate?: BillingHistoryCreateOrConnectWithoutSubscriptionInput | BillingHistoryCreateOrConnectWithoutSubscriptionInput[]
-    upsert?: BillingHistoryUpsertWithWhereUniqueWithoutSubscriptionInput | BillingHistoryUpsertWithWhereUniqueWithoutSubscriptionInput[]
-    createMany?: BillingHistoryCreateManySubscriptionInputEnvelope
-    set?: BillingHistoryWhereUniqueInput | BillingHistoryWhereUniqueInput[]
-    disconnect?: BillingHistoryWhereUniqueInput | BillingHistoryWhereUniqueInput[]
-    delete?: BillingHistoryWhereUniqueInput | BillingHistoryWhereUniqueInput[]
-    connect?: BillingHistoryWhereUniqueInput | BillingHistoryWhereUniqueInput[]
-    update?: BillingHistoryUpdateWithWhereUniqueWithoutSubscriptionInput | BillingHistoryUpdateWithWhereUniqueWithoutSubscriptionInput[]
-    updateMany?: BillingHistoryUpdateManyWithWhereWithoutSubscriptionInput | BillingHistoryUpdateManyWithWhereWithoutSubscriptionInput[]
-    deleteMany?: BillingHistoryScalarWhereInput | BillingHistoryScalarWhereInput[]
   }
 
   export type SubscriptionInvoiceUncheckedUpdateManyWithoutSubscriptionNestedInput = {
@@ -63568,24 +59790,6 @@ export namespace Prisma {
     update?: SubscriptionUpdateWithWhereUniqueWithoutCouponInput | SubscriptionUpdateWithWhereUniqueWithoutCouponInput[]
     updateMany?: SubscriptionUpdateManyWithWhereWithoutCouponInput | SubscriptionUpdateManyWithWhereWithoutCouponInput[]
     deleteMany?: SubscriptionScalarWhereInput | SubscriptionScalarWhereInput[]
-  }
-
-  export type SubscriptionCreateNestedOneWithoutBillingHistoryInput = {
-    create?: XOR<SubscriptionCreateWithoutBillingHistoryInput, SubscriptionUncheckedCreateWithoutBillingHistoryInput>
-    connectOrCreate?: SubscriptionCreateOrConnectWithoutBillingHistoryInput
-    connect?: SubscriptionWhereUniqueInput
-  }
-
-  export type EnumPaymentStatusFieldUpdateOperationsInput = {
-    set?: $Enums.PaymentStatus
-  }
-
-  export type SubscriptionUpdateOneRequiredWithoutBillingHistoryNestedInput = {
-    create?: XOR<SubscriptionCreateWithoutBillingHistoryInput, SubscriptionUncheckedCreateWithoutBillingHistoryInput>
-    connectOrCreate?: SubscriptionCreateOrConnectWithoutBillingHistoryInput
-    upsert?: SubscriptionUpsertWithoutBillingHistoryInput
-    connect?: SubscriptionWhereUniqueInput
-    update?: XOR<XOR<SubscriptionUpdateToOneWithWhereWithoutBillingHistoryInput, SubscriptionUpdateWithoutBillingHistoryInput>, SubscriptionUncheckedUpdateWithoutBillingHistoryInput>
   }
 
   export type SubscriptionCreateNestedOneWithoutInvoicesInput = {
@@ -64328,37 +60532,6 @@ export namespace Prisma {
     set?: $Enums.SettingType
   }
 
-  export type AutomationRuleDefinitionCreateallowedChannelsInput = {
-    set: $Enums.NotificationChannel[]
-  }
-
-  export type AutomationRuleDefinitionCreateallowedAudiencesInput = {
-    set: string[]
-  }
-
-  export type AutomationRuleDefinitionCreatedefaultChannelsInput = {
-    set: $Enums.NotificationChannel[]
-  }
-
-  export type EnumAutomationTriggerFieldUpdateOperationsInput = {
-    set?: $Enums.AutomationTrigger
-  }
-
-  export type AutomationRuleDefinitionUpdateallowedChannelsInput = {
-    set?: $Enums.NotificationChannel[]
-    push?: $Enums.NotificationChannel | $Enums.NotificationChannel[]
-  }
-
-  export type AutomationRuleDefinitionUpdateallowedAudiencesInput = {
-    set?: string[]
-    push?: string | string[]
-  }
-
-  export type AutomationRuleDefinitionUpdatedefaultChannelsInput = {
-    set?: $Enums.NotificationChannel[]
-    push?: $Enums.NotificationChannel | $Enums.NotificationChannel[]
-  }
-
   export type EnumNotificationChannelFieldUpdateOperationsInput = {
     set?: $Enums.NotificationChannel
   }
@@ -64802,40 +60975,6 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
-  export type NestedEnumRoleFilter<$PrismaModel = never> = {
-    equals?: $Enums.Role | EnumRoleFieldRefInput<$PrismaModel>
-    in?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
-    notIn?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
-    not?: NestedEnumRoleFilter<$PrismaModel> | $Enums.Role
-  }
-
-  export type NestedEnumLegacyPlatformRoleNullableFilter<$PrismaModel = never> = {
-    equals?: $Enums.LegacyPlatformRole | EnumLegacyPlatformRoleFieldRefInput<$PrismaModel> | null
-    in?: $Enums.LegacyPlatformRole[] | ListEnumLegacyPlatformRoleFieldRefInput<$PrismaModel> | null
-    notIn?: $Enums.LegacyPlatformRole[] | ListEnumLegacyPlatformRoleFieldRefInput<$PrismaModel> | null
-    not?: NestedEnumLegacyPlatformRoleNullableFilter<$PrismaModel> | $Enums.LegacyPlatformRole | null
-  }
-
-  export type NestedEnumRoleWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.Role | EnumRoleFieldRefInput<$PrismaModel>
-    in?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
-    notIn?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
-    not?: NestedEnumRoleWithAggregatesFilter<$PrismaModel> | $Enums.Role
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumRoleFilter<$PrismaModel>
-    _max?: NestedEnumRoleFilter<$PrismaModel>
-  }
-
-  export type NestedEnumLegacyPlatformRoleNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.LegacyPlatformRole | EnumLegacyPlatformRoleFieldRefInput<$PrismaModel> | null
-    in?: $Enums.LegacyPlatformRole[] | ListEnumLegacyPlatformRoleFieldRefInput<$PrismaModel> | null
-    notIn?: $Enums.LegacyPlatformRole[] | ListEnumLegacyPlatformRoleFieldRefInput<$PrismaModel> | null
-    not?: NestedEnumLegacyPlatformRoleNullableWithAggregatesFilter<$PrismaModel> | $Enums.LegacyPlatformRole | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedEnumLegacyPlatformRoleNullableFilter<$PrismaModel>
-    _max?: NestedEnumLegacyPlatformRoleNullableFilter<$PrismaModel>
-  }
-
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -64895,29 +61034,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumPersonaFilter<$PrismaModel>
     _max?: NestedEnumPersonaFilter<$PrismaModel>
-  }
-  export type NestedJsonFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
-        Required<NestedJsonFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
-
-  export type NestedJsonFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type NestedEnumSubscriptionStatusFilter<$PrismaModel = never> = {
@@ -64996,23 +61112,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumDiscountTypeFilter<$PrismaModel>
     _max?: NestedEnumDiscountTypeFilter<$PrismaModel>
-  }
-
-  export type NestedEnumPaymentStatusFilter<$PrismaModel = never> = {
-    equals?: $Enums.PaymentStatus | EnumPaymentStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.PaymentStatus[] | ListEnumPaymentStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.PaymentStatus[] | ListEnumPaymentStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumPaymentStatusFilter<$PrismaModel> | $Enums.PaymentStatus
-  }
-
-  export type NestedEnumPaymentStatusWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.PaymentStatus | EnumPaymentStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.PaymentStatus[] | ListEnumPaymentStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.PaymentStatus[] | ListEnumPaymentStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumPaymentStatusWithAggregatesFilter<$PrismaModel> | $Enums.PaymentStatus
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumPaymentStatusFilter<$PrismaModel>
-    _max?: NestedEnumPaymentStatusFilter<$PrismaModel>
   }
 
   export type NestedEnumBillingInvoiceReasonFilter<$PrismaModel = never> = {
@@ -65282,22 +61381,28 @@ export namespace Prisma {
     _min?: NestedEnumSettingTypeFilter<$PrismaModel>
     _max?: NestedEnumSettingTypeFilter<$PrismaModel>
   }
+  export type NestedJsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
 
-  export type NestedEnumAutomationTriggerFilter<$PrismaModel = never> = {
-    equals?: $Enums.AutomationTrigger | EnumAutomationTriggerFieldRefInput<$PrismaModel>
-    in?: $Enums.AutomationTrigger[] | ListEnumAutomationTriggerFieldRefInput<$PrismaModel>
-    notIn?: $Enums.AutomationTrigger[] | ListEnumAutomationTriggerFieldRefInput<$PrismaModel>
-    not?: NestedEnumAutomationTriggerFilter<$PrismaModel> | $Enums.AutomationTrigger
-  }
-
-  export type NestedEnumAutomationTriggerWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.AutomationTrigger | EnumAutomationTriggerFieldRefInput<$PrismaModel>
-    in?: $Enums.AutomationTrigger[] | ListEnumAutomationTriggerFieldRefInput<$PrismaModel>
-    notIn?: $Enums.AutomationTrigger[] | ListEnumAutomationTriggerFieldRefInput<$PrismaModel>
-    not?: NestedEnumAutomationTriggerWithAggregatesFilter<$PrismaModel> | $Enums.AutomationTrigger
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumAutomationTriggerFilter<$PrismaModel>
-    _max?: NestedEnumAutomationTriggerFilter<$PrismaModel>
+  export type NestedJsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type NestedEnumNotificationChannelFilter<$PrismaModel = never> = {
@@ -65453,74 +61558,6 @@ export namespace Prisma {
     _max?: NestedEnumLedgerAccountTypeFilter<$PrismaModel>
   }
 
-  export type UserCreateWithoutSchoolInput = {
-    id?: string
-    email: string
-    passwordHash: string
-    role: $Enums.Role
-    platformRole?: $Enums.LegacyPlatformRole | null
-    firstName?: string | null
-    lastName?: string | null
-    phone?: string | null
-    photoUrl?: string | null
-    isActive?: boolean
-    isEmailVerified?: boolean
-    emailVerifiedAt?: Date | string | null
-    lastLoginAt?: Date | string | null
-    lastLoginIp?: string | null
-    failedLoginCount?: number
-    lockedUntil?: Date | string | null
-    passwordChangedAt?: Date | string | null
-    mustChangePassword?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    platformMember?: PlatformMemberCreateNestedOneWithoutUserInput
-    schools?: UserSchoolCreateNestedManyWithoutUserInput
-    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
-    otps?: OtpCreateNestedManyWithoutUserInput
-    invitesSent?: InviteCreateNestedManyWithoutSentByInput
-    feedback?: FeedbackCreateNestedManyWithoutUserInput
-  }
-
-  export type UserUncheckedCreateWithoutSchoolInput = {
-    id?: string
-    email: string
-    passwordHash: string
-    role: $Enums.Role
-    platformRole?: $Enums.LegacyPlatformRole | null
-    firstName?: string | null
-    lastName?: string | null
-    phone?: string | null
-    photoUrl?: string | null
-    isActive?: boolean
-    isEmailVerified?: boolean
-    emailVerifiedAt?: Date | string | null
-    lastLoginAt?: Date | string | null
-    lastLoginIp?: string | null
-    failedLoginCount?: number
-    lockedUntil?: Date | string | null
-    passwordChangedAt?: Date | string | null
-    mustChangePassword?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    platformMember?: PlatformMemberUncheckedCreateNestedOneWithoutUserInput
-    schools?: UserSchoolUncheckedCreateNestedManyWithoutUserInput
-    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
-    otps?: OtpUncheckedCreateNestedManyWithoutUserInput
-    invitesSent?: InviteUncheckedCreateNestedManyWithoutSentByInput
-    feedback?: FeedbackUncheckedCreateNestedManyWithoutUserInput
-  }
-
-  export type UserCreateOrConnectWithoutSchoolInput = {
-    where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutSchoolInput, UserUncheckedCreateWithoutSchoolInput>
-  }
-
-  export type UserCreateManySchoolInputEnvelope = {
-    data: UserCreateManySchoolInput | UserCreateManySchoolInput[]
-    skipDuplicates?: boolean
-  }
-
   export type UserSchoolCreateWithoutSchoolInput = {
     createdAt?: Date | string
     user: UserCreateNestedOneWithoutSchoolsInput
@@ -65552,14 +61589,8 @@ export namespace Prisma {
     cancelledAt?: Date | string | null
     discountedPriceKobo?: number | null
     autoRenew?: boolean
-    paystackAuthorizationCode?: string | null
-    paystackCustomerCode?: string | null
-    paystackSubscriptionCode?: string | null
     scheduledDowngradePlanId?: string | null
-    setupFeePaid?: boolean
-    setupFeePaidAt?: Date | string | null
     nextBillingDate?: Date | string | null
-    lastBillingAttemptAt?: Date | string | null
     failedBillingCount?: number
     paymentMethodId?: string | null
     billingAnchorDay?: number
@@ -65568,7 +61599,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     plan: PlanCreateNestedOneWithoutSubscriptionsInput
     coupon?: CouponCreateNestedOneWithoutSubscriptionsInput
-    billingHistory?: BillingHistoryCreateNestedManyWithoutSubscriptionInput
     invoices?: SubscriptionInvoiceCreateNestedManyWithoutSubscriptionInput
   }
 
@@ -65585,21 +61615,14 @@ export namespace Prisma {
     couponId?: string | null
     discountedPriceKobo?: number | null
     autoRenew?: boolean
-    paystackAuthorizationCode?: string | null
-    paystackCustomerCode?: string | null
-    paystackSubscriptionCode?: string | null
     scheduledDowngradePlanId?: string | null
-    setupFeePaid?: boolean
-    setupFeePaidAt?: Date | string | null
     nextBillingDate?: Date | string | null
-    lastBillingAttemptAt?: Date | string | null
     failedBillingCount?: number
     paymentMethodId?: string | null
     billingAnchorDay?: number
     lapsedPlanId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    billingHistory?: BillingHistoryUncheckedCreateNestedManyWithoutSubscriptionInput
     invoices?: SubscriptionInvoiceUncheckedCreateNestedManyWithoutSubscriptionInput
   }
 
@@ -65937,49 +61960,6 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type UserUpsertWithWhereUniqueWithoutSchoolInput = {
-    where: UserWhereUniqueInput
-    update: XOR<UserUpdateWithoutSchoolInput, UserUncheckedUpdateWithoutSchoolInput>
-    create: XOR<UserCreateWithoutSchoolInput, UserUncheckedCreateWithoutSchoolInput>
-  }
-
-  export type UserUpdateWithWhereUniqueWithoutSchoolInput = {
-    where: UserWhereUniqueInput
-    data: XOR<UserUpdateWithoutSchoolInput, UserUncheckedUpdateWithoutSchoolInput>
-  }
-
-  export type UserUpdateManyWithWhereWithoutSchoolInput = {
-    where: UserScalarWhereInput
-    data: XOR<UserUpdateManyMutationInput, UserUncheckedUpdateManyWithoutSchoolInput>
-  }
-
-  export type UserScalarWhereInput = {
-    AND?: UserScalarWhereInput | UserScalarWhereInput[]
-    OR?: UserScalarWhereInput[]
-    NOT?: UserScalarWhereInput | UserScalarWhereInput[]
-    id?: StringFilter<"User"> | string
-    schoolId?: StringNullableFilter<"User"> | string | null
-    email?: StringFilter<"User"> | string
-    passwordHash?: StringFilter<"User"> | string
-    role?: EnumRoleFilter<"User"> | $Enums.Role
-    platformRole?: EnumLegacyPlatformRoleNullableFilter<"User"> | $Enums.LegacyPlatformRole | null
-    firstName?: StringNullableFilter<"User"> | string | null
-    lastName?: StringNullableFilter<"User"> | string | null
-    phone?: StringNullableFilter<"User"> | string | null
-    photoUrl?: StringNullableFilter<"User"> | string | null
-    isActive?: BoolFilter<"User"> | boolean
-    isEmailVerified?: BoolFilter<"User"> | boolean
-    emailVerifiedAt?: DateTimeNullableFilter<"User"> | Date | string | null
-    lastLoginAt?: DateTimeNullableFilter<"User"> | Date | string | null
-    lastLoginIp?: StringNullableFilter<"User"> | string | null
-    failedLoginCount?: IntFilter<"User"> | number
-    lockedUntil?: DateTimeNullableFilter<"User"> | Date | string | null
-    passwordChangedAt?: DateTimeNullableFilter<"User"> | Date | string | null
-    mustChangePassword?: BoolFilter<"User"> | boolean
-    createdAt?: DateTimeFilter<"User"> | Date | string
-    updatedAt?: DateTimeFilter<"User"> | Date | string
-  }
-
   export type UserSchoolUpsertWithWhereUniqueWithoutSchoolInput = {
     where: UserSchoolWhereUniqueInput
     update: XOR<UserSchoolUpdateWithoutSchoolInput, UserSchoolUncheckedUpdateWithoutSchoolInput>
@@ -66038,14 +62018,8 @@ export namespace Prisma {
     couponId?: StringNullableFilter<"Subscription"> | string | null
     discountedPriceKobo?: IntNullableFilter<"Subscription"> | number | null
     autoRenew?: BoolFilter<"Subscription"> | boolean
-    paystackAuthorizationCode?: StringNullableFilter<"Subscription"> | string | null
-    paystackCustomerCode?: StringNullableFilter<"Subscription"> | string | null
-    paystackSubscriptionCode?: StringNullableFilter<"Subscription"> | string | null
     scheduledDowngradePlanId?: StringNullableFilter<"Subscription"> | string | null
-    setupFeePaid?: BoolFilter<"Subscription"> | boolean
-    setupFeePaidAt?: DateTimeNullableFilter<"Subscription"> | Date | string | null
     nextBillingDate?: DateTimeNullableFilter<"Subscription"> | Date | string | null
-    lastBillingAttemptAt?: DateTimeNullableFilter<"Subscription"> | Date | string | null
     failedBillingCount?: IntFilter<"Subscription"> | number
     paymentMethodId?: StringNullableFilter<"Subscription"> | string | null
     billingAnchorDay?: IntFilter<"Subscription"> | number
@@ -66356,7 +62330,6 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    users?: UserCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
     auditLogs?: AuditLogCreateNestedManyWithoutSchoolInput
@@ -66404,7 +62377,6 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolUncheckedCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutSchoolInput
@@ -66468,7 +62440,6 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    users?: UserUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
     auditLogs?: AuditLogUpdateManyWithoutSchoolNestedInput
@@ -66516,7 +62487,6 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUncheckedUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
@@ -66525,107 +62495,6 @@ export namespace Prisma {
     feedback?: FeedbackUncheckedUpdateManyWithoutSchoolNestedInput
     subscriptionInvoices?: SubscriptionInvoiceUncheckedUpdateManyWithoutSchoolNestedInput
     paymentMethods?: PaymentMethodUncheckedUpdateManyWithoutSchoolNestedInput
-  }
-
-  export type SchoolCreateWithoutUsersInput = {
-    id?: string
-    name: string
-    subdomain: string
-    customDomain?: string | null
-    customDomainVerifiedAt?: Date | string | null
-    email: string
-    phone?: string | null
-    website?: string | null
-    logoUrl?: string | null
-    address?: string | null
-    city?: string | null
-    state?: string | null
-    country?: string
-    timezone?: string
-    schoolCategory?: $Enums.SchoolCategory
-    schoolOwnership?: $Enums.SchoolOwnership
-    status?: $Enums.SchoolStatus
-    verificationStatus?: $Enums.VerificationStatus
-    verificationNote?: string | null
-    verifiedAt?: Date | string | null
-    verifiedById?: string | null
-    activatedAt?: Date | string | null
-    isActive?: boolean
-    suspendedAt?: Date | string | null
-    suspensionReason?: string | null
-    deletedAt?: Date | string | null
-    schemaName?: string | null
-    schemaProvisionedAt?: Date | string | null
-    paystackSubaccountCode?: string | null
-    paystackSubaccountId?: string | null
-    settlementBankCode?: string | null
-    settlementAccountNumber?: string | null
-    settlementAccountName?: string | null
-    settlementAccountLast4?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    userSchools?: UserSchoolCreateNestedManyWithoutSchoolInput
-    subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
-    documents?: SchoolDocumentCreateNestedManyWithoutSchoolInput
-    auditLogs?: AuditLogCreateNestedManyWithoutSchoolInput
-    platformNotificationRecipients?: PlatformNotificationRecipientCreateNestedManyWithoutSchoolInput
-    entitlementOverrides?: SchoolEntitlementOverrideCreateNestedManyWithoutSchoolInput
-    feedback?: FeedbackCreateNestedManyWithoutSchoolInput
-    subscriptionInvoices?: SubscriptionInvoiceCreateNestedManyWithoutSchoolInput
-    paymentMethods?: PaymentMethodCreateNestedManyWithoutSchoolInput
-  }
-
-  export type SchoolUncheckedCreateWithoutUsersInput = {
-    id?: string
-    name: string
-    subdomain: string
-    customDomain?: string | null
-    customDomainVerifiedAt?: Date | string | null
-    email: string
-    phone?: string | null
-    website?: string | null
-    logoUrl?: string | null
-    address?: string | null
-    city?: string | null
-    state?: string | null
-    country?: string
-    timezone?: string
-    schoolCategory?: $Enums.SchoolCategory
-    schoolOwnership?: $Enums.SchoolOwnership
-    status?: $Enums.SchoolStatus
-    verificationStatus?: $Enums.VerificationStatus
-    verificationNote?: string | null
-    verifiedAt?: Date | string | null
-    verifiedById?: string | null
-    activatedAt?: Date | string | null
-    isActive?: boolean
-    suspendedAt?: Date | string | null
-    suspensionReason?: string | null
-    deletedAt?: Date | string | null
-    schemaName?: string | null
-    schemaProvisionedAt?: Date | string | null
-    paystackSubaccountCode?: string | null
-    paystackSubaccountId?: string | null
-    settlementBankCode?: string | null
-    settlementAccountNumber?: string | null
-    settlementAccountName?: string | null
-    settlementAccountLast4?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    userSchools?: UserSchoolUncheckedCreateNestedManyWithoutSchoolInput
-    subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
-    documents?: SchoolDocumentUncheckedCreateNestedManyWithoutSchoolInput
-    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutSchoolInput
-    platformNotificationRecipients?: PlatformNotificationRecipientUncheckedCreateNestedManyWithoutSchoolInput
-    entitlementOverrides?: SchoolEntitlementOverrideUncheckedCreateNestedManyWithoutSchoolInput
-    feedback?: FeedbackUncheckedCreateNestedManyWithoutSchoolInput
-    subscriptionInvoices?: SubscriptionInvoiceUncheckedCreateNestedManyWithoutSchoolInput
-    paymentMethods?: PaymentMethodUncheckedCreateNestedManyWithoutSchoolInput
-  }
-
-  export type SchoolCreateOrConnectWithoutUsersInput = {
-    where: SchoolWhereUniqueInput
-    create: XOR<SchoolCreateWithoutUsersInput, SchoolUncheckedCreateWithoutUsersInput>
   }
 
   export type PlatformMemberCreateWithoutUserInput = {
@@ -66744,7 +62613,6 @@ export namespace Prisma {
   export type InviteCreateWithoutSentByInput = {
     id?: string
     email: string
-    role: $Enums.Role
     persona?: $Enums.Persona
     personaEntityId?: string | null
     roleId?: string | null
@@ -66761,7 +62629,6 @@ export namespace Prisma {
   export type InviteUncheckedCreateWithoutSentByInput = {
     id?: string
     email: string
-    role: $Enums.Role
     persona?: $Enums.Persona
     personaEntityId?: string | null
     roleId?: string | null
@@ -66817,113 +62684,6 @@ export namespace Prisma {
   export type FeedbackCreateManyUserInputEnvelope = {
     data: FeedbackCreateManyUserInput | FeedbackCreateManyUserInput[]
     skipDuplicates?: boolean
-  }
-
-  export type SchoolUpsertWithoutUsersInput = {
-    update: XOR<SchoolUpdateWithoutUsersInput, SchoolUncheckedUpdateWithoutUsersInput>
-    create: XOR<SchoolCreateWithoutUsersInput, SchoolUncheckedCreateWithoutUsersInput>
-    where?: SchoolWhereInput
-  }
-
-  export type SchoolUpdateToOneWithWhereWithoutUsersInput = {
-    where?: SchoolWhereInput
-    data: XOR<SchoolUpdateWithoutUsersInput, SchoolUncheckedUpdateWithoutUsersInput>
-  }
-
-  export type SchoolUpdateWithoutUsersInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    subdomain?: StringFieldUpdateOperationsInput | string
-    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
-    customDomainVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    email?: StringFieldUpdateOperationsInput | string
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
-    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: StringFieldUpdateOperationsInput | string
-    timezone?: StringFieldUpdateOperationsInput | string
-    schoolCategory?: EnumSchoolCategoryFieldUpdateOperationsInput | $Enums.SchoolCategory
-    schoolOwnership?: EnumSchoolOwnershipFieldUpdateOperationsInput | $Enums.SchoolOwnership
-    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
-    verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
-    verificationNote?: NullableStringFieldUpdateOperationsInput | string | null
-    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    verifiedById?: NullableStringFieldUpdateOperationsInput | string | null
-    activatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    schemaName?: NullableStringFieldUpdateOperationsInput | string | null
-    schemaProvisionedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    paystackSubaccountCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackSubaccountId?: NullableStringFieldUpdateOperationsInput | string | null
-    settlementBankCode?: NullableStringFieldUpdateOperationsInput | string | null
-    settlementAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
-    settlementAccountName?: NullableStringFieldUpdateOperationsInput | string | null
-    settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    userSchools?: UserSchoolUpdateManyWithoutSchoolNestedInput
-    subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
-    documents?: SchoolDocumentUpdateManyWithoutSchoolNestedInput
-    auditLogs?: AuditLogUpdateManyWithoutSchoolNestedInput
-    platformNotificationRecipients?: PlatformNotificationRecipientUpdateManyWithoutSchoolNestedInput
-    entitlementOverrides?: SchoolEntitlementOverrideUpdateManyWithoutSchoolNestedInput
-    feedback?: FeedbackUpdateManyWithoutSchoolNestedInput
-    subscriptionInvoices?: SubscriptionInvoiceUpdateManyWithoutSchoolNestedInput
-    paymentMethods?: PaymentMethodUpdateManyWithoutSchoolNestedInput
-  }
-
-  export type SchoolUncheckedUpdateWithoutUsersInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    subdomain?: StringFieldUpdateOperationsInput | string
-    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
-    customDomainVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    email?: StringFieldUpdateOperationsInput | string
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
-    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: StringFieldUpdateOperationsInput | string
-    timezone?: StringFieldUpdateOperationsInput | string
-    schoolCategory?: EnumSchoolCategoryFieldUpdateOperationsInput | $Enums.SchoolCategory
-    schoolOwnership?: EnumSchoolOwnershipFieldUpdateOperationsInput | $Enums.SchoolOwnership
-    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
-    verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
-    verificationNote?: NullableStringFieldUpdateOperationsInput | string | null
-    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    verifiedById?: NullableStringFieldUpdateOperationsInput | string | null
-    activatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    schemaName?: NullableStringFieldUpdateOperationsInput | string | null
-    schemaProvisionedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    paystackSubaccountCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackSubaccountId?: NullableStringFieldUpdateOperationsInput | string | null
-    settlementBankCode?: NullableStringFieldUpdateOperationsInput | string | null
-    settlementAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
-    settlementAccountName?: NullableStringFieldUpdateOperationsInput | string | null
-    settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    userSchools?: UserSchoolUncheckedUpdateManyWithoutSchoolNestedInput
-    subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
-    documents?: SchoolDocumentUncheckedUpdateManyWithoutSchoolNestedInput
-    auditLogs?: AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
-    platformNotificationRecipients?: PlatformNotificationRecipientUncheckedUpdateManyWithoutSchoolNestedInput
-    entitlementOverrides?: SchoolEntitlementOverrideUncheckedUpdateManyWithoutSchoolNestedInput
-    feedback?: FeedbackUncheckedUpdateManyWithoutSchoolNestedInput
-    subscriptionInvoices?: SubscriptionInvoiceUncheckedUpdateManyWithoutSchoolNestedInput
-    paymentMethods?: PaymentMethodUncheckedUpdateManyWithoutSchoolNestedInput
   }
 
   export type PlatformMemberUpsertWithoutUserInput = {
@@ -67057,7 +62817,6 @@ export namespace Prisma {
     NOT?: InviteScalarWhereInput | InviteScalarWhereInput[]
     id?: StringFilter<"Invite"> | string
     email?: StringFilter<"Invite"> | string
-    role?: EnumRoleFilter<"Invite"> | $Enums.Role
     persona?: EnumPersonaFilter<"Invite"> | $Enums.Persona
     personaEntityId?: StringNullableFilter<"Invite"> | string | null
     roleId?: StringNullableFilter<"Invite"> | string | null
@@ -67092,8 +62851,6 @@ export namespace Prisma {
     id?: string
     email: string
     passwordHash: string
-    role: $Enums.Role
-    platformRole?: $Enums.LegacyPlatformRole | null
     firstName?: string | null
     lastName?: string | null
     phone?: string | null
@@ -67109,7 +62866,6 @@ export namespace Prisma {
     mustChangePassword?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    school?: SchoolCreateNestedOneWithoutUsersInput
     platformMember?: PlatformMemberCreateNestedOneWithoutUserInput
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
     otps?: OtpCreateNestedManyWithoutUserInput
@@ -67119,11 +62875,8 @@ export namespace Prisma {
 
   export type UserUncheckedCreateWithoutSchoolsInput = {
     id?: string
-    schoolId?: string | null
     email: string
     passwordHash: string
-    role: $Enums.Role
-    platformRole?: $Enums.LegacyPlatformRole | null
     firstName?: string | null
     lastName?: string | null
     phone?: string | null
@@ -67188,7 +62941,6 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    users?: UserCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentCreateNestedManyWithoutSchoolInput
     auditLogs?: AuditLogCreateNestedManyWithoutSchoolInput
@@ -67236,7 +62988,6 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentUncheckedCreateNestedManyWithoutSchoolInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutSchoolInput
@@ -67267,8 +63018,6 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
-    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    platformRole?: NullableEnumLegacyPlatformRoleFieldUpdateOperationsInput | $Enums.LegacyPlatformRole | null
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -67284,7 +63033,6 @@ export namespace Prisma {
     mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    school?: SchoolUpdateOneWithoutUsersNestedInput
     platformMember?: PlatformMemberUpdateOneWithoutUserNestedInput
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
     otps?: OtpUpdateManyWithoutUserNestedInput
@@ -67294,11 +63042,8 @@ export namespace Prisma {
 
   export type UserUncheckedUpdateWithoutSchoolsInput = {
     id?: StringFieldUpdateOperationsInput | string
-    schoolId?: NullableStringFieldUpdateOperationsInput | string | null
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
-    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    platformRole?: NullableEnumLegacyPlatformRoleFieldUpdateOperationsInput | $Enums.LegacyPlatformRole | null
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -67369,7 +63114,6 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    users?: UserUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUpdateManyWithoutSchoolNestedInput
     auditLogs?: AuditLogUpdateManyWithoutSchoolNestedInput
@@ -67417,7 +63161,6 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUncheckedUpdateManyWithoutSchoolNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
@@ -67432,8 +63175,6 @@ export namespace Prisma {
     id?: string
     email: string
     passwordHash: string
-    role: $Enums.Role
-    platformRole?: $Enums.LegacyPlatformRole | null
     firstName?: string | null
     lastName?: string | null
     phone?: string | null
@@ -67449,7 +63190,6 @@ export namespace Prisma {
     mustChangePassword?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    school?: SchoolCreateNestedOneWithoutUsersInput
     platformMember?: PlatformMemberCreateNestedOneWithoutUserInput
     schools?: UserSchoolCreateNestedManyWithoutUserInput
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
@@ -67459,11 +63199,8 @@ export namespace Prisma {
 
   export type UserUncheckedCreateWithoutOtpsInput = {
     id?: string
-    schoolId?: string | null
     email: string
     passwordHash: string
-    role: $Enums.Role
-    platformRole?: $Enums.LegacyPlatformRole | null
     firstName?: string | null
     lastName?: string | null
     phone?: string | null
@@ -67506,8 +63243,6 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
-    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    platformRole?: NullableEnumLegacyPlatformRoleFieldUpdateOperationsInput | $Enums.LegacyPlatformRole | null
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -67523,7 +63258,6 @@ export namespace Prisma {
     mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    school?: SchoolUpdateOneWithoutUsersNestedInput
     platformMember?: PlatformMemberUpdateOneWithoutUserNestedInput
     schools?: UserSchoolUpdateManyWithoutUserNestedInput
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
@@ -67533,11 +63267,8 @@ export namespace Prisma {
 
   export type UserUncheckedUpdateWithoutOtpsInput = {
     id?: StringFieldUpdateOperationsInput | string
-    schoolId?: NullableStringFieldUpdateOperationsInput | string | null
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
-    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    platformRole?: NullableEnumLegacyPlatformRoleFieldUpdateOperationsInput | $Enums.LegacyPlatformRole | null
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -67564,8 +63295,6 @@ export namespace Prisma {
     id?: string
     email: string
     passwordHash: string
-    role: $Enums.Role
-    platformRole?: $Enums.LegacyPlatformRole | null
     firstName?: string | null
     lastName?: string | null
     phone?: string | null
@@ -67581,7 +63310,6 @@ export namespace Prisma {
     mustChangePassword?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    school?: SchoolCreateNestedOneWithoutUsersInput
     platformMember?: PlatformMemberCreateNestedOneWithoutUserInput
     schools?: UserSchoolCreateNestedManyWithoutUserInput
     otps?: OtpCreateNestedManyWithoutUserInput
@@ -67591,11 +63319,8 @@ export namespace Prisma {
 
   export type UserUncheckedCreateWithoutRefreshTokensInput = {
     id?: string
-    schoolId?: string | null
     email: string
     passwordHash: string
-    role: $Enums.Role
-    platformRole?: $Enums.LegacyPlatformRole | null
     firstName?: string | null
     lastName?: string | null
     phone?: string | null
@@ -67638,8 +63363,6 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
-    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    platformRole?: NullableEnumLegacyPlatformRoleFieldUpdateOperationsInput | $Enums.LegacyPlatformRole | null
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -67655,7 +63378,6 @@ export namespace Prisma {
     mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    school?: SchoolUpdateOneWithoutUsersNestedInput
     platformMember?: PlatformMemberUpdateOneWithoutUserNestedInput
     schools?: UserSchoolUpdateManyWithoutUserNestedInput
     otps?: OtpUpdateManyWithoutUserNestedInput
@@ -67665,11 +63387,8 @@ export namespace Prisma {
 
   export type UserUncheckedUpdateWithoutRefreshTokensInput = {
     id?: StringFieldUpdateOperationsInput | string
-    schoolId?: NullableStringFieldUpdateOperationsInput | string | null
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
-    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    platformRole?: NullableEnumLegacyPlatformRoleFieldUpdateOperationsInput | $Enums.LegacyPlatformRole | null
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -67696,8 +63415,6 @@ export namespace Prisma {
     id?: string
     email: string
     passwordHash: string
-    role: $Enums.Role
-    platformRole?: $Enums.LegacyPlatformRole | null
     firstName?: string | null
     lastName?: string | null
     phone?: string | null
@@ -67713,7 +63430,6 @@ export namespace Prisma {
     mustChangePassword?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    school?: SchoolCreateNestedOneWithoutUsersInput
     platformMember?: PlatformMemberCreateNestedOneWithoutUserInput
     schools?: UserSchoolCreateNestedManyWithoutUserInput
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
@@ -67723,11 +63439,8 @@ export namespace Prisma {
 
   export type UserUncheckedCreateWithoutInvitesSentInput = {
     id?: string
-    schoolId?: string | null
     email: string
     passwordHash: string
-    role: $Enums.Role
-    platformRole?: $Enums.LegacyPlatformRole | null
     firstName?: string | null
     lastName?: string | null
     phone?: string | null
@@ -67770,8 +63483,6 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
-    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    platformRole?: NullableEnumLegacyPlatformRoleFieldUpdateOperationsInput | $Enums.LegacyPlatformRole | null
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -67787,7 +63498,6 @@ export namespace Prisma {
     mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    school?: SchoolUpdateOneWithoutUsersNestedInput
     platformMember?: PlatformMemberUpdateOneWithoutUserNestedInput
     schools?: UserSchoolUpdateManyWithoutUserNestedInput
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
@@ -67797,11 +63507,8 @@ export namespace Prisma {
 
   export type UserUncheckedUpdateWithoutInvitesSentInput = {
     id?: StringFieldUpdateOperationsInput | string
-    schoolId?: NullableStringFieldUpdateOperationsInput | string | null
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
-    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    platformRole?: NullableEnumLegacyPlatformRoleFieldUpdateOperationsInput | $Enums.LegacyPlatformRole | null
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -67835,14 +63542,8 @@ export namespace Prisma {
     cancelledAt?: Date | string | null
     discountedPriceKobo?: number | null
     autoRenew?: boolean
-    paystackAuthorizationCode?: string | null
-    paystackCustomerCode?: string | null
-    paystackSubscriptionCode?: string | null
     scheduledDowngradePlanId?: string | null
-    setupFeePaid?: boolean
-    setupFeePaidAt?: Date | string | null
     nextBillingDate?: Date | string | null
-    lastBillingAttemptAt?: Date | string | null
     failedBillingCount?: number
     paymentMethodId?: string | null
     billingAnchorDay?: number
@@ -67851,7 +63552,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     school: SchoolCreateNestedOneWithoutSubscriptionsInput
     coupon?: CouponCreateNestedOneWithoutSubscriptionsInput
-    billingHistory?: BillingHistoryCreateNestedManyWithoutSubscriptionInput
     invoices?: SubscriptionInvoiceCreateNestedManyWithoutSubscriptionInput
   }
 
@@ -67868,21 +63568,14 @@ export namespace Prisma {
     couponId?: string | null
     discountedPriceKobo?: number | null
     autoRenew?: boolean
-    paystackAuthorizationCode?: string | null
-    paystackCustomerCode?: string | null
-    paystackSubscriptionCode?: string | null
     scheduledDowngradePlanId?: string | null
-    setupFeePaid?: boolean
-    setupFeePaidAt?: Date | string | null
     nextBillingDate?: Date | string | null
-    lastBillingAttemptAt?: Date | string | null
     failedBillingCount?: number
     paymentMethodId?: string | null
     billingAnchorDay?: number
     lapsedPlanId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    billingHistory?: BillingHistoryUncheckedCreateNestedManyWithoutSubscriptionInput
     invoices?: SubscriptionInvoiceUncheckedCreateNestedManyWithoutSubscriptionInput
   }
 
@@ -68088,7 +63781,6 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    users?: UserCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentCreateNestedManyWithoutSchoolInput
     auditLogs?: AuditLogCreateNestedManyWithoutSchoolInput
@@ -68136,7 +63828,6 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolUncheckedCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentUncheckedCreateNestedManyWithoutSchoolInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutSchoolInput
@@ -68157,9 +63848,6 @@ export namespace Prisma {
     name: string
     systemKey?: string | null
     description?: string | null
-    studentLimit?: number
-    staffLimit?: number
-    features?: JsonNullValueInput | InputJsonValue
     monthlyPriceKobo?: number
     yearlyPriceKobo?: number
     setupFeeKobo?: number
@@ -68177,9 +63865,6 @@ export namespace Prisma {
     name: string
     systemKey?: string | null
     description?: string | null
-    studentLimit?: number
-    staffLimit?: number
-    features?: JsonNullValueInput | InputJsonValue
     monthlyPriceKobo?: number
     yearlyPriceKobo?: number
     setupFeeKobo?: number
@@ -68230,38 +63915,6 @@ export namespace Prisma {
   export type CouponCreateOrConnectWithoutSubscriptionsInput = {
     where: CouponWhereUniqueInput
     create: XOR<CouponCreateWithoutSubscriptionsInput, CouponUncheckedCreateWithoutSubscriptionsInput>
-  }
-
-  export type BillingHistoryCreateWithoutSubscriptionInput = {
-    id?: string
-    amountKobo: number
-    status?: $Enums.PaymentStatus
-    billingCycle: $Enums.BillingCycle
-    paystackReference?: string | null
-    paidAt?: Date | string | null
-    failureReason?: string | null
-    createdAt?: Date | string
-  }
-
-  export type BillingHistoryUncheckedCreateWithoutSubscriptionInput = {
-    id?: string
-    amountKobo: number
-    status?: $Enums.PaymentStatus
-    billingCycle: $Enums.BillingCycle
-    paystackReference?: string | null
-    paidAt?: Date | string | null
-    failureReason?: string | null
-    createdAt?: Date | string
-  }
-
-  export type BillingHistoryCreateOrConnectWithoutSubscriptionInput = {
-    where: BillingHistoryWhereUniqueInput
-    create: XOR<BillingHistoryCreateWithoutSubscriptionInput, BillingHistoryUncheckedCreateWithoutSubscriptionInput>
-  }
-
-  export type BillingHistoryCreateManySubscriptionInputEnvelope = {
-    data: BillingHistoryCreateManySubscriptionInput | BillingHistoryCreateManySubscriptionInput[]
-    skipDuplicates?: boolean
   }
 
   export type SubscriptionInvoiceCreateWithoutSubscriptionInput = {
@@ -68384,7 +64037,6 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    users?: UserUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUpdateManyWithoutSchoolNestedInput
     auditLogs?: AuditLogUpdateManyWithoutSchoolNestedInput
@@ -68432,7 +64084,6 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUncheckedUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUncheckedUpdateManyWithoutSchoolNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
@@ -68459,9 +64110,6 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     systemKey?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    studentLimit?: IntFieldUpdateOperationsInput | number
-    staffLimit?: IntFieldUpdateOperationsInput | number
-    features?: JsonNullValueInput | InputJsonValue
     monthlyPriceKobo?: IntFieldUpdateOperationsInput | number
     yearlyPriceKobo?: IntFieldUpdateOperationsInput | number
     setupFeeKobo?: IntFieldUpdateOperationsInput | number
@@ -68479,9 +64127,6 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     systemKey?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    studentLimit?: IntFieldUpdateOperationsInput | number
-    staffLimit?: IntFieldUpdateOperationsInput | number
-    features?: JsonNullValueInput | InputJsonValue
     monthlyPriceKobo?: IntFieldUpdateOperationsInput | number
     yearlyPriceKobo?: IntFieldUpdateOperationsInput | number
     setupFeeKobo?: IntFieldUpdateOperationsInput | number
@@ -68535,37 +64180,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type BillingHistoryUpsertWithWhereUniqueWithoutSubscriptionInput = {
-    where: BillingHistoryWhereUniqueInput
-    update: XOR<BillingHistoryUpdateWithoutSubscriptionInput, BillingHistoryUncheckedUpdateWithoutSubscriptionInput>
-    create: XOR<BillingHistoryCreateWithoutSubscriptionInput, BillingHistoryUncheckedCreateWithoutSubscriptionInput>
-  }
-
-  export type BillingHistoryUpdateWithWhereUniqueWithoutSubscriptionInput = {
-    where: BillingHistoryWhereUniqueInput
-    data: XOR<BillingHistoryUpdateWithoutSubscriptionInput, BillingHistoryUncheckedUpdateWithoutSubscriptionInput>
-  }
-
-  export type BillingHistoryUpdateManyWithWhereWithoutSubscriptionInput = {
-    where: BillingHistoryScalarWhereInput
-    data: XOR<BillingHistoryUpdateManyMutationInput, BillingHistoryUncheckedUpdateManyWithoutSubscriptionInput>
-  }
-
-  export type BillingHistoryScalarWhereInput = {
-    AND?: BillingHistoryScalarWhereInput | BillingHistoryScalarWhereInput[]
-    OR?: BillingHistoryScalarWhereInput[]
-    NOT?: BillingHistoryScalarWhereInput | BillingHistoryScalarWhereInput[]
-    id?: StringFilter<"BillingHistory"> | string
-    subscriptionId?: StringFilter<"BillingHistory"> | string
-    amountKobo?: IntFilter<"BillingHistory"> | number
-    status?: EnumPaymentStatusFilter<"BillingHistory"> | $Enums.PaymentStatus
-    billingCycle?: EnumBillingCycleFilter<"BillingHistory"> | $Enums.BillingCycle
-    paystackReference?: StringNullableFilter<"BillingHistory"> | string | null
-    paidAt?: DateTimeNullableFilter<"BillingHistory"> | Date | string | null
-    failureReason?: StringNullableFilter<"BillingHistory"> | string | null
-    createdAt?: DateTimeFilter<"BillingHistory"> | Date | string
-  }
-
   export type SubscriptionInvoiceUpsertWithWhereUniqueWithoutSubscriptionInput = {
     where: SubscriptionInvoiceWhereUniqueInput
     update: XOR<SubscriptionInvoiceUpdateWithoutSubscriptionInput, SubscriptionInvoiceUncheckedUpdateWithoutSubscriptionInput>
@@ -68593,14 +64207,8 @@ export namespace Prisma {
     cancelledAt?: Date | string | null
     discountedPriceKobo?: number | null
     autoRenew?: boolean
-    paystackAuthorizationCode?: string | null
-    paystackCustomerCode?: string | null
-    paystackSubscriptionCode?: string | null
     scheduledDowngradePlanId?: string | null
-    setupFeePaid?: boolean
-    setupFeePaidAt?: Date | string | null
     nextBillingDate?: Date | string | null
-    lastBillingAttemptAt?: Date | string | null
     failedBillingCount?: number
     paymentMethodId?: string | null
     billingAnchorDay?: number
@@ -68609,7 +64217,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     school: SchoolCreateNestedOneWithoutSubscriptionsInput
     plan: PlanCreateNestedOneWithoutSubscriptionsInput
-    billingHistory?: BillingHistoryCreateNestedManyWithoutSubscriptionInput
     invoices?: SubscriptionInvoiceCreateNestedManyWithoutSubscriptionInput
   }
 
@@ -68626,21 +64233,14 @@ export namespace Prisma {
     cancelledAt?: Date | string | null
     discountedPriceKobo?: number | null
     autoRenew?: boolean
-    paystackAuthorizationCode?: string | null
-    paystackCustomerCode?: string | null
-    paystackSubscriptionCode?: string | null
     scheduledDowngradePlanId?: string | null
-    setupFeePaid?: boolean
-    setupFeePaidAt?: Date | string | null
     nextBillingDate?: Date | string | null
-    lastBillingAttemptAt?: Date | string | null
     failedBillingCount?: number
     paymentMethodId?: string | null
     billingAnchorDay?: number
     lapsedPlanId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    billingHistory?: BillingHistoryUncheckedCreateNestedManyWithoutSubscriptionInput
     invoices?: SubscriptionInvoiceUncheckedCreateNestedManyWithoutSubscriptionInput
   }
 
@@ -68670,146 +64270,6 @@ export namespace Prisma {
     data: XOR<SubscriptionUpdateManyMutationInput, SubscriptionUncheckedUpdateManyWithoutCouponInput>
   }
 
-  export type SubscriptionCreateWithoutBillingHistoryInput = {
-    id?: string
-    status?: $Enums.SubscriptionStatus
-    billingCycle?: $Enums.BillingCycle
-    currentPeriodStart: Date | string
-    currentPeriodEnd: Date | string
-    trialEndsAt?: Date | string | null
-    cancelAtPeriodEnd?: boolean
-    cancelledAt?: Date | string | null
-    discountedPriceKobo?: number | null
-    autoRenew?: boolean
-    paystackAuthorizationCode?: string | null
-    paystackCustomerCode?: string | null
-    paystackSubscriptionCode?: string | null
-    scheduledDowngradePlanId?: string | null
-    setupFeePaid?: boolean
-    setupFeePaidAt?: Date | string | null
-    nextBillingDate?: Date | string | null
-    lastBillingAttemptAt?: Date | string | null
-    failedBillingCount?: number
-    paymentMethodId?: string | null
-    billingAnchorDay?: number
-    lapsedPlanId?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    school: SchoolCreateNestedOneWithoutSubscriptionsInput
-    plan: PlanCreateNestedOneWithoutSubscriptionsInput
-    coupon?: CouponCreateNestedOneWithoutSubscriptionsInput
-    invoices?: SubscriptionInvoiceCreateNestedManyWithoutSubscriptionInput
-  }
-
-  export type SubscriptionUncheckedCreateWithoutBillingHistoryInput = {
-    id?: string
-    schoolId: string
-    planId: string
-    status?: $Enums.SubscriptionStatus
-    billingCycle?: $Enums.BillingCycle
-    currentPeriodStart: Date | string
-    currentPeriodEnd: Date | string
-    trialEndsAt?: Date | string | null
-    cancelAtPeriodEnd?: boolean
-    cancelledAt?: Date | string | null
-    couponId?: string | null
-    discountedPriceKobo?: number | null
-    autoRenew?: boolean
-    paystackAuthorizationCode?: string | null
-    paystackCustomerCode?: string | null
-    paystackSubscriptionCode?: string | null
-    scheduledDowngradePlanId?: string | null
-    setupFeePaid?: boolean
-    setupFeePaidAt?: Date | string | null
-    nextBillingDate?: Date | string | null
-    lastBillingAttemptAt?: Date | string | null
-    failedBillingCount?: number
-    paymentMethodId?: string | null
-    billingAnchorDay?: number
-    lapsedPlanId?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    invoices?: SubscriptionInvoiceUncheckedCreateNestedManyWithoutSubscriptionInput
-  }
-
-  export type SubscriptionCreateOrConnectWithoutBillingHistoryInput = {
-    where: SubscriptionWhereUniqueInput
-    create: XOR<SubscriptionCreateWithoutBillingHistoryInput, SubscriptionUncheckedCreateWithoutBillingHistoryInput>
-  }
-
-  export type SubscriptionUpsertWithoutBillingHistoryInput = {
-    update: XOR<SubscriptionUpdateWithoutBillingHistoryInput, SubscriptionUncheckedUpdateWithoutBillingHistoryInput>
-    create: XOR<SubscriptionCreateWithoutBillingHistoryInput, SubscriptionUncheckedCreateWithoutBillingHistoryInput>
-    where?: SubscriptionWhereInput
-  }
-
-  export type SubscriptionUpdateToOneWithWhereWithoutBillingHistoryInput = {
-    where?: SubscriptionWhereInput
-    data: XOR<SubscriptionUpdateWithoutBillingHistoryInput, SubscriptionUncheckedUpdateWithoutBillingHistoryInput>
-  }
-
-  export type SubscriptionUpdateWithoutBillingHistoryInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    status?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
-    billingCycle?: EnumBillingCycleFieldUpdateOperationsInput | $Enums.BillingCycle
-    currentPeriodStart?: DateTimeFieldUpdateOperationsInput | Date | string
-    currentPeriodEnd?: DateTimeFieldUpdateOperationsInput | Date | string
-    trialEndsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    cancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
-    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    discountedPriceKobo?: NullableIntFieldUpdateOperationsInput | number | null
-    autoRenew?: BoolFieldUpdateOperationsInput | boolean
-    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
-    scheduledDowngradePlanId?: NullableStringFieldUpdateOperationsInput | string | null
-    setupFeePaid?: BoolFieldUpdateOperationsInput | boolean
-    setupFeePaidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    nextBillingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastBillingAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    failedBillingCount?: IntFieldUpdateOperationsInput | number
-    paymentMethodId?: NullableStringFieldUpdateOperationsInput | string | null
-    billingAnchorDay?: IntFieldUpdateOperationsInput | number
-    lapsedPlanId?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    school?: SchoolUpdateOneRequiredWithoutSubscriptionsNestedInput
-    plan?: PlanUpdateOneRequiredWithoutSubscriptionsNestedInput
-    coupon?: CouponUpdateOneWithoutSubscriptionsNestedInput
-    invoices?: SubscriptionInvoiceUpdateManyWithoutSubscriptionNestedInput
-  }
-
-  export type SubscriptionUncheckedUpdateWithoutBillingHistoryInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    schoolId?: StringFieldUpdateOperationsInput | string
-    planId?: StringFieldUpdateOperationsInput | string
-    status?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
-    billingCycle?: EnumBillingCycleFieldUpdateOperationsInput | $Enums.BillingCycle
-    currentPeriodStart?: DateTimeFieldUpdateOperationsInput | Date | string
-    currentPeriodEnd?: DateTimeFieldUpdateOperationsInput | Date | string
-    trialEndsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    cancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
-    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    couponId?: NullableStringFieldUpdateOperationsInput | string | null
-    discountedPriceKobo?: NullableIntFieldUpdateOperationsInput | number | null
-    autoRenew?: BoolFieldUpdateOperationsInput | boolean
-    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
-    scheduledDowngradePlanId?: NullableStringFieldUpdateOperationsInput | string | null
-    setupFeePaid?: BoolFieldUpdateOperationsInput | boolean
-    setupFeePaidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    nextBillingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastBillingAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    failedBillingCount?: IntFieldUpdateOperationsInput | number
-    paymentMethodId?: NullableStringFieldUpdateOperationsInput | string | null
-    billingAnchorDay?: IntFieldUpdateOperationsInput | number
-    lapsedPlanId?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    invoices?: SubscriptionInvoiceUncheckedUpdateManyWithoutSubscriptionNestedInput
-  }
-
   export type SubscriptionCreateWithoutInvoicesInput = {
     id?: string
     status?: $Enums.SubscriptionStatus
@@ -68821,14 +64281,8 @@ export namespace Prisma {
     cancelledAt?: Date | string | null
     discountedPriceKobo?: number | null
     autoRenew?: boolean
-    paystackAuthorizationCode?: string | null
-    paystackCustomerCode?: string | null
-    paystackSubscriptionCode?: string | null
     scheduledDowngradePlanId?: string | null
-    setupFeePaid?: boolean
-    setupFeePaidAt?: Date | string | null
     nextBillingDate?: Date | string | null
-    lastBillingAttemptAt?: Date | string | null
     failedBillingCount?: number
     paymentMethodId?: string | null
     billingAnchorDay?: number
@@ -68838,7 +64292,6 @@ export namespace Prisma {
     school: SchoolCreateNestedOneWithoutSubscriptionsInput
     plan: PlanCreateNestedOneWithoutSubscriptionsInput
     coupon?: CouponCreateNestedOneWithoutSubscriptionsInput
-    billingHistory?: BillingHistoryCreateNestedManyWithoutSubscriptionInput
   }
 
   export type SubscriptionUncheckedCreateWithoutInvoicesInput = {
@@ -68855,21 +64308,14 @@ export namespace Prisma {
     couponId?: string | null
     discountedPriceKobo?: number | null
     autoRenew?: boolean
-    paystackAuthorizationCode?: string | null
-    paystackCustomerCode?: string | null
-    paystackSubscriptionCode?: string | null
     scheduledDowngradePlanId?: string | null
-    setupFeePaid?: boolean
-    setupFeePaidAt?: Date | string | null
     nextBillingDate?: Date | string | null
-    lastBillingAttemptAt?: Date | string | null
     failedBillingCount?: number
     paymentMethodId?: string | null
     billingAnchorDay?: number
     lapsedPlanId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    billingHistory?: BillingHistoryUncheckedCreateNestedManyWithoutSubscriptionInput
   }
 
   export type SubscriptionCreateOrConnectWithoutInvoicesInput = {
@@ -68914,7 +64360,6 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    users?: UserCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentCreateNestedManyWithoutSchoolInput
@@ -68962,7 +64407,6 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolUncheckedCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentUncheckedCreateNestedManyWithoutSchoolInput
@@ -68983,9 +64427,6 @@ export namespace Prisma {
     name: string
     systemKey?: string | null
     description?: string | null
-    studentLimit?: number
-    staffLimit?: number
-    features?: JsonNullValueInput | InputJsonValue
     monthlyPriceKobo?: number
     yearlyPriceKobo?: number
     setupFeeKobo?: number
@@ -69003,9 +64444,6 @@ export namespace Prisma {
     name: string
     systemKey?: string | null
     description?: string | null
-    studentLimit?: number
-    staffLimit?: number
-    features?: JsonNullValueInput | InputJsonValue
     monthlyPriceKobo?: number
     yearlyPriceKobo?: number
     setupFeeKobo?: number
@@ -69107,14 +64545,8 @@ export namespace Prisma {
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     discountedPriceKobo?: NullableIntFieldUpdateOperationsInput | number | null
     autoRenew?: BoolFieldUpdateOperationsInput | boolean
-    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     scheduledDowngradePlanId?: NullableStringFieldUpdateOperationsInput | string | null
-    setupFeePaid?: BoolFieldUpdateOperationsInput | boolean
-    setupFeePaidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextBillingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastBillingAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     failedBillingCount?: IntFieldUpdateOperationsInput | number
     paymentMethodId?: NullableStringFieldUpdateOperationsInput | string | null
     billingAnchorDay?: IntFieldUpdateOperationsInput | number
@@ -69124,7 +64556,6 @@ export namespace Prisma {
     school?: SchoolUpdateOneRequiredWithoutSubscriptionsNestedInput
     plan?: PlanUpdateOneRequiredWithoutSubscriptionsNestedInput
     coupon?: CouponUpdateOneWithoutSubscriptionsNestedInput
-    billingHistory?: BillingHistoryUpdateManyWithoutSubscriptionNestedInput
   }
 
   export type SubscriptionUncheckedUpdateWithoutInvoicesInput = {
@@ -69141,21 +64572,14 @@ export namespace Prisma {
     couponId?: NullableStringFieldUpdateOperationsInput | string | null
     discountedPriceKobo?: NullableIntFieldUpdateOperationsInput | number | null
     autoRenew?: BoolFieldUpdateOperationsInput | boolean
-    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     scheduledDowngradePlanId?: NullableStringFieldUpdateOperationsInput | string | null
-    setupFeePaid?: BoolFieldUpdateOperationsInput | boolean
-    setupFeePaidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextBillingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastBillingAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     failedBillingCount?: IntFieldUpdateOperationsInput | number
     paymentMethodId?: NullableStringFieldUpdateOperationsInput | string | null
     billingAnchorDay?: IntFieldUpdateOperationsInput | number
     lapsedPlanId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    billingHistory?: BillingHistoryUncheckedUpdateManyWithoutSubscriptionNestedInput
   }
 
   export type SchoolUpsertWithoutSubscriptionInvoicesInput = {
@@ -69206,7 +64630,6 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    users?: UserUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUpdateManyWithoutSchoolNestedInput
@@ -69254,7 +64677,6 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUncheckedUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUncheckedUpdateManyWithoutSchoolNestedInput
@@ -69281,9 +64703,6 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     systemKey?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    studentLimit?: IntFieldUpdateOperationsInput | number
-    staffLimit?: IntFieldUpdateOperationsInput | number
-    features?: JsonNullValueInput | InputJsonValue
     monthlyPriceKobo?: IntFieldUpdateOperationsInput | number
     yearlyPriceKobo?: IntFieldUpdateOperationsInput | number
     setupFeeKobo?: IntFieldUpdateOperationsInput | number
@@ -69301,9 +64720,6 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     systemKey?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    studentLimit?: IntFieldUpdateOperationsInput | number
-    staffLimit?: IntFieldUpdateOperationsInput | number
-    features?: JsonNullValueInput | InputJsonValue
     monthlyPriceKobo?: IntFieldUpdateOperationsInput | number
     yearlyPriceKobo?: IntFieldUpdateOperationsInput | number
     setupFeeKobo?: IntFieldUpdateOperationsInput | number
@@ -69694,7 +65110,6 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    users?: UserCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentCreateNestedManyWithoutSchoolInput
@@ -69742,7 +65157,6 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolUncheckedCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentUncheckedCreateNestedManyWithoutSchoolInput
@@ -69806,7 +65220,6 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    users?: UserUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUpdateManyWithoutSchoolNestedInput
@@ -69854,7 +65267,6 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUncheckedUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUncheckedUpdateManyWithoutSchoolNestedInput
@@ -70115,8 +65527,6 @@ export namespace Prisma {
     id?: string
     email: string
     passwordHash: string
-    role: $Enums.Role
-    platformRole?: $Enums.LegacyPlatformRole | null
     firstName?: string | null
     lastName?: string | null
     phone?: string | null
@@ -70132,7 +65542,6 @@ export namespace Prisma {
     mustChangePassword?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    school?: SchoolCreateNestedOneWithoutUsersInput
     schools?: UserSchoolCreateNestedManyWithoutUserInput
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
     otps?: OtpCreateNestedManyWithoutUserInput
@@ -70142,11 +65551,8 @@ export namespace Prisma {
 
   export type UserUncheckedCreateWithoutPlatformMemberInput = {
     id?: string
-    schoolId?: string | null
     email: string
     passwordHash: string
-    role: $Enums.Role
-    platformRole?: $Enums.LegacyPlatformRole | null
     firstName?: string | null
     lastName?: string | null
     phone?: string | null
@@ -70211,8 +65617,6 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
-    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    platformRole?: NullableEnumLegacyPlatformRoleFieldUpdateOperationsInput | $Enums.LegacyPlatformRole | null
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -70228,7 +65632,6 @@ export namespace Prisma {
     mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    school?: SchoolUpdateOneWithoutUsersNestedInput
     schools?: UserSchoolUpdateManyWithoutUserNestedInput
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
     otps?: OtpUpdateManyWithoutUserNestedInput
@@ -70238,11 +65641,8 @@ export namespace Prisma {
 
   export type UserUncheckedUpdateWithoutPlatformMemberInput = {
     id?: StringFieldUpdateOperationsInput | string
-    schoolId?: NullableStringFieldUpdateOperationsInput | string | null
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
-    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    platformRole?: NullableEnumLegacyPlatformRoleFieldUpdateOperationsInput | $Enums.LegacyPlatformRole | null
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -70781,9 +66181,6 @@ export namespace Prisma {
     name: string
     systemKey?: string | null
     description?: string | null
-    studentLimit?: number
-    staffLimit?: number
-    features?: JsonNullValueInput | InputJsonValue
     monthlyPriceKobo?: number
     yearlyPriceKobo?: number
     setupFeeKobo?: number
@@ -70801,9 +66198,6 @@ export namespace Prisma {
     name: string
     systemKey?: string | null
     description?: string | null
-    studentLimit?: number
-    staffLimit?: number
-    features?: JsonNullValueInput | InputJsonValue
     monthlyPriceKobo?: number
     yearlyPriceKobo?: number
     setupFeeKobo?: number
@@ -70876,9 +66270,6 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     systemKey?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    studentLimit?: IntFieldUpdateOperationsInput | number
-    staffLimit?: IntFieldUpdateOperationsInput | number
-    features?: JsonNullValueInput | InputJsonValue
     monthlyPriceKobo?: IntFieldUpdateOperationsInput | number
     yearlyPriceKobo?: IntFieldUpdateOperationsInput | number
     setupFeeKobo?: IntFieldUpdateOperationsInput | number
@@ -70896,9 +66287,6 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     systemKey?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    studentLimit?: IntFieldUpdateOperationsInput | number
-    staffLimit?: IntFieldUpdateOperationsInput | number
-    features?: JsonNullValueInput | InputJsonValue
     monthlyPriceKobo?: IntFieldUpdateOperationsInput | number
     yearlyPriceKobo?: IntFieldUpdateOperationsInput | number
     setupFeeKobo?: IntFieldUpdateOperationsInput | number
@@ -70993,7 +66381,6 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    users?: UserCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentCreateNestedManyWithoutSchoolInput
@@ -71041,7 +66428,6 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolUncheckedCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentUncheckedCreateNestedManyWithoutSchoolInput
@@ -71144,7 +66530,6 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    users?: UserUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUpdateManyWithoutSchoolNestedInput
@@ -71192,7 +66577,6 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUncheckedUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUncheckedUpdateManyWithoutSchoolNestedInput
@@ -71285,7 +66669,6 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    users?: UserCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentCreateNestedManyWithoutSchoolInput
@@ -71333,7 +66716,6 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolUncheckedCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentUncheckedCreateNestedManyWithoutSchoolInput
@@ -71397,7 +66779,6 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    users?: UserUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUpdateManyWithoutSchoolNestedInput
@@ -71445,7 +66826,6 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUncheckedUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUncheckedUpdateManyWithoutSchoolNestedInput
@@ -71592,7 +66972,6 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    users?: UserCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentCreateNestedManyWithoutSchoolInput
@@ -71640,7 +67019,6 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolUncheckedCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentUncheckedCreateNestedManyWithoutSchoolInput
@@ -71743,7 +67121,6 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    users?: UserUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUpdateManyWithoutSchoolNestedInput
@@ -71791,7 +67168,6 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUncheckedUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUncheckedUpdateManyWithoutSchoolNestedInput
@@ -71806,8 +67182,6 @@ export namespace Prisma {
     id?: string
     email: string
     passwordHash: string
-    role: $Enums.Role
-    platformRole?: $Enums.LegacyPlatformRole | null
     firstName?: string | null
     lastName?: string | null
     phone?: string | null
@@ -71823,7 +67197,6 @@ export namespace Prisma {
     mustChangePassword?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    school?: SchoolCreateNestedOneWithoutUsersInput
     platformMember?: PlatformMemberCreateNestedOneWithoutUserInput
     schools?: UserSchoolCreateNestedManyWithoutUserInput
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
@@ -71833,11 +67206,8 @@ export namespace Prisma {
 
   export type UserUncheckedCreateWithoutFeedbackInput = {
     id?: string
-    schoolId?: string | null
     email: string
     passwordHash: string
-    role: $Enums.Role
-    platformRole?: $Enums.LegacyPlatformRole | null
     firstName?: string | null
     lastName?: string | null
     phone?: string | null
@@ -71902,7 +67272,6 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    users?: UserCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentCreateNestedManyWithoutSchoolInput
@@ -71950,7 +67319,6 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolUncheckedCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentUncheckedCreateNestedManyWithoutSchoolInput
@@ -71981,8 +67349,6 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
-    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    platformRole?: NullableEnumLegacyPlatformRoleFieldUpdateOperationsInput | $Enums.LegacyPlatformRole | null
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -71998,7 +67364,6 @@ export namespace Prisma {
     mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    school?: SchoolUpdateOneWithoutUsersNestedInput
     platformMember?: PlatformMemberUpdateOneWithoutUserNestedInput
     schools?: UserSchoolUpdateManyWithoutUserNestedInput
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
@@ -72008,11 +67373,8 @@ export namespace Prisma {
 
   export type UserUncheckedUpdateWithoutFeedbackInput = {
     id?: StringFieldUpdateOperationsInput | string
-    schoolId?: NullableStringFieldUpdateOperationsInput | string | null
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
-    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    platformRole?: NullableEnumLegacyPlatformRoleFieldUpdateOperationsInput | $Enums.LegacyPlatformRole | null
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -72083,7 +67445,6 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    users?: UserUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUpdateManyWithoutSchoolNestedInput
@@ -72131,7 +67492,6 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUncheckedUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUncheckedUpdateManyWithoutSchoolNestedInput
@@ -72140,29 +67500,6 @@ export namespace Prisma {
     entitlementOverrides?: SchoolEntitlementOverrideUncheckedUpdateManyWithoutSchoolNestedInput
     subscriptionInvoices?: SubscriptionInvoiceUncheckedUpdateManyWithoutSchoolNestedInput
     paymentMethods?: PaymentMethodUncheckedUpdateManyWithoutSchoolNestedInput
-  }
-
-  export type UserCreateManySchoolInput = {
-    id?: string
-    email: string
-    passwordHash: string
-    role: $Enums.Role
-    platformRole?: $Enums.LegacyPlatformRole | null
-    firstName?: string | null
-    lastName?: string | null
-    phone?: string | null
-    photoUrl?: string | null
-    isActive?: boolean
-    isEmailVerified?: boolean
-    emailVerifiedAt?: Date | string | null
-    lastLoginAt?: Date | string | null
-    lastLoginIp?: string | null
-    failedLoginCount?: number
-    lockedUntil?: Date | string | null
-    passwordChangedAt?: Date | string | null
-    mustChangePassword?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
   }
 
   export type UserSchoolCreateManySchoolInput = {
@@ -72183,14 +67520,8 @@ export namespace Prisma {
     couponId?: string | null
     discountedPriceKobo?: number | null
     autoRenew?: boolean
-    paystackAuthorizationCode?: string | null
-    paystackCustomerCode?: string | null
-    paystackSubscriptionCode?: string | null
     scheduledDowngradePlanId?: string | null
-    setupFeePaid?: boolean
-    setupFeePaidAt?: Date | string | null
     nextBillingDate?: Date | string | null
-    lastBillingAttemptAt?: Date | string | null
     failedBillingCount?: number
     paymentMethodId?: string | null
     billingAnchorDay?: number
@@ -72324,87 +67655,6 @@ export namespace Prisma {
     removedAt?: Date | string | null
   }
 
-  export type UserUpdateWithoutSchoolInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
-    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    platformRole?: NullableEnumLegacyPlatformRoleFieldUpdateOperationsInput | $Enums.LegacyPlatformRole | null
-    firstName?: NullableStringFieldUpdateOperationsInput | string | null
-    lastName?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    isEmailVerified?: BoolFieldUpdateOperationsInput | boolean
-    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
-    failedLoginCount?: IntFieldUpdateOperationsInput | number
-    lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    platformMember?: PlatformMemberUpdateOneWithoutUserNestedInput
-    schools?: UserSchoolUpdateManyWithoutUserNestedInput
-    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
-    otps?: OtpUpdateManyWithoutUserNestedInput
-    invitesSent?: InviteUpdateManyWithoutSentByNestedInput
-    feedback?: FeedbackUpdateManyWithoutUserNestedInput
-  }
-
-  export type UserUncheckedUpdateWithoutSchoolInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
-    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    platformRole?: NullableEnumLegacyPlatformRoleFieldUpdateOperationsInput | $Enums.LegacyPlatformRole | null
-    firstName?: NullableStringFieldUpdateOperationsInput | string | null
-    lastName?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    isEmailVerified?: BoolFieldUpdateOperationsInput | boolean
-    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
-    failedLoginCount?: IntFieldUpdateOperationsInput | number
-    lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    platformMember?: PlatformMemberUncheckedUpdateOneWithoutUserNestedInput
-    schools?: UserSchoolUncheckedUpdateManyWithoutUserNestedInput
-    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
-    otps?: OtpUncheckedUpdateManyWithoutUserNestedInput
-    invitesSent?: InviteUncheckedUpdateManyWithoutSentByNestedInput
-    feedback?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
-  }
-
-  export type UserUncheckedUpdateManyWithoutSchoolInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
-    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    platformRole?: NullableEnumLegacyPlatformRoleFieldUpdateOperationsInput | $Enums.LegacyPlatformRole | null
-    firstName?: NullableStringFieldUpdateOperationsInput | string | null
-    lastName?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    isEmailVerified?: BoolFieldUpdateOperationsInput | boolean
-    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
-    failedLoginCount?: IntFieldUpdateOperationsInput | number
-    lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
   export type UserSchoolUpdateWithoutSchoolInput = {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutSchoolsNestedInput
@@ -72431,14 +67681,8 @@ export namespace Prisma {
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     discountedPriceKobo?: NullableIntFieldUpdateOperationsInput | number | null
     autoRenew?: BoolFieldUpdateOperationsInput | boolean
-    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     scheduledDowngradePlanId?: NullableStringFieldUpdateOperationsInput | string | null
-    setupFeePaid?: BoolFieldUpdateOperationsInput | boolean
-    setupFeePaidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextBillingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastBillingAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     failedBillingCount?: IntFieldUpdateOperationsInput | number
     paymentMethodId?: NullableStringFieldUpdateOperationsInput | string | null
     billingAnchorDay?: IntFieldUpdateOperationsInput | number
@@ -72447,7 +67691,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     plan?: PlanUpdateOneRequiredWithoutSubscriptionsNestedInput
     coupon?: CouponUpdateOneWithoutSubscriptionsNestedInput
-    billingHistory?: BillingHistoryUpdateManyWithoutSubscriptionNestedInput
     invoices?: SubscriptionInvoiceUpdateManyWithoutSubscriptionNestedInput
   }
 
@@ -72464,21 +67707,14 @@ export namespace Prisma {
     couponId?: NullableStringFieldUpdateOperationsInput | string | null
     discountedPriceKobo?: NullableIntFieldUpdateOperationsInput | number | null
     autoRenew?: BoolFieldUpdateOperationsInput | boolean
-    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     scheduledDowngradePlanId?: NullableStringFieldUpdateOperationsInput | string | null
-    setupFeePaid?: BoolFieldUpdateOperationsInput | boolean
-    setupFeePaidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextBillingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastBillingAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     failedBillingCount?: IntFieldUpdateOperationsInput | number
     paymentMethodId?: NullableStringFieldUpdateOperationsInput | string | null
     billingAnchorDay?: IntFieldUpdateOperationsInput | number
     lapsedPlanId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    billingHistory?: BillingHistoryUncheckedUpdateManyWithoutSubscriptionNestedInput
     invoices?: SubscriptionInvoiceUncheckedUpdateManyWithoutSubscriptionNestedInput
   }
 
@@ -72495,14 +67731,8 @@ export namespace Prisma {
     couponId?: NullableStringFieldUpdateOperationsInput | string | null
     discountedPriceKobo?: NullableIntFieldUpdateOperationsInput | number | null
     autoRenew?: BoolFieldUpdateOperationsInput | boolean
-    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     scheduledDowngradePlanId?: NullableStringFieldUpdateOperationsInput | string | null
-    setupFeePaid?: BoolFieldUpdateOperationsInput | boolean
-    setupFeePaidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextBillingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastBillingAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     failedBillingCount?: IntFieldUpdateOperationsInput | number
     paymentMethodId?: NullableStringFieldUpdateOperationsInput | string | null
     billingAnchorDay?: IntFieldUpdateOperationsInput | number
@@ -72924,7 +68154,6 @@ export namespace Prisma {
   export type InviteCreateManySentByInput = {
     id?: string
     email: string
-    role: $Enums.Role
     persona?: $Enums.Persona
     personaEntityId?: string | null
     roleId?: string | null
@@ -73046,7 +68275,6 @@ export namespace Prisma {
   export type InviteUpdateWithoutSentByInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     persona?: EnumPersonaFieldUpdateOperationsInput | $Enums.Persona
     personaEntityId?: NullableStringFieldUpdateOperationsInput | string | null
     roleId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -73063,7 +68291,6 @@ export namespace Prisma {
   export type InviteUncheckedUpdateWithoutSentByInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     persona?: EnumPersonaFieldUpdateOperationsInput | $Enums.Persona
     personaEntityId?: NullableStringFieldUpdateOperationsInput | string | null
     roleId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -73080,7 +68307,6 @@ export namespace Prisma {
   export type InviteUncheckedUpdateManyWithoutSentByInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     persona?: EnumPersonaFieldUpdateOperationsInput | $Enums.Persona
     personaEntityId?: NullableStringFieldUpdateOperationsInput | string | null
     roleId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -73143,14 +68369,8 @@ export namespace Prisma {
     couponId?: string | null
     discountedPriceKobo?: number | null
     autoRenew?: boolean
-    paystackAuthorizationCode?: string | null
-    paystackCustomerCode?: string | null
-    paystackSubscriptionCode?: string | null
     scheduledDowngradePlanId?: string | null
-    setupFeePaid?: boolean
-    setupFeePaidAt?: Date | string | null
     nextBillingDate?: Date | string | null
-    lastBillingAttemptAt?: Date | string | null
     failedBillingCount?: number
     paymentMethodId?: string | null
     billingAnchorDay?: number
@@ -73206,14 +68426,8 @@ export namespace Prisma {
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     discountedPriceKobo?: NullableIntFieldUpdateOperationsInput | number | null
     autoRenew?: BoolFieldUpdateOperationsInput | boolean
-    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     scheduledDowngradePlanId?: NullableStringFieldUpdateOperationsInput | string | null
-    setupFeePaid?: BoolFieldUpdateOperationsInput | boolean
-    setupFeePaidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextBillingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastBillingAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     failedBillingCount?: IntFieldUpdateOperationsInput | number
     paymentMethodId?: NullableStringFieldUpdateOperationsInput | string | null
     billingAnchorDay?: IntFieldUpdateOperationsInput | number
@@ -73222,7 +68436,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     school?: SchoolUpdateOneRequiredWithoutSubscriptionsNestedInput
     coupon?: CouponUpdateOneWithoutSubscriptionsNestedInput
-    billingHistory?: BillingHistoryUpdateManyWithoutSubscriptionNestedInput
     invoices?: SubscriptionInvoiceUpdateManyWithoutSubscriptionNestedInput
   }
 
@@ -73239,21 +68452,14 @@ export namespace Prisma {
     couponId?: NullableStringFieldUpdateOperationsInput | string | null
     discountedPriceKobo?: NullableIntFieldUpdateOperationsInput | number | null
     autoRenew?: BoolFieldUpdateOperationsInput | boolean
-    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     scheduledDowngradePlanId?: NullableStringFieldUpdateOperationsInput | string | null
-    setupFeePaid?: BoolFieldUpdateOperationsInput | boolean
-    setupFeePaidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextBillingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastBillingAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     failedBillingCount?: IntFieldUpdateOperationsInput | number
     paymentMethodId?: NullableStringFieldUpdateOperationsInput | string | null
     billingAnchorDay?: IntFieldUpdateOperationsInput | number
     lapsedPlanId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    billingHistory?: BillingHistoryUncheckedUpdateManyWithoutSubscriptionNestedInput
     invoices?: SubscriptionInvoiceUncheckedUpdateManyWithoutSubscriptionNestedInput
   }
 
@@ -73270,14 +68476,8 @@ export namespace Prisma {
     couponId?: NullableStringFieldUpdateOperationsInput | string | null
     discountedPriceKobo?: NullableIntFieldUpdateOperationsInput | number | null
     autoRenew?: BoolFieldUpdateOperationsInput | boolean
-    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     scheduledDowngradePlanId?: NullableStringFieldUpdateOperationsInput | string | null
-    setupFeePaid?: BoolFieldUpdateOperationsInput | boolean
-    setupFeePaidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextBillingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastBillingAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     failedBillingCount?: IntFieldUpdateOperationsInput | number
     paymentMethodId?: NullableStringFieldUpdateOperationsInput | string | null
     billingAnchorDay?: IntFieldUpdateOperationsInput | number
@@ -73398,17 +68598,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type BillingHistoryCreateManySubscriptionInput = {
-    id?: string
-    amountKobo: number
-    status?: $Enums.PaymentStatus
-    billingCycle: $Enums.BillingCycle
-    paystackReference?: string | null
-    paidAt?: Date | string | null
-    failureReason?: string | null
-    createdAt?: Date | string
-  }
-
   export type SubscriptionInvoiceCreateManySubscriptionInput = {
     id?: string
     number: string
@@ -73436,39 +68625,6 @@ export namespace Prisma {
     createdById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-  }
-
-  export type BillingHistoryUpdateWithoutSubscriptionInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    amountKobo?: IntFieldUpdateOperationsInput | number
-    status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
-    billingCycle?: EnumBillingCycleFieldUpdateOperationsInput | $Enums.BillingCycle
-    paystackReference?: NullableStringFieldUpdateOperationsInput | string | null
-    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    failureReason?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type BillingHistoryUncheckedUpdateWithoutSubscriptionInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    amountKobo?: IntFieldUpdateOperationsInput | number
-    status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
-    billingCycle?: EnumBillingCycleFieldUpdateOperationsInput | $Enums.BillingCycle
-    paystackReference?: NullableStringFieldUpdateOperationsInput | string | null
-    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    failureReason?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type BillingHistoryUncheckedUpdateManyWithoutSubscriptionInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    amountKobo?: IntFieldUpdateOperationsInput | number
-    status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
-    billingCycle?: EnumBillingCycleFieldUpdateOperationsInput | $Enums.BillingCycle
-    paystackReference?: NullableStringFieldUpdateOperationsInput | string | null
-    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    failureReason?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SubscriptionInvoiceUpdateWithoutSubscriptionInput = {
@@ -73575,14 +68731,8 @@ export namespace Prisma {
     cancelledAt?: Date | string | null
     discountedPriceKobo?: number | null
     autoRenew?: boolean
-    paystackAuthorizationCode?: string | null
-    paystackCustomerCode?: string | null
-    paystackSubscriptionCode?: string | null
     scheduledDowngradePlanId?: string | null
-    setupFeePaid?: boolean
-    setupFeePaidAt?: Date | string | null
     nextBillingDate?: Date | string | null
-    lastBillingAttemptAt?: Date | string | null
     failedBillingCount?: number
     paymentMethodId?: string | null
     billingAnchorDay?: number
@@ -73602,14 +68752,8 @@ export namespace Prisma {
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     discountedPriceKobo?: NullableIntFieldUpdateOperationsInput | number | null
     autoRenew?: BoolFieldUpdateOperationsInput | boolean
-    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     scheduledDowngradePlanId?: NullableStringFieldUpdateOperationsInput | string | null
-    setupFeePaid?: BoolFieldUpdateOperationsInput | boolean
-    setupFeePaidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextBillingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastBillingAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     failedBillingCount?: IntFieldUpdateOperationsInput | number
     paymentMethodId?: NullableStringFieldUpdateOperationsInput | string | null
     billingAnchorDay?: IntFieldUpdateOperationsInput | number
@@ -73618,7 +68762,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     school?: SchoolUpdateOneRequiredWithoutSubscriptionsNestedInput
     plan?: PlanUpdateOneRequiredWithoutSubscriptionsNestedInput
-    billingHistory?: BillingHistoryUpdateManyWithoutSubscriptionNestedInput
     invoices?: SubscriptionInvoiceUpdateManyWithoutSubscriptionNestedInput
   }
 
@@ -73635,21 +68778,14 @@ export namespace Prisma {
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     discountedPriceKobo?: NullableIntFieldUpdateOperationsInput | number | null
     autoRenew?: BoolFieldUpdateOperationsInput | boolean
-    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     scheduledDowngradePlanId?: NullableStringFieldUpdateOperationsInput | string | null
-    setupFeePaid?: BoolFieldUpdateOperationsInput | boolean
-    setupFeePaidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextBillingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastBillingAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     failedBillingCount?: IntFieldUpdateOperationsInput | number
     paymentMethodId?: NullableStringFieldUpdateOperationsInput | string | null
     billingAnchorDay?: IntFieldUpdateOperationsInput | number
     lapsedPlanId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    billingHistory?: BillingHistoryUncheckedUpdateManyWithoutSubscriptionNestedInput
     invoices?: SubscriptionInvoiceUncheckedUpdateManyWithoutSubscriptionNestedInput
   }
 
@@ -73666,14 +68802,8 @@ export namespace Prisma {
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     discountedPriceKobo?: NullableIntFieldUpdateOperationsInput | number | null
     autoRenew?: BoolFieldUpdateOperationsInput | boolean
-    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     scheduledDowngradePlanId?: NullableStringFieldUpdateOperationsInput | string | null
-    setupFeePaid?: BoolFieldUpdateOperationsInput | boolean
-    setupFeePaidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextBillingDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastBillingAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     failedBillingCount?: IntFieldUpdateOperationsInput | number
     paymentMethodId?: NullableStringFieldUpdateOperationsInput | string | null
     billingAnchorDay?: IntFieldUpdateOperationsInput | number

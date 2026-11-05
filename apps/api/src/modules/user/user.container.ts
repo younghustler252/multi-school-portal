@@ -7,6 +7,7 @@ import { ChangePasswordUseCase } from "./usecases/change-password.usecase";
 import { UploadAvatarUseCase }  from "./usecases/upload-avatar.usecase";
 import { RemoveAvatarUseCase }  from "./usecases/remove-avatar.usecase";
 import { ListMyAccessUseCase }  from "./usecases/list-my-access.usecase";
+import { MyPermissionsUseCase } from "./usecases/my-permissions.usecase";
 import { ManageMySessionsUseCase } from "./usecases/manage-my-sessions.usecase";
 import { ResetSchoolAdminPasswordUseCase } from "./usecases/reset-school-admin-password.usecase";
 import { ManagePlatformUsersUseCase } from "./usecases/manage-platform-users.usecase";
@@ -25,6 +26,7 @@ export const registerUser = (container: AwilixContainer): void => {
         uploadAvatarUseCase:      asClass(UploadAvatarUseCase).scoped(),
         removeAvatarUseCase:      asClass(RemoveAvatarUseCase).scoped(),
         listMyAccessUseCase:      asClass(ListMyAccessUseCase).scoped(),
+        myPermissionsUseCase:     asClass(MyPermissionsUseCase).scoped(),
         manageMySessionsUseCase:  asClass(ManageMySessionsUseCase).scoped(),
         resetSchoolAdminPasswordUseCase: asClass(ResetSchoolAdminPasswordUseCase).scoped(),
         managePlatformUsersUseCase: asClass(ManagePlatformUsersUseCase).scoped(),
