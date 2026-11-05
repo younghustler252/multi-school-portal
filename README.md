@@ -1,66 +1,65 @@
-# CORE — Multi-School Portal API
+# CORE — Multi-School Portal
 
-A multi-tenant school-management SaaS backend, initially focused on Nigerian primary and secondary schools.
+A multi-tenant school-management SaaS, initially focused on Nigerian primary and secondary schools.
 
 ## Repository layout
 
-```
-apps/api         the API (Express, Prisma, BullMQ): src/, prisma/, tests/, scripts/
-apps/web         the web app (Next.js 16): school app, platform admin, marketing pages
-packages/contracts   shared request/response schemas, error codes, permission keys (start of the shared contract)
-docs/            documentation and decisions (docs/decisions)
+```text
+apps/api             Express 5, Prisma 7 and BullMQ backend
+apps/web             Next.js 16 dashboard
+packages/contracts   shared request/response contracts
+docs/                architecture, testing, decisions and workstream handoffs
 ```
 
-First time after cloning (or after pulling the move into `apps/`):
+This repository uses npm workspaces (`apps/*` and `packages/*`). Install dependencies once from the repository root:
 
-1. `npm install` at the repo root (npm workspaces). This creates one root `package-lock.json`; then delete `apps/api/package-lock.json` and `apps/web/package-lock.json`.
-2. Copy `apps/api/.env.development.example` to `apps/api/.env.development` and `apps/web/.env.local.example` to `apps/web/.env.local`, then fill them in (the API reads `.env.development` from the folder it is started in, so move your existing file into `apps/api/`).
-3. `npm run db:up` (Postgres and Redis), then `npm run dev:api`, `npm run dev:worker`, `npm run dev:web`.
-4. Tests: `npm test`.
+```bash
+npm install
+```
 
 ## Start here
 
-Read [Platform Documentation](docs/PLATFORM_DOCUMENTATION.md) before changing architecture or starting work in a module. It describes the observed application architecture, active container registrations, API mounts, tenant boundaries, and development rules.
+1. Read [Platform Documentation](docs/PLATFORM_DOCUMENTATION.md) before changing architecture or starting a module.
+2. Read [Testing Guide](docs/TESTING_GUIDE.md) before running tests or setting up a database.
+3. Read [Documentation Index](docs/README.md) to distinguish current guides, workstream handoffs and historical module notes.
+4. For finance work, read [Finance Handoff](docs/FINANCE_HANDOFF.md). For settings/automation work, read [Settings and Automation Handoff](docs/SETTINGS_AUTOMATION_HANDOFF.md).
 
-Use [Testing Guide](docs/TESTING_GUIDE.md) for test commands and database-test safety. Remaining module notes are interim references; verify their claims against the current source before relying on them.
+## Local development
 
-## Stack
+Copy the relevant environment examples into the workspace that consumes them:
+- API: `apps/api/.env.development`
+- Web: `apps/web/.env.local`
 
-- Node.js + TypeScript
-- Express 5
-- PostgreSQL + Prisma 7
-- Separate public and per-school tenant schemas
-- Awilix dependency injection
-- Redis + BullMQ background jobs
-- Shared authorization, subscription entitlements, audit, and finance-ledger foundations
+Then start the database services and applications:
 
-## Key code locations
-
-- `apps/api/src/modules/` — feature modules
-- `apps/api/src/foundation/` — shared access, permissions, entitlements, and registry sync
-- `apps/api/src/container/index.ts` — dependency-injection registrations
-- `apps/api/src/routes/index.ts` — API route mounts
-- `apps/api/src/app.ts` — application middleware and route lifecycle
-- `apps/api/prisma/public.prisma` — platform schema
-- `apps/api/prisma/tenant.prisma` — school-owned schema
-- `apps/api/prisma/migrations/` — public-schema migrations
-- `apps/api/prisma/tenant-migrations/` — tenant-schema migrations
-- `apps/api/src/infrastructure/jobs/` and `apps/api/src/worker.ts` — background jobs and worker startup
-- `tests/` — automated tests
+```bash
+npm run db:up
+npm run dev:api
+npm run dev:worker
+npm run dev:web
+```
 
 ## Common commands
 
 ```bash
-npm run build
+npm run build:api
+npm run build:web
+npm run typecheck:all
 npm test
-npm run sync:registries
-npm run prisma:generate
+npm run check
 ```
 
-Database tests require a dedicated disposable database as described in [Testing Guide](docs/TESTING_GUIDE.md). Never run destructive tests against development or production data.
+Backend-specific scripts run through the API workspace, for example:
 
-## Development rules
+```bash
+npm run prisma:generate -w apps/api
+npm run sync:registries -w apps/api
+```
 
-A module's files existing does not mean it is registered, routed, tested, or production-ready. Check dependencies, permissions, scopes, entitlements, tenant boundaries, container registration, route mounts, migrations, workers, and tests before marking it complete.
+Database tests require a dedicated disposable database. Follow the Testing Guide; never run destructive tests against development or production data.
 
-Keep changes scoped, follow the established route → controller → use case → repository layering, and update durable documentation in the same change set as the implementation.
+## Architecture rules
+
+A module's files existing does not mean it is registered, routed, migrated, tested or production-ready. Check dependencies, permissions/scopes, entitlements, tenant boundaries, container registration, route mounts, migrations, workers and tests before marking it complete.
+
+Keep changes scoped, follow the established route → controller → use case → repository layering, and update durable documentation with implementation changes.
