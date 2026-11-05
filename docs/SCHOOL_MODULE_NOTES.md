@@ -52,3 +52,46 @@ Response changes:
 
 ## 6. Docs update (section 0.3)
 Fields: School +4; PlatformSettings +3. Permissions: `school.view|update|documents.manage|payments.manage|dashboard.view`, `platform.schools.view|create|manage|verify|suspend|documents`. Templates: `auth.account_created_by_platform`, `school.payment_account_changed`. Middleware: `requireVerifiedSchool`, resolver `SCHOOL_SETTING_UP`. Module status: school Done. Defects: provisioning dead service removed.
+
+
+---
+
+## 7. Source comparison — 2026-11-05
+
+**Status: historical apply handoff + source-reviewed implementation notes.** The section above is retained for its design and implementation context. Its copy/delete/migration sequence is not a current deployment procedure. Current source snapshot: branch `refactor/modules`; key files include `apps/api/src/modules/school/routes/*`, `school.container.ts`, `school.permissions.ts`, `workspace-activation.service.ts`, `run-school-lifecycle.usecase.ts`, `tenant-resolver.middleware.ts`, and `apps/api/src/infrastructure/jobs/schedulers/index.ts`.
+
+### Confirmed in current source
+
+- Registration is in Auth: it reserves a school as `pending`, creates its free-plan subscription, creates the public user and `UserSchool` link, and issues email verification. On verification, `WorkspaceActivationService` activates the school and queues schema provisioning.
+- Tenant resolution checks host/subdomain/custom domain, rejects inactive schools, and returns `503 SCHOOL_SETTING_UP` while `schemaProvisionedAt` is absent. School routes require a resolved tenant context.
+- The lifecycle use case implements the 72-hour unconfirmed-registration release, stuck-provisioning retry after the policy threshold, unverified trial reminders/suspension, and retention release only when tenant data checks say the school is empty (or keep it for review if the check errors).
+- The scheduler is wired through `apps/api/src/infrastructure/jobs/schedulers/index.ts` and invoked by `worker.ts` through `initSchedulers()`. The old instruction to import a worker directly in `worker.ts` is obsolete.
+- School-realm and platform-realm routes are separate. Platform routes include provisioning overview/list/retry and school impersonation in addition to CRUD, verification, suspension and document review.
+- Verification checks required approved documents unless `override` is supplied, records the override in audit metadata, and invalidates the verification cache.
+- Payment setup is guarded by `requireVerifiedSchool` in the current route.
+- Current DI registration is active in `apps/api/src/container/index.ts`. `registerSchool` is currently listed after Auth but before Plans, Subscriptions, Audit and Notifications. Awilix registrations are lazy; do not treat the historical ordering sentence as an observed runtime failure without a failing resolution/test.
+
+### Current mounted API paths
+
+The route files are mounted by `apps/api/src/routes/index.ts` under `/api/v1`:
+
+- School realm: `/api/v1/schools` — `GET/PUT /`, `POST /logo`, `GET/POST /documents`, `POST /payment-setup`, `GET /dashboard`, `GET /setup-checklist`, and public `GET /public/:subdomain`.
+- Platform realm: `/api/v1/platform/schools` — list/create, `/overview`, `/provisioning`, `/:id/provisioning/retry`, document approve/reject, `/:id/impersonate`, get/update, school document list, verify/reject/suspend/reactivate.
+
+This corrects the earlier shorthand `/school` and `/platform/schools`: those were route-relative descriptions, not the complete mounted API paths.
+
+### Permission contract observed
+
+`school.permissions.ts` currently defines school permissions for profile view/update, document management, payment setup and dashboard view. Platform permissions additionally include school view/create/manage/verify/suspend, overview, impersonation, provisioning view/retry and document access. The older permission list in section 6 is incomplete.
+
+### Test coverage observed (not executed in this documentation pass)
+
+The school test directory currently contains `school-admin-directory.test.ts` with three focused cases for membership-based admin lookup, schools not yet provisioned, and broadcast resilience when one tenant cannot be read. No broader School route, lifecycle, registration/activation, verification, or provisioning test file was present in the inspected `apps/api/tests/school` directory. This is a coverage observation, not proof that the behaviors are broken.
+
+### Follow-up items
+
+1. Add focused tests for school lifecycle boundaries and idempotency, provisioning retry behavior, verification override/cache invalidation, and school/platform route authorization.
+2. Reconcile the permission declarations with the actual permission sync/registry pipeline and verify that all listed School permissions are available in the target database. The module-local constants alone do not prove successful sync.
+3. Compare the School DTO/mappers/repository and public/tenant Prisma migrations before treating every historical response-field and schema statement above as a fully verified current contract.
+4. The source comments describe school verification as unlocking payments, SMS and result publishing; ensure each affected feature route consistently applies the verification guard. This pass directly confirmed the guard on `POST /api/v1/schools/payment-setup`, not every downstream payment/SMS/result endpoint.
+5. No build, tests, migration, queue execution or live API request was run as part of this documentation comparison.
