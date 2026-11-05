@@ -20,6 +20,9 @@ This section documents the backend implementation for developers building and ma
 | Roles and permissions | [Roles and permissions](modules/roles.md) | Source-reviewed; registry sync/runtime verification outstanding |
 | Branches | [Branches module](modules/branches.md) | Partially source-verified; tests/schema/runtime verification outstanding |
 | Staff | [Staff module](modules/staff.md) | Partially source-verified; remaining use cases/tests/schema/runtime verification outstanding |
+| Students | [Students module](modules/students.md) | Partially source-verified; remaining lifecycle/photo/schema/test verification outstanding |
+| Guardians | [Guardians module](modules/guardians.md) | Partially source-verified; update/repository/schema/test verification outstanding |
+| Classes and subjects | [Classes and subjects](modules/classes.md) | Partially source-verified; remaining use cases/schema/test verification outstanding |
 
 ## Documentation contract
 
@@ -44,5 +47,8 @@ Foundation modules are being documented first because other modules depend on th
 4. Roles and permissions
 5. Branches
 6. Staff
+7. Students
+8. Guardians
+9. Classes and subjects
 
 The frontend is intentionally not being documented as the current implementation while it remains behind the backend. Frontend implementation documentation will follow the backend contract audit.
