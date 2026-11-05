@@ -21,6 +21,15 @@ Set `tenantSchoolId` to the public database School ID and `tenantSchema` to that
 
 For deployed environments, use the school's actual subdomain/custom domain for `baseUrl`; do not use development tenant headers.
 
+## First smoke run
+
+Import and run **CORE API — Read-only Smoke Tests** first. It contains GET requests only and checks for 5xx responses, Express route-not-found responses, slow responses and malformed JSON. The default path IDs are placeholders; 400/404 responses from business-level validation or missing records are possible and do not prove a successful business workflow. Set `accessToken`, `tenantSchoolId` and `tenantSchema` to exercise authenticated school routes. For a command-line run, install/use Newman and run:
+
+```bash
+npx newman run docs/api-testing/CORE.read-only-smoke.postman_collection.json \\
+  -e docs/api-testing/CORE.local.postman_environment.json
+```
+
 ## Important execution safety
 The collection includes the registered API routes. **Do not run the entire collection in Collection Runner.** POST/PUT/PATCH/DELETE requests can create, publish, issue, transfer, approve, pay, reverse, delete or otherwise mutate real records. Those requests are marked STATE-CHANGING and require valid DTO bodies and test data. Run read-only GET requests first, then execute write workflows deliberately against a disposable test school/database.
 
