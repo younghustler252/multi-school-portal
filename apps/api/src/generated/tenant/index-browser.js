@@ -141,6 +141,7 @@ exports.Prisma.StaffScalarFieldEnum = {
   joinDate: 'joinDate',
   exitDate: 'exitDate',
   exitReason: 'exitReason',
+  role: 'role',
   isActive: 'isActive',
   createdById: 'createdById',
   updatedById: 'updatedById',
@@ -1375,6 +1376,14 @@ exports.EmploymentType = exports.$Enums.EmploymentType = {
   part_time: 'part_time',
   contract: 'contract',
   volunteer: 'volunteer'
+};
+
+exports.StaffRole = exports.$Enums.StaffRole = {
+  school_admin: 'school_admin',
+  principal: 'principal',
+  teacher: 'teacher',
+  bursar: 'bursar',
+  other: 'other'
 };
 
 exports.GuardianRelation = exports.$Enums.GuardianRelation = {

@@ -193,7 +193,20 @@ export type LedgerAccountTemplate = $Result.DefaultSelection<Prisma.$LedgerAccou
  * Enums
  */
 export namespace $Enums {
-  export const Persona: {
+  export const Role: {
+  super_admin: 'super_admin',
+  school_admin: 'school_admin',
+  principal: 'principal',
+  teacher: 'teacher',
+  bursar: 'bursar',
+  student: 'student',
+  guardian: 'guardian'
+};
+
+export type Role = (typeof Role)[keyof typeof Role]
+
+
+export const Persona: {
   STAFF: 'STAFF',
   STUDENT: 'STUDENT',
   GUARDIAN: 'GUARDIAN'
@@ -546,6 +559,10 @@ export const LedgerAccountType: {
 export type LedgerAccountType = (typeof LedgerAccountType)[keyof typeof LedgerAccountType]
 
 }
+
+export type Role = $Enums.Role
+
+export const Role: typeof $Enums.Role
 
 export type Persona = $Enums.Persona
 
@@ -4486,6 +4503,7 @@ export namespace Prisma {
    */
 
   export type SchoolCountOutputType = {
+    users: number
     userSchools: number
     subscriptions: number
     documents: number
@@ -4498,6 +4516,7 @@ export namespace Prisma {
   }
 
   export type SchoolCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    users?: boolean | SchoolCountOutputTypeCountUsersArgs
     userSchools?: boolean | SchoolCountOutputTypeCountUserSchoolsArgs
     subscriptions?: boolean | SchoolCountOutputTypeCountSubscriptionsArgs
     documents?: boolean | SchoolCountOutputTypeCountDocumentsArgs
@@ -4518,6 +4537,13 @@ export namespace Prisma {
      * Select specific fields to fetch from the SchoolCountOutputType
      */
     select?: SchoolCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * SchoolCountOutputType without action
+   */
+  export type SchoolCountOutputTypeCountUsersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserWhereInput
   }
 
   /**
@@ -5431,6 +5457,7 @@ export namespace Prisma {
     settlementAccountLast4?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    users?: boolean | School$usersArgs<ExtArgs>
     userSchools?: boolean | School$userSchoolsArgs<ExtArgs>
     subscriptions?: boolean | School$subscriptionsArgs<ExtArgs>
     documents?: boolean | School$documentsArgs<ExtArgs>
@@ -5562,6 +5589,7 @@ export namespace Prisma {
 
   export type SchoolOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "subdomain" | "customDomain" | "customDomainVerifiedAt" | "email" | "phone" | "website" | "logoUrl" | "address" | "city" | "state" | "country" | "timezone" | "schoolCategory" | "schoolOwnership" | "status" | "verificationStatus" | "verificationNote" | "verifiedAt" | "verifiedById" | "activatedAt" | "isActive" | "suspendedAt" | "suspensionReason" | "deletedAt" | "schemaName" | "schemaProvisionedAt" | "paystackSubaccountCode" | "paystackSubaccountId" | "settlementBankCode" | "settlementAccountNumber" | "settlementAccountName" | "settlementAccountLast4" | "createdAt" | "updatedAt", ExtArgs["result"]["school"]>
   export type SchoolInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    users?: boolean | School$usersArgs<ExtArgs>
     userSchools?: boolean | School$userSchoolsArgs<ExtArgs>
     subscriptions?: boolean | School$subscriptionsArgs<ExtArgs>
     documents?: boolean | School$documentsArgs<ExtArgs>
@@ -5579,6 +5607,7 @@ export namespace Prisma {
   export type $SchoolPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "School"
     objects: {
+      users: Prisma.$UserPayload<ExtArgs>[]
       userSchools: Prisma.$UserSchoolPayload<ExtArgs>[]
       subscriptions: Prisma.$SubscriptionPayload<ExtArgs>[]
       documents: Prisma.$SchoolDocumentPayload<ExtArgs>[]
@@ -6020,6 +6049,7 @@ export namespace Prisma {
    */
   export interface Prisma__SchoolClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    users<T extends School$usersArgs<ExtArgs> = {}>(args?: Subset<T, School$usersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     userSchools<T extends School$userSchoolsArgs<ExtArgs> = {}>(args?: Subset<T, School$userSchoolsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserSchoolPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     subscriptions<T extends School$subscriptionsArgs<ExtArgs> = {}>(args?: Subset<T, School$subscriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     documents<T extends School$documentsArgs<ExtArgs> = {}>(args?: Subset<T, School$documentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SchoolDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -6484,6 +6514,30 @@ export namespace Prisma {
      * Limit how many Schools to delete.
      */
     limit?: number
+  }
+
+  /**
+   * School.users
+   */
+  export type School$usersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+    orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
+    cursor?: UserWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
   }
 
   /**
@@ -7945,8 +7999,10 @@ export namespace Prisma {
 
   export type UserMinAggregateOutputType = {
     id: string | null
+    schoolId: string | null
     email: string | null
     passwordHash: string | null
+    role: $Enums.Role | null
     firstName: string | null
     lastName: string | null
     phone: string | null
@@ -7966,8 +8022,10 @@ export namespace Prisma {
 
   export type UserMaxAggregateOutputType = {
     id: string | null
+    schoolId: string | null
     email: string | null
     passwordHash: string | null
+    role: $Enums.Role | null
     firstName: string | null
     lastName: string | null
     phone: string | null
@@ -7987,8 +8045,10 @@ export namespace Prisma {
 
   export type UserCountAggregateOutputType = {
     id: number
+    schoolId: number
     email: number
     passwordHash: number
+    role: number
     firstName: number
     lastName: number
     phone: number
@@ -8018,8 +8078,10 @@ export namespace Prisma {
 
   export type UserMinAggregateInputType = {
     id?: true
+    schoolId?: true
     email?: true
     passwordHash?: true
+    role?: true
     firstName?: true
     lastName?: true
     phone?: true
@@ -8039,8 +8101,10 @@ export namespace Prisma {
 
   export type UserMaxAggregateInputType = {
     id?: true
+    schoolId?: true
     email?: true
     passwordHash?: true
+    role?: true
     firstName?: true
     lastName?: true
     phone?: true
@@ -8060,8 +8124,10 @@ export namespace Prisma {
 
   export type UserCountAggregateInputType = {
     id?: true
+    schoolId?: true
     email?: true
     passwordHash?: true
+    role?: true
     firstName?: true
     lastName?: true
     phone?: true
@@ -8168,8 +8234,10 @@ export namespace Prisma {
 
   export type UserGroupByOutputType = {
     id: string
+    schoolId: string | null
     email: string
     passwordHash: string
+    role: $Enums.Role
     firstName: string | null
     lastName: string | null
     phone: string | null
@@ -8208,8 +8276,10 @@ export namespace Prisma {
 
   export type UserSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    schoolId?: boolean
     email?: boolean
     passwordHash?: boolean
+    role?: boolean
     firstName?: boolean
     lastName?: boolean
     phone?: boolean
@@ -8225,6 +8295,7 @@ export namespace Prisma {
     mustChangePassword?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    school?: boolean | User$schoolArgs<ExtArgs>
     platformMember?: boolean | User$platformMemberArgs<ExtArgs>
     schools?: boolean | User$schoolsArgs<ExtArgs>
     refreshTokens?: boolean | User$refreshTokensArgs<ExtArgs>
@@ -8236,8 +8307,10 @@ export namespace Prisma {
 
   export type UserSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    schoolId?: boolean
     email?: boolean
     passwordHash?: boolean
+    role?: boolean
     firstName?: boolean
     lastName?: boolean
     phone?: boolean
@@ -8253,12 +8326,15 @@ export namespace Prisma {
     mustChangePassword?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    school?: boolean | User$schoolArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    schoolId?: boolean
     email?: boolean
     passwordHash?: boolean
+    role?: boolean
     firstName?: boolean
     lastName?: boolean
     phone?: boolean
@@ -8274,12 +8350,15 @@ export namespace Prisma {
     mustChangePassword?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    school?: boolean | User$schoolArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectScalar = {
     id?: boolean
+    schoolId?: boolean
     email?: boolean
     passwordHash?: boolean
+    role?: boolean
     firstName?: boolean
     lastName?: boolean
     phone?: boolean
@@ -8297,8 +8376,9 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "passwordHash" | "firstName" | "lastName" | "phone" | "photoUrl" | "isActive" | "isEmailVerified" | "emailVerifiedAt" | "lastLoginAt" | "lastLoginIp" | "failedLoginCount" | "lockedUntil" | "passwordChangedAt" | "mustChangePassword" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolId" | "email" | "passwordHash" | "role" | "firstName" | "lastName" | "phone" | "photoUrl" | "isActive" | "isEmailVerified" | "emailVerifiedAt" | "lastLoginAt" | "lastLoginIp" | "failedLoginCount" | "lockedUntil" | "passwordChangedAt" | "mustChangePassword" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    school?: boolean | User$schoolArgs<ExtArgs>
     platformMember?: boolean | User$platformMemberArgs<ExtArgs>
     schools?: boolean | User$schoolsArgs<ExtArgs>
     refreshTokens?: boolean | User$refreshTokensArgs<ExtArgs>
@@ -8307,12 +8387,17 @@ export namespace Prisma {
     feedback?: boolean | User$feedbackArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
-  export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
-  export type UserIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    school?: boolean | User$schoolArgs<ExtArgs>
+  }
+  export type UserIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    school?: boolean | User$schoolArgs<ExtArgs>
+  }
 
   export type $UserPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "User"
     objects: {
+      school: Prisma.$SchoolPayload<ExtArgs> | null
       platformMember: Prisma.$PlatformMemberPayload<ExtArgs> | null
       schools: Prisma.$UserSchoolPayload<ExtArgs>[]
       refreshTokens: Prisma.$RefreshTokenPayload<ExtArgs>[]
@@ -8322,8 +8407,10 @@ export namespace Prisma {
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
+      schoolId: string | null
       email: string
       passwordHash: string
+      role: $Enums.Role
       firstName: string | null
       lastName: string | null
       phone: string | null
@@ -8733,6 +8820,7 @@ export namespace Prisma {
    */
   export interface Prisma__UserClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    school<T extends User$schoolArgs<ExtArgs> = {}>(args?: Subset<T, User$schoolArgs<ExtArgs>>): Prisma__SchoolClient<$Result.GetResult<Prisma.$SchoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     platformMember<T extends User$platformMemberArgs<ExtArgs> = {}>(args?: Subset<T, User$platformMemberArgs<ExtArgs>>): Prisma__PlatformMemberClient<$Result.GetResult<Prisma.$PlatformMemberPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     schools<T extends User$schoolsArgs<ExtArgs> = {}>(args?: Subset<T, User$schoolsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserSchoolPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     refreshTokens<T extends User$refreshTokensArgs<ExtArgs> = {}>(args?: Subset<T, User$refreshTokensArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -8769,8 +8857,10 @@ export namespace Prisma {
    */
   interface UserFieldRefs {
     readonly id: FieldRef<"User", 'String'>
+    readonly schoolId: FieldRef<"User", 'String'>
     readonly email: FieldRef<"User", 'String'>
     readonly passwordHash: FieldRef<"User", 'String'>
+    readonly role: FieldRef<"User", 'Role'>
     readonly firstName: FieldRef<"User", 'String'>
     readonly lastName: FieldRef<"User", 'String'>
     readonly phone: FieldRef<"User", 'String'>
@@ -9040,6 +9130,10 @@ export namespace Prisma {
      */
     data: UserCreateManyInput | UserCreateManyInput[]
     skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -9110,6 +9204,10 @@ export namespace Prisma {
      * Limit how many Users to update.
      */
     limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -9176,6 +9274,25 @@ export namespace Prisma {
      * Limit how many Users to delete.
      */
     limit?: number
+  }
+
+  /**
+   * User.school
+   */
+  export type User$schoolArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the School
+     */
+    select?: SchoolSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the School
+     */
+    omit?: SchoolOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SchoolInclude<ExtArgs> | null
+    where?: SchoolWhereInput
   }
 
   /**
@@ -12710,6 +12827,7 @@ export namespace Prisma {
   export type InviteMinAggregateOutputType = {
     id: string | null
     email: string | null
+    role: $Enums.Role | null
     persona: $Enums.Persona | null
     personaEntityId: string | null
     roleId: string | null
@@ -12727,6 +12845,7 @@ export namespace Prisma {
   export type InviteMaxAggregateOutputType = {
     id: string | null
     email: string | null
+    role: $Enums.Role | null
     persona: $Enums.Persona | null
     personaEntityId: string | null
     roleId: string | null
@@ -12744,6 +12863,7 @@ export namespace Prisma {
   export type InviteCountAggregateOutputType = {
     id: number
     email: number
+    role: number
     persona: number
     personaEntityId: number
     roleId: number
@@ -12763,6 +12883,7 @@ export namespace Prisma {
   export type InviteMinAggregateInputType = {
     id?: true
     email?: true
+    role?: true
     persona?: true
     personaEntityId?: true
     roleId?: true
@@ -12780,6 +12901,7 @@ export namespace Prisma {
   export type InviteMaxAggregateInputType = {
     id?: true
     email?: true
+    role?: true
     persona?: true
     personaEntityId?: true
     roleId?: true
@@ -12797,6 +12919,7 @@ export namespace Prisma {
   export type InviteCountAggregateInputType = {
     id?: true
     email?: true
+    role?: true
     persona?: true
     personaEntityId?: true
     roleId?: true
@@ -12887,6 +13010,7 @@ export namespace Prisma {
   export type InviteGroupByOutputType = {
     id: string
     email: string
+    role: $Enums.Role
     persona: $Enums.Persona
     personaEntityId: string | null
     roleId: string | null
@@ -12921,6 +13045,7 @@ export namespace Prisma {
   export type InviteSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     email?: boolean
+    role?: boolean
     persona?: boolean
     personaEntityId?: boolean
     roleId?: boolean
@@ -12939,6 +13064,7 @@ export namespace Prisma {
   export type InviteSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     email?: boolean
+    role?: boolean
     persona?: boolean
     personaEntityId?: boolean
     roleId?: boolean
@@ -12957,6 +13083,7 @@ export namespace Prisma {
   export type InviteSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     email?: boolean
+    role?: boolean
     persona?: boolean
     personaEntityId?: boolean
     roleId?: boolean
@@ -12975,6 +13102,7 @@ export namespace Prisma {
   export type InviteSelectScalar = {
     id?: boolean
     email?: boolean
+    role?: boolean
     persona?: boolean
     personaEntityId?: boolean
     roleId?: boolean
@@ -12989,7 +13117,7 @@ export namespace Prisma {
     createdAt?: boolean
   }
 
-  export type InviteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "persona" | "personaEntityId" | "roleId" | "roleKey" | "token" | "schoolId" | "sentById" | "accepted" | "acceptedAt" | "revokedAt" | "expiresAt" | "createdAt", ExtArgs["result"]["invite"]>
+  export type InviteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "role" | "persona" | "personaEntityId" | "roleId" | "roleKey" | "token" | "schoolId" | "sentById" | "accepted" | "acceptedAt" | "revokedAt" | "expiresAt" | "createdAt", ExtArgs["result"]["invite"]>
   export type InviteInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     sentBy?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -13008,6 +13136,7 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       email: string
+      role: $Enums.Role
       persona: $Enums.Persona
       personaEntityId: string | null
       roleId: string | null
@@ -13446,6 +13575,7 @@ export namespace Prisma {
   interface InviteFieldRefs {
     readonly id: FieldRef<"Invite", 'String'>
     readonly email: FieldRef<"Invite", 'String'>
+    readonly role: FieldRef<"Invite", 'Role'>
     readonly persona: FieldRef<"Invite", 'Persona'>
     readonly personaEntityId: FieldRef<"Invite", 'String'>
     readonly roleId: FieldRef<"Invite", 'String'>
@@ -22709,18 +22839,8 @@ export namespace Prisma {
 
   export type AggregateWebhookEvent = {
     _count: WebhookEventCountAggregateOutputType | null
-    _avg: WebhookEventAvgAggregateOutputType | null
-    _sum: WebhookEventSumAggregateOutputType | null
     _min: WebhookEventMinAggregateOutputType | null
     _max: WebhookEventMaxAggregateOutputType | null
-  }
-
-  export type WebhookEventAvgAggregateOutputType = {
-    attempts: number | null
-  }
-
-  export type WebhookEventSumAggregateOutputType = {
-    attempts: number | null
   }
 
   export type WebhookEventMinAggregateOutputType = {
@@ -22731,10 +22851,8 @@ export namespace Prisma {
     reference: string | null
     status: $Enums.WebhookEventStatus | null
     error: string | null
-    attempts: number | null
     receivedAt: Date | null
     processedAt: Date | null
-    lastAttemptAt: Date | null
   }
 
   export type WebhookEventMaxAggregateOutputType = {
@@ -22745,10 +22863,8 @@ export namespace Prisma {
     reference: string | null
     status: $Enums.WebhookEventStatus | null
     error: string | null
-    attempts: number | null
     receivedAt: Date | null
     processedAt: Date | null
-    lastAttemptAt: Date | null
   }
 
   export type WebhookEventCountAggregateOutputType = {
@@ -22759,22 +22875,11 @@ export namespace Prisma {
     reference: number
     status: number
     error: number
-    attempts: number
-    payload: number
     receivedAt: number
     processedAt: number
-    lastAttemptAt: number
     _all: number
   }
 
-
-  export type WebhookEventAvgAggregateInputType = {
-    attempts?: true
-  }
-
-  export type WebhookEventSumAggregateInputType = {
-    attempts?: true
-  }
 
   export type WebhookEventMinAggregateInputType = {
     id?: true
@@ -22784,10 +22889,8 @@ export namespace Prisma {
     reference?: true
     status?: true
     error?: true
-    attempts?: true
     receivedAt?: true
     processedAt?: true
-    lastAttemptAt?: true
   }
 
   export type WebhookEventMaxAggregateInputType = {
@@ -22798,10 +22901,8 @@ export namespace Prisma {
     reference?: true
     status?: true
     error?: true
-    attempts?: true
     receivedAt?: true
     processedAt?: true
-    lastAttemptAt?: true
   }
 
   export type WebhookEventCountAggregateInputType = {
@@ -22812,11 +22913,8 @@ export namespace Prisma {
     reference?: true
     status?: true
     error?: true
-    attempts?: true
-    payload?: true
     receivedAt?: true
     processedAt?: true
-    lastAttemptAt?: true
     _all?: true
   }
 
@@ -22858,18 +22956,6 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Select which fields to average
-    **/
-    _avg?: WebhookEventAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: WebhookEventSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
      * Select which fields to find the minimum value
     **/
     _min?: WebhookEventMinAggregateInputType
@@ -22900,8 +22986,6 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: WebhookEventCountAggregateInputType | true
-    _avg?: WebhookEventAvgAggregateInputType
-    _sum?: WebhookEventSumAggregateInputType
     _min?: WebhookEventMinAggregateInputType
     _max?: WebhookEventMaxAggregateInputType
   }
@@ -22914,14 +22998,9 @@ export namespace Prisma {
     reference: string | null
     status: $Enums.WebhookEventStatus
     error: string | null
-    attempts: number
-    payload: JsonValue | null
     receivedAt: Date
     processedAt: Date | null
-    lastAttemptAt: Date | null
     _count: WebhookEventCountAggregateOutputType | null
-    _avg: WebhookEventAvgAggregateOutputType | null
-    _sum: WebhookEventSumAggregateOutputType | null
     _min: WebhookEventMinAggregateOutputType | null
     _max: WebhookEventMaxAggregateOutputType | null
   }
@@ -22948,11 +23027,8 @@ export namespace Prisma {
     reference?: boolean
     status?: boolean
     error?: boolean
-    attempts?: boolean
-    payload?: boolean
     receivedAt?: boolean
     processedAt?: boolean
-    lastAttemptAt?: boolean
   }, ExtArgs["result"]["webhookEvent"]>
 
   export type WebhookEventSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -22963,11 +23039,8 @@ export namespace Prisma {
     reference?: boolean
     status?: boolean
     error?: boolean
-    attempts?: boolean
-    payload?: boolean
     receivedAt?: boolean
     processedAt?: boolean
-    lastAttemptAt?: boolean
   }, ExtArgs["result"]["webhookEvent"]>
 
   export type WebhookEventSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -22978,11 +23051,8 @@ export namespace Prisma {
     reference?: boolean
     status?: boolean
     error?: boolean
-    attempts?: boolean
-    payload?: boolean
     receivedAt?: boolean
     processedAt?: boolean
-    lastAttemptAt?: boolean
   }, ExtArgs["result"]["webhookEvent"]>
 
   export type WebhookEventSelectScalar = {
@@ -22993,14 +23063,11 @@ export namespace Prisma {
     reference?: boolean
     status?: boolean
     error?: boolean
-    attempts?: boolean
-    payload?: boolean
     receivedAt?: boolean
     processedAt?: boolean
-    lastAttemptAt?: boolean
   }
 
-  export type WebhookEventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "provider" | "eventKey" | "eventType" | "reference" | "status" | "error" | "attempts" | "payload" | "receivedAt" | "processedAt" | "lastAttemptAt", ExtArgs["result"]["webhookEvent"]>
+  export type WebhookEventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "provider" | "eventKey" | "eventType" | "reference" | "status" | "error" | "receivedAt" | "processedAt", ExtArgs["result"]["webhookEvent"]>
 
   export type $WebhookEventPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "WebhookEvent"
@@ -23013,11 +23080,8 @@ export namespace Prisma {
       reference: string | null
       status: $Enums.WebhookEventStatus
       error: string | null
-      attempts: number
-      payload: Prisma.JsonValue | null
       receivedAt: Date
       processedAt: Date | null
-      lastAttemptAt: Date | null
     }, ExtArgs["result"]["webhookEvent"]>
     composites: {}
   }
@@ -23448,11 +23512,8 @@ export namespace Prisma {
     readonly reference: FieldRef<"WebhookEvent", 'String'>
     readonly status: FieldRef<"WebhookEvent", 'WebhookEventStatus'>
     readonly error: FieldRef<"WebhookEvent", 'String'>
-    readonly attempts: FieldRef<"WebhookEvent", 'Int'>
-    readonly payload: FieldRef<"WebhookEvent", 'Json'>
     readonly receivedAt: FieldRef<"WebhookEvent", 'DateTime'>
     readonly processedAt: FieldRef<"WebhookEvent", 'DateTime'>
-    readonly lastAttemptAt: FieldRef<"WebhookEvent", 'DateTime'>
   }
     
 
@@ -47039,8 +47100,10 @@ export namespace Prisma {
 
   export const UserScalarFieldEnum: {
     id: 'id',
+    schoolId: 'schoolId',
     email: 'email',
     passwordHash: 'passwordHash',
+    role: 'role',
     firstName: 'firstName',
     lastName: 'lastName',
     phone: 'phone',
@@ -47107,6 +47170,7 @@ export namespace Prisma {
   export const InviteScalarFieldEnum: {
     id: 'id',
     email: 'email',
+    role: 'role',
     persona: 'persona',
     personaEntityId: 'personaEntityId',
     roleId: 'roleId',
@@ -47277,11 +47341,8 @@ export namespace Prisma {
     reference: 'reference',
     status: 'status',
     error: 'error',
-    attempts: 'attempts',
-    payload: 'payload',
     receivedAt: 'receivedAt',
-    processedAt: 'processedAt',
-    lastAttemptAt: 'lastAttemptAt'
+    processedAt: 'processedAt'
   };
 
   export type WebhookEventScalarFieldEnum = (typeof WebhookEventScalarFieldEnum)[keyof typeof WebhookEventScalarFieldEnum]
@@ -47834,6 +47895,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Role'
+   */
+  export type EnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Role'>
+    
+
+
+  /**
+   * Reference to a field of type 'Role[]'
+   */
+  export type ListEnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Role[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Int'
    */
   export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -48296,6 +48371,7 @@ export namespace Prisma {
     settlementAccountLast4?: StringNullableFilter<"School"> | string | null
     createdAt?: DateTimeFilter<"School"> | Date | string
     updatedAt?: DateTimeFilter<"School"> | Date | string
+    users?: UserListRelationFilter
     userSchools?: UserSchoolListRelationFilter
     subscriptions?: SubscriptionListRelationFilter
     documents?: SchoolDocumentListRelationFilter
@@ -48344,6 +48420,7 @@ export namespace Prisma {
     settlementAccountLast4?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    users?: UserOrderByRelationAggregateInput
     userSchools?: UserSchoolOrderByRelationAggregateInput
     subscriptions?: SubscriptionOrderByRelationAggregateInput
     documents?: SchoolDocumentOrderByRelationAggregateInput
@@ -48395,6 +48472,7 @@ export namespace Prisma {
     settlementAccountLast4?: StringNullableFilter<"School"> | string | null
     createdAt?: DateTimeFilter<"School"> | Date | string
     updatedAt?: DateTimeFilter<"School"> | Date | string
+    users?: UserListRelationFilter
     userSchools?: UserSchoolListRelationFilter
     subscriptions?: SubscriptionListRelationFilter
     documents?: SchoolDocumentListRelationFilter
@@ -48605,8 +48683,10 @@ export namespace Prisma {
     OR?: UserWhereInput[]
     NOT?: UserWhereInput | UserWhereInput[]
     id?: StringFilter<"User"> | string
+    schoolId?: StringNullableFilter<"User"> | string | null
     email?: StringFilter<"User"> | string
     passwordHash?: StringFilter<"User"> | string
+    role?: EnumRoleFilter<"User"> | $Enums.Role
     firstName?: StringNullableFilter<"User"> | string | null
     lastName?: StringNullableFilter<"User"> | string | null
     phone?: StringNullableFilter<"User"> | string | null
@@ -48622,6 +48702,7 @@ export namespace Prisma {
     mustChangePassword?: BoolFilter<"User"> | boolean
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
+    school?: XOR<SchoolNullableScalarRelationFilter, SchoolWhereInput> | null
     platformMember?: XOR<PlatformMemberNullableScalarRelationFilter, PlatformMemberWhereInput> | null
     schools?: UserSchoolListRelationFilter
     refreshTokens?: RefreshTokenListRelationFilter
@@ -48632,8 +48713,10 @@ export namespace Prisma {
 
   export type UserOrderByWithRelationInput = {
     id?: SortOrder
+    schoolId?: SortOrderInput | SortOrder
     email?: SortOrder
     passwordHash?: SortOrder
+    role?: SortOrder
     firstName?: SortOrderInput | SortOrder
     lastName?: SortOrderInput | SortOrder
     phone?: SortOrderInput | SortOrder
@@ -48649,6 +48732,7 @@ export namespace Prisma {
     mustChangePassword?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    school?: SchoolOrderByWithRelationInput
     platformMember?: PlatformMemberOrderByWithRelationInput
     schools?: UserSchoolOrderByRelationAggregateInput
     refreshTokens?: RefreshTokenOrderByRelationAggregateInput
@@ -48663,7 +48747,9 @@ export namespace Prisma {
     AND?: UserWhereInput | UserWhereInput[]
     OR?: UserWhereInput[]
     NOT?: UserWhereInput | UserWhereInput[]
+    schoolId?: StringNullableFilter<"User"> | string | null
     passwordHash?: StringFilter<"User"> | string
+    role?: EnumRoleFilter<"User"> | $Enums.Role
     firstName?: StringNullableFilter<"User"> | string | null
     lastName?: StringNullableFilter<"User"> | string | null
     phone?: StringNullableFilter<"User"> | string | null
@@ -48679,6 +48765,7 @@ export namespace Prisma {
     mustChangePassword?: BoolFilter<"User"> | boolean
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
+    school?: XOR<SchoolNullableScalarRelationFilter, SchoolWhereInput> | null
     platformMember?: XOR<PlatformMemberNullableScalarRelationFilter, PlatformMemberWhereInput> | null
     schools?: UserSchoolListRelationFilter
     refreshTokens?: RefreshTokenListRelationFilter
@@ -48689,8 +48776,10 @@ export namespace Prisma {
 
   export type UserOrderByWithAggregationInput = {
     id?: SortOrder
+    schoolId?: SortOrderInput | SortOrder
     email?: SortOrder
     passwordHash?: SortOrder
+    role?: SortOrder
     firstName?: SortOrderInput | SortOrder
     lastName?: SortOrderInput | SortOrder
     phone?: SortOrderInput | SortOrder
@@ -48718,8 +48807,10 @@ export namespace Prisma {
     OR?: UserScalarWhereWithAggregatesInput[]
     NOT?: UserScalarWhereWithAggregatesInput | UserScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"User"> | string
+    schoolId?: StringNullableWithAggregatesFilter<"User"> | string | null
     email?: StringWithAggregatesFilter<"User"> | string
     passwordHash?: StringWithAggregatesFilter<"User"> | string
+    role?: EnumRoleWithAggregatesFilter<"User"> | $Enums.Role
     firstName?: StringNullableWithAggregatesFilter<"User"> | string | null
     lastName?: StringNullableWithAggregatesFilter<"User"> | string | null
     phone?: StringNullableWithAggregatesFilter<"User"> | string | null
@@ -48964,6 +49055,7 @@ export namespace Prisma {
     NOT?: InviteWhereInput | InviteWhereInput[]
     id?: StringFilter<"Invite"> | string
     email?: StringFilter<"Invite"> | string
+    role?: EnumRoleFilter<"Invite"> | $Enums.Role
     persona?: EnumPersonaFilter<"Invite"> | $Enums.Persona
     personaEntityId?: StringNullableFilter<"Invite"> | string | null
     roleId?: StringNullableFilter<"Invite"> | string | null
@@ -48982,6 +49074,7 @@ export namespace Prisma {
   export type InviteOrderByWithRelationInput = {
     id?: SortOrder
     email?: SortOrder
+    role?: SortOrder
     persona?: SortOrder
     personaEntityId?: SortOrderInput | SortOrder
     roleId?: SortOrderInput | SortOrder
@@ -49004,6 +49097,7 @@ export namespace Prisma {
     OR?: InviteWhereInput[]
     NOT?: InviteWhereInput | InviteWhereInput[]
     email?: StringFilter<"Invite"> | string
+    role?: EnumRoleFilter<"Invite"> | $Enums.Role
     persona?: EnumPersonaFilter<"Invite"> | $Enums.Persona
     personaEntityId?: StringNullableFilter<"Invite"> | string | null
     roleId?: StringNullableFilter<"Invite"> | string | null
@@ -49021,6 +49115,7 @@ export namespace Prisma {
   export type InviteOrderByWithAggregationInput = {
     id?: SortOrder
     email?: SortOrder
+    role?: SortOrder
     persona?: SortOrder
     personaEntityId?: SortOrderInput | SortOrder
     roleId?: SortOrderInput | SortOrder
@@ -49044,6 +49139,7 @@ export namespace Prisma {
     NOT?: InviteScalarWhereWithAggregatesInput | InviteScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Invite"> | string
     email?: StringWithAggregatesFilter<"Invite"> | string
+    role?: EnumRoleWithAggregatesFilter<"Invite"> | $Enums.Role
     persona?: EnumPersonaWithAggregatesFilter<"Invite"> | $Enums.Persona
     personaEntityId?: StringNullableWithAggregatesFilter<"Invite"> | string | null
     roleId?: StringNullableWithAggregatesFilter<"Invite"> | string | null
@@ -49836,11 +49932,8 @@ export namespace Prisma {
     reference?: StringNullableFilter<"WebhookEvent"> | string | null
     status?: EnumWebhookEventStatusFilter<"WebhookEvent"> | $Enums.WebhookEventStatus
     error?: StringNullableFilter<"WebhookEvent"> | string | null
-    attempts?: IntFilter<"WebhookEvent"> | number
-    payload?: JsonNullableFilter<"WebhookEvent">
     receivedAt?: DateTimeFilter<"WebhookEvent"> | Date | string
     processedAt?: DateTimeNullableFilter<"WebhookEvent"> | Date | string | null
-    lastAttemptAt?: DateTimeNullableFilter<"WebhookEvent"> | Date | string | null
   }
 
   export type WebhookEventOrderByWithRelationInput = {
@@ -49851,11 +49944,8 @@ export namespace Prisma {
     reference?: SortOrderInput | SortOrder
     status?: SortOrder
     error?: SortOrderInput | SortOrder
-    attempts?: SortOrder
-    payload?: SortOrderInput | SortOrder
     receivedAt?: SortOrder
     processedAt?: SortOrderInput | SortOrder
-    lastAttemptAt?: SortOrderInput | SortOrder
   }
 
   export type WebhookEventWhereUniqueInput = Prisma.AtLeast<{
@@ -49870,11 +49960,8 @@ export namespace Prisma {
     reference?: StringNullableFilter<"WebhookEvent"> | string | null
     status?: EnumWebhookEventStatusFilter<"WebhookEvent"> | $Enums.WebhookEventStatus
     error?: StringNullableFilter<"WebhookEvent"> | string | null
-    attempts?: IntFilter<"WebhookEvent"> | number
-    payload?: JsonNullableFilter<"WebhookEvent">
     receivedAt?: DateTimeFilter<"WebhookEvent"> | Date | string
     processedAt?: DateTimeNullableFilter<"WebhookEvent"> | Date | string | null
-    lastAttemptAt?: DateTimeNullableFilter<"WebhookEvent"> | Date | string | null
   }, "id" | "provider_eventKey">
 
   export type WebhookEventOrderByWithAggregationInput = {
@@ -49885,16 +49972,11 @@ export namespace Prisma {
     reference?: SortOrderInput | SortOrder
     status?: SortOrder
     error?: SortOrderInput | SortOrder
-    attempts?: SortOrder
-    payload?: SortOrderInput | SortOrder
     receivedAt?: SortOrder
     processedAt?: SortOrderInput | SortOrder
-    lastAttemptAt?: SortOrderInput | SortOrder
     _count?: WebhookEventCountOrderByAggregateInput
-    _avg?: WebhookEventAvgOrderByAggregateInput
     _max?: WebhookEventMaxOrderByAggregateInput
     _min?: WebhookEventMinOrderByAggregateInput
-    _sum?: WebhookEventSumOrderByAggregateInput
   }
 
   export type WebhookEventScalarWhereWithAggregatesInput = {
@@ -49908,11 +49990,8 @@ export namespace Prisma {
     reference?: StringNullableWithAggregatesFilter<"WebhookEvent"> | string | null
     status?: EnumWebhookEventStatusWithAggregatesFilter<"WebhookEvent"> | $Enums.WebhookEventStatus
     error?: StringNullableWithAggregatesFilter<"WebhookEvent"> | string | null
-    attempts?: IntWithAggregatesFilter<"WebhookEvent"> | number
-    payload?: JsonNullableWithAggregatesFilter<"WebhookEvent">
     receivedAt?: DateTimeWithAggregatesFilter<"WebhookEvent"> | Date | string
     processedAt?: DateTimeNullableWithAggregatesFilter<"WebhookEvent"> | Date | string | null
-    lastAttemptAt?: DateTimeNullableWithAggregatesFilter<"WebhookEvent"> | Date | string | null
   }
 
   export type BillingNoticeWhereInput = {
@@ -51726,6 +51805,7 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentCreateNestedManyWithoutSchoolInput
@@ -51774,6 +51854,7 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolUncheckedCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentUncheckedCreateNestedManyWithoutSchoolInput
@@ -51822,6 +51903,7 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUpdateManyWithoutSchoolNestedInput
@@ -51870,6 +51952,7 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUncheckedUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUncheckedUpdateManyWithoutSchoolNestedInput
@@ -52134,6 +52217,7 @@ export namespace Prisma {
     id?: string
     email: string
     passwordHash: string
+    role: $Enums.Role
     firstName?: string | null
     lastName?: string | null
     phone?: string | null
@@ -52149,6 +52233,7 @@ export namespace Prisma {
     mustChangePassword?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    school?: SchoolCreateNestedOneWithoutUsersInput
     platformMember?: PlatformMemberCreateNestedOneWithoutUserInput
     schools?: UserSchoolCreateNestedManyWithoutUserInput
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
@@ -52159,8 +52244,10 @@ export namespace Prisma {
 
   export type UserUncheckedCreateInput = {
     id?: string
+    schoolId?: string | null
     email: string
     passwordHash: string
+    role: $Enums.Role
     firstName?: string | null
     lastName?: string | null
     phone?: string | null
@@ -52188,6 +52275,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -52203,6 +52291,7 @@ export namespace Prisma {
     mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    school?: SchoolUpdateOneWithoutUsersNestedInput
     platformMember?: PlatformMemberUpdateOneWithoutUserNestedInput
     schools?: UserSchoolUpdateManyWithoutUserNestedInput
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
@@ -52213,8 +52302,10 @@ export namespace Prisma {
 
   export type UserUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    schoolId?: NullableStringFieldUpdateOperationsInput | string | null
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -52240,8 +52331,10 @@ export namespace Prisma {
 
   export type UserCreateManyInput = {
     id?: string
+    schoolId?: string | null
     email: string
     passwordHash: string
+    role: $Enums.Role
     firstName?: string | null
     lastName?: string | null
     phone?: string | null
@@ -52263,6 +52356,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -52282,8 +52376,10 @@ export namespace Prisma {
 
   export type UserUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
+    schoolId?: NullableStringFieldUpdateOperationsInput | string | null
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -52538,6 +52634,7 @@ export namespace Prisma {
   export type InviteCreateInput = {
     id?: string
     email: string
+    role: $Enums.Role
     persona?: $Enums.Persona
     personaEntityId?: string | null
     roleId?: string | null
@@ -52555,6 +52652,7 @@ export namespace Prisma {
   export type InviteUncheckedCreateInput = {
     id?: string
     email: string
+    role: $Enums.Role
     persona?: $Enums.Persona
     personaEntityId?: string | null
     roleId?: string | null
@@ -52572,6 +52670,7 @@ export namespace Prisma {
   export type InviteUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     persona?: EnumPersonaFieldUpdateOperationsInput | $Enums.Persona
     personaEntityId?: NullableStringFieldUpdateOperationsInput | string | null
     roleId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -52589,6 +52688,7 @@ export namespace Prisma {
   export type InviteUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     persona?: EnumPersonaFieldUpdateOperationsInput | $Enums.Persona
     personaEntityId?: NullableStringFieldUpdateOperationsInput | string | null
     roleId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -52606,6 +52706,7 @@ export namespace Prisma {
   export type InviteCreateManyInput = {
     id?: string
     email: string
+    role: $Enums.Role
     persona?: $Enums.Persona
     personaEntityId?: string | null
     roleId?: string | null
@@ -52623,6 +52724,7 @@ export namespace Prisma {
   export type InviteUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     persona?: EnumPersonaFieldUpdateOperationsInput | $Enums.Persona
     personaEntityId?: NullableStringFieldUpdateOperationsInput | string | null
     roleId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -52639,6 +52741,7 @@ export namespace Prisma {
   export type InviteUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     persona?: EnumPersonaFieldUpdateOperationsInput | $Enums.Persona
     personaEntityId?: NullableStringFieldUpdateOperationsInput | string | null
     roleId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -53548,11 +53651,8 @@ export namespace Prisma {
     reference?: string | null
     status?: $Enums.WebhookEventStatus
     error?: string | null
-    attempts?: number
-    payload?: NullableJsonNullValueInput | InputJsonValue
     receivedAt?: Date | string
     processedAt?: Date | string | null
-    lastAttemptAt?: Date | string | null
   }
 
   export type WebhookEventUncheckedCreateInput = {
@@ -53563,11 +53663,8 @@ export namespace Prisma {
     reference?: string | null
     status?: $Enums.WebhookEventStatus
     error?: string | null
-    attempts?: number
-    payload?: NullableJsonNullValueInput | InputJsonValue
     receivedAt?: Date | string
     processedAt?: Date | string | null
-    lastAttemptAt?: Date | string | null
   }
 
   export type WebhookEventUpdateInput = {
@@ -53578,11 +53675,8 @@ export namespace Prisma {
     reference?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumWebhookEventStatusFieldUpdateOperationsInput | $Enums.WebhookEventStatus
     error?: NullableStringFieldUpdateOperationsInput | string | null
-    attempts?: IntFieldUpdateOperationsInput | number
-    payload?: NullableJsonNullValueInput | InputJsonValue
     receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type WebhookEventUncheckedUpdateInput = {
@@ -53593,11 +53687,8 @@ export namespace Prisma {
     reference?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumWebhookEventStatusFieldUpdateOperationsInput | $Enums.WebhookEventStatus
     error?: NullableStringFieldUpdateOperationsInput | string | null
-    attempts?: IntFieldUpdateOperationsInput | number
-    payload?: NullableJsonNullValueInput | InputJsonValue
     receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type WebhookEventCreateManyInput = {
@@ -53608,11 +53699,8 @@ export namespace Prisma {
     reference?: string | null
     status?: $Enums.WebhookEventStatus
     error?: string | null
-    attempts?: number
-    payload?: NullableJsonNullValueInput | InputJsonValue
     receivedAt?: Date | string
     processedAt?: Date | string | null
-    lastAttemptAt?: Date | string | null
   }
 
   export type WebhookEventUpdateManyMutationInput = {
@@ -53623,11 +53711,8 @@ export namespace Prisma {
     reference?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumWebhookEventStatusFieldUpdateOperationsInput | $Enums.WebhookEventStatus
     error?: NullableStringFieldUpdateOperationsInput | string | null
-    attempts?: IntFieldUpdateOperationsInput | number
-    payload?: NullableJsonNullValueInput | InputJsonValue
     receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type WebhookEventUncheckedUpdateManyInput = {
@@ -53638,11 +53723,8 @@ export namespace Prisma {
     reference?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumWebhookEventStatusFieldUpdateOperationsInput | $Enums.WebhookEventStatus
     error?: NullableStringFieldUpdateOperationsInput | string | null
-    attempts?: IntFieldUpdateOperationsInput | number
-    payload?: NullableJsonNullValueInput | InputJsonValue
     receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type BillingNoticeCreateInput = {
@@ -55753,6 +55835,12 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type UserListRelationFilter = {
+    every?: UserWhereInput
+    some?: UserWhereInput
+    none?: UserWhereInput
+  }
+
   export type UserSchoolListRelationFilter = {
     every?: UserSchoolWhereInput
     some?: UserSchoolWhereInput
@@ -55810,6 +55898,10 @@ export namespace Prisma {
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
+  }
+
+  export type UserOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
   export type UserSchoolOrderByRelationAggregateInput = {
@@ -56237,6 +56329,13 @@ export namespace Prisma {
     _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
+  export type EnumRoleFilter<$PrismaModel = never> = {
+    equals?: $Enums.Role | EnumRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumRoleFilter<$PrismaModel> | $Enums.Role
+  }
+
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -56246,6 +56345,11 @@ export namespace Prisma {
     gt?: number | IntFieldRefInput<$PrismaModel>
     gte?: number | IntFieldRefInput<$PrismaModel>
     not?: NestedIntFilter<$PrismaModel> | number
+  }
+
+  export type SchoolNullableScalarRelationFilter = {
+    is?: SchoolWhereInput | null
+    isNot?: SchoolWhereInput | null
   }
 
   export type PlatformMemberNullableScalarRelationFilter = {
@@ -56285,8 +56389,10 @@ export namespace Prisma {
 
   export type UserCountOrderByAggregateInput = {
     id?: SortOrder
+    schoolId?: SortOrder
     email?: SortOrder
     passwordHash?: SortOrder
+    role?: SortOrder
     firstName?: SortOrder
     lastName?: SortOrder
     phone?: SortOrder
@@ -56310,8 +56416,10 @@ export namespace Prisma {
 
   export type UserMaxOrderByAggregateInput = {
     id?: SortOrder
+    schoolId?: SortOrder
     email?: SortOrder
     passwordHash?: SortOrder
+    role?: SortOrder
     firstName?: SortOrder
     lastName?: SortOrder
     phone?: SortOrder
@@ -56331,8 +56439,10 @@ export namespace Prisma {
 
   export type UserMinOrderByAggregateInput = {
     id?: SortOrder
+    schoolId?: SortOrder
     email?: SortOrder
     passwordHash?: SortOrder
+    role?: SortOrder
     firstName?: SortOrder
     lastName?: SortOrder
     phone?: SortOrder
@@ -56352,6 +56462,16 @@ export namespace Prisma {
 
   export type UserSumOrderByAggregateInput = {
     failedLoginCount?: SortOrder
+  }
+
+  export type EnumRoleWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.Role | EnumRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumRoleWithAggregatesFilter<$PrismaModel> | $Enums.Role
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumRoleFilter<$PrismaModel>
+    _max?: NestedEnumRoleFilter<$PrismaModel>
   }
 
   export type IntWithAggregatesFilter<$PrismaModel = never> = {
@@ -56517,6 +56637,7 @@ export namespace Prisma {
   export type InviteCountOrderByAggregateInput = {
     id?: SortOrder
     email?: SortOrder
+    role?: SortOrder
     persona?: SortOrder
     personaEntityId?: SortOrder
     roleId?: SortOrder
@@ -56534,6 +56655,7 @@ export namespace Prisma {
   export type InviteMaxOrderByAggregateInput = {
     id?: SortOrder
     email?: SortOrder
+    role?: SortOrder
     persona?: SortOrder
     personaEntityId?: SortOrder
     roleId?: SortOrder
@@ -56551,6 +56673,7 @@ export namespace Prisma {
   export type InviteMinOrderByAggregateInput = {
     id?: SortOrder
     email?: SortOrder
+    role?: SortOrder
     persona?: SortOrder
     personaEntityId?: SortOrder
     roleId?: SortOrder
@@ -57263,15 +57386,8 @@ export namespace Prisma {
     reference?: SortOrder
     status?: SortOrder
     error?: SortOrder
-    attempts?: SortOrder
-    payload?: SortOrder
     receivedAt?: SortOrder
     processedAt?: SortOrder
-    lastAttemptAt?: SortOrder
-  }
-
-  export type WebhookEventAvgOrderByAggregateInput = {
-    attempts?: SortOrder
   }
 
   export type WebhookEventMaxOrderByAggregateInput = {
@@ -57282,10 +57398,8 @@ export namespace Prisma {
     reference?: SortOrder
     status?: SortOrder
     error?: SortOrder
-    attempts?: SortOrder
     receivedAt?: SortOrder
     processedAt?: SortOrder
-    lastAttemptAt?: SortOrder
   }
 
   export type WebhookEventMinOrderByAggregateInput = {
@@ -57296,14 +57410,8 @@ export namespace Prisma {
     reference?: SortOrder
     status?: SortOrder
     error?: SortOrder
-    attempts?: SortOrder
     receivedAt?: SortOrder
     processedAt?: SortOrder
-    lastAttemptAt?: SortOrder
-  }
-
-  export type WebhookEventSumOrderByAggregateInput = {
-    attempts?: SortOrder
   }
 
   export type EnumWebhookEventStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -58210,11 +58318,6 @@ export namespace Prisma {
     not?: NestedEnumActorTypeFilter<$PrismaModel> | $Enums.ActorType
   }
 
-  export type SchoolNullableScalarRelationFilter = {
-    is?: SchoolWhereInput | null
-    isNot?: SchoolWhereInput | null
-  }
-
   export type AuditLogCountOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
@@ -58750,6 +58853,13 @@ export namespace Prisma {
     _max?: NestedEnumLedgerAccountTypeFilter<$PrismaModel>
   }
 
+  export type UserCreateNestedManyWithoutSchoolInput = {
+    create?: XOR<UserCreateWithoutSchoolInput, UserUncheckedCreateWithoutSchoolInput> | UserCreateWithoutSchoolInput[] | UserUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutSchoolInput | UserCreateOrConnectWithoutSchoolInput[]
+    createMany?: UserCreateManySchoolInputEnvelope
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+  }
+
   export type UserSchoolCreateNestedManyWithoutSchoolInput = {
     create?: XOR<UserSchoolCreateWithoutSchoolInput, UserSchoolUncheckedCreateWithoutSchoolInput> | UserSchoolCreateWithoutSchoolInput[] | UserSchoolUncheckedCreateWithoutSchoolInput[]
     connectOrCreate?: UserSchoolCreateOrConnectWithoutSchoolInput | UserSchoolCreateOrConnectWithoutSchoolInput[]
@@ -58811,6 +58921,13 @@ export namespace Prisma {
     connectOrCreate?: PaymentMethodCreateOrConnectWithoutSchoolInput | PaymentMethodCreateOrConnectWithoutSchoolInput[]
     createMany?: PaymentMethodCreateManySchoolInputEnvelope
     connect?: PaymentMethodWhereUniqueInput | PaymentMethodWhereUniqueInput[]
+  }
+
+  export type UserUncheckedCreateNestedManyWithoutSchoolInput = {
+    create?: XOR<UserCreateWithoutSchoolInput, UserUncheckedCreateWithoutSchoolInput> | UserCreateWithoutSchoolInput[] | UserUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutSchoolInput | UserCreateOrConnectWithoutSchoolInput[]
+    createMany?: UserCreateManySchoolInputEnvelope
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
   }
 
   export type UserSchoolUncheckedCreateNestedManyWithoutSchoolInput = {
@@ -58910,6 +59027,20 @@ export namespace Prisma {
 
   export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string
+  }
+
+  export type UserUpdateManyWithoutSchoolNestedInput = {
+    create?: XOR<UserCreateWithoutSchoolInput, UserUncheckedCreateWithoutSchoolInput> | UserCreateWithoutSchoolInput[] | UserUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutSchoolInput | UserCreateOrConnectWithoutSchoolInput[]
+    upsert?: UserUpsertWithWhereUniqueWithoutSchoolInput | UserUpsertWithWhereUniqueWithoutSchoolInput[]
+    createMany?: UserCreateManySchoolInputEnvelope
+    set?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    disconnect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    delete?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    update?: UserUpdateWithWhereUniqueWithoutSchoolInput | UserUpdateWithWhereUniqueWithoutSchoolInput[]
+    updateMany?: UserUpdateManyWithWhereWithoutSchoolInput | UserUpdateManyWithWhereWithoutSchoolInput[]
+    deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
   }
 
   export type UserSchoolUpdateManyWithoutSchoolNestedInput = {
@@ -59036,6 +59167,20 @@ export namespace Prisma {
     update?: PaymentMethodUpdateWithWhereUniqueWithoutSchoolInput | PaymentMethodUpdateWithWhereUniqueWithoutSchoolInput[]
     updateMany?: PaymentMethodUpdateManyWithWhereWithoutSchoolInput | PaymentMethodUpdateManyWithWhereWithoutSchoolInput[]
     deleteMany?: PaymentMethodScalarWhereInput | PaymentMethodScalarWhereInput[]
+  }
+
+  export type UserUncheckedUpdateManyWithoutSchoolNestedInput = {
+    create?: XOR<UserCreateWithoutSchoolInput, UserUncheckedCreateWithoutSchoolInput> | UserCreateWithoutSchoolInput[] | UserUncheckedCreateWithoutSchoolInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutSchoolInput | UserCreateOrConnectWithoutSchoolInput[]
+    upsert?: UserUpsertWithWhereUniqueWithoutSchoolInput | UserUpsertWithWhereUniqueWithoutSchoolInput[]
+    createMany?: UserCreateManySchoolInputEnvelope
+    set?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    disconnect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    delete?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    update?: UserUpdateWithWhereUniqueWithoutSchoolInput | UserUpdateWithWhereUniqueWithoutSchoolInput[]
+    updateMany?: UserUpdateManyWithWhereWithoutSchoolInput | UserUpdateManyWithWhereWithoutSchoolInput[]
+    deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
   }
 
   export type UserSchoolUncheckedUpdateManyWithoutSchoolNestedInput = {
@@ -59190,6 +59335,12 @@ export namespace Prisma {
     update?: XOR<XOR<SchoolUpdateToOneWithWhereWithoutDocumentsInput, SchoolUpdateWithoutDocumentsInput>, SchoolUncheckedUpdateWithoutDocumentsInput>
   }
 
+  export type SchoolCreateNestedOneWithoutUsersInput = {
+    create?: XOR<SchoolCreateWithoutUsersInput, SchoolUncheckedCreateWithoutUsersInput>
+    connectOrCreate?: SchoolCreateOrConnectWithoutUsersInput
+    connect?: SchoolWhereUniqueInput
+  }
+
   export type PlatformMemberCreateNestedOneWithoutUserInput = {
     create?: XOR<PlatformMemberCreateWithoutUserInput, PlatformMemberUncheckedCreateWithoutUserInput>
     connectOrCreate?: PlatformMemberCreateOrConnectWithoutUserInput
@@ -59272,12 +59423,26 @@ export namespace Prisma {
     connect?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
   }
 
+  export type EnumRoleFieldUpdateOperationsInput = {
+    set?: $Enums.Role
+  }
+
   export type IntFieldUpdateOperationsInput = {
     set?: number
     increment?: number
     decrement?: number
     multiply?: number
     divide?: number
+  }
+
+  export type SchoolUpdateOneWithoutUsersNestedInput = {
+    create?: XOR<SchoolCreateWithoutUsersInput, SchoolUncheckedCreateWithoutUsersInput>
+    connectOrCreate?: SchoolCreateOrConnectWithoutUsersInput
+    upsert?: SchoolUpsertWithoutUsersInput
+    disconnect?: SchoolWhereInput | boolean
+    delete?: SchoolWhereInput | boolean
+    connect?: SchoolWhereUniqueInput
+    update?: XOR<XOR<SchoolUpdateToOneWithWhereWithoutUsersInput, SchoolUpdateWithoutUsersInput>, SchoolUncheckedUpdateWithoutUsersInput>
   }
 
   export type PlatformMemberUpdateOneWithoutUserNestedInput = {
@@ -60975,6 +61140,23 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
+  export type NestedEnumRoleFilter<$PrismaModel = never> = {
+    equals?: $Enums.Role | EnumRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumRoleFilter<$PrismaModel> | $Enums.Role
+  }
+
+  export type NestedEnumRoleWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.Role | EnumRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumRoleWithAggregatesFilter<$PrismaModel> | $Enums.Role
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumRoleFilter<$PrismaModel>
+    _max?: NestedEnumRoleFilter<$PrismaModel>
+  }
+
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -61558,6 +61740,72 @@ export namespace Prisma {
     _max?: NestedEnumLedgerAccountTypeFilter<$PrismaModel>
   }
 
+  export type UserCreateWithoutSchoolInput = {
+    id?: string
+    email: string
+    passwordHash: string
+    role: $Enums.Role
+    firstName?: string | null
+    lastName?: string | null
+    phone?: string | null
+    photoUrl?: string | null
+    isActive?: boolean
+    isEmailVerified?: boolean
+    emailVerifiedAt?: Date | string | null
+    lastLoginAt?: Date | string | null
+    lastLoginIp?: string | null
+    failedLoginCount?: number
+    lockedUntil?: Date | string | null
+    passwordChangedAt?: Date | string | null
+    mustChangePassword?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    platformMember?: PlatformMemberCreateNestedOneWithoutUserInput
+    schools?: UserSchoolCreateNestedManyWithoutUserInput
+    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
+    otps?: OtpCreateNestedManyWithoutUserInput
+    invitesSent?: InviteCreateNestedManyWithoutSentByInput
+    feedback?: FeedbackCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutSchoolInput = {
+    id?: string
+    email: string
+    passwordHash: string
+    role: $Enums.Role
+    firstName?: string | null
+    lastName?: string | null
+    phone?: string | null
+    photoUrl?: string | null
+    isActive?: boolean
+    isEmailVerified?: boolean
+    emailVerifiedAt?: Date | string | null
+    lastLoginAt?: Date | string | null
+    lastLoginIp?: string | null
+    failedLoginCount?: number
+    lockedUntil?: Date | string | null
+    passwordChangedAt?: Date | string | null
+    mustChangePassword?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    platformMember?: PlatformMemberUncheckedCreateNestedOneWithoutUserInput
+    schools?: UserSchoolUncheckedCreateNestedManyWithoutUserInput
+    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+    otps?: OtpUncheckedCreateNestedManyWithoutUserInput
+    invitesSent?: InviteUncheckedCreateNestedManyWithoutSentByInput
+    feedback?: FeedbackUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutSchoolInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutSchoolInput, UserUncheckedCreateWithoutSchoolInput>
+  }
+
+  export type UserCreateManySchoolInputEnvelope = {
+    data: UserCreateManySchoolInput | UserCreateManySchoolInput[]
+    skipDuplicates?: boolean
+  }
+
   export type UserSchoolCreateWithoutSchoolInput = {
     createdAt?: Date | string
     user: UserCreateNestedOneWithoutSchoolsInput
@@ -61960,6 +62208,48 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type UserUpsertWithWhereUniqueWithoutSchoolInput = {
+    where: UserWhereUniqueInput
+    update: XOR<UserUpdateWithoutSchoolInput, UserUncheckedUpdateWithoutSchoolInput>
+    create: XOR<UserCreateWithoutSchoolInput, UserUncheckedCreateWithoutSchoolInput>
+  }
+
+  export type UserUpdateWithWhereUniqueWithoutSchoolInput = {
+    where: UserWhereUniqueInput
+    data: XOR<UserUpdateWithoutSchoolInput, UserUncheckedUpdateWithoutSchoolInput>
+  }
+
+  export type UserUpdateManyWithWhereWithoutSchoolInput = {
+    where: UserScalarWhereInput
+    data: XOR<UserUpdateManyMutationInput, UserUncheckedUpdateManyWithoutSchoolInput>
+  }
+
+  export type UserScalarWhereInput = {
+    AND?: UserScalarWhereInput | UserScalarWhereInput[]
+    OR?: UserScalarWhereInput[]
+    NOT?: UserScalarWhereInput | UserScalarWhereInput[]
+    id?: StringFilter<"User"> | string
+    schoolId?: StringNullableFilter<"User"> | string | null
+    email?: StringFilter<"User"> | string
+    passwordHash?: StringFilter<"User"> | string
+    role?: EnumRoleFilter<"User"> | $Enums.Role
+    firstName?: StringNullableFilter<"User"> | string | null
+    lastName?: StringNullableFilter<"User"> | string | null
+    phone?: StringNullableFilter<"User"> | string | null
+    photoUrl?: StringNullableFilter<"User"> | string | null
+    isActive?: BoolFilter<"User"> | boolean
+    isEmailVerified?: BoolFilter<"User"> | boolean
+    emailVerifiedAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    lastLoginAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    lastLoginIp?: StringNullableFilter<"User"> | string | null
+    failedLoginCount?: IntFilter<"User"> | number
+    lockedUntil?: DateTimeNullableFilter<"User"> | Date | string | null
+    passwordChangedAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    mustChangePassword?: BoolFilter<"User"> | boolean
+    createdAt?: DateTimeFilter<"User"> | Date | string
+    updatedAt?: DateTimeFilter<"User"> | Date | string
+  }
+
   export type UserSchoolUpsertWithWhereUniqueWithoutSchoolInput = {
     where: UserSchoolWhereUniqueInput
     update: XOR<UserSchoolUpdateWithoutSchoolInput, UserSchoolUncheckedUpdateWithoutSchoolInput>
@@ -62330,6 +62620,7 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
     auditLogs?: AuditLogCreateNestedManyWithoutSchoolInput
@@ -62377,6 +62668,7 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolUncheckedCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutSchoolInput
@@ -62440,6 +62732,7 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
     auditLogs?: AuditLogUpdateManyWithoutSchoolNestedInput
@@ -62487,6 +62780,7 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUncheckedUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
@@ -62495,6 +62789,107 @@ export namespace Prisma {
     feedback?: FeedbackUncheckedUpdateManyWithoutSchoolNestedInput
     subscriptionInvoices?: SubscriptionInvoiceUncheckedUpdateManyWithoutSchoolNestedInput
     paymentMethods?: PaymentMethodUncheckedUpdateManyWithoutSchoolNestedInput
+  }
+
+  export type SchoolCreateWithoutUsersInput = {
+    id?: string
+    name: string
+    subdomain: string
+    customDomain?: string | null
+    customDomainVerifiedAt?: Date | string | null
+    email: string
+    phone?: string | null
+    website?: string | null
+    logoUrl?: string | null
+    address?: string | null
+    city?: string | null
+    state?: string | null
+    country?: string
+    timezone?: string
+    schoolCategory?: $Enums.SchoolCategory
+    schoolOwnership?: $Enums.SchoolOwnership
+    status?: $Enums.SchoolStatus
+    verificationStatus?: $Enums.VerificationStatus
+    verificationNote?: string | null
+    verifiedAt?: Date | string | null
+    verifiedById?: string | null
+    activatedAt?: Date | string | null
+    isActive?: boolean
+    suspendedAt?: Date | string | null
+    suspensionReason?: string | null
+    deletedAt?: Date | string | null
+    schemaName?: string | null
+    schemaProvisionedAt?: Date | string | null
+    paystackSubaccountCode?: string | null
+    paystackSubaccountId?: string | null
+    settlementBankCode?: string | null
+    settlementAccountNumber?: string | null
+    settlementAccountName?: string | null
+    settlementAccountLast4?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    userSchools?: UserSchoolCreateNestedManyWithoutSchoolInput
+    subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
+    documents?: SchoolDocumentCreateNestedManyWithoutSchoolInput
+    auditLogs?: AuditLogCreateNestedManyWithoutSchoolInput
+    platformNotificationRecipients?: PlatformNotificationRecipientCreateNestedManyWithoutSchoolInput
+    entitlementOverrides?: SchoolEntitlementOverrideCreateNestedManyWithoutSchoolInput
+    feedback?: FeedbackCreateNestedManyWithoutSchoolInput
+    subscriptionInvoices?: SubscriptionInvoiceCreateNestedManyWithoutSchoolInput
+    paymentMethods?: PaymentMethodCreateNestedManyWithoutSchoolInput
+  }
+
+  export type SchoolUncheckedCreateWithoutUsersInput = {
+    id?: string
+    name: string
+    subdomain: string
+    customDomain?: string | null
+    customDomainVerifiedAt?: Date | string | null
+    email: string
+    phone?: string | null
+    website?: string | null
+    logoUrl?: string | null
+    address?: string | null
+    city?: string | null
+    state?: string | null
+    country?: string
+    timezone?: string
+    schoolCategory?: $Enums.SchoolCategory
+    schoolOwnership?: $Enums.SchoolOwnership
+    status?: $Enums.SchoolStatus
+    verificationStatus?: $Enums.VerificationStatus
+    verificationNote?: string | null
+    verifiedAt?: Date | string | null
+    verifiedById?: string | null
+    activatedAt?: Date | string | null
+    isActive?: boolean
+    suspendedAt?: Date | string | null
+    suspensionReason?: string | null
+    deletedAt?: Date | string | null
+    schemaName?: string | null
+    schemaProvisionedAt?: Date | string | null
+    paystackSubaccountCode?: string | null
+    paystackSubaccountId?: string | null
+    settlementBankCode?: string | null
+    settlementAccountNumber?: string | null
+    settlementAccountName?: string | null
+    settlementAccountLast4?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    userSchools?: UserSchoolUncheckedCreateNestedManyWithoutSchoolInput
+    subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
+    documents?: SchoolDocumentUncheckedCreateNestedManyWithoutSchoolInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutSchoolInput
+    platformNotificationRecipients?: PlatformNotificationRecipientUncheckedCreateNestedManyWithoutSchoolInput
+    entitlementOverrides?: SchoolEntitlementOverrideUncheckedCreateNestedManyWithoutSchoolInput
+    feedback?: FeedbackUncheckedCreateNestedManyWithoutSchoolInput
+    subscriptionInvoices?: SubscriptionInvoiceUncheckedCreateNestedManyWithoutSchoolInput
+    paymentMethods?: PaymentMethodUncheckedCreateNestedManyWithoutSchoolInput
+  }
+
+  export type SchoolCreateOrConnectWithoutUsersInput = {
+    where: SchoolWhereUniqueInput
+    create: XOR<SchoolCreateWithoutUsersInput, SchoolUncheckedCreateWithoutUsersInput>
   }
 
   export type PlatformMemberCreateWithoutUserInput = {
@@ -62613,6 +63008,7 @@ export namespace Prisma {
   export type InviteCreateWithoutSentByInput = {
     id?: string
     email: string
+    role: $Enums.Role
     persona?: $Enums.Persona
     personaEntityId?: string | null
     roleId?: string | null
@@ -62629,6 +63025,7 @@ export namespace Prisma {
   export type InviteUncheckedCreateWithoutSentByInput = {
     id?: string
     email: string
+    role: $Enums.Role
     persona?: $Enums.Persona
     personaEntityId?: string | null
     roleId?: string | null
@@ -62684,6 +63081,113 @@ export namespace Prisma {
   export type FeedbackCreateManyUserInputEnvelope = {
     data: FeedbackCreateManyUserInput | FeedbackCreateManyUserInput[]
     skipDuplicates?: boolean
+  }
+
+  export type SchoolUpsertWithoutUsersInput = {
+    update: XOR<SchoolUpdateWithoutUsersInput, SchoolUncheckedUpdateWithoutUsersInput>
+    create: XOR<SchoolCreateWithoutUsersInput, SchoolUncheckedCreateWithoutUsersInput>
+    where?: SchoolWhereInput
+  }
+
+  export type SchoolUpdateToOneWithWhereWithoutUsersInput = {
+    where?: SchoolWhereInput
+    data: XOR<SchoolUpdateWithoutUsersInput, SchoolUncheckedUpdateWithoutUsersInput>
+  }
+
+  export type SchoolUpdateWithoutUsersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    subdomain?: StringFieldUpdateOperationsInput | string
+    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    customDomainVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    schoolCategory?: EnumSchoolCategoryFieldUpdateOperationsInput | $Enums.SchoolCategory
+    schoolOwnership?: EnumSchoolOwnershipFieldUpdateOperationsInput | $Enums.SchoolOwnership
+    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
+    verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+    verificationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verifiedById?: NullableStringFieldUpdateOperationsInput | string | null
+    activatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    schemaName?: NullableStringFieldUpdateOperationsInput | string | null
+    schemaProvisionedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackSubaccountCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubaccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    settlementBankCode?: NullableStringFieldUpdateOperationsInput | string | null
+    settlementAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    settlementAccountName?: NullableStringFieldUpdateOperationsInput | string | null
+    settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    userSchools?: UserSchoolUpdateManyWithoutSchoolNestedInput
+    subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
+    documents?: SchoolDocumentUpdateManyWithoutSchoolNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutSchoolNestedInput
+    platformNotificationRecipients?: PlatformNotificationRecipientUpdateManyWithoutSchoolNestedInput
+    entitlementOverrides?: SchoolEntitlementOverrideUpdateManyWithoutSchoolNestedInput
+    feedback?: FeedbackUpdateManyWithoutSchoolNestedInput
+    subscriptionInvoices?: SubscriptionInvoiceUpdateManyWithoutSchoolNestedInput
+    paymentMethods?: PaymentMethodUpdateManyWithoutSchoolNestedInput
+  }
+
+  export type SchoolUncheckedUpdateWithoutUsersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    subdomain?: StringFieldUpdateOperationsInput | string
+    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    customDomainVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: StringFieldUpdateOperationsInput | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    schoolCategory?: EnumSchoolCategoryFieldUpdateOperationsInput | $Enums.SchoolCategory
+    schoolOwnership?: EnumSchoolOwnershipFieldUpdateOperationsInput | $Enums.SchoolOwnership
+    status?: EnumSchoolStatusFieldUpdateOperationsInput | $Enums.SchoolStatus
+    verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+    verificationNote?: NullableStringFieldUpdateOperationsInput | string | null
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verifiedById?: NullableStringFieldUpdateOperationsInput | string | null
+    activatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    schemaName?: NullableStringFieldUpdateOperationsInput | string | null
+    schemaProvisionedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackSubaccountCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubaccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    settlementBankCode?: NullableStringFieldUpdateOperationsInput | string | null
+    settlementAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    settlementAccountName?: NullableStringFieldUpdateOperationsInput | string | null
+    settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    userSchools?: UserSchoolUncheckedUpdateManyWithoutSchoolNestedInput
+    subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
+    documents?: SchoolDocumentUncheckedUpdateManyWithoutSchoolNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
+    platformNotificationRecipients?: PlatformNotificationRecipientUncheckedUpdateManyWithoutSchoolNestedInput
+    entitlementOverrides?: SchoolEntitlementOverrideUncheckedUpdateManyWithoutSchoolNestedInput
+    feedback?: FeedbackUncheckedUpdateManyWithoutSchoolNestedInput
+    subscriptionInvoices?: SubscriptionInvoiceUncheckedUpdateManyWithoutSchoolNestedInput
+    paymentMethods?: PaymentMethodUncheckedUpdateManyWithoutSchoolNestedInput
   }
 
   export type PlatformMemberUpsertWithoutUserInput = {
@@ -62817,6 +63321,7 @@ export namespace Prisma {
     NOT?: InviteScalarWhereInput | InviteScalarWhereInput[]
     id?: StringFilter<"Invite"> | string
     email?: StringFilter<"Invite"> | string
+    role?: EnumRoleFilter<"Invite"> | $Enums.Role
     persona?: EnumPersonaFilter<"Invite"> | $Enums.Persona
     personaEntityId?: StringNullableFilter<"Invite"> | string | null
     roleId?: StringNullableFilter<"Invite"> | string | null
@@ -62851,6 +63356,7 @@ export namespace Prisma {
     id?: string
     email: string
     passwordHash: string
+    role: $Enums.Role
     firstName?: string | null
     lastName?: string | null
     phone?: string | null
@@ -62866,6 +63372,7 @@ export namespace Prisma {
     mustChangePassword?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    school?: SchoolCreateNestedOneWithoutUsersInput
     platformMember?: PlatformMemberCreateNestedOneWithoutUserInput
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
     otps?: OtpCreateNestedManyWithoutUserInput
@@ -62875,8 +63382,10 @@ export namespace Prisma {
 
   export type UserUncheckedCreateWithoutSchoolsInput = {
     id?: string
+    schoolId?: string | null
     email: string
     passwordHash: string
+    role: $Enums.Role
     firstName?: string | null
     lastName?: string | null
     phone?: string | null
@@ -62941,6 +63450,7 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentCreateNestedManyWithoutSchoolInput
     auditLogs?: AuditLogCreateNestedManyWithoutSchoolInput
@@ -62988,6 +63498,7 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentUncheckedCreateNestedManyWithoutSchoolInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutSchoolInput
@@ -63018,6 +63529,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -63033,6 +63545,7 @@ export namespace Prisma {
     mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    school?: SchoolUpdateOneWithoutUsersNestedInput
     platformMember?: PlatformMemberUpdateOneWithoutUserNestedInput
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
     otps?: OtpUpdateManyWithoutUserNestedInput
@@ -63042,8 +63555,10 @@ export namespace Prisma {
 
   export type UserUncheckedUpdateWithoutSchoolsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    schoolId?: NullableStringFieldUpdateOperationsInput | string | null
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -63114,6 +63629,7 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUpdateManyWithoutSchoolNestedInput
     auditLogs?: AuditLogUpdateManyWithoutSchoolNestedInput
@@ -63161,6 +63677,7 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUncheckedUpdateManyWithoutSchoolNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
@@ -63175,6 +63692,7 @@ export namespace Prisma {
     id?: string
     email: string
     passwordHash: string
+    role: $Enums.Role
     firstName?: string | null
     lastName?: string | null
     phone?: string | null
@@ -63190,6 +63708,7 @@ export namespace Prisma {
     mustChangePassword?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    school?: SchoolCreateNestedOneWithoutUsersInput
     platformMember?: PlatformMemberCreateNestedOneWithoutUserInput
     schools?: UserSchoolCreateNestedManyWithoutUserInput
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
@@ -63199,8 +63718,10 @@ export namespace Prisma {
 
   export type UserUncheckedCreateWithoutOtpsInput = {
     id?: string
+    schoolId?: string | null
     email: string
     passwordHash: string
+    role: $Enums.Role
     firstName?: string | null
     lastName?: string | null
     phone?: string | null
@@ -63243,6 +63764,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -63258,6 +63780,7 @@ export namespace Prisma {
     mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    school?: SchoolUpdateOneWithoutUsersNestedInput
     platformMember?: PlatformMemberUpdateOneWithoutUserNestedInput
     schools?: UserSchoolUpdateManyWithoutUserNestedInput
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
@@ -63267,8 +63790,10 @@ export namespace Prisma {
 
   export type UserUncheckedUpdateWithoutOtpsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    schoolId?: NullableStringFieldUpdateOperationsInput | string | null
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -63295,6 +63820,7 @@ export namespace Prisma {
     id?: string
     email: string
     passwordHash: string
+    role: $Enums.Role
     firstName?: string | null
     lastName?: string | null
     phone?: string | null
@@ -63310,6 +63836,7 @@ export namespace Prisma {
     mustChangePassword?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    school?: SchoolCreateNestedOneWithoutUsersInput
     platformMember?: PlatformMemberCreateNestedOneWithoutUserInput
     schools?: UserSchoolCreateNestedManyWithoutUserInput
     otps?: OtpCreateNestedManyWithoutUserInput
@@ -63319,8 +63846,10 @@ export namespace Prisma {
 
   export type UserUncheckedCreateWithoutRefreshTokensInput = {
     id?: string
+    schoolId?: string | null
     email: string
     passwordHash: string
+    role: $Enums.Role
     firstName?: string | null
     lastName?: string | null
     phone?: string | null
@@ -63363,6 +63892,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -63378,6 +63908,7 @@ export namespace Prisma {
     mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    school?: SchoolUpdateOneWithoutUsersNestedInput
     platformMember?: PlatformMemberUpdateOneWithoutUserNestedInput
     schools?: UserSchoolUpdateManyWithoutUserNestedInput
     otps?: OtpUpdateManyWithoutUserNestedInput
@@ -63387,8 +63918,10 @@ export namespace Prisma {
 
   export type UserUncheckedUpdateWithoutRefreshTokensInput = {
     id?: StringFieldUpdateOperationsInput | string
+    schoolId?: NullableStringFieldUpdateOperationsInput | string | null
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -63415,6 +63948,7 @@ export namespace Prisma {
     id?: string
     email: string
     passwordHash: string
+    role: $Enums.Role
     firstName?: string | null
     lastName?: string | null
     phone?: string | null
@@ -63430,6 +63964,7 @@ export namespace Prisma {
     mustChangePassword?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    school?: SchoolCreateNestedOneWithoutUsersInput
     platformMember?: PlatformMemberCreateNestedOneWithoutUserInput
     schools?: UserSchoolCreateNestedManyWithoutUserInput
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
@@ -63439,8 +63974,10 @@ export namespace Prisma {
 
   export type UserUncheckedCreateWithoutInvitesSentInput = {
     id?: string
+    schoolId?: string | null
     email: string
     passwordHash: string
+    role: $Enums.Role
     firstName?: string | null
     lastName?: string | null
     phone?: string | null
@@ -63483,6 +64020,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -63498,6 +64036,7 @@ export namespace Prisma {
     mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    school?: SchoolUpdateOneWithoutUsersNestedInput
     platformMember?: PlatformMemberUpdateOneWithoutUserNestedInput
     schools?: UserSchoolUpdateManyWithoutUserNestedInput
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
@@ -63507,8 +64046,10 @@ export namespace Prisma {
 
   export type UserUncheckedUpdateWithoutInvitesSentInput = {
     id?: StringFieldUpdateOperationsInput | string
+    schoolId?: NullableStringFieldUpdateOperationsInput | string | null
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -63781,6 +64322,7 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentCreateNestedManyWithoutSchoolInput
     auditLogs?: AuditLogCreateNestedManyWithoutSchoolInput
@@ -63828,6 +64370,7 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolUncheckedCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentUncheckedCreateNestedManyWithoutSchoolInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutSchoolInput
@@ -64037,6 +64580,7 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUpdateManyWithoutSchoolNestedInput
     auditLogs?: AuditLogUpdateManyWithoutSchoolNestedInput
@@ -64084,6 +64628,7 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUncheckedUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUncheckedUpdateManyWithoutSchoolNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutSchoolNestedInput
@@ -64360,6 +64905,7 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentCreateNestedManyWithoutSchoolInput
@@ -64407,6 +64953,7 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolUncheckedCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentUncheckedCreateNestedManyWithoutSchoolInput
@@ -64630,6 +65177,7 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUpdateManyWithoutSchoolNestedInput
@@ -64677,6 +65225,7 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUncheckedUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUncheckedUpdateManyWithoutSchoolNestedInput
@@ -65110,6 +65659,7 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentCreateNestedManyWithoutSchoolInput
@@ -65157,6 +65707,7 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolUncheckedCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentUncheckedCreateNestedManyWithoutSchoolInput
@@ -65220,6 +65771,7 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUpdateManyWithoutSchoolNestedInput
@@ -65267,6 +65819,7 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUncheckedUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUncheckedUpdateManyWithoutSchoolNestedInput
@@ -65527,6 +66080,7 @@ export namespace Prisma {
     id?: string
     email: string
     passwordHash: string
+    role: $Enums.Role
     firstName?: string | null
     lastName?: string | null
     phone?: string | null
@@ -65542,6 +66096,7 @@ export namespace Prisma {
     mustChangePassword?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    school?: SchoolCreateNestedOneWithoutUsersInput
     schools?: UserSchoolCreateNestedManyWithoutUserInput
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
     otps?: OtpCreateNestedManyWithoutUserInput
@@ -65551,8 +66106,10 @@ export namespace Prisma {
 
   export type UserUncheckedCreateWithoutPlatformMemberInput = {
     id?: string
+    schoolId?: string | null
     email: string
     passwordHash: string
+    role: $Enums.Role
     firstName?: string | null
     lastName?: string | null
     phone?: string | null
@@ -65617,6 +66174,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -65632,6 +66190,7 @@ export namespace Prisma {
     mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    school?: SchoolUpdateOneWithoutUsersNestedInput
     schools?: UserSchoolUpdateManyWithoutUserNestedInput
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
     otps?: OtpUpdateManyWithoutUserNestedInput
@@ -65641,8 +66200,10 @@ export namespace Prisma {
 
   export type UserUncheckedUpdateWithoutPlatformMemberInput = {
     id?: StringFieldUpdateOperationsInput | string
+    schoolId?: NullableStringFieldUpdateOperationsInput | string | null
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -66381,6 +66942,7 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentCreateNestedManyWithoutSchoolInput
@@ -66428,6 +66990,7 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolUncheckedCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentUncheckedCreateNestedManyWithoutSchoolInput
@@ -66530,6 +67093,7 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUpdateManyWithoutSchoolNestedInput
@@ -66577,6 +67141,7 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUncheckedUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUncheckedUpdateManyWithoutSchoolNestedInput
@@ -66669,6 +67234,7 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentCreateNestedManyWithoutSchoolInput
@@ -66716,6 +67282,7 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolUncheckedCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentUncheckedCreateNestedManyWithoutSchoolInput
@@ -66779,6 +67346,7 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUpdateManyWithoutSchoolNestedInput
@@ -66826,6 +67394,7 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUncheckedUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUncheckedUpdateManyWithoutSchoolNestedInput
@@ -66972,6 +67541,7 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentCreateNestedManyWithoutSchoolInput
@@ -67019,6 +67589,7 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolUncheckedCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentUncheckedCreateNestedManyWithoutSchoolInput
@@ -67121,6 +67692,7 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUpdateManyWithoutSchoolNestedInput
@@ -67168,6 +67740,7 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUncheckedUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUncheckedUpdateManyWithoutSchoolNestedInput
@@ -67182,6 +67755,7 @@ export namespace Prisma {
     id?: string
     email: string
     passwordHash: string
+    role: $Enums.Role
     firstName?: string | null
     lastName?: string | null
     phone?: string | null
@@ -67197,6 +67771,7 @@ export namespace Prisma {
     mustChangePassword?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    school?: SchoolCreateNestedOneWithoutUsersInput
     platformMember?: PlatformMemberCreateNestedOneWithoutUserInput
     schools?: UserSchoolCreateNestedManyWithoutUserInput
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
@@ -67206,8 +67781,10 @@ export namespace Prisma {
 
   export type UserUncheckedCreateWithoutFeedbackInput = {
     id?: string
+    schoolId?: string | null
     email: string
     passwordHash: string
+    role: $Enums.Role
     firstName?: string | null
     lastName?: string | null
     phone?: string | null
@@ -67272,6 +67849,7 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentCreateNestedManyWithoutSchoolInput
@@ -67319,6 +67897,7 @@ export namespace Prisma {
     settlementAccountLast4?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutSchoolInput
     userSchools?: UserSchoolUncheckedCreateNestedManyWithoutSchoolInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutSchoolInput
     documents?: SchoolDocumentUncheckedCreateNestedManyWithoutSchoolInput
@@ -67349,6 +67928,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -67364,6 +67944,7 @@ export namespace Prisma {
     mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    school?: SchoolUpdateOneWithoutUsersNestedInput
     platformMember?: PlatformMemberUpdateOneWithoutUserNestedInput
     schools?: UserSchoolUpdateManyWithoutUserNestedInput
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
@@ -67373,8 +67954,10 @@ export namespace Prisma {
 
   export type UserUncheckedUpdateWithoutFeedbackInput = {
     id?: StringFieldUpdateOperationsInput | string
+    schoolId?: NullableStringFieldUpdateOperationsInput | string | null
     email?: StringFieldUpdateOperationsInput | string
     passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -67445,6 +68028,7 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUpdateManyWithoutSchoolNestedInput
@@ -67492,6 +68076,7 @@ export namespace Prisma {
     settlementAccountLast4?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutSchoolNestedInput
     userSchools?: UserSchoolUncheckedUpdateManyWithoutSchoolNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutSchoolNestedInput
     documents?: SchoolDocumentUncheckedUpdateManyWithoutSchoolNestedInput
@@ -67500,6 +68085,28 @@ export namespace Prisma {
     entitlementOverrides?: SchoolEntitlementOverrideUncheckedUpdateManyWithoutSchoolNestedInput
     subscriptionInvoices?: SubscriptionInvoiceUncheckedUpdateManyWithoutSchoolNestedInput
     paymentMethods?: PaymentMethodUncheckedUpdateManyWithoutSchoolNestedInput
+  }
+
+  export type UserCreateManySchoolInput = {
+    id?: string
+    email: string
+    passwordHash: string
+    role: $Enums.Role
+    firstName?: string | null
+    lastName?: string | null
+    phone?: string | null
+    photoUrl?: string | null
+    isActive?: boolean
+    isEmailVerified?: boolean
+    emailVerifiedAt?: Date | string | null
+    lastLoginAt?: Date | string | null
+    lastLoginIp?: string | null
+    failedLoginCount?: number
+    lockedUntil?: Date | string | null
+    passwordChangedAt?: Date | string | null
+    mustChangePassword?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type UserSchoolCreateManySchoolInput = {
@@ -67653,6 +68260,84 @@ export namespace Prisma {
     isDefault?: boolean
     createdAt?: Date | string
     removedAt?: Date | string | null
+  }
+
+  export type UserUpdateWithoutSchoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isEmailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    failedLoginCount?: IntFieldUpdateOperationsInput | number
+    lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    platformMember?: PlatformMemberUpdateOneWithoutUserNestedInput
+    schools?: UserSchoolUpdateManyWithoutUserNestedInput
+    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
+    otps?: OtpUpdateManyWithoutUserNestedInput
+    invitesSent?: InviteUpdateManyWithoutSentByNestedInput
+    feedback?: FeedbackUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutSchoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isEmailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    failedLoginCount?: IntFieldUpdateOperationsInput | number
+    lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    platformMember?: PlatformMemberUncheckedUpdateOneWithoutUserNestedInput
+    schools?: UserSchoolUncheckedUpdateManyWithoutUserNestedInput
+    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+    otps?: OtpUncheckedUpdateManyWithoutUserNestedInput
+    invitesSent?: InviteUncheckedUpdateManyWithoutSentByNestedInput
+    feedback?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateManyWithoutSchoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    photoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isEmailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    failedLoginCount?: IntFieldUpdateOperationsInput | number
+    lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mustChangePassword?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserSchoolUpdateWithoutSchoolInput = {
@@ -68154,6 +68839,7 @@ export namespace Prisma {
   export type InviteCreateManySentByInput = {
     id?: string
     email: string
+    role: $Enums.Role
     persona?: $Enums.Persona
     personaEntityId?: string | null
     roleId?: string | null
@@ -68275,6 +68961,7 @@ export namespace Prisma {
   export type InviteUpdateWithoutSentByInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     persona?: EnumPersonaFieldUpdateOperationsInput | $Enums.Persona
     personaEntityId?: NullableStringFieldUpdateOperationsInput | string | null
     roleId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -68291,6 +68978,7 @@ export namespace Prisma {
   export type InviteUncheckedUpdateWithoutSentByInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     persona?: EnumPersonaFieldUpdateOperationsInput | $Enums.Persona
     personaEntityId?: NullableStringFieldUpdateOperationsInput | string | null
     roleId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -68307,6 +68995,7 @@ export namespace Prisma {
   export type InviteUncheckedUpdateManyWithoutSentByInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     persona?: EnumPersonaFieldUpdateOperationsInput | $Enums.Persona
     personaEntityId?: NullableStringFieldUpdateOperationsInput | string | null
     roleId?: NullableStringFieldUpdateOperationsInput | string | null

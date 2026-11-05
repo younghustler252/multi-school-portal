@@ -500,6 +500,17 @@ export const DeliveryStatus: {
 export type DeliveryStatus = (typeof DeliveryStatus)[keyof typeof DeliveryStatus]
 
 
+export const StaffRole: {
+  school_admin: 'school_admin',
+  principal: 'principal',
+  teacher: 'teacher',
+  bursar: 'bursar',
+  other: 'other'
+};
+
+export type StaffRole = (typeof StaffRole)[keyof typeof StaffRole]
+
+
 export const Gender: {
   male: 'male',
   female: 'female'
@@ -988,6 +999,10 @@ export const NotificationChannel: typeof $Enums.NotificationChannel
 export type DeliveryStatus = $Enums.DeliveryStatus
 
 export const DeliveryStatus: typeof $Enums.DeliveryStatus
+
+export type StaffRole = $Enums.StaffRole
+
+export const StaffRole: typeof $Enums.StaffRole
 
 export type Gender = $Enums.Gender
 
@@ -10838,6 +10853,7 @@ export namespace Prisma {
     joinDate: Date | null
     exitDate: Date | null
     exitReason: string | null
+    role: $Enums.StaffRole | null
     isActive: boolean | null
     createdById: string | null
     updatedById: string | null
@@ -10867,6 +10883,7 @@ export namespace Prisma {
     joinDate: Date | null
     exitDate: Date | null
     exitReason: string | null
+    role: $Enums.StaffRole | null
     isActive: boolean | null
     createdById: string | null
     updatedById: string | null
@@ -10896,6 +10913,7 @@ export namespace Prisma {
     joinDate: number
     exitDate: number
     exitReason: number
+    role: number
     isActive: number
     createdById: number
     updatedById: number
@@ -10927,6 +10945,7 @@ export namespace Prisma {
     joinDate?: true
     exitDate?: true
     exitReason?: true
+    role?: true
     isActive?: true
     createdById?: true
     updatedById?: true
@@ -10956,6 +10975,7 @@ export namespace Prisma {
     joinDate?: true
     exitDate?: true
     exitReason?: true
+    role?: true
     isActive?: true
     createdById?: true
     updatedById?: true
@@ -10985,6 +11005,7 @@ export namespace Prisma {
     joinDate?: true
     exitDate?: true
     exitReason?: true
+    role?: true
     isActive?: true
     createdById?: true
     updatedById?: true
@@ -11087,6 +11108,7 @@ export namespace Prisma {
     joinDate: Date | null
     exitDate: Date | null
     exitReason: string | null
+    role: $Enums.StaffRole
     isActive: boolean
     createdById: string | null
     updatedById: string | null
@@ -11133,6 +11155,7 @@ export namespace Prisma {
     joinDate?: boolean
     exitDate?: boolean
     exitReason?: boolean
+    role?: boolean
     isActive?: boolean
     createdById?: boolean
     updatedById?: boolean
@@ -11167,6 +11190,7 @@ export namespace Prisma {
     joinDate?: boolean
     exitDate?: boolean
     exitReason?: boolean
+    role?: boolean
     isActive?: boolean
     createdById?: boolean
     updatedById?: boolean
@@ -11196,6 +11220,7 @@ export namespace Prisma {
     joinDate?: boolean
     exitDate?: boolean
     exitReason?: boolean
+    role?: boolean
     isActive?: boolean
     createdById?: boolean
     updatedById?: boolean
@@ -11225,6 +11250,7 @@ export namespace Prisma {
     joinDate?: boolean
     exitDate?: boolean
     exitReason?: boolean
+    role?: boolean
     isActive?: boolean
     createdById?: boolean
     updatedById?: boolean
@@ -11233,7 +11259,7 @@ export namespace Prisma {
     deletedAt?: boolean
   }
 
-  export type StaffOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "employeeId" | "firstName" | "lastName" | "middleName" | "email" | "phone" | "photoUrl" | "gender" | "dateOfBirth" | "address" | "department" | "designation" | "qualification" | "category" | "employmentType" | "joinDate" | "exitDate" | "exitReason" | "isActive" | "createdById" | "updatedById" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["staff"]>
+  export type StaffOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "employeeId" | "firstName" | "lastName" | "middleName" | "email" | "phone" | "photoUrl" | "gender" | "dateOfBirth" | "address" | "department" | "designation" | "qualification" | "category" | "employmentType" | "joinDate" | "exitDate" | "exitReason" | "role" | "isActive" | "createdById" | "updatedById" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["staff"]>
   export type StaffInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     classSubjects?: boolean | Staff$classSubjectsArgs<ExtArgs>
     classesAsClassTeacher?: boolean | Staff$classesAsClassTeacherArgs<ExtArgs>
@@ -11273,6 +11299,7 @@ export namespace Prisma {
       joinDate: Date | null
       exitDate: Date | null
       exitReason: string | null
+      role: $Enums.StaffRole
       isActive: boolean
       createdById: string | null
       updatedById: string | null
@@ -11726,6 +11753,7 @@ export namespace Prisma {
     readonly joinDate: FieldRef<"Staff", 'DateTime'>
     readonly exitDate: FieldRef<"Staff", 'DateTime'>
     readonly exitReason: FieldRef<"Staff", 'String'>
+    readonly role: FieldRef<"Staff", 'StaffRole'>
     readonly isActive: FieldRef<"Staff", 'Boolean'>
     readonly createdById: FieldRef<"Staff", 'String'>
     readonly updatedById: FieldRef<"Staff", 'String'>
@@ -110496,6 +110524,7 @@ export namespace Prisma {
     joinDate: 'joinDate',
     exitDate: 'exitDate',
     exitReason: 'exitReason',
+    role: 'role',
     isActive: 'isActive',
     createdById: 'createdById',
     updatedById: 'updatedById',
@@ -112053,6 +112082,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'StaffRole'
+   */
+  export type EnumStaffRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StaffRole'>
+    
+
+
+  /**
+   * Reference to a field of type 'StaffRole[]'
+   */
+  export type ListEnumStaffRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StaffRole[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Boolean'
    */
   export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
@@ -112828,6 +112871,7 @@ export namespace Prisma {
     joinDate?: DateTimeNullableFilter<"Staff"> | Date | string | null
     exitDate?: DateTimeNullableFilter<"Staff"> | Date | string | null
     exitReason?: StringNullableFilter<"Staff"> | string | null
+    role?: EnumStaffRoleFilter<"Staff"> | $Enums.StaffRole
     isActive?: BoolFilter<"Staff"> | boolean
     createdById?: StringNullableFilter<"Staff"> | string | null
     updatedById?: StringNullableFilter<"Staff"> | string | null
@@ -112861,6 +112905,7 @@ export namespace Prisma {
     joinDate?: SortOrderInput | SortOrder
     exitDate?: SortOrderInput | SortOrder
     exitReason?: SortOrderInput | SortOrder
+    role?: SortOrder
     isActive?: SortOrder
     createdById?: SortOrderInput | SortOrder
     updatedById?: SortOrderInput | SortOrder
@@ -112897,6 +112942,7 @@ export namespace Prisma {
     joinDate?: DateTimeNullableFilter<"Staff"> | Date | string | null
     exitDate?: DateTimeNullableFilter<"Staff"> | Date | string | null
     exitReason?: StringNullableFilter<"Staff"> | string | null
+    role?: EnumStaffRoleFilter<"Staff"> | $Enums.StaffRole
     isActive?: BoolFilter<"Staff"> | boolean
     createdById?: StringNullableFilter<"Staff"> | string | null
     updatedById?: StringNullableFilter<"Staff"> | string | null
@@ -112930,6 +112976,7 @@ export namespace Prisma {
     joinDate?: SortOrderInput | SortOrder
     exitDate?: SortOrderInput | SortOrder
     exitReason?: SortOrderInput | SortOrder
+    role?: SortOrder
     isActive?: SortOrder
     createdById?: SortOrderInput | SortOrder
     updatedById?: SortOrderInput | SortOrder
@@ -112965,6 +113012,7 @@ export namespace Prisma {
     joinDate?: DateTimeNullableWithAggregatesFilter<"Staff"> | Date | string | null
     exitDate?: DateTimeNullableWithAggregatesFilter<"Staff"> | Date | string | null
     exitReason?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    role?: EnumStaffRoleWithAggregatesFilter<"Staff"> | $Enums.StaffRole
     isActive?: BoolWithAggregatesFilter<"Staff"> | boolean
     createdById?: StringNullableWithAggregatesFilter<"Staff"> | string | null
     updatedById?: StringNullableWithAggregatesFilter<"Staff"> | string | null
@@ -120759,6 +120807,7 @@ export namespace Prisma {
     joinDate?: Date | string | null
     exitDate?: Date | string | null
     exitReason?: string | null
+    role?: $Enums.StaffRole
     isActive?: boolean
     createdById?: string | null
     updatedById?: string | null
@@ -120792,6 +120841,7 @@ export namespace Prisma {
     joinDate?: Date | string | null
     exitDate?: Date | string | null
     exitReason?: string | null
+    role?: $Enums.StaffRole
     isActive?: boolean
     createdById?: string | null
     updatedById?: string | null
@@ -120825,6 +120875,7 @@ export namespace Prisma {
     joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     exitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     exitReason?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     updatedById?: NullableStringFieldUpdateOperationsInput | string | null
@@ -120858,6 +120909,7 @@ export namespace Prisma {
     joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     exitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     exitReason?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     updatedById?: NullableStringFieldUpdateOperationsInput | string | null
@@ -120891,6 +120943,7 @@ export namespace Prisma {
     joinDate?: Date | string | null
     exitDate?: Date | string | null
     exitReason?: string | null
+    role?: $Enums.StaffRole
     isActive?: boolean
     createdById?: string | null
     updatedById?: string | null
@@ -120920,6 +120973,7 @@ export namespace Prisma {
     joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     exitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     exitReason?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     updatedById?: NullableStringFieldUpdateOperationsInput | string | null
@@ -120949,6 +121003,7 @@ export namespace Prisma {
     joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     exitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     exitReason?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     updatedById?: NullableStringFieldUpdateOperationsInput | string | null
@@ -129671,6 +129726,13 @@ export namespace Prisma {
     not?: NestedEnumEmploymentTypeFilter<$PrismaModel> | $Enums.EmploymentType
   }
 
+  export type EnumStaffRoleFilter<$PrismaModel = never> = {
+    equals?: $Enums.StaffRole | EnumStaffRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.StaffRole[] | ListEnumStaffRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StaffRole[] | ListEnumStaffRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumStaffRoleFilter<$PrismaModel> | $Enums.StaffRole
+  }
+
   export type BoolFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
     not?: NestedBoolFilter<$PrismaModel> | boolean
@@ -129753,6 +129815,7 @@ export namespace Prisma {
     joinDate?: SortOrder
     exitDate?: SortOrder
     exitReason?: SortOrder
+    role?: SortOrder
     isActive?: SortOrder
     createdById?: SortOrder
     updatedById?: SortOrder
@@ -129782,6 +129845,7 @@ export namespace Prisma {
     joinDate?: SortOrder
     exitDate?: SortOrder
     exitReason?: SortOrder
+    role?: SortOrder
     isActive?: SortOrder
     createdById?: SortOrder
     updatedById?: SortOrder
@@ -129811,6 +129875,7 @@ export namespace Prisma {
     joinDate?: SortOrder
     exitDate?: SortOrder
     exitReason?: SortOrder
+    role?: SortOrder
     isActive?: SortOrder
     createdById?: SortOrder
     updatedById?: SortOrder
@@ -129897,6 +129962,16 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumEmploymentTypeFilter<$PrismaModel>
     _max?: NestedEnumEmploymentTypeFilter<$PrismaModel>
+  }
+
+  export type EnumStaffRoleWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.StaffRole | EnumStaffRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.StaffRole[] | ListEnumStaffRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StaffRole[] | ListEnumStaffRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumStaffRoleWithAggregatesFilter<$PrismaModel> | $Enums.StaffRole
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumStaffRoleFilter<$PrismaModel>
+    _max?: NestedEnumStaffRoleFilter<$PrismaModel>
   }
 
   export type BoolWithAggregatesFilter<$PrismaModel = never> = {
@@ -136110,6 +136185,10 @@ export namespace Prisma {
 
   export type EnumEmploymentTypeFieldUpdateOperationsInput = {
     set?: $Enums.EmploymentType
+  }
+
+  export type EnumStaffRoleFieldUpdateOperationsInput = {
+    set?: $Enums.StaffRole
   }
 
   export type BoolFieldUpdateOperationsInput = {
@@ -143624,6 +143703,13 @@ export namespace Prisma {
     not?: NestedEnumEmploymentTypeFilter<$PrismaModel> | $Enums.EmploymentType
   }
 
+  export type NestedEnumStaffRoleFilter<$PrismaModel = never> = {
+    equals?: $Enums.StaffRole | EnumStaffRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.StaffRole[] | ListEnumStaffRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StaffRole[] | ListEnumStaffRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumStaffRoleFilter<$PrismaModel> | $Enums.StaffRole
+  }
+
   export type NestedBoolFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
     not?: NestedBoolFilter<$PrismaModel> | boolean
@@ -143738,6 +143824,16 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumEmploymentTypeFilter<$PrismaModel>
     _max?: NestedEnumEmploymentTypeFilter<$PrismaModel>
+  }
+
+  export type NestedEnumStaffRoleWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.StaffRole | EnumStaffRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.StaffRole[] | ListEnumStaffRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StaffRole[] | ListEnumStaffRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumStaffRoleWithAggregatesFilter<$PrismaModel> | $Enums.StaffRole
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumStaffRoleFilter<$PrismaModel>
+    _max?: NestedEnumStaffRoleFilter<$PrismaModel>
   }
 
   export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
@@ -148138,6 +148234,7 @@ export namespace Prisma {
     joinDate?: Date | string | null
     exitDate?: Date | string | null
     exitReason?: string | null
+    role?: $Enums.StaffRole
     isActive?: boolean
     createdById?: string | null
     updatedById?: string | null
@@ -148170,6 +148267,7 @@ export namespace Prisma {
     joinDate?: Date | string | null
     exitDate?: Date | string | null
     exitReason?: string | null
+    role?: $Enums.StaffRole
     isActive?: boolean
     createdById?: string | null
     updatedById?: string | null
@@ -148615,6 +148713,7 @@ export namespace Prisma {
     joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     exitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     exitReason?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     updatedById?: NullableStringFieldUpdateOperationsInput | string | null
@@ -148647,6 +148746,7 @@ export namespace Prisma {
     joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     exitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     exitReason?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     updatedById?: NullableStringFieldUpdateOperationsInput | string | null
@@ -148818,6 +148918,7 @@ export namespace Prisma {
     joinDate?: Date | string | null
     exitDate?: Date | string | null
     exitReason?: string | null
+    role?: $Enums.StaffRole
     isActive?: boolean
     createdById?: string | null
     updatedById?: string | null
@@ -148850,6 +148951,7 @@ export namespace Prisma {
     joinDate?: Date | string | null
     exitDate?: Date | string | null
     exitReason?: string | null
+    role?: $Enums.StaffRole
     isActive?: boolean
     createdById?: string | null
     updatedById?: string | null
@@ -148932,6 +149034,7 @@ export namespace Prisma {
     joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     exitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     exitReason?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     updatedById?: NullableStringFieldUpdateOperationsInput | string | null
@@ -148964,6 +149067,7 @@ export namespace Prisma {
     joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     exitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     exitReason?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     updatedById?: NullableStringFieldUpdateOperationsInput | string | null
@@ -149078,6 +149182,7 @@ export namespace Prisma {
     joinDate?: Date | string | null
     exitDate?: Date | string | null
     exitReason?: string | null
+    role?: $Enums.StaffRole
     isActive?: boolean
     createdById?: string | null
     updatedById?: string | null
@@ -149110,6 +149215,7 @@ export namespace Prisma {
     joinDate?: Date | string | null
     exitDate?: Date | string | null
     exitReason?: string | null
+    role?: $Enums.StaffRole
     isActive?: boolean
     createdById?: string | null
     updatedById?: string | null
@@ -149372,6 +149478,7 @@ export namespace Prisma {
     joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     exitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     exitReason?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     updatedById?: NullableStringFieldUpdateOperationsInput | string | null
@@ -149404,6 +149511,7 @@ export namespace Prisma {
     joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     exitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     exitReason?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     updatedById?: NullableStringFieldUpdateOperationsInput | string | null
@@ -158718,6 +158826,7 @@ export namespace Prisma {
     joinDate?: Date | string | null
     exitDate?: Date | string | null
     exitReason?: string | null
+    role?: $Enums.StaffRole
     isActive?: boolean
     createdById?: string | null
     updatedById?: string | null
@@ -158750,6 +158859,7 @@ export namespace Prisma {
     joinDate?: Date | string | null
     exitDate?: Date | string | null
     exitReason?: string | null
+    role?: $Enums.StaffRole
     isActive?: boolean
     createdById?: string | null
     updatedById?: string | null
@@ -158855,6 +158965,7 @@ export namespace Prisma {
     joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     exitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     exitReason?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     updatedById?: NullableStringFieldUpdateOperationsInput | string | null
@@ -158887,6 +158998,7 @@ export namespace Prisma {
     joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     exitDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     exitReason?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumStaffRoleFieldUpdateOperationsInput | $Enums.StaffRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     updatedById?: NullableStringFieldUpdateOperationsInput | string | null

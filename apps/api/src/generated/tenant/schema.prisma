@@ -85,6 +85,7 @@ model Staff {
   joinDate       DateTime?
   exitDate       DateTime?
   exitReason     String?
+  role           StaffRole      @default(other)
   isActive       Boolean        @default(true)
   createdById    String?
   updatedById    String?
@@ -101,6 +102,14 @@ model Staff {
   @@index([category])
   @@index([email])
   @@index([deletedAt])
+}
+
+enum StaffRole {
+  school_admin
+  principal
+  teacher
+  bursar
+  other
 }
 
 enum Gender {

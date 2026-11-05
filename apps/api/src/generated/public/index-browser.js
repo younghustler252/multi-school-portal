@@ -180,8 +180,10 @@ exports.Prisma.SchoolDocumentScalarFieldEnum = {
 
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
+  schoolId: 'schoolId',
   email: 'email',
   passwordHash: 'passwordHash',
+  role: 'role',
   firstName: 'firstName',
   lastName: 'lastName',
   phone: 'phone',
@@ -236,6 +238,7 @@ exports.Prisma.RefreshTokenScalarFieldEnum = {
 exports.Prisma.InviteScalarFieldEnum = {
   id: 'id',
   email: 'email',
+  role: 'role',
   persona: 'persona',
   personaEntityId: 'personaEntityId',
   roleId: 'roleId',
@@ -382,11 +385,8 @@ exports.Prisma.WebhookEventScalarFieldEnum = {
   reference: 'reference',
   status: 'status',
   error: 'error',
-  attempts: 'attempts',
-  payload: 'payload',
   receivedAt: 'receivedAt',
-  processedAt: 'processedAt',
-  lastAttemptAt: 'lastAttemptAt'
+  processedAt: 'processedAt'
 };
 
 exports.Prisma.BillingNoticeScalarFieldEnum = {
@@ -752,6 +752,16 @@ exports.DocumentStatus = exports.$Enums.DocumentStatus = {
   under_review: 'under_review',
   approved: 'approved',
   rejected: 'rejected'
+};
+
+exports.Role = exports.$Enums.Role = {
+  super_admin: 'super_admin',
+  school_admin: 'school_admin',
+  principal: 'principal',
+  teacher: 'teacher',
+  bursar: 'bursar',
+  student: 'student',
+  guardian: 'guardian'
 };
 
 exports.OtpType = exports.$Enums.OtpType = {
