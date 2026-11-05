@@ -6,7 +6,7 @@
 
 ## Result
 
-A Postman collection has been added with **439 unique method + route entries** in 16 module folders. The collection is a route-coverage scaffold with generic smoke assertions. It is not yet a full happy-path integration suite.
+A Postman collection has been added with **440 unique method + route entries** in 16 module folders. The collection is a route-coverage scaffold with generic smoke assertions. It is not yet a full happy-path integration suite.
 
 No HTTP request has been executed against the API in this review. The GitHub repository connector provides source access, not access to the user's local Node process, PostgreSQL tenant schemas or Redis instance. Therefore no endpoint is marked runtime-passed.
 
@@ -23,7 +23,7 @@ No HTTP request has been executed against the API in this review. The GitHub rep
 
 ## Postman files
 
-- `CORE.postman_collection.json` — 439 route entries grouped by feature.
+- `CORE.postman_collection.json` — 440 route entries grouped by feature.
 - `CORE.local.postman_environment.json` — local base URLs, auth token, tenant selector and safe path placeholders.
 - `README.md` — import and execution instructions.
 
