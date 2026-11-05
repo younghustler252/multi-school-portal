@@ -18,6 +18,8 @@ This section documents the backend implementation for developers building and ma
 | Users | [Users module](modules/users.md) | Source-reviewed; runtime and integration verification outstanding |
 | School | [School module](modules/school.md) | Source-reviewed; provider/runtime verification outstanding |
 | Roles and permissions | [Roles and permissions](modules/roles.md) | Source-reviewed; registry sync/runtime verification outstanding |
+| Branches | [Branches module](modules/branches.md) | Partially source-verified; tests/schema/runtime verification outstanding |
+| Staff | [Staff module](modules/staff.md) | Partially source-verified; remaining use cases/tests/schema/runtime verification outstanding |
 
 ## Documentation contract
 
@@ -40,5 +42,7 @@ Foundation modules are being documented first because other modules depend on th
 2. Users
 3. School
 4. Roles and permissions
+5. Branches
+6. Staff
 
 The frontend is intentionally not being documented as the current implementation while it remains behind the backend. Frontend implementation documentation will follow the backend contract audit.
