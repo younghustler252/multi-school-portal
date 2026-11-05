@@ -27,6 +27,8 @@ Source code on `refactor/modules` is authoritative when a document and implement
 | [Users Module](backend/modules/users.md) | Profiles, passwords, avatars, sessions and platform user administration | Source-reviewed; runtime and integration verification outstanding |
 | [School Module](backend/modules/school.md) | School profile, verification, provisioning, payments and lifecycle | Source-reviewed; provider/runtime verification outstanding |
 | [Roles and Permissions](backend/modules/roles.md) | Role management, permission catalog, scopes and registry synchronization | Source-reviewed; registry sync/runtime verification outstanding |
+| [Branches Module](backend/modules/branches.md) | Branch directory, lifecycle, plan limits and visibility scopes | Partially source-verified; tests/schema/runtime verification outstanding |
+| [Staff Module](backend/modules/staff.md) | Staff records, branch assignment, portal access and lifecycle | Partially source-verified; remaining use cases/tests/schema/runtime verification outstanding |
 
 ## Workstream handoffs and operational guides
 
