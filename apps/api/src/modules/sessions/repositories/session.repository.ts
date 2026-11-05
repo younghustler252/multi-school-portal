@@ -1,3 +1,4 @@
+import type { RolloverResult } from "../services/term-rollover";
 import {
     SessionEntity,
     TermEntity,
@@ -30,4 +31,6 @@ export interface ISessionRepository {
         currentTermId:  string,
     ):                                                  Promise<TermEntity | null>;
 
+    /** Makes the term (and its session) current and, when `carryForward`, rolls last term's students and teachers in: ONE transaction. */
+    makeTermCurrent(termId: string, sessionId: string, previousTermId: string | null, carryForward: boolean): Promise<RolloverResult | null>;
 }

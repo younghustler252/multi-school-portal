@@ -107,4 +107,14 @@ export interface IClassRepository {
         className:    string;
         studentCount: number;
     }>>;
+
+    // ── Multi-step writes (each is one transaction) ──────────────────────
+    /** Deletes the class with its promotion row when nothing points at it; otherwise changes nothing and returns what uses it. */
+    deleteClassIfUnused(id: string): Promise<Record<string, number> | null>;
+    /** Adds subject assignments, skipping ones that already exist. */
+    createClassSubjects(rows: Array<{ classId: string; subjectId: string; staffId: string | null; termId: string; assignedVia: string }>): Promise<number>;
+    /** How many grades were recorded against this assignment. */
+    countGradesForAssignment(classSubjectId: string): Promise<number>;
+    /** Reads this term's existing assignments, lets `plan` decide what to add, and inserts it, all in one transaction. */
+    seedTermAssignments(termId: string, plan: (existing: Array<{ classId: string; subjectId: string }>) => Array<Record<string, any>>): Promise<number>;
 }

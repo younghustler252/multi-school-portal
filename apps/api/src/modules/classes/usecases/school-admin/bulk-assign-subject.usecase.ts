@@ -1,4 +1,3 @@
-import { getTenantClient } from "../../../../infrastructure/database/prisma/prisma.client";
 import { AuditService } from "../../../audit/services/audit.service";
 import { IClassRepository } from "../../repositories/class.repository";
 import { IStaffRepository } from "../../../staff/repositories/staff.repository";
@@ -42,9 +41,7 @@ export class BulkAssignSubjectsUseCase {
 
         const taken = new Set((await d.classRepository.findClassSubjects(classId, dto.termId)).map(r => r.subjectId));
         const toCreate = ids.filter(id => !taken.has(id));
-        if (toCreate.length) await getTenantClient().$transaction(tx => tx.classSubject.createMany({
-            data: toCreate.map(subjectId => ({ classId, subjectId, staffId: dto.staffId, termId: dto.termId, assignedVia: ClassSubjectAssignmentSource.manual })), skipDuplicates: true,
-        }));
+        await d.classRepository.createClassSubjects(toCreate.map(subjectId => ({ classId, subjectId, staffId: dto.staffId, termId: dto.termId, assignedVia: ClassSubjectAssignmentSource.manual })));
 
         const ref = (id: string): SubjectRef => ({ id, name: subjects.get(id)!.name, code: subjects.get(id)!.code });
         const result: BulkAssignResult = {

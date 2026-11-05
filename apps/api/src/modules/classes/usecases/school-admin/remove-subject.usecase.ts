@@ -1,4 +1,3 @@
-import { getTenantClient } from "../../../../infrastructure/database/prisma/prisma.client";
 import { AuditService } from "../../../audit/services/audit.service";
 import { IClassRepository } from "../../repositories/class.repository";
 import { SubjectPresenter, AssignmentResponse } from "../../services/subject-presenter";
@@ -13,7 +12,7 @@ export async function removeAssignment(d: Dependencies, schoolId: string, classS
     const existing = await d.classRepository.findClassSubjectById(classSubjectId);
     if (!existing) throw classErrors.assignmentNotFound();
     await loadManageable(d.classRepository, existing.classId, actor.access);
-    const grades = await getTenantClient().grade.count({ where: { classSubjectId } });
+    const grades = await d.classRepository.countGradesForAssignment(classSubjectId);
     if (grades > 0) throw classErrors.assignmentInUse(grades);
 
     const shown = (await d.subjectPresenter.assignments([existing]))[0];

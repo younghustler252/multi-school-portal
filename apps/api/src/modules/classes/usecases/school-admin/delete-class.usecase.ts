@@ -1,9 +1,7 @@
-import { getTenantClient } from "../../../../infrastructure/database/prisma/prisma.client";
 import { AuditService } from "../../../audit/services/audit.service";
 import { IClassRepository } from "../../repositories/class.repository";
 import { classErrors } from "../../domain/class.errors";
 import { ClassActor } from "../../domain/class.types";
-import { classUsage } from "../../services/class-rules";
 import { assertCanManage } from "../../services/class-branch";
 
 interface Dependencies { classRepository: IClassRepository; auditService: AuditService }
@@ -22,12 +20,8 @@ export class DeleteClassUseCase {
         assertCanManage(cls, actor.access);
 
         try {
-            await getTenantClient().$transaction(async tx => {
-                const used = await classUsage(tx as any, id);
-                if (Object.keys(used).length > 0) throw classErrors.inUse(used);
-                await tx.classProgression.deleteMany({ where: { fromClassId: id } });
-                await tx.class.delete({ where: { id } });
-            });
+            const used = await this.d.classRepository.deleteClassIfUnused(id);
+            if (used) throw classErrors.inUse(used);
         } catch (err: any) {
             if (err?.code === "P2003") throw classErrors.inUse({});   // a link we did not count: the database refused
             throw err;

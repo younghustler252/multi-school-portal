@@ -1,11 +1,10 @@
-import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
 import { AuditService } from "../../audit/services/audit.service";
 import { ISessionRepository } from "../repositories/session.repository";
 import { SessionMapper, TermMapper, SessionResponseData, TermResponseData } from "../mappers/session.mapper";
 import { sessionErrors } from "../domain/session.errors";
 import { SessionActor } from "../domain/session.types";
 import { SetCurrentTermDtoType } from "../dtos/session.dto";
-import { rolloverInTx, RolloverResult } from "../services/term-rollover";
+import { RolloverResult } from "../services/term-rollover";
 
 interface Dependencies { sessionRepository: ISessionRepository; sessionMapper: SessionMapper; termMapper: TermMapper; auditService: AuditService }
 
@@ -49,14 +48,7 @@ export class SetCurrentTermUseCase {
         const previousCurrent = await repo.findCurrentTerm();
         const previousTerm = await repo.findPreviousTermInSession(term.sessionId, term.id);
 
-        let rollover: RolloverResult | null = null;
-        await getTenantClient().$transaction(async tx => {
-            await tx.term.updateMany({ where: { isCurrent: true, NOT: { id } }, data: { isCurrent: false } });
-            await tx.session.updateMany({ where: { isCurrent: true, NOT: { id: term.sessionId } }, data: { isCurrent: false } });
-            await tx.session.update({ where: { id: term.sessionId }, data: { isCurrent: true } });
-            await tx.term.update({ where: { id }, data: { isCurrent: true } });
-            if (dto.carryForward) rollover = await rolloverInTx(tx as any, previousTerm?.id ?? null, id);
-        }, { maxWait: 5000, timeout: 30000 });
+        const rollover: RolloverResult | null = await repo.makeTermCurrent(id, term.sessionId, previousTerm?.id ?? null, dto.carryForward);
 
         await this.d.auditService.log({
             userId: actor.userId, schoolId, action: "term.set_current", entity: "Term", entityId: id,

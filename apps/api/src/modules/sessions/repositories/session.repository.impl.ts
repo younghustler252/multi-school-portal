@@ -3,6 +3,7 @@ import { BaseTenantRepository } from "../../../infrastructure/repository/base.re
 import { SessionMapper, TermMapper } from "../mappers/session.mapper";
 import { SessionEntity, TermEntity } from "../domain/session.entity";
 import { ISessionRepository } from "./session.repository";
+import { rolloverInTx, RolloverResult } from "../services/term-rollover";
 
 export class SessionRepositoryImpl
     extends BaseTenantRepository<SessionEntity>
@@ -124,4 +125,13 @@ export class SessionRepositoryImpl
         return raw ? this.termMapper.toDomain(raw) : null;
     }
 
+    async makeTermCurrent(termId: string, sessionId: string, previousTermId: string | null, carryForward: boolean): Promise<RolloverResult | null> {
+        return this.prisma.$transaction(async tx => {
+            await tx.term.updateMany({ where: { isCurrent: true, NOT: { id: termId } }, data: { isCurrent: false } });
+            await tx.session.updateMany({ where: { isCurrent: true, NOT: { id: sessionId } }, data: { isCurrent: false } });
+            await tx.session.update({ where: { id: sessionId }, data: { isCurrent: true } });
+            await tx.term.update({ where: { id: termId }, data: { isCurrent: true } });
+            return carryForward ? rolloverInTx(tx as any, previousTermId, termId) : null;
+        }, { maxWait: 5000, timeout: 30000 });
+    }
 }

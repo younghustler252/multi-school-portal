@@ -1,3 +1,4 @@
+import { classUsage } from "../services/class-rules";
 import { Prisma } from "../../../generated/tenant";
 import { BaseTenantRepository } from "../../../infrastructure/repository/base.repository";
 import {
@@ -518,5 +519,32 @@ export class ClassRepositoryImpl
     // ClassRepositoryImpl — new method
     async clearManualOverride(id: string): Promise<void> {
         await this.prisma.classSubject.delete({ where: { id } });
+    }
+
+    async deleteClassIfUnused(id: string): Promise<Record<string, number> | null> {
+        return this.prisma.$transaction(async tx => {
+            const used = await classUsage(tx as any, id);
+            if (Object.keys(used).length > 0) return used;
+            await tx.classProgression.deleteMany({ where: { fromClassId: id } });
+            await tx.class.delete({ where: { id } });
+            return null;
+        });
+    }
+
+    async createClassSubjects(rows: Array<{ classId: string; subjectId: string; staffId: string | null; termId: string; assignedVia: string }>): Promise<number> {
+        if (!rows.length) return 0;
+        return (await this.prisma.classSubject.createMany({ data: rows as any, skipDuplicates: true })).count;
+    }
+
+    countGradesForAssignment(classSubjectId: string): Promise<number> {
+        return this.prisma.grade.count({ where: { classSubjectId } });
+    }
+
+    async seedTermAssignments(termId: string, plan: (existing: Array<{ classId: string; subjectId: string }>) => Array<Record<string, any>>): Promise<number> {
+        return this.prisma.$transaction(async tx => {
+            const existing = await tx.classSubject.findMany({ where: { termId }, select: { classId: true, subjectId: true } });
+            const rows = plan(existing);
+            return rows.length ? (await tx.classSubject.createMany({ data: rows.map(r => ({ ...r, termId })) as any, skipDuplicates: true })).count : 0;
+        }, { maxWait: 5000, timeout: 30000 });
     }
 }
