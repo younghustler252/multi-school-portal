@@ -1,4 +1,4 @@
-# User module pass: apply notes
+# User module pass: apply notes\n\n> **Documentation status:** Historical apply handoff. Do not execute copy/delete instructions as written. Current backend source lives under `apps/api/`; use the source comparison below for the currently observed route and DI contract.
 
 ## Apply
 1. Copy `modules/user/*` over the old module. **Delete**: `domain/user.enums.ts`, `domain/user.entity.ts`, `usecases/reser-school-admin-password.usecase.ts` (replaced by `reset-school-admin-password.usecase.ts`).
@@ -52,3 +52,35 @@ an account. `ManagePlatformUsersUseCase` (`modules/user/usecases/manage-platform
 - Old avatar files stay in the bucket until the storage service gets a delete method.
 - Impersonated actions are audited under the impersonated user (cross-cutting fix for the audit pass; `update-profile` already records `impersonatedBy`).
 - Docs update (section 0.3): permission `platform.users.manage`; user module status Done; error codes above; template `auth.password_reset_by_support`.
+
+
+---
+
+## 7. Source comparison — 2026-11-05
+
+**Status: historical apply handoff + source-reviewed implementation notes.** Current source snapshot: branch `refactor/modules`; key files include `apps/api/src/modules/user/routes/user.routes.ts`, `user.container.ts`, `user.permissions.ts`, the User use cases, and `apps/api/src/container/index.ts`.
+
+### Confirmed in current source
+
+- The User module currently registers profile read/update, password change, avatar upload/removal, access listing, session management, school-admin password reset, and platform-wide user management use cases.
+- User routes are mounted at `/api/v1/users`. Personal profile/access/session routes authenticate the caller; platform support routes use `platform.users.manage`.
+- Avatar upload uses in-memory Multer storage with a 2 MB limit, then calls `reestablishTenantContext`. The route maps Multer errors to `INVALID_IMAGE`.
+- `PUT /me/password` uses tenant ownership validation and DTO validation; it intentionally does not use the normal `loadAccess` chain because it supports the forced-password-change flow described in the use-case notes.
+- Platform-wide account endpoints are `GET /api/v1/users/:id`, `POST /api/v1/users/:id/deactivate`, and `POST /api/v1/users/:id/reactivate`.
+- School-admin reset is mounted as `POST /api/v1/users/schools/:schoolId/admin/reset-password` (not `/api/v1/schools/:schoolId/admin/reset-password`). The old section 4 endpoint should be read with this full mount prefix.
+- `registerUser` is active in the container and is listed after `registerAuth`. It is also before School's later dependants only insofar as the registration list is concerned; current User container comments require Auth and shared storage services.
+
+### Permission contract observed
+
+`user.permissions.ts` defines one platform permission: `platform.users.manage`, marked sensitive and ALL-scoped. The source route applies it to password reset, platform user lookup, deactivation and reactivation. Personal self-service routes rely on authentication rather than this platform permission.
+
+### Test coverage observed (not executed in this documentation pass)
+
+`apps/api/tests/user/manage-platform-users.test.ts` contains nine focused cases covering safe lookup, not-found, self-action rejection, deactivation/session revocation/audit, idempotency, and reactivation/lockout reset. No additional files were present in the inspected `apps/api/tests/user` directory. This does not establish that all profile, password, avatar, access, session and reset flows are covered elsewhere.
+
+### Follow-up items
+
+1. Add tests for profile DTO strictness and audit, password-change session replacement and impersonation restriction, avatar signature/size/context behavior, access listing, session revocation, and school-admin password reset.
+2. Verify `platform.users.manage` is included in the deployed permission sync and granted only to intended platform roles; the module-local constant does not prove database synchronization.
+3. Review the platform-user deactivation use case's interaction with in-flight access tokens separately from refresh-token revocation. The source route/use case and focused tests establish refresh-token revocation; this source comparison did not establish immediate invalidation of already-issued JWT access tokens.
+4. No build, tests, migration, or live API request was run as part of this documentation comparison.
