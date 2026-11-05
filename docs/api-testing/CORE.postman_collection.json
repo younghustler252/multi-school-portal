@@ -2296,6 +2296,99 @@
               }
             }
           ]
+        },
+        {
+          "name": "GET /api/v1/my/payslips/:id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/my/payslips/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "my",
+                "payslips",
+                "{{id}}"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{id}}",
+                  "description": "Replace with a real id from a prior response."
+                }
+              ]
+            },
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response is not a server error', function () { pm.expect(pm.response.code).to.be.below(500); });",
+                  "pm.test('Response time under 5 seconds (baseline)', function () { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+                  "if ((pm.response.headers.get('Content-Type') || '').includes('application/json')) { pm.test('JSON response parses', function () { pm.response.json(); }); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/v1/my/payslips/:id/document",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/my/payslips/{{id}}/document",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "my",
+                "payslips",
+                "{{id}}",
+                "document"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{id}}",
+                  "description": "Replace with a real id from a prior response."
+                }
+              ]
+            },
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response is not a server error', function () { pm.expect(pm.response.code).to.be.below(500); });",
+                  "pm.test('Response time under 5 seconds (baseline)', function () { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+                  "if ((pm.response.headers.get('Content-Type') || '').includes('application/json')) { pm.test('JSON response parses', function () { pm.response.json(); }); }"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -3393,6 +3486,562 @@
                 }
               ]
             }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response is not a server error', function () { pm.expect(pm.response.code).to.be.below(500); });",
+                  "pm.test('Response time under 5 seconds (baseline)', function () { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+                  "if ((pm.response.headers.get('Content-Type') || '').includes('application/json')) { pm.test('JSON response parses', function () { pm.response.json(); }); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/v1/subscriptions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/subscriptions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "subscriptions"
+              ]
+            },
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response is not a server error', function () { pm.expect(pm.response.code).to.be.below(500); });",
+                  "pm.test('Response time under 5 seconds (baseline)', function () { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+                  "if ((pm.response.headers.get('Content-Type') || '').includes('application/json')) { pm.test('JSON response parses', function () { pm.response.json(); }); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/v1/subscriptions/preview",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/subscriptions/preview",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "subscriptions",
+                "preview"
+              ]
+            },
+            "description": "STATE-CHANGING: manual execution only. Supply the exact DTO body and valid IDs before sending. Do not run blindly in Collection Runner."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response is not a server error', function () { pm.expect(pm.response.code).to.be.below(500); });",
+                  "pm.test('Response time under 5 seconds (baseline)', function () { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+                  "if ((pm.response.headers.get('Content-Type') || '').includes('application/json')) { pm.test('JSON response parses', function () { pm.response.json(); }); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/v1/subscriptions/change-plan",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/subscriptions/change-plan",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "subscriptions",
+                "change-plan"
+              ]
+            },
+            "description": "STATE-CHANGING: manual execution only. Supply the exact DTO body and valid IDs before sending. Do not run blindly in Collection Runner."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response is not a server error', function () { pm.expect(pm.response.code).to.be.below(500); });",
+                  "pm.test('Response time under 5 seconds (baseline)', function () { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+                  "if ((pm.response.headers.get('Content-Type') || '').includes('application/json')) { pm.test('JSON response parses', function () { pm.response.json(); }); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/v1/subscriptions/verify",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/subscriptions/verify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "subscriptions",
+                "verify"
+              ]
+            },
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response is not a server error', function () { pm.expect(pm.response.code).to.be.below(500); });",
+                  "pm.test('Response time under 5 seconds (baseline)', function () { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+                  "if ((pm.response.headers.get('Content-Type') || '').includes('application/json')) { pm.test('JSON response parses', function () { pm.response.json(); }); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/v1/subscriptions/invoices",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/subscriptions/invoices",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "subscriptions",
+                "invoices"
+              ]
+            },
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response is not a server error', function () { pm.expect(pm.response.code).to.be.below(500); });",
+                  "pm.test('Response time under 5 seconds (baseline)', function () { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+                  "if ((pm.response.headers.get('Content-Type') || '').includes('application/json')) { pm.test('JSON response parses', function () { pm.response.json(); }); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/v1/subscriptions/invoices/:id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/subscriptions/invoices/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "subscriptions",
+                "invoices",
+                "{{id}}"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{id}}",
+                  "description": "Replace with a real id from a prior response."
+                }
+              ]
+            },
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response is not a server error', function () { pm.expect(pm.response.code).to.be.below(500); });",
+                  "pm.test('Response time under 5 seconds (baseline)', function () { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+                  "if ((pm.response.headers.get('Content-Type') || '').includes('application/json')) { pm.test('JSON response parses', function () { pm.response.json(); }); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/v1/subscriptions/invoices/:id/pay",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/subscriptions/invoices/{{id}}/pay",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "subscriptions",
+                "invoices",
+                "{{id}}",
+                "pay"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{id}}",
+                  "description": "Replace with a real id from a prior response."
+                }
+              ]
+            },
+            "description": "STATE-CHANGING: manual execution only. Supply the exact DTO body and valid IDs before sending. Do not run blindly in Collection Runner."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response is not a server error', function () { pm.expect(pm.response.code).to.be.below(500); });",
+                  "pm.test('Response time under 5 seconds (baseline)', function () { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+                  "if ((pm.response.headers.get('Content-Type') || '').includes('application/json')) { pm.test('JSON response parses', function () { pm.response.json(); }); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/v1/subscriptions/downgrade",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/subscriptions/downgrade",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "subscriptions",
+                "downgrade"
+              ]
+            },
+            "description": "STATE-CHANGING: manual execution only. Supply the exact DTO body and valid IDs before sending. Do not run blindly in Collection Runner."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response is not a server error', function () { pm.expect(pm.response.code).to.be.below(500); });",
+                  "pm.test('Response time under 5 seconds (baseline)', function () { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+                  "if ((pm.response.headers.get('Content-Type') || '').includes('application/json')) { pm.test('JSON response parses', function () { pm.response.json(); }); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE /api/v1/subscriptions/downgrade",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/subscriptions/downgrade",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "subscriptions",
+                "downgrade"
+              ]
+            },
+            "description": "STATE-CHANGING: manual execution only. Supply the exact DTO body and valid IDs before sending. Do not run blindly in Collection Runner."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response is not a server error', function () { pm.expect(pm.response.code).to.be.below(500); });",
+                  "pm.test('Response time under 5 seconds (baseline)', function () { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+                  "if ((pm.response.headers.get('Content-Type') || '').includes('application/json')) { pm.test('JSON response parses', function () { pm.response.json(); }); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/v1/subscriptions/cancel",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/subscriptions/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "subscriptions",
+                "cancel"
+              ]
+            },
+            "description": "STATE-CHANGING: manual execution only. Supply the exact DTO body and valid IDs before sending. Do not run blindly in Collection Runner."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response is not a server error', function () { pm.expect(pm.response.code).to.be.below(500); });",
+                  "pm.test('Response time under 5 seconds (baseline)', function () { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+                  "if ((pm.response.headers.get('Content-Type') || '').includes('application/json')) { pm.test('JSON response parses', function () { pm.response.json(); }); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/v1/subscriptions/resume",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/subscriptions/resume",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "subscriptions",
+                "resume"
+              ]
+            },
+            "description": "STATE-CHANGING: manual execution only. Supply the exact DTO body and valid IDs before sending. Do not run blindly in Collection Runner."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response is not a server error', function () { pm.expect(pm.response.code).to.be.below(500); });",
+                  "pm.test('Response time under 5 seconds (baseline)', function () { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+                  "if ((pm.response.headers.get('Content-Type') || '').includes('application/json')) { pm.test('JSON response parses', function () { pm.response.json(); }); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PUT /api/v1/subscriptions/auto-renew",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/subscriptions/auto-renew",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "subscriptions",
+                "auto-renew"
+              ]
+            },
+            "description": "STATE-CHANGING: manual execution only. Supply the exact DTO body and valid IDs before sending. Do not run blindly in Collection Runner."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response is not a server error', function () { pm.expect(pm.response.code).to.be.below(500); });",
+                  "pm.test('Response time under 5 seconds (baseline)', function () { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+                  "if ((pm.response.headers.get('Content-Type') || '').includes('application/json')) { pm.test('JSON response parses', function () { pm.response.json(); }); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/v1/subscriptions/payment-methods",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/subscriptions/payment-methods",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "subscriptions",
+                "payment-methods"
+              ]
+            },
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response is not a server error', function () { pm.expect(pm.response.code).to.be.below(500); });",
+                  "pm.test('Response time under 5 seconds (baseline)', function () { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+                  "if ((pm.response.headers.get('Content-Type') || '').includes('application/json')) { pm.test('JSON response parses', function () { pm.response.json(); }); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE /api/v1/subscriptions/payment-methods/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/subscriptions/payment-methods/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "subscriptions",
+                "payment-methods",
+                "{{id}}"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{id}}",
+                  "description": "Replace with a real id from a prior response."
+                }
+              ]
+            },
+            "description": "STATE-CHANGING: manual execution only. Supply the exact DTO body and valid IDs before sending. Do not run blindly in Collection Runner."
           },
           "event": [
             {
@@ -20278,6 +20927,300 @@
               ]
             },
             "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response is not a server error', function () { pm.expect(pm.response.code).to.be.below(500); });",
+                  "pm.test('Response time under 5 seconds (baseline)', function () { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+                  "if ((pm.response.headers.get('Content-Type') || '').includes('application/json')) { pm.test('JSON response parses', function () { pm.response.json(); }); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/v1/feedback",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/feedback",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "feedback"
+              ]
+            },
+            "description": "STATE-CHANGING: manual execution only. Supply the exact DTO body and valid IDs before sending. Do not run blindly in Collection Runner."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response is not a server error', function () { pm.expect(pm.response.code).to.be.below(500); });",
+                  "pm.test('Response time under 5 seconds (baseline)', function () { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+                  "if ((pm.response.headers.get('Content-Type') || '').includes('application/json')) { pm.test('JSON response parses', function () { pm.response.json(); }); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/v1/feedback/my",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/feedback/my",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "feedback",
+                "my"
+              ]
+            },
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response is not a server error', function () { pm.expect(pm.response.code).to.be.below(500); });",
+                  "pm.test('Response time under 5 seconds (baseline)', function () { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+                  "if ((pm.response.headers.get('Content-Type') || '').includes('application/json')) { pm.test('JSON response parses', function () { pm.response.json(); }); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/v1/feedback",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/feedback",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "feedback"
+              ]
+            },
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response is not a server error', function () { pm.expect(pm.response.code).to.be.below(500); });",
+                  "pm.test('Response time under 5 seconds (baseline)', function () { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+                  "if ((pm.response.headers.get('Content-Type') || '').includes('application/json')) { pm.test('JSON response parses', function () { pm.response.json(); }); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/v1/feedback/:id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/feedback/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "feedback",
+                "{{id}}"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{id}}",
+                  "description": "Replace with a real id from a prior response."
+                }
+              ]
+            },
+            "description": "Read-only request. Add query parameters as needed from the route DTO/query schema."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response is not a server error', function () { pm.expect(pm.response.code).to.be.below(500); });",
+                  "pm.test('Response time under 5 seconds (baseline)', function () { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+                  "if ((pm.response.headers.get('Content-Type') || '').includes('application/json')) { pm.test('JSON response parses', function () { pm.response.json(); }); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/v1/feedback/:id/status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/feedback/{{id}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "feedback",
+                "{{id}}",
+                "status"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{id}}",
+                  "description": "Replace with a real id from a prior response."
+                }
+              ]
+            },
+            "description": "STATE-CHANGING: manual execution only. Supply the exact DTO body and valid IDs before sending. Do not run blindly in Collection Runner."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response is not a server error', function () { pm.expect(pm.response.code).to.be.below(500); });",
+                  "pm.test('Response time under 5 seconds (baseline)', function () { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+                  "if ((pm.response.headers.get('Content-Type') || '').includes('application/json')) { pm.test('JSON response parses', function () { pm.response.json(); }); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/v1/feedback/:id/respond",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/feedback/{{id}}/respond",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "feedback",
+                "{{id}}",
+                "respond"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{id}}",
+                  "description": "Replace with a real id from a prior response."
+                }
+              ]
+            },
+            "description": "STATE-CHANGING: manual execution only. Supply the exact DTO body and valid IDs before sending. Do not run blindly in Collection Runner."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Response is not a server error', function () { pm.expect(pm.response.code).to.be.below(500); });",
+                  "pm.test('Response time under 5 seconds (baseline)', function () { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+                  "if ((pm.response.headers.get('Content-Type') || '').includes('application/json')) { pm.test('JSON response parses', function () { pm.response.json(); }); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE /api/v1/feedback/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/feedback/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "feedback",
+                "{{id}}"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{id}}",
+                  "description": "Replace with a real id from a prior response."
+                }
+              ]
+            },
+            "description": "STATE-CHANGING: manual execution only. Supply the exact DTO body and valid IDs before sending. Do not run blindly in Collection Runner."
           },
           "event": [
             {
