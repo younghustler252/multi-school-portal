@@ -37,6 +37,7 @@ Source code on `refactor/modules` is authoritative when a document and implement
 | [Sessions Module](backend/modules/sessions.md) | Academic sessions, terms, current period, calendar events and rollover | Partially source-verified; schema/migration/runtime verification outstanding |
 | [Attendance Module](backend/modules/attendance.md) | Class registers, daily marks, permission scopes, summaries and audit history | Partially source-verified; tests/runtime and summary authorization review outstanding |
 | [Grades Module](backend/modules/grades.md) | Grading scales, assessment schemes, mark sheets, score entry, publication and published-result access | Source-reviewed; DB/migration execution, HTTP tests and runtime verification outstanding |
+| [Report Cards Module](backend/modules/report-cards.md) | Report-card snapshots, calculation, remarks, publication, guardian notifications and PDF rendering | Source-reviewed; migration/HTTP/worker verification outstanding |
 
 ## Workstream handoffs and operational guides
 
