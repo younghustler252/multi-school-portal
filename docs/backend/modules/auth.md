@@ -393,9 +393,9 @@ The frontend should consume the Auth module as follows:
 
 ## Related documentation
 
-- [Authentication and authorization architecture](../../../architecture/authentication-and-authorization.md)
-- [Multi-tenancy and database architecture](../../../architecture/multi-tenancy-and-database.md)
-- [Auth security audit](../../../AUTH_AUDIT.md)
+- [Authentication and authorization architecture](../../architecture/authentication-and-authorization.md)
+- [Multi-tenancy and database architecture](../../architecture/multi-tenancy-and-database.md)
+- [Auth security audit](../../AUTH_AUDIT.md)
 - [Roles module](roles.md)
 - [Users module](users.md)
 - [School module](school.md)
