@@ -28,6 +28,7 @@ This section documents the backend implementation for developers building and ma
 | Sessions and calendar | [Sessions module](modules/sessions.md) | Partially source-verified; schema/migration/runtime verification outstanding |
 | Attendance | [Attendance module](modules/attendance.md) | Partially source-verified; tests/runtime and summary authorization review outstanding |
 | Grades | [Grades module](modules/grades.md) | Source-reviewed; DB/migration execution, HTTP tests and runtime verification outstanding |
+| Report cards | [Report cards module](modules/report-cards.md) | Source-reviewed; migration/HTTP/worker verification outstanding |
 | Report cards | Planned | Audit after grades |
 | Graduation | Planned | Module existence and implementation to be established from source |
 
