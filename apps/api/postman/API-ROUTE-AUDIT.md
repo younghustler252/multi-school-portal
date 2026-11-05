@@ -90,3 +90,19 @@ The webhook is mounted before the general JSON parser and uses `express.raw({ ty
 4. Verify login separately on school and platform hosts.
 5. Build valid DTO examples and chained workflows module by module, starting with school setup, staff/roles, students/guardians/enrolment, classes/attendance, grades/report cards, then finance.
 6. Run tenant-isolation and role/permission negative tests using at least two test schools and accounts with distinct scopes.
+
+
+## Follow-up against latest `refactor/modules` snapshot
+
+The route registry now mounts `/platform/webhooks`, and `app.ts` mounts the provider entry router separately at `/api/v1/webhooks` before the global rate limiter and JSON parser.
+
+Current webhook routes:
+- `POST /api/v1/webhooks/:provider` — public, raw-body provider callback with signature verification and a dedicated rate limit.
+- `GET /api/v1/platform/webhooks/` — list/filter event records.
+- `GET /api/v1/platform/webhooks/summary?hours=24` — status counts.
+- `GET /api/v1/platform/webhooks/:id` — inspect a stored event.
+- `POST /api/v1/platform/webhooks/:id/retry` — retry a failed event, platform permission required.
+
+The former payment-owned webhook endpoint is no longer mounted. Paystack's configured callback URL must use `/api/v1/webhooks/paystack`. The Postman collection now reflects that and includes platform console requests. Successful provider callback tests still require a valid signature over the exact raw body; the synthetic request only tests rejection of an unsigned callback.
+
+The source comparison also shows a school-admin directory service added in the school module. It is not exposed as a standalone route in the current `routes/index.ts`/school route files reviewed, so it has not been invented as an API request.
