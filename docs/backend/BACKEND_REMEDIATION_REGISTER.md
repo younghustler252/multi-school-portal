@@ -105,6 +105,72 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Owner/workstream:** Backend QA/release owner
 - **Acceptance criteria:** Test commands and environment are recorded; all relevant checks pass or remaining failures are linked to tracked work.
 
+### REM-009 — Whole-class PDF queue job IDs are not tenant-namespaced
+
+- **Module:** Report Cards / background jobs
+- **Priority:** P2 — cross-tenant job collision / availability
+- **Status:** Potential risk strongly supported by source composition; reproduce with two tenants
+- **Evidence:** `ClassPdfUseCase` passes the content hash as the BullMQ job ID. The hash covers template/render data/branding timestamps but not `schoolId` or `tenantSchema`. The BullMQ queue is shared, while the PDF cache folder is school-specific. BullMQ deduplicates jobs with the same retained job ID.
+- **Risk:** Two schools with identical report-card render payloads can compute the same job ID. The second school's request may attach to the first school's job and never populate its own school-specific cache while that job ID remains retained.
+- **Recommended action:** Namespace the queue job ID with an unambiguous tenant identifier (and optionally class/term) while retaining the content hash as the cache key. Add a two-tenant test with identical render data that proves each tenant gets its own job/cache output.
+- **Owner/workstream:** Report cards/background jobs developer
+- **Acceptance criteria:** Identical content across two schools cannot deduplicate distinct tenant jobs; both school-specific caches are populated.
+
+### REM-010 — Report-card publication can race with mark-sheet publication changes
+
+- **Module:** Report Cards / Grades
+- **Priority:** P2 — snapshot consistency
+- **Status:** Potential concurrency risk; no reproduction performed
+- **Evidence:** The publish use case reads the current fingerprint, checks staleness, then updates the card status. The fingerprint check and card update are not performed in one transaction that locks/rechecks the relevant mark sheets.
+- **Risk:** A mark sheet could be reopened or republished after the fingerprint check but before the report card is published, allowing a card based on an outdated snapshot to become visible.
+- **Recommended action:** Decide the required consistency guarantee. If strict freshness is required, lock or version-check the relevant published sheets and revalidate the fingerprint in the same transaction that publishes the card; otherwise explicitly accept the race window and document it.
+- **Owner/workstream:** Report cards/grades developer
+- **Acceptance criteria:** A concurrency test demonstrates either that stale publication is prevented or that the accepted behavior is explicitly specified.
+
+### REM-011 — Class-PDF status polling is not bound to tenant/class ownership
+
+- **Module:** Report Cards / background jobs
+- **Priority:** P3 — authorization boundary review
+- **Status:** Confirmed implementation shape; impact limited to status metadata
+- **Evidence:** The status route requires authentication, tenant context and `report_cards.view`, but `ClassPdfStatusUseCase` receives only a 16-character job ID and queries the shared queue. It does not bind the job to the requesting school or class. The response reveals only queued/done/failed/unknown.
+- **Risk:** A user with report-card view permission may be able to determine the state of another tenant's job if its hash is known. No PDF bytes or card content are returned by this endpoint.
+- **Recommended action:** Include tenant identity in the job ID or persist a tenant-scoped job record and verify ownership on poll. Do not rely on the hash being difficult to guess as authorization.
+- **Owner/workstream:** Report cards/background jobs developer
+- **Acceptance criteria:** A user from school A cannot distinguish or poll a job belonging to school B.
+
+### REM-012 — Report-card publish override is controlled by the request payload
+
+- **Module:** Report Cards
+- **Priority:** P2 — product/authorization decision
+- **Status:** Confirmed behavior; intended policy needs confirmation
+- **Evidence:** `PublishDto.allowMissing` is a caller-supplied boolean. When true, `publishBlockers` permits publication despite subjects that have not been published. The route only requires `report_cards.publish`, which is an ALL-scope sensitive permission; there is no separate school setting check in the publish use case.
+- **Risk:** Any principal with the publish permission can bypass the missing-subject completeness check, whether or not the school intends that override to be available.
+- **Recommended action:** Confirm whether this is a deliberate per-action override. If so, keep it explicit, audit it and test it. If it is a school policy, read a persisted setting instead of trusting the client. If it is exceptional, use a separate sensitive permission.
+- **Owner/workstream:** Report cards/product owner
+- **Acceptance criteria:** The selected policy is enforced server-side and represented in role/permission metadata and tests.
+
+### REM-013 — Report-card integration tests do not cover database migrations or HTTP routing
+
+- **Module:** Report Cards
+- **Priority:** P2 — verification gap
+- **Status:** Confirmed test inventory finding
+- **Evidence:** The inspected report-card suite uses pure policy tests and in-memory fake repositories/queue/cache. No report-card DB migration test or HTTP router test was found in the test tree.
+- **Risk:** These tests do not validate the report-card migration against populated tenant schemas, Prisma delegate behavior, middleware/route wiring, or real queue/storage integration.
+- **Recommended action:** Add populated-schema migration coverage for legacy report cards and HTTP integration tests for visibility, class scope, template routes, publish/unpublish, PDF feature gates and status polling. Verify queue/worker behavior with disposable Redis/storage dependencies.
+- **Owner/workstream:** Report cards backend/QA
+- **Acceptance criteria:** Migration and HTTP tests run in CI with explicit disposable dependencies and assert tenant boundaries.
+
+### REM-014 — ReportCard persistence adapter duplicates Prisma delegate types
+
+- **Module:** Report Cards
+- **Priority:** P3 — type-safety / schema drift
+- **Status:** Confirmed implementation; maintainability risk
+- **Evidence:** `card-table.ts` defines a handwritten `CardTable` interface and repository comments state that migrated columns are manually typed to compile against the generated Prisma client available at the time.
+- **Risk:** Schema or generated-client changes can drift from the hand-maintained delegate interface without compiler detection.
+- **Recommended action:** Regenerate the Prisma client and use generated Prisma delegate/input types where possible. Retain a small adapter only if it adds a real abstraction, and type its implementation against generated Prisma types.
+- **Owner/workstream:** Report cards/backend developer
+- **Acceptance criteria:** Typecheck validates adapter calls against the generated client; no manually duplicated field contract is required for migrated columns.
+
 ## Cross-module verification queue
 
 These are not necessarily defects. They are unfinished verification tasks recorded so the team does not mistake source documentation for production validation.
@@ -114,6 +180,7 @@ These are not necessarily defects. They are unfinished verification tasks record
 | Attendance | Execute policy, DB and populated-migration tests; run typecheck/build; add HTTP route tests; close REM-001 |
 | Enrolment | Inspect remaining schema/migration/tests/runtime paths; decide and close REM-002 |
 | Grades | Execute DB/migration tests, typecheck/build and add HTTP route tests; close REM-003 through REM-008 |
+| Report Cards | Add two-tenant queue collision, publication concurrency, HTTP and populated-migration tests; close REM-009 through REM-014 |
 | Other module guides | Complete remaining source/schema/migration/test review as stated in each guide before declaring the module fully verified |
 
 ## Developer handoff protocol
@@ -129,3 +196,4 @@ These are not necessarily defects. They are unfinished verification tasks record
 ## Change log
 
 - 2026-11-06: Initial register created from the attendance, enrolment and grades audits. More findings will be appended as remaining backend modules are reviewed.
+- 2026-11-06: Added report-card queue isolation, publication consistency, override-policy, HTTP/migration coverage and Prisma type-safety findings.
