@@ -34,6 +34,7 @@ Source code on `refactor/modules` is authoritative when a document and implement
 | [Classes and Subjects](backend/modules/classes.md) | Class setup, subjects, teaching assignments and progression | Partially source-verified; remaining use cases/schema/test verification outstanding |
 | [Enrolment Module](backend/modules/enrolment.md) | Term-specific student placement, class capacity, scoped lists and promotion | Partially source-verified; schema/migration/runtime verification outstanding |
 | [Sessions Module](backend/modules/sessions.md) | Academic sessions, terms, current period, calendar events and rollover | Partially source-verified; schema/migration/runtime verification outstanding |
+| [Attendance Module](backend/modules/attendance.md) | Class registers, daily marks, permission scopes, summaries and audit history | Partially source-verified; tests/runtime and summary authorization review outstanding |
 
 ## Workstream handoffs and operational guides
 
@@ -47,27 +48,17 @@ Source code on `refactor/modules` is authoritative when a document and implement
 | [Role Sync Notes](ROLE_SYNC_NOTES.md) | Role and permission synchronization behavior | Verify commands and target environment before execution |
 | [Small Fixes Notes](SMALL_FIXES_NOTES.md) | Small implementation fixes and follow-up context | Historical/supporting; review for still-open items |
 
-## Module documentation awaiting source comparison
+## Legacy module notes awaiting migration or review
 
-These documents are retained for their potential implementation context. They are not yet certified as current API contracts. The module-by-module pass should compare each with routes, controllers, DTOs, use cases, repositories, permissions/scopes, container wiring, schema/migrations, jobs and tests.
+These older notes are retained for historical context. They are not certified as current API contracts; use the source-reviewed module guides above where available.
 
-- [Attendance](ATTENDANCE_MODULE_NOTES.md)
 - [Audit](AUDIT_MODULE_NOTES.md)
-- [Branches](BRANCHES_MODULE_NOTES.md)
-- [Classes](CLASSES_MODULE_NOTES.md)
-- [Enrolment](ENROLMENT_MODULE_NOTES.md)
 - [Grades setup](GRADES_SETUP_NOTES.md)
 - [Grades sheets](GRADES_SHEETS_NOTES.md)
 - [Graduation](GRADUATION_NOTES.md)
-- [Guardians](GUARDIANS_MODULE_NOTES.md)
 - [Plans](PLANS_MODULE_NOTES.md)
 - [Report cards](REPORT_CARDS_MODULE_NOTES.md)
-- [Roles](ROLES_MODULE_NOTES.md)
-- [School](SCHOOL_MODULE_NOTES.md)
-- [Sessions](SESSIONS_MODULE_NOTES.md)
-- [Students](STUDENTS_MODULE_NOTES.md)
 - [Student import](STUDENT_IMPORT_NOTES.md)
-- [Users](USER_MODULE_NOTES.md)
 - [Webhooks](WEBHOOKS_MODULE_NOTES.md)
 
 ## Project and API reference documents
