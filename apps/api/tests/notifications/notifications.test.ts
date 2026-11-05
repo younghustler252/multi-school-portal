@@ -183,17 +183,18 @@ describe("notifications: permissions and wiring", () => {
     it("registry valid; keys under their own module; principal sends, nobody else by default", () => {
         assert.deepEqual(validatePermissionRegistry(), []);
         const mine = PERMISSION_REGISTRY.filter(p => p.module === "notifications");
-        assert.deepEqual(mine.map(p => p.key).sort(), ["notifications.platform.view", "notifications.send", "notifications.view"]);
+        assert.deepEqual(mine.map(p => p.key).sort(), ["notifications.platform.view", "notifications.send", "notifications.view", "platform.notifications.send", "platform.notifications.view"]);
+        assert.equal(mine.find(p => p.key === "platform.notifications.send")!.isSensitive, true);
         assert.equal(mine.find(p => p.key === "notifications.send")!.isSensitive, true);
         const granted = (k: string) => ROLE_TEMPLATES.find(r => r.key === k)!.permissions.map(p => p.key);
         assert.ok(granted("principal").includes("notifications.send"));
         for (const k of ["teacher", "bursar", "branch_principal", "student", "guardian"]) assert.ok(!granted(k).some(x => x.startsWith("notifications.")), k);
     });
-    it("every school route has a permission or the inbox persona guard; the platform routes keep the super admin guard; mounted and registered", () => {
+    it("every school route has a permission or the inbox persona guard; the platform routes use platform permissions; mounted and registered", () => {
         const strip = (f: string) => readFileSync(f, "utf8").split("\n").filter(l => !l.trim().startsWith("//") && !l.trim().startsWith("|")).join("\n");
         const routes = strip("src/modules/notifications/routes/notification.routes.ts").split("\n").filter(l => /^router\.(get|post|patch)\(/.test(l));
         assert.equal(routes.length, 9);
-        for (const l of routes) assert.match(l, /\.\.\.guard\(|\.\.\.mine|requireSuperAdmin/, l);
+        for (const l of routes) assert.match(l, /\.\.\.guard\(|\.\.\.mine|requirePermission\("platform\.notifications\.(view|send)"\)/, l);
         assert.ok(!/requireSchoolAdmin/.test(strip("src/modules/notifications/routes/notification.routes.ts")));
         assert.ok(routes.findIndex(l => l.includes('"/me/read-all"')) < routes.findIndex(l => l.includes('"/me/:recipientId/read"')), "fixed path before the id path");
         assert.match(strip("src/routes/index.ts"), /router\.use\("\/notifications",\s*notificationRouter\)/);

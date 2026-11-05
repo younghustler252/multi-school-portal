@@ -41,8 +41,6 @@ const attach = (req: Request, claims: AccessTokenPayload): void => {
         mustChangePassword: claims.mcp,
         impersonatedBy:     claims.imp,
     };
-    // Transitional: controllers still read req.user. `role` is filled in by loadAccess.
-    req.user = { id: claims.sub, schoolId: claims.tid, mustChangePassword: claims.mcp, role: null };
     RequestContext.setActor({ userId: claims.sub, membershipId: claims.mid, impersonatedBy: claims.imp });
 };
 
@@ -79,7 +77,6 @@ export const optionalAuthenticate = (req: Request, _res: Response, next: NextFun
         attach(req, tokens.verifyAccessToken(token));
     } catch {
         req.auth = undefined;
-        req.user = undefined;
     }
     next();
 };

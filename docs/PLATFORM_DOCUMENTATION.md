@@ -175,6 +175,6 @@ After changing permissions or role templates, review whether `npm run sync:regis
 | `/school-settings` | `GET /`, `PUT /`, `POST /stamp`, `POST /signature`, `GET /preferences`, `PUT /preferences` | `school_settings.view` (reads), `school_settings.manage` (writes) |
 | `/message-templates` | `GET /`, `GET /:key`, `PUT /:key/:channel`, `DELETE /:key/:channel`, `POST /:key/:channel/preview` | `message_templates.view`, `message_templates.manage` |
 | `/automations` | `GET /`, `GET /:id`, `PATCH /:id`, `POST /:id/dry-run`, `POST /:id/run`, `GET /:id/runs` | `automation.view`, `automation.manage` (sensitive) |
-| `/notifications` | `/school`, `/me`, `/me/read-all`, `/me/:id/read`, `/platform-inbox`, `/platform` | see `notifications.permissions.ts` |
+| `/notifications` | `/school`, `/me`, `/me/read-all`, `/me/:id/read`, `/platform-inbox`, `/platform` | see `notifications.permissions.ts`; `GET/POST /platform` need `platform.notifications.view` / `platform.notifications.send` (platform realm) |
 | `/platform/webhooks` (platform realm) | `GET /`, `GET /summary`, `GET /:id`, `POST /:id/retry` | `platform.webhooks.view`, `platform.webhooks.retry` |
 | `/platform/schools` (platform realm) | `GET /provisioning`, `POST /:id/provisioning/retry`, `POST /:id/impersonate`, `GET /overview` | `platform.*` keys, see the notes file |

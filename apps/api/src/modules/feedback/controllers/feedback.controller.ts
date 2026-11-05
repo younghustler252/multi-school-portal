@@ -70,8 +70,8 @@ export class FeedbackController {
         try {
             const result = await this.submitFeedbackUseCase.execute(
                 req.body,
-                req.user?.id ?? null,
-                req.user?.schoolId ?? null,
+                req.auth?.userId ?? null,
+                req.auth?.schoolId ?? null,
             );
 
             sendCreated(
@@ -134,7 +134,7 @@ export class FeedbackController {
     ): Promise<void> => {
         try {
             const result = await this.getMyFeedbackUseCase.execute(
-                req.user!.id,
+                req.auth!.userId,
             );
 
             sendSuccess(

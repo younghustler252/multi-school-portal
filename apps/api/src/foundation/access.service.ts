@@ -26,7 +26,6 @@ export type Persona = "STAFF" | "STUDENT" | "GUARDIAN";
 export type Realm   = "school" | "platform";
 
 const RANK: Record<Scope, number> = { OWN: 1, ASSIGNED: 2, BRANCH: 3, ALL: 4 };
-const LEGACY_ROLE_PRIORITY = ["school_admin", "principal", "bursar", "teacher", "student", "guardian"] as const;
 
 /** Is a held scope at least as wide as the needed one? (ALL > BRANCH > ASSIGNED > OWN; a missing scope covers nothing.) */
 export const scopeCovers = (held: Scope | null, needed: Scope): boolean => held !== null && RANK[held] >= RANK[needed];
@@ -91,15 +90,6 @@ export class Access {
         return this.roleKeys.has(key);
     }
 
-    /** @deprecated transitional, for controllers that still read req.user.role */
-    get legacyRole(): string | null {
-        if (this.realm === "platform") return this.roleKeys.has("super_admin") ? "super_admin" : null;
-        const fromRole = LEGACY_ROLE_PRIORITY.find((k) => this.roleKeys.has(k));
-        if (fromRole) return fromRole;
-        if (this.persona === "STUDENT")  return "student";
-        if (this.persona === "GUARDIAN") return "guardian";
-        return null;
-    }
 }
 
 // ── Narrow DB interface (the real Prisma clients satisfy it; cast if generics complain) ──

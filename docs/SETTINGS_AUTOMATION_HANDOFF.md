@@ -23,6 +23,12 @@ Every Prisma model was compared with the code. Every `*.routes.ts` is mounted, e
 - Also dropped (public migration `20261107110000_drop_legacy_user_and_invite_role`, tenant migration `20261107110000_drop_legacy_staff_role`): `User.role`, `User.schoolId`, `Invite.role`, `Staff.role` and the enums `Role` and `StaffRole`. Nothing read them for authority. The only readers were the platform notices, which now find a school's admins through the school's own memberships (`school/services/school-admin-directory.service.ts`), so they follow role changes. `auth/services/legacy-role.ts` is deleted.
 - Left on purpose: `Subscription.scheduledDowngradePlanId`, `nextBillingDate`, `failedBillingCount` (used by the billing engine).
 
+## Architecture cleanup done 2026-11-05
+- Role-name guards (`requireSuperAdmin`, `requireSchoolAdmin`, `requireStaff`, `requireRoles`, `requireSameSchool`), `Access.legacyRole` and `req.user` are deleted. The last two users of the super admin guard now use permissions: `/notifications/platform` (`platform.notifications.view` / `.send`) and the `/admin/queues` job dashboard (`platform.queues.view`). Run `npm run sync:registries`; platform roles that are not "grants all" need the new keys given by hand.
+- Fixed a broken type import in `shared/types/express.d.ts` (`../../cc/access.service` does not exist; it is `../../foundation/access.service`).
+- `tests/architecture/architecture.test.ts` keeps this from coming back: every relative import resolves, no role-name guards or `req.user`, platform routes use `platform.*` permissions, controllers never touch the database.
+- Known and left alone: about 20 use cases still import the Prisma client directly instead of going through a repository (attendance, guardians, staff, sessions, classes, students, school dashboard). It works, but it is the main layering mismatch left; convert one module at a time.
+
 ## Still open
 1. Done: `automation.rules.max` is active and granted in the default plans (see the notes file, deploy step 2).
 2. Optional new automations (term start, results published, birthdays...). Add a definition plus a catalog message; nothing else changes.

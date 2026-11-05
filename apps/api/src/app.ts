@@ -9,7 +9,7 @@ import { redisConnection }                               from "./infrastructure/
 import { errorHandler }                              from "./infrastructure/middleware/error-handler.middleware";
 import { globalLimiter } from "./infrastructure/middleware/rate-limit.middleware";
 import { resolveTenant, validateTenantOwnership }    from "./infrastructure/middleware/tenant-resolver.middleware";
-import { requireSuperAdmin } from "./infrastructure/middleware/rbac.middleware";
+import { requirePermission } from "./infrastructure/middleware/rbac.middleware";
 import { optionalAuthenticate, authenticate }                      from "./infrastructure/middleware/auth.middleware";
 import { createBullBoardRouter } from "./infrastructure/jobs/bull-board";
 import { webhookEntryRouter } from "./modules/webhooks/routes/webhook.routes";
@@ -96,7 +96,7 @@ app.use("/api/v1", routes);
 app.use(
     "/admin/queues",
     authenticate,
-    requireSuperAdmin,
+    requirePermission("platform.queues.view"),
     createBullBoardRouter(),
 );
 

@@ -3,7 +3,7 @@ import { container } from "../../../container";
 import { NotificationController } from "../controllers/notification.controller";
 import { validate } from "../../../infrastructure/middleware/validate.middleware";
 import { authenticate } from "../../../infrastructure/middleware/auth.middleware";
-import { requireSuperAdmin, requirePermission, requirePersona } from "../../../infrastructure/middleware/rbac.middleware";
+import { requirePermission, requirePersona } from "../../../infrastructure/middleware/rbac.middleware";
 import { requireTenant } from "../../../infrastructure/middleware/tenant-resolver.middleware";
 import { SendSchoolNotificationDto, SendPlatformNotificationDto, ListNotificationsDto } from "../dtos/notification.dto";
 
@@ -37,7 +37,7 @@ router.patch("/me/:recipientId/read", ...mine, (q, s, n) => ctrl().markNotificat
 router.get("/platform-inbox", ...guard("notifications.platform.view"), validate(ListNotificationsDto, "query"), (q, s, n) => ctrl().getPlatformInbox(q, s, n));
 router.patch("/platform-inbox/:recipientId/read", ...guard("notifications.platform.view"), (q, s, n) => ctrl().markPlatformMessageRead(q, s, n));
 
-router.get("/platform", authenticate, requireSuperAdmin, validate(ListNotificationsDto, "query"), (q, s, n) => ctrl().getPlatformNotifications(q, s, n));
-router.post("/platform", authenticate, requireSuperAdmin, validate(SendPlatformNotificationDto), (q, s, n) => ctrl().sendPlatformNotification(q, s, n));
+router.get("/platform", authenticate, requirePermission("platform.notifications.view"), validate(ListNotificationsDto, "query"), (q, s, n) => ctrl().getPlatformNotifications(q, s, n));
+router.post("/platform", authenticate, requirePermission("platform.notifications.send"), validate(SendPlatformNotificationDto), (q, s, n) => ctrl().sendPlatformNotification(q, s, n));
 
 export default router;

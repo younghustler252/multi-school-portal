@@ -17,9 +17,7 @@ import { Access, AccessService, Persona } from "../../foundation/access.service"
 |   requirePersona("GUARDIAN")              portal-specific endpoints ("my children")
 |   getAccess(req).scopeOf("grades.enter")  inside use cases: ALL / ASSIGNED / OWN
 |
-| requireRoles / requireSuperAdmin / requireSchoolAdmin / requireStaff are
-| TRANSITIONAL. They keep unconverted routes working and are deleted once
-| every module uses requirePermission.
+| There is no role-name guard: authority is a permission (with a scope), never a role name.
 |--------------------------------------------------------------------------
 */
 
@@ -51,7 +49,6 @@ export async function ensureAccess(req: Request): Promise<Access> {
     });
 
     req.access = access;
-    req.user   = { id: auth.userId, schoolId: auth.schoolId, mustChangePassword: auth.mustChangePassword, role: access.legacyRole };
     return access;
 }
 
@@ -86,44 +83,3 @@ export const requirePersona = (...personas: Persona[]) =>
             throw new ForbiddenError(`Access denied. Required: ${personas.join(", ")}`, "PERSONA_FORBIDDEN", { personas });
         }
     });
-
-/*
-|--------------------------------------------------------------------------
-| TRANSITIONAL ROLE GUARDS
-|--------------------------------------------------------------------------
-*/
-export type LegacyRole = "super_admin" | "school_admin" | "principal" | "teacher" | "bursar" | "student" | "guardian";
-
-/** @deprecated use requirePermission */
-export const requireRoles = (...roles: LegacyRole[]) =>
-    guard((access) => {
-        if (!roles.some((r) => access.hasRoleKey(r))) {
-            throw new ForbiddenError(`Access denied. Required roles: ${roles.join(", ")}`, "ROLE_FORBIDDEN", { roles });
-        }
-    });
-
-/** @deprecated */
-export const requireSuperAdmin = requireRoles("super_admin");
-
-/** @deprecated */
-export const requireSchoolAdmin = requireRoles("school_admin", "super_admin");
-
-/** @deprecated any staff member counts, including custom roles (it was a fixed list before) */
-export const requireStaff = guard((access) => {
-    if (!(access.persona === "STAFF" || access.hasRoleKey("super_admin"))) {
-        throw new ForbiddenError("Access denied. Staff only.", "ROLE_FORBIDDEN");
-    }
-});
-
-/** @deprecated platform sessions pass; a school session must match the :schoolId / body schoolId */
-export const requireSameSchool = (req: Request, _res: Response, next: NextFunction): void => {
-    if (!req.auth) { next(new UnauthorizedError()); return; }
-    if (!req.auth.schoolId) return next();
-
-    const schoolId = req.params.schoolId || req.body?.schoolId;
-    if (schoolId && req.auth.schoolId !== schoolId) {
-        next(new ForbiddenError("You do not have access to this school", "TENANT_MISMATCH"));
-        return;
-    }
-    next();
-};

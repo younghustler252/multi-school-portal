@@ -26,7 +26,7 @@ const entitlements = () => container.resolve<EntitlementsService>("entitlementsS
 
 // The resolved tenant wins; the token's school is only a fallback.
 const schoolIdOf = (req: Request): string | null =>
-    req.schoolId && req.schoolId !== "PUBLIC" ? req.schoolId : (req.user?.schoolId ?? null);
+    req.schoolId && req.schoolId !== "PUBLIC" ? req.schoolId : (req.auth?.schoolId ?? null);
 
 const warn = (res: Response, key: string): void => {
     res.locals.entitlementWarnings = [...(res.locals.entitlementWarnings ?? []), key];
