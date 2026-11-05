@@ -3,7 +3,7 @@
 Branch: `api-test-suite` (based on `refactor/modules`).
 
 ## Import
-1. Import `CORE.postman_collection.json` (439 unique method + path requests across 16 folders).
+1. Import `CORE.postman_collection.json` (440 unique method + path requests across 16 folders).
 2. Import `CORE.read-only-smoke.postman_collection.json` (176 GET-only requests across 16 folders; safe first run).
 3. Import `CORE.local.postman_environment.json`.
 4. Select **CORE Local API**.
