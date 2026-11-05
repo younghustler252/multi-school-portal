@@ -23,6 +23,7 @@ Source code on `refactor/modules` is authoritative when a document and implement
 | Document | Purpose | Status |
 |---|---|---|
 | [Backend Documentation](backend/README.md) | Backend documentation reading path and module audit sequence | Active |
+| [Backend Remediation Register](backend/BACKEND_REMEDIATION_REGISTER.md) | Cumulative developer handoff for confirmed findings, potential risks and verification tasks | Active; updated as module audits progress |
 | [Auth Module](backend/modules/auth.md) | Authentication, sessions, password recovery, invitations and impersonation | Source-reviewed; runtime and integration verification outstanding |
 | [Users Module](backend/modules/users.md) | Profiles, passwords, avatars, sessions and platform user administration | Source-reviewed; runtime and integration verification outstanding |
 | [School Module](backend/modules/school.md) | School profile, verification, provisioning, payments and lifecycle | Source-reviewed; provider/runtime verification outstanding |
@@ -35,6 +36,7 @@ Source code on `refactor/modules` is authoritative when a document and implement
 | [Enrolment Module](backend/modules/enrolment.md) | Term-specific student placement, class capacity, scoped lists and promotion | Partially source-verified; schema/migration/runtime verification outstanding |
 | [Sessions Module](backend/modules/sessions.md) | Academic sessions, terms, current period, calendar events and rollover | Partially source-verified; schema/migration/runtime verification outstanding |
 | [Attendance Module](backend/modules/attendance.md) | Class registers, daily marks, permission scopes, summaries and audit history | Partially source-verified; tests/runtime and summary authorization review outstanding |
+| [Grades Module](backend/modules/grades.md) | Grading scales, assessment schemes, mark sheets, score entry, publication and published-result access | Source-reviewed; DB/migration execution, HTTP tests and runtime verification outstanding |
 
 ## Workstream handoffs and operational guides
 
