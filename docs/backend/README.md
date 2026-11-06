@@ -44,6 +44,7 @@ This section documents the backend implementation for developers building and ma
 | Audit | [Audit module](modules/audit.md) | Source-reviewed; transactional outbox, redaction, date filtering and isolation verification outstanding |
 | Platform settings | [Platform Settings module](modules/platform-settings.md) | Source-reviewed; public URL validation, audit and singleton initialization outstanding |
 | School settings | [School Settings module](modules/school-settings.md) | Source-reviewed; singleton initialization, storage cleanup and DB/multipart verification outstanding |
+| Automation | [Automation module](modules/automation.md) | Source-reviewed; rule uniqueness, scheduler recovery, timezone, pagination and DB/HTTP verification outstanding |
 | Report cards | Planned | Audit after grades |
 | Graduation lifecycle | [Student graduation lifecycle](modules/graduation-lifecycle.md) | Source-reviewed across Students, Enrolment and Sessions; DB/migration execution, HTTP and quota-concurrency verification outstanding |
 
@@ -83,6 +84,6 @@ The next academic modules are:
 14. Report cards
 15. Graduation (if a distinct backend module exists; otherwise document the actual student lifecycle implementation and legacy graduation notes)
 
-Then continue through automation, notifications, message templates, webhooks, feedback and API conventions/OpenAPI.
+Then continue through notifications, message templates, webhooks, feedback and API conventions/OpenAPI.
 
 The frontend is intentionally not being documented as the current implementation while it remains behind the backend. Frontend implementation documentation will follow the backend contract audit.
