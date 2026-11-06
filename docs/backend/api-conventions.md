@@ -10,7 +10,7 @@ The public route index currently mounts:
 - /auth, /users, /schools, /plans, /subscriptions, /audit.
 - /staff, /roles, /permissions, /branches.
 - /students, /guardians, /classes, /enrolments, /attendance, /grades, /sessions, /report-cards.
-- /fees, /fees/invoices, /fees/adjustments.
+- /fees, /fees/invoices, /fees/adjustments (fee setup, reports, invoices and adjustments).
 - /finance, /finance/settings, /finance/reconciliation, /finance/settlements.
 - /expenses, /vendors, /budgets, /recurring-expenses.
 - /payments, /payroll, /payroll/transfers, /my/payslips.
