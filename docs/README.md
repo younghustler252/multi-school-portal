@@ -24,7 +24,7 @@ Source code on `refactor/modules` is authoritative when a document and implement
 |---|---|---|
 | [Backend Documentation](backend/README.md) | Backend documentation reading path and module audit sequence | Active |
 | [API Conventions](backend/api-conventions.md) | API route composition, tenant/auth middleware, validation, pagination, rate limits and response conventions | Source-reviewed; middleware fixes and OpenAPI work outstanding |
-| [API Error Handling](backend/error-handling.md) | Error classes, HTTP mapping, stable codes and response-envelope behavior | Source-reviewed; response consistency remediation outstanding |
+| [API Error Handling](backend/error-handling.md) | Error classes, HTTP mapping, stable codes and response-envelope behavior | Source-reviewed; response consistency remediation outstanding |\n| [API Contract Documentation](api/README.md) | Current OpenAPI readiness, contract ownership and links to the migration plan | Active; canonical OpenAPI spec not yet created |\n| [OpenAPI Migration Plan](api/OPENAPI_MIGRATION_PLAN.md) | Route inventory, authoring strategy, validation and acceptance criteria for the canonical contract | Source-reviewed plan; implementation outstanding |
 | [Backend Remediation Register](backend/BACKEND_REMEDIATION_REGISTER.md) | Cumulative developer handoff for confirmed findings, potential risks and verification tasks | Active; updated as module audits progress |
 | [Auth Module](backend/modules/auth.md) | Authentication, sessions, password recovery, invitations and impersonation | Source-reviewed; runtime and integration verification outstanding |
 | [Users Module](backend/modules/users.md) | Profiles, passwords, avatars, sessions and platform user administration | Source-reviewed; runtime and integration verification outstanding |
@@ -87,13 +87,13 @@ These older notes are retained for historical context. They are not certified as
 - [Student import](STUDENT_IMPORT_NOTES.md)
 - [Webhooks](WEBHOOKS_MODULE_NOTES.md)
 
-## Project and API reference documents
+## Project and legacy API reference documents
 
 | Document | Purpose | Review status |
 |---|---|---|
 | [Project Brief](PROJECT_BRIEF.md) | Product scope and project-level requirements | Check for product-scope changes |
 | [API Documentation](schoolos-api-documentation.md) | Narrative API reference | Compare with current routes and DTOs |
-| [Swagger Specification](swagger.yaml) | OpenAPI contract | Compare with current route/controller/DTO behavior |
+| [Legacy Swagger Starter](swagger.yaml) | Historical starter snippet only; not a valid or current API contract | Obsolete; do not use for frontend or integration work |
 | [Architecture decisions](decisions/) | Durable architecture decisions | Retain unless explicitly superseded |
 
 ## Documentation maintenance rules
