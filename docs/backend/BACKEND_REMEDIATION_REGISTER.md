@@ -358,6 +358,61 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Owner/workstream:** Ledger developer
 - **Acceptance criteria:** Comments and documentation no longer contradict the source list.
 
+### REM-032 — Recurring-expense run-now can trigger auto-approval without approval permission
+
+- **Module:** Expenses / recurring expenses
+- **Priority:** P1 — approval authorization boundary
+- **Status:** Confirmed route/controller permission mismatch
+- **Evidence:** `POST /recurring-expenses/run` is guarded by `expenses.create`. The controller's `requireApprovalRightForAutoApprove` check is only called on create/update. `RunRecurringExpensesUseCase` can auto-approve due templates with `autoApprove=true` and posts the resulting expense through `ExpenseApprovalService`.
+- **Risk:** A user with expense-create permission but without `expenses.approve` can manually trigger due recurring templates that create and post auto-approved expenses.
+- **Recommended action:** Make the run-now permission match its effects. Either require `expenses.approve` for run-now when any due template can auto-approve, or split the action so users without approval rights can only run templates that will remain pending. Keep the scheduled system runner separate and explicitly system-authorized.
+- **Owner/workstream:** Expenses/RBAC developer
+- **Acceptance criteria:** A user with only `expenses.create` cannot trigger auto-approval; a user with approval permission and the scheduled system runner can execute the intended workflow.
+
+### REM-033 — Budget block enforcement is vulnerable to concurrent approvals
+
+- **Module:** Expenses / budgets
+- **Priority:** P2 — budget policy integrity
+- **Status:** Potential race established by read/check/post sequence; not reproduced
+- **Evidence:** `BudgetCheckService.check` reads posted net debits and compares them with planned amount. The expense approval transaction does not lock or reserve the relevant budget line/account before posting.
+- **Risk:** Two approvals can both read the same remaining budget, both pass `block` enforcement, then both post; combined spend can exceed the budget even though each check passed.
+- **Recommended action:** If block mode must be strict, serialize approvals by budget/account/date window or maintain an atomic reserved/committed amount. Ensure direct, recurring and manual approval paths share the same enforcement mechanism. Add concurrent PostgreSQL approval tests.
+- **Owner/workstream:** Expenses/budget developer
+- **Acceptance criteria:** Concurrent approvals cannot exceed a strict budget limit, or product documentation explicitly states block mode is best-effort under concurrency.
+
+### REM-034 — Budget line replacement deletes old lines before inserting new lines without a transaction
+
+- **Module:** Expenses / budgets
+- **Priority:** P2 — configuration data integrity
+- **Status:** Confirmed repository operation sequence; failure not reproduced
+- **Evidence:** `BudgetRepositoryImpl.replaceLines` calls `deleteMany` followed by `createMany` without opening or requiring a tenant transaction. `SetBudgetLinesUseCase` invokes this method directly.
+- **Risk:** If replacement insertion fails after deletion (database error, FK race, connection failure), the budget loses its previous line set.
+- **Recommended action:** Wrap delete and create in one tenant transaction or make the repository method explicitly transaction-bound. Add a failure-injection test proving the old lines survive if insertion fails.
+- **Owner/workstream:** Expenses/budget developer
+- **Acceptance criteria:** Budget line replacement is all-or-nothing.
+
+### REM-035 — Recurring auto-approval is attributed to the template creator rather than the system actor
+
+- **Module:** Expenses / recurring jobs / audit
+- **Priority:** P2 — audit attribution
+- **Status:** Confirmed implementation
+- **Evidence:** `RunRecurringExpensesUseCase.makeOne` calls `ExpenseApprovalService.approve` with `actorUserId: r.createdById` and `auto: true`. The job is executed by a scheduler or run-now caller, but generated approval journals/audit are attributed to the original template creator.
+- **Risk:** Audit history can imply that a human creator personally approved a recurring expense at the later execution time, obscuring that the action was automated.
+- **Recommended action:** Use a stable system actor identity for auto-approval and retain the template creator separately as `requestedById`/template owner. Record the template ID and auto-approval policy in audit metadata.
+- **Owner/workstream:** Expenses/audit developer
+- **Acceptance criteria:** Generated expense and journal actor fields identify the system; audit records retain the template creator and recurring template reference.
+
+### REM-036 — Recurring expense execution has no dedicated tests or route integration tests
+
+- **Module:** Expenses / recurring expenses
+- **Priority:** P2 — verification gap
+- **Status:** Confirmed test inventory finding
+- **Evidence:** The inspected `apps/api/tests/finance/expenses.test.ts` covers expense lifecycle, payments, voiding, budget checks and recurrence date helper functions, but not recurring template persistence, daily runner, catch-up, failure recovery, multi-school execution or run-now route authorization.
+- **Risk:** The highest-complexity asynchronous workflow in Expenses has no regression coverage for scheduling, tenant iteration, auto-approval or duplicate generation.
+- **Recommended action:** Add tests for recurring template CRUD, due-date selection, month-end/termly/yearly recurrence, 12-run catch-up, per-template failure retry, unique generated expense behavior, auto-approval permissions, system actor and multi-school tenant isolation. Add HTTP tests for run-now.
+- **Owner/workstream:** Expenses backend/QA
+- **Acceptance criteria:** Recurring workflow is tested at policy, use-case, PostgreSQL and HTTP layers.
+
 ## Cross-module verification queue
 
 These are not necessarily defects. They are unfinished verification tasks recorded so the team does not mistake source documentation for production validation.
@@ -372,6 +427,7 @@ These are not necessarily defects. They are unfinished verification tasks record
 | Fees | Fix statement arithmetic and BigInt serialization; align grace-days/timezone settings; add regression, HTTP and DB migration tests; close REM-018 through REM-021 |
 | Payments | Serialize credit consumption/refund reservation; fix settlement precision/idempotency; verify webhook filtering; add HTTP and PostgreSQL concurrency tests; close REM-022 through REM-027 |
 | Ledger | Serialize posting/period close; add period-close and HTTP tests; decide tenant timezone; close REM-028 through REM-031 |
+| Expenses | Fix run-now approval boundary, serialize budget checks, transact line replacement, correct system actor attribution and add recurring tests; close REM-032 through REM-036 |
 | Other module guides | Complete remaining source/schema/migration/test review as stated in each guide before declaring the module fully verified |
 
 ## Developer handoff protocol
@@ -392,3 +448,4 @@ These are not necessarily defects. They are unfinished verification tasks record
 - 2026-11-06: Added fee-statement arithmetic, BigInt precision, grace-days configuration and finance-timezone findings.
 - 2026-11-06: Added payment-credit concurrency, refund reservation, settlement precision/idempotency and webhook verification findings.
 - 2026-11-06: Added ledger period-close concurrency, period-close test coverage, finance timezone and system-account count findings.
+- 2026-11-06: Added recurring run-now authorization, budget concurrency/atomicity, system actor attribution and recurring test coverage findings.
