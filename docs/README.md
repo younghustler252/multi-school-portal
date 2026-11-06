@@ -51,6 +51,7 @@ Source code on `refactor/modules` is authoritative when a document and implement
 | [Plans Module](backend/modules/plans.md) | Public plan catalogue, platform plan management and feature/limit grants | Source-reviewed; zero-limit presentation, atomic grants and open-invoice deactivation verification outstanding |
 | [Subscriptions and Billing Module](backend/modules/subscriptions.md) | School subscriptions, plan changes, invoices, payment attempts, renewals, dunning and platform billing | Source-reviewed; checkout uniqueness, lifecycle concurrency, coupon limits and billing integration verification outstanding |
 | [Gateway Settlements Module](backend/modules/gateway-settlements.md) | Itemized online-payment settlement reports, clearing reconciliation and settlement reversal | Source-reviewed; legacy route conflict, itemized settlement tests and preview validation outstanding |
+| [Audit Module](backend/modules/audit.md) | Shared audit writes, actor attribution, school/platform activity logs and failure reporting | Source-reviewed; transactional outbox, redaction, date filtering and isolation verification outstanding |
 
 ## Workstream handoffs and operational guides
 
