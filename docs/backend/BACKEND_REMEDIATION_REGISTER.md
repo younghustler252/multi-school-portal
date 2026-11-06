@@ -820,6 +820,39 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Owner/workstream:** Platform Provisioning/Subscriptions developer
 - **Acceptance criteria:** A school cannot have more than one trialing/active/past_due subscription; repository reads fail loudly if legacy duplicates exist.
 
+### REM-074 — Legacy Payments settlement route conflicts with Gateway Settlements
+
+- **Module:** Payments / Gateway Settlements / Ledger
+- **Priority:** P1 — settlement double-posting and clearing-control integrity
+- **Status:** Confirmed duplicate live workflows
+- **Evidence:** Both `POST /api/v1/payments/online/settlements` and `POST /api/v1/finance/settlements` are mounted. The legacy Payments `RecordSettlementUseCase` accepts aggregate gross/fee/reference and posts `sourceType=TRANSFER`, `sourceId=reference`, `purpose=SETTLE`, but does not create `GatewaySettlement` or `GatewaySettlementItem` rows. The newer module uses the same ledger idempotency key and is the only path that marks individual payments settled.
+- **Risk:** A legacy settlement reduces ONLINE_CLEARING while the corresponding payments remain in the newer module's unsettled list. A later newer settlement with another reference can credit ONLINE_CLEARING again for the same payments. With the same reference, the ledger idempotency collision blocks the newer workflow but still leaves no settlement record/items for reconciliation.
+- **Recommended action:** Remove/deprecate the legacy aggregate endpoint or make it delegate to Gateway Settlements using explicit payment IDs and the same persisted settlement/item records. Do not allow a gross/fee-only journal without marking the underlying payment rows as settled.
+- **Owner/workstream:** Payments/Gateway Settlements/Ledger developer
+- **Acceptance criteria:** Only one settlement write path exists; every settlement journal has a GatewaySettlement record and itemized payment links; clearing balance equals unsettled confirmed online payments after every operation.
+
+### REM-075 — Gateway Settlements has no dedicated parser/matcher/database/HTTP tests
+
+- **Module:** Gateway Settlements
+- **Priority:** P2 — verification gap
+- **Status:** Confirmed test inventory finding
+- **Evidence:** No gateway-settlements test file was found in the inspected apps/api/tests tree.
+- **Risk:** CSV parsing, matching, per-payment uniqueness, settlement journal, reversal and clearing-control calculations have no module-specific automated verification.
+- **Recommended action:** Add pure parser/matcher tests, PostgreSQL unique/concurrency tests, HTTP permission/feature tests and integration tests for record/reverse/re-settle.
+- **Owner/workstream:** Gateway Settlements backend/QA
+- **Acceptance criteria:** All report parsing, matching, settlement/reversal and tenant boundary behaviors are covered in CI.
+
+### REM-076 — Gateway settlement preview does not validate effective settlement date
+
+- **Module:** Gateway Settlements
+- **Priority:** P3 — preview/commit contract mismatch
+- **Status:** Confirmed behavior
+- **Evidence:** Preview computes `canRecord` from clean group, not already recorded and presence of a date. It does not call `parseDay` or reject future dates; recordOne does both during commit.
+- **Risk:** Preview can tell the user a group is recordable, then the record endpoint rejects the same group for invalid/future date.
+- **Recommended action:** Share one date eligibility helper between preview and record and return a date-specific problem in preview.
+- **Owner/workstream:** Gateway Settlements developer
+- **Acceptance criteria:** Preview and record return the same date eligibility for valid, invalid and future settlement dates.
+
 ## Cross-module verification queue
 
 These are not necessarily defects. They are unfinished verification tasks recorded so the team does not mistake source documentation for production validation.
@@ -842,6 +875,7 @@ These are not necessarily defects. They are unfinished verification tasks record
 | Finance Reports | Bound query materialization, add statement/catalogue/CSV/HTTP tests and verify accountant feature grants; close REM-059 through REM-061 |
 | Plans | Align zero-limit presentation, make plan+entitlement writes atomic, and handle deactivation with open invoices; close REM-062 through REM-064 |
 | Subscriptions | Prevent duplicate checkout attempts, serialize billing lifecycle/apply transitions, enforce coupon limits, recover captured-but-unapplied funds and add full billing tests; close REM-065 through REM-073 |
+| Gateway Settlements | Retire legacy aggregate settlement route, keep itemized settlement as sole writer, add parser/matcher/DB/HTTP tests and align preview dates; close REM-074 through REM-076 |
 | Other module guides | Complete remaining source/schema/migration/test review as stated in each guide before declaring the module fully verified |
 
 ## Developer handoff protocol
@@ -870,3 +904,4 @@ These are not necessarily defects. They are unfinished verification tasks record
 - 2026-11-06: Added finance-report materialization limits, missing test coverage and accountant entitlement verification findings.
 - 2026-11-06: Added plan entitlement display, atomic plan creation/clone and deactivation-with-open-invoice findings.
 - 2026-11-06: Added subscription amount schema mismatch, duplicate checkout, lifecycle concurrency, coupon max-use, captured-payment recovery, query parsing and live-subscription uniqueness findings.
+- 2026-11-06: Added duplicate Payments/Gateway Settlements write-path conflict, missing test coverage and preview-date mismatch findings.
