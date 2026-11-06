@@ -31,6 +31,7 @@ This section documents the backend implementation for developers building and ma
 | Report cards | [Report cards module](modules/report-cards.md) | Source-reviewed; migration/HTTP/worker verification outstanding |
 | Fees | [Fees module](modules/fees.md) | Source-reviewed; migration/HTTP/runtime verification and remediation outstanding |
 | Payments | [Payments module](modules/payments.md) | Source-reviewed; PostgreSQL concurrency, HTTP/runtime and webhook verification outstanding |
+| Ledger | [Ledger module](modules/ledger.md) | Source-reviewed; period-close concurrency, HTTP and runtime verification outstanding |
 | Report cards | Planned | Audit after grades |
 | Graduation lifecycle | [Student graduation lifecycle](modules/graduation-lifecycle.md) | Source-reviewed across Students, Enrolment and Sessions; DB/migration execution, HTTP and quota-concurrency verification outstanding |
 
@@ -70,6 +71,6 @@ The next academic modules are:
 14. Report cards
 15. Graduation (if a distinct backend module exists; otherwise document the actual student lifecycle implementation and legacy graduation notes)
 
-Then continue through Ledger, Expenses, Payroll, Finance Settings, platform administration, settings/automation, integrations and API conventions/OpenAPI.
+Then continue through Expenses, Payroll, Finance Settings, platform administration, settings/automation, integrations and API conventions/OpenAPI.
 
 The frontend is intentionally not being documented as the current implementation while it remains behind the backend. Frontend implementation documentation will follow the backend contract audit.
