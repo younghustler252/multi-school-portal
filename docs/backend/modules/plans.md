@@ -49,7 +49,7 @@ Platform routes require platform-realm permissions. Public routes expose only ac
 
 Plan records include name, unique slug/system key, description, monthly/yearly/setup price in kobo, trial days, active/public flags, sort order and optional custom/system-plan metadata.
 
-- Prices are non-negative whole kobo.
+- Prices are non-negative whole kobo. The DTO currently accepts up to 10,000,000,000 kobo, but public Plan columns are Prisma Int (maximum 2,147,483,647); this mismatch is tracked as REM-065.
 - Yearly price cannot exceed 12× monthly price.
 - A zero-price plan must be free on both monthly and yearly cycles.
 - System Free plan is protected from deactivation and price changes.
