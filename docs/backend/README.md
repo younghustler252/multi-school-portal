@@ -9,9 +9,10 @@ This section documents the backend implementation for developers building and ma
 3. [Authentication and authorization architecture](../architecture/authentication-and-authorization.md)
 4. [Background processing architecture](../architecture/background-processing.md)
 5. [Module guides](#module-guides) — source-reviewed implementation behavior and cross-module dependencies.
-6. [Backend remediation register](BACKEND_REMEDIATION_REGISTER.md) — cumulative developer handoff of confirmed findings, potential risks and verification tasks.
-7. API conventions and error handling — next documentation phase.
-8. OpenAPI contract — after route/DTO coverage and response behavior have been audited.
+6. [API conventions](api-conventions.md) — route composition, tenant/auth middleware, validation, pagination, rate limits and response conventions.
+7. [Error handling](error-handling.md) — error classes, status/code mapping and response envelopes.
+8. [Backend remediation register](BACKEND_REMEDIATION_REGISTER.md) — cumulative developer handoff of confirmed findings, potential risks and verification tasks.
+9. OpenAPI contract — next, after route/DTO coverage and response behavior have been audited.
 
 ## Module guides
 
