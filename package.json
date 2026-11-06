@@ -13,6 +13,7 @@
     "build:api": "npm run build -w apps/api",
     "build:web": "npm run build -w apps/web",
     "test": "npm run test -w apps/api",
+    "test:web": "npm run test -w apps/web",
     "lint:web": "npm run lint -w apps/web",
     "db:up": "docker compose up -d",
     "typecheck": "npm run typecheck -w apps/api",

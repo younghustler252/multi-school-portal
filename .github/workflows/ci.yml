@@ -35,6 +35,8 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version-file: .nvmrc, cache: npm }
       - run: npm ci
+      # Tests first: they must stay green while the typecheck below is still red (a failing step stops the job).
+      - run: npm run test -w apps/web
       - run: npm run typecheck -w apps/web
       - run: npm run lint -w apps/web
       - run: npm run build -w apps/web
