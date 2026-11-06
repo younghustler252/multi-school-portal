@@ -8,8 +8,10 @@ This section documents the backend implementation for developers building and ma
 2. [Multi-tenancy and database architecture](../architecture/multi-tenancy-and-database.md)
 3. [Authentication and authorization architecture](../architecture/authentication-and-authorization.md)
 4. [Background processing architecture](../architecture/background-processing.md)
-5. [Backend remediation register](BACKEND_REMEDIATION_REGISTER.md) — cumulative developer handoff of confirmed findings, potential risks and verification tasks.
-6. API conventions — planned; create after the response/error middleware audit.
+5. [Module guides](#module-guides) — source-reviewed implementation behavior and cross-module dependencies.
+6. [Backend remediation register](BACKEND_REMEDIATION_REGISTER.md) — cumulative developer handoff of confirmed findings, potential risks and verification tasks.
+7. API conventions and error handling — next documentation phase.
+8. OpenAPI contract — after route/DTO coverage and response behavior have been audited.
 
 ## Module guides
 
@@ -49,7 +51,6 @@ This section documents the backend implementation for developers building and ma
 | Message templates | [Message Templates module](modules/message-templates.md) | Source-reviewed; rendered subject validation and DB/HTTP verification outstanding |
 | Webhooks | [Webhooks module](modules/webhooks.md) | Source-reviewed; processing leases, retry automation and raw-body/DB integration verification outstanding |
 | Feedback | [Feedback module](modules/feedback.md) | Source-reviewed; abuse controls, URL privacy, audit, support notification retry and management tests outstanding |
-| Report cards | Planned | Audit after grades |
 | Graduation lifecycle | [Student graduation lifecycle](modules/graduation-lifecycle.md) | Source-reviewed across Students, Enrolment and Sessions; DB/migration execution, HTTP and quota-concurrency verification outstanding |
 
 ## Documentation contract
@@ -67,27 +68,53 @@ Do not treat a module guide as a replacement for OpenAPI. The API specification 
 
 ## Module audit sequence
 
-Foundation modules were documented first because other modules depend on their identity and authorization behavior:
+The source inventory contains 34 top-level API module directories. Each has a corresponding guide; the singular source folder user is documented as users.md. The guides were written from source inspection, but that does not mean every test, migration, provider integration or runtime path has been executed.
 
+**Foundation and identity**
 1. Auth
 2. Users
-3. School
+3. School and provisioning
 4. Roles and permissions
 5. Branches
 6. Staff
 7. Students
 8. Guardians
+
+**Academic operations**
 9. Classes and subjects
 10. Enrolment
 11. Sessions and calendar
 12. Attendance
-
-The next academic modules are:
-
 13. Grades
 14. Report cards
-15. Graduation (if a distinct backend module exists; otherwise document the actual student lifecycle implementation and legacy graduation notes)
+15. Graduation lifecycle (cross-module student/enrolment/session behavior)
 
-Then complete API conventions/error handling/OpenAPI, then frontend implementation documentation.
+**Finance**
+16. Fees
+17. Payments
+18. Ledger
+19. Expenses
+20. Payroll
+21. Salary transfers
+22. Finance Settings
+23. Bank Reconciliation
+24. Finance Reports
+25. Plans
+26. Subscriptions and Billing
+27. Gateway Settlements
+
+**Platform and communications**
+28. Audit
+29. Platform Settings
+30. School Settings
+31. Automation
+32. Notifications
+33. Message Templates
+34. Webhooks
+35. Feedback
+
+The graduation lifecycle guide is a cross-module guide, not a separate source module, so the total is 34 module folders plus that lifecycle guide.
+
+The remaining backend documentation work is API conventions, error handling and OpenAPI contract coverage. After those contracts are complete, document the target frontend architecture and integration requirements against the verified backend—not the outdated frontend implementation.
 
 The frontend is intentionally not being documented as the current implementation while it remains behind the backend. Frontend implementation documentation will follow the backend contract audit.
