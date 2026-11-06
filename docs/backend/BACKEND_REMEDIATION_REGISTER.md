@@ -688,6 +688,39 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Owner/workstream:** Platform entitlements + Finance Reports
 - **Acceptance criteria:** Integration test with real plan entitlements proves an intended plan can run accountant reports and a plan without the feature is denied.
 
+### REM-062 — Zero-limit plan grants are displayed as granted
+
+- **Module:** Plans / Entitlements
+- **Priority:** P2 — plan catalogue accuracy
+- **Status:** Confirmed source mismatch
+- **Evidence:** `PlanEntitlementService.describe` sets `granted=!!row` for LIMIT/QUOTA grants, even when `limitValue=0`. `EntitlementsService` treats a zero limit as not granted (`limit > 0` is required).
+- **Risk:** Public pricing/upgrade UI can advertise a feature as included when the school receives zero capacity and API enforcement denies it.
+- **Recommended action:** For LIMIT/QUOTA, define granted as `limitValue === null || limitValue > 0`; keep the numeric value visible if zero is useful to explain no capacity. Share one canonical interpretation between plan presentation and enforcement.
+- **Owner/workstream:** Plans/Entitlements developer
+- **Acceptance criteria:** Public plan output and entitlement checks agree for missing, zero, positive and unlimited grants.
+
+### REM-063 — Plan creation/clone and entitlement grants are not one atomic operation
+
+- **Module:** Plans
+- **Priority:** P2 — platform catalogue integrity
+- **Status:** Confirmed operation sequencing; failure not reproduced
+- **Evidence:** CreatePlanUseCase creates the plan then applies its initial entitlements in a separate transaction. ClonePlanUseCase creates the clone then copies entitlements in a separate operation.
+- **Risk:** If entitlement normalization/application/copy fails after the plan row is committed, a partially configured plan remains visible in platform administration and may be published without intended feature grants.
+- **Recommended action:** Validate all grants before plan creation and persist plan plus grants in one transaction. If cross-repository transaction support is unavailable, implement compensating deletion/repair and keep the incomplete plan inactive/private.
+- **Owner/workstream:** Plans developer
+- **Acceptance criteria:** Injected entitlement failure leaves no incomplete active/public plan; clone preserves all grants atomically.
+
+### REM-064 — Plan deactivation does not account for open upgrade invoices
+
+- **Module:** Plans / Subscriptions
+- **Priority:** P2 — subscription state consistency
+- **Status:** Confirmed cross-module gap
+- **Evidence:** DeactivatePlanUseCase checks current trialing/active/past_due subscribers and then deactivates the plan. It does not check open plan-change invoices targeting that plan. BillingEngine.applyInvoice uses the invoice's stored plan ID to update the subscription and does not revalidate target plan active status at payment application.
+- **Risk:** A plan can be deactivated after an upgrade invoice is issued but before payment; a later successful payment can move the school onto an inactive plan.
+- **Recommended action:** Either reserve the plan while open invoices target it, or revalidate plan status during invoice application and define a safe outcome (reject payment application, convert/refund, or honor the already-issued offer). Make the policy explicit.
+- **Owner/workstream:** Plans/Subscriptions developer
+- **Acceptance criteria:** A plan cannot be deactivated into an inconsistent state with outstanding invoices; test both the reservation and late-payment behavior.
+
 ## Cross-module verification queue
 
 These are not necessarily defects. They are unfinished verification tasks recorded so the team does not mistake source documentation for production validation.
@@ -708,6 +741,7 @@ These are not necessarily defects. They are unfinished verification tasks record
 | Finance Settings | Add HTTP and cross-tenant DB isolation tests; close REM-051 |
 | Bank Reconciliation | Enforce imported balance evidence, serialize sign-off/mutations, fix statement data/dedupe/parser and strengthen auto-match; add HTTP/DB tests; close REM-052 through REM-058 |
 | Finance Reports | Bound query materialization, add statement/catalogue/CSV/HTTP tests and verify accountant feature grants; close REM-059 through REM-061 |
+| Plans | Align zero-limit presentation, make plan+entitlement writes atomic, and handle deactivation with open invoices; close REM-062 through REM-064 |
 | Other module guides | Complete remaining source/schema/migration/test review as stated in each guide before declaring the module fully verified |
 
 ## Developer handoff protocol
@@ -734,3 +768,4 @@ These are not necessarily defects. They are unfinished verification tasks record
 - 2026-11-06: Added finance-settings HTTP and tenant-isolation test coverage finding.
 - 2026-11-06: Added bank reconciliation balance-evidence, sign-off locking, statement import/dedupe/parser, matching and integration-test findings.
 - 2026-11-06: Added finance-report materialization limits, missing test coverage and accountant entitlement verification findings.
+- 2026-11-06: Added plan entitlement display, atomic plan creation/clone and deactivation-with-open-invoice findings.
