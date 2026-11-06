@@ -4,7 +4,7 @@
 
 ## API versioning and route ownership
 
-All application routes are mounted under /api/v1. The route index composes module routers; each module owns its route/controller/DTO/use-case/repository behavior.
+Business API routes are mounted under /api/v1. Health and provider webhooks are mounted directly in app.ts; the Bull Board queue administration UI is mounted outside the versioned API. The route index composes module routers; each module owns its route/controller/DTO/use-case/repository behavior.
 
 The public route index currently mounts:
 - /auth, /users, /schools, /plans, /subscriptions, /audit.
