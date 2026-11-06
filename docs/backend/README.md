@@ -35,6 +35,7 @@ This section documents the backend implementation for developers building and ma
 | Expenses | [Expenses module](modules/expenses.md) | Source-reviewed; recurring authorization, budget concurrency and runtime verification outstanding |
 | Payroll | [Payroll module](modules/payroll.md) | Source-reviewed; database uniqueness, profile atomicity, HTTP and concurrency verification outstanding |
 | Salary transfers | [Salary transfers module](modules/payroll-transfers.md) | Source-reviewed; reversal guard, disabled-state reconciliation and provider integration verification outstanding |
+| Finance settings | [Finance Settings module](modules/finance-settings.md) | Source-reviewed; HTTP and cross-tenant database verification outstanding |
 | Report cards | Planned | Audit after grades |
 | Graduation lifecycle | [Student graduation lifecycle](modules/graduation-lifecycle.md) | Source-reviewed across Students, Enrolment and Sessions; DB/migration execution, HTTP and quota-concurrency verification outstanding |
 
@@ -74,6 +75,6 @@ The next academic modules are:
 14. Report cards
 15. Graduation (if a distinct backend module exists; otherwise document the actual student lifecycle implementation and legacy graduation notes)
 
-Then continue through Finance Settings, platform administration, settings/automation, integrations and API conventions/OpenAPI.
+Then continue through platform administration, settings/automation, integrations and API conventions/OpenAPI.
 
 The frontend is intentionally not being documented as the current implementation while it remains behind the backend. Frontend implementation documentation will follow the backend contract audit.
