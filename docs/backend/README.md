@@ -40,6 +40,7 @@ This section documents the backend implementation for developers building and ma
 | Finance reports | [Finance Reports module](modules/finance-reports.md) | Source-reviewed; query limits, report/CSV tests and accountant entitlement verification outstanding |
 | Plans | [Plans module](modules/plans.md) | Source-reviewed; zero-limit presentation, atomic grants and open-invoice deactivation verification outstanding |
 | Subscriptions | [Subscriptions and Billing module](modules/subscriptions.md) | Source-reviewed; checkout uniqueness, lifecycle concurrency, coupon limits and billing integration verification outstanding |
+| Gateway settlements | [Gateway Settlements module](modules/gateway-settlements.md) | Source-reviewed; legacy route conflict, itemized settlement tests and preview validation outstanding |
 | Report cards | Planned | Audit after grades |
 | Graduation lifecycle | [Student graduation lifecycle](modules/graduation-lifecycle.md) | Source-reviewed across Students, Enrolment and Sessions; DB/migration execution, HTTP and quota-concurrency verification outstanding |
 
