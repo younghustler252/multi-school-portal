@@ -1,4 +1,3 @@
-import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
 import { AuditService } from "../../audit/services/audit.service";
 import { IEnrolmentRepository } from "../repositories/enrolment.repository";
 import { IStudentRepository } from "../../students/repositories/student.repository";
@@ -8,7 +7,7 @@ import { EnrolmentPresenter, NameRef, StudentLite, TermRef } from "../services/e
 import { planPromotion, moves, promotionOutcome, willGraduate, PromotionOutcome, PlanRow, PlanAction } from "../services/promotion-plan";
 import { ACTIVE_STUDENT_WHERE } from "../../students/domain/student-eligibility";
 import { findBranchMismatches } from "../services/branch-rule";
-import { lockClass, activeInClass, wouldOverflow } from "../services/class-seats";
+import { wouldOverflow } from "../services/class-seats";
 import { enrolmentErrors } from "../domain/enrolment.errors";
 import { EnrolmentActor } from "../domain/enrolment.types";
 import { PromotionPreviewQueryType, PromoteStudentsDtoType, PromotionOverrideType } from "../dtos/enrolment.dto";
@@ -134,25 +133,24 @@ export class PromoteStudentsUseCase {
         const closing = [...graduating, ...movers.map(r => r.studentId)];
         const graduatedAt = new Date();
 
-        await getTenantClient().$transaction(async tx => {
+        await d.enrolmentRepository.transaction(async tx => {
             const full: Array<{ name: string; capacity: number; enrolled: number; incoming: number }> = [];
             for (const classId of [...incoming.keys()].sort()) {
-                await lockClass(tx as any, classId);
-                const enrolled = await activeInClass(tx as any, classId, dto.newTermId);
+                const enrolled = await tx.lockAndCount(classId, dto.newTermId);
                 if (wouldOverflow(capacity.get(classId), enrolled, incoming.get(classId)!)) full.push({ name: nameOf(classId)?.name ?? classId, capacity: capacity.get(classId)!, enrolled, incoming: incoming.get(classId)! });
             }
             if (full.length) throw enrolmentErrors.promotionClassesFull(full);
             // THE BRANCH RULE, checked against the students' branches as they are right now (inside the transaction, so a
             // transfer that happens at the same moment cannot slip past). One bad row stops the whole run: nothing is saved.
-            const branches = await tx.student.findMany({ where: { id: { in: movers.map(r => r.studentId) } }, select: { id: true, branchId: true } });
+            const branches = await tx.studentBranches(movers.map(r => r.studentId));
             const bad = findBranchMismatches(movers, new Map(branches.map(s => [s.id, s.branchId])), classBranch);
             if (bad.length) refuseBranchMismatch(bad);
-            if (movers.length) await tx.enrolment.createMany({ data: movers.map(r => ({ studentId: r.studentId, classId: r.toClassId!, termId: dto.newTermId, status: "active" as const })), skipDuplicates: true });
-            if (closing.length) await tx.enrolment.updateMany({ where: { termId: dto.currentTermId, status: "active", studentId: { in: closing } }, data: { status: "completed" } });
+            if (movers.length) await tx.createMany(movers.map(r => ({ studentId: r.studentId, classId: r.toClassId!, termId: dto.newTermId })));
+            if (closing.length) await tx.completeActive(dto.currentTermId, closing);
             // Graduation, closing the final-term enrolment and (no) place in the new term happen together or not at all.
             // Only students not already graduated are marked, so a repeated run can never move the date.
-            if (graduating.length) await tx.student.updateMany({ where: { id: { in: graduating }, graduatedAt: null }, data: { graduatedAt, graduatedTermId: dto.currentTermId } });
-        }, { maxWait: 5000, timeout: 30000 });
+            if (graduating.length) await tx.graduate(graduating, graduatedAt, dto.currentTermId);
+        });
 
         const students = liteOf;
         const outcomeOf = (r: PlanRow): PromotionOutcome => promotionOutcome(r.action as Exclude<PlanAction, "needs_decision">, placed.has(r.studentId));

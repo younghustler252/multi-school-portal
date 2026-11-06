@@ -1,10 +1,9 @@
-import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
 import { AuditService } from "../../audit/services/audit.service";
 import { IEnrolmentRepository } from "../repositories/enrolment.repository";
 import { IStudentRepository } from "../../students/repositories/student.repository";
 import { IClassRepository } from "../../classes/repositories/class.repository";
 import { EnrolmentPresenter, EnrolmentResponse } from "../services/enrolment-presenter";
-import { lockClass, activeInClass, wouldOverflow } from "../services/class-seats";
+import { wouldOverflow } from "../services/class-seats";
 import { sameBranch } from "../services/branch-rule";
 import { enrolmentErrors } from "../domain/enrolment.errors";
 import { EnrolmentActor } from "../domain/enrolment.types";
@@ -58,13 +57,12 @@ export class UpdateEnrolmentUseCase {
 
         const needsSeat = "classId" in data || data.status === "active";
         const cls = needsSeat ? await d.classRepository.findClassById(targetClassId) : null;
-        const saved = await getTenantClient().$transaction(async tx => {
+        const saved = await d.enrolmentRepository.transaction(async tx => {
             if (needsSeat) {
-                await lockClass(tx as any, targetClassId);
-                const enrolled = await activeInClass(tx as any, targetClassId, enrolment.termId);
+                const enrolled = await tx.lockAndCount(targetClassId, enrolment.termId);
                 if (wouldOverflow(cls?.capacity, enrolled, 1)) throw enrolmentErrors.classFull({ capacity: cls!.capacity!, enrolled, requested: 1 });
             }
-            return tx.enrolment.update({ where: { id }, data: data as any });
+            return tx.update(id, data);
         });
 
         const after = await d.enrolmentPresenter.one(saved);

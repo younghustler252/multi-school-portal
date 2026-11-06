@@ -1,10 +1,9 @@
-import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
 import { AuditService } from "../../audit/services/audit.service";
 import { IEnrolmentRepository } from "../repositories/enrolment.repository";
 import { IStudentRepository } from "../../students/repositories/student.repository";
 import { IClassRepository } from "../../classes/repositories/class.repository";
 import { EnrolmentPresenter, NameRef, StudentLite, TermRef } from "../services/enrolment-presenter";
-import { lockClass, activeInClass, wouldOverflow } from "../services/class-seats";
+import { wouldOverflow } from "../services/class-seats";
 import { sameBranch } from "../services/branch-rule";
 import { enrolmentErrors } from "../domain/enrolment.errors";
 import { EnrolmentActor } from "../domain/enrolment.types";
@@ -53,12 +52,11 @@ export class BulkEnrolUseCase {
             else toEnrol.push(id);
         }
 
-        if (toEnrol.length) await getTenantClient().$transaction(async tx => {
-            await lockClass(tx as any, dto.classId);
-            const enrolled = await activeInClass(tx as any, dto.classId, dto.termId);
+        if (toEnrol.length) await d.enrolmentRepository.transaction(async tx => {
+            const enrolled = await tx.lockAndCount(dto.classId, dto.termId);
             if (wouldOverflow(cls.capacity, enrolled, toEnrol.length)) throw enrolmentErrors.classFull({ capacity: cls.capacity!, enrolled, requested: toEnrol.length });
-            await tx.enrolment.createMany({ data: toEnrol.map(studentId => ({ studentId, classId: dto.classId, termId: dto.termId, status: "active" as const })), skipDuplicates: true });
-        }, { maxWait: 5000, timeout: 30000 });
+            await tx.createMany(toEnrol.map(studentId => ({ studentId, classId: dto.classId, termId: dto.termId })));
+        });
 
         if (toEnrol.length) await d.auditService.log({
             userId: actor.userId, schoolId, action: "enrolment.bulk_created", entity: "Class", entityId: dto.classId,

@@ -1,11 +1,10 @@
-import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
 import { AuditService } from "../../audit/services/audit.service";
 import { IEnrolmentRepository } from "../repositories/enrolment.repository";
 import { IStudentRepository } from "../../students/repositories/student.repository";
 import { IClassRepository } from "../../classes/repositories/class.repository";
 import { ISessionRepository } from "../../sessions/repositories/session.repository";
 import { EnrolmentPresenter, EnrolmentResponse } from "../services/enrolment-presenter";
-import { lockClass, activeInClass, wouldOverflow } from "../services/class-seats";
+import { wouldOverflow } from "../services/class-seats";
 import { sameBranch } from "../services/branch-rule";
 import { enrolmentErrors } from "../domain/enrolment.errors";
 import { EnrolmentActor } from "../domain/enrolment.types";
@@ -46,11 +45,10 @@ export class EnrolStudentUseCase {
 
         let created;
         try {
-            created = await getTenantClient().$transaction(async tx => {
-                await lockClass(tx as any, dto.classId);
-                const enrolled = await activeInClass(tx as any, dto.classId, dto.termId);
+            created = await d.enrolmentRepository.transaction(async tx => {
+                const enrolled = await tx.lockAndCount(dto.classId, dto.termId);
                 if (wouldOverflow(cls.capacity, enrolled, 1)) throw enrolmentErrors.classFull({ capacity: cls.capacity!, enrolled, requested: 1 });
-                return tx.enrolment.create({ data: { studentId: dto.studentId, classId: dto.classId, termId: dto.termId, status: "active" } });
+                return tx.create({ studentId: dto.studentId, classId: dto.classId, termId: dto.termId, status: "active" });
             });
         } catch (err: any) {
             if (err?.code === "P2002") throw (await clash()) ?? err;      // someone enrolled the same student a moment ago
