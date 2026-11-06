@@ -1029,6 +1029,105 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Owner/workstream:** Automation backend/QA
 - **Acceptance criteria:** Automation persistence, scheduler and HTTP behavior are covered in CI against disposable tenant schemas.
 
+### REM-093 — Platform notification send does not deliver or update all requested channels
+
+- **Module:** Notifications / Platform Notifications
+- **Priority:** P1 — platform message delivery correctness
+- **Status:** Confirmed use-case/service mismatch
+- **Evidence:** SendPlatformNotificationDto accepts IN_APP, EMAIL and SMS. SendPlatformNotificationUseCase creates recipient rows for each requested channel but only sends EMAIL directly through MailService. It does not enqueue platform recipients. EMAIL/SMS recipient statuses remain PENDING; the parent notification is marked COMPLETED regardless of recipient delivery. NotificationDeliveryService supports platform recipient jobs, but the current send use case does not enqueue them.
+- **Risk:** A platform operator can request SMS-only or mixed-channel delivery and receive a successful/COMPLETED response while SMS is never sent and recipient rows remain pending. Delivery status in the platform UI is not trustworthy.
+- **Recommended action:** Route platform notifications through a durable platform outbox/queue using the existing deliverPlatformRecipient worker path. Update per-recipient status from provider outcomes and compute parent state from recipient outcomes (COMPLETED/PARTIAL/FAILED).
+- **Owner/workstream:** Notifications/Platform developer
+- **Acceptance criteria:** IN_APP, EMAIL and SMS each reach the requested channel; recipient rows become SENT/FAILED/READ appropriately; parent state reflects actual completion.
+
+### REM-094 — School announcement with no channel-deliverable recipients dereferences an empty notification ID
+
+- **Module:** Notifications / School Announcements
+- **Priority:** P2 — API correctness
+- **Status:** Confirmed use-case path
+- **Evidence:** SendSchoolNotificationUseCase rejects only when no people are found. It then skips people without email/phone when building messages. NotificationDispatchService returns an empty result when messages.length===0. The use case reads notificationIds[0] and calls findSchoolNotificationById with undefined.
+- **Risk:** A school with recipients but no contact for the requested EMAIL/SMS channel receives an internal error instead of a clear no-deliverable-recipient response.
+- **Recommended action:** After building messages, reject when the array is empty with a stable NO_DELIVERABLE_RECIPIENTS error and return counts for recipients omitted due to missing contact.
+- **Owner/workstream:** Notifications developer
+- **Acceptance criteria:** Email-only/SMS-only announcement with no usable contact returns a clear 4xx and creates no notification rows.
+
+### REM-095 — Explicit empty platform schoolIds is treated as a broadcast to all schools
+
+- **Module:** Notifications / Platform Announcements
+- **Priority:** P1 — unintended mass communication
+- **Status:** Confirmed DTO/use-case behavior
+- **Evidence:** DTO comment says schoolIds null means all schools. SendPlatformNotificationUseCase initializes schoolIds to [] and uses the all-active-schools query whenever schoolIds.length===0, including when the client explicitly submits an empty array.
+- **Risk:** A UI that submits an empty selection can unintentionally broadcast a message to every active school.
+- **Recommended action:** Distinguish omitted/null broadcast from an explicitly empty array. Reject empty arrays with a validation error; preferably require an explicit broadcastAll=true confirmation and separate permission/confirmation UX.
+- **Owner/workstream:** Platform Notifications developer
+- **Acceptance criteria:** Omitted/null target can broadcast only through explicit broadcast intent; schoolIds=[] never broadcasts.
+
+### REM-096 — Platform notification sends are not audited
+
+- **Module:** Notifications / Audit
+- **Priority:** P2 — platform accountability
+- **Status:** Confirmed dependency omission
+- **Evidence:** SendPlatformNotificationUseCase does not inject or call AuditService. The platform send permission is sensitive, but the notification creation/target schools/channels/message are not written to the shared audit log.
+- **Risk:** Platform-wide or school-targeted announcements cannot be reliably attributed to the sending administrator in the audit history.
+- **Recommended action:** Add an audit event containing admin ID, notification ID, type, target school IDs/count, channels and a safe message summary/hash. Use durable outbox semantics for audit delivery.
+- **Owner/workstream:** Notifications/Audit developer
+- **Acceptance criteria:** Every platform notification creation has an attributable audit event; sensitive content is minimized/redacted.
+
+### REM-097 — Platform notification sends are synchronous, non-idempotent and not resumable
+
+- **Module:** Notifications / Platform Announcements
+- **Priority:** P1 — partial delivery and duplicate broadcast risk
+- **Status:** Confirmed implementation
+- **Evidence:** SendPlatformNotificationUseCase creates a parent row and recipient rows sequentially, then loops through admin emails synchronously. It has no request idempotency key/outbox. If MailService fails midway, earlier admins may have received the message while later admins have not; parent remains QUEUED and there is no retry cursor. A client retry creates a new notification and sends again.
+- **Risk:** Platform broadcasts can be partially delivered with no safe resume, or duplicated when the caller retries after a timeout.
+- **Recommended action:** Persist a stable broadcast ID/idempotency key and enqueue one delivery job per school/channel recipient. Resume failed recipients only; never resend completed recipients. Add per-recipient attempt/lease state and a delivery summary.
+- **Owner/workstream:** Notifications/Platform developer
+- **Acceptance criteria:** A partially failed broadcast can resume without duplicating completed deliveries; repeated API requests with the same idempotency key return the original broadcast.
+
+### REM-098 — School dispatch notification header and recipient chunks are not atomic
+
+- **Module:** Notifications / School Dispatch
+- **Priority:** P2 — partial audience persistence
+- **Status:** Confirmed repository transaction boundary
+- **Evidence:** NotificationDispatchService creates each SchoolNotification and then calls createSchoolRecipientsBatch. The repository inserts recipient rows in 1,000-row chunks without a shared transaction spanning the header and all chunks.
+- **Risk:** A failure during a later chunk can leave a header and only part of its audience persisted. Retrying the request may create another header or split the audience across multiple messages.
+- **Recommended action:** Use one tenant transaction for header plus all recipient rows where feasible. For very large audiences, persist a dispatch batch with expected recipient count and resumable chunk cursor, then mark complete only when all recipients are accounted for.
+- **Owner/workstream:** Notifications developer
+- **Acceptance criteria:** Injected chunk failure either rolls back the complete dispatch or leaves a resumable batch with accurate counts and no duplicate recipients.
+
+### REM-099 — External notification delivery is at-least-once without provider idempotency
+
+- **Module:** Notifications / Email and SMS
+- **Priority:** P2 — duplicate delivery risk
+- **Status:** Confirmed failure window by design; provider behavior varies
+- **Evidence:** NotificationDeliveryService calls the provider before marking the recipient SENT. If provider accepts the message but the subsequent database update fails or the worker loses its lock, BullMQ retries the job and the service can call the provider again. Channel interface does not pass a stable provider idempotency key.
+- **Risk:** A parent/staff member may receive duplicate email/SMS after a provider-success/database-failure window.
+- **Recommended action:** Pass recipient ID as provider idempotency key where supported. Where not supported, model UNKNOWN/confirmation state and reconcile provider message status before retrying ambiguous sends.
+- **Owner/workstream:** Notifications/Infrastructure developer
+- **Acceptance criteria:** Provider-success/DB-failure tests do not cause a second external send when the provider supports idempotency; ambiguous providers are reconciled before retry.
+
+### REM-100 — Notifications lacks real-DB and HTTP integration coverage
+
+- **Module:** Notifications
+- **Priority:** P2 — verification gap
+- **Status:** Confirmed test inventory finding
+- **Evidence:** Existing tests use in-memory repositories, queue/channel fakes and static route checks. No real tenant/public DB or Express HTTP integration tests were found for dispatch, platform send, inbox scoping or partial batch failure.
+- **Risk:** Database uniqueness, cross-tenant/platform boundary, route permission middleware, platform recipient status and transactional behavior are not proven against production adapters.
+- **Recommended action:** Add HTTP tests for school/platform send, inbox/read, permission and branch scope; real DB tests for recipient idempotency and dispatch transactions; platform queue tests for all channels and retries.
+- **Owner/workstream:** Notifications backend/QA
+- **Acceptance criteria:** School and platform notification paths are tested through Express and real persistence in CI.
+
+### REM-101 — Template placeholder expansion can produce an overlong email subject
+
+- **Module:** Message Templates / Notifications
+- **Priority:** P2 — outbound message validation
+- **Status:** Confirmed validation gap
+- **Evidence:** Template validation limits the source subject to 120 characters, but placeholder values are expanded later and each value can be up to 500 characters. No post-render subject length check is applied before sending to MailService.
+- **Risk:** A valid saved template can render an unexpectedly long subject, causing provider rejection or inconsistent email header behavior.
+- **Recommended action:** Apply a post-render subject length/one-line validation after placeholder substitution. Use a safe deterministic truncation or fail the recipient with a clear template-render error.
+- **Owner/workstream:** Message Templates/Notifications developer
+- **Acceptance criteria:** Long placeholder values cannot produce invalid outbound email subjects; tests cover multi-placeholder expansion and control characters.
+
 ## Cross-module verification queue
 
 These are not necessarily defects. They are unfinished verification tasks recorded so the team does not mistake source documentation for production validation.
@@ -1056,6 +1155,8 @@ These are not necessarily defects. They are unfinished verification tasks record
 | Platform Settings | Restrict public URLs, audit changes, enforce singleton initialization and add DB/HTTP tests; close REM-081 through REM-083 |
 | School Settings | Enforce singleton row, clean replaced uploads and add DB/multipart integration tests; close REM-084 through REM-086 |
 | Automation | Enforce unique default rules, retry claimed occurrences, support school timezone, paginate source queries and serialize plan limits; add DB/HTTP tests; close REM-087 through REM-092 |
+| Notifications | Implement queued/idempotent platform delivery, prevent accidental all-school broadcast, handle empty recipients, make dispatch resumable and add DB/HTTP tests; close REM-093 through REM-100 |
+| Message Templates | Validate rendered subject length and add DB/HTTP coverage; close REM-101 |
 | Other module guides | Complete remaining source/schema/migration/test review as stated in each guide before declaring the module fully verified |
 
 ## Developer handoff protocol
@@ -1088,3 +1189,4 @@ These are not necessarily defects. They are unfinished verification tasks record
 - 2026-11-06: Added audit transaction-boundary, end-date filtering, sensitive-field redaction and isolation-test findings.
 - 2026-11-06: Added platform URL validation/audit/singleton and school settings singleton/storage cleanup/integration-test findings.
 - 2026-11-06: Added automation default-rule uniqueness, scheduler claim recovery, timezone, source pagination, plan-limit concurrency and integration-test findings.
+- 2026-11-06: Added platform channel/status delivery, empty recipients, broadcast-all semantics, audit/idempotency, dispatch atomicity, provider retry and template subject findings.
