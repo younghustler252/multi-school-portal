@@ -32,6 +32,7 @@ This section documents the backend implementation for developers building and ma
 | Fees | [Fees module](modules/fees.md) | Source-reviewed; migration/HTTP/runtime verification and remediation outstanding |
 | Payments | [Payments module](modules/payments.md) | Source-reviewed; PostgreSQL concurrency, HTTP/runtime and webhook verification outstanding |
 | Ledger | [Ledger module](modules/ledger.md) | Source-reviewed; period-close concurrency, HTTP and runtime verification outstanding |
+| Expenses | [Expenses module](modules/expenses.md) | Source-reviewed; recurring authorization, budget concurrency and runtime verification outstanding |
 | Report cards | Planned | Audit after grades |
 | Graduation lifecycle | [Student graduation lifecycle](modules/graduation-lifecycle.md) | Source-reviewed across Students, Enrolment and Sessions; DB/migration execution, HTTP and quota-concurrency verification outstanding |
 
