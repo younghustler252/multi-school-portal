@@ -55,6 +55,8 @@ Source code on `refactor/modules` is authoritative when a document and implement
 | [Platform Settings Module](backend/modules/platform-settings.md) | Global platform branding, support, maintenance, registration and billing defaults | Source-reviewed; public URL validation, audit and singleton initialization outstanding |
 | [School Settings Module](backend/modules/school-settings.md) | Per-school branding, report-card layout, stamp/signature and messaging preferences | Source-reviewed; singleton initialization, storage cleanup and DB/multipart verification outstanding |
 | [Automation Module](backend/modules/automation.md) | Scheduled school messages, rules, dry-run, manual execution and cross-school scheduler | Source-reviewed; rule uniqueness, scheduler recovery, timezone, pagination and DB/HTTP verification outstanding |
+| [Notifications Module](backend/modules/notifications.md) | School announcements/inboxes, platform notices, dispatch outbox and email/SMS delivery | Source-reviewed; platform delivery, broadcast safety, dispatch durability and DB/HTTP verification outstanding |
+| [Message Templates Module](backend/modules/message-templates.md) | Code-owned message catalog, school overrides, placeholders, safe rendering and SMS segment preview | Source-reviewed; rendered subject validation and DB/HTTP verification outstanding |
 
 ## Workstream handoffs and operational guides
 
