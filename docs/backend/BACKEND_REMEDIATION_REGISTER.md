@@ -897,6 +897,72 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Owner/workstream:** Audit backend/QA
 - **Acceptance criteria:** School users can only see their own school logs; platform access requires platform permission; all actor and date filters behave as documented.
 
+### REM-081 — Platform public URL settings accept non-web protocols
+
+- **Module:** Platform Settings
+- **Priority:** P2 — public-link security
+- **Status:** Confirmed DTO validation gap
+- **Evidence:** `logoUrl`, `termsUrl` and `privacyPolicyUrl` use `z.string().url()` without protocol restrictions. School Settings explicitly restricts its website/letterhead fields to HTTP/HTTPS.
+- **Risk:** A platform administrator can save javascript:, data: or other non-web URLs that are returned to public clients and may be rendered as links or resources.
+- **Recommended action:** Apply a shared safeWebUrl schema that permits only HTTPS (or HTTP where explicitly required) and rejects credentials/unsafe protocols. Prefer HTTPS for public legal and asset links.
+- **Owner/workstream:** Platform Settings/security
+- **Acceptance criteria:** DTO tests reject javascript:, data:, ftp: and other non-web protocols while accepting valid HTTPS URLs.
+
+### REM-082 — Platform settings changes are not audited
+
+- **Module:** Platform Settings / Audit
+- **Priority:** P2 — platform configuration accountability
+- **Status:** Confirmed dependency/use-case omission
+- **Evidence:** `UpdatePlatformSettingsUseCase` calls repository.update and returns the mapped row. It does not inject or call AuditService.
+- **Risk:** Sensitive global changes—maintenance mode, new-registration switch, subscription grace period, trial days and public legal/branding links—have no shared before/after audit record.
+- **Recommended action:** Inject AuditService and record changed fields only, with before/after values and platform actor. Apply the durable audit/outbox policy in REM-077.
+- **Owner/workstream:** Platform Settings/Audit developer
+- **Acceptance criteria:** Every actual platform setting change produces an attributable audit event; no-op updates do not.
+
+### REM-083 — PlatformSettings singleton can create duplicate rows on concurrent first reads
+
+- **Module:** Platform Settings
+- **Priority:** P2 — global configuration integrity
+- **Status:** Confirmed schema/repository invariant gap
+- **Evidence:** PlatformSettings has only an ID primary key and no singleton key/unique constraint. Repository `find()` calls findFirst and creates a row when none exists. The public GET endpoint calls this method and is unauthenticated.
+- **Risk:** Concurrent first-page/public requests can all observe an empty table and create multiple settings rows. Later findFirst/update can read or update an arbitrary row.
+- **Recommended action:** Enforce one singleton row with a fixed unique key or database constraint and use atomic upsert/seed initialization. Avoid creating state as a side effect of public GET where possible.
+- **Owner/workstream:** Platform Settings developer
+- **Acceptance criteria:** Concurrent first reads leave exactly one row and every subsequent read/update targets that row.
+
+### REM-084 — SchoolSettings singleton can create duplicate rows on concurrent first updates
+
+- **Module:** School Settings
+- **Priority:** P2 — tenant configuration integrity
+- **Status:** Confirmed schema/repository invariant gap
+- **Evidence:** Tenant SchoolSettings has only an ID primary key. `SchoolSettingsRepositoryImpl.upsert` performs findFirst then update-or-create with no transaction or singleton unique key.
+- **Risk:** Concurrent first updates in one school schema can create multiple settings rows; subsequent findFirst may return a different row from the one another request updated.
+- **Recommended action:** Add a fixed singleton key/unique constraint in the tenant schema and use an atomic upsert. Include duplicate-row cleanup in migration preflight.
+- **Owner/workstream:** School Settings developer
+- **Acceptance criteria:** Concurrent first updates in a tenant produce one canonical settings row and all later reads return it.
+
+### REM-085 — Replacing school stamp/signature leaves old public storage objects orphaned
+
+- **Module:** School Settings / Storage
+- **Priority:** P2 — storage lifecycle/privacy hygiene
+- **Status:** Confirmed upload path behavior
+- **Evidence:** `UploadStampUseCase` uploads a new random object path and saves its URL. The prior stored URL/path is not captured or deleted. Supabase upload always uses a unique name and upsert=false.
+- **Risk:** Repeated stamp/signature replacements accumulate publicly accessible obsolete objects indefinitely and increase storage use.
+- **Recommended action:** Persist storage object path alongside URL. After the new upload and DB update succeed, enqueue deletion of the previous object; if DB update fails, delete the newly uploaded object. Add an orphan cleanup job for existing files.
+- **Owner/workstream:** School Settings/Storage developer
+- **Acceptance criteria:** Successful replacement deletes or queues deletion of the prior object; failed DB update cleans up the new upload without losing the old setting.
+
+### REM-086 — Platform Settings and School Settings lack database-backed integration tests
+
+- **Module:** Platform Settings / School Settings
+- **Priority:** P2 — verification gap
+- **Status:** Confirmed test inventory finding
+- **Evidence:** School Settings tests use in-memory repositories and static route-source assertions. No platform-settings test file was found. No real public/tenant DB tests or multipart Supabase integration tests were found.
+- **Risk:** Singleton initialization races, cross-tenant isolation, public settings response exposure, upload/DB failure compensation and platform permission behavior are not proven against real persistence.
+- **Recommended action:** Add platform HTTP tests and public DB singleton tests; add tenant DB tests for school settings/preferences and multipart tests with a storage fake/provider sandbox. Include concurrent first-write tests for REM-083/084.
+- **Owner/workstream:** Platform/School Settings backend/QA
+- **Acceptance criteria:** Both settings modules have route and real-DB coverage; upload replacement/failure paths are tested.
+
 ## Cross-module verification queue
 
 These are not necessarily defects. They are unfinished verification tasks recorded so the team does not mistake source documentation for production validation.
@@ -921,6 +987,8 @@ These are not necessarily defects. They are unfinished verification tasks record
 | Subscriptions | Prevent duplicate checkout attempts, serialize billing lifecycle/apply transitions, enforce coupon limits, recover captured-but-unapplied funds and add full billing tests; close REM-065 through REM-073 |
 | Gateway Settlements | Retire legacy aggregate settlement route, keep itemized settlement as sole writer, add parser/matcher/DB/HTTP tests and align preview dates; close REM-074 through REM-076 |
 | Audit | Add transactional outbox, fix date range, centralize redaction and test tenant/platform isolation; close REM-077 through REM-080 |
+| Platform Settings | Restrict public URLs, audit changes, enforce singleton initialization and add DB/HTTP tests; close REM-081 through REM-083 |
+| School Settings | Enforce singleton row, clean replaced uploads and add DB/multipart integration tests; close REM-084 through REM-086 |
 | Other module guides | Complete remaining source/schema/migration/test review as stated in each guide before declaring the module fully verified |
 
 ## Developer handoff protocol
@@ -951,3 +1019,4 @@ These are not necessarily defects. They are unfinished verification tasks record
 - 2026-11-06: Added subscription amount schema mismatch, duplicate checkout, lifecycle concurrency, coupon max-use, captured-payment recovery, query parsing and live-subscription uniqueness findings.
 - 2026-11-06: Added duplicate Payments/Gateway Settlements write-path conflict, missing test coverage and preview-date mismatch findings.
 - 2026-11-06: Added audit transaction-boundary, end-date filtering, sensitive-field redaction and isolation-test findings.
+- 2026-11-06: Added platform URL validation/audit/singleton and school settings singleton/storage cleanup/integration-test findings.
