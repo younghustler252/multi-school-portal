@@ -48,6 +48,7 @@ This section documents the backend implementation for developers building and ma
 | Notifications | [Notifications module](modules/notifications.md) | Source-reviewed; platform delivery, broadcast safety, dispatch durability and DB/HTTP verification outstanding |
 | Message templates | [Message Templates module](modules/message-templates.md) | Source-reviewed; rendered subject validation and DB/HTTP verification outstanding |
 | Webhooks | [Webhooks module](modules/webhooks.md) | Source-reviewed; processing leases, retry automation and raw-body/DB integration verification outstanding |
+| Feedback | [Feedback module](modules/feedback.md) | Source-reviewed; abuse controls, URL privacy, audit, support notification retry and management tests outstanding |
 | Report cards | Planned | Audit after grades |
 | Graduation lifecycle | [Student graduation lifecycle](modules/graduation-lifecycle.md) | Source-reviewed across Students, Enrolment and Sessions; DB/migration execution, HTTP and quota-concurrency verification outstanding |
 
@@ -87,6 +88,6 @@ The next academic modules are:
 14. Report cards
 15. Graduation (if a distinct backend module exists; otherwise document the actual student lifecycle implementation and legacy graduation notes)
 
-Then continue through feedback and API conventions/OpenAPI.
+Then complete API conventions/error handling/OpenAPI, then frontend implementation documentation.
 
 The frontend is intentionally not being documented as the current implementation while it remains behind the backend. Frontend implementation documentation will follow the backend contract audit.
