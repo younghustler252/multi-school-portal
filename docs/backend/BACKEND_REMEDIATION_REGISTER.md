@@ -1293,6 +1293,17 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Owner/workstream:** API Infrastructure/Entitlements
 - **Acceptance criteria:** A warn-mode feature/limit request succeeds and returns the relevant warning key/details; block mode still returns FEATURE_NOT_AVAILABLE/PLAN_LIMIT_REACHED.
 
+### REM-117 — Existing Swagger/OpenAPI setup is not a usable API contract
+
+- **Module:** API Documentation / Developer Experience
+- **Priority:** P2 — frontend/API integration reliability
+- **Status:** Confirmed documentation and wiring gap
+- **Evidence:** docs/swagger.yaml is Markdown containing an obsolete OpenAPI 3.0 starter snippet, not standalone valid YAML. It documents legacy paths and request shapes. apps/api/src/config/swagger.ts exports swaggerSpec from swagger-jsdoc, but no consumer, Swagger UI mount or JSON spec endpoint was found. No @openapi/@swagger annotations were found. packages/contracts covers selected schemas only and parity tests are not full route/response coverage.
+- **Risk:** Frontend developers and QA can build against endpoints and payloads that no longer exist. The current starter spec can be mistaken for the live contract despite being incomplete and stale.
+- **Recommended action:** Treat docs/api/OPENAPI_MIGRATION_PLAN.md as the implementation plan. Build docs/api/openapi.yaml only after the route inventory and cross-cutting response conventions are stabilized. Lint it in CI and require route coverage/contract tests. Do not simply expose the unused swaggerSpec.
+- **Owner/workstream:** API Architecture/Frontend Integration/QA
+- **Acceptance criteria:** A valid OpenAPI 3.1 document covers every mounted API route or explicitly excludes it, and CI verifies syntax, route coverage, auth/tenant requirements and representative request/response contracts.
+
 ## Cross-module verification queue
 
 These are not necessarily defects. They are unfinished verification tasks recorded so the team does not mistake source documentation for production validation.
@@ -1325,6 +1336,7 @@ These are not necessarily defects. They are unfinished verification tasks record
 | Webhooks | Add processing leases, automatic retry/alerting, raw-body/DB concurrency tests and safe fallback event identity; close REM-102 through REM-105 |
 | Feedback | Add submission abuse controls, normalize/redact page URLs, audit platform actions, retry support emails and test management workflows; close REM-106 through REM-111 |
 | API Infrastructure | Mount request context, pass parsed query/params, standardize error envelope, configure proxy/shared rate limiting and expose entitlement warnings; close REM-112 through REM-116 |
+| API contract | Replace the obsolete Swagger starter with a complete, validated OpenAPI 3.1 contract; close REM-117 |
 | Other module guides | Complete remaining source/schema/migration/test review as stated in each guide before declaring the module fully verified |
 
 ## Developer handoff protocol
@@ -1361,3 +1373,4 @@ These are not necessarily defects. They are unfinished verification tasks record
 - 2026-11-06: Added webhook in-progress duplicate claims, manual-only retry, missing HTTP/DB verification and event-key fallback findings.
 - 2026-11-06: Added feedback abuse/rate limiting, page URL privacy, audit, support email outbox, retention and management-test findings.
 - 2026-11-06: Added missing request-context mounting, discarded query/param parsing, inconsistent error responses, proxy rate-limit configuration and entitlement warning visibility findings.
+- 2026-11-06: Added the stale Swagger starter/unused Swagger JSDoc wiring and incomplete shared-contract coverage finding.
