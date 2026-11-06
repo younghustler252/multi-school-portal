@@ -1172,6 +1172,72 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Owner/workstream:** Webhooks developer
 - **Acceptance criteria:** Distinct identifier-less payloads do not collide; malformed/unactionable events are logged with an explicit reason.
 
+### REM-106 — Feedback submission has no rate limit or abuse control
+
+- **Module:** Feedback
+- **Priority:** P2 — support inbox abuse
+- **Status:** Confirmed route middleware inventory
+- **Evidence:** POST /api/v1/feedback requires authentication but has no feedback-specific rate limiter, per-user quota or duplicate throttling. Each successful submission attempts an email to platform support.
+- **Risk:** A compromised or abusive authenticated account can flood the support inbox and public Feedback table.
+- **Recommended action:** Add per-user and IP rate limits, daily submission quotas, duplicate-content throttling and a platform abuse review mechanism. Keep a generous path for legitimate accessibility/support needs.
+- **Owner/workstream:** Feedback/Platform API developer
+- **Acceptance criteria:** Burst and daily limits are enforced; legitimate users receive a clear retry-after response; rate-limit events are observable.
+
+### REM-107 — Feedback pageUrl is stored/returned without safe URL normalization or secret stripping
+
+- **Module:** Feedback
+- **Priority:** P2 — privacy and link safety
+- **Status:** Confirmed DTO accepts arbitrary text
+- **Evidence:** pageUrl is only trimmed and max-length checked. FeedbackMapper returns it unchanged to platform clients; it is included in the support email.
+- **Risk:** Browser URLs may contain auth/session tokens or sensitive query parameters. Unsafe schemes may be rendered as links by platform UI if it trusts the value.
+- **Recommended action:** Accept relative paths or absolute http/https URLs only; strip query/hash by default or redact known secret parameters; render as text unless normalized and safely linked.
+- **Owner/workstream:** Feedback/Security developer
+- **Acceptance criteria:** javascript/data URLs are rejected; token-like query parameters are removed; safe relative/HTTPS URLs remain usable.
+
+### REM-108 — Platform feedback review, response and deletion are not audited
+
+- **Module:** Feedback / Audit
+- **Priority:** P2 — support accountability
+- **Status:** Confirmed use-case dependency omission
+- **Evidence:** UpdateFeedbackStatusUseCase, RespondToFeedbackUseCase and DeleteFeedbackUseCase write directly to FeedbackRepository and do not call AuditService.
+- **Risk:** Platform staff can change status, replace a response or hard-delete a submission without an attributable audit trail.
+- **Recommended action:** Record status before/after, response change metadata and deletion actor/reason through the durable audit/outbox path. Avoid duplicating full sensitive message bodies in audit.
+- **Owner/workstream:** Feedback/Audit developer
+- **Acceptance criteria:** Every platform management action has an attributable audit event; response history or prior response is preserved where required.
+
+### REM-109 — Feedback support email has no durable retry/outbox
+
+- **Module:** Feedback
+- **Priority:** P2 — support notification reliability
+- **Status:** Confirmed best-effort delivery
+- **Evidence:** SubmitFeedbackUseCase saves the feedback then calls MailService synchronously. Email exceptions are logged and swallowed; no outbox/job is created.
+- **Risk:** If SMTP/provider is unavailable, feedback remains stored but platform support is not notified and there is no automatic retry.
+- **Recommended action:** Create a durable support-notification outbox record with the feedback row and process it through the notification worker. Alternatively expose an explicit unnotified state and dashboard alert.
+- **Owner/workstream:** Feedback/Notifications developer
+- **Acceptance criteria:** Failed support email is retried or surfaced in an operator queue; saved feedback cannot silently remain unnotified.
+
+### REM-110 — Feedback deletion is a hard delete with no retention/tombstone
+
+- **Module:** Feedback
+- **Priority:** P3 — support history retention
+- **Status:** Confirmed repository behavior
+- **Evidence:** DeleteFeedbackUseCase calls repository.delete, which removes the Feedback row. There is no deletedAt, deletion reason or tombstone.
+- **Risk:** A support record and its history disappear permanently, making moderation review and investigation difficult.
+- **Recommended action:** Decide a feedback retention policy. Prefer soft-delete/tombstone with actor, timestamp and reason; provide controlled purge for records that must be erased.
+- **Owner/workstream:** Platform Support/Product
+- **Acceptance criteria:** Deletion is attributable and recoverable within retention policy; approved purge remains possible.
+
+### REM-111 — Feedback platform-management paths lack automated tests
+
+- **Module:** Feedback
+- **Priority:** P2 — verification gap
+- **Status:** Confirmed test inventory finding
+- **Evidence:** The only inspected test covers submission and best-effort support email. No tests were found for platform list/detail, filters, status update, response, delete, permission/realm or public database behavior.
+- **Risk:** Platform access control and support workflow can regress without detection.
+- **Recommended action:** Add HTTP/DB tests for platform feedback management, /my ownership, filters, status/response/delete and abuse/URL validation.
+- **Owner/workstream:** Feedback backend/QA
+- **Acceptance criteria:** Submission and full platform review lifecycle are covered in CI against public persistence.
+
 ## Cross-module verification queue
 
 These are not necessarily defects. They are unfinished verification tasks recorded so the team does not mistake source documentation for production validation.
@@ -1202,6 +1268,7 @@ These are not necessarily defects. They are unfinished verification tasks record
 | Notifications | Implement queued/idempotent platform delivery, prevent accidental all-school broadcast, handle empty recipients, make dispatch resumable and add DB/HTTP tests; close REM-093 through REM-100 |
 | Message Templates | Validate rendered subject length and add DB/HTTP coverage; close REM-101 |
 | Webhooks | Add processing leases, automatic retry/alerting, raw-body/DB concurrency tests and safe fallback event identity; close REM-102 through REM-105 |
+| Feedback | Add submission abuse controls, normalize/redact page URLs, audit platform actions, retry support emails and test management workflows; close REM-106 through REM-111 |
 | Other module guides | Complete remaining source/schema/migration/test review as stated in each guide before declaring the module fully verified |
 
 ## Developer handoff protocol
@@ -1236,3 +1303,4 @@ These are not necessarily defects. They are unfinished verification tasks record
 - 2026-11-06: Added automation default-rule uniqueness, scheduler claim recovery, timezone, source pagination, plan-limit concurrency and integration-test findings.
 - 2026-11-06: Added platform channel/status delivery, empty recipients, broadcast-all semantics, audit/idempotency, dispatch atomicity, provider retry and template subject findings.
 - 2026-11-06: Added webhook in-progress duplicate claims, manual-only retry, missing HTTP/DB verification and event-key fallback findings.
+- 2026-11-06: Added feedback abuse/rate limiting, page URL privacy, audit, support email outbox, retention and management-test findings.
