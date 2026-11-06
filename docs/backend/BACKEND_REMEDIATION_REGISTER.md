@@ -655,6 +655,39 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Owner/workstream:** Bank Reconciliation backend/QA
 - **Acceptance criteria:** Route and real-database concurrency tests run in CI against disposable tenant schemas.
 
+### REM-059 — Finance report row limit is enforced after full materialization
+
+- **Module:** Finance Reports
+- **Priority:** P2 — scalability/resource exhaustion
+- **Status:** Confirmed execution order
+- **Evidence:** `ReportEngine.run` calls the report builder, materializes the full `body.rows` array, and only then checks `MAX_REPORT_ROWS` (50,000). General ledger and other report builders fetch/construct all matching movements before this check.
+- **Risk:** A large tenant can trigger expensive unbounded database reads and memory allocation before receiving REPORT_TOO_LARGE. The row limit protects response size but not query cost or process memory.
+- **Recommended action:** Push limits/pagination into repositories for reports that can grow without bound; use streaming for CSV where appropriate; estimate/report count before materialization. Keep deterministic ordering and ensure summaries are computed consistently.
+- **Owner/workstream:** Finance Reports developer
+- **Acceptance criteria:** A dataset larger than the configured limit is rejected or streamed without loading all rows into application memory; performance tests cover large ledgers.
+
+### REM-060 — Finance Reports has no dedicated report-engine, statement-builder or HTTP tests
+
+- **Module:** Finance Reports
+- **Priority:** P2 — verification gap
+- **Status:** Confirmed test inventory finding
+- **Evidence:** No report-engine test suite was found. The fee-reports test file exercises Fees report use cases, not the central catalogue, statement builders, CSV export or dashboard. No report HTTP integration tests were found.
+- **Risk:** Report permission/feature checks, accounting statement arithmetic, BigInt serialization, CSV formula defusing and route wiring can regress without detection.
+- **Recommended action:** Add pure tests for all statement builders and catalogue definitions; test CSV injection/formatting and row limits; add HTTP tests for list/run/export/dashboard, permission and feature denial, unknown keys and tenant isolation.
+- **Owner/workstream:** Finance Reports backend/QA
+- **Acceptance criteria:** Every report definition has parameter/permission/feature and arithmetic tests; CSV and HTTP export paths are covered in CI.
+
+### REM-061 — Accountant report entitlement definition/grants need production verification
+
+- **Module:** Finance Reports / Entitlements
+- **Priority:** P2 — feature availability verification
+- **Status:** Verification task; no runtime denial observed
+- **Evidence:** Trial balance, general ledger, income statement, balance sheet and cash flow use `finance.reports.accountant` as both RBAC permission and plan feature. The catalogue checks `caller.hasFeature`; an undefined or inactive FeatureDefinition denies the report even when the role permission is granted.
+- **Risk:** If the feature key is missing/inactive or not granted to intended plans, accountant reports are unavailable to every school on those plans.
+- **Recommended action:** Verify the key exists and is active in production FeatureDefinition data and is granted to intended plans. If the feature is meant to be a permission-only gate, set report feature to null; otherwise add a migration/seed and plan grants.
+- **Owner/workstream:** Platform entitlements + Finance Reports
+- **Acceptance criteria:** Integration test with real plan entitlements proves an intended plan can run accountant reports and a plan without the feature is denied.
+
 ## Cross-module verification queue
 
 These are not necessarily defects. They are unfinished verification tasks recorded so the team does not mistake source documentation for production validation.
@@ -674,6 +707,7 @@ These are not necessarily defects. They are unfinished verification tasks record
 | Salary Transfers | Block reversal with live transfers, keep reconciliation available when disabled, correct actor/status/precision, and add real DB/HTTP/provider tests; close REM-044 through REM-050 |
 | Finance Settings | Add HTTP and cross-tenant DB isolation tests; close REM-051 |
 | Bank Reconciliation | Enforce imported balance evidence, serialize sign-off/mutations, fix statement data/dedupe/parser and strengthen auto-match; add HTTP/DB tests; close REM-052 through REM-058 |
+| Finance Reports | Bound query materialization, add statement/catalogue/CSV/HTTP tests and verify accountant feature grants; close REM-059 through REM-061 |
 | Other module guides | Complete remaining source/schema/migration/test review as stated in each guide before declaring the module fully verified |
 
 ## Developer handoff protocol
@@ -699,3 +733,4 @@ These are not necessarily defects. They are unfinished verification tasks record
 - 2026-11-06: Added salary-transfer/payroll reversal guard, disabled-state reconciliation, actor attribution, amount precision, preflight and returned-payment status findings.
 - 2026-11-06: Added finance-settings HTTP and tenant-isolation test coverage finding.
 - 2026-11-06: Added bank reconciliation balance-evidence, sign-off locking, statement import/dedupe/parser, matching and integration-test findings.
+- 2026-11-06: Added finance-report materialization limits, missing test coverage and accountant entitlement verification findings.
