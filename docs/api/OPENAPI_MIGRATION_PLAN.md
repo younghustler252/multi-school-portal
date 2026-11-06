@@ -44,7 +44,7 @@ Resolve or explicitly accept the following before freezing the OpenAPI response 
 
 ### Phase B — build a complete route inventory
 
-For every mounted route record:
+The first route-composition pass is recorded in [ROUTE_INVENTORY.md](ROUTE_INVENTORY.md). It identifies the mounted router files and mount prefixes, but it is not yet an operation-level inventory. For every mounted route record:
 - API base path and router mount composition.
 - Method and path, including path parameters.
 - Authentication requirement and token/cookie behavior.
