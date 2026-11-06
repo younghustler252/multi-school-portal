@@ -58,6 +58,7 @@ Source code on `refactor/modules` is authoritative when a document and implement
 | [Notifications Module](backend/modules/notifications.md) | School announcements/inboxes, platform notices, dispatch outbox and email/SMS delivery | Source-reviewed; platform delivery, broadcast safety, dispatch durability and DB/HTTP verification outstanding |
 | [Message Templates Module](backend/modules/message-templates.md) | Code-owned message catalog, school overrides, placeholders, safe rendering and SMS segment preview | Source-reviewed; rendered subject validation and DB/HTTP verification outstanding |
 | [Webhooks Module](backend/modules/webhooks.md) | Provider signature verification, event processing, idempotency, handler routing and platform retry console | Source-reviewed; processing leases, retry automation and raw-body/DB integration verification outstanding |
+| [Feedback Module](backend/modules/feedback.md) | Authenticated bug reports, suggestions, complaints, praise and platform support review | Source-reviewed; abuse controls, URL privacy, audit, support notification retry and management tests outstanding |
 
 ## Workstream handoffs and operational guides
 
