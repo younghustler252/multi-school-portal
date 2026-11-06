@@ -48,6 +48,7 @@ Source code on `refactor/modules` is authoritative when a document and implement
 | [Finance Settings Module](backend/modules/finance-settings.md) | School-level finance policy registry, validation, defaults and consumers | Source-reviewed; HTTP and cross-tenant database verification outstanding |
 | [Bank Reconciliation Module](backend/modules/bank-reconciliation.md) | Statement import, bank/book matching, missing entries, month sign-off and reopen | Source-reviewed; balance-evidence, sign-off concurrency and HTTP/DB verification outstanding |
 | [Finance Reports Module](backend/modules/finance-reports.md) | Report catalogue, financial statements, dashboard and CSV export | Source-reviewed; query limits, report/CSV tests and accountant entitlement verification outstanding |
+| [Plans Module](backend/modules/plans.md) | Public plan catalogue, platform plan management and feature/limit grants | Source-reviewed; zero-limit presentation, atomic grants and open-invoice deactivation verification outstanding |
 
 ## Workstream handoffs and operational guides
 
