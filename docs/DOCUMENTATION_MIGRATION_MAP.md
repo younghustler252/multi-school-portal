@@ -1,6 +1,6 @@
 # Documentation Architecture and Migration Map
 
-> **Status:** Phase 4 in progress — core architecture guides split; foundation backend modules Auth, Users, School, Roles and Permissions documented from source.
+ > **Status:** Backend source-documentation pass complete: architecture and 34 API module folders documented, cross-module remediation register maintained, API conventions/error handling documented, and OpenAPI migration plan published. Canonical OpenAPI implementation and frontend target documentation remain outstanding.
 > **Branch reviewed:** `refactor/modules`.
 > **Scope:** Documentation planning only. This file does not move, rewrite, archive, or delete existing documents.
 > **Authority:** Application source, Prisma schemas and migrations, tests, runtime configuration, and shared contracts remain authoritative. Documentation must not claim runtime verification unless it was performed.
@@ -114,7 +114,7 @@ docs/
 | `docs/SETTINGS_AUTOMATION_NOTES.md` | `docs/backend/modules/settings-and-automation.md` | Consolidate | Preserve lasting behaviour and decisions; remove duplicated handoff status once captured. |
 | `docs/PROJECT_BRIEF.md` | `docs/decisions/` or `docs/archive/` | Reconcile, do not blindly move | Early product brief includes historical stack, roadmap and architecture assumptions. Extract still-valid product constraints; archive superseded assumptions. |
 | `docs/schoolos-api-documentation.md` | `docs/archive/` after contract migration | Supersede, not immediately delete | Narrative route reference is manually compiled and explicitly requires source validation. Extract verified business rules; replace endpoint reference with OpenAPI. |
-| `docs/swagger.yaml` | `docs/api/openapi.yaml` | Replace after coverage decision | Existing starter specification contains legacy paths and must not be treated as current. Do not simply rename it. |
+| `docs/swagger.yaml` | `docs/api/openapi.yaml` | Replace only after full route/DTO/response audit | Existing starter is Markdown-wrapped, invalid as standalone YAML, and contains legacy paths. It is now explicitly marked obsolete in the index. See `docs/api/OPENAPI_MIGRATION_PLAN.md`; do not rename it or expose the unused Swagger JSDoc export. |
 | `docs/decisions/0002-monorepo.md` | `docs/decisions/0002-monorepo.md` | Keep; review status and open questions | Decision record remains useful. Update only if current implementation or decision status has changed. |
 | `docs/ATTENDANCE_MODULE_NOTES.md` | `docs/backend/modules/attendance.md` | Source-audit, rewrite | Separate current endpoint contract from backend rules; preserve historical test claims with dates/limitations. |
 | `docs/BRANCHES_MODULE_NOTES.md` | `docs/backend/modules/branches.md` | Source-audit, rewrite | Very short implementation note; verify route mount and permission names. |
@@ -141,7 +141,7 @@ docs/
 | `docs/AUDIT_MODULE_NOTES.md` | `docs/backend/modules/audit.md` | Source-audit, rewrite | Document audit guarantees and failure behaviour; link to security guidance. |
 | `docs/SMALL_FIXES_NOTES.md` | `docs/archive/` after extraction | Extract then archive | This is a mixed hardening change log. Move lasting behaviour into the owning module docs; retain only useful historical context. |
 
-## 4. Frontend documentation sources and boundaries
+| `docs/api/README.md` and `docs/api/OPENAPI_MIGRATION_PLAN.md` | `docs/api/` | Created | Documents current OpenAPI readiness, source-of-truth rules, authoring strategy, coverage phases and acceptance criteria. The canonical `openapi.yaml` is intentionally not created until coverage is ready. |\n\n## 4. Frontend documentation sources and boundaries
 
 **Sequencing decision (2026-11-05):** Frontend documentation is deferred. The existing frontend is behind the backend and is not the architecture source of truth for the upcoming frontend implementation. Complete the backend module guides and HTTP/shared-contract audit first; then write frontend implementation specifications against those verified contracts.
 
