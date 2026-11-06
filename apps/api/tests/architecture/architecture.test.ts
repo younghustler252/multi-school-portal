@@ -53,31 +53,17 @@ describe("architecture rules", () => {
     });
 
     /*
-    | Use cases ask repositories for data; they do not open the database client themselves. These modules still do
-    | (money transactions that span several tables) and are being moved one at a time: REMOVE a file from this list when
-    | it is converted. A file NOT on the list that imports the client fails the build, so the list can only shrink.
+    | Use cases ask repositories for data; they never open the database client themselves. The one thing they may take
+    | from that file is `withTenantTransaction`, the "all or nothing" wrapper: every query inside it still goes through a repository.
     */
-    it("use cases do not import the database client (except the modules still waiting to be converted)", () => {
-        const WAITING = new Set([
-        "src/modules/bank-reconciliation/usecases/reconciliation-shared.ts",
-        "src/modules/expenses/usecases/expense-shared.ts",
-        "src/modules/expenses/usecases/recurring.usecases.ts",
-        "src/modules/fees/usecases/fee-adjustment.usecases.ts",
-        "src/modules/fees/usecases/invoice-issue.usecases.ts",
-        "src/modules/finance-settings/usecases/finance-settings.usecases.ts",
-        "src/modules/gateway-settlements/usecases/settlement.usecases.ts",
-        "src/modules/ledger/usecases/ledger-integrity.usecases.ts",
-        "src/modules/payments/usecases/credit.usecases.ts",
-        "src/modules/payments/usecases/payment-record.usecases.ts",
-        "src/modules/payments/usecases/payment-reverse.usecase.ts",
-        "src/modules/payments/usecases/refund.usecases.ts",
-        "src/modules/payroll-transfers/usecases/transfer-outcome.service.ts",
-        "src/modules/payroll-transfers/usecases/transfer.usecases.ts",
-        "src/modules/payroll/usecases/payroll-shared.ts",
-        ]);
-        const offenders = FILES.filter(f => /\/modules\/[^/]+\/usecases\//.test(f) && /prisma\.client/.test(code(f)) && !WAITING.has(rel(f)));
-        assert.deepEqual(offenders.map(rel), [], "these use cases import the database client; add a repository method instead");
-        const stale = [...WAITING].filter(f => existsSync(join(process.cwd(), f)) && !/prisma\.client/.test(code(join(process.cwd(), f))));
-        assert.deepEqual(stale, [], "these are converted already: remove them from the waiting list");
+    it("use cases do not import the database client (only the withTenantTransaction wrapper is allowed)", () => {
+        const offenders: string[] = [];
+        for (const f of FILES.filter(f => /\/modules\/[^/]+\/usecases\//.test(f))) {
+            for (const m of code(f).matchAll(/\{([^{}]*)\}\s*(?:=\s*await\s*import\(|from\s*)["'][^"']*prisma\.client["']/g)) {
+                const names = m[1].split(",").map(n => n.trim().split(/\s+as\s+/)[0]).filter(Boolean);
+                if (names.some(n => n !== "withTenantTransaction")) offenders.push(`${rel(f)} (${names.join(", ")})`);
+            }
+        }
+        assert.deepEqual(offenders, [], "these use cases import the database client; add a repository method instead");
     });
 });

@@ -1,3 +1,4 @@
+import type { ISchoolRepository } from "../../school/repositories/school.repository";
 import { IRecurringRepository } from "../repositories/recurring.repository";
 import { IExpenseRepository } from "../repositories/expense.repository";
 import { IVendorRepository } from "../repositories/vendor.repository";
@@ -210,8 +211,8 @@ export const RECURRING_ACTOR_ID = "SYSTEM_RECURRING_EXPENSES";
 /* Every school with a database schema, each in its own tenant context. One school crashing never stops the others. */
 export class RunRecurringForAllSchoolsUseCase {
     constructor(
-        private readonly d: { runRecurringExpensesUseCase: RunRecurringExpensesUseCase; auditService: AuditService },
-        private readonly listSchools: () => Promise<SchoolRef[]> = defaultSchools,
+        private readonly d: { runRecurringExpensesUseCase: RunRecurringExpensesUseCase; auditService: AuditService; schoolRepository?: ISchoolRepository },
+        private readonly listSchools: () => Promise<SchoolRef[]> = () => schoolsWithWorkspace(this.d.schoolRepository!),
     ) {}
 
     async execute() {
@@ -236,8 +237,7 @@ export class RunRecurringForAllSchoolsUseCase {
     }
 }
 
-async function defaultSchools(): Promise<SchoolRef[]> {
-    const { prisma } = await import("../../../infrastructure/database/prisma/prisma.client");
-    const rows = await prisma.school.findMany({ where: { schemaProvisionedAt: { not: null }, isActive: true }, select: { id: true, name: true, schemaName: true } });
-    return rows.filter((s): s is SchoolRef => Boolean(s.schemaName));
+// Schools whose own schema is built and that are switched on
+async function schoolsWithWorkspace(repo: ISchoolRepository): Promise<SchoolRef[]> {
+    return (await repo.findMany({ isActive: true, schemaProvisionedAt: { not: null } })).filter(s => !!s.schemaName).map(s => ({ id: s.id, name: s.name, schemaName: s.schemaName! }));
 }

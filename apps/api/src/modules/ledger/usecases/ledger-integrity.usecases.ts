@@ -1,3 +1,4 @@
+import type { ISchoolRepository } from "../../school/repositories/school.repository";
 import { ILedgerIntegrityRepository } from "../repositories/ledger-integrity.repository";
 import { IntegrityFinding, IntegrityReport, buildReport, systemAccountFindings } from "../domain/ledger-integrity";
 import { FINANCE_TIMEZONE } from "../domain/ledger.constants";
@@ -43,8 +44,8 @@ export interface IntegrityRunSummary {
 */
 export class RunLedgerIntegrityForAllSchoolsUseCase {
     constructor(
-        private readonly d: { runLedgerIntegrityCheckUseCase: RunLedgerIntegrityCheckUseCase; auditService: AuditService },
-        private readonly listSchools: () => Promise<SchoolRef[]> = defaultSchools,
+        private readonly d: { runLedgerIntegrityCheckUseCase: RunLedgerIntegrityCheckUseCase; auditService: AuditService; schoolRepository?: ISchoolRepository },
+        private readonly listSchools: () => Promise<SchoolRef[]> = () => schoolsWithWorkspace(this.d.schoolRepository!),
     ) {}
 
     async execute(): Promise<IntegrityRunSummary> {
@@ -69,12 +70,7 @@ export class RunLedgerIntegrityForAllSchoolsUseCase {
     }
 }
 
-// Loaded on first use, so importing this file never needs a database connection
-async function defaultSchools(): Promise<SchoolRef[]> {
-    const { prisma } = await import("../../../infrastructure/database/prisma/prisma.client");
-    const rows = await prisma.school.findMany({
-        where: { schemaProvisionedAt: { not: null }, isActive: true },
-        select: { id: true, name: true, schemaName: true },
-    });
-    return rows.filter((s): s is SchoolRef => Boolean(s.schemaName));
+// Schools whose own schema is built and that are switched on
+async function schoolsWithWorkspace(repo: ISchoolRepository): Promise<SchoolRef[]> {
+    return (await repo.findMany({ isActive: true, schemaProvisionedAt: { not: null } })).filter(s => !!s.schemaName).map(s => ({ id: s.id, name: s.name, schemaName: s.schemaName! }));
 }
