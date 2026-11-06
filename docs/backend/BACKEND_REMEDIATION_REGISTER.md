@@ -413,6 +413,83 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Owner/workstream:** Expenses backend/QA
 - **Acceptance criteria:** Recurring workflow is tested at policy, use-case, PostgreSQL and HTTP layers.
 
+### REM-037 — Payroll run uniqueness is not enforced by the database
+
+- **Module:** Payroll
+- **Priority:** P1 — duplicate payroll/accrual risk
+- **Status:** Confirmed schema/use-case mismatch; concurrency reproduction outstanding
+- **Evidence:** `CreateRunUseCase` checks `existsForMonth(year, month)` before creating a run. The migration creates only a non-unique index on `PayrollRun(periodYear, periodMonth)`; there is no unique constraint preventing two non-cancelled runs for the same month.
+- **Risk:** Concurrent run-creation requests can both pass the check and create two live runs for the same payroll month. Both can then be calculated, approved and accrued, potentially paying staff twice and applying loan repayments twice.
+- **Recommended action:** Enforce one non-cancelled run per year/month at the database boundary (e.g. a partial unique index on year/month where status is not CANCELLED) and handle cancellation/replacement atomically. Add concurrent PostgreSQL creation tests.
+- **Owner/workstream:** Payroll developer
+- **Acceptance criteria:** Two concurrent create requests for the same month result in exactly one live run; a cancelled run can be replaced without deleting historical audit records.
+
+### REM-038 — Payroll second-approval threshold double-counts gross pay
+
+- **Module:** Payroll / approvals
+- **Priority:** P2 — approval policy correctness
+- **Status:** Confirmed calculation mismatch
+- **Evidence:** `CalculateRunUseCase` stores `employerCostKobo = gross + employerContribution`. `ApproveRunUseCase` calculates threshold amount as `grossKobo + employerCostKobo`, therefore compares 2×gross + employer contributions to the second-approval threshold.
+- **Risk:** Runs can require two approvals at a lower actual payroll cost than the configured threshold intends.
+- **Recommended action:** Use the intended single measure consistently—likely `employerCostKobo`—and name/document the threshold basis. Add boundary tests just below, at and above the threshold with employer contributions.
+- **Owner/workstream:** Payroll/product owner
+- **Acceptance criteria:** Approval count matches the agreed gross or total-employer-cost policy exactly.
+
+### REM-039 — Effective-dated pay profile replacement is not atomic
+
+- **Module:** Payroll / staff pay profiles
+- **Priority:** P2 — profile history integrity
+- **Status:** Confirmed repository operation sequence
+- **Evidence:** `PayProfileRepositoryImpl.createFrom` first updates the previous profile's `effectiveTo`, then creates the new profile, without opening a tenant transaction. The use case also reads the latest profile before calling this method.
+- **Risk:** If creation fails after the update, the old profile remains closed with no replacement. Concurrent profile updates can both read the same latest profile and create overlapping effective-date records.
+- **Recommended action:** Make profile close+create one tenant transaction. Serialize profile changes for a staff member (row/advisory lock or conditional version update) and enforce non-overlapping effective ranges where feasible.
+- **Owner/workstream:** Payroll developer
+- **Acceptance criteria:** Failure leaves the previous profile unchanged; concurrent profile changes cannot create overlapping active profiles.
+
+### REM-040 — Payroll calculation inputs can change before approval without stale-run detection
+
+- **Module:** Payroll
+- **Priority:** P2 — payroll snapshot consistency
+- **Status:** Potential risk; source path confirmed, scenario not reproduced
+- **Evidence:** Calculation loads the profile effective on month-end and computes payslip lines. Approval later re-reads the profile effective on that date for bank details, but does not verify the pay-profile/component version used during calculation. The run/payslip snapshot does not identify the source profile version.
+- **Risk:** A profile/component change between calculation and approval can leave calculated salary amounts based on one configuration while the payslip's bank details are taken from another.
+- **Recommended action:** Persist the profile ID/version and relevant component snapshot at calculation; before approval, either verify the source inputs are unchanged or require recalculation. Use the same frozen profile snapshot for bank details.
+- **Owner/workstream:** Payroll developer
+- **Acceptance criteria:** Changes to pay profiles/components after calculation either block approval as stale or are deliberately excluded from the run; payslip amounts and bank details reference the same source profile.
+
+### REM-041 — Payroll remittance can overpay a liability under concurrency
+
+- **Module:** Payroll / remittances
+- **Priority:** P2 — liability control
+- **Status:** Potential race established by read/check/post sequence
+- **Evidence:** `CreateRemittanceUseCase` reads liability balance before opening its posting transaction, checks requested amount <= owed, then posts. It does not lock/reserve the liability balance or recheck within the transaction.
+- **Risk:** Two concurrent remittances can both pass against the same liability balance and post a combined amount greater than the amount owed.
+- **Recommended action:** Serialize remittance creation by liability account (and period if relevant) or recheck under a lock inside the posting transaction. Add a two-connection PostgreSQL test.
+- **Owner/workstream:** Payroll/ledger developer
+- **Acceptance criteria:** Concurrent remittances cannot exceed the available liability balance unless an explicit overpayment policy is introduced.
+
+### REM-042 — Payroll remittance due list omits valid liability accounts accepted by components
+
+- **Module:** Payroll / remittances
+- **Priority:** P2 — reporting completeness
+- **Status:** Confirmed validation/query mismatch
+- **Evidence:** Pay component validation accepts any active LIABILITY account as a deduction/employer-contribution liability. `RemittancesDueUseCase` filters balances to accounts with subtype `PAYROLL_LIABILITY`.
+- **Risk:** A valid payroll component configured against a general liability account can accrue deductions there, but the due endpoint will not list that balance for remittance.
+- **Recommended action:** Either restrict payroll component liability accounts to the PAYROLL_LIABILITY subtype or derive the due-account set from configured payroll components and include all their liability accounts.
+- **Owner/workstream:** Payroll developer
+- **Acceptance criteria:** Every liability account used by payroll deductions/employer contributions appears in the due list, or cannot be selected in component setup.
+
+### REM-043 — Payroll lacks HTTP and real-Postgres concurrency tests
+
+- **Module:** Payroll
+- **Priority:** P2 — verification gap
+- **Status:** Confirmed test inventory finding
+- **Evidence:** The inspected payroll suite uses in-memory repositories and the PostingService test harness. No payroll route integration suite or populated-schema migration/concurrency tests were found.
+- **Risk:** The tests do not prove route permission/persona wiring, database uniqueness, profile history atomicity or concurrent run/remittance behavior.
+- **Recommended action:** Add HTTP tests for staff OWN payslip access, ALL access, profiles, run approval/payment, loans and remittances. Add PostgreSQL tests for REM-037, REM-039 and REM-041 and migration tests for the payroll schema.
+- **Owner/workstream:** Payroll backend/QA
+- **Acceptance criteria:** Payroll routes and database concurrency invariants are exercised in CI against disposable tenant schemas.
+
 ## Cross-module verification queue
 
 These are not necessarily defects. They are unfinished verification tasks recorded so the team does not mistake source documentation for production validation.
@@ -428,6 +505,7 @@ These are not necessarily defects. They are unfinished verification tasks record
 | Payments | Serialize credit consumption/refund reservation; fix settlement precision/idempotency; verify webhook filtering; add HTTP and PostgreSQL concurrency tests; close REM-022 through REM-027 |
 | Ledger | Serialize posting/period close; add period-close and HTTP tests; decide tenant timezone; close REM-028 through REM-031 |
 | Expenses | Fix run-now approval boundary, serialize budget checks, transact line replacement, correct system actor attribution and add recurring tests; close REM-032 through REM-036 |
+| Payroll | Enforce run uniqueness, fix threshold math, transact profile updates, freeze calculation inputs and serialize remittances; add HTTP/DB tests; close REM-037 through REM-043 |
 | Other module guides | Complete remaining source/schema/migration/test review as stated in each guide before declaring the module fully verified |
 
 ## Developer handoff protocol
@@ -449,3 +527,4 @@ These are not necessarily defects. They are unfinished verification tasks record
 - 2026-11-06: Added payment-credit concurrency, refund reservation, settlement precision/idempotency and webhook verification findings.
 - 2026-11-06: Added ledger period-close concurrency, period-close test coverage, finance timezone and system-account count findings.
 - 2026-11-06: Added recurring run-now authorization, budget concurrency/atomicity, system actor attribution and recurring test coverage findings.
+- 2026-11-06: Added payroll run uniqueness, approval threshold, profile atomicity, stale calculation inputs, remittance concurrency and reporting coverage findings.
