@@ -34,6 +34,7 @@ This section documents the backend implementation for developers building and ma
 | Ledger | [Ledger module](modules/ledger.md) | Source-reviewed; period-close concurrency, HTTP and runtime verification outstanding |
 | Expenses | [Expenses module](modules/expenses.md) | Source-reviewed; recurring authorization, budget concurrency and runtime verification outstanding |
 | Payroll | [Payroll module](modules/payroll.md) | Source-reviewed; database uniqueness, profile atomicity, HTTP and concurrency verification outstanding |
+| Salary transfers | [Salary transfers module](modules/payroll-transfers.md) | Source-reviewed; reversal guard, disabled-state reconciliation and provider integration verification outstanding |
 | Report cards | Planned | Audit after grades |
 | Graduation lifecycle | [Student graduation lifecycle](modules/graduation-lifecycle.md) | Source-reviewed across Students, Enrolment and Sessions; DB/migration execution, HTTP and quota-concurrency verification outstanding |
 
