@@ -42,6 +42,7 @@ Source code on `refactor/modules` is authoritative when a document and implement
 | [Fees Module](backend/modules/fees.md) | Fee setup, invoices, discounts, adjustments, instalments, opening balances, late fees and fee reports | Source-reviewed; migration/HTTP/runtime verification and remediation outstanding |
 | [Payments Module](backend/modules/payments.md) | Manual/online payments, allocation, receipts, credit, refunds, settlement and reversal | Source-reviewed; PostgreSQL concurrency, HTTP/runtime and webhook verification outstanding |
 | [Ledger Module](backend/modules/ledger.md) | Chart of accounts, journal posting/reversal, periods, reports and integrity checks | Source-reviewed; period-close concurrency, HTTP and runtime verification outstanding |
+| [Expenses Module](backend/modules/expenses.md) | Vendors, expense approvals, bills, outgoing payments, budgets, recurring expenses and expense reports | Source-reviewed; recurring authorization, budget concurrency and runtime verification outstanding |
 
 ## Workstream handoffs and operational guides
 
