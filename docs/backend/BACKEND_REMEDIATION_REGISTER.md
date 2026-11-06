@@ -963,6 +963,72 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Owner/workstream:** Platform/School Settings backend/QA
 - **Acceptance criteria:** Both settings modules have route and real-DB coverage; upload replacement/failure paths are tested.
 
+### REM-087 — Default automation rules are not protected by a unique definition key
+
+- **Module:** Automation
+- **Priority:** P2 — duplicate rule execution
+- **Status:** Confirmed schema/use-case gap
+- **Evidence:** AutomationRule has a non-unique index on definitionKey. ensureDefaultRules performs list-then-create for each definition. The sequential test proves repeated calls are idempotent only when no concurrent initializer runs.
+- **Risk:** Concurrent first list requests or scheduler ticks can both observe a missing definition and create duplicate enabled rules. Both can execute and generate duplicate run logs/messages; notification idempotency may suppress some duplicate sends but not duplicate rule execution/work.
+- **Recommended action:** Clean existing duplicates, add a unique constraint on definitionKey for live rules (or a partial unique index if soft-deleted history is retained), and use upsert/create-on-conflict with P2002 recovery.
+- **Owner/workstream:** Automation developer
+- **Acceptance criteria:** Concurrent default initialization leaves exactly one live rule per definition and produces no duplicate scheduled execution.
+
+### REM-088 — A claimed automation occurrence is lost after process crash or runner failure
+
+- **Module:** Automation / scheduler
+- **Priority:** P2 — scheduled notification reliability
+- **Status:** Confirmed claim-before-execute design; failure recovery not implemented
+- **Evidence:** RunDueAutomationsUseCase atomically advances nextRunAt before calling AutomationRunnerService. A lost claim or failed/crashed runner has no durable lease/attempt record to re-run that exact occurrence. Existing test explicitly confirms a lost claim produces no run/log.
+- **Risk:** A process crash after claim, or a FAILED runner, permanently skips that occurrence; the next tick advances to a later occurrence and no retry is made.
+- **Recommended action:** Persist a scheduled occurrence/run record with CLAIMED/RUNNING/SUCCESS/FAILED state and lease expiry, or add a retry queue keyed by rule+occurrence. Keep message idempotency keys so retry does not duplicate already-dispatched recipients.
+- **Owner/workstream:** Automation/Notifications developer
+- **Acceptance criteria:** A crashed or failed occurrence is retried after lease expiry until terminal; successful recipient/channel sends are not duplicated.
+
+### REM-089 — Automation daily/weekly schedules use a global Lagos timezone
+
+- **Module:** Automation / school settings
+- **Priority:** P2 — international scheduling correctness
+- **Status:** Confirmed implementation
+- **Evidence:** schedule.ts defines SCHEDULE_UTC_OFFSET_MINUTES=60 and describes all daily/weekly times as Africa/Lagos. School settings do not supply an IANA timezone to the schedule helper.
+- **Risk:** Schools outside Nigeria receive scheduled messages at the wrong local wall-clock time; fixed offset cannot represent all timezones or daylight-saving transitions.
+- **Recommended action:** Add a validated per-school IANA timezone and inject a shared school clock into nextRunAfter, date windows and automation source queries. Keep Nigeria's default Africa/Lagos.
+- **Owner/workstream:** Platform/Automation
+- **Acceptance criteria:** Daily/weekly schedules fire at the configured local time for Lagos and at least one non-Lagos timezone, including DST transitions where applicable.
+
+### REM-090 — Automation source queries silently truncate at fixed take limits
+
+- **Module:** Automation
+- **Priority:** P2 — notification completeness at scale
+- **Status:** Confirmed repository caps
+- **Evidence:** Invoice/attendance queries take up to 20,000 rows; payment and transfer queries take up to 5,000. These methods do not paginate or report overflow.
+- **Risk:** A large school can have eligible source rows beyond the cap. The run may report SUCCESS while silently omitting notifications for those rows.
+- **Recommended action:** Add keyset pagination with a stable order and bounded batch processing. If a hard cap remains, return an explicit PARTIAL/OVERFLOW status and alert the operator rather than reporting success.
+- **Owner/workstream:** Automation developer
+- **Acceptance criteria:** More than the current cap worth of eligible rows are all processed exactly once across batches, or the run clearly reports incomplete processing.
+
+### REM-091 — Plan automation-rule limit check is not serialized with enabling rules
+
+- **Module:** Automation / Entitlements
+- **Priority:** P2 — plan limit enforcement
+- **Status:** Potential race established by check-then-update sequence
+- **Evidence:** UpdateAutomationUseCase checks the automation.rules limit before enabling a rule, then updates the rule separately. There is no shared lock/reservation covering current enabled count and the update.
+- **Risk:** Two concurrent requests can both observe remaining capacity and enable two rules, exceeding the plan's configured limit.
+- **Recommended action:** Serialize rule enablement per school or use an atomic usage reservation/conditional update. Ensure default-enabled rules count consistently against the same limit.
+- **Owner/workstream:** Automation/Entitlements developer
+- **Acceptance criteria:** Concurrent enable requests cannot exceed the plan limit; count matches enabled live rules after every transaction.
+
+### REM-092 — Automation has no real-tenant DB or HTTP route integration tests
+
+- **Module:** Automation
+- **Priority:** P2 — verification gap
+- **Status:** Confirmed test inventory finding
+- **Evidence:** Existing automation tests use in-memory rule/run/source repositories and dispatch fakes. No automation Express route test or real tenant DB concurrency test was found.
+- **Risk:** Unique default provisioning, claim concurrency, tenant context, plan limits, persistence and route permissions are not proven against production adapters.
+- **Recommended action:** Add PostgreSQL tests for default-rule uniqueness/claim races and plan-limit concurrency; add HTTP tests for list/update/dry-run/run/history permissions and tenant isolation; exercise global scheduler across two disposable tenant schemas.
+- **Owner/workstream:** Automation backend/QA
+- **Acceptance criteria:** Automation persistence, scheduler and HTTP behavior are covered in CI against disposable tenant schemas.
+
 ## Cross-module verification queue
 
 These are not necessarily defects. They are unfinished verification tasks recorded so the team does not mistake source documentation for production validation.
@@ -989,6 +1055,7 @@ These are not necessarily defects. They are unfinished verification tasks record
 | Audit | Add transactional outbox, fix date range, centralize redaction and test tenant/platform isolation; close REM-077 through REM-080 |
 | Platform Settings | Restrict public URLs, audit changes, enforce singleton initialization and add DB/HTTP tests; close REM-081 through REM-083 |
 | School Settings | Enforce singleton row, clean replaced uploads and add DB/multipart integration tests; close REM-084 through REM-086 |
+| Automation | Enforce unique default rules, retry claimed occurrences, support school timezone, paginate source queries and serialize plan limits; add DB/HTTP tests; close REM-087 through REM-092 |
 | Other module guides | Complete remaining source/schema/migration/test review as stated in each guide before declaring the module fully verified |
 
 ## Developer handoff protocol
@@ -1020,3 +1087,4 @@ These are not necessarily defects. They are unfinished verification tasks record
 - 2026-11-06: Added duplicate Payments/Gateway Settlements write-path conflict, missing test coverage and preview-date mismatch findings.
 - 2026-11-06: Added audit transaction-boundary, end-date filtering, sensitive-field redaction and isolation-test findings.
 - 2026-11-06: Added platform URL validation/audit/singleton and school settings singleton/storage cleanup/integration-test findings.
+- 2026-11-06: Added automation default-rule uniqueness, scheduler claim recovery, timezone, source pagination, plan-limit concurrency and integration-test findings.
