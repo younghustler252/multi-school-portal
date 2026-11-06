@@ -1128,6 +1128,50 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Owner/workstream:** Message Templates/Notifications developer
 - **Acceptance criteria:** Long placeholder values cannot produce invalid outbound email subjects; tests cover multi-placeholder expansion and control characters.
 
+### REM-102 — Concurrent duplicate webhook deliveries can both claim an in-progress event
+
+- **Module:** Webhooks
+- **Priority:** P1 — payment event idempotency
+- **Status:** Confirmed repository claim semantics; concurrency reproduction outstanding
+- **Evidence:** WebhookEventRepository.begin treats prior status FAILED or RECEIVED as claimable. Claiming leaves status RECEIVED and increments attempts. Two simultaneous deliveries of the same provider/eventKey can both execute updateMany while status remains RECEIVED, so both may run the handler.
+- **Risk:** The same provider event can be processed concurrently. Downstream modules have their own idempotency, but the webhook front door does not enforce one active processor and future handlers may not be safe under concurrent execution.
+- **Recommended action:** Add a distinct PROCESSING state plus claim token/lease owner and expiry. Claim only FAILED or stale PROCESSING rows with compare-and-swap; a fresh PROCESSING/RECEIVED event must return duplicate/in-progress.
+- **Owner/workstream:** Webhooks/Platform developer
+- **Acceptance criteria:** Two concurrent requests for one event produce exactly one handler invocation; a crashed processor becomes reclaimable only after lease expiry.
+
+### REM-103 — Failed webhook events have no automatic retry path
+
+- **Module:** Webhooks / provider integrations
+- **Priority:** P2 — payment reconciliation operations
+- **Status:** Confirmed manual-only retry design
+- **Evidence:** ReceiveWebhookUseCase records handler failure and returns normally to the provider. RetryWebhookEventUseCase is the only retry path and is exposed through platform.webhooks.retry. No automatic retry worker/scheduler for FAILED WebhookEvent rows was found.
+- **Risk:** Temporary database/provider failures remain unprocessed until an operator notices and manually retries them. Provider will not retry because the front door acknowledges the event.
+- **Recommended action:** Add bounded exponential-backoff retries using a durable queue/worker, with a dead-letter state and alert after the retry limit. If manual-only is deliberate, add monitoring/alerts and an operational response-time target.
+- **Owner/workstream:** Webhooks/Platform Operations
+- **Acceptance criteria:** Failed events are automatically retried within a bounded window or trigger an actionable alert; no failed payment event can remain unnoticed.
+
+### REM-104 — Webhook tests do not cover real HTTP signature/raw-body and concurrent DB claims
+
+- **Module:** Webhooks
+- **Priority:** P2 — verification gap
+- **Status:** Confirmed test inventory finding
+- **Evidence:** Existing tests use a fake payment provider and in-memory event repository. Wiring tests validate registry and permissions but do not exercise Express raw-body parsing, rate limiter, real signature provider or PostgreSQL claim race.
+- **Risk:** Production request parsing/signature verification and concurrent event uniqueness/claim behavior are not proven end-to-end.
+- **Recommended action:** Add HTTP tests posting exact raw JSON bytes and invalid/re-serialized bodies; add PostgreSQL two-connection duplicate delivery/lease tests; add provider sandbox payload fixtures for charge and transfer events.
+- **Owner/workstream:** Webhooks backend/QA
+- **Acceptance criteria:** Raw-body signature and exactly-one-handler/claim semantics are tested through the actual Express route and database.
+
+### REM-105 — Webhook event key fallback collapses events with no ID/reference to type:none
+
+- **Module:** Webhooks / Paystack adapter
+- **Priority:** P3 — event identity robustness
+- **Status:** Confirmed adapter fallback
+- **Evidence:** PaystackWebhookProvider creates eventKey from type plus data.id, then reference, then the literal "none". All events of one type with neither identifier share one unique key.
+- **Risk:** The first such event can cause all later same-type events to be treated as duplicates, even if their payloads differ. Current business handlers generally need a reference, so these events are not actionable, but the event log is misleading.
+- **Recommended action:** Reject or mark identifier-less events IGNORED without inserting a colliding key, or use a deterministic hash of the slim payload as the fallback identity.
+- **Owner/workstream:** Webhooks developer
+- **Acceptance criteria:** Distinct identifier-less payloads do not collide; malformed/unactionable events are logged with an explicit reason.
+
 ## Cross-module verification queue
 
 These are not necessarily defects. They are unfinished verification tasks recorded so the team does not mistake source documentation for production validation.
@@ -1157,6 +1201,7 @@ These are not necessarily defects. They are unfinished verification tasks record
 | Automation | Enforce unique default rules, retry claimed occurrences, support school timezone, paginate source queries and serialize plan limits; add DB/HTTP tests; close REM-087 through REM-092 |
 | Notifications | Implement queued/idempotent platform delivery, prevent accidental all-school broadcast, handle empty recipients, make dispatch resumable and add DB/HTTP tests; close REM-093 through REM-100 |
 | Message Templates | Validate rendered subject length and add DB/HTTP coverage; close REM-101 |
+| Webhooks | Add processing leases, automatic retry/alerting, raw-body/DB concurrency tests and safe fallback event identity; close REM-102 through REM-105 |
 | Other module guides | Complete remaining source/schema/migration/test review as stated in each guide before declaring the module fully verified |
 
 ## Developer handoff protocol
@@ -1190,3 +1235,4 @@ These are not necessarily defects. They are unfinished verification tasks record
 - 2026-11-06: Added platform URL validation/audit/singleton and school settings singleton/storage cleanup/integration-test findings.
 - 2026-11-06: Added automation default-rule uniqueness, scheduler claim recovery, timezone, source pagination, plan-limit concurrency and integration-test findings.
 - 2026-11-06: Added platform channel/status delivery, empty recipients, broadcast-all semantics, audit/idempotency, dispatch atomicity, provider retry and template subject findings.
+- 2026-11-06: Added webhook in-progress duplicate claims, manual-only retry, missing HTTP/DB verification and event-key fallback findings.
