@@ -54,6 +54,7 @@ Source code on `refactor/modules` is authoritative when a document and implement
 | [Audit Module](backend/modules/audit.md) | Shared audit writes, actor attribution, school/platform activity logs and failure reporting | Source-reviewed; transactional outbox, redaction, date filtering and isolation verification outstanding |
 | [Platform Settings Module](backend/modules/platform-settings.md) | Global platform branding, support, maintenance, registration and billing defaults | Source-reviewed; public URL validation, audit and singleton initialization outstanding |
 | [School Settings Module](backend/modules/school-settings.md) | Per-school branding, report-card layout, stamp/signature and messaging preferences | Source-reviewed; singleton initialization, storage cleanup and DB/multipart verification outstanding |
+| [Automation Module](backend/modules/automation.md) | Scheduled school messages, rules, dry-run, manual execution and cross-school scheduler | Source-reviewed; rule uniqueness, scheduler recovery, timezone, pagination and DB/HTTP verification outstanding |
 
 ## Workstream handoffs and operational guides
 
