@@ -1238,6 +1238,61 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Owner/workstream:** Feedback backend/QA
 - **Acceptance criteria:** Submission and full platform review lifecycle are covered in CI against public persistence.
 
+### REM-112 — RequestContext middleware is implemented but never mounted
+
+- **Module:** API Infrastructure / Audit / Observability
+- **Priority:** P1 — audit attribution and request traceability
+- **Status:** Confirmed app wiring omission
+- **Evidence:** request-context.middleware.ts documents that it must be mounted first. app.ts does not import or use requestContext, and server.ts does not mount it. RequestContext.setActor in auth middleware returns immediately when no AsyncLocalStorage store exists.
+- **Risk:** Normal HTTP requests have no generated x-request-id response header or RequestContext store. AuditService cannot automatically attach requestId, IP, user agent, userId, membershipId or impersonatedBy; many audit events therefore lose actor/request attribution unless every caller passes it explicitly.
+- **Recommended action:** Mount requestContext as the first app middleware, before CORS/webhook/global limiter/optional auth. Ensure the webhook path also receives a context if it is expected to have correlation IDs. Configure proxy trust separately before relying on req.ip.
+- **Owner/workstream:** API Infrastructure/Audit
+- **Acceptance criteria:** HTTP integration test confirms x-request-id response header, RequestContext fields in audit, and actor/impersonation enrichment after authenticate.
+
+### REM-113 — Query and route-parameter Zod parse results are discarded
+
+- **Module:** API Infrastructure / Validation
+- **Priority:** P2 — request contract correctness
+- **Status:** Confirmed middleware implementation
+- **Evidence:** validate middleware writes result.data back only for body. For query/params it does nothing after safeParse; controllers continue reading raw req.query/req.params. Zod defaults, coercions, transforms and stripped unknown keys are not applied downstream.
+- **Risk:** A query can pass schema validation but downstream code receives raw strings and unknown fields. Defaults/transforms may be ignored or reinterpreted inconsistently, creating mismatches between DTO contract and actual use-case inputs.
+- **Recommended action:** Store parsed data in a typed request-local field (e.g. res.locals.validatedQuery/validatedParams) and require controllers to consume it, or parse in the controller and pass parsed values. Do not reassign Express's getter-only req.query directly.
+- **Owner/workstream:** API Infrastructure
+- **Acceptance criteria:** Tests prove numeric/boolean coercion, defaults, transforms and unknown-key stripping are reflected in controller/use-case inputs for query and params.
+
+### REM-114 — Validation, 404 and rate-limit errors do not share one response envelope
+
+- **Module:** API Infrastructure / Error Handling
+- **Priority:** P2 — frontend contract consistency
+- **Status:** Confirmed response-shape differences
+- **Evidence:** validate middleware responds directly without code=VALIDATION_ERROR; global Zod handler includes it. 404 handler returns success/message only. express-rate-limit returns success/message only. Global AppError responses include stable codes/details.
+- **Risk:** Frontend must branch on inconsistent shapes and cannot reliably handle all errors by stable code. Validation field errors can also be arrays in middleware but strings in ValidationError.
+- **Recommended action:** Centralize validation errors through the global handler or a shared serializer; give 404 ROUTE_NOT_FOUND and 429 RATE_LIMITED; standardize errors as a stable field map with documented value type.
+- **Owner/workstream:** API Infrastructure
+- **Acceptance criteria:** Contract tests assert one common error envelope for Zod, AppError, unknown route, CORS and rate-limit responses.
+
+### REM-115 — Rate limiting is not configured for reverse proxies or multiple API instances
+
+- **Module:** API Infrastructure / Deployment
+- **Priority:** P1 — production availability and abuse-control correctness
+- **Status:** Confirmed app configuration gap; deployment topology impact must be verified
+- **Evidence:** app.ts/server.ts do not configure Express trust proxy. express-rate-limit uses default req.ip and in-memory store; no shared Redis store is configured. Global limit is 100 requests/15 minutes and runs before optional auth.
+- **Risk:** Behind a reverse proxy, req.ip may be the proxy address for every client, causing unrelated users to share one 100-request bucket. With multiple API replicas, each process has a separate memory store, so limits are inconsistent and can be bypassed across replicas.
+- **Recommended action:** Configure trust proxy to the exact trusted proxy chain/hop count for deployment, never blindly trust all forwarded headers. Use a shared Redis-backed rate-limit store for multi-instance deployments. Verify health/static/API behavior and per-user/IP policies.
+- **Owner/workstream:** API Infrastructure/DevOps
+- **Acceptance criteria:** Production-like tests prove distinct client IPs receive distinct limits behind the trusted proxy and all replicas share one limit state.
+
+### REM-116 — Entitlement warn-mode decisions are not exposed to clients
+
+- **Module:** API Infrastructure / Entitlements
+- **Priority:** P2 — plan warning UX
+- **Status:** Confirmed response helper gap
+- **Evidence:** requireFeature/requirePlanLimit append warn-mode keys to res.locals.entitlementWarnings. sendSuccess, sendCreated, sendPaginated and sendError do not serialize these warnings; no response middleware was found that consumes them.
+- **Risk:** A plan configured to warn rather than block allows the operation but the frontend receives no warning and cannot prompt the school to upgrade or reduce usage.
+- **Recommended action:** Define a standard warnings field in ApiResponse and include res.locals.entitlementWarnings in shared response helpers, or remove the unused warning behavior and provide another documented channel.
+- **Owner/workstream:** API Infrastructure/Entitlements
+- **Acceptance criteria:** A warn-mode feature/limit request succeeds and returns the relevant warning key/details; block mode still returns FEATURE_NOT_AVAILABLE/PLAN_LIMIT_REACHED.
+
 ## Cross-module verification queue
 
 These are not necessarily defects. They are unfinished verification tasks recorded so the team does not mistake source documentation for production validation.
@@ -1269,6 +1324,7 @@ These are not necessarily defects. They are unfinished verification tasks record
 | Message Templates | Validate rendered subject length and add DB/HTTP coverage; close REM-101 |
 | Webhooks | Add processing leases, automatic retry/alerting, raw-body/DB concurrency tests and safe fallback event identity; close REM-102 through REM-105 |
 | Feedback | Add submission abuse controls, normalize/redact page URLs, audit platform actions, retry support emails and test management workflows; close REM-106 through REM-111 |
+| API Infrastructure | Mount request context, pass parsed query/params, standardize error envelope, configure proxy/shared rate limiting and expose entitlement warnings; close REM-112 through REM-116 |
 | Other module guides | Complete remaining source/schema/migration/test review as stated in each guide before declaring the module fully verified |
 
 ## Developer handoff protocol
@@ -1304,3 +1360,4 @@ These are not necessarily defects. They are unfinished verification tasks record
 - 2026-11-06: Added platform channel/status delivery, empty recipients, broadcast-all semantics, audit/idempotency, dispatch atomicity, provider retry and template subject findings.
 - 2026-11-06: Added webhook in-progress duplicate claims, manual-only retry, missing HTTP/DB verification and event-key fallback findings.
 - 2026-11-06: Added feedback abuse/rate limiting, page URL privacy, audit, support email outbox, retention and management-test findings.
+- 2026-11-06: Added missing request-context mounting, discarded query/param parsing, inconsistent error responses, proxy rate-limit configuration and entitlement warning visibility findings.
