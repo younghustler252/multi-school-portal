@@ -38,6 +38,7 @@ This section documents the backend implementation for developers building and ma
 | Finance settings | [Finance Settings module](modules/finance-settings.md) | Source-reviewed; HTTP and cross-tenant database verification outstanding |
 | Bank reconciliation | [Bank Reconciliation module](modules/bank-reconciliation.md) | Source-reviewed; balance-evidence, sign-off concurrency and HTTP/DB verification outstanding |
 | Finance reports | [Finance Reports module](modules/finance-reports.md) | Source-reviewed; query limits, report/CSV tests and accountant entitlement verification outstanding |
+| Plans | [Plans module](modules/plans.md) | Source-reviewed; zero-limit presentation, atomic grants and open-invoice deactivation verification outstanding |
 | Report cards | Planned | Audit after grades |
 | Graduation lifecycle | [Student graduation lifecycle](modules/graduation-lifecycle.md) | Source-reviewed across Students, Enrolment and Sessions; DB/migration execution, HTTP and quota-concurrency verification outstanding |
 
@@ -77,6 +78,6 @@ The next academic modules are:
 14. Report cards
 15. Graduation (if a distinct backend module exists; otherwise document the actual student lifecycle implementation and legacy graduation notes)
 
-Then continue through platform administration, settings/automation, integrations and API conventions/OpenAPI.
+Then continue through subscriptions, platform administration, settings/automation, integrations and API conventions/OpenAPI.
 
 The frontend is intentionally not being documented as the current implementation while it remains behind the backend. Frontend implementation documentation will follow the backend contract audit.
