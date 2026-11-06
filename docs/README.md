@@ -52,6 +52,8 @@ Source code on `refactor/modules` is authoritative when a document and implement
 | [Subscriptions and Billing Module](backend/modules/subscriptions.md) | School subscriptions, plan changes, invoices, payment attempts, renewals, dunning and platform billing | Source-reviewed; checkout uniqueness, lifecycle concurrency, coupon limits and billing integration verification outstanding |
 | [Gateway Settlements Module](backend/modules/gateway-settlements.md) | Itemized online-payment settlement reports, clearing reconciliation and settlement reversal | Source-reviewed; legacy route conflict, itemized settlement tests and preview validation outstanding |
 | [Audit Module](backend/modules/audit.md) | Shared audit writes, actor attribution, school/platform activity logs and failure reporting | Source-reviewed; transactional outbox, redaction, date filtering and isolation verification outstanding |
+| [Platform Settings Module](backend/modules/platform-settings.md) | Global platform branding, support, maintenance, registration and billing defaults | Source-reviewed; public URL validation, audit and singleton initialization outstanding |
+| [School Settings Module](backend/modules/school-settings.md) | Per-school branding, report-card layout, stamp/signature and messaging preferences | Source-reviewed; singleton initialization, storage cleanup and DB/multipart verification outstanding |
 
 ## Workstream handoffs and operational guides
 
