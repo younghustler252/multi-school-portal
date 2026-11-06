@@ -41,6 +41,7 @@ Source code on `refactor/modules` is authoritative when a document and implement
 | [Student Graduation Lifecycle](backend/modules/graduation-lifecycle.md) | Graduation through promotion, undo, plan eligibility, enrolment and term rollover | Source-reviewed; DB/migration execution, HTTP and quota-concurrency verification outstanding |
 | [Fees Module](backend/modules/fees.md) | Fee setup, invoices, discounts, adjustments, instalments, opening balances, late fees and fee reports | Source-reviewed; migration/HTTP/runtime verification and remediation outstanding |
 | [Payments Module](backend/modules/payments.md) | Manual/online payments, allocation, receipts, credit, refunds, settlement and reversal | Source-reviewed; PostgreSQL concurrency, HTTP/runtime and webhook verification outstanding |
+| [Ledger Module](backend/modules/ledger.md) | Chart of accounts, journal posting/reversal, periods, reports and integrity checks | Source-reviewed; period-close concurrency, HTTP and runtime verification outstanding |
 
 ## Workstream handoffs and operational guides
 
