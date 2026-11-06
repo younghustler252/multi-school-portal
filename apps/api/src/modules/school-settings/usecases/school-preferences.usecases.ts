@@ -5,14 +5,8 @@ import { SettingValue, describeSettings, validateSettingValue } from "../../../f
 import { schoolSettingsErrors } from "../domain/school-settings.errors";
 import { UpdateSchoolPreferencesDtoType } from "../dtos/school-settings.dto";
 
-interface Dependencies { schoolSettingValueRepository: ISchoolSettingValueRepository; auditService: AuditService }
+interface Dependencies { schoolSettingValueRepository: ISchoolSettingValueRepository; auditService: AuditService; tenantTransaction?: <T>(fn: () => Promise<T>) => Promise<T> }
 interface Options { transaction?: <T>(fn: () => Promise<T>) => Promise<T> }
-
-// Loaded on first use so that importing this file never needs a database connection
-const defaultTransaction = async <T>(fn: () => Promise<T>): Promise<T> => {
-    const { withTenantTransaction } = await import("../../../infrastructure/database/prisma/prisma.client");
-    return withTenantTransaction(async () => fn());
-};
 
 const KEYS = SETTING_DEFS.map(d => d.key);
 
@@ -29,8 +23,9 @@ export class GetSchoolPreferencesUseCase {
 | Everything is checked before anything is saved. The audit entry lists each real change (old and new value).
 */
 export class UpdateSchoolPreferencesUseCase {
+    private readonly d: Dependencies;
     private readonly transaction: <T>(fn: () => Promise<T>) => Promise<T>;
-    constructor(private readonly d: Dependencies, options: Options = {}) { this.transaction = options.transaction ?? defaultTransaction; }
+    constructor(d: Dependencies, options: Options = {}) { this.d = d; this.transaction = options.transaction ?? (fn => d.tenantTransaction!(fn)); }
 
     async execute(schoolId: string, actorUserId: string, dto: UpdateSchoolPreferencesDtoType) {
         const entries = Object.entries(dto.values);

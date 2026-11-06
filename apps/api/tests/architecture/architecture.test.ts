@@ -59,7 +59,6 @@ describe("architecture rules", () => {
     */
     it("use cases do not import the database client (except the modules still waiting to be converted)", () => {
         const WAITING = new Set([
-        "src/modules/automation/usecases/automation.usecases.ts",
         "src/modules/bank-reconciliation/usecases/reconciliation-shared.ts",
         "src/modules/expenses/usecases/expense-shared.ts",
         "src/modules/expenses/usecases/recurring.usecases.ts",
@@ -75,7 +74,6 @@ describe("architecture rules", () => {
         "src/modules/payroll-transfers/usecases/transfer-outcome.service.ts",
         "src/modules/payroll-transfers/usecases/transfer.usecases.ts",
         "src/modules/payroll/usecases/payroll-shared.ts",
-        "src/modules/school-settings/usecases/school-preferences.usecases.ts",
         ]);
         const offenders = FILES.filter(f => /\/modules\/[^/]+\/usecases\//.test(f) && /prisma\.client/.test(code(f)) && !WAITING.has(rel(f)));
         assert.deepEqual(offenders.map(rel), [], "these use cases import the database client; add a repository method instead");

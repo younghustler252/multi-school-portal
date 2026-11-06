@@ -1,3 +1,4 @@
+import type { ISchoolRepository } from "../../school/repositories/school.repository";
 import type { IAutomationRuleRepository, IAutomationRunRepository, AutomationRuleRow } from "../repositories/automation.repository";
 import { AutomationRunnerService, RunReport } from "../services/automation-runner.service";
 import { AUTOMATION_DEFINITIONS, DEFINITION_BY_KEY, AutomationDefinition, defaultParams, resolveParams } from "../domain/automation-definitions";
@@ -192,16 +193,13 @@ export class RunDueAutomationsUseCase {
 export interface SchoolRef { id: string; name: string; schemaName: string }
 export interface AllSchoolsSummary { schools: number; ran: number; skipped: number; failed: number; crashed: { schoolId: string; error: string }[] }
 
-async function defaultSchools(): Promise<SchoolRef[]> {
-    const { prisma } = await import("../../../infrastructure/database/prisma/prisma.client");
-    const schools = await prisma.school.findMany({ where: { schemaProvisionedAt: { not: null }, isActive: true }, select: { id: true, name: true, schemaName: true } });
-    return schools.filter((s): s is SchoolRef => !!s.schemaName);
-}
-
 export class RunAutomationsForAllSchoolsUseCase {
     constructor(
-        private readonly d: { runDueAutomationsUseCase: RunDueAutomationsUseCase; auditService: AuditService },
-        private readonly listSchools: () => Promise<SchoolRef[]> = defaultSchools,
+        private readonly d: { runDueAutomationsUseCase: RunDueAutomationsUseCase; auditService: AuditService; schoolRepository?: ISchoolRepository },
+        private readonly listSchools: () => Promise<SchoolRef[]> = async () =>
+            // schools whose own schema is built and that are switched on
+            (await this.d.schoolRepository!.findMany({ isActive: true, schemaProvisionedAt: { not: null } }))
+                .filter(s => !!s.schemaName).map(s => ({ id: s.id, name: s.name, schemaName: s.schemaName! })),
         private readonly inSchool: <T>(school: SchoolRef, fn: () => Promise<T>) => Promise<T> = async (school, fn) => {
             const { TenantContext } = await import("../../../infrastructure/database/prisma/tenant.context");
             return TenantContext.run({ tenantSchema: school.schemaName, schoolId: school.id } as any, fn);

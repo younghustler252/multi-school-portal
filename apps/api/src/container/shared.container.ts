@@ -1,6 +1,6 @@
 import { asClass, asFunction, asValue }  from "awilix";
 import type { AwilixContainer } from "awilix";
-import { prisma }            from "../infrastructure/database/prisma/prisma.client";
+import { prisma, withTenantTransaction } from "../infrastructure/database/prisma/prisma.client";
 import { TenantContext }     from "../infrastructure/database/prisma/tenant.context";
 import { MailService }       from "../infrastructure/mail/mail.service";
 import { SmsService }        from "../infrastructure/sms/sms.service";
@@ -31,6 +31,8 @@ export const registerShared = (container: AwilixContainer): void => {
         // ── Database ─────────────────────────────────────────────────────
         prismaClient:  asValue(prisma),
         tenantContext: asValue(TenantContext),
+        /** Runs a function so every tenant-database call inside it shares ONE transaction (all or nothing). */
+        tenantTransaction: asValue(withTenantTransaction),
 
         // ── Communication ────────────────────────────────────────────────
         mailService:   asClass(MailService).singleton(),
