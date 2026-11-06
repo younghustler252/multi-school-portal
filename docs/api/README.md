@@ -22,6 +22,7 @@ Do not generate frontend clients, publish Swagger UI as an authoritative referen
 - [Mounted API route inventory](ROUTE_INVENTORY.md) — route-file and mount composition for the current Express API.
 - [Academic API operation inventory](ACADEMIC_OPERATION_INVENTORY.md) — first operation-level pass for Grades, Report Cards, Enrolment and Students; source-reviewed, not runtime-verified.
 - [Finance API operation inventory](FINANCE_OPERATION_INVENTORY.md) — 190 route operations across Fees, Payments, Ledger, Expenses, Payroll, Salary Transfers, Finance Settings, Bank Reconciliation, Gateway Settlements and Finance Reports; source-reviewed, not runtime-verified.
+- [Platform, identity, billing and communications API operation inventory](PLATFORM_COMMUNICATION_OPERATION_INVENTORY.md) — 128 route operations across Auth, Users, Schools, Plans, Subscriptions, Audit, Notifications, Templates, Automation, Settings, Webhooks and Feedback; source-reviewed, not runtime-verified.
 - [OpenAPI migration plan](OPENAPI_MIGRATION_PLAN.md) — source-of-truth rules, authoring decision and acceptance criteria.
 - [Backend API conventions](../backend/api-conventions.md) — actual route, middleware, validation and response conventions.
 - [Backend error handling](../backend/error-handling.md) — current error classes and response behavior.
