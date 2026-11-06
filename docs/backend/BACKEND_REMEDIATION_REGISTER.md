@@ -567,6 +567,17 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Owner/workstream:** Salary Transfers backend/QA
 - **Acceptance criteria:** Real database, HTTP and provider integration tests cover the money-movement lifecycle before platform/school switches are enabled.
 
+### REM-051 — Finance settings lacks HTTP and real-tenant isolation tests
+
+- **Module:** Finance Settings
+- **Priority:** P2 — verification gap
+- **Status:** Confirmed test inventory finding
+- **Evidence:** `finance-settings.test.ts` uses an in-memory repository and injected transaction function. No route integration test or real tenant DB isolation test was found in the inspected suite.
+- **Risk:** Tests do not prove STAFF persona/permission middleware, tenant-scoped repository behavior, transaction wiring or isolation across two school schemas.
+- **Recommended action:** Add HTTP tests for view/manage permissions, strict body validation, unknown/invalid keys, reset-to-default and audit behavior. Add two-tenant database tests that write different values for the same key and prove each scoped service reads only its own override.
+- **Owner/workstream:** Finance Settings backend/QA
+- **Acceptance criteria:** Finance settings HTTP and cross-tenant persistence tests run in CI against disposable tenant schemas.
+
 ## Cross-module verification queue
 
 These are not necessarily defects. They are unfinished verification tasks recorded so the team does not mistake source documentation for production validation.
@@ -584,6 +595,7 @@ These are not necessarily defects. They are unfinished verification tasks record
 | Expenses | Fix run-now approval boundary, serialize budget checks, transact line replacement, correct system actor attribution and add recurring tests; close REM-032 through REM-036 |
 | Payroll | Enforce run uniqueness, fix threshold math, transact profile updates, freeze calculation inputs and serialize remittances; add HTTP/DB tests; close REM-037 through REM-043 |
 | Salary Transfers | Block reversal with live transfers, keep reconciliation available when disabled, correct actor/status/precision, and add real DB/HTTP/provider tests; close REM-044 through REM-050 |
+| Finance Settings | Add HTTP and cross-tenant DB isolation tests; close REM-051 |
 | Other module guides | Complete remaining source/schema/migration/test review as stated in each guide before declaring the module fully verified |
 
 ## Developer handoff protocol
@@ -607,3 +619,4 @@ These are not necessarily defects. They are unfinished verification tasks record
 - 2026-11-06: Added recurring run-now authorization, budget concurrency/atomicity, system actor attribution and recurring test coverage findings.
 - 2026-11-06: Added payroll run uniqueness, approval threshold, profile atomicity, stale calculation inputs, remittance concurrency and reporting coverage findings.
 - 2026-11-06: Added salary-transfer/payroll reversal guard, disabled-state reconciliation, actor attribution, amount precision, preflight and returned-payment status findings.
+- 2026-11-06: Added finance-settings HTTP and tenant-isolation test coverage finding.
