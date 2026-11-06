@@ -853,6 +853,50 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Owner/workstream:** Gateway Settlements developer
 - **Acceptance criteria:** Preview and record return the same date eligibility for valid, invalid and future settlement dates.
 
+### REM-077 — Audit writes are not atomic with tenant business transactions
+
+- **Module:** Audit / all tenant modules
+- **Priority:** P1 — audit integrity and compliance
+- **Status:** Confirmed client/transaction boundary
+- **Evidence:** `AuditRepositoryImpl.create` writes through the global public Prisma client. Business use cases often call `AuditService.log` while operating inside a tenant Prisma transaction. AuditService catches and swallows write failures.
+- **Risk:** The public audit row can commit even if the tenant transaction later rolls back, recording a change that never happened. Conversely, a tenant transaction can commit while the audit write fails and is only reported to Sentry, leaving no durable audit row.
+- **Recommended action:** Use a transactional outbox/audit event in the same tenant transaction for business mutations, then reliably relay it to the public audit store. For public/platform mutations, use an outbox in the same public transaction. Preserve best-effort request behavior while making critical audit delivery durable and idempotent.
+- **Owner/workstream:** Platform architecture/Audit
+- **Acceptance criteria:** A rolled-back business transaction produces no committed audit event; a committed mutation always has a durable outbox event that is eventually delivered to public AuditLog.
+
+### REM-078 — Audit endDate filter excludes the requested calendar day after midnight
+
+- **Module:** Audit API
+- **Priority:** P2 — query correctness
+- **Status:** Confirmed date-boundary behavior
+- **Evidence:** Audit DTO accepts a date string using Date.parse. `buildWhere` maps endDate to `createdAt.lte = new Date(endDate)`. For YYYY-MM-DD, JavaScript creates midnight at the start of that date.
+- **Risk:** A query for a date range ending on 2026-11-06 excludes almost every audit event created later on 2026-11-06.
+- **Recommended action:** Use an exclusive next-day bound (`createdAt < startOfNextDay`) in a defined timezone, or normalize endDate to end-of-day. Validate startDate <= endDate.
+- **Owner/workstream:** Audit API developer
+- **Acceptance criteria:** Tests prove start/end date filters include all events on both requested calendar days and exclude the following day.
+
+### REM-079 — Audit persistence has no centralized redaction for sensitive before/after values
+
+- **Module:** Audit / all callers
+- **Priority:** P1 — sensitive data exposure risk
+- **Status:** Confirmed absence of service-level redaction; caller impact requires inventory
+- **Evidence:** `AuditService.log` persists caller-supplied oldValue, newValue and metadata as-is. It does not apply a schema/field allowlist or redact secret-like keys before writing. Read APIs return these JSON values to sensitive audit viewers.
+- **Risk:** Any caller that passes a full entity/DTO can persist password hashes, OTPs, access tokens, encrypted/full bank details or unnecessary personal/student data into a broadly searchable audit store.
+- **Recommended action:** Define a central audit-safe serializer with per-entity allowlists and recursive redaction for credentials, tokens, secrets, bank account numbers and sensitive personal fields. Review every caller and migrate old unsafe records where feasible.
+- **Owner/workstream:** Security/Audit + module owners
+- **Acceptance criteria:** Automated tests prove secret fields are removed before persistence for auth, users, students, guardians, finance, payroll and platform billing events.
+
+### REM-080 — Audit read/query behavior lacks school/platform isolation and enrichment tests
+
+- **Module:** Audit
+- **Priority:** P2 — verification gap
+- **Status:** Confirmed test inventory finding
+- **Evidence:** The only inspected audit test file covers failure reporting and swallowed writes. No tests were found for schoolId scoping, platform filters, request context, impersonation, SYSTEM actor behavior, date boundaries or pagination.
+- **Risk:** Sensitive audit access and actor attribution can regress without automated detection.
+- **Recommended action:** Add unit and HTTP tests for tenant-forced school filtering, platform cross-school access, impersonation, SYSTEM actor non-inheritance, actor-name enrichment, date boundaries and pagination.
+- **Owner/workstream:** Audit backend/QA
+- **Acceptance criteria:** School users can only see their own school logs; platform access requires platform permission; all actor and date filters behave as documented.
+
 ## Cross-module verification queue
 
 These are not necessarily defects. They are unfinished verification tasks recorded so the team does not mistake source documentation for production validation.
@@ -876,6 +920,7 @@ These are not necessarily defects. They are unfinished verification tasks record
 | Plans | Align zero-limit presentation, make plan+entitlement writes atomic, and handle deactivation with open invoices; close REM-062 through REM-064 |
 | Subscriptions | Prevent duplicate checkout attempts, serialize billing lifecycle/apply transitions, enforce coupon limits, recover captured-but-unapplied funds and add full billing tests; close REM-065 through REM-073 |
 | Gateway Settlements | Retire legacy aggregate settlement route, keep itemized settlement as sole writer, add parser/matcher/DB/HTTP tests and align preview dates; close REM-074 through REM-076 |
+| Audit | Add transactional outbox, fix date range, centralize redaction and test tenant/platform isolation; close REM-077 through REM-080 |
 | Other module guides | Complete remaining source/schema/migration/test review as stated in each guide before declaring the module fully verified |
 
 ## Developer handoff protocol
@@ -905,3 +950,4 @@ These are not necessarily defects. They are unfinished verification tasks record
 - 2026-11-06: Added plan entitlement display, atomic plan creation/clone and deactivation-with-open-invoice findings.
 - 2026-11-06: Added subscription amount schema mismatch, duplicate checkout, lifecycle concurrency, coupon max-use, captured-payment recovery, query parsing and live-subscription uniqueness findings.
 - 2026-11-06: Added duplicate Payments/Gateway Settlements write-path conflict, missing test coverage and preview-date mismatch findings.
+- 2026-11-06: Added audit transaction-boundary, end-date filtering, sensitive-field redaction and isolation-test findings.
