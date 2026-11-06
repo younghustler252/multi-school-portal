@@ -578,6 +578,83 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Owner/workstream:** Finance Settings backend/QA
 - **Acceptance criteria:** Finance settings HTTP and cross-tenant persistence tests run in CI against disposable tenant schemas.
 
+### REM-052 — Reconciliation completion accepts a caller-supplied balance even when imported running balance exists
+
+- **Module:** Bank Reconciliation
+- **Priority:** P1 — month-end control bypass
+- **Status:** Confirmed behavior
+- **Evidence:** `position` chooses the caller's `typedBalance` whenever it is provided; it does not verify that imported statement lines lack running balances or that the value matches the stored `BankStatement.closingBalanceKobo`. `CompleteReconciliationUseCase` passes the request value directly into this calculation.
+- **Risk:** A user with completion permission can override the bank's imported closing balance with a value that makes adjusted balances agree, then sign off a reconciliation that does not match the imported statement.
+- **Recommended action:** Accept typed balance only when no usable running/closing balance exists for the selected statement period. If an imported statement header has a closing balance, use it as authoritative. Require a statement covering the period or an explicitly audited manual-statement workflow. Reject a caller value that conflicts with imported evidence.
+- **Owner/workstream:** Bank Reconciliation/finance controls developer
+- **Acceptance criteria:** A test with an imported balance and a conflicting typed value cannot complete; a typed value remains supported only for the documented no-balance statement case.
+
+### REM-053 — Reconciliation sign-off and locked-date mutations have TOCTOU races
+
+- **Module:** Bank Reconciliation
+- **Priority:** P1 — signed-off book integrity
+- **Status:** Potential race established by source transaction boundaries; not reproduced
+- **Evidence:** Completion calculates the statement/book position before opening the insert transaction. Import, match, unmatch, clear, delete and create-entry paths call `assertUnlocked` before their mutation transaction and do not recheck the lock inside it.
+- **Risk:** A concurrent completion and mutation can race: sign-off may be based on stale unmatched lines, or a mutation can pass the old lock check and commit after the account/month has been signed off.
+- **Recommended action:** Serialize by ledger account and period using a shared lock/row/advisory lock. Completion must re-read balances/matches under that lock before inserting sign-off; every mutating operation must acquire the same lock and recheck `lockedThrough` inside its transaction.
+- **Owner/workstream:** Bank Reconciliation/Ledger developer
+- **Acceptance criteria:** Two-connection tests prove a completed month cannot be changed and sign-off cannot commit against stale line/match state.
+
+### REM-054 — Imported statement closing balance is stored but ignored by summary fallback
+
+- **Module:** Bank Reconciliation
+- **Priority:** P2 — statement data flow
+- **Status:** Confirmed implementation mismatch
+- **Evidence:** Import stores `BankStatement.closingBalanceKobo`, including caller-supplied closing balance when imported lines have no running balances. `BankStatementRepositoryImpl.balancesUpTo` reads only `BankStatementLine.balanceKobo`; `position` derives fallback balance with `statementBalanceAt` from those lines and never reads the statement header closing balance.
+- **Risk:** A closing balance supplied at import is not used automatically in summary/completion. Users must re-enter it, and can enter a different value.
+- **Recommended action:** Resolve the closing balance from the latest applicable statement header when no line running balance exists, with deterministic overlap/statement-period rules. Avoid asking the caller to retype a value already stored.
+- **Owner/workstream:** Bank Reconciliation developer
+- **Acceptance criteria:** Importing lines without running balances plus a closingBalanceKobo makes summary/completion use that exact stored value.
+
+### REM-055 — CSV parser can silently skip malformed transactions whose narration contains summary keywords
+
+- **Module:** Bank Reconciliation / CSV import
+- **Priority:** P2 — statement import data loss
+- **Status:** Confirmed parser condition; real bank-file reproduction outstanding
+- **Evidence:** `parseBankCsv` skips any row with an unreadable date when any text in the entire row matches `total|brought forward|carried forward|opening|closing|summary|balance`. This check occurs before amount validation and does not require the row to match a known summary shape.
+- **Risk:** A real transaction with an unsupported/malformed date and narration such as “balance transfer” can be silently discarded even when the user did not opt into skipping unreadable rows.
+- **Recommended action:** Detect summary rows using stricter structure/column positions and known labels. If a row contains a plausible amount but has an unreadable date, report it as a problem instead of silently skipping it.
+- **Owner/workstream:** Bank Reconciliation developer
+- **Acceptance criteria:** A malformed transaction with “balance” in its description is returned as an unreadable row; genuine opening/closing/total rows remain safely ignored.
+
+### REM-056 — Occurrence-based dedupe can collapse a genuine duplicate in overlapping statements
+
+- **Module:** Bank Reconciliation / statement import
+- **Priority:** P2 — bank transaction data integrity
+- **Status:** Potential data-loss case derived from key construction; reproduction outstanding
+- **Evidence:** `withDedupeKeys` appends an occurrence counter among rows with identical date/amount/reference/description. The counter is recalculated within each imported file. An overlapping statement containing only the second of two identical same-day transactions assigns it occurrence 1, which may collide with the first occurrence in an earlier import.
+- **Risk:** A genuine transaction can be incorrectly skipped as an already-imported duplicate, understating bank activity.
+- **Recommended action:** Prefer a stable bank transaction identifier/reference or bank-provided sequence. If identical rows have no stable identifier, detect overlap ambiguity and require manual confirmation rather than silently deduping by local occurrence order.
+- **Owner/workstream:** Bank Reconciliation developer
+- **Acceptance criteria:** Tests cover two identical transactions in one file and an overlapping later file containing only one of them; neither genuine transaction is lost.
+
+### REM-057 — Greedy auto-match can produce a suboptimal global assignment
+
+- **Module:** Bank Reconciliation / matching
+- **Priority:** P2 — automatic matching correctness
+- **Status:** Potential algorithmic risk; adversarial case not yet reproduced
+- **Evidence:** `suggestMatches` sorts candidate pairs by local score and greedily claims the strongest unused bank/book pair. It marks local best-score ties ambiguous, but does not solve the global maximum-weight bipartite assignment problem or flag all competing candidate graphs.
+- **Risk:** A locally strongest pair can consume the only book candidate for another bank line, leaving a second true pair unmatched even though an alternative assignment would match both. An incorrect non-ambiguous suggestion may be automatically applied.
+- **Recommended action:** Add adversarial graph tests. Either use a maximum-weight matching algorithm for the candidate graph or mark connected conflict components with competing candidates as ambiguous and leave them for manual review.
+- **Owner/workstream:** Bank Reconciliation developer
+- **Acceptance criteria:** Auto-match never commits a locally greedy assignment that conflicts with a higher-cardinality/better global matching; unresolved conflicts are explicitly flagged.
+
+### REM-058 — Bank reconciliation lacks HTTP and real-Postgres concurrency tests
+
+- **Module:** Bank Reconciliation
+- **Priority:** P2 — verification gap
+- **Status:** Confirmed test inventory finding
+- **Evidence:** `bank-reconciliation.test.ts` uses an in-memory reconciliation world and PostingService. No HTTP route test or populated PostgreSQL migration/concurrency test was found in the inspected suite.
+- **Risk:** Tests do not prove feature/permission middleware, database uniqueness/claim behavior, statement import/sign-off races or transaction rollback under concurrent line mutations.
+- **Recommended action:** Add HTTP tests for import/match/post/complete/reopen permissions and feature gate. Add PostgreSQL tests for REM-052/053/056, duplicate statement import, simultaneous line claims, and delete-vs-match behavior.
+- **Owner/workstream:** Bank Reconciliation backend/QA
+- **Acceptance criteria:** Route and real-database concurrency tests run in CI against disposable tenant schemas.
+
 ## Cross-module verification queue
 
 These are not necessarily defects. They are unfinished verification tasks recorded so the team does not mistake source documentation for production validation.
@@ -596,6 +673,7 @@ These are not necessarily defects. They are unfinished verification tasks record
 | Payroll | Enforce run uniqueness, fix threshold math, transact profile updates, freeze calculation inputs and serialize remittances; add HTTP/DB tests; close REM-037 through REM-043 |
 | Salary Transfers | Block reversal with live transfers, keep reconciliation available when disabled, correct actor/status/precision, and add real DB/HTTP/provider tests; close REM-044 through REM-050 |
 | Finance Settings | Add HTTP and cross-tenant DB isolation tests; close REM-051 |
+| Bank Reconciliation | Enforce imported balance evidence, serialize sign-off/mutations, fix statement data/dedupe/parser and strengthen auto-match; add HTTP/DB tests; close REM-052 through REM-058 |
 | Other module guides | Complete remaining source/schema/migration/test review as stated in each guide before declaring the module fully verified |
 
 ## Developer handoff protocol
@@ -620,3 +698,4 @@ These are not necessarily defects. They are unfinished verification tasks record
 - 2026-11-06: Added payroll run uniqueness, approval threshold, profile atomicity, stale calculation inputs, remittance concurrency and reporting coverage findings.
 - 2026-11-06: Added salary-transfer/payroll reversal guard, disabled-state reconciliation, actor attribution, amount precision, preflight and returned-payment status findings.
 - 2026-11-06: Added finance-settings HTTP and tenant-isolation test coverage finding.
+- 2026-11-06: Added bank reconciliation balance-evidence, sign-off locking, statement import/dedupe/parser, matching and integration-test findings.
