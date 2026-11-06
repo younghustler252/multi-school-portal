@@ -23,6 +23,8 @@ Source code on `refactor/modules` is authoritative when a document and implement
 | Document | Purpose | Status |
 |---|---|---|
 | [Backend Documentation](backend/README.md) | Backend documentation reading path and module audit sequence | Active |
+| [API Conventions](backend/api-conventions.md) | API route composition, tenant/auth middleware, validation, pagination, rate limits and response conventions | Source-reviewed; middleware fixes and OpenAPI work outstanding |
+| [API Error Handling](backend/error-handling.md) | Error classes, HTTP mapping, stable codes and response-envelope behavior | Source-reviewed; response consistency remediation outstanding |
 | [Backend Remediation Register](backend/BACKEND_REMEDIATION_REGISTER.md) | Cumulative developer handoff for confirmed findings, potential risks and verification tasks | Active; updated as module audits progress |
 | [Auth Module](backend/modules/auth.md) | Authentication, sessions, password recovery, invitations and impersonation | Source-reviewed; runtime and integration verification outstanding |
 | [Users Module](backend/modules/users.md) | Profiles, passwords, avatars, sessions and platform user administration | Source-reviewed; runtime and integration verification outstanding |
