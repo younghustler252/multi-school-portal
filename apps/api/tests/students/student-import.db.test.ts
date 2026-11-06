@@ -9,6 +9,8 @@ import { asValue } from "awilix";
 import { createTestSchool, dbTestsEnabled, skipReason, TestSchool } from "../helpers/test-database";
 import { mainBranchId } from "../helpers/test-database";
 import { PreviewStudentImportUseCase, ImportStudentsUseCase } from "../../src/modules/students/usecases/student-import.usecases";
+import { StudentMapper } from "../../src/modules/students/mappers/student.mapper";
+import { StudentRepositoryImpl } from "../../src/modules/students/repositories/student.repository.impl";
 import { NumberSequenceService } from "../../src/shared/services/number-sequence.service";
 import { IMPORT_TEMPLATE } from "../../src/modules/students/domain/student-import.policy";
 
@@ -19,8 +21,9 @@ describe("student import (real database)", { skip: dbTestsEnabled ? false : skip
     let school: TestSchool; const audits: any[] = []; let S: any;
     const actor = { userId: "user-admin" } as any;
     const db = () => (require("../../src/infrastructure/database/prisma/prisma.client") as any).getTenantClient();
-    const preview = (b: Buffer) => new PreviewStudentImportUseCase().execute(school.schoolId, { buffer: b, name: "students.csv" });
-    const run = (b: Buffer) => new ImportStudentsUseCase({ numberSequenceService: new NumberSequenceService(), auditService: { log: async (p: any) => { audits.push(p); } } } as any).execute(school.schoolId, { buffer: b, name: "students.csv" }, actor);
+    const preview = (b: Buffer) => new PreviewStudentImportUseCase({ studentRepository: studentRepository() }).execute(school.schoolId, { buffer: b, name: "students.csv" });
+    const studentRepository = () => new StudentRepositoryImpl({ studentMapper: new StudentMapper() } as any);
+    const run = (b: Buffer) => new ImportStudentsUseCase({ studentRepository: studentRepository(), numberSequenceService: new NumberSequenceService(), auditService: { log: async (p: any) => { audits.push(p); } } } as any).execute(school.schoolId, { buffer: b, name: "students.csv" }, actor);
     const counts = async () => ({ students: await db().student.count(), enrolments: await db().enrolment.count(), guardians: await db().guardian.count(), links: await db().studentGuardian.count() });
     const limit = async (max: number | null) => {
         const { container } = await import("../../src/container"); const { tenantMeters } = await import("../../src/foundation/foundation.container");

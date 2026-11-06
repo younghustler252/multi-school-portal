@@ -1,4 +1,3 @@
-import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
 import { assertWithinPlanLimit } from "../../../infrastructure/middleware/feature-gate.middleware";
 import { AuditService } from "../../audit/services/audit.service";
 import { NumberSequenceService } from "../../../shared/services/number-sequence.service";
@@ -16,7 +15,7 @@ interface Dependencies {
     numberSequenceService: NumberSequenceService; auditService: AuditService; studentPhotoService: StudentPhotoService;
 }
 
-type Tx = Parameters<NumberSequenceService["next"]>[2] & { student: ReturnType<typeof getTenantClient>["student"] };
+export type Tx = Parameters<NumberSequenceService["next"]>[2] & { student: { findUnique(args: any): Promise<unknown> } };
 
 /**
  * Next free admission number for the year. Runs INSIDE the creating transaction, so the counter only moves
@@ -62,20 +61,15 @@ export class CreateStudentUseCase {
 
         const branch = await resolveNewStudentBranch(dto.branchId, actor.staffId);
         const admittedAt = dto.admittedAt ? new Date(dto.admittedAt) : new Date();
-        const db = getTenantClient();
         let created;
         try {
-            created = await db.$transaction(async tx => {
-                const admissionNumber = dto.admissionNumber ?? await nextAdmissionNumber(d.numberSequenceService, tx as unknown as Tx, admittedAt);
-                return tx.student.create({
-                    data: {
-                        admissionNumber, firstName: dto.firstName, lastName: dto.lastName, middleName: dto.middleName,
-                        dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : undefined,
-                        gender: dto.gender, bloodGroup: dto.bloodGroup, address: dto.address, religion: dto.religion,
-                        nationality: dto.nationality, stateOfOrigin: dto.stateOfOrigin, admittedAt, isActive: true, branchId: branch.id,
-                    },
-                });
-            });
+            created = await d.studentRepository.transaction(tx => tx.createStudent({
+                admissionNumber: dto.admissionNumber,
+                firstName: dto.firstName, lastName: dto.lastName, middleName: dto.middleName,
+                dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : undefined,
+                gender: dto.gender, bloodGroup: dto.bloodGroup, address: dto.address, religion: dto.religion,
+                nationality: dto.nationality, stateOfOrigin: dto.stateOfOrigin, admittedAt, isActive: true, branchId: branch.id,
+            }, raw => nextAdmissionNumber(d.numberSequenceService, raw as Tx, admittedAt)));
         } catch (err: any) {
             if (err?.code === "P2002" && dto.admissionNumber) throw studentErrors.admissionNumberTaken();   // two people typed the same number at once
             throw err;

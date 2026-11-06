@@ -76,9 +76,6 @@ describe("architecture rules", () => {
         "src/modules/payroll-transfers/usecases/transfer.usecases.ts",
         "src/modules/payroll/usecases/payroll-shared.ts",
         "src/modules/school-settings/usecases/school-preferences.usecases.ts",
-        "src/modules/students/usecases/create-student.usecase.ts",
-        "src/modules/students/usecases/student-import.usecases.ts",
-        "src/modules/students/usecases/transfer-student.usecase.ts",
         ]);
         const offenders = FILES.filter(f => /\/modules\/[^/]+\/usecases\//.test(f) && /prisma\.client/.test(code(f)) && !WAITING.has(rel(f)));
         assert.deepEqual(offenders.map(rel), [], "these use cases import the database client; add a repository method instead");

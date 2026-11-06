@@ -1,41 +1,36 @@
-import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
 import { assertWithinPlanLimit } from "../../../infrastructure/middleware/feature-gate.middleware";
 import { PlanLimitError } from "../../../shared/errors/domain.errors";
 import { NumberSequenceService } from "../../../shared/services/number-sequence.service";
 import { AuditService } from "../../audit/services/audit.service";
-import { lockClass, activeInClass, wouldOverflow } from "../../enrolment/services/class-seats";
-import { createOrReuseGuardianInTx } from "../../guardians/services/guardian-linking";
+import { wouldOverflow } from "../../enrolment/services/class-seats";
+import type { IStudentRepository } from "../repositories/student.repository";
 import { studentErrors } from "../domain/student.errors";
 import { StudentActor } from "../domain/student.types";
 import { ImportContext, PlannedRow, isFileProblem, parseBirthDate, parseImportCsv, personKey, planImportRows } from "../domain/student-import.policy";
-import { nextAdmissionNumber } from "./create-student.usecase";
+import { nextAdmissionNumber, Tx } from "./create-student.usecase";
 
-interface Dependencies { numberSequenceService: NumberSequenceService; auditService: AuditService }
-type Tx = Parameters<NumberSequenceService["next"]>[2] & { student: ReturnType<typeof getTenantClient>["student"] };
+interface Dependencies { numberSequenceService: NumberSequenceService; auditService: AuditService; studentRepository: IStudentRepository }
 
 /* Reads the file, looks up what already exists in the school, and decides every row (the SAME for preview and import). */
-async function analyse(buffer: Buffer, now: Date) {
+async function analyse(repo: IStudentRepository, buffer: Buffer, now: Date) {
     const parsed = parseImportCsv(buffer);
     if (isFileProblem(parsed)) throw studentErrors.importFile(parsed.message, parsed.code, parsed.missing);
-    const db = getTenantClient();
 
-    const term = await db.term.findFirst({ where: { isCurrent: true }, select: { id: true, name: true } });
-    const classRows = await db.class.findMany({ select: { id: true, name: true, capacity: true } });
-    const enrolled = term ? await db.enrolment.groupBy({ by: ["classId"], where: { termId: term.id, status: { in: ["active", "completed"] } }, _count: { _all: true } }) : [];
-    const enrolledBy = new Map(enrolled.map(e => [e.classId, e._count._all]));
+    const term = await repo.findCurrentTermRef();
+    const classRows = await repo.classesWithPlaces(term?.id ?? null);
 
     const typed = [...new Set(parsed.rows.map(r => (r.admissionNumber ?? "").trim()).filter(Boolean))];
-    const known = typed.length ? await db.student.findMany({ where: { admissionNumber: { in: typed } }, select: { admissionNumber: true } }) : [];
+    const known = await repo.takenAdmissionNumbers(typed);
 
     const dobs = parsed.rows.map(r => (r.dateOfBirth ? parseBirthDate(r.dateOfBirth.trim(), now) : null)).filter((p): p is { date: Date } => !!p && "date" in p).map(p => p.date.getTime());
     const people = new Set<string>();
     if (dobs.length) {
         const from = new Date(Math.min(...dobs)), to = new Date(Math.max(...dobs) + 86_400_000);
-        for (const s of await db.student.findMany({ where: { dateOfBirth: { gte: from, lt: to } }, select: { firstName: true, lastName: true, dateOfBirth: true } })) if (s.dateOfBirth) people.add(personKey(s.firstName, s.lastName, s.dateOfBirth));
+        for (const s of await repo.peopleBornBetween(from, to)) if (s.dateOfBirth) people.add(personKey(s.firstName, s.lastName, s.dateOfBirth));
     }
     const ctx: ImportContext = {
-        now, hasCurrentTerm: !!term, existingAdmissionNumbers: new Set(known.map(k => k.admissionNumber!).filter(Boolean)), existingPeople: people,
-        classes: new Map(classRows.map(c => [c.name.trim().toLowerCase(), { id: c.id, name: c.name, capacity: c.capacity, enrolled: enrolledBy.get(c.id) ?? 0 }])),
+        now, hasCurrentTerm: !!term, existingAdmissionNumbers: new Set(known), existingPeople: people,
+        classes: new Map(classRows.map(c => [c.name.trim().toLowerCase(), { id: c.id, name: c.name, capacity: c.capacity, enrolled: c.enrolled }])),
     };
     return { ...planImportRows(parsed.rows, ctx), term, ignoredColumns: parsed.ignoredColumns, classes: ctx.classes };
 }
@@ -49,8 +44,10 @@ const rowView = (r: PlannedRow, created?: { id: string; name: string; admissionN
 | and whether the plan has room for the new students.
 */
 export class PreviewStudentImportUseCase {
+    constructor(private readonly d: { studentRepository: IStudentRepository }) {}
+
     async execute(schoolId: string, file: { buffer: Buffer; name: string }) {
-        const a = await analyse(file.buffer, new Date());
+        const a = await analyse(this.d.studentRepository, file.buffer, new Date());
         let planLimit: { allowed: boolean; adding: number; limit?: number; current?: number } = { allowed: true, adding: a.summary.ok };
         if (a.summary.ok > 0) {
             try { await assertWithinPlanLimit(schoolId, "student", a.summary.ok); }
@@ -74,7 +71,7 @@ export class ImportStudentsUseCase {
 
     async execute(schoolId: string, file: { buffer: Buffer; name: string }, actor: StudentActor) {
         const now = new Date();
-        const a = await analyse(file.buffer, now);
+        const a = await analyse(this.d.studentRepository, file.buffer, now);
         const ok = a.rows.filter(r => r.status === "ok");
         const created = new Map<number, { id: string; name: string; admissionNumber: string | null }>();
         let guardiansCreated = 0, guardiansLinked = 0;
@@ -83,28 +80,26 @@ export class ImportStudentsUseCase {
             await assertWithinPlanLimit(schoolId, "student", ok.length);
             const termId = a.term?.id;
             try {
-                await getTenantClient().$transaction(async tx => {
+                await this.d.studentRepository.transaction(async tx => {
                     // the class seats are checked again under a lock: another person may have filled a class since the preview
                     const perClass = new Map<string, number>();
                     for (const r of ok) if (r.classId) perClass.set(r.classId, (perClass.get(r.classId) ?? 0) + 1);
                     for (const classId of [...perClass.keys()].sort()) {
-                        await lockClass(tx as any, classId);
                         const info = [...a.classes.values()].find(c => c.id === classId)!;
-                        if (wouldOverflow(info.capacity, await activeInClass(tx as any, classId, termId!), perClass.get(classId)!)) throw studentErrors.importClassFilled(info.name);
+                        if (wouldOverflow(info.capacity, await tx.lockAndCount(classId, termId!), perClass.get(classId)!)) throw studentErrors.importClassFilled(info.name);
                     }
                     for (const r of ok) {
                         const s = r.student!;
-                        const admissionNumber = s.admissionNumber ?? await nextAdmissionNumber(this.d.numberSequenceService, tx as unknown as Tx, now);
-                        const row = await tx.student.create({ data: {
-                            admissionNumber, firstName: s.firstName, lastName: s.lastName, middleName: s.middleName, dateOfBirth: s.dateOfBirth, gender: s.gender, admittedAt: now, isActive: true,
-                        } });
-                        if (r.classId) await tx.enrolment.create({ data: { studentId: row.id, classId: r.classId, termId: termId!, status: "active" } });
+                        const row = await tx.createStudent(
+                            { admissionNumber: s.admissionNumber ?? undefined, firstName: s.firstName, lastName: s.lastName, middleName: s.middleName, dateOfBirth: s.dateOfBirth, gender: s.gender, admittedAt: now, isActive: true },
+                            raw => nextAdmissionNumber(this.d.numberSequenceService, raw as Tx, now));
+                        if (r.classId) await tx.enrol(row.id, r.classId, termId!);
                         if (r.guardian) {
                             const g = r.guardian;
-                            const res = await createOrReuseGuardianInTx(tx as any, { firstName: g.firstName, lastName: g.lastName, email: g.email, phone: g.phone }, { studentId: row.id, relation: g.relation, isPrimary: true });
+                            const res = await tx.linkGuardian({ firstName: g.firstName, lastName: g.lastName, email: g.email, phone: g.phone }, { studentId: row.id, relation: g.relation, isPrimary: true });
                             if (res.outcome === "created") guardiansCreated++; else guardiansLinked++;
                         }
-                        created.set(r.row, { id: row.id, name: `${s.firstName} ${s.lastName}`.trim(), admissionNumber });
+                        created.set(r.row, { id: row.id, name: `${s.firstName} ${s.lastName}`.trim(), admissionNumber: row.admissionNumber });
                     }
                 }, { maxWait: 10_000, timeout: 120_000 });
             } catch (err: any) {
