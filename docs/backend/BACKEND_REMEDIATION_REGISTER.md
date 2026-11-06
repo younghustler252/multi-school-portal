@@ -314,6 +314,50 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Owner/workstream:** Payments/Webhooks developer
 - **Acceptance criteria:** Only intended school-fee events reach this handler, tenant resolution is verified, and metadata/reference mismatches are rejected without confirming the wrong payment.
 
+### REM-028 — Period close can race with journal posting
+
+- **Module:** Ledger / accounting periods
+- **Priority:** P1 — accounting-period integrity
+- **Status:** Potential race established by transaction boundaries; not reproduced against PostgreSQL
+- **Evidence:** `PostingService.openPeriodFor` reads a period and checks `status === OPEN` without locking the period row. `ClosePeriodUseCase` computes the checklist, then `FinancePeriodRepositoryImpl.close` performs a separate conditional OPEN→CLOSED update. There is no shared lock/transaction covering the checklist, close transition and posting's period validation.
+- **Risk:** A posting transaction may read OPEN, then a concurrent close may commit, after which the first transaction can still insert a journal referencing the now-closed period. That violates the rule that no journal may be posted into a closed period.
+- **Recommended action:** Serialize both operations on the same FinancePeriod row. For example, acquire a row lock in the posting transaction before checking status and in close before final checklist/transition, with a consistent lock order. Ensure close re-runs the integrity/checklist under the chosen serialization boundary. Add a two-connection PostgreSQL race test.
+- **Owner/workstream:** Ledger developer
+- **Acceptance criteria:** A posting and close racing for the same period cannot produce a journal committed after closure; either the posting commits before close and is included in checks, or it is rejected as closed.
+
+### REM-029 — Period-close behavior has no dedicated test or HTTP integration suite
+
+- **Module:** Ledger
+- **Priority:** P2 — verification gap
+- **Status:** Confirmed test inventory finding
+- **Evidence:** The inspected finance test tree contains posting, schema, books-usecase, accounts and integrity tests, but no period-close test file and no ledger HTTP router test.
+- **Risk:** Blocker/warning calculation, acknowledgement, end-date checks, reconciliation setting, reopen behavior, middleware and period/posting concurrency are not covered by a focused automated suite.
+- **Recommended action:** Add unit tests for checklist severity and period use cases, PostgreSQL concurrency tests for REM-028, and HTTP tests for close/reopen/checklist permissions, tenant context, validation and response envelopes.
+- **Owner/workstream:** Ledger backend/QA
+- **Acceptance criteria:** Period close and reopen are tested at policy, use-case, PostgreSQL and HTTP layers.
+
+### REM-030 — Finance timezone is globally hard-coded to Africa/Lagos
+
+- **Module:** Ledger / finance-wide date handling
+- **Priority:** P2 — internationalization design decision
+- **Status:** Confirmed implementation; product decision required
+- **Evidence:** `FINANCE_TIMEZONE` is a module constant set to `Africa/Lagos`; posting, period close and finance date helpers use this global value. It is not loaded from school settings.
+- **Risk:** A school operating outside Nigeria will have business dates, future-date validation, period closure and reports interpreted using Lagos time.
+- **Recommended action:** Decide whether timezone is a per-school setting before onboarding other countries. If so, store/validate an IANA timezone during school setup and inject one shared finance clock into every finance module and worker. Do not let modules independently choose timezones.
+- **Owner/workstream:** Platform architecture + finance modules
+- **Acceptance criteria:** A non-Lagos tenant test proves posting, payment, late fee, period close and date reports all use the configured school timezone.
+
+### REM-031 — Required system-account count comment says 17 while registry has 18
+
+- **Module:** Ledger
+- **Priority:** P3 — maintenance/documentation consistency
+- **Status:** Confirmed inconsistency
+- **Evidence:** `REQUIRED_SYSTEM_KEYS` contains 18 entries, while the comments in `ledger.constants.ts`, `ledger-integrity.ts` and `integrity.test.ts` describe 17 accounts.
+- **Risk:** Future maintainers may misread the required account set or incorrectly remove/add a system key while trying to match the documented count.
+- **Recommended action:** Update comments and test descriptions to refer to the actual array length or avoid hard-coded counts.
+- **Owner/workstream:** Ledger developer
+- **Acceptance criteria:** Comments and documentation no longer contradict the source list.
+
 ## Cross-module verification queue
 
 These are not necessarily defects. They are unfinished verification tasks recorded so the team does not mistake source documentation for production validation.
@@ -327,6 +371,7 @@ These are not necessarily defects. They are unfinished verification tasks record
 | Graduation | Validate quota concurrency, audit failure policy and HTTP routes; execute DB/migration tests; close REM-015 through REM-017 |
 | Fees | Fix statement arithmetic and BigInt serialization; align grace-days/timezone settings; add regression, HTTP and DB migration tests; close REM-018 through REM-021 |
 | Payments | Serialize credit consumption/refund reservation; fix settlement precision/idempotency; verify webhook filtering; add HTTP and PostgreSQL concurrency tests; close REM-022 through REM-027 |
+| Ledger | Serialize posting/period close; add period-close and HTTP tests; decide tenant timezone; close REM-028 through REM-031 |
 | Other module guides | Complete remaining source/schema/migration/test review as stated in each guide before declaring the module fully verified |
 
 ## Developer handoff protocol
@@ -346,3 +391,4 @@ These are not necessarily defects. They are unfinished verification tasks record
 - 2026-11-06: Added graduation plan-capacity concurrency, audit reliability and HTTP route coverage findings.
 - 2026-11-06: Added fee-statement arithmetic, BigInt precision, grace-days configuration and finance-timezone findings.
 - 2026-11-06: Added payment-credit concurrency, refund reservation, settlement precision/idempotency and webhook verification findings.
+- 2026-11-06: Added ledger period-close concurrency, period-close test coverage, finance timezone and system-account count findings.
