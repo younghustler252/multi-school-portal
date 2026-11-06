@@ -6,7 +6,7 @@ This directory will contain the canonical, versioned HTTP API contract for the m
 
 <badge>Not yet canonical</badge>
 
-There is **no complete, trustworthy OpenAPI contract** in this repository at this source snapshot.
+There is **no complete, trustworthy OpenAPI contract** in this repository at this source snapshot. The mounted route-file inventory is now documented, but operation-level request/response coverage is still outstanding.
 
 - `docs/swagger.yaml` is an obsolete starter document wrapped in Markdown, not a valid canonical OpenAPI YAML file. Its sample paths and request shapes do not match the current route tree.
 - `apps/api/src/config/swagger.ts` constructs a Swagger JSDoc object, but the application does not import it, mount Swagger UI, expose a JSON document endpoint, or otherwise consume the exported `swaggerSpec`.
@@ -19,7 +19,8 @@ Do not generate frontend clients, publish Swagger UI as an authoritative referen
 
 ## Documents
 
-- [OpenAPI migration plan](OPENAPI_MIGRATION_PLAN.md) — inventory, source-of-truth rules, generation decision and acceptance criteria.
+- [Mounted API route inventory](ROUTE_INVENTORY.md) — route-file and mount composition for the current Express API.
+- [OpenAPI migration plan](OPENAPI_MIGRATION_PLAN.md) — source-of-truth rules, authoring decision and acceptance criteria.
 - [Backend API conventions](../backend/api-conventions.md) — actual route, middleware, validation and response conventions.
 - [Backend error handling](../backend/error-handling.md) — current error classes and response behavior.
 - [Backend remediation register](../backend/BACKEND_REMEDIATION_REGISTER.md) — cross-cutting issues to resolve while implementing the contract.
