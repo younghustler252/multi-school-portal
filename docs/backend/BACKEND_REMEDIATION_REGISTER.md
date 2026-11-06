@@ -490,6 +490,83 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Owner/workstream:** Payroll backend/QA
 - **Acceptance criteria:** Payroll routes and database concurrency invariants are exercised in CI against disposable tenant schemas.
 
+### REM-044 — Payroll reversal can proceed while salary transfers are live
+
+- **Module:** Payroll / Salary Transfers
+- **Priority:** P1 — payroll and bank-payment integrity
+- **Status:** Confirmed missing guard across use cases
+- **Evidence:** `PayRunUseCase` checks the optional `salaryTransferRepository.hasLiveTransfers(runId)` and blocks manual payment. `ReverseRunUseCase` does not perform the corresponding check; it reverses the accrual, restores loan repayments, voids payslips and cancels the run while a transfer may be PENDING/SENDING/PROCESSING/UNKNOWN/SUCCESS.
+- **Risk:** A run can be cancelled and its accrual reversed while a transfer is still being sent or has already succeeded. A later success outcome can post a payment journal against a cancelled run whose accrual has been reversed.
+- **Recommended action:** Inject the salary-transfer repository into the reverse use case and block reversal while any live transfer exists. Require pending transfers to be cancelled and unsettled transfers to be reconciled; define a separate recovery workflow for successful/returned transfers before allowing run reversal.
+- **Owner/workstream:** Payroll + Salary Transfers developers
+- **Acceptance criteria:** A run with any live transfer cannot be reversed; tests cover PENDING, PROCESSING, UNKNOWN and SUCCESS states and verify journal/payslip/run invariants.
+
+### REM-045 — Transfer reconciliation is disabled together with new transfer sending
+
+- **Module:** Salary Transfers
+- **Priority:** P1 — unsettled-payment recovery
+- **Status:** Confirmed behavior
+- **Evidence:** `ReconcileTransfersUseCase.execute` calls `assertEnabled`, which requires both the platform provider switch and school `payrollTransfersEnabled` setting. The same assertion is appropriate for starting/sending/retrying, but reconciliation is also blocked when either switch is off.
+- **Risk:** If transfers are disabled while records are PROCESSING/UNKNOWN, operators cannot query provider state through the reconciliation endpoint. A missed webhook can leave a live transfer stuck and prevent manual payroll payment.
+- **Recommended action:** Separate the switch for initiating new money movement from permission to reconcile existing transfers. Permit reconciliation of already-created unsettled rows while new starts/sends/retries are disabled, subject to authentication and reconcile permission.
+- **Owner/workstream:** Salary Transfers developer
+- **Acceptance criteria:** Turning off either send switch prevents new sends but does not prevent provider verification/reconciliation of existing unsettled transfers.
+
+### REM-046 — Transfer completion attributes run payment to the initiator, not the confirming actor
+
+- **Module:** Salary Transfers / audit
+- **Priority:** P2 — audit attribution
+- **Status:** Confirmed implementation
+- **Evidence:** `TransferOutcomeService.completeRunIfPaid` passes `t.initiatedById` as `paidById` when the final transfer succeeds, including when success is confirmed by a webhook. The payment journal also falls back to `initiatedById` when webhook actor is null.
+- **Risk:** Payroll history can state that the sender paid/confirmed a run even though the bank provider/webhook confirmed the result asynchronously.
+- **Recommended action:** Record a system/provider actor for webhook/reconcile-confirmed outcomes and preserve `initiatedById` as a separate transfer initiator field. Distinguish human send action from provider-confirmed settlement.
+- **Owner/workstream:** Salary Transfers/audit developer
+- **Acceptance criteria:** Journal actor, run paidBy and audit event accurately identify human initiation versus system/provider confirmation.
+
+### REM-047 — Salary-transfer start response converts BigInt batch total to Number
+
+- **Module:** Salary Transfers
+- **Priority:** P2 — financial precision
+- **Status:** Confirmed unsafe conversion
+- **Evidence:** `StartTransfersUseCase` computes the batch total as BigInt but returns `totalKobo: Number(total)`. Transfer amounts are BigInt and configured limits can be zero (unlimited).
+- **Risk:** Large payroll batches can exceed JavaScript's safe integer range and the returned total is rounded.
+- **Recommended action:** Serialize with the shared `koboOut` helper or return a decimal string; keep BigInt for all calculations.
+- **Owner/workstream:** Salary Transfers developer
+- **Acceptance criteria:** A batch total above `Number.MAX_SAFE_INTEGER` kobo is returned exactly and matches the sum of transfer rows.
+
+### REM-048 — Provider-safe transfer amount is checked only during send, after rows are created
+
+- **Module:** Salary Transfers
+- **Priority:** P2 — preflight validation
+- **Status:** Confirmed validation placement
+- **Evidence:** `StartTransfersUseCase` checks configured limits but does not check `Number.MAX_SAFE_INTEGER`. `SendTransfersUseCase.sendOne` checks the limit only after claiming the transfer and creating/resolving the provider recipient.
+- **Risk:** An amount that the provider interface cannot represent can be persisted as PENDING and may create a recipient before it is marked FAILED during send.
+- **Recommended action:** Reject unsupported amount values in start preflight before inserting transfer rows or calling the provider. Also ensure configured single/batch limits never exceed provider-supported values.
+- **Owner/workstream:** Salary Transfers developer
+- **Acceptance criteria:** Unsupported amounts fail before transfer records/recipient setup; no impossible PENDING transfer is created.
+
+### REM-049 — Reversed salary transfer leaves payroll run and payslip marked PAID
+
+- **Module:** Salary Transfers / Payroll
+- **Priority:** P2 — payroll status accuracy
+- **Status:** Confirmed state update omission; desired recovery state needs product decision
+- **Evidence:** A successful transfer marks the run and payslips PAID. A later `transfer.reversed` outcome reverses the payment journal and marks the transfer REVERSED, but does not change the run status or payslip status from PAID.
+- **Risk:** Payroll screens/reports can continue to show an employee as paid after the bank returned the salary. The retry flow permits a new attempt, but until it succeeds the run still appears fully paid.
+- **Recommended action:** Define a returned/partially-paid run state or derive paid completion from current SUCCESS transfers. Recompute run/payslip payment status after a reversal and after retry success.
+- **Owner/workstream:** Payroll/Salary Transfers product + backend
+- **Acceptance criteria:** A returned transfer makes the run/payslip accurately reflect unpaid/returned state; a successful retry restores the correct paid state.
+
+### REM-050 — Salary transfers lack real-Postgres and HTTP/provider integration coverage
+
+- **Module:** Salary Transfers
+- **Priority:** P2 — verification gap
+- **Status:** Confirmed test inventory finding
+- **Evidence:** `payroll-transfers.test.ts` uses an in-memory transfer repository and scripted provider. No salary-transfer HTTP router test, real partial-index concurrency test or real provider/webhook signature integration test was found.
+- **Risk:** Tests do not prove the database one-live-transfer constraint, cross-module payroll reversal guard, tenant reference resolution, provider retry semantics or route permissions.
+- **Recommended action:** Add PostgreSQL tests for concurrent start/retry and one-live-transfer uniqueness; HTTP tests for permissions/feature switches/reconcile; provider sandbox tests for timeout, duplicate reference, webhook and reversal.
+- **Owner/workstream:** Salary Transfers backend/QA
+- **Acceptance criteria:** Real database, HTTP and provider integration tests cover the money-movement lifecycle before platform/school switches are enabled.
+
 ## Cross-module verification queue
 
 These are not necessarily defects. They are unfinished verification tasks recorded so the team does not mistake source documentation for production validation.
@@ -506,6 +583,7 @@ These are not necessarily defects. They are unfinished verification tasks record
 | Ledger | Serialize posting/period close; add period-close and HTTP tests; decide tenant timezone; close REM-028 through REM-031 |
 | Expenses | Fix run-now approval boundary, serialize budget checks, transact line replacement, correct system actor attribution and add recurring tests; close REM-032 through REM-036 |
 | Payroll | Enforce run uniqueness, fix threshold math, transact profile updates, freeze calculation inputs and serialize remittances; add HTTP/DB tests; close REM-037 through REM-043 |
+| Salary Transfers | Block reversal with live transfers, keep reconciliation available when disabled, correct actor/status/precision, and add real DB/HTTP/provider tests; close REM-044 through REM-050 |
 | Other module guides | Complete remaining source/schema/migration/test review as stated in each guide before declaring the module fully verified |
 
 ## Developer handoff protocol
@@ -528,3 +606,4 @@ These are not necessarily defects. They are unfinished verification tasks record
 - 2026-11-06: Added ledger period-close concurrency, period-close test coverage, finance timezone and system-account count findings.
 - 2026-11-06: Added recurring run-now authorization, budget concurrency/atomicity, system actor attribution and recurring test coverage findings.
 - 2026-11-06: Added payroll run uniqueness, approval threshold, profile atomicity, stale calculation inputs, remittance concurrency and reporting coverage findings.
+- 2026-11-06: Added salary-transfer/payroll reversal guard, disabled-state reconciliation, actor attribution, amount precision, preflight and returned-payment status findings.
