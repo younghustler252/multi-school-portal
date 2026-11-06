@@ -255,7 +255,7 @@ Mount: `/school-settings`. All routes use authenticated school tenant guards.
 | POST | `/stamp` | `school_settings.manage`; multipart upload field `stamp`; tenant context re-established |
 | POST | `/signature` | `school_settings.manage`; multipart upload field `signature`; tenant context re-established |
 
-The two upload declarations shown do not include an explicit route-local Multer size limit in this route file. Inspect the shared upload configuration and storage validation before documenting limits.
+Both uploads use in-memory Multer storage, a one-file limit and `BRANDING_IMAGE_MAX_BYTES`; the domain route comment specifies PNG, JPEG or WebP up to 2 MB. The controller rejects missing files and delegates image validation/storage to `UploadStampUseCase`.
 
 ## Webhooks — 5 operations
 
