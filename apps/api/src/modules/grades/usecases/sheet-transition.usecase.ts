@@ -1,6 +1,5 @@
 import type { Access } from "../../../foundation/access.service";
 import { AuditService } from "../../audit/services/audit.service";
-import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
 import { GradesSheetsRepository } from "../repositories/grades-sheets.repository";
 import { mayWorkOnSheet } from "../services/grades-scope";
 import { lockSheet, recomputeSheet } from "../services/sheet-writer";
@@ -26,7 +25,7 @@ export class SheetTransitionUseCase {
     constructor(private readonly d: Dependencies) {}
 
     async execute(action: SheetAction, schoolId: string, classSubjectId: string, input: { reason?: string }, access: Access, actor: { userId: string }) {
-        const repo = this.d.gradesSheetsRepository; const db = getTenantClient();
+        const repo = this.d.gradesSheetsRepository;
         const cs = await repo.classSubject(classSubjectId);
         if (!cs) throw gradesErrors.sheetNotFound();
         const owner = { staffId: cs.staffId, classTeacherId: cs.class.classTeacherId };
@@ -52,7 +51,7 @@ export class SheetTransitionUseCase {
         const onList = new Set(students.map(e => e.studentId));
         const now = new Date(); let regraded = 0;
 
-        const to = await db.$transaction(async tx => {
+        const to = await repo.transaction(async tx => {
             await lockSheet(tx, sheet.id);
             const fresh = await tx.resultSheet.findUnique({ where: { id: sheet.id } });
             const target = fresh ? nextStatus(action, fresh.status) : null;
@@ -86,7 +85,7 @@ export class SheetTransitionUseCase {
             }
             await tx.resultSheet.update({ where: { id: sheet.id }, data });
             return target;
-        }, { maxWait: 5000, timeout: 30000 });
+        });
 
         await this.d.auditService.log({
             userId: actor.userId, schoolId, action: `grades.sheet_${DONE[action]}`, entity: "ResultSheet", entityId: sheet.id,

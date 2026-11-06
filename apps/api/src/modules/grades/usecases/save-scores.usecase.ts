@@ -1,6 +1,5 @@
 import type { Access } from "../../../foundation/access.service";
 import { AuditService } from "../../audit/services/audit.service";
-import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
 import { GradesSheetsRepository } from "../repositories/grades-sheets.repository";
 import { StudentRef, studentRef } from "../services/grades-presenter";
 import { mayWorkOnSheet } from "../services/grades-scope";
@@ -33,7 +32,7 @@ export class SaveScoresUseCase {
     constructor(private readonly d: Dependencies) {}
 
     async execute(schoolId: string, classSubjectId: string, dto: SaveScoresDtoType, access: Access, actor: { userId: string }): Promise<SaveScoresResult> {
-        const repo = this.d.gradesSheetsRepository; const db = getTenantClient();
+        const repo = this.d.gradesSheetsRepository;
         const cs = await repo.classSubject(classSubjectId);
         if (!cs) throw gradesErrors.sheetNotFound();
         if (!access.can("grades.enter") || !mayWorkOnSheet(access, "grades.enter", { staffId: cs.staffId, classTeacherId: cs.class.classTeacherId })) throw gradesErrors.notYourSheet();
@@ -56,7 +55,7 @@ export class SaveScoresUseCase {
         const changes: Array<{ student: string; part: string; from: string; to: string }> = [];
         let parts: SheetPart[] = sheet.components as unknown as SheetPart[];
 
-        await db.$transaction(async tx => {
+        await repo.transaction(async tx => {
             await lockSheet(tx, sheet.id);
             const fresh = await tx.resultSheet.findUnique({ where: { id: sheet.id } });
             if (!fresh || !canEditScores(fresh.status)) throw gradesErrors.notEditable(fresh?.status ?? "missing");
@@ -92,9 +91,9 @@ export class SaveScoresUseCase {
                 saved++;
             }
             await recomputeSheet(tx, sheet.id, parts, bands, new Set(onList.keys()), { regrade: false });
-        }, { maxWait: 5000, timeout: 30000 });
+        });
 
-        const complete = await db.grade.count({ where: { sheetId: sheet.id, total: { not: null }, studentId: { in: [...onList.keys()] } } });
+        const complete = await repo.completeCount(sheet.id, [...onList.keys()]);
         if (saved > 0) await this.d.auditService.log({
             userId: actor.userId, schoolId, action: "grades.scores_saved", entity: "ResultSheet", entityId: sheet.id,
             newValue: { class: cs.class.name, subject: cs.subject.name, term: `${cs.term.session?.name ?? ""} ${cs.term.name}`.trim(), saved, unchanged, skipped: skipped.length, changes: changes.slice(0, 100) },

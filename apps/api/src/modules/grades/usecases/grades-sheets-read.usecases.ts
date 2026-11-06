@@ -1,5 +1,4 @@
 import type { Access } from "../../../foundation/access.service";
-import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
 import { buildPaginationMeta } from "../../../shared/utils/pagination";
 import { GradesSheetsRepository } from "../repositories/grades-sheets.repository";
 import { NameRef, StudentRef, TermRef, staffRef, studentRef, termRef } from "../services/grades-presenter";
@@ -15,7 +14,7 @@ export class ListSheetsUseCase {
     constructor(private readonly d: Dependencies) {}
 
     async execute(query: ListSheetsQueryType, access: Access) {
-        const repo = this.d.gradesSheetsRepository; const db = getTenantClient();
+        const repo = this.d.gradesSheetsRepository;
         const term = query.termId ? { id: query.termId } : await repo.currentTerm();
         if (!term) return { data: [], meta: buildPaginationMeta(0, query.page, query.limit) };
 
@@ -24,19 +23,10 @@ export class ListSheetsUseCase {
             ...(query.classId ? [{ classId: query.classId }] : []), ...(query.subjectId ? [{ subjectId: query.subjectId }] : []),
             ...(query.status ? [query.status === "draft" ? { OR: [{ sheet: null }, { sheet: { status: "draft" } }] } : { sheet: { status: query.status } }] : []),
         ] };
-        const [total, rows] = await Promise.all([
-            db.classSubject.count({ where }),
-            db.classSubject.findMany({ where, orderBy: [{ class: { name: "asc" } }, { subject: { name: "asc" } }], skip: (query.page - 1) * query.limit, take: query.limit,
-                include: { class: { select: { id: true, name: true } }, subject: { select: { id: true, name: true, code: true } }, staff: { select: { id: true, firstName: true, lastName: true } },
-                           term: { select: { id: true, name: true, session: { select: { id: true, name: true } } } }, sheet: { select: { id: true, status: true } } } }),
-        ]);
+        const { total, rows } = await repo.sheetsPage(where, (query.page - 1) * query.limit, query.limit);
         // How far along: students on each class list, and how many have a complete set of scores (two grouped queries, not one per sheet)
         const classIds = [...new Set(rows.map(r => r.classId))]; const csIds = rows.map(r => r.id);
-        const [onList, done] = await Promise.all([
-            classIds.length ? db.enrolment.groupBy({ by: ["classId"], where: { classId: { in: classIds }, termId: term.id, status: { in: ["active", "completed"] } }, _count: { _all: true } }) : [],
-            csIds.length ? db.grade.groupBy({ by: ["classSubjectId"], where: { classSubjectId: { in: csIds }, total: { not: null } }, _count: { _all: true } }) : [],
-        ]);
-        const listBy = new Map(onList.map(x => [x.classId, x._count._all])); const doneBy = new Map(done.map(x => [x.classSubjectId, x._count._all]));
+        const { listBy, doneBy } = await repo.sheetProgress(classIds, csIds, term.id);
         return {
             data: rows.map(r => ({
                 classSubjectId: r.id, status: (r.sheet?.status ?? "draft") as SheetStatus, class: { id: r.class.id, name: r.class.name },
@@ -103,20 +93,13 @@ export class ListGradesUseCase {
     constructor(private readonly d: Dependencies) {}
 
     async execute(query: ListGradesQueryType, access: Access) {
-        const db = getTenantClient();
         const filters: Record<string, unknown>[] = [gradesViewWhere(access)];
         if (query.studentId) filters.push({ studentId: query.studentId });
         if (query.termId)    filters.push({ termId: query.termId });
         if (query.classId)   filters.push({ classSubject: { classId: query.classId } });
         if (query.subjectId) filters.push({ classSubject: { subjectId: query.subjectId } });
         const where = { AND: filters };
-        const [total, rows] = await Promise.all([
-            db.grade.count({ where }),
-            db.grade.findMany({ where, orderBy: [{ term: { startDate: "desc" } }, { createdAt: "desc" }], skip: (query.page - 1) * query.limit, take: query.limit,
-                include: { scores: true, sheet: { select: { status: true, components: true } }, student: { select: { id: true, firstName: true, lastName: true, admissionNumber: true } },
-                           classSubject: { select: { class: { select: { id: true, name: true } }, subject: { select: { id: true, name: true, code: true } } } },
-                           term: { select: { id: true, name: true, session: { select: { id: true, name: true } } } } } }),
-        ]);
+        const { total, rows } = await this.d.gradesSheetsRepository.gradesPage(where, (query.page - 1) * query.limit, query.limit);
         return {
             data: rows.map(g => {
                 const parts = g.sheet.components as unknown as SheetPart[];
