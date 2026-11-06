@@ -122,6 +122,8 @@ The fee-payment webhook handler resolves the school from the signed event's meta
 
 ## Gateway settlement
 
+**Important:** The legacy Payments endpoint POST /api/v1/payments/online/settlements is a gross/fee-only journal operation and does not create per-payment GatewaySettlementItem records. The itemized Gateway Settlements module is the intended reconciliation workflow. Both routes are currently mounted and conflict; see REM-074. Do not use the legacy endpoint until it is retired or delegates to the itemized workflow.
+
 A settlement moves gross online collections out of Online Clearing:
 
 - Debit bank for net received (`gross - fee`).
