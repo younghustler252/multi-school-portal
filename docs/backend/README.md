@@ -12,7 +12,7 @@ This section documents the backend implementation for developers building and ma
 6. [API conventions](api-conventions.md) — route composition, tenant/auth middleware, validation, pagination, rate limits and response conventions.
 7. [Error handling](error-handling.md) — error classes, status/code mapping and response envelopes.
 8. [Backend remediation register](BACKEND_REMEDIATION_REGISTER.md) — cumulative developer handoff of confirmed findings, potential risks and verification tasks.
-9. OpenAPI contract — next, after route/DTO coverage and response behavior have been audited.
+9. [API contract documentation](../api/README.md) and [OpenAPI migration plan](../api/OPENAPI_MIGRATION_PLAN.md) — contract readiness and implementation sequence.
 
 ## Module guides
 
@@ -116,6 +116,6 @@ The source inventory contains 34 top-level API module directories. Each has a co
 
 The graduation lifecycle guide is a cross-module guide, not a separate source module, so the total is 34 module folders plus that lifecycle guide.
 
-The remaining backend documentation work is API conventions, error handling and OpenAPI contract coverage. After those contracts are complete, document the target frontend architecture and integration requirements against the verified backend—not the outdated frontend implementation.
+The backend source-documentation pass and API convention/error-handling guides are complete. The remaining contract work is to implement and validate the full OpenAPI 3.1 document according to the migration plan. After that contract is complete, document the target frontend architecture and integration requirements against the verified backend—not the outdated frontend implementation.
 
 The frontend is intentionally not being documented as the current implementation while it remains behind the backend. Frontend implementation documentation will follow the backend contract audit.
