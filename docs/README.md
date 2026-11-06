@@ -44,6 +44,7 @@ Source code on `refactor/modules` is authoritative when a document and implement
 | [Ledger Module](backend/modules/ledger.md) | Chart of accounts, journal posting/reversal, periods, reports and integrity checks | Source-reviewed; period-close concurrency, HTTP and runtime verification outstanding |
 | [Expenses Module](backend/modules/expenses.md) | Vendors, expense approvals, bills, outgoing payments, budgets, recurring expenses and expense reports | Source-reviewed; recurring authorization, budget concurrency and runtime verification outstanding |
 | [Payroll Module](backend/modules/payroll.md) | Pay components/profiles, monthly runs, payslips, loans, remittances and accounting | Source-reviewed; database uniqueness, profile atomicity, HTTP and concurrency verification outstanding |
+| [Salary Transfers Module](backend/modules/payroll-transfers.md) | Bank salary transfers, provider state machine, reconciliation, retries and transfer journals | Source-reviewed; reversal guard, disabled-state reconciliation and provider integration verification outstanding |
 
 ## Workstream handoffs and operational guides
 
