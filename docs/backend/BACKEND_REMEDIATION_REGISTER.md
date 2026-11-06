@@ -721,6 +721,105 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Owner/workstream:** Plans/Subscriptions developer
 - **Acceptance criteria:** A plan cannot be deactivated into an inconsistent state with outstanding invoices; test both the reservation and late-payment behavior.
 
+### REM-065 — Plan price DTO accepts values larger than public Prisma Int columns
+
+- **Module:** Plans / Subscriptions
+- **Priority:** P2 — API/schema contract mismatch
+- **Status:** Confirmed mismatch
+- **Evidence:** Plan DTO accepts kobo amounts up to 10,000,000,000. Public Prisma fields monthlyPriceKobo, yearlyPriceKobo and setupFeeKobo are Int (maximum 2,147,483,647); SubscriptionInvoice and PaymentAttempt kobo fields are also Int.
+- **Risk:** A platform administrator can submit a value that passes Zod validation but fails during Prisma persistence, returning a database error instead of a validation error. The same cap affects invoice/payment amounts.
+- **Recommended action:** Either reduce DTO/domain max to the signed 32-bit limit with a clear error, or migrate all connected plan/invoice/payment amount fields to BigInt and update provider/serialization contracts consistently.
+- **Owner/workstream:** Plans/Subscriptions developer
+- **Acceptance criteria:** Maximum accepted amount is representable in every persistence column and round-trips without database errors.
+
+### REM-066 — One invoice can have multiple live checkout attempts
+
+- **Module:** Subscriptions / Billing Engine
+- **Priority:** P1 — duplicate gateway charge risk
+- **Status:** Confirmed startCheckout behavior; concurrent provider charge reproduction outstanding
+- **Evidence:** `BillingEngine.startCheckout` checks invoice status, counts existing attempts and creates a new unique reference. It does not claim the invoice, reuse an existing pending attempt or prevent another pending checkout for the same invoice. Concurrent/repeated calls can create C1, C2, etc.
+- **Risk:** A school can receive multiple checkout URLs for the same invoice. If more than one is paid, the first applies the invoice and later captures are only marked duplicate; the platform has already received multiple charges.
+- **Recommended action:** Enforce one active pending checkout attempt per invoice. Reuse a still-valid pending attempt or atomically expire/abandon the previous attempt before creating another. Add a database-backed claim/partial unique index and concurrent HTTP tests.
+- **Owner/workstream:** Subscriptions/Billing developer
+- **Acceptance criteria:** Repeated/concurrent pay requests return one live checkout reference; only one provider charge can be captured for the invoice.
+
+### REM-067 — Billing lifecycle can overwrite a payment-confirmed subscription state
+
+- **Module:** Subscriptions / Billing Lifecycle
+- **Priority:** P1 — subscription entitlement integrity
+- **Status:** Potential race established by stale query/update sequence
+- **Evidence:** The past-due step selects open renewal invoices, then updates subscriptions by ID/status without rechecking the invoice remains open. The lapse/period-end moveToFree path reads the subscription and updates it plus open invoices without locking/rechecking the invoice/subscription state in the same transaction as payment application.
+- **Risk:** A payment can be confirmed after the lifecycle query but before the state update; a stale past-due/lapse/cancel action can then mark a paid subscription past_due or move it to Free.
+- **Recommended action:** Serialize payment application and lifecycle transitions on the subscription/invoice rows. Recheck invoice status and subscription period/status inside the transition transaction before changing entitlements or voiding/uncollectible invoices.
+- **Owner/workstream:** Subscriptions/Billing Lifecycle developer
+- **Acceptance criteria:** Concurrent payment confirmation and past-due/lapse/cancel processing always produce a state consistent with the committed invoice status.
+
+### REM-068 — Payments for different invoices of one subscription are not serialized on the subscription row
+
+- **Module:** Subscriptions / Billing Engine
+- **Priority:** P1 — plan/period consistency
+- **Status:** Potential concurrency risk established by source
+- **Evidence:** `applyPaid` locks the specific SubscriptionInvoice row. `applyInvoice` then reads the related Subscription and updates plan, billing cycle and period without locking the Subscription row or checking a version. Renewal and upgrade invoices for the same subscription are distinct invoice rows.
+- **Risk:** Two successful payments for different invoices can concurrently update the same subscription period/plan, void competing invoices and race with one another. The final subscription state may depend on transaction timing while both charges have succeeded.
+- **Recommended action:** Lock the Subscription row in the same transaction before applying any invoice, then re-evaluate whether the invoice is still applicable against current subscription state. Define precedence for renewal vs upgrade and make superseded captures recoverable.
+- **Owner/workstream:** Subscriptions/Billing developer
+- **Acceptance criteria:** Concurrent successful payments for different invoices cannot produce conflicting subscription state or silently strand a captured payment.
+
+### REM-069 — Coupon maxUses conditional increment result is ignored
+
+- **Module:** Subscriptions / Coupons
+- **Priority:** P2 — discount entitlement integrity
+- **Status:** Confirmed implementation gap
+- **Evidence:** CouponService validates usedCount < maxUses when preparing a quote. During invoice application, BillingEngine increments usedCount with a conditional SQL UPDATE, but ignores the affected-row count and still marks the invoice paid/applies the discounted plan.
+- **Risk:** Two invoices can both be quoted with the last coupon use; the second conditional increment can affect zero rows while its discount is still honored.
+- **Recommended action:** Reserve coupon usage atomically when issuing the invoice or check the update row count during application and define a safe outcome if the coupon limit was consumed. Do not silently apply a discount beyond maxUses.
+- **Owner/workstream:** Subscriptions/Coupons developer
+- **Acceptance criteria:** Concurrent purchases cannot exceed maxUses; a coupon limit race cannot leave a discounted paid invoice without a counted use or explicit compensation.
+
+### REM-070 — Captured payments that cannot be applied have no recovery workflow
+
+- **Module:** Subscriptions / Billing Engine
+- **Priority:** P1 — captured-money reconciliation
+- **Status:** Confirmed behavior; operational impact needs provider reconciliation
+- **Evidence:** On a verified success for a void invoice, BillingEngine marks the attempt successful and returns paid_on_void after audit. On amount/currency mismatch it marks the attempt failed and returns mismatch. On a second capture for an already-paid invoice it records duplicate. None of these paths creates a refund, suspense record or actionable support queue item.
+- **Risk:** Money can be captured by the provider without being applied to an invoice or subscription, and the invoice may remain open/void while the provider has received funds.
+- **Recommended action:** Persist a first-class exception state for captured-but-unapplied funds, alert platform billing support, expose it in platform billing reports, and provide a refund/manual reconciliation action. Never treat a provider success with mismatched amount as an ordinary failed payment.
+- **Owner/workstream:** Subscriptions/Platform Billing developer
+- **Acceptance criteria:** paid_on_void, duplicate capture and amount mismatch create an actionable reconciliation record and cannot be silently lost.
+
+### REM-071 — Platform invoice overdue query parses the string false as true
+
+- **Module:** Subscriptions / Platform Billing API
+- **Priority:** P2 — query contract correctness
+- **Status:** Confirmed DTO behavior
+- **Evidence:** `ListPlatformInvoicesQuery.overdue` uses `z.coerce.boolean()`. JavaScript Boolean("false") is true, so query string `?overdue=false` is parsed as true.
+- **Risk:** Platform invoice listing unexpectedly filters to overdue invoices when the client explicitly asks for overdue=false.
+- **Recommended action:** Use explicit string parsing for true/false (or a shared boolean query schema) and reject invalid values.
+- **Owner/workstream:** Subscriptions API developer
+- **Acceptance criteria:** HTTP tests prove overdue=true filters overdue, overdue=false disables the filter, and invalid strings are rejected.
+
+### REM-072 — Subscription/billing lifecycle has no dedicated automated test suite
+
+- **Module:** Subscriptions
+- **Priority:** P2 — verification gap
+- **Status:** Confirmed test inventory finding
+- **Evidence:** No dedicated subscription/billing test files were found in the inspected apps/api/tests tree. No route, provider, lifecycle or PostgreSQL concurrency coverage was available for this module.
+- **Risk:** Checkout, coupon usage, dunning, paid-on-void, plan changes, lifecycle races, manual platform payment and webhook behavior can regress without automated verification.
+- **Recommended action:** Add unit/use-case tests for billing calendar/proration/coupons; HTTP tests for school/platform routes; provider/webhook tests; and PostgreSQL concurrency tests for REM-066 through REM-069.
+- **Owner/workstream:** Subscriptions backend/QA
+- **Acceptance criteria:** Billing engine and lifecycle behavior are covered at policy, use-case, HTTP, provider and real-DB layers in CI.
+
+### REM-073 — One-live-subscription-per-school is not enforced at the database boundary
+
+- **Module:** Subscriptions / Provisioning
+- **Priority:** P2 — tenant billing identity
+- **Status:** Schema/repository invariant gap; creation-path reproduction outstanding
+- **Evidence:** Public Subscription has an index on schoolId/status but no unique schoolId constraint or partial unique index for LIVE_STATUSES. `findActiveBySchoolId` returns the newest live row with findFirst rather than detecting multiple live subscriptions.
+- **Risk:** A provisioning retry or concurrent subscription creation can leave multiple live subscriptions for one school; billing summary/entitlements then silently choose the newest while other lifecycle jobs may process all live rows.
+- **Recommended action:** Verify every subscription creation/bootstrap path is idempotent and add a partial unique index allowing at most one live subscription per school (while retaining cancelled/expired history). Add duplicate-detection migration preflight.
+- **Owner/workstream:** Platform Provisioning/Subscriptions developer
+- **Acceptance criteria:** A school cannot have more than one trialing/active/past_due subscription; repository reads fail loudly if legacy duplicates exist.
+
 ## Cross-module verification queue
 
 These are not necessarily defects. They are unfinished verification tasks recorded so the team does not mistake source documentation for production validation.
@@ -742,6 +841,7 @@ These are not necessarily defects. They are unfinished verification tasks record
 | Bank Reconciliation | Enforce imported balance evidence, serialize sign-off/mutations, fix statement data/dedupe/parser and strengthen auto-match; add HTTP/DB tests; close REM-052 through REM-058 |
 | Finance Reports | Bound query materialization, add statement/catalogue/CSV/HTTP tests and verify accountant feature grants; close REM-059 through REM-061 |
 | Plans | Align zero-limit presentation, make plan+entitlement writes atomic, and handle deactivation with open invoices; close REM-062 through REM-064 |
+| Subscriptions | Prevent duplicate checkout attempts, serialize billing lifecycle/apply transitions, enforce coupon limits, recover captured-but-unapplied funds and add full billing tests; close REM-065 through REM-073 |
 | Other module guides | Complete remaining source/schema/migration/test review as stated in each guide before declaring the module fully verified |
 
 ## Developer handoff protocol
@@ -769,3 +869,4 @@ These are not necessarily defects. They are unfinished verification tasks record
 - 2026-11-06: Added bank reconciliation balance-evidence, sign-off locking, statement import/dedupe/parser, matching and integration-test findings.
 - 2026-11-06: Added finance-report materialization limits, missing test coverage and accountant entitlement verification findings.
 - 2026-11-06: Added plan entitlement display, atomic plan creation/clone and deactivation-with-open-invoice findings.
+- 2026-11-06: Added subscription amount schema mismatch, duplicate checkout, lifecycle concurrency, coupon max-use, captured-payment recovery, query parsing and live-subscription uniqueness findings.
