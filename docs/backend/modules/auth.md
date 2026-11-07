@@ -197,14 +197,27 @@ The typed authenticated result contains:
 
 The controller also sets HttpOnly cookies when a result is authenticated. It does not set new auth cookies for the selection-only login results.
 
-### Login selection results
+### Login results
 
-Login can return one of two non-authenticated data shapes:
+`POST /login` returns one of these in `data` (typed in `@schoolos/contracts`, `auth.ts`). Only the first carries tokens.
 
-- `{ status: "PERSONA_SELECTION_REQUIRED", personas: PersonaType[] }`
-- `{ status: "SCHOOL_SELECTION_REQUIRED", schools: { id, name, url }[] }`
+| `status` | Where | Meaning |
+|---|---|---|
+| `AUTHENTICATED` | school or platform address | Signed in; tokens are also set as HttpOnly cookies |
+| `PERSONA_SELECTION_REQUIRED` `{ personas }` | school address | Several profiles in this school: repeat the login with `persona` |
+| `SCHOOL_REDIRECT` `{ school }` | platform address | Exactly one school the person can enter: go to `school.url` and sign in there |
+| `SCHOOL_SELECTION_REQUIRED` `{ schools, suggestedSchoolId }` | platform address | Several schools: let the person choose; the last-used school (if still allowed) is `suggestedSchoolId` and listed first |
 
-These results do not contain tokens. The frontend must handle these states rather than treating every successful HTTP response as an authenticated session.
+How a platform-address login resolves (password already proven):
+1. An active platform membership keeps the platform session (unchanged).
+2. Otherwise the person's **eligible schools** are worked out. `UserSchool` only helps *find* schools; it grants nothing. A school is eligible only if it is active, its database is built, **and** the person holds an ACTIVE tenant `Membership` there (checked in that school's own schema). A school that cannot be checked is left out.
+3. One eligible school gives `SCHOOL_REDIRECT`, several give `SCHOOL_SELECTION_REQUIRED`, none gives the same generic 401 "invalid credentials" as a wrong password (the audit log records `no_eligible_school`).
+
+`SCHOOL_REDIRECT` is **routing, not authentication**: no token, cookie or session is created, and the person signs in again on the school's address, where the tenant membership is verified again. Nothing is shared between addresses. `User.lastSchoolId` is set when a school session is created and is only a suggestion hint, never used for access.
+
+Seamless sign-in (no second login) is deliberately not part of this. If we want it, it needs its own design: a short-lived, single-use, school-bound exchange code (like the impersonation ticket), never cookies shared across addresses or tokens in a redirect URL.
+
+The frontend must switch on `status`, never treat every successful HTTP response as a session.
 
 ### Endpoint-specific data
 
@@ -364,7 +377,7 @@ The frontend should consume the Auth module as follows:
 1. Treat `/api/v1/auth` as the API prefix.
 2. Support school-host and platform-host contexts; do not send a school ID as the tenant-selection authority.
 3. Send access tokens as Bearer tokens for non-cookie clients; web clients can use the HttpOnly cookies established by the API.
-4. Handle login's three distinct outcomes: authenticated, persona selection required and school selection required.
+4. Handle login's distinct outcomes: authenticated, persona selection required, school redirect and school selection required.
 5. Handle cookie-based refresh and logout; refresh/logout can work without a valid access token.
 6. Handle `mustChangePassword` and the `MUST_CHANGE_PASSWORD` response as a restricted session state.
 7. For invite acceptance, call invite validation first and use `accountExists` to select the existing-account or new-account form.

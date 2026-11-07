@@ -1,8 +1,10 @@
 import type { Scope } from "../../../foundation/access.service";
 import { PrismaClient } from "../../../generated/public/client";
 import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
+import { TenantContext } from "../../../infrastructure/database/prisma/tenant.context";
+import { isValidSchemaName } from "../../../shared/utils/schema-name";
 import { UrlService } from "../../../shared/services/url.service";
-import { PersonaType } from "../types/auth.types";
+import { PersonaType, SchoolRef } from "../types/auth.types";
 import { authErrors } from "../domain/auth.errors";
 import { EMPLOYEE_ID_SEQUENCE, formatEmployeeId } from "../../staff/domain/staff.policy";
 
@@ -60,6 +62,32 @@ export class MembershipService {
             select: { school: { select: { id: true, name: true, subdomain: true, customDomain: true, customDomainVerifiedAt: true } } },
         });
         return links.map(l => ({ id: l.school.id, name: l.school.name, url: this.urls.schoolUrl(l.school) }));
+    }
+
+    /*
+    | The schools this person can really sign in to. UserSchool only says "this person is linked to that school" (it is how
+    | we FIND schools); it grants nothing. A school counts only when it is live (active, built) AND the person holds an
+    | ACTIVE tenant Membership there, which is checked in that school's own schema. A school that cannot be checked
+    | (database error, bad schema) is left out, never guessed in.
+    */
+    async listEligibleSchools(userId: string): Promise<SchoolRef[]> {
+        const links = await this.prisma.userSchool.findMany({
+            where: { userId, school: { isActive: true, status: "active", deletedAt: null, schemaProvisionedAt: { not: null }, schemaName: { not: null } } },
+            select: { school: { select: { id: true, name: true, subdomain: true, customDomain: true, customDomainVerifiedAt: true, schemaName: true } } },
+        });
+        const checked = await Promise.all(links.map(async ({ school }) => {
+            if (!isValidSchemaName(school.schemaName)) return null;
+            try {
+                const active = await TenantContext.run({ tenantSchema: school.schemaName, schoolId: school.id }, () => this.listActive(userId));
+                return active.length > 0 ? school : null;
+            } catch (err) {
+                console.error(`Could not verify membership of user ${userId} in school ${school.id}:`, err instanceof Error ? err.message : err);
+                return null;
+            }
+        }));
+        return checked.filter((s): s is NonNullable<typeof s> => !!s)
+            .map(s => ({ id: s.id, name: s.name, url: this.urls.schoolUrl(s) }))
+            .sort((a, b) => a.name.localeCompare(b.name));
     }
 
     async ensureUserSchool(userId: string, schoolId: string): Promise<void> {

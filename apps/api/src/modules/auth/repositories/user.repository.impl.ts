@@ -70,10 +70,14 @@ export class UserRepositoryImpl implements IUserRepository {
         await this.prisma.user.update({ where: { id }, data: { lockedUntil: until } });
     }
 
-    async updateLastLogin(id: string, ip: string): Promise<void> {
+    async updateLastLogin(id: string, ip: string, schoolId?: string | null): Promise<void> {
         await this.prisma.user.update({
             where: { id },
-            data:  { lastLoginAt: new Date(), lastLoginIp: ip },
+            data:  { lastLoginAt: new Date(), lastLoginIp: ip, ...(schoolId ? { lastSchoolId: schoolId } : {}) },
         });
+    }
+
+    async findLastSchoolId(id: string): Promise<string | null> {
+        return (await this.prisma.user.findUnique({ where: { id }, select: { lastSchoolId: true } }))?.lastSchoolId ?? null;
     }
 }

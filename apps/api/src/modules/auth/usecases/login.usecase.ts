@@ -13,7 +13,7 @@ import { randomBytes }           from "crypto";
 
 // What "resolve the session" can answer. A plain `outcome` field makes TypeScript (and a reader) sure which case it is.
 type Resolution =
-    | { outcome: "denied" }                                                         // no access here: answered as invalid credentials
+    | { outcome: "denied"; reason: string }                                         // no access here: answered as invalid credentials (the reason is only for the audit log)
     | { outcome: "selection"; result: Exclude<LoginResult, { status: "AUTHENTICATED" }> }   // the person must choose a profile or a school
     | { outcome: "session"; session: SessionInfo };                                 // one clear session: sign in
 
@@ -38,7 +38,12 @@ interface Dependencies {
 |  4. only AFTER the password is proven: locked / inactive / unverified messages
 |  5. resolve the session from the host:
 |       school host   -> tenant Membership (persona selection when several)
-|       platform host -> PlatformMember, else the list of the user's schools
+|       platform host -> PlatformMember, else the schools the person can REALLY enter:
+|                          one  -> SCHOOL_REDIRECT (go to that school's address and sign in there)
+|                          many -> SCHOOL_SELECTION_REQUIRED (with the last-used school suggested)
+|                          none -> the same generic "invalid credentials" answer
+|  A school counts only with an active tenant Membership; the UserSchool link just helps find it.
+|  The redirect is routing, NOT authentication: no token or cookie is issued, the person signs in again on the school's address.
 |--------------------------------------------------------------------------
 */
 
@@ -85,7 +90,7 @@ export class LoginUseCase {
         if (resolved.outcome === "denied") {
             await d.authAuditService.record({
                 action: "auth.login_failed", userId: user.id, schoolId, ip: meta.ip, userAgent: meta.userAgent,
-                metadata: { reason: "no_access" },
+                metadata: { reason: resolved.reason },
             });
             throw authErrors.invalidCredentials();   // do not reveal school membership
         }
@@ -94,7 +99,7 @@ export class LoginUseCase {
         const session = resolved.session;
 
         if (user.failedLoginCount > 0 || user.lockedUntil) await d.userRepository.resetFailedLogin(user.id);
-        await d.userRepository.updateLastLogin(user.id, meta.ip);
+        await d.userRepository.updateLastLogin(user.id, meta.ip, session.kind === "school" ? session.schoolId : null);
 
         const tokens = await d.authSessionService.issue({
             userId: user.id, schoolId: session.schoolId, membershipId: session.membershipId,
@@ -134,7 +139,7 @@ export class LoginUseCase {
         const memberships = await this.d.membershipService.listActive(userId);
         const pool = requested ? memberships.filter(m => m.persona === requested) : memberships;
 
-        if (pool.length === 0) return { outcome: "denied" };
+        if (pool.length === 0) return { outcome: "denied", reason: "no_membership" };
         if (pool.length > 1) {
             return { outcome: "selection", result: { status: "PERSONA_SELECTION_REQUIRED", personas: pool.map(m => m.persona) } };
         }
@@ -145,8 +150,13 @@ export class LoginUseCase {
         const member = await this.d.membershipService.getActivePlatformMember(userId);
         if (member) return { outcome: "session", session: { kind: "platform", schoolId: null, membershipId: member.id, persona: null } };
 
-        const schools = await this.d.membershipService.listUserSchools(userId);
-        if (schools.length === 0) return { outcome: "denied" };
-        return { outcome: "selection", result: { status: "SCHOOL_SELECTION_REQUIRED", schools } };
+        const schools = await this.d.membershipService.listEligibleSchools(userId);
+        if (schools.length === 0) return { outcome: "denied", reason: "no_eligible_school" };
+        if (schools.length === 1) return { outcome: "selection", result: { status: "SCHOOL_REDIRECT", school: schools[0] } };
+
+        const last = await this.d.userRepository.findLastSchoolId(userId);
+        const suggested = schools.find(s => s.id === last) ?? null;       // only suggested while still eligible
+        const ordered = suggested ? [suggested, ...schools.filter(s => s.id !== suggested.id)] : schools;
+        return { outcome: "selection", result: { status: "SCHOOL_SELECTION_REQUIRED", schools: ordered, suggestedSchoolId: suggested?.id ?? null } };
     }
 }

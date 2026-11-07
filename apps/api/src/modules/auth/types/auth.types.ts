@@ -41,7 +41,11 @@ export interface AuthenticatedResult {
 export type LoginResult =
     | AuthenticatedResult
     | { status: "PERSONA_SELECTION_REQUIRED"; personas: PersonaType[] }
-    | { status: "SCHOOL_SELECTION_REQUIRED";  schools: { id: string; name: string; url: string }[] };
+    | { status: "SCHOOL_REDIRECT";            school: SchoolRef }
+    | { status: "SCHOOL_SELECTION_REQUIRED";  schools: SchoolRef[]; suggestedSchoolId: string | null };
+
+/** A school the person can sign in to. `url` is its own address (custom domain when verified). */
+export interface SchoolRef { id: string; name: string; url: string }
 
 export interface UserWithPassword extends UserEntity {
     passwordHash: string;

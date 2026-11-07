@@ -6,6 +6,7 @@
 | So when you change an API DTO, change it here in the same pull request, or that test tells you.
 */
 export * from "./errors";
+export * from "./auth";
 export * from "./automation";
 export * from "./message-templates";
 export * from "./provisioning";

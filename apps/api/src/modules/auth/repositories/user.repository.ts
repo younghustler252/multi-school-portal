@@ -13,5 +13,8 @@ export interface IUserRepository {
     incrementFailedLogin(id: string): Promise<number>;
     resetFailedLogin(id: string): Promise<void>;
     lockAccount(id: string, until: Date): Promise<void>;
-    updateLastLogin(id: string, ip: string): Promise<void>;
+    /** Records the sign-in; for a school session also remembers which school (a suggestion hint only). */
+    updateLastLogin(id: string, ip: string, schoolId?: string | null): Promise<void>;
+    /** The school this person last signed in to, if any. */
+    findLastSchoolId(id: string): Promise<string | null>;
 }
