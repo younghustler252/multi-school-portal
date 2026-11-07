@@ -1,105 +1,148 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 import { authApi } from "@/features/auth/services/auth.api";
 import { userApi } from "@/features/user/services/user.api";
-import { RegisterDto, AcceptInviteDto } from "@/features/auth/types/auth.types";
-import { UserProfileResponseData } from "@/features/user/types/user.types";
-import { RegisterResponseData } from "@/features/auth/types/auth.types";
+import type { RegisterDto, RegisterResponseData } from "@/features/auth/types/auth.types";
+import { API_CODES, isApiError, normalizeApiError } from "@/lib/api/api-error";
+import { registerSessionHandlers } from "@/lib/api/session-events";
+import { queryClient } from "@/lib/api/query-client";
+import { initialSessionState, sessionReducer, type SessionEvent } from "@/lib/auth/session-reducer";
+import type { EndReason, Persona, Profile, SessionState } from "@/lib/auth/session-types";
 
-interface AuthState {
-	user: UserProfileResponseData | null;
-	isAuthenticated: boolean;
-	isLoading: boolean;
-	mustChangePassword: boolean;
+/*
+| The one place session state lives (AUTH-002 / AUTH-003).
+|
+| - Nothing is persisted: not the profile, not tokens, not a "logged in" flag. The HttpOnly cookies are the session;
+|   the browser asks the API who it is on every load (bootstrap).
+| - `ready` means profile AND permissions were both loaded; they are never set separately.
+| - Every transition goes through sessionReducer, so the rules are testable without React or the network.
+*/
 
-	login: (email: string, password: string) => Promise<void>;
+export type LoginOutcome = { status: "ready" } | { status: "selecting" } | { status: "must-change-password" };
+
+interface AuthState extends SessionState {
+	/** Same object as `profile`, kept so existing `useAuthStore((s) => s.user)` call sites keep working. */
+	user: Profile | null;
+
+	login: (email: string, password: string, persona?: Persona) => Promise<LoginOutcome>;
+	/** Loads /users/me and /users/me/permissions together. Safe to call from several places: one request runs. */
+	bootstrap: () => Promise<void>;
+	cancelSelection: () => void;
+	logout: () => Promise<void>;
+	endSession: (reason: EndReason) => void;
+	markMustChangePassword: () => void;
+	/** After a successful password change: reload the session (the old token still carries the old claim, so the API may ask to log in again). */
+	passwordChanged: () => Promise<void>;
 	register: (data: RegisterDto) => Promise<RegisterResponseData>;
-	logout: () => void;
+	/** Compatibility for call sites that refresh the profile after editing it. */
 	fetchCurrentUser: () => Promise<boolean>;
 }
 
-export const useAuthStore = create<AuthState>()(
-	persist(
-		(set) => ({
-			user: null,
-			isAuthenticated: false,
-			isLoading: false,
-			mustChangePassword: false,
+let bootstrapInFlight: Promise<void> | null = null;
 
-			login: async (email: string, password: string) => {
-				set({ isLoading: true });
-				const res = await authApi.login({ email, password });
-				if (!res.success) {
-					set({ isLoading: false });
-					throw res;
-				}
-				set({ isAuthenticated: true, isLoading: false });
-				const profileRes = await userApi.getProfile();
-				if (profileRes.success) {
-					set({
-						user: profileRes.data,
-						mustChangePassword: profileRes.data.mustChangePassword,
-					});
-				}
-			},
+export const useAuthStore = create<AuthState>()((set, get) => {
+	const dispatch = (event: SessionEvent) =>
+		set((state) => {
+			const next = sessionReducer(state, event);
+			return next === state ? state : { ...next, user: next.profile };
+		});
 
-			register: async (data: RegisterDto) => {
-				set({ isLoading: true });
-				const res = await authApi.register(data);
-				console.log("authApi.register raw response:", res); 
-				set({ isLoading: false });
-				if (!res.success) {
-					throw res;
-				}
-				return res.data;
-			},
+	// A different person may sign in next on this browser: nothing fetched for the old session may survive.
+	const resetData = () => queryClient.clear();
 
-			acceptInvite: async (data: AcceptInviteDto) => {
-				set({ isLoading: true });
-				const res = await authApi.acceptInvite(data);
-				if (!res.success) {
-					set({ isLoading: false });
-					throw res;
-				}
-				set({ isAuthenticated: true, isLoading: false });
-				const profileRes = await userApi.getProfile();
-				if (profileRes.success) {
-					set({ user: profileRes.data });
-				}
-			},
+	async function bootstrap(): Promise<void> {
+		if (bootstrapInFlight) return bootstrapInFlight;
+		bootstrapInFlight = (async () => {
+			try {
+				const [profile, permissions] = await Promise.all([userApi.getMe(), userApi.getMyPermissions()]);
+				dispatch({ type: "bootstrapSucceeded", profile, permissions });
+			} catch (err) {
+				if (isApiError(err) && err.code === API_CODES.MUST_CHANGE_PASSWORD) dispatch({ type: "mustChangePassword" });
+				else dispatch({ type: "bootstrapRejected" });
+			} finally {
+				bootstrapInFlight = null;
+			}
+		})();
+		return bootstrapInFlight;
+	}
 
-			logout: () => {
-				authApi.logout().catch(() => {});
-				set({ user: null, isAuthenticated: false });
-			},
+	return {
+		...initialSessionState,
+		user: null,
 
-			fetchCurrentUser: async () => {
-				try {
-					const res = await userApi.getProfile();
-					if (res.success) {
-						set({
-							user: res.data,
-							isAuthenticated: true,
-							mustChangePassword: res.data.mustChangePassword,
-						});
-						return true;
-					}
-				} catch {
-					// no valid session
-				}
-				set({ user: null, isAuthenticated: false });
+		bootstrap,
+
+		login: async (email, password, persona) => {
+			const res = await authApi.login({ email, password, ...(persona ? { persona } : {}) });
+			if (!res.success) {
+				throw normalizeApiError(null, { message: res.message, code: res.code, errors: res.errors });
+			}
+			const result = res.data;
+
+			if (result.status === "PERSONA_SELECTION_REQUIRED") {
+				dispatch({ type: "selectionRequired", selection: { kind: "persona", personas: result.personas } });
+				return { status: "selecting" };
+			}
+			if (result.status === "SCHOOL_SELECTION_REQUIRED") {
+				dispatch({ type: "selectionRequired", selection: { kind: "school", schools: result.schools } });
+				return { status: "selecting" };
+			}
+
+			resetData();
+			if (result.user.mustChangePassword) {
+				dispatch({ type: "loginMustChangePassword" });
+				return { status: "must-change-password" };
+			}
+			dispatch({ type: "loginAuthenticated" });
+			await bootstrap();
+			const after = get().status;
+			if (after === "ready") return { status: "ready" };
+			if (after === "must-change-password") return { status: "must-change-password" };
+			// Login said yes but the session could not be read back (cookies not stored or not sent: see the origin notes in the baseline).
+			throw normalizeApiError(null, { message: "You are signed in, but your session could not be loaded. Please try again.", code: API_CODES.SESSION_INVALID });
+		},
+
+		cancelSelection: () => dispatch({ type: "selectionCancelled" }),
+
+		logout: async () => {
+			// Ask the API to end the refresh family and clear the cookies; reset locally whatever the answer is.
+			await authApi.logout();
+			dispatch({ type: "loggedOut" });
+			resetData();
+		},
+
+		endSession: (reason) => {
+			if (get().status === "unauthenticated") return;
+			dispatch({ type: "sessionEnded", reason });
+			resetData();
+		},
+
+		markMustChangePassword: () => dispatch({ type: "mustChangePassword" }),
+
+		passwordChanged: async () => {
+			dispatch({ type: "passwordChanged" });
+			await bootstrap();
+		},
+
+		register: async (data) => {
+			const res = await authApi.register(data);
+			if (!res.success) throw res;
+			return res.data;
+		},
+
+		fetchCurrentUser: async () => {
+			try {
+				const profile = await userApi.getMe();
+				set((state) => (state.status === "ready" ? { profile, user: profile } : state));
+				return true;
+			} catch (err) {
+				void err;
 				return false;
-			},
+			}
+		},
+	};
+});
 
-			clearMustChangePassword: () => set({ mustChangePassword: false }),
-		}),
-		{
-			name: "school-portal-auth",
-			partialize: (state) => ({
-				user: state.user,
-				isAuthenticated: state.isAuthenticated,
-				mustChangePassword: state.mustChangePassword,
-			}),
-		}
-	)
-);
+registerSessionHandlers({
+	onSessionEnded: (reason) => useAuthStore.getState().endSession(reason),
+	onMustChangePassword: () => useAuthStore.getState().markMustChangePassword(),
+});

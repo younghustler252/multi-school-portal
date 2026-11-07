@@ -10,26 +10,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { NotificationBell } from "./notification-bell";
 import { FeedbackDialog } from "@/features/feedback/components/feedback-dialog";
-import { Role } from "@/types/roles";
+import { notificationsPath } from "@/lib/nav-model";
 import { useAuthStore } from "@/stores/auth.store";
 
 interface TopbarProps {
-	role: Role;
 	onMenuClick: () => void;
 	searchPlaceholder?: string;
 }
 
-const NOTIFICATION_INBOX_PATH: Record<Role, string> = {
-	school_admin: "/school-admin/notifications",
-	teacher: "/teacher/notifications",
-	bursar: "/bursar/notifications",
-	principal: "/principal/notifications",
-	student: "/student/notifications",
-	guardian: "/guardian/notifications",
-	super_admin: "/notifications",
-};
-
-export function Topbar({ role, onMenuClick, searchPlaceholder = "Search…" }: TopbarProps) {
+export function Topbar({ onMenuClick, searchPlaceholder = "Search…" }: TopbarProps) {
 	const { theme, setTheme } = useTheme();
 	const [mounted, setMounted] = useState(false);
 	const [feedbackOpen, setFeedbackOpen] = useState(false);
@@ -37,9 +26,9 @@ export function Topbar({ role, onMenuClick, searchPlaceholder = "Search…" }: T
 	const logout = useAuthStore((s) => s.logout);
 	const user = useAuthStore((s) => s.user);
 
-	function handleLogout() {
-		logout();
-		router.push("/login");
+	async function handleLogout() {
+		await logout();
+		router.replace("/login");
 	}
 
 	useEffect(() => { setMounted(true); }, []);
@@ -61,7 +50,7 @@ export function Topbar({ role, onMenuClick, searchPlaceholder = "Search…" }: T
 				{mounted && theme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
 			</Button>
 
-			<NotificationBell inboxPath={NOTIFICATION_INBOX_PATH[role]} />
+			<NotificationBell inboxPath={notificationsPath("school")} />
 
 			<DropdownMenu>
 				<DropdownMenuTrigger
