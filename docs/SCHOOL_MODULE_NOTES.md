@@ -118,3 +118,10 @@ The school test directory currently contains `school-admin-directory.test.ts` wi
 3. Compare the School DTO/mappers/repository and public/tenant Prisma migrations before treating every historical response-field and schema statement above as a fully verified current contract.
 4. The source comments describe school verification as unlocking payments, SMS and result publishing; ensure each affected feature route consistently applies the verification guard. This pass directly confirmed the guard on `POST /api/v1/schools/payment-setup`, not every downstream payment/SMS/result endpoint.
 5. No build, tests, migration, queue execution or live API request was run as part of this documentation comparison.
+
+## Tenant schema names
+
+- Built once, in `src/shared/utils/schema-name.ts` (`schemaNameFor(subdomain)`): hyphens become underscores, so `core-test-ab12` is stored as `school_core_test_ab12`. The same file owns the validity check (`isValidSchemaName`) used by the tenant client and the provisioning worker. An architecture test fails if anything builds `school_${...}` by hand.
+- The name is saved in `School.schemaName` when the school is created (`create-school`, `register`). The tenant resolver, workers and jobs read the stored value; nothing rebuilds it from the subdomain.
+- Existing records: migration `20261107130000_repair_unprovisioned_schema_names` rewrites invalid names of schools that are not built yet, and the provisioning job repairs one it meets. A school that is already built under an invalid name is renamed with `npm run repair:schema-names:dry-run`, then `npm run repair:schema-names`, then restart the API.
+- Retries: provisioning takes a per-school database lock for the whole run, so duplicate or retried jobs cannot build the schema or the first admin twice. An existing schema is never dropped or rebuilt; the job resumes at the first-admin step. The first-admin step returns the existing membership if there is one. Provisioning also records the tenant migrations it applied in `_tenant_migrations_applied`.

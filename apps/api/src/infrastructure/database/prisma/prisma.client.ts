@@ -1,3 +1,4 @@
+import { isValidSchemaName } from "../../../shared/utils/schema-name";
 // infrastructure/database/prisma/prisma.client.ts
 import { env } from "../../../config/env";
 import { PrismaClient as PublicPrismaClient } from "../../../generated/public/client";
@@ -31,7 +32,6 @@ export const prisma = new PublicPrismaClient({ adapter: publicAdapter });
 const tenantClients = new Map<string, TenantPrismaClient>();
 const tenantPools   = new Map<string, pg.Pool>();
 
-const SCHEMA_NAME_PATTERN = /^[a-z][a-z0-9_]*$/;
 
 /*
 |--------------------------------------------------------------------------
@@ -86,7 +86,7 @@ export const getTenantClient = (): TenantPrismaClient => {
     const cached = tenantClients.get(schema);
     if (cached) return cached;
 
-    if (!SCHEMA_NAME_PATTERN.test(schema)) {
+    if (!isValidSchemaName(schema)) {
         throw new Error(`Invalid tenant schema name: ${schema}`);
     }
 

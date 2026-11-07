@@ -1,3 +1,4 @@
+import { schemaNameFor } from "../../../../shared/utils/schema-name";
 import { Prisma, PrismaClient } from "../../../../generated/public";
 import { IUserRepository } from "../../../auth/repositories/user.repository";
 import { IPlanRepository } from "../../../plans/repositories/plan.repository";
@@ -51,7 +52,7 @@ export class CreatePlatformSchoolUseCase {
         const created = await d.prismaClient.$transaction(async (tx: Prisma.TransactionClient) => {
             const school = await tx.school.create({
                 data: {
-                    name: dto.name, subdomain: dto.subdomain, schemaName: `school_${dto.subdomain}`, email: dto.email, phone: dto.phone,
+                    name: dto.name, subdomain: dto.subdomain, schemaName: schemaNameFor(dto.subdomain), email: dto.email, phone: dto.phone,
                     schoolCategory: dto.schoolCategory, schoolOwnership: dto.schoolOwnership,
                     status: "active", isActive: true, activatedAt: now,
                     verificationStatus: "verified", verifiedAt: now, verifiedById: actorUserId,

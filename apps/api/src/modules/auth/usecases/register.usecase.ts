@@ -1,3 +1,4 @@
+import { schemaNameFor } from "../../../shared/utils/schema-name";
 import { Prisma, PrismaClient, OtpType } from "../../../generated/public/client";
 import { IUserRepository }   from "../repositories/user.repository";
 import { IPlanRepository }   from "../../plans/repositories/plan.repository";
@@ -93,7 +94,7 @@ export class RegisterUseCase {
                 data: {
                     name:               dto.schoolName,
                     subdomain,
-                    schemaName:         `school_${subdomain}`,
+                    schemaName:         schemaNameFor(subdomain),
                     email:              dto.schoolEmail,
                     phone:              dto.schoolPhone,
                     city:               dto.city,

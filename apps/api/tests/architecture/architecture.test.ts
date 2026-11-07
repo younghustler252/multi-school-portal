@@ -66,4 +66,12 @@ describe("architecture rules", () => {
         }
         assert.deepEqual(offenders, [], "these use cases import the database client; add a repository method instead");
     });
+
+    /* A schema name is built in ONE place (shared/utils/schema-name.ts) and stored in School.schemaName. */
+    it("nothing builds a schema name from a subdomain by hand", () => {
+        const offenders = FILES.filter(f => !/shared\/utils\/schema-name\.ts$/.test(f) && /`school_\$\{/.test(code(f))).map(rel);
+        assert.deepEqual(offenders, [], "use schemaNameFor(subdomain) instead");
+        const copies = FILES.filter(f => !/shared\/utils\/schema-name\.ts$/.test(f) && /SCHEMA_NAME_PATTERN\s*=/.test(code(f))).map(rel);
+        assert.deepEqual(copies, [], "import isValidSchemaName from shared/utils/schema-name instead of a second regex");
+    });
 });

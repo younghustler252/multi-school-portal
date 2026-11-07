@@ -11,6 +11,7 @@ import { TenantContext } from "../../database/prisma/tenant.context";
 import { env } from "../../../config/env";
 import { MembershipService } from "../../../modules/auth/services/membership.service";
 import { UrlService } from "../../../shared/services/url.service";
+import { isValidSchemaName, schemaNameFor } from "../../../shared/utils/schema-name";
 import { loadLedgerAccountTemplates, seedFinanceBooks } from "../../../modules/ledger/services/ledger-seed";
 
 
@@ -97,7 +98,24 @@ const defaultFeeTypes = [
 	{ code: "EXAM_FEE", name: "Exam Fee", description: "Termly examination fee", incomeCode: "4020" },
 ];
 
-const SCHEMA_NAME_PATTERN = /^[a-z][a-z0-9_]*$/;
+/*
+| The schema name to use for a school: the stored one when it is valid. A school saved with an invalid name (older records
+| used "school_<subdomain>" with hyphens) that is NOT built yet gets the canonical name written back first. One that is
+| already built under an invalid name must be renamed with `npm run repair:schema-names`; it is never guessed at here.
+*/
+async function settledSchemaName(schoolId: string): Promise<string> {
+	const school = await prisma.school.findUnique({ where: { id: schoolId }, select: { subdomain: true, schemaName: true, schemaProvisionedAt: true } });
+	if (!school) throw new Error(`School ${schoolId} not found`);
+	if (isValidSchemaName(school.schemaName)) return school.schemaName;
+
+	if (school.schemaProvisionedAt) {
+		throw new Error(`School ${schoolId} is provisioned under an invalid schema name "${school.schemaName}". Run: npm run repair:schema-names`);
+	}
+	const canonical = schemaNameFor(school.subdomain);
+	await prisma.school.update({ where: { id: schoolId }, data: { schemaName: canonical } });
+	console.log(`🔧 Repaired schema name for school ${schoolId}: "${school.schemaName ?? "(none)"}" -> ${canonical}`);
+	return canonical;
+}
 
 // Used only for the first-admin step (it reads the public database and the school's own schema)
 const membershipService = new MembershipService({
@@ -109,29 +127,28 @@ export const provisionSchemaWorker = new Worker<ProvisionSchemaJobData>(
 	"provision-schema",
 
 	async (job: Job<ProvisionSchemaJobData>) => {
-		const { schoolId, subdomain, schoolName } = job.data;
-		const schemaName = `school_${subdomain}`;
+		const { schoolId, schoolName } = job.data;
 
-		if (!SCHEMA_NAME_PATTERN.test(schemaName)) {
-			throw new Error(`Invalid schema name: ${schemaName}`);
-		}
-
-		const existingSchool = await prisma.school.findUnique({
-			where: { id: schoolId },
-			select: { schemaProvisionedAt: true },
-		});
-
-		if (existingSchool?.schemaProvisionedAt) {
-			console.log(`⏭️  Skipping provisioning — ${schemaName} already provisioned`);
-			return { schemaName, status: "already_provisioned" };
-		}
-
-		console.log(`🏗️  Provisioning schema: ${schemaName} for ${schoolName}`);
+		// The school's stored schema name is the only name used. (Older records may hold one with hyphens: it is repaired here.)
+		const schemaName = await settledSchemaName(schoolId);
 
 		const pool = new Pool({ connectionString: env.DATABASE_URL });
 		const client = await pool.connect();
+		const lockKey = `provision:${schoolId}`;
+		let locked = false;
 
 		try {
+			// Only one run per school at a time: a duplicate or retried job waits here, then sees the finished work and stops.
+			await client.query("SELECT pg_advisory_lock(hashtext($1))", [lockKey]);
+			locked = true;
+
+			const current = await prisma.school.findUnique({ where: { id: schoolId }, select: { schemaProvisionedAt: true } });
+			if (current?.schemaProvisionedAt) {
+				console.log(`⏭️  Skipping provisioning — ${schemaName} already provisioned`);
+				return { schemaName, status: "already_provisioned" };
+			}
+			console.log(`🏗️  Provisioning schema: ${schemaName} for ${schoolName}`);
+
 			// ── 1. Build the school's tables and starting data (all or nothing) ──
 			// If the schema already exists (an earlier run built it and only a later step failed),
 			// it is NEVER dropped or rebuilt: we resume at the first-admin step.
@@ -153,9 +170,12 @@ export const provisionSchemaWorker = new Worker<ProvisionSchemaJobData>(
 						.map(entry => entry.name)
 						.sort();
 
+					// Remember which migrations built this schema, so "migrate:apply-to-existing-schools" only runs LATER ones.
+					await client.query(`CREATE TABLE IF NOT EXISTS "_tenant_migrations_applied" (name TEXT PRIMARY KEY, applied_at TIMESTAMP NOT NULL DEFAULT now())`);
 					for (const migration of migrations) {
 						const sqlPath = join(tenantMigrationsDir, migration, "migration.sql");
 						await client.query(readFileSync(sqlPath, "utf8"));
+						await client.query(`INSERT INTO "_tenant_migrations_applied" (name) VALUES ($1) ON CONFLICT DO NOTHING`, [migration]);
 					}
 
 					console.log(`✅ Tables created: ${schemaName}`);
@@ -276,28 +296,29 @@ export const provisionSchemaWorker = new Worker<ProvisionSchemaJobData>(
 			} else {
 				console.log(`↩️  ${schemaName} already exists, resuming at the first-admin step`);
 			}
+			// The lock is held through the end, so two runs can never both create the first admin.
+			// ── 2. Give the person who registered real access (needs the committed schema) ──
+			await new Promise<void>((resolve, reject) =>
+				TenantContext.run({ tenantSchema: schemaName, schoolId }, () => {
+					membershipService.provisionFirstAdmin(schoolId).then(() => resolve(), reject);
+				}),
+			);
+			console.log(`✅ School admin access created: ${schemaName}`);
+
+			// ── 3. Only now is the school marked as provisioned ──
+			await prisma.school.update({
+				where: { id: schoolId },
+				data: { schemaProvisionedAt: new Date() },
+			});
+
+			console.log(`🎉 Provisioning complete: ${schemaName}`);
+			return { schemaName, status: "completed" };
 		} finally {
 			await client.query("SET search_path TO public").catch(() => undefined);
+			if (locked) await client.query("SELECT pg_advisory_unlock(hashtext($1))", [lockKey]).catch(() => undefined);
 			client.release();
 			await pool.end();
 		}
-
-		// ── 2. Give the person who registered real access (needs the committed schema) ──
-		await new Promise<void>((resolve, reject) =>
-			TenantContext.run({ tenantSchema: schemaName, schoolId }, () => {
-				membershipService.provisionFirstAdmin(schoolId).then(() => resolve(), reject);
-			}),
-		);
-		console.log(`✅ School admin access created: ${schemaName}`);
-
-		// ── 3. Only now is the school marked as provisioned ──
-		await prisma.school.update({
-			where: { id: schoolId },
-			data: { schemaProvisionedAt: new Date() },
-		});
-
-		console.log(`🎉 Provisioning complete: ${schemaName}`);
-		return { schemaName, status: "completed" };
 	},
 
 	{ connection: redisConnection, concurrency: 2 },
