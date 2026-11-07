@@ -252,6 +252,7 @@ async function main() {
   // Initialize the singleton settings row before the first school is created.
   await requestJson(apiBase, "/platform/settings", {
     method: "PUT",
+
     token: accessToken,
     body: {
       platformName: "CORE Local Test Platform",
