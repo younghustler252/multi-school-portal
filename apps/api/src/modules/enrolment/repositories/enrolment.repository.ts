@@ -54,7 +54,7 @@ export interface EnrolmentTx {
     /** Marks these students' active enrolments in the term as completed. */
     completeActive(termId: string, studentIds: string[]): Promise<void>;
     /** The students' branches as they are right now. */
-    studentBranches(ids: string[]): Promise<Array<{ id: string; branchId: string | null }>>;
+    studentBranches(ids: string[]): Promise<Array<{ id: string; branchId: string }>>;
     /** Graduates students who are not graduated yet (a repeated run never moves the date). */
     graduate(ids: string[], at: Date, termId: string): Promise<void>;
 }

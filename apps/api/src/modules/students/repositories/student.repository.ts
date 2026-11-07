@@ -49,7 +49,7 @@ export interface IStudentRepository {
     findBranchRef(id: string): Promise<{ id: string; name: string } | null>;
     /** The student's active place in the term, if any. */
     findActiveEnrolment(studentId: string, termId: string): Promise<{ id: string; classId: string } | null>;
-    findClassForTransfer(id: string): Promise<{ id: string; name: string; branchId: string | null; capacity: number | null } | null>;
+    findClassForTransfer(id: string): Promise<{ id: string; name: string; branchId: string; capacity: number | null } | null>;
     classNames(ids: string[]): Promise<Map<string, string>>;
     peopleBornBetween(from: Date, to: Date): Promise<Array<{ firstName: string; lastName: string; dateOfBirth: Date | null }>>;
 }
