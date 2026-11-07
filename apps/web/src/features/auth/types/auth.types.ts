@@ -1,4 +1,4 @@
-import { Role } from "@/types/roles";
+import type { LoginResult, Persona } from "@/lib/auth/session-types";
 
 /*
 |--------------------------------------------------------------------------
@@ -7,17 +7,6 @@ import { Role } from "@/types/roles";
 |--------------------------------------------------------------------------
 */
 
-export interface UserResponseData {
-	id: string;
-	email: string;
-	role: Role;
-	firstName: string;
-	lastName: string;
-	phone: string | null;
-	photoUrl: string | null;
-	schoolId: string | null;
-	isEmailVerified: boolean;
-}
 
 /*
 |--------------------------------------------------------------------------
@@ -29,6 +18,8 @@ export interface UserResponseData {
 export interface LoginDto {
 	email: string;
 	password: string;
+	/** Second step of a persona selection: the chosen persona, with the same credentials. */
+	persona?: Persona;
 }
 
 export interface RefreshTokenDto {
@@ -39,16 +30,10 @@ export interface AuthTokens {
 	refreshToken: string;
 }
 
-export interface LoginResponseData {
-	user: UserResponseData;
-	tokens: AuthTokens;
-}
+export type LoginResponseData = LoginResult;
 export interface RegisterResponseData {
 	message: string;
 	subdomain: string;
-}
-export interface RefreshResponseData {
-	accessToken: string;
 }
 export interface VerifyEmailResponseData {
 	message: string;
@@ -68,6 +53,7 @@ export interface VerifyEmailDto {
 
 export interface ResendOtpDto {
 	email: string;
+	type?: "email_verification" | "password_reset"; // API default: email_verification
 }
 
 /*

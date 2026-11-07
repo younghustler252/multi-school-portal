@@ -84,3 +84,11 @@ Vitest is set up in `apps/web` (`npm run test:web` from the root, `npm test` in 
 ## 7. Dependency changes need a lockfile update
 
 `package-lock.json` was not regenerated in M0. Run `npm install` at the repository root after applying the change and commit the updated lockfile; until then CI's `npm ci` will fail for the web job.
+
+## 8. M1 notes (session foundation)
+
+- Session = HttpOnly cookies. Nothing is persisted in the browser; every page load runs one bootstrap (`/users/me` + `/users/me/permissions`, together or not at all).
+- The access cookie expires with the access token, so an expired session reaches the API as `TOKEN_MISSING`. The client refreshes on `TOKEN_EXPIRED` and `TOKEN_MISSING`, once per request, single-flight.
+- `middleware.ts` still treats the `accessToken` cookie as "signed in". After 15 minutes it bounces protected prefixes to `/login` even though the refresh cookie is valid. **M2 fix**, not done here.
+- Web-local auth/session types live in `src/lib/auth/session-types.ts` (contracts untouched; decision still open under API-004).
+- Navigation and button visibility come from permissions (`lib/nav-model.ts`, `lib/use-access.ts`). Permission keys used for the fee "waive" actions are a UX guess until the fees phase.

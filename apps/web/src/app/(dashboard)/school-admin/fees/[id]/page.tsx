@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAuthStore } from "@/stores/auth.store";
+import { useAccess } from "@/lib/use-access";
 import { useInvoice, useInvoicePayments } from "@/features/fees/hooks/use-fees";
 import { RecordPaymentDialog } from "@/features/fees/components/record-payment-dialog";
 import { WaiveInvoiceDialog } from "@/features/fees/components/waive-invoice-dialog";
@@ -19,8 +19,7 @@ export default function InvoiceDetailPage() {
 	const { id } = useParams<{ id: string }>();
 	const router = useRouter();
 
-	const role = useAuthStore((s) => s.user?.role);
-	const canManage = role === "school_admin";
+	const canManage = useAccess().can("fees.adjustments.approve"); // UX only; confirm the exact key with the fees contract
 
 	const { data: invoice, isLoading } = useInvoice(id);
 	const { data: payments, isLoading: paymentsLoading } = useInvoicePayments(id);

@@ -7,7 +7,9 @@ import { Logo } from "@/components/layout/logo";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import { NAV_CONFIG } from "@/lib/nav-config";
+import { NAV_ICONS } from "@/lib/nav-config";
+import { visibleNav } from "@/lib/nav-model";
+import { useAuthStore } from "@/stores/auth.store";
 import { COMPANY } from "@/config/company";
 
 interface AdminSidebarProps {
@@ -17,7 +19,8 @@ interface AdminSidebarProps {
 
 function AdminSidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 	const pathname = usePathname();
-	const navItems = NAV_CONFIG.super_admin;
+	const permissions = useAuthStore((s) => s.permissions);
+	const navItems = visibleNav(permissions);
 
 	return (
 		<div className="flex h-full flex-col bg-sidebar/95 backdrop-blur-md text-sidebar-foreground">
@@ -32,7 +35,7 @@ function AdminSidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 			<nav className="flex-1 space-y-0.5 overflow-y-auto p-3">
 				{navItems.map((item) => {
 					const active = pathname === item.to || (!item.to.endsWith("/dashboard") && pathname.startsWith(item.to));
-					const Icon = item.icon;
+					const Icon = NAV_ICONS[item.icon];
 					return (
 						<Link
 							key={item.to}

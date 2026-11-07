@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, ArrowRight } from "lucide-react";
@@ -9,18 +8,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAuthStore } from "@/stores/auth.store";
+import { useLogin } from "@/features/auth/hooks/use-login";
+import { LoginSelection } from "@/features/auth/components/login-selection";
 import { usePublicSchoolInfo } from "@/features/school/hooks/use-school";
 import { loginSchema, LoginFormValues } from "@/features/auth/schemas/login.schema";
-import { ApiErrorResponse } from "@/types/api-response";
-import { ROLE_DEFAULT_ROUTE } from "@/types/roles";
-import { authApi } from "@/features/auth/services/auth.api";
 import { saveLastPortal } from "@/lib/last-portal-storage";
 
 export default function PortalLoginPage() {
-	const router = useRouter();
-	const login = useAuthStore((s) => s.login);
-	const [serverError, setServerError] = useState<string | null>(null);
 	const [subdomain, setSubdomain] = useState<string | null>(null);
 
 	useEffect(() => {
@@ -34,6 +28,12 @@ export default function PortalLoginPage() {
 
 	const { data: schoolInfo, isLoading: schoolLoading, isError: schoolNotFound } = usePublicSchoolInfo(subdomain ?? "");
 
+	const { submit, choosePersona, cancel, error: serverError, pending, selection } = useLogin({
+		onReady: () => {
+			if (subdomain) saveLastPortal({ type: "school", subdomain });
+		},
+	});
+
 	const {
 		register,
 		handleSubmit,
@@ -43,41 +43,7 @@ export default function PortalLoginPage() {
 	});
 
 	async function onSubmit(values: LoginFormValues) {
-		setServerError(null);
-		try {
-			await login(values.email, values.password);
-
-			if (useAuthStore.getState().mustChangePassword) {
-				router.push("/change-password");
-				return;
-			}
-
-			const user = useAuthStore.getState().user;
-			if (!user) {
-				router.push("/");
-				return;
-			}
-
-			if (subdomain) {
-				saveLastPortal({ type: "school", subdomain });
-			}
-
-			if (user.role === "school_admin") {
-				router.push("/onboarding/setup");
-			} else {
-				router.push(ROLE_DEFAULT_ROUTE[user.role]);
-			}
-		} catch (err) {
-			const apiErr = err as ApiErrorResponse;
-
-			if (apiErr.code === "EMAIL_NOT_VERIFIED") {
-				authApi.resendOtp({ email: values.email }).catch(() => {});
-				router.push(`/verify-email?email=${encodeURIComponent(values.email)}`);
-				return;
-			}
-
-			setServerError(apiErr.message || "Login failed — please try again.");
-		}
+		await submit(values.email, values.password);
 	}
 
 	// School genuinely doesn't exist at this subdomain — different from
@@ -133,6 +99,9 @@ export default function PortalLoginPage() {
 					)}
 				</div>
 
+				{selection ? (
+					<LoginSelection selection={selection} pending={pending} error={serverError} onPersona={choosePersona} onCancel={cancel} />
+				) : (
 				<form
 					onSubmit={handleSubmit(onSubmit)}
 					className="space-y-4 rounded-2xl border border-border/60 bg-card/90 p-6 shadow-xl shadow-black/[0.03] backdrop-blur-md sm:p-7"
@@ -160,11 +129,12 @@ export default function PortalLoginPage() {
 						{errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
 					</div>
 
-					<Button type="submit" className="h-11 w-full gap-2 text-[15px]" disabled={isSubmitting}>
-						{isSubmitting ? <Loader2 className="size-4 animate-spin" /> : <ArrowRight className="size-4" />}
-						{isSubmitting ? "Logging in…" : "Log in"}
+					<Button type="submit" className="h-11 w-full gap-2 text-[15px]" disabled={isSubmitting || pending}>
+						{isSubmitting || pending ? <Loader2 className="size-4 animate-spin" /> : <ArrowRight className="size-4" />}
+						{isSubmitting || pending ? "Logging in…" : "Log in"}
 					</Button>
 				</form>
+				)}
 			</div>
 		</div>
 	);

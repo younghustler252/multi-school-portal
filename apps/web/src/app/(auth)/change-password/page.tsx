@@ -12,8 +12,8 @@ import { Logo } from "@/components/layout/logo";
 import { COMPANY } from "@/config/company";
 import { userApi } from "@/features/user/services/user.api";
 import { useAuthStore } from "@/stores/auth.store";
+import { isApiError } from "@/lib/api/api-error";
 import { z } from "zod";
-import { ApiErrorResponse } from "@/types/api-response";
 
 const passwordSchema = z
 	.string()
@@ -56,11 +56,10 @@ export default function ChangePasswordPage() {
 			// Per backend: old token still carries the stale claim — force a
 			// clean re-login rather than trying to silently refresh in place.
 			toast.success("Password changed — please log in again.");
-			logout();
-			router.push("/login");
+			await logout();
+			router.replace("/login");
 		} catch (err) {
-			const apiErr = err as ApiErrorResponse;
-			toast.error(apiErr.message || "Couldn't change password");
+			toast.error(isApiError(err) ? err.message : "Couldn't change password");
 		}
 	}
 

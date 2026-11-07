@@ -1,10 +1,9 @@
 import { API } from "@/lib/api/api-client";
 import { ApiResponse } from "@/types/api-response";
+import type { LoginResult, Persona } from "@/lib/auth/session-types";
 import {
 	LoginDto,
-	LoginResponseData,
 	RegisterResponseData,
-	RefreshResponseData,
 	VerifyEmailResponseData,
 	RegisterDto,
 	VerifyEmailDto,
@@ -12,31 +11,38 @@ import {
 	ForgotPasswordDto,
 	ResetPasswordDto,
 	AcceptInviteDto,
-	UserResponseData,
-	AuthTokens,
 } from "../types/auth.types";
-import {  } from "../types/auth.types";
 
+/*
+| Auth endpoints (envelope style: never throws). The session itself lives in HttpOnly cookies; no token ever reaches
+| JavaScript. The login-style endpoints answer with a LoginResult union, so callers must check `status`.
+*/
 export const authApi = {
 
 	// ==================================
 	// LOGIN / REGISTER / REFRESH
 	// ==================================
 
-	login: (data: LoginDto): Promise<ApiResponse<LoginResponseData>> =>
+	login: (data: LoginDto): Promise<ApiResponse<LoginResult>> =>
 		API.post("/auth/login", data),
 
 	register: (data: RegisterDto): Promise<ApiResponse<RegisterResponseData>> =>
 		API.post("/auth/register", data),
 
-	refresh: (): Promise<ApiResponse<RefreshResponseData>> =>
+	// Called by the API client's refresh coordinator directly; exposed for completeness.
+	refresh: (): Promise<ApiResponse<LoginResult>> =>
 		API.post("/auth/refresh"),
 
 	logout: (): Promise<ApiResponse<null>> =>
 		API.post("/auth/logout"),
 
-	exchangeImpersonationToken: (token: string): Promise<ApiResponse<null>> =>
-		API.post("/auth/exchange-impersonation-token", { token }),
+	// School host only. Moves the session to another persona the user holds in this school.
+	switchPersona: (persona: Persona): Promise<ApiResponse<LoginResult>> =>
+		API.post("/auth/switch-persona", { persona }),
+
+	// The API's DTO field is `ticket`.
+	exchangeImpersonationToken: (ticket: string): Promise<ApiResponse<LoginResult>> =>
+		API.post("/auth/exchange-impersonation-token", { ticket }),
 
 	// ==================================
 	// EMAIL VERIFICATION
@@ -58,7 +64,7 @@ export const authApi = {
 	resetPassword: (data: ResetPasswordDto): Promise<ApiResponse<null>> =>
 		API.post("/auth/reset-password", data),
 
-	acceptInvite: (data: AcceptInviteDto): Promise<ApiResponse<{ user: UserResponseData; tokens: AuthTokens }>> =>
+	acceptInvite: (data: AcceptInviteDto): Promise<ApiResponse<LoginResult>> =>
 		API.post("/auth/invite/accept", data),
 
 };

@@ -39,7 +39,7 @@ export default function AccountSettingsPage() {
 
 	useEffect(() => {
 		if (user) {
-			profileForm.reset({ firstName: user.firstName, lastName: user.lastName, phone: user.phone ?? "" });
+			profileForm.reset({ firstName: user.firstName ?? "", lastName: user.lastName ?? "", phone: user.phone ?? "" });
 		}
 	}, [user]);
 

@@ -1,35 +1,42 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { authApi } from "@/features/auth/services/auth.api";
 import { useAuthStore } from "@/stores/auth.store";
-import { ROLE_DEFAULT_ROUTE } from "@/types/roles";
+import { resolveDestination } from "@/lib/auth/destination";
 
 export default function ImpersonateEntryPage() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const token = searchParams.get("token");
+	const started = useRef(false);
 
 	useEffect(() => {
+		// The ticket is single use: never run the exchange twice (React strict mode mounts effects twice in development).
+		if (started.current) return;
+		started.current = true;
+
 		async function exchange() {
 			if (!token) {
-				router.push("/login");
+				router.replace("/login");
 				return;
 			}
-			try {
-				// Exchanges the one-time impersonation token for a real
-				// httpOnly session cookie scoped to THIS subdomain.
-				await authApi.exchangeImpersonationToken(token);
-				await useAuthStore.getState().fetchCurrentUser();
-				const user = useAuthStore.getState().user;
-				router.push(user ? ROLE_DEFAULT_ROUTE[user.role] : "/");
-			} catch {
-				router.push("/login");
+			// Trades the one-time ticket for a real HttpOnly session cookie scoped to THIS school host.
+			const res = await authApi.exchangeImpersonationToken(token);
+			if (!res.success) {
+				router.replace("/login");
+				return;
 			}
+			const store = useAuthStore.getState();
+			store.endSession("logout"); // forget any previous session before reading the impersonated one
+			useAuthStore.setState({ status: "loading" });
+			await store.bootstrap();
+			const { profile, permissions } = useAuthStore.getState();
+			router.replace(profile && permissions ? resolveDestination(profile, permissions) : "/login");
 		}
-		exchange();
+		void exchange();
 	}, [token, router]);
 
 	return (

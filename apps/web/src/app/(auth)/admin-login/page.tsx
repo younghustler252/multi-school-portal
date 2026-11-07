@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,14 +9,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/layout/logo";
 import { COMPANY } from "@/config/company";
-import { useAuthStore } from "@/stores/auth.store";
+import { useLogin } from "@/features/auth/hooks/use-login";
 import { loginSchema, LoginFormValues } from "@/features/auth/schemas/login.schema";
-import { ApiErrorResponse } from "@/types/api-response";
 
 export default function AdminLoginPage() {
-	const router = useRouter();
-	const login = useAuthStore((s) => s.login);
-	const [serverError, setServerError] = useState<string | null>(null);
+	// Platform administrators only: a school session signing in here is refused and signed out again.
+	const { submit, error: serverError, pending } = useLogin({
+		accept: ({ kind }) => (kind === "platform" ? null : "This login is for platform administrators only."),
+	});
 
 	const {
 		register,
@@ -27,27 +25,7 @@ export default function AdminLoginPage() {
 	} = useForm<LoginFormValues>({ resolver: zodResolver(loginSchema) });
 
 	async function onSubmit(values: LoginFormValues) {
-		setServerError(null);
-		try {
-			await login(values.email, values.password);
-			const user = useAuthStore.getState().user;
-
-			if (user?.role !== "super_admin") {
-				setServerError("This login is for platform administrators only.");
-				useAuthStore.getState().logout();
-				return;
-			}
-
-			if (useAuthStore.getState().mustChangePassword) {
-				router.push("/change-password");
-				return;
-			}
-
-			router.push("/dashboard");
-		} catch (err) {
-			const apiErr = err as ApiErrorResponse;
-			setServerError(apiErr.message || "Login failed — please try again.");
-		}
+		await submit(values.email, values.password);
 	}
 
 	return (
@@ -81,9 +59,9 @@ export default function AdminLoginPage() {
 						<Input id="password" type="password" autoComplete="current-password" {...register("password")} />
 						{errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
 					</div>
-					<Button type="submit" className="w-full" disabled={isSubmitting}>
-						{isSubmitting && <Loader2 className="size-4 animate-spin" />}
-						{isSubmitting ? "Logging in…" : "Log in"}
+					<Button type="submit" className="w-full" disabled={isSubmitting || pending}>
+						{(isSubmitting || pending) && <Loader2 className="size-4 animate-spin" />}
+						{isSubmitting || pending ? "Logging in…" : "Log in"}
 					</Button>
 				</form>
 			</div>

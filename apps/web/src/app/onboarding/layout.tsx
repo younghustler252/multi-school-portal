@@ -1,10 +1,8 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
-import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/stores/auth.store";
+import type { ReactNode } from "react";
 import { AuthProvider } from "@/components/layout/auth-provider";
-import { Skeleton } from "@/components/ui/skeleton";
+import { SessionGate } from "@/components/layout/session-gate";
 import Link from "next/link";
 import { useRouter as useNavRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -14,39 +12,6 @@ import { COMPANY } from "@/config/company";
 import { buildSubdomainUrl } from "@/lib/subdomain-url";
 import { useMySchool } from "@/features/school/hooks/use-school";
 import { useOnboardingProgress } from "@/features/school/hooks/use-onboarding-progress";
-
-function OnboardingGuard({ children }: { children: ReactNode }) {
-	const router = useRouter();
-	const user = useAuthStore((s) => s.user);
-	const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-	const mustChangePassword = useAuthStore((s) => s.mustChangePassword);
-
-	useEffect(() => {
-		if (!isAuthenticated) {
-			router.replace("/login");
-			return;
-		}
-		if (mustChangePassword) {
-			router.replace("/change-password");
-			return;
-		}
-		// Onboarding is a school_admin-only flow — anyone else authenticated
-		// shouldn't land here at all.
-		if (user && user.role !== "school_admin") {
-			router.replace("/");
-		}
-	}, [isAuthenticated, mustChangePassword, user, router]);
-
-	if (!isAuthenticated || !user || mustChangePassword || user.role !== "school_admin") {
-		return (
-			<div className="flex min-h-screen items-center justify-center bg-background p-8">
-				<Skeleton className="h-10 w-48" />
-			</div>
-		);
-	}
-
-	return <>{children}</>;
-}
 
 export default function OnboardingLayout({ children }: { children: ReactNode }) {
 	const navRouter = useNavRouter();
@@ -68,7 +33,7 @@ export default function OnboardingLayout({ children }: { children: ReactNode }) 
 
 	return (
 		<AuthProvider>
-			<OnboardingGuard>
+			<SessionGate realm="school" allow={(p) => p.holdsEverything}>
 				<div className="min-h-screen bg-background text-foreground">
 					<header className="sticky top-0 z-20 border-b border-border bg-background/85 backdrop-blur">
 						<div className="flex h-16 items-center gap-3 px-4 md:px-8">
@@ -106,7 +71,7 @@ export default function OnboardingLayout({ children }: { children: ReactNode }) 
 
 					<main className="mx-auto w-full max-w-6xl px-4 py-6 md:px-8 md:py-8">{children}</main>
 				</div>
-			</OnboardingGuard>
+			</SessionGate>
 		</AuthProvider>
 	);
 }

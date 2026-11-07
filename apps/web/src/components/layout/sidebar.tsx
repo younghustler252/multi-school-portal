@@ -8,13 +8,13 @@ import { Logo } from "@/components/layout/logo";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import { NAV_CONFIG } from "@/lib/nav-config";
-import { Role } from "@/types/roles";
+import { NAV_ICONS } from "@/lib/nav-config";
+import { visibleNav } from "@/lib/nav-model";
+import { useAuthStore } from "@/stores/auth.store";
 import { usePublicSchoolInfo } from "@/features/school/hooks/use-school";
 import { useOnboardingProgress } from "@/features/school/hooks/use-onboarding-progress";
 
 interface SidebarProps {
-	role: Role;
 	isOpen: boolean;
 	onClose: () => void;
 }
@@ -34,7 +34,7 @@ function useCurrentSubdomain(): string | null {
 }
 
 // Isolated so its hooks only ever run when this actually mounts — i.e. only
-// for school_admin. Rendering it conditionally is what keeps the onboarding
+// for a person who holds every permission (school admin). Rendering it conditionally is what keeps the onboarding
 // queries from ever firing (and erroring on permission) for other roles.
 function FinishSetupLink() {
 	const progress = useOnboardingProgress();
@@ -59,15 +59,16 @@ function FinishSetupLink() {
 	);
 }
 
-function SidebarContent({ role, onNavigate }: { role: Role; onNavigate?: () => void }) {
+function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 	const pathname = usePathname();
-	const navItems = NAV_CONFIG[role];
+	const permissions = useAuthStore((s) => s.permissions);
+	const navItems = visibleNav(permissions);
 	const subdomain = useCurrentSubdomain();
 	const { data: school } = usePublicSchoolInfo(subdomain ?? "");
 
 	return (
 		<div className="flex h-full flex-col bg-sidebar/95 backdrop-blur-md text-sidebar-foreground">
-			<Link href="/school-admin/dashboard" className="flex h-16 items-center gap-2 border-b border-sidebar-border px-5">
+			<Link href="/home" className="flex h-16 items-center gap-2 border-b border-sidebar-border px-5">
 				<Logo size={32} logoUrl={school?.logoUrl} name={school?.name} />
 				<div className="leading-tight">
 					<div className="max-w-[180px] truncate font-semibold text-sidebar-foreground">
@@ -78,8 +79,8 @@ function SidebarContent({ role, onNavigate }: { role: Role; onNavigate?: () => v
 
 			<nav className="flex-1 space-y-0.5 overflow-y-auto p-3">
 				{navItems.map((item) => {
-					const active = pathname === item.to || (!item.to.endsWith("/dashboard") && pathname.startsWith(item.to));
-					const Icon = item.icon;
+					const active = pathname === item.to || (item.to !== "/home" && !item.to.endsWith("/dashboard") && pathname.startsWith(item.to));
+					const Icon = NAV_ICONS[item.icon];
 					return (
 						<Link
 							key={item.to}
@@ -97,7 +98,7 @@ function SidebarContent({ role, onNavigate }: { role: Role; onNavigate?: () => v
 				})}
 			</nav>
 
-			{role === "school_admin" && <FinishSetupLink />}
+			{permissions?.holdsEverything && <FinishSetupLink />}
 
 			<Separator className="bg-sidebar-border" />
 
@@ -111,15 +112,15 @@ function SidebarContent({ role, onNavigate }: { role: Role; onNavigate?: () => v
 	);
 }
 
-export function Sidebar({ role, isOpen, onClose }: SidebarProps) {
+export function Sidebar({ isOpen, onClose }: SidebarProps) {
 	return (
 		<>
 			<aside className="hidden w-64 shrink-0 border-r border-sidebar-border lg:block">
-				<SidebarContent role={role} />
+				<SidebarContent />
 			</aside>
 			<Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
 				<SheetContent side="left" className="w-64 border-sidebar-border bg-sidebar/95 p-0 backdrop-blur-md lg:hidden">
-					<SidebarContent role={role} onNavigate={onClose} />
+					<SidebarContent onNavigate={onClose} />
 				</SheetContent>
 			</Sheet>
 		</>
