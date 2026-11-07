@@ -54,3 +54,28 @@ The script refuses `NODE_ENV=production`, requires a loopback PostgreSQL host, a
 To also exercise self-registration, set `REGISTER_TEST_PASSWORD` in the environment. The script then calls `POST /api/v1/auth/register`; that flow leaves the school pending and requires email OTP verification. Use your development mail transport to retrieve the OTP.
 
 Use only a disposable local database. The platform admin bootstrap uses Prisma directly because the application intentionally has no public endpoint for granting a user platform-wide administrative authority. The script's role is local-only and must not be reused in production.
+
+
+## One-command local run
+
+From `apps/api`, after starting the API server and its background worker, configure these variables in your local `.env` (do not commit secrets):
+
+```dotenv
+DATABASE_URL=postgresql://...@localhost:5432/...
+ALLOW_LOCAL_TEST_ADMIN_BOOTSTRAP=true
+TEST_PLATFORM_ADMIN_EMAIL=platform.admin@example.test
+TEST_PLATFORM_ADMIN_PASSWORD=use-a-disposable-local-password
+PLATFORM_BASE_URL=http://admin.localhost:4000
+```
+
+Then run:
+
+```bash
+npm run test:local
+```
+
+This command bootstraps the local platform admin, initializes platform settings (including the required `platformName` interpolation value), creates one uniquely named platform-managed test school through the API, and then runs the GET-only Newman smoke collection. It does not require Postman Desktop. `npx` may download Newman the first time.
+
+**Current scope limitation:** this first automated pass does not yet create the school-admin login, academic session/terms, classes, subjects, staff, students, guardians, enrolments or calendar events. Those write fixtures must be added only after their current DTOs, tenant-provisioning readiness and school-admin authentication flow have been verified. The smoke suite is read-only and does not verify the new school's write workflows.
+
+The previous failed school-create attempt may have persisted a school or queued provisioning before its response failed. Inspect the platform school/provisioning list before rerunning, and use a disposable local database. The script generates a fresh subdomain for each run and never deletes existing data.
