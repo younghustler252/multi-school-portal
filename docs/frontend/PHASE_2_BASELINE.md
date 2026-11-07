@@ -25,14 +25,14 @@ Rule for M0 and M1: **no business-module error is fixed just to lower the count.
 | 3 | `useClassSubjects` now needs a second argument | school-admin and principal grades pages, `child-grades-table`, `student-grades-card` call it with one argument | No | Classes / Grades |
 | 4 | `EnrichedClassSubject` property mismatches | `features/classes` (types, `class-subjects-section`, `class.api`) | No | Classes |
 | 5 | Staff and student DTO mismatches | `features/staff`, `features/students` | No | Staff / Students |
-| 6 | React Hook Form + Zod resolver type mismatch | **not located statically** | **Undetermined** (blocks only if it is in an auth form) | — |
+| 6 | React Hook Form + Zod resolver type mismatch | `features/classes/components/create-class-dialog.tsx` (`capacity` is `unknown` through `zodResolver`) | No (not an auth form) | Classes |
 | 7 | Popover trigger `asChild` | `school-admin/students/new/page.tsx` (this UI kit uses Base UI's `render`, not `asChild`) | No | Students |
 | 8 | School settings DTO changes | `features/school` settings | No | School settings |
 | 9 | Document status/type mismatches | `features/school` documents, super-admin document review, onboarding documents step | No (onboarding is out of Phase 2 scope) | School / Platform |
 | 10 | Missing `feeApi.getMyInvoices` | `features/students/hooks/use-student-portal.ts` | No | Fees / Student portal |
-| 11 | API response union not handled | **not located statically** | **Undetermined** (blocks if it is in `lib/api`, `stores` or `features/auth`/`user`) | — |
+| 11 | API response union not handled | `features/super-admin/components/reset-admin-password-button.tsx:18` (`res.data` read without checking `success`) | No | Platform / super-admin |
 
-**Foundation-blocking: none identified from the descriptions; two undetermined (#6, #11).** Both are settled by the file paths in the full compiler output.
+**Foundation-blocking: none.** Confirmed 2026-11-07 against the full compiler output (`baseline/typecheck-2026-11-06.txt`): zero errors on foundation paths. Categories #6 and #11 are now located (above). Also seen in the output: `readonly` designation options passed as `string[]` (staff forms), `DocumentType` export missing (`rejected-screen`), implicit `any` in `student/dashboard` (follows from #10); all business modules.
 
 ## 3. Finishing the categorization
 

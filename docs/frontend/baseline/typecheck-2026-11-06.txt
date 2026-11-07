@@ -1,0 +1,276 @@
+# npm run typecheck:web — recorded 2026-11-07 by the repository owner
+# NOTE: measured with the phase2/m1-session branch checked out (M1 touches none of these files). Same count (32 errors, 18 files) as the pre-M1 baseline.
+
+benhack@benhack-HP-EliteBook-Folio-9470m:~/yt-projects/multi-school-portal$ npm run typecheck:web
+
+> multi-school-portal@1.0.0 typecheck:web
+> npm run typecheck -w apps/web
+
+
+> @schoolos/web@0.1.0 typecheck
+> tsc --noEmit
+
+src/app/(dashboard)/bursar/dashboard/page.tsx:27:24 - error TS2339: Property 'amountKobo' does not exist on type 'EnrichedInvoice'.
+
+27    acc.expected += inv.amountKobo;
+                          ~~~~~~~~~~
+
+src/app/(dashboard)/guardian/report-card/page.tsx:47:26 - error TS2322: Type '{ reportCardId: string; label: string; }' is not assignable to type 'IntrinsicAttributes & { onClick: () => void; label?: string | undefined;}'.
+  Property 'reportCardId' does not exist on type 'IntrinsicAttributes & { onClick: () => void; label?: string| undefined; }'.
+
+47         <PdfViewerButton reportCardId={rc.id} label="View" />
+                            ~~~~~~~~~~~~
+
+src/app/(dashboard)/principal/grades/page.tsx:22:34 - error TS2554: Expected 2 arguments, but got 1.
+
+22  const { data: classSubjects } = useClassSubjects(classId);
+                                    ~~~~~~~~~~~~~~~~
+
+  src/features/classes/hooks/use-classes.ts:82:2
+    82  termId: string | undefined,
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    An argument for 'termId' was not provided.
+
+src/app/(dashboard)/principal/grades/page.tsx:30:104 - error TS2339: Property 'id' does not exist on type 'EnrichedClassSubject'.
+
+30   if (!classSubjectId && classSubjects && classSubjects.length > 0) setClassSubjectId(classSubjects[0].id);
+                                                                                                          ~~
+
+src/app/(dashboard)/principal/grades/page.tsx:76:65 - error TS2339: Property 'id' does not exist on type 'EnrichedClassSubject'.
+
+76         {(value: string | null) => classSubjects?.find((c) => c.id === value)?.subjectName ?? "Select a subject"}
+                                                                   ~~
+
+src/app/(dashboard)/principal/grades/page.tsx:82:36 - error TS2339: Property 'id' does not exist on type 'EnrichedClassSubject'.
+
+82         return <SelectItem key={cs.id} value={cs.id}>{subject?.name ?? "Unknown"}</SelectItem>;
+                                      ~~
+
+src/app/(dashboard)/principal/grades/page.tsx:82:50 - error TS2339: Property 'id' does not exist on type 'EnrichedClassSubject'.
+
+82         return <SelectItem key={cs.id} value={cs.id}>{subject?.name ?? "Unknown"}</SelectItem>;
+                                                    ~~
+
+src/app/(dashboard)/school-admin/grades/page.tsx:52:67 - error TS2554: Expected 2 arguments, but got 1.
+
+52  const { data: classSubjects, isLoading: classSubjectsLoading } = useClassSubjects(classId);
+                                                                     ~~~~~~~~~~~~~~~~
+
+  src/features/classes/hooks/use-classes.ts:82:2
+    82  termId: string | undefined,
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    An argument for 'termId' was not provided.
+
+src/app/(dashboard)/school-admin/grades/page.tsx:84:22 - error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'SetStateAction<string>'.
+  Type 'null' is not assignable to type 'SetStateAction<string>'.
+
+84    setClassSubjectId(classSubjects[0].classSubjectId);
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+src/app/(dashboard)/school-admin/staff/new/page.tsx:48:48 - error TS2345: Argument of type '{ [k: string]: string; }' is not assignable to parameter of type 'CreateStaffDto'.
+  Type '{ [k: string]: string; }' is missing the following properties from type 'CreateStaffDto': email, firstName, lastName, role
+
+48    const staff = await createStaff.mutateAsync(cleaned);
+                                                  ~~~~~~~
+
+src/app/(dashboard)/school-admin/staff/new/page.tsx:142:9 - error TS4104: The type 'readonly ["Head of Department", "Vice Principal", "Principal", "Senior Master/Mistress", "Bursar", "Librarian", "Counsellor"]' is 'readonly' and cannot be assigned to the mutable type 'string[]'.
+
+142         options={DESIGNATION_OPTIONS}
+            ~~~~~~~
+
+  src/components/ui/select-with-other.tsx:10:2
+    10  options: string[];
+        ~~~~~~~
+    The expected type comes from property 'options' which is declared here on type 'IntrinsicAttributes & SelectWithOtherProps'
+
+src/app/(dashboard)/school-admin/students/new/page.tsx:74:52 - error TS2345: Argument of type '{ [k: string]:string; }' is not assignable to parameter of type 'CreateStudentDto'.
+  Type '{ [k: string]: string; }' is missing the following properties from type 'CreateStudentDto': firstName, lastName
+
+74    const student = await createStudent.mutateAsync(cleaned);
+                                                      ~~~~~~~
+
+src/app/(dashboard)/school-admin/students/new/page.tsx:286:25 - error TS2322: Type '{ children: Element; asChild: true; }' is not assignable to type 'IntrinsicAttributes & NativeButtonProps & Omit<WithBaseUIEvent<DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>>, "style" | ... 3 more ... | "color"> & { ...; } & { ...; }'.
+  Property 'asChild' does not exist on type 'IntrinsicAttributes & NativeButtonProps & Omit<WithBaseUIEvent<DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>>, "style" | ... 3 more ... | "color"> & { ...; } & { ...; }'.
+
+286         <PopoverTrigger asChild>
+                            ~~~~~~~
+
+src/app/(dashboard)/student/dashboard/page.tsx:32:38 - error TS7006: Parameter 'sum' implicitly has an 'any' type.
+
+32  const totalOwed = invoices?.reduce((sum, i) => sum + i.balanceKobo, 0) ?? 0;
+                                        ~~~
+
+src/app/(dashboard)/student/dashboard/page.tsx:32:43 - error TS7006: Parameter 'i' implicitly has an 'any' type.
+
+32  const totalOwed = invoices?.reduce((sum, i) => sum + i.balanceKobo, 0) ?? 0;
+                                             ~
+
+src/features/classes/components/create-class-dialog.tsx:35:3 - error TS2322: Type 'Resolver<{ name: string; level?: string | undefined; capacity?: unknown; }, any, { name: string; level?: string | undefined; capacity?: number | undefined; }>' is not assignable to type 'Resolver<{ name: string; level?: string | undefined; capacity?: number | undefined; }, any, { name: string; level?: string | undefined; capacity?: number | undefined; }>'.
+  Types of parameters 'options' and 'options' are incompatible.
+    Type 'ResolverOptions<{ name: string; level?: string | undefined; capacity?: number | undefined; }>' is not assignable to type 'ResolverOptions<{ name: string; level?: string | undefined; capacity?: unknown; }>'.
+      Type 'unknown' is not assignable to type 'number | undefined'.
+
+35   resolver: zodResolver(createClassSchema),
+     ~~~~~~~~
+
+src/features/classes/components/create-class-dialog.tsx:57:34 - error TS2345: Argument of type '(values: { name: string; level?: string | undefined; capacity?: number | undefined; }) => Promise<void>' is not assignable to parameter of type 'SubmitHandler<TFieldValues, Promise<void>>'.
+  Types of parameters 'values' and 'data' are incompatible.
+    Type 'TFieldValues' is not assignable to type '{ name: string; level?: string | undefined; capacity?: number | undefined; }'.
+      Property 'name' is missing in type 'FieldValues' but required in type '{ name: string; level?: string |undefined; capacity?: number | undefined; }'.
+
+57     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                                    ~~~~~~~~
+
+  src/features/classes/schemas/class.schema.ts:4:2
+    4  name: z.string().min(1, "Class name is required").max(50),
+       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    'name' is declared here.
+
+src/features/grades/components/student-grades-card.tsx:9:34 - error TS2554: Expected 2 arguments, but got 1.
+
+9  const { data: classSubjects } = useClassSubjects(enrolment?.classId ?? "");
+                                   ~~~~~~~~~~~~~~~~
+
+  src/features/classes/hooks/use-classes.ts:82:2
+    82  termId: string | undefined,
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    An argument for 'termId' was not provided.
+
+src/features/grades/components/student-grades-card.tsx:17:43 - error TS2339: Property 'id' does not exist on type 'EnrichedClassSubject'.
+
+17   const cs = classSubjects?.find((c) => c.id === classSubjectId);
+                                             ~~
+
+src/features/guardians/components/child-grades-table.tsx:16:34 - error TS2554: Expected 2 arguments, but got 1.
+
+16  const { data: classSubjects } = useClassSubjects(classId ?? "");
+                                    ~~~~~~~~~~~~~~~~
+
+  src/features/classes/hooks/use-classes.ts:82:2
+    82  termId: string | undefined,
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    An argument for 'termId' was not provided.
+
+src/features/guardians/components/child-grades-table.tsx:19:39 - error TS2339: Property 'id' does not exist on type 'EnrichedClassSubject'.
+
+19   return classSubjects?.find((c) => c.id === classSubjectId)?.subjectName ?? "Subject";
+                                         ~~
+
+src/features/report-cards/components/child-report-cards-list.tsx:33:26 - error TS2322: Type '{ reportCardId: string; label: string; }' is not assignable to type 'IntrinsicAttributes & { onClick: () => void; label?: string | undefined; }'.
+  Property 'reportCardId' does not exist on type 'IntrinsicAttributes & { onClick: () => void; label?: string| undefined; }'.
+
+33         <PdfViewerButton reportCardId={rc.id} label="View" />
+                            ~~~~~~~~~~~~
+
+src/features/school/components/onboarding/business-info-step.tsx:55:37 - error TS2345: Argument of type '{ motto: string | undefined; website: string | undefined; principalName: string | undefined; }' is not assignable to parameter of type 'UpdateSchoolSettingsDto'.
+  Property 'teachingModel' is missing in type '{ motto: string | undefined; website: string | undefined; principalName: string | undefined; }' but required in type 'UpdateSchoolSettingsDto'.
+
+55    await updateSettings.mutateAsync({ motto: values.motto || undefined, website: values.website || undefined, principalName: values.principalName || undefined });
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  src/features/school/types/school-settings.types.ts:37:2
+    37  teachingModel:  TeachingModel | null;
+        ~~~~~~~~~~~~~
+    'teachingModel' is declared here.
+
+src/features/school/components/onboarding/documents-gate-step.tsx:162:10 - error TS2322: Type '{ name: string; status: DocumentStatus; uploadedAt: string; rejectionReason: string | null; } | null' is not assignable to type 'ExistingFile | null | undefined'.
+  Type '{ name: string; status: DocumentStatus; uploadedAt: string; rejectionReason: string | null; }' is notassignable to type 'ExistingFile'.
+    Types of property 'status' are incompatible.
+      Type 'DocumentStatus' is not assignable to type '"pending" | "rejected" | "approved" | undefined'.
+        Type '"under_review"' is not assignable to type '"pending" | "rejected" | "approved" | undefined'.
+
+162          file={document ? {
+             ~~~~
+
+  src/components/ui/file-drop.tsx:37:2
+    37  file?: ExistingFile | null;
+        ~~~~
+    The expected type comes from property 'file' which is declared here on type 'IntrinsicAttributes & FileDropProps'
+
+src/features/school/components/onboarding/documents-gate-step.tsx:179:11 - error TS2322: Type 'DocumentStatus' is not assignable to type '"pending" | "rejected" | "approved" | undefined'.
+  Type '"under_review"' is not assignable to type '"pending" | "rejected" | "approved" | undefined'.
+
+179           status: document.status,
+              ~~~~~~
+
+src/features/school/components/rejected-screen.tsx:6:32 - error TS2724: '"../types/school-document.types"' has no exported member named 'DocumentType'. Did you mean 'IdDocumentType'?
+
+6 import { DOCUMENT_TYPE_LABELS, DocumentType } from "../types/school-document.types";
+                                 ~~~~~~~~~~~~
+
+src/features/school/components/rejected-screen.tsx:26:46 - error TS7053: Element implicitly has an 'any' typebecause expression of type 'DocumentType' can't be used to index type 'Record<SchoolDocumentType, string>'.
+
+26        <div className="text-sm font-medium">{DOCUMENT_TYPE_LABELS[doc.type as DocumentType] ?? doc.type}</div>
+                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+src/features/school/components/settings/report-card-template-tab.tsx:42:37 - error TS2345: Argument of type '{ reportCardTemplate: ReportCardTemplate; }' is not assignable to parameter of type 'UpdateSchoolSettingsDto'.
+  Property 'teachingModel' is missing in type '{ reportCardTemplate: ReportCardTemplate; }' but required in type 'UpdateSchoolSettingsDto'.
+
+42    await updateSettings.mutateAsync({ reportCardTemplate: template });
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  src/features/school/types/school-settings.types.ts:37:2
+    37  teachingModel:  TeachingModel | null;
+        ~~~~~~~~~~~~~
+    'teachingModel' is declared here.
+
+src/features/school/components/settings/report-card-template-tab.tsx:73:37 - error TS2345: Argument of type '{ letterheadContentTopMm: number; letterheadContentBottomMm: number; }' is not assignable to parameter of type'UpdateSchoolSettingsDto'.
+  Property 'teachingModel' is missing in type '{ letterheadContentTopMm: number; letterheadContentBottomMm: number; }' but required in type 'UpdateSchoolSettingsDto'.
+
+73    await updateSettings.mutateAsync({
+                                       ~
+74     letterheadContentTopMm: Number(topMm),
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+75     letterheadContentBottomMm: Number(bottomMm),
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+76    });
+   ~~~~
+
+  src/features/school/types/school-settings.types.ts:37:2
+    37  teachingModel:  TeachingModel | null;
+        ~~~~~~~~~~~~~
+    'teachingModel' is declared here.
+
+src/features/staff/components/edit-staff-dialog.tsx:140:8 - error TS4104: The type 'readonly ["Head of Department", "Vice Principal", "Principal", "Senior Master/Mistress", "Bursar", "Librarian", "Counsellor"]' is 'readonly' and cannot be assigned to the mutable type 'string[]'.
+
+140        options={DESIGNATION_OPTIONS}
+           ~~~~~~~
+
+  src/components/ui/select-with-other.tsx:10:2
+    10  options: string[];
+        ~~~~~~~
+    The expected type comes from property 'options' which is declared here on type 'IntrinsicAttributes & SelectWithOtherProps'
+
+src/features/students/hooks/use-student-portal.ts:44:29 - error TS2339: Property 'getMyInvoices' does not exist on type '{ listFeeTypes: () => Promise<ApiResponse<FeeTypeResponseData[]>>; createFeeType: (data: CreateFeeTypeDto) => Promise<ApiResponse<FeeTypeResponseData>>; ... 14 more ...; pingDefaulters: (data: PingDefaultersDto) => Promise<...>; }'.
+
+44    const res = await feeApi.getMyInvoices({ termId });
+                               ~~~~~~~~~~~~~
+
+src/features/super-admin/components/reset-admin-password-button.tsx:18:22 - error TS2339: Property 'data' does not exist on type 'ApiResponse<{ message: string; }>'.
+  Property 'data' does not exist on type 'ApiErrorResponse'.
+
+18    toast.success(res.data.message);
+                        ~~~~
+
+
+Found 32 errors in 18 files.
+
+Errors  Files
+     1  src/app/(dashboard)/bursar/dashboard/page.tsx:27
+     1  src/app/(dashboard)/guardian/report-card/page.tsx:47
+     5  src/app/(dashboard)/principal/grades/page.tsx:22
+     2  src/app/(dashboard)/school-admin/grades/page.tsx:52
+     2  src/app/(dashboard)/school-admin/staff/new/page.tsx:48
+     2  src/app/(dashboard)/school-admin/students/new/page.tsx:74
+     2  src/app/(dashboard)/student/dashboard/page.tsx:32
+     2  src/features/classes/components/create-class-dialog.tsx:35
+     2  src/features/grades/components/student-grades-card.tsx:9
+     2  src/features/guardians/components/child-grades-table.tsx:16
+     1  src/features/report-cards/components/child-report-cards-list.tsx:33
+     1  src/features/school/components/onboarding/business-info-step.tsx:55
+     2  src/features/school/components/onboarding/documents-gate-step.tsx:162
+     2  src/features/school/components/rejected-screen.tsx:6
+     2  src/features/school/components/settings/report-card-template-tab.tsx:42
+     1  src/features/staff/components/edit-staff-dialog.tsx:140
+     1  src/features/students/hooks/use-student-portal.ts:44
+     1  src/features/super-admin/components/reset-admin-password-button.tsx:18
