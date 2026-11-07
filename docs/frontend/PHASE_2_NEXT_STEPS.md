@@ -7,19 +7,17 @@
 
 | Branch | Head | State |
 |---|---|---|
-| `refactor/modules` | `4883753` | Integration branch. Does **not** contain M0 or M1 yet. |
-| `phase2/m0-boot` | `e7d2064` | M0 done and pushed (boot baseline, API origin fix, contracts wiring, Vitest). 15 tests pass on the owner's machine. |
-| `phase2/m1-session` | see `git log` | M1 on top of M0 (one feature commit + this doc). Written, **not yet run** against the real API. |
+| `refactor/modules` | `b71c52f` | Integration branch. **Contains M0** (merge commit). Does not contain M1. |
+| `phase2/m0-boot` | `f06a569` | M0 done, merged into `refactor/modules`. Typecheck baseline saved (32 errors / 18 files, none on foundation paths). |
+| `phase2/m1-session` | see `git log` | Branched from `e7d2064`, i.e. **before** M0's last docs commit and the merge. Needs bringing onto `refactor/modules` (merge it in; do not force-push the pushed branch without the owner's say-so). |
 
 Do not rebase or squash M0 after M1 exists without rebasing M1 onto the result.
 
 ## Do next, in this order
 
-1. **Close M0.** Run `npm run typecheck:web 2>&1 | tee docs/frontend/baseline/typecheck-2026-11-06.txt`, commit the file, and check the foundation-path grep in `PHASE_2_BASELINE.md` §3. Categories #6 (RHF/Zod resolver) and #11 (API response union) are undetermined until then. Then integrate `phase2/m0-boot` into `refactor/modules`.
-2. **Bring M1 forward** (rebase/merge onto the updated `refactor/modules`), then run:
-   - `npm run test:web` — expect the earlier 15 plus M1's tests. `tests/auth/auth-store.test.ts` has **never been run**.
-   - `npm run typecheck:web` — compare to the 32-error baseline; any new error in a file M1 touched is an M1 bug.
-3. **M1 exit check: real login against the local API** (API on :5000, web on :3000). Try a school user, a platform user, a user with several personas, a user with several schools, a user who must change password, an unverified user. Record results here.
+1. ~~Close M0~~ **Done 2026-11-07.** Typecheck saved, #6 and #11 located, no foundation blockers, M0 merged into `refactor/modules`.
+2. **Bring M1 forward** onto `refactor/modules`. Already measured on the owner's machine (M1 branch): `npm run test:web` = 78/78 pass; `npm run typecheck:web` = the same 32 errors / 18 files as the baseline, none in M1 files. Re-run both after the merge.
+3. **M1 exit check: real login against the local API** (needs seeded data; the owner has none yet — create a school, a staff user and a platform user first) (API on :5000, web on :3000). Try a school user, a platform user, a user with several personas, a user with several schools, a user who must change password, an unverified user. Record results here.
 4. Decide whether M1 is integrated.
 5. Only then start **M2** (below).
 
@@ -30,9 +28,19 @@ Do not rebase or squash M0 after M1 exists without rebasing M1 onto the result.
 - Shared login flow for `/login`, `/portal-login`, `/admin-login` (`features/auth/hooks/use-login.ts`).
 - `SessionGate` replaces role guards in the layouts; nav and buttons come from permissions (`lib/nav-model.ts`, `lib/use-access.ts`); new `/home` page.
 
+## Verified against the backend source
+
+- **School selection (VERIFIED, 2026-11-07, by the repository owner reading the backend).**
+  1. A platform-host login can return `SCHOOL_SELECTION_REQUIRED` with `schools: [{ id, name, url }]`.
+  2. Selection responses carry **no tokens and set no session cookies**.
+  3. `url` is the school's base URL: its verified custom domain when it has one, otherwise `<subdomain>.<BASE_DOMAIN>`.
+  4. Choosing a school sends the browser to that URL (M1: `window.location.assign`, http/https only).
+  5. The user **logs in again on the school host** with email and password.
+  6. The backend resolves the tenant from the hostname, checks active membership, then issues the school session.
+  Therefore: **no automatic token exchange, and platform cookies must not be assumed to authenticate the school session.** The second login is the contract, not a gap. M1 already behaves this way; do not "improve" it. Still untested end to end because no seeded login data exists yet.
+
 ## Open / unresolved (do not treat as decided)
 
-- **School selection (UNRESOLVED).** M1 sends the user to the chosen school's `url` and they log in again there. This is an inference. Verify the real backend contract (what `url` is, whether a session or ticket carries over) before relying on it.
 - Web-local auth/session types (`src/lib/auth/session-types.ts`) vs extending `@schoolos/contracts` (API-004). Contract gaps are listed in `PHASE_2_BASELINE.md` §5.
 - Fee "waive" buttons use a guessed permission key (`fees.adjustments.approve`). Confirm in the fees phase.
 - Onboarding layout still runs queries before the gate decides (pre-existing).
