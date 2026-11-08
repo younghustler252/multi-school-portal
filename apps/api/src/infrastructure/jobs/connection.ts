@@ -1,6 +1,5 @@
 import { Redis }   from "ioredis";
 import { env }      from "../../config/env";
-import { tr } from "zod/v4/locales";
 
 /*
 |--------------------------------------------------------------------------
