@@ -57,9 +57,11 @@ Done without needing deployment answers:
 - **Middleware cookie fix:** `lib/route-guard.ts` (`decideRoute`, tested). A protected page loads with EITHER cookie (access lives 15 min, refresh 7 days, both `path: "/"`); `/login` only bounces away on a live access cookie, so a dead refresh cookie cannot cause a redirect loop. `/home` is now protected.
 - **Impersonation fix:** the API returns `{ redirectUrl }` with a one-time `?ticket=`; the button used to read a non-existent `accessToken` and build `?token=undefined`. It now follows `redirectUrl` (http/https only) and `/impersonate-entry` reads `ticket`. Not tested against a real impersonation yet.
 
-Still blocked on owner answers (below): TENANT-001..003 hard-coded origins, production API origin derivation, custom domains, `get-subdomain.ts` (hard-coded `admin`).
+- **Deployment-aware configuration (2026-11-08):** `lib/deployment.ts` (env-driven host classification and link building, tested), `NEXT_PUBLIC_API_URL` override in `get-api-base-url.ts`, no hard-coded domains left, middleware treats custom domains like school hosts. Design, options and the backend conflicts are in `docs/frontend/DEPLOYMENT.md`.
 
-**Questions for the owner:** (1) in production do the web app and API share one host with an `/api` proxy, or are they on separate hosts? (2) will `COOKIE_DOMAIN` be set? (3) what are the production base domain and admin subdomain?
+Still blocked on owner decisions (`DEPLOYMENT.md` §7): same-origin proxy vs separate API host, custom domains, Netlify vs VPS for the web app, what `app.` means.
+
+**Owner direction (2026-11-08):** subdomain layout, hosting provider and domain stay configurable via env vars; placeholders only. The proposed `app.`/`api.` hosts conflict with host-based tenancy: see `DEPLOYMENT.md` §1.
 
 ## M2 scope (original list)
 

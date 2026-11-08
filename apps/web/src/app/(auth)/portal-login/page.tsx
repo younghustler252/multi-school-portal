@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, ArrowRight } from "lucide-react";
@@ -13,18 +12,11 @@ import { LoginSelection } from "@/features/auth/components/login-selection";
 import { usePublicSchoolInfo } from "@/features/school/hooks/use-school";
 import { loginSchema, LoginFormValues } from "@/features/auth/schemas/login.schema";
 import { saveLastPortal } from "@/lib/last-portal-storage";
+import { useCurrentSubdomain } from "@/lib/use-current-subdomain";
+import { currentDeployment } from "@/lib/deployment";
 
 export default function PortalLoginPage() {
-	const [subdomain, setSubdomain] = useState<string | null>(null);
-
-	useEffect(() => {
-		const hostname = window.location.hostname;
-		const parts = hostname.split(".");
-		const isLocalhostSub = hostname.endsWith(".localhost");
-		if (isLocalhostSub ? parts.length > 1 : parts.length > 2) {
-			setSubdomain(parts[0]);
-		}
-	}, []);
+	const subdomain = useCurrentSubdomain();
 
 	const { data: schoolInfo, isLoading: schoolLoading, isError: schoolNotFound } = usePublicSchoolInfo(subdomain ?? "");
 
@@ -60,7 +52,7 @@ export default function PortalLoginPage() {
 						There's no school portal at <span className="font-medium text-foreground">{subdomain}</span>. Check the link, or head back home.
 					</p>
 					<a href="/" className="mt-6 inline-block text-sm font-medium text-primary hover:underline">
-						Go to schoolos.app →
+						Go to {currentDeployment().baseDomain} →
 					</a>
 				</div>
 			</div>

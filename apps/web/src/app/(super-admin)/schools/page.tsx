@@ -1,5 +1,6 @@
 "use client";
 
+import { currentDeployment, schoolHostLabel } from "@/lib/deployment";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -114,7 +115,7 @@ export default function AdminSchoolsPage() {
 							<MobileCard>
 								<MobileCardHeader
 									title={school.name}
-									subtitle={`${school.subdomain}.schoolos.app`}
+									subtitle={`${schoolHostLabel(currentDeployment(), school.subdomain)}`}
 									badge={<Badge variant={statusVariant(school.status)} className="capitalize">{school.status}</Badge>}
 								/>
 								<div className="mt-3 flex items-center justify-between text-sm">
@@ -174,7 +175,7 @@ export default function AdminSchoolsPage() {
 										<Link href={`/schools/${school.id}`} className="font-medium hover:underline">
 											{school.name}
 										</Link>
-										<div className="text-xs text-muted-foreground">{school.subdomain}.schoolos.app</div>
+										<div className="text-xs text-muted-foreground">{schoolHostLabel(currentDeployment(), school.subdomain)}</div>
 									</td>
 									<td>
 										<Badge variant={school.planName ? "default" : "secondary"}>{school.planName ?? "No plan"}</Badge>

@@ -52,3 +52,24 @@ describe("getApiBaseUrl", () => {
 		expect(getApiBaseUrl()).toBe("http://localhost:5000/api/v1");
 	});
 });
+
+describe("getApiBaseUrl: explicit NEXT_PUBLIC_API_URL", () => {
+	it("uses a same-origin API path as is, on any host", () => {
+		vi.stubEnv("NEXT_PUBLIC_API_URL", "/api/v1");
+		vi.stubGlobal("window", { location: { hostname: "greenfield.example.com" } });
+		expect(getApiBaseUrl()).toBe("/api/v1");
+	});
+
+	it("uses a separate API host as is, on any host", () => {
+		vi.stubEnv("NEXT_PUBLIC_API_URL", "https://api.example.com/api/v1");
+		vi.stubGlobal("window", { location: { hostname: "greenfield.localhost" } });
+		expect(getApiBaseUrl()).toBe("https://api.example.com/api/v1");
+	});
+
+	it("ignores an unusable value and falls back to the development rule", () => {
+		vi.stubEnv("NEXT_PUBLIC_API_URL", "api.example.com");
+		vi.stubEnv("NEXT_PUBLIC_API_HOST", "localhost:5000");
+		vi.stubGlobal("window", { location: { hostname: "localhost" } });
+		expect(getApiBaseUrl()).toBe("http://localhost:5000/api/v1");
+	});
+});

@@ -1,19 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { extractSubdomain, isAdminSubdomain } from "@/lib/get-subdomain";
+import { classifyHost, currentDeployment } from "@/lib/deployment";
 import { decideRoute } from "@/lib/route-guard";
 
 export function middleware(request: NextRequest) {
 	const { pathname } = request.nextUrl;
 	const hostname = request.headers.get("host") ?? "";
-	const subdomain = extractSubdomain(hostname);
-	if (isAdminSubdomain(hostname) && pathname === "/login") {
+	const host = classifyHost(hostname, currentDeployment());
+	if (host.kind === "admin" && pathname === "/login") {
 		const url = request.nextUrl.clone();
 		url.pathname = "/admin-login";
 		return NextResponse.rewrite(url);
 	}
-	// On a school's subdomain, /login rewrites internally to the
-	// subdomain-branded login page — URL stays "/login" for the user.
-	if (subdomain && pathname === "/login") {
+	// On a school's address (its subdomain or its own verified domain), /login rewrites internally to the
+	// school login page; the URL stays "/login" for the user.
+	if ((host.kind === "school" || host.kind === "custom") && pathname === "/login") {
 		const url = request.nextUrl.clone();
 		url.pathname = "/portal-login";
 		return NextResponse.rewrite(url);

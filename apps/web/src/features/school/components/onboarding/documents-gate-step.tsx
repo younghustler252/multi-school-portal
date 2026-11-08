@@ -1,5 +1,6 @@
 "use client";
 
+import { buildSubdomainUrl } from "@/lib/subdomain-url";
 import { useEffect, useRef, useState } from "react";
 import { CheckCircle2, Clock, XCircle } from "lucide-react";
 import { toast } from "sonner";
@@ -39,11 +40,7 @@ export function DocumentsGateStep({ isVerified, onVerified, schoolCategory }: Do
 		hasRedirected.current = true;
 		clearSavedSubdomain();
 
-		const isLocal = window.location.hostname.endsWith(".localhost");
-		const target = isLocal
-			? `http://${subdomain}.localhost:3000/login?verified=true`
-			: `https://${subdomain}.schoolos.app/login?verified=true`;
-		window.location.href = target;
+		window.location.href = buildSubdomainUrl(subdomain, "/login?verified=true");
 	}, [isVerified]);
 
 	async function handleUpload(file: File, type: SchoolDocumentType, extra?: UploadDocumentExtraFields) {

@@ -1,22 +1,16 @@
-const ADMIN_SUBDOMAIN = "admin";
+import { classifyHost, currentDeployment, schoolSubdomainOf } from "./deployment";
+
+// Thin wrappers kept for existing imports. The rules live in lib/deployment.ts and come from environment variables.
 
 export function extractSubdomain(hostname: string): string | null {
-	const hostWithoutPort = hostname.split(":")[0];
-	const isLocalhostSub = hostWithoutPort.endsWith(".localhost");
-	const parts = hostWithoutPort.split(".");
-
-	const hasSubdomain = isLocalhostSub ? parts.length > 1 : parts.length > 2;
-	if (!hasSubdomain) return null;
-
-	const subdomain = parts[0].toLowerCase();
-	if (subdomain === "www" || subdomain === ADMIN_SUBDOMAIN) return null;
-
-	return subdomain;
+	return schoolSubdomainOf(hostname, currentDeployment());
 }
 
-// src/lib/get-subdomain.ts — expose a way to detect the admin subdomain specifically
 export function isAdminSubdomain(hostname: string): boolean {
-	const hostWithoutPort = hostname.split(":")[0];
-	const parts = hostWithoutPort.split(".");
-	return parts[0]?.toLowerCase() === "admin";
+	return classifyHost(hostname, currentDeployment()).kind === "admin";
+}
+
+/** A school reached through its own verified domain (no <subdomain>.<base> label). */
+export function isCustomDomain(hostname: string): boolean {
+	return classifyHost(hostname, currentDeployment()).kind === "custom";
 }
