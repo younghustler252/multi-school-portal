@@ -16,7 +16,14 @@ import { webhookEntryRouter } from "./modules/webhooks/routes/webhook.routes";
 import routes                                        from "./routes";
 import { join } from "node:path";
 import { isAllowedOrigin } from "./infrastructure/middleware/cors-origin";
+import { describeTrustProxy } from "./shared/utils/trust-proxy";
 const app = express();
+
+// ── Client IP behind our reverse proxy ────────────────────────────────────
+// Off unless TRUST_PROXY names our proxy (address, CIDR, hop count). Never "trust everyone": see shared/utils/trust-proxy.ts.
+// Must be set before any middleware that reads req.ip (rate limits, login lockout, audit).
+app.set("trust proxy", env.trustProxy);
+if (env.NODE_ENV !== "test") console.log(`🌐 trust proxy: ${describeTrustProxy(env.trustProxy)}`);
 
 // ── Security ──────────────────────────────────────────────────────────────
 app.use(

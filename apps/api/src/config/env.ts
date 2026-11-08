@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import path   from "path";
 import { z }  from "zod";
+import { parseTrustProxy } from "../shared/utils/trust-proxy";
 
 /*
 |--------------------------------------------------------------------------
@@ -29,6 +30,7 @@ const envSchema = z.object({
     COOKIE_DOMAIN:   z.string().optional(),     
     PUBLIC_URL_PORT: z.string().optional(),  
     ADMIN_SUBDOMAIN:  z.string().default("admin"),
+    TRUST_PROXY:     z.string().optional(),   // which proxy hops to trust for the client IP; see shared/utils/trust-proxy.ts
     RESERVED_SUBDOMAINS_EXTRA: z.string().optional(),   // extra labels no school may take, comma separated
 
     // ── Database ─────────────────────────────────────────────────────────
@@ -111,6 +113,8 @@ export const env = {
     PUBLIC_URL_PORT: parsed.data.PUBLIC_URL_PORT,
     ADMIN_SUBDOMAIN: parsed.data.ADMIN_SUBDOMAIN,
     RESERVED_SUBDOMAINS_EXTRA: parsed.data.RESERVED_SUBDOMAINS_EXTRA,
+    // Already validated: a bad value stops startup with a clear message
+    trustProxy: parseTrustProxy(parsed.data.TRUST_PROXY, parsed.data.NODE_ENV),
 
     // ── Database ─────────────────────────────────────────────────────────
     DATABASE_URL:    parsed.data.DATABASE_URL,

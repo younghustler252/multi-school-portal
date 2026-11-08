@@ -98,3 +98,32 @@ Setting it also makes `req.protocol`, `req.secure` and `req.hostname` honour `X-
 1. This document (this commit).
 2. Reserved subdomains: shared module, two call sites, tests, report script.
 3. `TRUST_PROXY`: parser, env, `app.ts`, tests, deployment notes.
+
+---
+
+## Implemented
+
+### Reserved subdomains
+- `src/shared/utils/subdomain.ts` (`isReservedSubdomain`, `reservedSubdomains`, `normaliseSubdomain`); `RESERVED_SUBDOMAINS` is still exported from `auth.enums.ts`.
+- New optional variable `RESERVED_SUBDOMAINS_EXTRA` (comma separated), for example `RESERVED_SUBDOMAINS_EXTRA=partners,payments`.
+- `npm run report:reserved-subdomains` (read-only) lists existing schools that hold a reserved label; exit code 1 when there are any.
+- Tests: `tests/shared/subdomain.test.ts`.
+
+### Client IP
+- `TRUST_PROXY` (optional) is parsed in `config/env.ts` by `src/shared/utils/trust-proxy.ts`; `app.ts` applies it before any middleware and logs the effective setting once.
+- Default is off, which is today's behaviour. Production with `true`, `*` or a `/0` range refuses to start.
+- Tests: `tests/shared/trust-proxy.test.ts` (parser) and `tests/shared/client-ip.express.test.ts` (real Express, real sockets).
+
+### Choosing the value
+| Setup | `TRUST_PROXY` |
+|-------|---------------|
+| Local development, no proxy | leave unset |
+| Proxy on the same host (API listens on 127.0.0.1) | `loopback` |
+| Proxy in a container network | that network's range, for example `172.18.0.0/16` |
+| Cloud load balancer, then the proxy | the balancer/proxy ranges, or the hop count (`2`) when the API accepts connections only from them |
+
+Proxy side, whichever proxy is used: forward the original `Host`, send the real peer in `X-Forwarded-For`, and send `X-Forwarded-Proto`.
+- Caddy: `reverse_proxy 127.0.0.1:5000` does all three by default and overwrites a client-supplied `X-Forwarded-For` unless Caddy itself sits behind another proxy you configured as trusted.
+- nginx: `proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $remote_addr; proxy_set_header X-Forwarded-Proto $scheme;`
+
+Check after deploying: call an endpoint that records the IP (a failed login shows it in the session/audit data) from a known address, and confirm it is your address, not the proxy's. Then send `X-Forwarded-For: 9.9.9.9` yourself and confirm it is not used.
