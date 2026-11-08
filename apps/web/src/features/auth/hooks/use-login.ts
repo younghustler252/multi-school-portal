@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { authApi } from "@/features/auth/services/auth.api";
 import { API_CODES, isApiError } from "@/lib/api/api-error";
 import { resolveDestination, safeReturnTo } from "@/lib/auth/destination";
+import { isSafeSchoolUrl } from "@/lib/auth/safe-url";
 import type { Persona, SessionStatus } from "@/lib/auth/session-types";
 import { useAuthStore } from "@/stores/auth.store";
 
@@ -12,6 +13,7 @@ import { useAuthStore } from "@/stores/auth.store";
 | The login flow shared by /login, /portal-login and /admin-login (AUTH-004).
 | It owns every outcome of POST /auth/login so the three pages only draw forms:
 |   ready                → leave for `returnTo` or the session's home
+|   redirect              → exactly one school: send the browser to its address (nothing is authenticated yet)
 |   selecting            → the page shows <LoginSelection>; a persona choice re-submits the SAME credentials with `persona`
 |   must-change-password → /change-password
 |   EMAIL_NOT_VERIFIED   → send a code and go to /verify-email
@@ -44,6 +46,15 @@ export function useLogin(options: Options = {}) {
 				const outcome = await login(email, password, persona);
 				if (outcome.status === "selecting") return;
 				credentials.current = null;
+				if (outcome.status === "redirect") {
+					if (!isSafeSchoolUrl(outcome.url)) {
+						setError("This school's address is not valid. Please contact support.");
+						return;
+					}
+					// The person signs in again there: no token or cookie is shared across addresses.
+					window.location.assign(outcome.url);
+					return;
+				}
 				if (outcome.status === "must-change-password") {
 					router.replace("/change-password");
 					return;

@@ -62,6 +62,21 @@ describe("sessionReducer", () => {
 		expect(back.selection).toBeNull();
 	});
 
+	it("schoolRedirect is routing only: unauthenticated, nothing selected, nothing loaded, no end reason", () => {
+		const s = run(ready, { type: "schoolRedirect" });
+		expect(s.status).toBe("unauthenticated");
+		expect(s.selection).toBeNull();
+		expect(s.profile).toBeNull();
+		expect(s.permissions).toBeNull();
+		expect(s.endedReason).toBeNull();
+	});
+
+	it("schoolRedirect is not a selection: it does not enter the selecting state", () => {
+		const sel = run(initialSessionState, { type: "selectionRequired", selection: { kind: "school", schools: [], suggestedSchoolId: null } });
+		expect(sel.status).toBe("selecting");
+		expect(run(initialSessionState, { type: "schoolRedirect" }).status === "selecting").toBe(false);
+	});
+
 	it("an authenticated login goes back to loading so exactly one bootstrap follows", () => {
 		const s = run(ready, { type: "loginAuthenticated" });
 		expect(s.status).toBe("loading");

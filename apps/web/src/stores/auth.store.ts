@@ -17,7 +17,12 @@ import type { EndReason, Persona, Profile, SessionState } from "@/lib/auth/sessi
 | - Every transition goes through sessionReducer, so the rules are testable without React or the network.
 */
 
-export type LoginOutcome = { status: "ready" } | { status: "selecting" } | { status: "must-change-password" };
+export type LoginOutcome =
+	| { status: "ready" }
+	| { status: "selecting" }
+	| { status: "must-change-password" }
+	/** Exactly one school: the caller sends the browser to `url`. Nothing is authenticated. */
+	| { status: "redirect"; url: string };
 
 interface AuthState extends SessionState {
 	/** Same object as `profile`, kept so existing `useAuthStore((s) => s.user)` call sites keep working. */
@@ -83,8 +88,12 @@ export const useAuthStore = create<AuthState>()((set, get) => {
 				return { status: "selecting" };
 			}
 			if (result.status === "SCHOOL_SELECTION_REQUIRED") {
-				dispatch({ type: "selectionRequired", selection: { kind: "school", schools: result.schools } });
+				dispatch({ type: "selectionRequired", selection: { kind: "school", schools: result.schools, suggestedSchoolId: result.suggestedSchoolId } });
 				return { status: "selecting" };
+			}
+			if (result.status === "SCHOOL_REDIRECT") {
+				dispatch({ type: "schoolRedirect" });
+				return { status: "redirect", url: result.school.url };
 			}
 
 			resetData();

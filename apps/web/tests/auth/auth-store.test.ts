@@ -32,7 +32,8 @@ const authenticated = (mustChangePassword = false) => ({
 	data: {
 		status: "AUTHENTICATED" as const,
 		user: { id: "u1", email: "a@b.c", isEmailVerified: true, mustChangePassword },
-		session: { kind: "school" as const, schoolId: "s1", persona: "STAFF" as const },
+		session: { kind: "school" as const, schoolId: "s1", membershipId: "m1", persona: "STAFF" as const },
+		tokens: { accessToken: "a", refreshToken: "r" },
 	},
 });
 
@@ -96,11 +97,42 @@ describe("login", () => {
 		expect(vi.mocked(userApi.getMe).mock.calls.length).toBe(0);
 	});
 
-	it("a school selection carries the school list", async () => {
-		const schools = [{ id: "s1", name: "Greenfield", url: "https://greenfield.example.test" }];
-		vi.mocked(authApi.login).mockResolvedValue({ success: true, message: "ok", data: { status: "SCHOOL_SELECTION_REQUIRED", schools } });
+	it("a school selection carries the school list and the suggested (last used) school", async () => {
+		const schools = [
+			{ id: "s2", name: "Hillcrest", url: "https://hillcrest.example.test" },
+			{ id: "s1", name: "Greenfield", url: "https://greenfield.example.test" },
+		];
+		vi.mocked(authApi.login).mockResolvedValue({ success: true, message: "ok", data: { status: "SCHOOL_SELECTION_REQUIRED", schools, suggestedSchoolId: "s2" } });
+		const outcome = await useAuthStore.getState().login("a@b.c", "pw");
+		expect(outcome).toEqual({ status: "selecting" });
+		expect(useAuthStore.getState().status).toBe("selecting");
+		expect(useAuthStore.getState().selection).toEqual({ kind: "school", schools, suggestedSchoolId: "s2" });
+	});
+
+	it("SCHOOL_REDIRECT (exactly one school) hands back that school's url, with no selection and no session", async () => {
+		const school = { id: "s1", name: "Greenfield", url: "https://greenfield.example.test" };
+		vi.mocked(authApi.login).mockResolvedValue({ success: true, message: "ok", data: { status: "SCHOOL_REDIRECT", school } });
+		const outcome = await useAuthStore.getState().login("a@b.c", "pw");
+		expect(outcome).toEqual({ status: "redirect", url: "https://greenfield.example.test" });
+		const s = useAuthStore.getState();
+		expect(s.status).toBe("unauthenticated");
+		expect(s.selection).toBeNull();
+		expect(s.profile).toBeNull();
+	});
+
+	it("SCHOOL_REDIRECT never loads a session: no profile or permissions request is made", async () => {
+		vi.mocked(authApi.login).mockResolvedValue({ success: true, message: "ok", data: { status: "SCHOOL_REDIRECT", school: { id: "s1", name: "G", url: "https://g.example.test" } } });
 		await useAuthStore.getState().login("a@b.c", "pw");
-		expect(useAuthStore.getState().selection).toEqual({ kind: "school", schools });
+		expect(vi.mocked(userApi.getMe).mock.calls.length).toBe(0);
+		expect(vi.mocked(userApi.getMyPermissions).mock.calls.length).toBe(0);
+	});
+
+	it("a redirect clears a selection left over from an earlier attempt", async () => {
+		vi.mocked(authApi.login).mockResolvedValueOnce({ success: true, message: "ok", data: { status: "SCHOOL_SELECTION_REQUIRED", schools: [{ id: "s1", name: "G", url: "https://g.example.test" }, { id: "s2", name: "H", url: "https://h.example.test" }], suggestedSchoolId: null } });
+		await useAuthStore.getState().login("a@b.c", "pw");
+		vi.mocked(authApi.login).mockResolvedValueOnce({ success: true, message: "ok", data: { status: "SCHOOL_REDIRECT", school: { id: "s1", name: "G", url: "https://g.example.test" } } });
+		await useAuthStore.getState().login("a@b.c", "pw");
+		expect(useAuthStore.getState().selection).toBeNull();
 	});
 
 	it("sends the chosen persona with the same credentials on the second step", async () => {

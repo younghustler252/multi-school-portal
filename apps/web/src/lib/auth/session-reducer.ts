@@ -8,6 +8,7 @@ import type { EndReason, Profile, Selection, SessionState } from "./session-type
 |   loading ──bootstrapRejected───▶ unauthenticated
 |   loading ──mustChangePassword──▶ must-change-password
 |   unauthenticated ──selectionRequired──▶ selecting ──selectionCancelled──▶ unauthenticated
+|   (any) ──schoolRedirect──▶ unauthenticated        (routing only: the browser leaves for the school's address)
 |   (any) ──loginAuthenticated──▶ loading            (then a bootstrap runs)
 |   (any) ──loginMustChangePassword──▶ must-change-password
 |   must-change-password ──passwordChanged──▶ loading
@@ -24,6 +25,7 @@ export type SessionEvent =
 	| { type: "loginMustChangePassword" }
 	| { type: "selectionRequired"; selection: Selection }
 	| { type: "selectionCancelled" }
+	| { type: "schoolRedirect" }
 	| { type: "passwordChanged" }
 	| { type: "sessionEnded"; reason: EndReason }
 	| { type: "loggedOut" };
@@ -68,6 +70,10 @@ export function sessionReducer(state: SessionState, event: SessionEvent): Sessio
 
 		case "selectionRequired":
 			return { status: "selecting", profile: null, permissions: null, selection: event.selection, endedReason: null };
+
+		case "schoolRedirect":
+			// Not a session and not a choice: nothing is authenticated and there is nothing to select.
+			return signedOut(null);
 
 		case "selectionCancelled":
 			return state.status === "selecting" ? signedOut(null) : state;

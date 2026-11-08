@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { isSafeSchoolUrl } from "@/lib/auth/safe-url";
 import type { Persona, Selection } from "@/lib/auth/session-types";
 
 const PERSONA_LABEL: Record<Persona, { title: string; hint: string }> = {
@@ -8,16 +9,6 @@ const PERSONA_LABEL: Record<Persona, { title: string; hint: string }> = {
 	STUDENT: { title: "Student", hint: "Your own records" },
 	GUARDIAN: { title: "Parent / Guardian", hint: "Your children's records" },
 };
-
-// Only follow http(s) links the API sent us.
-function isSafeUrl(url: string): boolean {
-	try {
-		const u = new URL(url);
-		return u.protocol === "https:" || u.protocol === "http:";
-	} catch {
-		return false;
-	}
-}
 
 interface Props {
 	selection: Selection;
@@ -62,10 +53,13 @@ export function LoginSelection({ selection, pending, error, onPersona, onCancel 
 									type="button"
 									variant="outline"
 									className="h-auto min-h-12 w-full justify-start py-2.5 text-left"
-									disabled={!isSafeUrl(s.url)}
+									disabled={!isSafeSchoolUrl(s.url)}
 									onClick={() => window.location.assign(s.url)}
 								>
-									<span className="font-medium">{s.name}</span>
+									<span className="flex flex-col">
+										<span className="font-medium">{s.name}</span>
+										{s.id === selection.suggestedSchoolId && <span className="text-xs font-normal text-muted-foreground">Last used</span>}
+									</span>
 								</Button>
 							</li>
 						))}
