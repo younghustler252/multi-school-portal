@@ -1,28 +1,29 @@
 # Phase 2 — where we stopped and what to do next
 
 > Hand-off file. Update it at the end of every milestone step so another developer can continue.
-> **Last updated:** 2026-11-07 · **Repo:** `younghustler252/multi-school-portal` · **App:** `apps/web`
+> **Last updated:** 2026-11-08 · **Repo:** `younghustler252/multi-school-portal` · **App:** `apps/web`
 
 ## Branches (in order; each is one step on top of the previous)
 
 | Branch | Head | State |
 |---|---|---|
-| `refactor/modules` | `b71c52f` | Integration branch. **Contains M0** (merge commit). Does not contain M1. |
-| `phase2/m0-boot` | `f06a569` | M0 done, merged into `refactor/modules`. Typecheck baseline saved (32 errors / 18 files, none on foundation paths). |
-| `phase2/m1-session` | see `git log` | Branched from `e7d2064`, i.e. **before** M0's last docs commit and the merge. Needs bringing onto `refactor/modules` (merge it in; do not force-push the pushed branch without the owner's say-so). |
+| `refactor/modules` | `699beb0` | Integration branch. Contains M0 (merge `b71c52f`) plus later backend work (login school resolution, provisioning). Does **not** contain M1. |
+| `phase2/m0-boot` | `f06a569` | M0 done and merged. Typecheck baseline saved (32 errors / 18 files, none on foundation paths). |
+| `phase2/m1-session` | see `git log` | M1 (rebased by the owner onto the M0 merge), then `refactor/modules` merged in (no rewrite), then SCHOOL_REDIRECT. Not merged into `refactor/modules` yet: awaiting the real-login check and review. |
 
-Do not rebase or squash M0 after M1 exists without rebasing M1 onto the result.
+Never force-push these branches. Bring a branch forward by merging; the owner rewrote M1's history once already, so check `git ls-remote` before assuming a local copy is current.
 
 ## Do next, in this order
 
 1. ~~Close M0~~ **Done 2026-11-07.** Typecheck saved, #6 and #11 located, no foundation blockers, M0 merged into `refactor/modules`.
-2. **Bring M1 forward** onto `refactor/modules`. Already measured on the owner's machine (M1 branch): `npm run test:web` = 78/78 pass; `npm run typecheck:web` = the same 32 errors / 18 files as the baseline, none in M1 files. Re-run both after the merge.
-3. **M1 exit check: real login against the local API** (needs seeded data; the owner has none yet — create a school, a staff user and a platform user first) (API on :5000, web on :3000). Try a school user, a platform user, a user with several personas, a user with several schools, a user who must change password, an unverified user. Record results here.
+2. ~~Bring M1 forward~~ **Done 2026-11-08** (merge of `refactor/modules` into `phase2/m1-session`). Re-run `npm run test:web` and `npm run typecheck:web` on the owner's machine: the last measured results (78/78 tests, 32 baseline errors) predate SCHOOL_REDIRECT and the merge.
+3. **M1 exit check: real login against the local API** (the owner now has data) (API on :5000, web on :3000). Try a school user, a platform user, a user with exactly one eligible school (SCHOOL_REDIRECT), a user with several schools (SCHOOL_SELECTION_REQUIRED), a user with several personas, a user who must change password, an unverified user. Record results here.
 4. Decide whether M1 is integrated.
 5. Only then start **M2** (below).
 
 ## What M1 contains (summary)
 
+- Login types come from `@schoolos/contracts` (`auth.ts`): four outcomes, `SCHOOL_REDIRECT` and `SCHOOL_SELECTION_REQUIRED` handled separately.
 - Typed `ApiError`, single-flight refresh (refreshes on `TOKEN_EXPIRED` **and** `TOKEN_MISSING`), session-ended handler that clears the store and React Query cache.
 - Session state machine (`src/lib/auth/session-reducer.ts`), store (`src/stores/auth.store.ts`), nothing persisted in the browser, bootstrap = `/users/me` + `/users/me/permissions` together.
 - Shared login flow for `/login`, `/portal-login`, `/admin-login` (`features/auth/hooks/use-login.ts`).
@@ -31,17 +32,21 @@ Do not rebase or squash M0 after M1 exists without rebasing M1 onto the result.
 ## Verified against the backend source
 
 - **School selection (VERIFIED, 2026-11-07, by the repository owner reading the backend).**
-  1. A platform-host login can return `SCHOOL_SELECTION_REQUIRED` with `schools: [{ id, name, url }]`.
-  2. Selection responses carry **no tokens and set no session cookies**.
+  1. A platform-host login resolves like this (source: `packages/contracts/src/auth.ts`, `docs/backend/modules/auth.md`):
+     - an active platform membership gets the platform session;
+     - otherwise the user's **eligible schools** are worked out (school active, database built, and an ACTIVE tenant membership checked in that school's own schema; a school that errors is left out);
+     - exactly one → `SCHOOL_REDIRECT { school }`; several → `SCHOOL_SELECTION_REQUIRED { schools, suggestedSchoolId }` (last used first); none → the same generic 401 "invalid credentials" as a wrong password (audit log: `no_eligible_school`).
+     Both `SCHOOL_REDIRECT` and `SCHOOL_SELECTION_REQUIRED` are **different outcomes**; M1 handles them separately.
+  2. These routing responses carry **no tokens and set no session cookies**.
   3. `url` is the school's base URL: its verified custom domain when it has one, otherwise `<subdomain>.<BASE_DOMAIN>`.
-  4. Choosing a school sends the browser to that URL (M1: `window.location.assign`, http/https only).
+  4. `SCHOOL_REDIRECT`: M1 sends the browser straight to `school.url`. `SCHOOL_SELECTION_REQUIRED`: the user picks one (suggested school marked "Last used"), then the browser goes to its url. Both use `window.location.assign`, http/https only (`lib/auth/safe-url.ts`).
   5. The user **logs in again on the school host** with email and password.
   6. The backend resolves the tenant from the hostname, checks active membership, then issues the school session.
-  Therefore: **no automatic token exchange, and platform cookies must not be assumed to authenticate the school session.** The second login is the contract, not a gap. M1 already behaves this way; do not "improve" it. Still untested end to end because no seeded login data exists yet.
+  Therefore: **no automatic token exchange, and platform cookies must not be assumed to authenticate the school session.** The second login is the contract, not a gap. M1 behaves this way; do not "improve" it. A seamless sign-in would need its own backend design (single-use, school-bound exchange code), not shared cookies or tokens in a URL. Unit-tested; still to be confirmed with a real login.
 
 ## Open / unresolved (do not treat as decided)
 
-- Web-local auth/session types (`src/lib/auth/session-types.ts`) vs extending `@schoolos/contracts` (API-004). Contract gaps are listed in `PHASE_2_BASELINE.md` §5.
+- Contract gaps (API-004): the login result is now shared, but its `AUTHENTICATED.user` is `unknown` (the web app declares the fields it reads in `LoginUser`), and the profile, error codes and pagination meta are still web-local. Contract gaps are listed in `PHASE_2_BASELINE.md` §5.
 - Fee "waive" buttons use a guessed permission key (`fees.adjustments.approve`). Confirm in the fees phase.
 - Onboarding layout still runs queries before the gate decides (pre-existing).
 - 32 business-module type errors are intentionally untouched; each belongs to its feature phase.
