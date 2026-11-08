@@ -19,9 +19,9 @@ export function AdminTopbar({ onMenuClick }: { onMenuClick: () => void }) {
 
 	useEffect(() => { setMounted(true); }, []);
 
-	function handleLogout() {
-		logout();
-		router.push("/login");
+	async function handleLogout() {
+		await logout();
+		router.replace("/login");
 	}
 
 	return (

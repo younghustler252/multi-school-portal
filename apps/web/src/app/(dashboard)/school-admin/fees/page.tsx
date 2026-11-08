@@ -23,7 +23,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAuthStore } from "@/stores/auth.store";
+import { useAccess } from "@/lib/use-access";
 import { useInvoices, useDefaulters, usePingDefaulters } from "@/features/fees/hooks/use-fees";
 import { useCurrentSession, useSessions } from "@/features/school/hooks/use-sessions";
 import { useClasses } from "@/features/classes/hooks/use-classes";
@@ -44,8 +44,9 @@ export default function FeesPage() {
 
 	const currentTermId = currentSession?.currentTerm?.id;
 
-	const role = useAuthStore((s) => s.user?.role);
-	const canManageFeeTypes = role === "school_admin";
+	const me = useAccess();
+	const canManageFeeTypes = me.can("fees.types.manage");
+	const canWaive = me.can("fees.adjustments.approve"); // UX only; confirm the exact key with the fees contract
 
 	const [search, setSearch] = useState("");
 	const [statusFilter, setStatusFilter] = useState<InvoiceStatus | "all">("all");
@@ -389,7 +390,7 @@ export default function FeesPage() {
 													</DropdownMenuItem>
 												)}
 
-												{inv.status !== "waived" && canManageFeeTypes && (
+												{inv.status !== "waived" && canWaive && (
 													<DropdownMenuItem onClick={() => setWaivingInvoice(inv)}>
 														<X className="size-4" />
 														Waive invoice
