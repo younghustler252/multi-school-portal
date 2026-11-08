@@ -1,0 +1,51 @@
+# Reverse proxy for ONE VPS running both the Next.js app and the API (decision: same-origin API, docs/frontend/DEPLOYMENT.md).
+# Placeholders only: set BASE_DOMAIN etc. in the proxy's environment. Nothing here names a real domain.
+#
+# What matters, and what the verification script (deploy/verify-host-forwarding.sh) checks:
+#   Caddy's reverse_proxy passes the browser's Host header to the upstream UNCHANGED. The API picks the school from that Host,
+#   so do NOT add `header_up Host ...` to the API route. (nginx does the opposite by default: it sends the upstream's own name,
+#   which breaks tenancy unless `proxy_set_header Host $host;` is set.)
+#
+# Environment:
+#   BASE_DOMAIN    the platform domain, same as the API's BASE_DOMAIN and the web app's NEXT_PUBLIC_BASE_DOMAIN
+#   API_UPSTREAM   where apps/api listens          (default 127.0.0.1:5000)
+#   WEB_UPSTREAM   where the Next.js app listens   (default 127.0.0.1:3000)
+#   ACME_EMAIL     contact address for the certificate authority
+
+{
+	email {$ACME_EMAIL}
+}
+
+# Routing shared by every host. /api/* goes to the API, everything else to the web app, on the SAME hostname.
+(portal_routes) {
+	handle /api/* {
+		reverse_proxy {$API_UPSTREAM:127.0.0.1:5000}
+	}
+	handle {
+		reverse_proxy {$WEB_UPSTREAM:127.0.0.1:3000}
+	}
+}
+
+# Platform (root + www), platform administration, and every school subdomain.
+# A wildcard certificate needs a DNS challenge: build Caddy with your DNS provider's module and uncomment the tls block.
+{$BASE_DOMAIN}, www.{$BASE_DOMAIN}, admin.{$BASE_DOMAIN}, *.{$BASE_DOMAIN} {
+	# tls {
+	#	dns <provider> {env.DNS_API_TOKEN}
+	# }
+	import portal_routes
+}
+
+# Schools' own verified domains (not enabled yet). Needs a backend endpoint that answers 200 only for a verified custom domain,
+# so the proxy never obtains certificates for arbitrary names. That endpoint does not exist yet: see DEPLOYMENT.md "Custom domains".
+#
+# {
+#	on_demand_tls {
+#		ask http://{$API_UPSTREAM:127.0.0.1:5000}/internal/custom-domain-check
+#	}
+# }
+# https:// {
+#	tls {
+#		on_demand
+#	}
+#	import portal_routes
+# }

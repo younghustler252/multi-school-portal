@@ -59,7 +59,9 @@ Done without needing deployment answers:
 
 - **Deployment-aware configuration (2026-11-08):** `lib/deployment.ts` (env-driven host classification and link building, tested), `NEXT_PUBLIC_API_URL` override in `get-api-base-url.ts`, no hard-coded domains left, middleware treats custom domains like school hosts. Design, options and the backend conflicts are in `docs/frontend/DEPLOYMENT.md`.
 
-Still blocked on owner decisions (`DEPLOYMENT.md` §7): same-origin proxy vs separate API host, custom domains, Netlify vs VPS for the web app, what `app.` means.
+- **Owner decisions recorded (2026-11-08, `DEPLOYMENT.md` §0):** same-origin `/api/v1` through one reverse proxy preserving Host; host-only cookies (`COOKIE_DOMAIN` unset); VPS first, Netlify later; root + `admin.` + `<school>.` + eventual custom domains; no `app.`/`api.` hosts.
+- **Proxy verified in a sandbox** (`deploy/Caddyfile.example`, `deploy/verify-host-forwarding.sh`; see `DEPLOYMENT.md` §3a for exactly what was and was not tested). **Not yet run against the real API on the VPS.**
+- Backend items (not changed): trust proxy, reserved labels (`DEPLOYMENT.md` §7). Custom-domain gaps: §8 (no way to set/verify a domain, no TLS ask endpoint, no host-based public school info).
 
 **Owner direction (2026-11-08):** subdomain layout, hosting provider and domain stay configurable via env vars; placeholders only. The proposed `app.`/`api.` hosts conflict with host-based tenancy: see `DEPLOYMENT.md` §1.
 

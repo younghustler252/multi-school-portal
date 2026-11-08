@@ -1,9 +1,19 @@
 # Frontend deployment architecture (M2)
 
-> **Status:** design + configuration. No domain or host is final. Every deployment value is an environment variable; `example.com` below is a placeholder.
+> **Status:** architecture DECIDED by the owner (2026-11-08); domain and hosting provider still configurable. Every deployment value is an environment variable; `example.com` below is a placeholder.
 > Written 2026-11-08 from the backend source (`tenant-resolver.middleware.ts`, `cors-origin.ts`, `auth.middleware.ts`, `env.ts`) and the owner's verified login contract.
 
-## 1. The layout you proposed, and where it meets the backend
+## 0. Decisions (owner, 2026-11-08)
+
+1. **Same-origin API (Option A).** One API deployment on the VPS. Every frontend hostname forwards `/api/*` to it **preserving the original Host header**. The frontend uses `NEXT_PUBLIC_API_URL=/api/v1`. No separate API hostname for browsers.
+2. **Cookies host-only.** `COOKIE_DOMAIN` stays unset. Platform and school sessions stay separate; the school-selection and impersonation handoffs stay as they are.
+3. **Custom domains: yes, eventually.** Kept in the architecture. What is still missing is listed in section 8.
+4. **Hosting:** Next.js frontend and API on the VPS behind one reverse proxy to start. Netlify can be reconsidered once its Host forwarding and wildcard-domain behaviour are verified.
+5. **Domains:** root domain = public platform; `admin.<domain>` = administration; `<school>.<domain>` = a school; custom domains later. **There is no `app.` host and no `api.` host.** The domain itself stays an environment variable.
+
+Section 1 below records why the earlier `app.` / `api.` proposal did not fit; Option B in section 3 is kept only as the rejected alternative.
+
+## 1. The layout first proposed (superseded by section 0), and where it meets the backend
 
 Proposed: `app.example.com` (web app), `api.example.com` (API), `admin.example.com` (platform admin), web on Netlify, API on a VPS.
 
@@ -68,6 +78,21 @@ Every host that serves the web app (admin, each school subdomain, each custom do
 
 Option B only suits a deployment with no custom domains and one school per browser. Option A is the one that keeps the verified login contract intact.
 
+## 3a. The reverse proxy, and what was verified
+
+`deploy/Caddyfile.example` is the routing for one VPS: `/api/*` to the API, everything else to Next.js, on the same hostname, with the domain and upstreams taken from environment variables (`BASE_DOMAIN`, `API_UPSTREAM`, `WEB_UPSTREAM`, `ACME_EMAIL`).
+
+**What was tested (2026-11-08, Caddy 2.8.4, in a sandbox):** the file's routing block, with only the listen address and TLS switched off for the test, in front of two stand-in servers.
+- For every kind of host (school subdomain, admin, root, `www`, a custom domain, an unknown subdomain) the API stand-in received **the browser's original Host** (including the port), and also `X-Forwarded-Host` / `X-Forwarded-Proto`. Caddy's `reverse_proxy` does not change `Host` unless told to.
+- The stand-in applied the API's `classifyHost` rule and classified each host as expected: school subdomain → subdomain, admin/root/`www` → platform, a foreign domain → custom.
+- **Negative control:** with `header_up Host {upstream_hostport}` added (what nginx does by default) the API saw `127.0.0.1` for every request, every school would be "not found", and `deploy/verify-host-forwarding.sh` reported FAIL on all hosts.
+
+**What was NOT tested:** the real API. The stand-in uses a verbatim copy of `classifyHost`, because the real module needs the full dependency install and a database. Wildcard TLS, custom-domain TLS, nginx, and Netlify were not tested at all. The shipped Caddyfile has not been run with real certificates.
+
+**To verify on the real deployment** (needs no special endpoint): `BASE_DOMAIN=<your domain> ./deploy/verify-host-forwarding.sh`. It calls `/api/v1/health` on made-up hostnames and reads the 404 message `School portal '<host>' not found`, which shows the hostname the real API received. Add `CUSTOM_DOMAIN=<host>` to check a custom domain. Run it after every proxy or hosting change.
+
+**nginx, if ever used instead:** its default sends the upstream's own name as Host. The API location needs `proxy_set_header Host $host;` and `proxy_set_header X-Forwarded-Proto $scheme;`. Untested here.
+
 ## 4. Cookies and "cross-subdomain" authentication
 
 Recommendation: **do not set `COOKIE_DOMAIN`**. Keep cookies host-only (`HttpOnly`, `SameSite=Lax`, `Secure` in production, `Path=/`; this is what `auth.middleware.ts` already does).
@@ -88,22 +113,36 @@ No token or cookie is ever put in a URL or shared across hosts.
 
 Unchanged and independent of all the above: `localhost:3000` / `greenfield.localhost:3000` / `admin.localhost:3000` against `apps/api` on `:5000` with `BASE_DOMAIN=localhost`; no `NEXT_PUBLIC_API_URL`, http, every origin allowed by the API in development.
 
-## 7. Decisions needed from the owner
+## 7. Backend items this architecture depends on (NOT changed here; each needs the owner's decision and its own review)
 
-1. **Option A or B?** (A recommended. B needs the backend items below and gives up custom domains and per-school session isolation.)
-2. Will schools get **custom domains**? (Decides A vs B almost on its own.)
-3. Where will the web app run: **Netlify, or the VPS behind one reverse proxy**? If Netlify, someone must test Host forwarding (section 3).
-4. What is `app.example.com` for? If it is the platform's own web app, the API's `classifyHost` must treat it as platform and `app`/`api` must be reserved school names.
+Tenant resolution and authentication behaviour are unchanged by this work. Option A needs none of the tenancy changes that Option B needed. What it does need:
 
-## 8. Backend items this design depends on (not changed here)
+1. **Trust the proxy.** There is no `trust proxy` setting. Behind the proxy, `req.ip` is the proxy's address for every visitor. The API uses `req.ip` in 7 places (audit/auth records, rate limiting by default key). Without a fix, all users share one rate-limit bucket and audit records show the proxy. Needed: `app.set("trust proxy", <the proxy only, for example "loopback" when the proxy runs on the same machine>)`. Never `true`.
+2. **Reserve platform labels** (`www`, the admin label, and any others you want) in `RESERVED_SUBDOMAINS` so no school can take them. Today only the list in `auth.enums` and the admin label are rejected.
+3. **`COOKIE_DOMAIN` unset in production** (the code already treats it as optional). `NODE_ENV=production` so cookies are `Secure`; the proxy must send `X-Forwarded-Proto: https` only if `trust proxy` is configured to read it.
+4. **Optional, defence in depth:** the API could refuse a request whose `Host` is the raw upstream address (127.0.0.1, the VPS IP) instead of treating it as a custom domain.
 
-- Reserve `app`, `api` (and any other platform labels) in `RESERVED_SUBDOMAINS`; today only the admin label and the reserved list are rejected at school creation.
-- Option A with `X-Forwarded-Host`: `app.set("trust proxy", …)` for the proxy only, and read the forwarded host in `resolveTenant`.
-- Option B: tenant resolution from a validated `Origin`, and a CORS rule for custom domains.
-- Keep `COOKIE_DOMAIN` unset in production unless a single-session-per-browser design is chosen on purpose.
+## 8. Custom domains: what is still needed for complete support
+
+Works today (backend): the resolver recognises a verified custom domain; login results and impersonation return the custom URL; host-only cookies and same-origin proxying work for any hostname.
+
+Missing, in dependency order:
+
+| # | Gap | Where | Notes |
+|---|---|---|---|
+| 1 | **No way to set or verify a custom domain.** The resolver only reads `customDomain` / `customDomainVerifiedAt`. I found no route or use case in the school module that writes them (searched the module's routes and use-case file names; confirm). | backend | Needs: request a domain, show the DNS record to create, verify it, set `customDomainVerifiedAt`, remove it. Platform-admin and/or school-admin screens afterwards. |
+| 2 | **TLS for customer domains.** The proxy needs a certificate per verified domain, without issuing for arbitrary names. | backend + proxy | Caddy on-demand TLS with an `ask` endpoint that answers 200 only for a verified custom domain. That endpoint does not exist. The Caddyfile has the block commented out. DNS for the customer: CNAME/A to the VPS. |
+| 3 | **School branding lookup.** `GET /school/public/:subdomain` looks a school up by the subdomain in the URL; a custom domain has none. | backend + web | Add a host-based variant (for example `GET /school/public`, using the tenant the request's Host already resolved) and have `portal-login` call it when the host is a custom domain. The existing endpoint also lets anyone test whether a subdomain exists; the host-based one avoids that. |
+| 4 | **"Last portal" and the navbar shortcut** are stored and rebuilt from a subdomain. A custom-domain school is never saved. | web | Store the school's full `url` instead (login result and API both provide it). |
+| 5 | **Super-admin school pages** print `<subdomain>.<base domain>` even when the school has a verified custom domain. | web | Show `customDomain` when verified (the API mapper already returns it). |
+| 6 | **Emails and links** built from a subdomain. | backend | `url.service` already knows about `customDomain`; check every link goes through it. |
+| 7 | **Onboarding redirect** after school creation uses the subdomain. | web | Fine for new schools (they start on a subdomain); revisit when a school can switch domains. |
+| 8 | **CORS** | none | Not needed under Option A. If a separate API host is ever introduced, custom domains need their own rule. |
+
+Items 3, 4 and 5 are the only web changes. They are small once the backend provides the host-based public endpoint.
 
 ## 9. Still open in the web app
 
-- **Custom-domain branding:** `usePublicSchoolInfo` looks a school up by subdomain; on a custom domain there is none, so the school login page cannot show branding there yet. Needs a host-based public-school endpoint.
+- **Custom-domain branding:** see section 8, gap 3.
 - Looking at the site by IP address (for example from a phone on the LAN) is classified as a custom domain, as the API does; use `*.localhost` or add a hosts entry.
-- Hosting-specific files (`netlify.toml`, proxy config) are deliberately not committed until section 7 is decided.
+- Netlify-specific configuration is deliberately not written: Host forwarding there is unverified (section 3).
