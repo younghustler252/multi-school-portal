@@ -56,6 +56,26 @@ TEST_DATABASE_HOST_ALLOWLIST=172.18.0.2
 
 This is an exact-host allowlist, not a blanket private-network exception. The API target must still be loopback or a `.localhost` hostname.
 
+## Fresh test database reset
+
+A guarded destructive reset is available for the dedicated local database only:
+
+```dotenv
+ALLOW_TEST_DATABASE_RESET=true
+TEST_DATABASE_RESET_CONFIRM=school_portal
+TEST_DATABASE_HOST_ALLOWLIST=172.18.0.2
+```
+
+From `apps/api`, run:
+
+```bash
+npm run db:reset:test
+```
+
+The script only permits database name `school_portal`, requires the exact confirmation value, refuses production mode, and requires the database hostname to be loopback or explicitly listed in `TEST_DATABASE_HOST_ALLOWLIST`. It drops and recreates the entire database; every record, schema and migration history inside it is destroyed. Take a backup first if anything may be needed. It then deploys the public Prisma migrations. Do not start the API until this command completes successfully.
+
+Tenant migrations are applied by the application's school-provisioning workflow when Greenfield Academy is created. Keep the API and worker running before executing the seed step. The reset command does not itself create a school or tenant schema.
+
 ## One-command local run
 
 From `apps/api`, with the API server and worker already running, configure these variables in `.env.development` (do not commit secrets):
