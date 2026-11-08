@@ -6,11 +6,14 @@ ALTER TABLE "ExpenseLine" ADD CONSTRAINT "ExpenseLine_vat_check" CHECK ("vatKobo
 
 -- The VAT receivable system account for schools that already exist (new schools get it from the chart template).
 -- Takes code 1120, or the next free code up to 1129 when a school already uses it.
+-- Only for a school that ALREADY HAS a chart of accounts. A school being built right now has an empty chart and gets
+-- this account from the chart template (ledger-seed): adding it here too made the seed fail on a duplicate account.
 DO $$
 DECLARE c TEXT;
 BEGIN
-  IF NOT EXISTS (SELECT 1 FROM "LedgerAccount" WHERE "systemKey" = 'VAT_RECEIVABLE') THEN
-    SELECT x INTO c FROM (SELECT generate_series(1120, 1129)::text AS x) s WHERE NOT EXISTS (SELECT 1 FROM "LedgerAccount" WHERE code = s.x) LIMIT 1;
+  IF EXISTS (SELECT 1 FROM "LedgerAccount")
+     AND NOT EXISTS (SELECT 1 FROM "LedgerAccount" WHERE "systemKey" = 'VAT_RECEIVABLE') THEN
+    SELECT x INTO c FROM (SELECT generate_series(1120, 1129)::text AS x) s WHERE NOT EXISTS (SELECT 1 FROM "LedgerAccount" WHERE code = s.x) ORDER BY x LIMIT 1;
     IF c IS NOT NULL THEN
       INSERT INTO "LedgerAccount" (id, code, name, type, subtype, "systemKey", "isMoneyAccount", "isActive", "isLocked", "sortOrder", "updatedAt")
       VALUES (gen_random_uuid()::text, c, 'VAT receivable (input VAT)', 'ASSET', 'RECEIVABLE', 'VAT_RECEIVABLE', false, true, true, 65, now());

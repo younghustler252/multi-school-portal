@@ -128,17 +128,27 @@ describe("monthlyPeriods", () => {
 /* ── seed ─────────────────────────────────────────────────────────────── */
 
 describe("seedFinanceBooks", () => {
-    const run = async (templates = LEDGER_ACCOUNT_TEMPLATES) => {
+    type Existing = { id: string; code: string; systemKey: string | null };
+    // A fake school database: answers the two "what is already there" reads, records every insert
+    const run = async (templates = LEDGER_ACCOUNT_TEMPLATES, existing: { accounts?: Existing[]; periods?: { startDate: string; name: string }[] } = {}) => {
         const calls: { text: string; params: unknown[] }[] = [];
-        const result = await seedFinanceBooks({ async query(text, params = []) { calls.push({ text, params }); } }, templates, { today: new Date("2026-10-20T12:00:00Z") });
+        const client = {
+            async query(text: string, params: unknown[] = []) {
+                if (/^\s*SELECT/i.test(text)) return { rows: (text.includes('"LedgerAccount"') ? existing.accounts : existing.periods) ?? [] };
+                calls.push({ text, params });
+                return { rows: [] };
+            },
+        };
+        const result = await seedFinanceBooks(client, templates, { today: new Date("2026-10-20T12:00:00Z") });
         return { calls, result };
     };
+    const inserts = (calls: { text: string }[], table: string) => calls.filter(c => c.text.includes("INSERT") && c.text.includes(`"${table}"`));
 
     it("inserts every account then 12 open periods", async () => {
         const { calls, result } = await run();
-        assert.deepEqual(result, { accounts: LEDGER_ACCOUNT_TEMPLATES.length, periods: 12 });
-        assert.equal(calls.filter(c => c.text.includes('"LedgerAccount"')).length, LEDGER_ACCOUNT_TEMPLATES.length);
-        assert.equal(calls.filter(c => c.text.includes('"FinancePeriod"')).length, 12);
+        assert.deepEqual(result, { accounts: LEDGER_ACCOUNT_TEMPLATES.length, periods: 12, alreadyThere: 0 });
+        assert.equal(inserts(calls, "LedgerAccount").length, LEDGER_ACCOUNT_TEMPLATES.length);
+        assert.equal(inserts(calls, "FinancePeriod").length, 12);
     });
 
     it("flags money accounts and locks system accounts", async () => {
@@ -156,7 +166,7 @@ describe("seedFinanceBooks", () => {
             ...LEDGER_ACCOUNT_TEMPLATES.map(t => ({ ...t, systemKey: t.systemKey ?? null, parentCode: t.parentCode ?? null })),
         ];
         const { calls } = await run(templates as any);
-        const order = calls.filter(c => c.text.includes('"LedgerAccount"')).map(c => c.params[1]);
+        const order = inserts(calls, "LedgerAccount").map(c => c.params[1]);
         assert.ok(order.indexOf("4000") < order.indexOf("4001"));
     });
 
@@ -167,5 +177,51 @@ describe("seedFinanceBooks", () => {
     it("fails clearly on a missing parent", async () => {
         const orphan = { ...LEDGER_ACCOUNT_TEMPLATES[12], code: "4998", parentCode: "0000" };
         await assert.rejects(() => run([...LEDGER_ACCOUNT_TEMPLATES, orphan] as any), /0000/);
+    });
+
+    it("running it again on a finished school adds nothing", async () => {
+        const accounts = LEDGER_ACCOUNT_TEMPLATES.map((t, i) => ({ id: `id${i}`, code: t.code, systemKey: t.systemKey ?? null }));
+        const periods  = monthlyPeriods(1, new Date("2026-10-20T12:00:00Z")).map(p => ({ startDate: p.startDate, name: p.name }));
+        const { calls, result } = await run(LEDGER_ACCOUNT_TEMPLATES, { accounts, periods });
+        assert.equal(calls.length, 0);
+        assert.equal(result.accounts, 0);
+        assert.equal(result.periods, 0);
+    });
+
+    it("adds only the accounts that are missing and hangs them under the existing parent", async () => {
+        const base = LEDGER_ACCOUNT_TEMPLATES.map(t => ({ ...t, systemKey: t.systemKey ?? null, parentCode: t.parentCode ?? null }));
+        const child = { code: "4001", name: "Child", type: "INCOME", subtype: "GENERAL", systemKey: null, parentCode: "4000", isSystem: false, sortOrder: 0 };
+        const accounts = base.map(t => ({ id: `id-${t.code}`, code: t.code, systemKey: t.systemKey }));
+        const { calls } = await run([...base, child] as any, { accounts });
+        const ins = inserts(calls, "LedgerAccount");
+        assert.equal(ins.length, 1);
+        assert.equal(ins[0].params[1], "4001");
+        assert.equal(ins[0].params[6], "id-4000");
+    });
+
+    it("keeps a system account that already lives under another code (no second copy, no clash)", async () => {
+        const vat = LEDGER_ACCOUNT_TEMPLATES.find(t => t.systemKey === "VAT_RECEIVABLE")!;
+        const accounts = [{ id: "old-vat", code: "1122", systemKey: "VAT_RECEIVABLE" }];
+        const { calls } = await run(LEDGER_ACCOUNT_TEMPLATES, { accounts });
+        const codes = inserts(calls, "LedgerAccount").map(c => c.params[1]);
+        assert.ok(!codes.includes(vat.code));
+        assert.equal(codes.length, LEDGER_ACCOUNT_TEMPLATES.length - 1);
+    });
+
+    it("stops with a clear error when a code is held by a different account", async () => {
+        const accounts = [{ id: "x", code: "1120", systemKey: null }];
+        await assert.rejects(() => run(LEDGER_ACCOUNT_TEMPLATES, { accounts }), /code 1120[\s\S]*different account/);
+    });
+
+    it("a school whose own account holds the template's code is fine when the system role already exists elsewhere", async () => {
+        const accounts = [{ id: "own", code: "1120", systemKey: null }, { id: "vat", code: "1121", systemKey: "VAT_RECEIVABLE" }];
+        const { calls } = await run(LEDGER_ACCOUNT_TEMPLATES, { accounts });
+        assert.ok(!inserts(calls, "LedgerAccount").some(c => c.params[1] === "1120"));
+    });
+
+    it("skips months that already exist", async () => {
+        const first = monthlyPeriods(1, new Date("2026-10-20T12:00:00Z"))[0];
+        const { calls } = await run(LEDGER_ACCOUNT_TEMPLATES, { periods: [{ startDate: first.startDate, name: first.name }] });
+        assert.equal(inserts(calls, "FinancePeriod").length, 11);
     });
 });

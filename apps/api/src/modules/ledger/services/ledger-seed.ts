@@ -15,11 +15,17 @@ import type { LedgerTemplateRow } from "../ledger.templates";
 |
 | Runs inside the provisioning worker's transaction on the school's own schema, so a school is built
 | completely or not at all. Later years' months are created on demand by the posting service.
+|
+| SAFE TO RUN AGAIN: it first reads what the school already has and only adds what is missing.
+|   - an account that is already there with the same code and system role is left exactly as it is (no overwrite)
+|   - a system account that already lives under another code keeps that code, so existing postings and mappings stay valid
+|   - a code that is taken by a DIFFERENT account is an error (it names the code), never a silent skip or merge
+|   - a month that already exists is left alone
 |--------------------------------------------------------------------------
 */
 
 // The one database call the seed needs: the worker's pg client satisfies it, and so does a test double
-export interface SqlClient { query(text: string, params?: unknown[]): Promise<unknown> }
+export interface SqlClient { query(text: string, params?: unknown[]): Promise<{ rows: Array<Record<string, any>> }> }
 
 // A database row (null for "none") or a registry entry (missing for "none") both fit
 export type AccountTemplateInput = Pick<LedgerTemplateRow, "code" | "name" | "type" | "subtype" | "isSystem" | "sortOrder"> & {
@@ -82,7 +88,7 @@ export async function seedFinanceBooks(
     client:    SqlClient,
     templates: AccountTemplateInput[],
     options:   FinanceSeedOptions = {},
-): Promise<{ accounts: number; periods: number }> {
+): Promise<{ accounts: number; periods: number; alreadyThere: number }> {
     const present = new Set(templates.map(t => t.systemKey).filter((k): k is string => Boolean(k)));
     const missing = REQUIRED_SYSTEM_KEYS.filter(k => !present.has(k));
     if (missing.length) {
@@ -93,29 +99,64 @@ export async function seedFinanceBooks(
     }
 
     const ordered = parentsFirst(templates);
-    const idByCode = new Map(ordered.map(t => [t.code, randomUUID()]));
 
+    // What the school already has (empty on a brand-new school)
+    const have = (await client.query(`SELECT id, code, "systemKey" FROM "LedgerAccount"`)).rows;
+    const byCode = new Map(have.map(r => [String(r.code), r]));
+    const byKey  = new Map(have.filter(r => r.systemKey).map(r => [String(r.systemKey), r]));
+
+    // Pass 1 (reads only): decide what to do with every template, so a real conflict stops us BEFORE anything is written
+    const idByCode = new Map<string, string>();      // template code -> id of the account standing for it (existing or new)
+    const toInsert: { id: string; t: AccountTemplateInput }[] = [];
     for (const t of ordered) {
+        const sameCode = byCode.get(t.code);
+        const sameRole = t.systemKey ? byKey.get(t.systemKey) : undefined;
+
+        // Already there under this code with the same role: leave it exactly as it is
+        if (sameCode && (sameCode.systemKey ?? null) === (t.systemKey ?? null)) { idByCode.set(t.code, String(sameCode.id)); continue; }
+        // The system role already exists (under this or another code): keep that account, so postings and mappings stay valid
+        if (sameRole) { idByCode.set(t.code, String(sameRole.id)); continue; }
+        // Otherwise we would insert, and the code is taken by a different account: stop and say so
+        if (sameCode) {
+            throw new Error(
+                `Ledger account code ${t.code} is already used in this school by a different account ` +
+                `(system role ${sameCode.systemKey ?? "none"}, the template says ${t.systemKey ?? "none"}). Resolve it by hand; nothing was written.`,
+            );
+        }
+        const id = randomUUID();
+        idByCode.set(t.code, id);
+        toInsert.push({ id, t });
+    }
+
+    // Pass 2: write only what is missing (parents come first, so a child's parentId already exists)
+    for (const { id, t } of toInsert) {
         await client.query(
             `INSERT INTO "LedgerAccount"
                (id, code, name, type, subtype, "systemKey", "parentId", "isMoneyAccount", "isLocked", "sortOrder", "createdAt", "updatedAt")
              VALUES ($1, $2, $3, $4::"LedgerAccountType", $5, $6, $7, $8, $9, $10, now(), now())`,
             [
-                idByCode.get(t.code), t.code, t.name, t.type, t.subtype, t.systemKey ?? null,
+                id, t.code, t.name, t.type, t.subtype, t.systemKey ?? null,
                 t.parentCode ? idByCode.get(t.parentCode) : null,
                 MONEY_SUBTYPES.has(t.subtype), t.isSystem, t.sortOrder,
             ],
         );
     }
+    const added = toInsert.length;
 
     const periods = monthlyPeriods(options.fiscalYearStartMonth ?? DEFAULT_FISCAL_YEAR_START_MONTH, options.today ?? new Date());
+    const existingMonths = (await client.query(`SELECT "startDate"::text AS "startDate", name FROM "FinancePeriod"`)).rows;
+    const haveStart = new Set(existingMonths.map(r => String(r.startDate).slice(0, 10)));
+    const haveName  = new Set(existingMonths.map(r => String(r.name)));
+    let addedPeriods = 0;
     for (const p of periods) {
+        if (haveStart.has(String(p.startDate).slice(0, 10)) || haveName.has(p.name)) continue;
         await client.query(
             `INSERT INTO "FinancePeriod" (id, name, "startDate", "endDate", status, "createdAt", "updatedAt")
              VALUES ($1, $2, $3::date, $4::date, 'OPEN'::"PeriodStatus", now(), now())`,
             [randomUUID(), p.name, p.startDate, p.endDate],
         );
+        addedPeriods++;
     }
 
-    return { accounts: ordered.length, periods: periods.length };
+    return { accounts: added, periods: addedPeriods, alreadyThere: ordered.length - added };
 }

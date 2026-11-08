@@ -211,7 +211,7 @@ export const provisionSchemaWorker = new Worker<ProvisionSchemaJobData>(
 
 					// Books: chart of accounts (copied from the platform templates) and this fiscal year's months
 					const ledgerTemplates = await loadLedgerAccountTemplates(prisma as any);
-					const books = await seedFinanceBooks(client, ledgerTemplates);
+					const books = await seedFinanceBooks(client, ledgerTemplates);   // safe to run again: adds only what is missing
 					console.log(`✅ Finance books seeded (${books.accounts} accounts, ${books.periods} periods): ${schemaName}`);
 
 					// Fee types need their income accounts, so they are seeded after the chart of accounts
