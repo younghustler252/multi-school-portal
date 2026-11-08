@@ -2,7 +2,6 @@ import * as Sentry from "@sentry/node";
 import { Worker, Job } from "bullmq";
 import { Pool } from "pg";
 import { randomUUID } from "crypto";
-import { readdirSync, readFileSync } from "fs";
 import { join } from "path";
 import { redisConnection } from "../connection";
 import { ProvisionSchemaJobData } from "../queues/provision-schema.queue";
@@ -12,6 +11,7 @@ import { env } from "../../../config/env";
 import { MembershipService } from "../../../modules/auth/services/membership.service";
 import { UrlService } from "../../../shared/services/url.service";
 import { isValidSchemaName, schemaNameFor } from "../../../shared/utils/schema-name";
+import { applyTenantMigrations, inTransaction, isTenantSeeded } from "./tenant-schema-builder";
 import { loadLedgerAccountTemplates, seedFinanceBooks } from "../../../modules/ledger/services/ledger-seed";
 
 
@@ -149,155 +149,132 @@ export const provisionSchemaWorker = new Worker<ProvisionSchemaJobData>(
 			}
 			console.log(`🏗️  Provisioning schema: ${schemaName} for ${schoolName}`);
 
-			// ── 1. Build the school's tables and starting data (all or nothing) ──
-			// If the schema already exists (an earlier run built it and only a later step failed),
-			// it is NEVER dropped or rebuilt: we resume at the first-admin step.
-			const exists = await client.query(
-				"SELECT 1 FROM information_schema.schemata WHERE schema_name = $1",
-				[schemaName],
-			);
+			// ── 1. Build the school's tables: each migration commits on its own (see tenant-schema-builder.ts) ──
+			// An interrupted run leaves its schema in place and the next run continues with the migrations not yet tracked.
+			// A schema is NEVER dropped or rebuilt here.
+			const tenantMigrationsDir = join(__dirname, "..", "..", "..", "..", "prisma", "tenant-migrations");   // apps/api/prisma, from src/ or dist/
+			await applyTenantMigrations(client, schemaName, tenantMigrationsDir, console.log);
 
-			if (exists.rowCount === 0) {
-				try {
-					await client.query("BEGIN");
-
-					await client.query(`CREATE SCHEMA "${schemaName}"`);
-					await client.query(`SET search_path TO "${schemaName}"`);
-
-					const tenantMigrationsDir = join(__dirname, "..", "..", "..", "..", "prisma", "tenant-migrations")   // apps/api/prisma, from src/ or dist/;
-					const migrations = readdirSync(tenantMigrationsDir, { withFileTypes: true })
-						.filter(entry => entry.isDirectory())
-						.map(entry => entry.name)
-						.sort();
-
-					// Remember which migrations built this schema, so "migrate:apply-to-existing-schools" only runs LATER ones.
-					await client.query(`CREATE TABLE IF NOT EXISTS "_tenant_migrations_applied" (name TEXT PRIMARY KEY, applied_at TIMESTAMP NOT NULL DEFAULT now())`);
-					for (const migration of migrations) {
-						const sqlPath = join(tenantMigrationsDir, migration, "migration.sql");
-						await client.query(readFileSync(sqlPath, "utf8"));
-						await client.query(`INSERT INTO "_tenant_migrations_applied" (name) VALUES ($1) ON CONFLICT DO NOTHING`, [migration]);
-					}
-
-					console.log(`✅ Tables created: ${schemaName}`);
-
-					const gradingDefaults = [
-						{ minScore: 75, maxScore: 100, grade: "A1", remark: "Excellent" },
-						{ minScore: 70, maxScore: 74, grade: "B2", remark: "Very Good" },
-						{ minScore: 65, maxScore: 69, grade: "B3", remark: "Good" },
-						{ minScore: 60, maxScore: 64, grade: "C4", remark: "Credit" },
-						{ minScore: 55, maxScore: 59, grade: "C5", remark: "Credit" },
-						{ minScore: 50, maxScore: 54, grade: "C6", remark: "Credit" },
-						{ minScore: 45, maxScore: 49, grade: "D7", remark: "Pass" },
-						{ minScore: 40, maxScore: 44, grade: "E8", remark: "Pass" },
-						{ minScore: 0, maxScore: 39, grade: "F9", remark: "Fail" },
-					];
-
-					for (const g of gradingDefaults) {
-						await client.query(
-							`INSERT INTO "GradingConfig" (id, "minScore", "maxScore", grade, remark, "isDefault", "createdAt", "updatedAt")
-							 VALUES (gen_random_uuid(), $1, $2, $3, $4, true, now(), now())`,
-							[g.minScore, g.maxScore, g.grade, g.remark],
-						);
-					}
-
-					console.log(`✅ Grading config seeded: ${schemaName}`);
-
-					// Every school has one main branch from day one (the app hides branch pickers while there is only one)
-					await client.query(
-						`INSERT INTO "Branch" (id, name, code, "isMain", "isActive", "createdAt", "updatedAt")
-						 VALUES (gen_random_uuid(), 'Main Campus', 'MAIN', true, true, now(), now())`,
-					);
-					console.log(`✅ Main branch created: ${schemaName}`);
-
-					// Books: chart of accounts (copied from the platform templates) and this fiscal year's months
-					const ledgerTemplates = await loadLedgerAccountTemplates(prisma as any);
-					const books = await seedFinanceBooks(client, ledgerTemplates);   // safe to run again: adds only what is missing
-					console.log(`✅ Finance books seeded (${books.accounts} accounts, ${books.periods} periods): ${schemaName}`);
-
-					// Fee types need their income accounts, so they are seeded after the chart of accounts
-					for (const [index, feeType] of defaultFeeTypes.entries()) {
-						const inserted = await client.query(
-							`INSERT INTO "FeeType" (id, code, name, description, "incomeAccountId", "sortOrder", "createdAt", "updatedAt")
-							 SELECT gen_random_uuid(), $1, $2, $3, a.id, $5, now(), now()
-							 FROM "LedgerAccount" a WHERE a.code = $4`,
-							[feeType.code, feeType.name, feeType.description, feeType.incomeCode, index],
-						);
-						if (inserted.rowCount !== 1) {
-							throw new Error(`Fee type ${feeType.code} needs income account ${feeType.incomeCode}, which is not in the chart of accounts`);
-						}
-					}
-					console.log(`✅ Default fee types seeded: ${schemaName}`);
-
-					// ── School roles: copied from the platform's role templates ──
-					// Templates are data the platform team edits; each school gets its own copy
-					// and remembers which template (and version) it came from.
-					const templates = await prisma.roleTemplate.findMany({
-						where: { isActive: true, autoProvision: true },
-						include: { permissions: true },
-					});
-
-					if (!templates.some(t => t.key === "school_admin")) {
-						throw new Error(
-							"The 'school_admin' role template is missing. Seed the role templates before provisioning schools.",
-						);
-					}
-
-					for (const t of templates) {
-						const roleId = randomUUID();
-						await client.query(
-							`INSERT INTO "SchoolRole"
-							   (id, name, description, kind, persona, "grantsAll", "sourceTemplateKey", "sourceTemplateVersion", "isCustomized", "createdAt", "updatedAt")
-							 VALUES ($1, $2, $3, $4::"RoleKind", $5::"Persona", $6, $7, $8, false, now(), now())`,
-							[
-								roleId, t.name, t.description,
-								t.isLocked ? "SYSTEM_LOCKED" : "SYSTEM_EDITABLE",
-								t.persona, t.grantsAll, t.key, t.version,
-							],
-						);
-						for (const p of t.permissions) {
-							await client.query(
-								`INSERT INTO "SchoolRolePermission" ("roleId", "permissionKey", scope)
-								 VALUES ($1, $2, $3::"PermissionScope")`,
-								[roleId, p.permissionKey, p.scope],
-							);
-						}
-					}
-
-					console.log(`✅ ${templates.length} roles created: ${schemaName}`);
-
-					// const school = await prisma.school.findUnique({
-					// 	where: { id: schoolId },
-					// 	select: { schoolCategory: true },
-					// });
-
-					// for (const cls of getDefaultClasses(school?.schoolCategory)) {
-					// 	await client.query(
-					// 		`INSERT INTO "Class" (id, name, level, "createdAt", "updatedAt")
-					// 		 VALUES (gen_random_uuid(), $1, $2, now(), now())`,
-					// 		[cls.name, cls.level],
-					// 	);
-					// }
-
-					// for (const subject of getDefaultSubjects(school?.schoolCategory)) {
-					// 	await client.query(
-					// 		`INSERT INTO "Subject" (id, name, code, "createdAt", "updatedAt")
-					// 		 VALUES (gen_random_uuid(), $1, $2, now(), now())`,
-					// 		[subject.name, subject.code],
-					// 	);
-					// }
-
-					// console.log(`✅ Classes + subjects seeded: ${schemaName}`);
-
-					await client.query("COMMIT");
-				} catch (err) {
-					await client.query("ROLLBACK");   // undoes the new schema too: nothing half-built is left behind
-					throw err;
+			// ── 2. Starting data, all in ONE transaction, after the migrations have committed ──
+			// (a new enum value such as PermissionScope BRANCH can only be used once the migration that added it is committed)
+			// "Has roles" marks it done, so a retry never seeds twice.
+			await inTransaction(client, async () => {
+				if (await isTenantSeeded(client)) {
+					console.log(`↩️  ${schemaName} already has its starting data, resuming at the first-admin step`);
+					return;
 				}
-			} else {
-				console.log(`↩️  ${schemaName} already exists, resuming at the first-admin step`);
-			}
+				const gradingDefaults = [
+					{ minScore: 75, maxScore: 100, grade: "A1", remark: "Excellent" },
+					{ minScore: 70, maxScore: 74, grade: "B2", remark: "Very Good" },
+					{ minScore: 65, maxScore: 69, grade: "B3", remark: "Good" },
+					{ minScore: 60, maxScore: 64, grade: "C4", remark: "Credit" },
+					{ minScore: 55, maxScore: 59, grade: "C5", remark: "Credit" },
+					{ minScore: 50, maxScore: 54, grade: "C6", remark: "Credit" },
+					{ minScore: 45, maxScore: 49, grade: "D7", remark: "Pass" },
+					{ minScore: 40, maxScore: 44, grade: "E8", remark: "Pass" },
+					{ minScore: 0, maxScore: 39, grade: "F9", remark: "Fail" },
+				];
+
+				for (const g of gradingDefaults) {
+					await client.query(
+						`INSERT INTO "GradingConfig" (id, "minScore", "maxScore", grade, remark, "isDefault", "createdAt", "updatedAt")
+						 VALUES (gen_random_uuid(), $1, $2, $3, $4, true, now(), now())`,
+						[g.minScore, g.maxScore, g.grade, g.remark],
+					);
+				}
+
+				console.log(`✅ Grading config seeded: ${schemaName}`);
+
+				// Every school has one main branch from day one (the app hides branch pickers while there is only one)
+				await client.query(
+					`INSERT INTO "Branch" (id, name, code, "isMain", "isActive", "createdAt", "updatedAt")
+					 VALUES (gen_random_uuid(), 'Main Campus', 'MAIN', true, true, now(), now())`,
+				);
+				console.log(`✅ Main branch created: ${schemaName}`);
+
+				// Books: chart of accounts (copied from the platform templates) and this fiscal year's months
+				const ledgerTemplates = await loadLedgerAccountTemplates(prisma as any);
+				const books = await seedFinanceBooks(client, ledgerTemplates);   // safe to run again: adds only what is missing
+				console.log(`✅ Finance books seeded (${books.accounts} accounts, ${books.periods} periods): ${schemaName}`);
+
+				// Fee types need their income accounts, so they are seeded after the chart of accounts
+				for (const [index, feeType] of defaultFeeTypes.entries()) {
+					const inserted = await client.query(
+						`INSERT INTO "FeeType" (id, code, name, description, "incomeAccountId", "sortOrder", "createdAt", "updatedAt")
+						 SELECT gen_random_uuid(), $1, $2, $3, a.id, $5, now(), now()
+						 FROM "LedgerAccount" a WHERE a.code = $4`,
+						[feeType.code, feeType.name, feeType.description, feeType.incomeCode, index],
+					);
+					if (inserted.rowCount !== 1) {
+						throw new Error(`Fee type ${feeType.code} needs income account ${feeType.incomeCode}, which is not in the chart of accounts`);
+					}
+				}
+				console.log(`✅ Default fee types seeded: ${schemaName}`);
+
+				// ── School roles: copied from the platform's role templates ──
+				// KEEP THIS THE LAST WRITE of the starting data: isTenantSeeded() treats "has roles" as "all of it is there".
+				// Templates are data the platform team edits; each school gets its own copy
+				// and remembers which template (and version) it came from.
+				const templates = await prisma.roleTemplate.findMany({
+					where: { isActive: true, autoProvision: true },
+					include: { permissions: true },
+				});
+
+				if (!templates.some(t => t.key === "school_admin")) {
+					throw new Error(
+						"The 'school_admin' role template is missing. Seed the role templates before provisioning schools.",
+					);
+				}
+
+				for (const t of templates) {
+					const roleId = randomUUID();
+					await client.query(
+						`INSERT INTO "SchoolRole"
+						   (id, name, description, kind, persona, "grantsAll", "sourceTemplateKey", "sourceTemplateVersion", "isCustomized", "createdAt", "updatedAt")
+						 VALUES ($1, $2, $3, $4::"RoleKind", $5::"Persona", $6, $7, $8, false, now(), now())`,
+						[
+							roleId, t.name, t.description,
+							t.isLocked ? "SYSTEM_LOCKED" : "SYSTEM_EDITABLE",
+							t.persona, t.grantsAll, t.key, t.version,
+						],
+					);
+					for (const p of t.permissions) {
+						await client.query(
+							`INSERT INTO "SchoolRolePermission" ("roleId", "permissionKey", scope)
+							 VALUES ($1, $2, $3::"PermissionScope")`,
+							[roleId, p.permissionKey, p.scope],
+						);
+					}
+				}
+
+				console.log(`✅ ${templates.length} roles created: ${schemaName}`);
+
+				// const school = await prisma.school.findUnique({
+				// 	where: { id: schoolId },
+				// 	select: { schoolCategory: true },
+				// });
+
+				// for (const cls of getDefaultClasses(school?.schoolCategory)) {
+				// 	await client.query(
+				// 		`INSERT INTO "Class" (id, name, level, "createdAt", "updatedAt")
+				// 		 VALUES (gen_random_uuid(), $1, $2, now(), now())`,
+				// 		[cls.name, cls.level],
+				// 	);
+				// }
+
+				// for (const subject of getDefaultSubjects(school?.schoolCategory)) {
+				// 	await client.query(
+				// 		`INSERT INTO "Subject" (id, name, code, "createdAt", "updatedAt")
+				// 		 VALUES (gen_random_uuid(), $1, $2, now(), now())`,
+				// 		[subject.name, subject.code],
+				// 	);
+				// }
+
+				// console.log(`✅ Classes + subjects seeded: ${schemaName}`);
+
+			});
 			// The lock is held through the end, so two runs can never both create the first admin.
-			// ── 2. Give the person who registered real access (needs the committed schema) ──
+			// ── 3. Give the person who registered real access (needs the committed schema) ──
 			await new Promise<void>((resolve, reject) =>
 				TenantContext.run({ tenantSchema: schemaName, schoolId }, () => {
 					membershipService.provisionFirstAdmin(schoolId).then(() => resolve(), reject);
@@ -305,7 +282,7 @@ export const provisionSchemaWorker = new Worker<ProvisionSchemaJobData>(
 			);
 			console.log(`✅ School admin access created: ${schemaName}`);
 
-			// ── 3. Only now is the school marked as provisioned ──
+			// ── 4. Only now is the school marked as provisioned ──
 			await prisma.school.update({
 				where: { id: schoolId },
 				data: { schemaProvisionedAt: new Date() },
