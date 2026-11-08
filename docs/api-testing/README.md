@@ -39,24 +39,46 @@ Current route files were reviewed, but not every historical DTO example was rege
 
 ## Local test-data bootstrap
 
-A local-only helper is available at `apps/api/scripts/seed-test-data.ts`. From `apps/api`, run it with:
+A local-only helper is available at `apps/api/scripts/seed-test-data.ts`. It creates or updates the platform test admin and submits one deterministic platform-managed school:
 
-```bash
-ALLOW_LOCAL_TEST_ADMIN_BOOTSTRAP=true \\
-TEST_PLATFORM_ADMIN_EMAIL=platform.admin@example.test \\
-TEST_PLATFORM_ADMIN_PASSWORD='ChangeThis!234' \\
-PLATFORM_BASE_URL=http://admin.localhost:4000 \\
-npx tsx scripts/seed-test-data.ts
+- School: **Greenfield Academy**
+- Subdomain: `greenfield-academy`
+- Tenant schema expected from the schema-name helper: `school_greenfield_academy`
+- School admin email: `admin@greenfield-academy.test`
+
+The script never deletes database records. It uses the API to create the school so the normal provisioning workflow and worker remain responsible for tenant schema creation and the first tenant membership. Keep the API and worker running. A successful school-create response is not proof that provisioning has finished; verify `schemaProvisionedAt`, the tenant schema, and active tenant membership before testing school login.
+
+The script refuses `NODE_ENV=production`, requires `ALLOW_LOCAL_TEST_ADMIN_BOOTSTRAP=true`, and accepts only loopback database hosts by default. For an intentional Docker-network test database, explicitly allow its exact hostname in the uncommitted `.env.development` file:
+
+```dotenv
+TEST_DATABASE_HOST_ALLOWLIST=172.18.0.2
 ```
 
-The script refuses `NODE_ENV=production`, requires a loopback PostgreSQL host, and accepts only a loopback or `.localhost` API hostname. It creates/updates a local platform user, gives that user a local-only platform role with all platform permissions, logs in through the API, and creates one platform-managed test school through `POST /api/v1/platform/schools`. It never truncates or deletes data. Keep the API worker running so the school provisioning job can create its tenant schema and first admin membership.
-
-To also exercise self-registration, set `REGISTER_TEST_PASSWORD` in the environment. The script then calls `POST /api/v1/auth/register`; that flow leaves the school pending and requires email OTP verification. Use your development mail transport to retrieve the OTP.
-
-Use only a disposable local database. The platform admin bootstrap uses Prisma directly because the application intentionally has no public endpoint for granting a user platform-wide administrative authority. The script's role is local-only and must not be reused in production.
-
+This is an exact-host allowlist, not a blanket private-network exception. The API target must still be loopback or a `.localhost` hostname.
 
 ## One-command local run
+
+From `apps/api`, with the API server and worker already running, configure these variables in `.env.development` (do not commit secrets):
+
+```dotenv
+DATABASE_URL=postgresql://...@172.18.0.2:5432/school_portal
+TEST_DATABASE_HOST_ALLOWLIST=172.18.0.2
+ALLOW_LOCAL_TEST_ADMIN_BOOTSTRAP=true
+TEST_PLATFORM_ADMIN_EMAIL=platform.admin@example.test
+TEST_PLATFORM_ADMIN_PASSWORD=use-a-disposable-local-password
+PLATFORM_BASE_URL=http://admin.localhost:4000
+```
+
+Then run:
+
+```bash
+npm run test:local
+```
+
+This bootstraps the platform test admin, initializes platform settings, submits Greenfield Academy through `POST /api/v1/platform/schools`, and then runs the GET-only Newman smoke collection. It does not reset or truncate the database. Re-running against a database that already contains the deterministic school will encounter the unique school identity; use a clean disposable test database for a fresh run.
+
+The initial automated pass does not create the full academic fixture (sessions, terms, classes, subjects, staff, students, guardians, enrolments or calendar events). The smoke suite is read-only and does not verify those write workflows. Do not run the full collection unattended: its write requests can create, publish, approve, transfer, pay, reverse or delete records.
+
 
 From `apps/api`, after starting the API server and its background worker, configure these variables in your local `.env` (do not commit secrets):
 
