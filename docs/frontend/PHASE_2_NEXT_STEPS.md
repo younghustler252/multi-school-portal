@@ -16,7 +16,7 @@ Never force-push these branches. Bring a branch forward by merging; the owner re
 ## Do next, in this order
 
 1. ~~Close M0~~ **Done 2026-11-07.** Typecheck saved, #6 and #11 located, no foundation blockers, M0 merged into `refactor/modules`.
-2. ~~Bring M1 forward~~ **Done 2026-11-08** (merge of `refactor/modules` into `phase2/m1-session`). Re-run `npm run test:web` and `npm run typecheck:web` on the owner's machine: the last measured results (78/78 tests, 32 baseline errors) predate SCHOOL_REDIRECT and the merge.
+2. ~~Bring M1 forward~~ **Done 2026-11-08** (merge of `refactor/modules` into `phase2/m1-session`). **Verified 2026-11-08 on the owner's machine (SCHOOL_REDIRECT included):** `npm run test:web` = 85/85 pass in 10 files; `npm run typecheck:web` = 32 errors in 18 files, identical to the baseline, none in M1 files.
 3. **M1 exit check: real login against the local API** (the owner now has data) (API on :5000, web on :3000). Try a school user, a platform user, a user with exactly one eligible school (SCHOOL_REDIRECT), a user with several schools (SCHOOL_SELECTION_REQUIRED), a user with several personas, a user who must change password, an unverified user. Record results here.
 4. Decide whether M1 is integrated.
 5. Only then start **M2** (below).
