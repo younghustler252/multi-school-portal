@@ -5,10 +5,10 @@ import { LogIn, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { superAdminApi } from "../services/super-admin.api";
-import { COMPANY } from "@/config/company";
+import { isSafeSchoolUrl } from "@/lib/auth/safe-url";
 import { ApiErrorResponse } from "@/types/api-response";
 
-export function ImpersonateButton({ schoolId, subdomain }: { schoolId: string; subdomain: string }) {
+export function ImpersonateButton({ schoolId }: { schoolId: string; subdomain?: string }) {
 	const [loading, setLoading] = useState(false);
 
 	async function handleImpersonate() {
@@ -19,16 +19,17 @@ export function ImpersonateButton({ schoolId, subdomain }: { schoolId: string; s
 				toast.error(res.message);
 				return;
 			}
-			const { accessToken } = res.data;
-			const host = new URL(COMPANY.website).hostname;
-			const isLocal = window.location.hostname.endsWith(".localhost");
-			const target = isLocal
-				? `http://${subdomain}.localhost:3000/impersonate-entry?token=${accessToken}`
-				: `https://${subdomain}.${host}/impersonate-entry?token=${accessToken}`;
-			window.location.href = target;
+			// The API returns the school's own address with a one-time, 60-second ticket (never a token in the URL).
+			const { redirectUrl } = res.data;
+			if (!isSafeSchoolUrl(redirectUrl)) {
+				toast.error("The school's address is not valid.");
+				return;
+			}
+			window.location.href = redirectUrl;
 		} catch (err) {
 			const apiErr = err as ApiErrorResponse;
 			toast.error(apiErr.message || "Couldn't start impersonation");
+		} finally {
 			setLoading(false);
 		}
 	}

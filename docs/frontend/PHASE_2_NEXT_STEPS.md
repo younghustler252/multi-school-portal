@@ -51,7 +51,17 @@ Never force-push these branches. Bring a branch forward by merging; the owner re
 - Onboarding layout still runs queries before the gate decides (pre-existing).
 - 32 business-module type errors are intentionally untouched; each belongs to its feature phase.
 
-## M2 scope (not started)
+## M2 progress (branch `phase2/m2-session`, from `refactor/modules` `a64fd4c`)
+
+Done without needing deployment answers:
+- **Middleware cookie fix:** `lib/route-guard.ts` (`decideRoute`, tested). A protected page loads with EITHER cookie (access lives 15 min, refresh 7 days, both `path: "/"`); `/login` only bounces away on a live access cookie, so a dead refresh cookie cannot cause a redirect loop. `/home` is now protected.
+- **Impersonation fix:** the API returns `{ redirectUrl }` with a one-time `?ticket=`; the button used to read a non-existent `accessToken` and build `?token=undefined`. It now follows `redirectUrl` (http/https only) and `/impersonate-entry` reads `ticket`. Not tested against a real impersonation yet.
+
+Still blocked on owner answers (below): TENANT-001..003 hard-coded origins, production API origin derivation, custom domains, `get-subdomain.ts` (hard-coded `admin`).
+
+**Questions for the owner:** (1) in production do the web app and API share one host with an `/api` proxy, or are they on separate hosts? (2) will `COOKIE_DOMAIN` be set? (3) what are the production base domain and admin subdomain?
+
+## M2 scope (original list)
 
 TENANT-001..003, API-003, AUTH-004..006 remainder: tenant/host handling, persona and school switching UI, destination resolution, custom domains, hard-coded origins (`lib/subdomain-url.ts`, `impersonate-button.tsx`, `documents-gate-step.tsx`, `get-subdomain.ts`).
 **Middleware cookie fix:** `middleware.ts` treats the `accessToken` cookie as "signed in", so after 15 minutes protected routes bounce to `/login` although the refresh cookie is valid. Needs deployment answers: same host for web and API with an `/api` proxy? cookie domain?

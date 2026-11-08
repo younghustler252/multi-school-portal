@@ -16,7 +16,7 @@ export const superAdminApi = {
 	deactivateUser: (userId: string): Promise<ApiResponse<null>> =>
 		API.delete(`/super-admin/users/${userId}`),
 
-	impersonateSchool: (schoolId: string): Promise<ApiResponse<{ accessToken?: string; redirectUrl?: string }>> =>
+	impersonateSchool: (schoolId: string): Promise<ApiResponse<{ redirectUrl: string }>> =>
 		API.post(`/super-admin/schools/${schoolId}/impersonate`),
 
 };

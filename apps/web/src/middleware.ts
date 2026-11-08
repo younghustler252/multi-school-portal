@@ -1,19 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { extractSubdomain, isAdminSubdomain } from "@/lib/get-subdomain";
-
-const AUTH_ROUTES = ["/login", "/register", "/verify-email", "/forgot-password", "/reset-password"];
-
-const PROTECTED_PREFIXES = [
-	"/school-admin", "/teacher", "/bursar", "/principal",
-	"/student", "/guardian", "/schools", "/plans", "/subscriptions",
-];
+import { decideRoute } from "@/lib/route-guard";
 
 export function middleware(request: NextRequest) {
 	const { pathname } = request.nextUrl;
 	const hostname = request.headers.get("host") ?? "";
 	const subdomain = extractSubdomain(hostname);
-	const hasSession = request.cookies.has("accessToken");
-	
 	if (isAdminSubdomain(hostname) && pathname === "/login") {
 		const url = request.nextUrl.clone();
 		url.pathname = "/admin-login";
@@ -28,16 +20,16 @@ export function middleware(request: NextRequest) {
 	}
 
 
-	const isAuthRoute = AUTH_ROUTES.some((route) => pathname.startsWith(route));
-	const isProtectedRoute = PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+	const decision = decideRoute({
+		pathname,
+		hasAccessCookie: request.cookies.has("accessToken"),
+		hasRefreshCookie: request.cookies.has("refreshToken"),
+	});
 
-	if (isAuthRoute && hasSession) {
-		return NextResponse.redirect(new URL("/", request.url));
-	}
-
-	if (isProtectedRoute && !hasSession) {
+	if (decision.action === "redirect-home") return NextResponse.redirect(new URL("/", request.url));
+	if (decision.action === "login") {
 		const loginUrl = new URL("/login", request.url);
-		loginUrl.searchParams.set("redirect", pathname);
+		loginUrl.searchParams.set("redirect", decision.returnTo);
 		return NextResponse.redirect(loginUrl);
 	}
 
