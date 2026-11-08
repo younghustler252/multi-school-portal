@@ -7956,6 +7956,7 @@ export namespace Prisma {
     emailVerifiedAt: Date | null
     lastLoginAt: Date | null
     lastLoginIp: string | null
+    lastSchoolId: string | null
     failedLoginCount: number | null
     lockedUntil: Date | null
     passwordChangedAt: Date | null
@@ -7977,6 +7978,7 @@ export namespace Prisma {
     emailVerifiedAt: Date | null
     lastLoginAt: Date | null
     lastLoginIp: string | null
+    lastSchoolId: string | null
     failedLoginCount: number | null
     lockedUntil: Date | null
     passwordChangedAt: Date | null
@@ -7998,6 +8000,7 @@ export namespace Prisma {
     emailVerifiedAt: number
     lastLoginAt: number
     lastLoginIp: number
+    lastSchoolId: number
     failedLoginCount: number
     lockedUntil: number
     passwordChangedAt: number
@@ -8029,6 +8032,7 @@ export namespace Prisma {
     emailVerifiedAt?: true
     lastLoginAt?: true
     lastLoginIp?: true
+    lastSchoolId?: true
     failedLoginCount?: true
     lockedUntil?: true
     passwordChangedAt?: true
@@ -8050,6 +8054,7 @@ export namespace Prisma {
     emailVerifiedAt?: true
     lastLoginAt?: true
     lastLoginIp?: true
+    lastSchoolId?: true
     failedLoginCount?: true
     lockedUntil?: true
     passwordChangedAt?: true
@@ -8071,6 +8076,7 @@ export namespace Prisma {
     emailVerifiedAt?: true
     lastLoginAt?: true
     lastLoginIp?: true
+    lastSchoolId?: true
     failedLoginCount?: true
     lockedUntil?: true
     passwordChangedAt?: true
@@ -8179,6 +8185,7 @@ export namespace Prisma {
     emailVerifiedAt: Date | null
     lastLoginAt: Date | null
     lastLoginIp: string | null
+    lastSchoolId: string | null
     failedLoginCount: number
     lockedUntil: Date | null
     passwordChangedAt: Date | null
@@ -8219,6 +8226,7 @@ export namespace Prisma {
     emailVerifiedAt?: boolean
     lastLoginAt?: boolean
     lastLoginIp?: boolean
+    lastSchoolId?: boolean
     failedLoginCount?: boolean
     lockedUntil?: boolean
     passwordChangedAt?: boolean
@@ -8247,6 +8255,7 @@ export namespace Prisma {
     emailVerifiedAt?: boolean
     lastLoginAt?: boolean
     lastLoginIp?: boolean
+    lastSchoolId?: boolean
     failedLoginCount?: boolean
     lockedUntil?: boolean
     passwordChangedAt?: boolean
@@ -8268,6 +8277,7 @@ export namespace Prisma {
     emailVerifiedAt?: boolean
     lastLoginAt?: boolean
     lastLoginIp?: boolean
+    lastSchoolId?: boolean
     failedLoginCount?: boolean
     lockedUntil?: boolean
     passwordChangedAt?: boolean
@@ -8289,6 +8299,7 @@ export namespace Prisma {
     emailVerifiedAt?: boolean
     lastLoginAt?: boolean
     lastLoginIp?: boolean
+    lastSchoolId?: boolean
     failedLoginCount?: boolean
     lockedUntil?: boolean
     passwordChangedAt?: boolean
@@ -8297,7 +8308,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "passwordHash" | "firstName" | "lastName" | "phone" | "photoUrl" | "isActive" | "isEmailVerified" | "emailVerifiedAt" | "lastLoginAt" | "lastLoginIp" | "failedLoginCount" | "lockedUntil" | "passwordChangedAt" | "mustChangePassword" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "passwordHash" | "firstName" | "lastName" | "phone" | "photoUrl" | "isActive" | "isEmailVerified" | "emailVerifiedAt" | "lastLoginAt" | "lastLoginIp" | "lastSchoolId" | "failedLoginCount" | "lockedUntil" | "passwordChangedAt" | "mustChangePassword" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     platformMember?: boolean | User$platformMemberArgs<ExtArgs>
     schools?: boolean | User$schoolsArgs<ExtArgs>
@@ -8333,6 +8344,10 @@ export namespace Prisma {
       emailVerifiedAt: Date | null
       lastLoginAt: Date | null
       lastLoginIp: string | null
+      /**
+       * The school this person last signed in to. Only a hint for which school to suggest first; never used for access.
+       */
+      lastSchoolId: string | null
       failedLoginCount: number
       lockedUntil: Date | null
       passwordChangedAt: Date | null
@@ -8780,6 +8795,7 @@ export namespace Prisma {
     readonly emailVerifiedAt: FieldRef<"User", 'DateTime'>
     readonly lastLoginAt: FieldRef<"User", 'DateTime'>
     readonly lastLoginIp: FieldRef<"User", 'String'>
+    readonly lastSchoolId: FieldRef<"User", 'String'>
     readonly failedLoginCount: FieldRef<"User", 'Int'>
     readonly lockedUntil: FieldRef<"User", 'DateTime'>
     readonly passwordChangedAt: FieldRef<"User", 'DateTime'>
@@ -47050,6 +47066,7 @@ export namespace Prisma {
     emailVerifiedAt: 'emailVerifiedAt',
     lastLoginAt: 'lastLoginAt',
     lastLoginIp: 'lastLoginIp',
+    lastSchoolId: 'lastSchoolId',
     failedLoginCount: 'failedLoginCount',
     lockedUntil: 'lockedUntil',
     passwordChangedAt: 'passwordChangedAt',
@@ -48616,6 +48633,7 @@ export namespace Prisma {
     emailVerifiedAt?: DateTimeNullableFilter<"User"> | Date | string | null
     lastLoginAt?: DateTimeNullableFilter<"User"> | Date | string | null
     lastLoginIp?: StringNullableFilter<"User"> | string | null
+    lastSchoolId?: StringNullableFilter<"User"> | string | null
     failedLoginCount?: IntFilter<"User"> | number
     lockedUntil?: DateTimeNullableFilter<"User"> | Date | string | null
     passwordChangedAt?: DateTimeNullableFilter<"User"> | Date | string | null
@@ -48643,6 +48661,7 @@ export namespace Prisma {
     emailVerifiedAt?: SortOrderInput | SortOrder
     lastLoginAt?: SortOrderInput | SortOrder
     lastLoginIp?: SortOrderInput | SortOrder
+    lastSchoolId?: SortOrderInput | SortOrder
     failedLoginCount?: SortOrder
     lockedUntil?: SortOrderInput | SortOrder
     passwordChangedAt?: SortOrderInput | SortOrder
@@ -48673,6 +48692,7 @@ export namespace Prisma {
     emailVerifiedAt?: DateTimeNullableFilter<"User"> | Date | string | null
     lastLoginAt?: DateTimeNullableFilter<"User"> | Date | string | null
     lastLoginIp?: StringNullableFilter<"User"> | string | null
+    lastSchoolId?: StringNullableFilter<"User"> | string | null
     failedLoginCount?: IntFilter<"User"> | number
     lockedUntil?: DateTimeNullableFilter<"User"> | Date | string | null
     passwordChangedAt?: DateTimeNullableFilter<"User"> | Date | string | null
@@ -48700,6 +48720,7 @@ export namespace Prisma {
     emailVerifiedAt?: SortOrderInput | SortOrder
     lastLoginAt?: SortOrderInput | SortOrder
     lastLoginIp?: SortOrderInput | SortOrder
+    lastSchoolId?: SortOrderInput | SortOrder
     failedLoginCount?: SortOrder
     lockedUntil?: SortOrderInput | SortOrder
     passwordChangedAt?: SortOrderInput | SortOrder
@@ -48729,6 +48750,7 @@ export namespace Prisma {
     emailVerifiedAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
     lastLoginAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
     lastLoginIp?: StringNullableWithAggregatesFilter<"User"> | string | null
+    lastSchoolId?: StringNullableWithAggregatesFilter<"User"> | string | null
     failedLoginCount?: IntWithAggregatesFilter<"User"> | number
     lockedUntil?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
     passwordChangedAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
@@ -52143,6 +52165,7 @@ export namespace Prisma {
     emailVerifiedAt?: Date | string | null
     lastLoginAt?: Date | string | null
     lastLoginIp?: string | null
+    lastSchoolId?: string | null
     failedLoginCount?: number
     lockedUntil?: Date | string | null
     passwordChangedAt?: Date | string | null
@@ -52170,6 +52193,7 @@ export namespace Prisma {
     emailVerifiedAt?: Date | string | null
     lastLoginAt?: Date | string | null
     lastLoginIp?: string | null
+    lastSchoolId?: string | null
     failedLoginCount?: number
     lockedUntil?: Date | string | null
     passwordChangedAt?: Date | string | null
@@ -52197,6 +52221,7 @@ export namespace Prisma {
     emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSchoolId?: NullableStringFieldUpdateOperationsInput | string | null
     failedLoginCount?: IntFieldUpdateOperationsInput | number
     lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -52224,6 +52249,7 @@ export namespace Prisma {
     emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSchoolId?: NullableStringFieldUpdateOperationsInput | string | null
     failedLoginCount?: IntFieldUpdateOperationsInput | number
     lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -52251,6 +52277,7 @@ export namespace Prisma {
     emailVerifiedAt?: Date | string | null
     lastLoginAt?: Date | string | null
     lastLoginIp?: string | null
+    lastSchoolId?: string | null
     failedLoginCount?: number
     lockedUntil?: Date | string | null
     passwordChangedAt?: Date | string | null
@@ -52272,6 +52299,7 @@ export namespace Prisma {
     emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSchoolId?: NullableStringFieldUpdateOperationsInput | string | null
     failedLoginCount?: IntFieldUpdateOperationsInput | number
     lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -52293,6 +52321,7 @@ export namespace Prisma {
     emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSchoolId?: NullableStringFieldUpdateOperationsInput | string | null
     failedLoginCount?: IntFieldUpdateOperationsInput | number
     lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -56296,6 +56325,7 @@ export namespace Prisma {
     emailVerifiedAt?: SortOrder
     lastLoginAt?: SortOrder
     lastLoginIp?: SortOrder
+    lastSchoolId?: SortOrder
     failedLoginCount?: SortOrder
     lockedUntil?: SortOrder
     passwordChangedAt?: SortOrder
@@ -56321,6 +56351,7 @@ export namespace Prisma {
     emailVerifiedAt?: SortOrder
     lastLoginAt?: SortOrder
     lastLoginIp?: SortOrder
+    lastSchoolId?: SortOrder
     failedLoginCount?: SortOrder
     lockedUntil?: SortOrder
     passwordChangedAt?: SortOrder
@@ -56342,6 +56373,7 @@ export namespace Prisma {
     emailVerifiedAt?: SortOrder
     lastLoginAt?: SortOrder
     lastLoginIp?: SortOrder
+    lastSchoolId?: SortOrder
     failedLoginCount?: SortOrder
     lockedUntil?: SortOrder
     passwordChangedAt?: SortOrder
@@ -62860,6 +62892,7 @@ export namespace Prisma {
     emailVerifiedAt?: Date | string | null
     lastLoginAt?: Date | string | null
     lastLoginIp?: string | null
+    lastSchoolId?: string | null
     failedLoginCount?: number
     lockedUntil?: Date | string | null
     passwordChangedAt?: Date | string | null
@@ -62886,6 +62919,7 @@ export namespace Prisma {
     emailVerifiedAt?: Date | string | null
     lastLoginAt?: Date | string | null
     lastLoginIp?: string | null
+    lastSchoolId?: string | null
     failedLoginCount?: number
     lockedUntil?: Date | string | null
     passwordChangedAt?: Date | string | null
@@ -63027,6 +63061,7 @@ export namespace Prisma {
     emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSchoolId?: NullableStringFieldUpdateOperationsInput | string | null
     failedLoginCount?: IntFieldUpdateOperationsInput | number
     lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -63053,6 +63088,7 @@ export namespace Prisma {
     emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSchoolId?: NullableStringFieldUpdateOperationsInput | string | null
     failedLoginCount?: IntFieldUpdateOperationsInput | number
     lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -63184,6 +63220,7 @@ export namespace Prisma {
     emailVerifiedAt?: Date | string | null
     lastLoginAt?: Date | string | null
     lastLoginIp?: string | null
+    lastSchoolId?: string | null
     failedLoginCount?: number
     lockedUntil?: Date | string | null
     passwordChangedAt?: Date | string | null
@@ -63210,6 +63247,7 @@ export namespace Prisma {
     emailVerifiedAt?: Date | string | null
     lastLoginAt?: Date | string | null
     lastLoginIp?: string | null
+    lastSchoolId?: string | null
     failedLoginCount?: number
     lockedUntil?: Date | string | null
     passwordChangedAt?: Date | string | null
@@ -63252,6 +63290,7 @@ export namespace Prisma {
     emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSchoolId?: NullableStringFieldUpdateOperationsInput | string | null
     failedLoginCount?: IntFieldUpdateOperationsInput | number
     lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -63278,6 +63317,7 @@ export namespace Prisma {
     emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSchoolId?: NullableStringFieldUpdateOperationsInput | string | null
     failedLoginCount?: IntFieldUpdateOperationsInput | number
     lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -63304,6 +63344,7 @@ export namespace Prisma {
     emailVerifiedAt?: Date | string | null
     lastLoginAt?: Date | string | null
     lastLoginIp?: string | null
+    lastSchoolId?: string | null
     failedLoginCount?: number
     lockedUntil?: Date | string | null
     passwordChangedAt?: Date | string | null
@@ -63330,6 +63371,7 @@ export namespace Prisma {
     emailVerifiedAt?: Date | string | null
     lastLoginAt?: Date | string | null
     lastLoginIp?: string | null
+    lastSchoolId?: string | null
     failedLoginCount?: number
     lockedUntil?: Date | string | null
     passwordChangedAt?: Date | string | null
@@ -63372,6 +63414,7 @@ export namespace Prisma {
     emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSchoolId?: NullableStringFieldUpdateOperationsInput | string | null
     failedLoginCount?: IntFieldUpdateOperationsInput | number
     lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -63398,6 +63441,7 @@ export namespace Prisma {
     emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSchoolId?: NullableStringFieldUpdateOperationsInput | string | null
     failedLoginCount?: IntFieldUpdateOperationsInput | number
     lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -63424,6 +63468,7 @@ export namespace Prisma {
     emailVerifiedAt?: Date | string | null
     lastLoginAt?: Date | string | null
     lastLoginIp?: string | null
+    lastSchoolId?: string | null
     failedLoginCount?: number
     lockedUntil?: Date | string | null
     passwordChangedAt?: Date | string | null
@@ -63450,6 +63495,7 @@ export namespace Prisma {
     emailVerifiedAt?: Date | string | null
     lastLoginAt?: Date | string | null
     lastLoginIp?: string | null
+    lastSchoolId?: string | null
     failedLoginCount?: number
     lockedUntil?: Date | string | null
     passwordChangedAt?: Date | string | null
@@ -63492,6 +63538,7 @@ export namespace Prisma {
     emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSchoolId?: NullableStringFieldUpdateOperationsInput | string | null
     failedLoginCount?: IntFieldUpdateOperationsInput | number
     lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -63518,6 +63565,7 @@ export namespace Prisma {
     emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSchoolId?: NullableStringFieldUpdateOperationsInput | string | null
     failedLoginCount?: IntFieldUpdateOperationsInput | number
     lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -65536,6 +65584,7 @@ export namespace Prisma {
     emailVerifiedAt?: Date | string | null
     lastLoginAt?: Date | string | null
     lastLoginIp?: string | null
+    lastSchoolId?: string | null
     failedLoginCount?: number
     lockedUntil?: Date | string | null
     passwordChangedAt?: Date | string | null
@@ -65562,6 +65611,7 @@ export namespace Prisma {
     emailVerifiedAt?: Date | string | null
     lastLoginAt?: Date | string | null
     lastLoginIp?: string | null
+    lastSchoolId?: string | null
     failedLoginCount?: number
     lockedUntil?: Date | string | null
     passwordChangedAt?: Date | string | null
@@ -65626,6 +65676,7 @@ export namespace Prisma {
     emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSchoolId?: NullableStringFieldUpdateOperationsInput | string | null
     failedLoginCount?: IntFieldUpdateOperationsInput | number
     lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -65652,6 +65703,7 @@ export namespace Prisma {
     emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSchoolId?: NullableStringFieldUpdateOperationsInput | string | null
     failedLoginCount?: IntFieldUpdateOperationsInput | number
     lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -67191,6 +67243,7 @@ export namespace Prisma {
     emailVerifiedAt?: Date | string | null
     lastLoginAt?: Date | string | null
     lastLoginIp?: string | null
+    lastSchoolId?: string | null
     failedLoginCount?: number
     lockedUntil?: Date | string | null
     passwordChangedAt?: Date | string | null
@@ -67217,6 +67270,7 @@ export namespace Prisma {
     emailVerifiedAt?: Date | string | null
     lastLoginAt?: Date | string | null
     lastLoginIp?: string | null
+    lastSchoolId?: string | null
     failedLoginCount?: number
     lockedUntil?: Date | string | null
     passwordChangedAt?: Date | string | null
@@ -67358,6 +67412,7 @@ export namespace Prisma {
     emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSchoolId?: NullableStringFieldUpdateOperationsInput | string | null
     failedLoginCount?: IntFieldUpdateOperationsInput | number
     lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -67384,6 +67439,7 @@ export namespace Prisma {
     emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSchoolId?: NullableStringFieldUpdateOperationsInput | string | null
     failedLoginCount?: IntFieldUpdateOperationsInput | number
     lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     passwordChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null

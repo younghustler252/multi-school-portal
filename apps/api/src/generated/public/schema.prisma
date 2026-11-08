@@ -364,6 +364,8 @@ model User {
   emailVerifiedAt    DateTime?
   lastLoginAt        DateTime?
   lastLoginIp        String?
+  /// The school this person last signed in to. Only a hint for which school to suggest first; never used for access.
+  lastSchoolId       String?
   failedLoginCount   Int       @default(0)
   lockedUntil        DateTime?
   passwordChangedAt  DateTime?
