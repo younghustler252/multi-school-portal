@@ -18,12 +18,12 @@
   "variable": [
     {
       "key": "baseUrl",
-      "value": "http://localhost:4000",
+      "value": "http://localhost:5000",
       "type": "string"
     },
     {
       "key": "platformBaseUrl",
-      "value": "http://localhost:4000",
+      "value": "http://localhost:5000",
       "type": "string"
     },
     {
