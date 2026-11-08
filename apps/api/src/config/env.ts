@@ -29,6 +29,7 @@ const envSchema = z.object({
     COOKIE_DOMAIN:   z.string().optional(),     
     PUBLIC_URL_PORT: z.string().optional(),  
     ADMIN_SUBDOMAIN:  z.string().default("admin"),
+    RESERVED_SUBDOMAINS_EXTRA: z.string().optional(),   // extra labels no school may take, comma separated
 
     // ── Database ─────────────────────────────────────────────────────────
     DATABASE_URL:     z.string().url(),
@@ -109,6 +110,7 @@ export const env = {
     COOKIE_DOMAIN:   parsed.data.COOKIE_DOMAIN,
     PUBLIC_URL_PORT: parsed.data.PUBLIC_URL_PORT,
     ADMIN_SUBDOMAIN: parsed.data.ADMIN_SUBDOMAIN,
+    RESERVED_SUBDOMAINS_EXTRA: parsed.data.RESERVED_SUBDOMAINS_EXTRA,
 
     // ── Database ─────────────────────────────────────────────────────────
     DATABASE_URL:    parsed.data.DATABASE_URL,

@@ -52,12 +52,8 @@ export const IMPERSONATION_MAX_MINUTES = 60;
 export const DEFAULT_PASSWORD_MIN_LENGTH = 8;
 export const PASSWORD_MAX_LENGTH         = 128;
 
-// Subdomains that must never belong to a school (they collide with platform hosts)
-export const RESERVED_SUBDOMAINS: readonly string[] = [
-    "www", "admin", "api", "app", "mail", "smtp", "ftp", "support", "help",
-    "status", "docs", "blog", "static", "assets", "cdn", "dev", "staging",
-    "test", "demo", "portal", "login", "auth", "billing", "dashboard",
-];
+// Subdomains that must never belong to a school: the list lives in shared/utils/subdomain.ts (use isReservedSubdomain there)
+export { RESERVED_SUBDOMAINS } from "../../../shared/utils/subdomain";
 
 export const AuthMessage = {
     FORGOT_GENERIC: "If an account exists for this email, a reset code has been sent.",

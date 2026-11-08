@@ -22,6 +22,7 @@
     "prisma:migrate:deploy:tenant": "prisma migrate deploy --config=prisma.tenant.config.ts",
     "migrate:apply-to-existing-schools": "ts-node scripts/apply-migration-to-existing-schools.ts",
     "repair:schema-names": "ts-node scripts/repair-schema-names.ts",
+    "report:reserved-subdomains": "ts-node scripts/report-reserved-subdomains.ts",
     "repair:schema-names:dry-run": "ts-node scripts/repair-schema-names.ts --dry-run",
     "sync:school-roles": "ts-node scripts/sync-school-roles.ts",
     "sync:school-roles:dry-run": "ts-node scripts/sync-school-roles.ts --dry-run",
