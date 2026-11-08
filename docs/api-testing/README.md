@@ -95,29 +95,7 @@ Then run:
 npm run test:local
 ```
 
-This bootstraps the platform test admin, initializes platform settings, submits Greenfield Academy through `POST /api/v1/platform/schools`, and then runs the GET-only Newman smoke collection. It does not reset or truncate the database. Re-running against a database that already contains the deterministic school will encounter the unique school identity; use a clean disposable test database for a fresh run.
+This bootstraps the platform test admin, initializes platform settings, submits Greenfield Academy through `POST /api/v1/platform/schools`, and then runs the GET-only Newman smoke collection. It does not reset or truncate the database. Re-running reuses the existing Greenfield Academy record and waits for its tenant schema to be provisioned; it does not create another school.
 
 The initial automated pass does not create the full academic fixture (sessions, terms, classes, subjects, staff, students, guardians, enrolments or calendar events). The smoke suite is read-only and does not verify those write workflows. Do not run the full collection unattended: its write requests can create, publish, approve, transfer, pay, reverse or delete records.
 
-
-From `apps/api`, after starting the API server and its background worker, configure these variables in your local `.env` (do not commit secrets):
-
-```dotenv
-DATABASE_URL=postgresql://...@localhost:5432/...
-ALLOW_LOCAL_TEST_ADMIN_BOOTSTRAP=true
-TEST_PLATFORM_ADMIN_EMAIL=platform.admin@example.test
-TEST_PLATFORM_ADMIN_PASSWORD=use-a-disposable-local-password
-PLATFORM_BASE_URL=http://admin.localhost:4000
-```
-
-Then run:
-
-```bash
-npm run test:local
-```
-
-This command bootstraps the local platform admin, initializes platform settings (including the required `platformName` interpolation value), creates one uniquely named platform-managed test school through the API, and then runs the GET-only Newman smoke collection. It does not require Postman Desktop. `npx` may download Newman the first time.
-
-**Current scope limitation:** this first automated pass does not yet create the school-admin login, academic session/terms, classes, subjects, staff, students, guardians, enrolments or calendar events. Those write fixtures must be added only after their current DTOs, tenant-provisioning readiness and school-admin authentication flow have been verified. The smoke suite is read-only and does not verify the new school's write workflows.
-
-The previous failed school-create attempt may have persisted a school or queued provisioning before its response failed. Inspect the platform school/provisioning list before rerunning, and use a disposable local database. The script generates a fresh subdomain for each run and never deletes existing data.
