@@ -48,7 +48,7 @@ Two migrations, in this order, because PostgreSQL cannot use a new enum value in
 **Migration 1: enum values only.** `EventType` gains `meeting`, `sports`, `ceremony`, `graduation`, `resumption`, `pta`. (Existing: `holiday, event, exam, break, other`.) Nothing in this file uses them.
 
 **Migration 2: structure.**
-- New enums: `CalendarEventStatus` (`DRAFT`, `PUBLISHED`, `CANCELLED`), `EventAudienceKind` (`EVERYONE`, `TEACHING_STAFF`, `NON_TEACHING_STAFF`, `STUDENTS`, `GUARDIANS`), `EventReminderStatus` (`PENDING`, `PROCESSING`, `SENT`, `CANCELLED`, `FAILED`).
+- New enums: `CalendarEventStatus` (`DRAFT`, `PUBLISHED`, `CANCELLED`), `EventAudienceKind` (`EVERYONE`, `TEACHING_STAFF`, `NON_TEACHING_STAFF`, `STUDENTS`, `GUARDIANS`), `EventReminderStatus` (`PENDING`, `PROCESSING`, `SENT`, `SKIPPED`, `CANCELLED`, `FAILED`), `publishNoticeSentAt` on the event.
 - `CalendarEvent` new columns (all backward compatible):
   - `status` default `PUBLISHED` (existing rows stay visible; new API creates `DRAFT` explicitly)
   - `isAllDay` default `true`; `startTime`, `endTime` as `"HH:mm"` text, null for all-day. `startDate`/`endDate` keep their meaning, so attendance and every current reader are unaffected
@@ -104,7 +104,7 @@ All bodies are validated with Zod DTOs; contracts go into `packages/contracts` t
 
 ## 6. Notifications and reminders
 
-**Settings, default OFF** (your rule for new features), group "Events": `events.notifications_enabled` (master switch). With it off, publishing, rescheduling and cancelling create no messages and no reminder rows; the calendar itself works as a calendar.
+**Settings, default OFF** (your rule for new features), group "Events": `events.notifications_enabled` (master switch). With it off, publishing, rescheduling and cancelling send no messages and due reminders are skipped; the calendar itself works as a calendar. The switch is read **at send time**, never stored per event (see section 11.1).
 
 **Channels.** An event stores the channels it wants (`notifyChannels`). Publishing is **refused with the reason** if a requested channel is blocked by plan or school preference, exactly like announcements. At reminder time a channel that has since become unavailable is skipped quietly and logged (the plan can change between publish and reminder).
 
@@ -121,7 +121,7 @@ Rows are written first and queued after, so a queue outage never loses or duplic
 
 **Reminders: database rows scanned by a worker, not delayed queue jobs.** (This corrects my first suggestion of one delayed BullMQ job per reminder. Rows survive a Redis loss, cannot be orphaned when an event changes, and the repeating-scheduler pattern is already in the codebase.)
 - Offsets: presets one day, two days, one week, or custom minutes; at most 5 per event, each 5 minutes to 90 days.
-- On **publish**, one `CalendarEventReminder` row per offset for the current revision, `dueAt` computed in the school's timezone from the start date and time. For all-day events the base is 08:00 local on the start date, so "1 day before" is 08:00 the previous day. Offsets already past are not created.
+- On **publish** (switch on or off), one `CalendarEventReminder` row per offset for the current revision, `dueAt` computed in the school's timezone from the start date and time. For all-day events the base is 08:00 local on the start date, so "1 day before" is 08:00 the previous day. Offsets already past are not created.
 - On **reschedule**: pending rows of the old revision become `CANCELLED`; new rows are created for the new revision. On **cancel**: pending rows become `CANCELLED`.
 - New queue `event-reminders`, one repeating job every 5 minutes (`upsertJobScheduler`, never duplicated). Per provisioned school, in its tenant context: claim due rows (`PENDING` and `dueAt <= now`) with `FOR UPDATE SKIP LOCKED`, mark `PROCESSING`, resolve the audience **at send time** (people who joined or left since publishing are handled), dispatch with the keys above, mark `SENT`.
 - Failure: back to `PENDING` with `attempts + 1`, `FAILED` after 5. `PROCESSING` rows older than 15 minutes are re-claimed; the dispatch keys make a double send impossible.
@@ -153,11 +153,45 @@ Each step is its own commit, pushed to `feat/api/events-calendar`, so it can be 
 - Messages already carry the event id and revision in their idempotency keys.
 - Editing "this one" versus "this and following" is the real work; it needs the lifecycle (this proposal) to be stable first.
 
+## 11. Clarifications (agreed scope review)
+
+### 11.1 Notifications switched on after an event was published
+Principle: **the switch is checked when a message is about to be sent, and turning it on never replays the past.** A surprise mass message about things that were already announced by other means is worse than a missed one.
+- Reminder rows are created at publish whether the switch is on or off (they are just derived data). 
+- When a reminder falls due, the worker checks the switch and the channel policy. **Off:** the row becomes `SKIPPED` with the reason recorded; it is never sent later. **On:** it is sent.
+- So if the switch is turned on after publication, every reminder that is **still in the future** goes out normally; reminders that were already due while it was off stay `SKIPPED`. If it is turned off again, the next due reminders are skipped, and already `SENT` ones are untouched. No scan or backfill job is needed.
+- The **publish notice** is not retroactive. While the switch is off, publishing records `publishNoticeSentAt = null`. After the switch is turned on, a manager can send it deliberately: `POST /events/:id/notify` (`events.publish`, body `{ "kind": "published" | "rescheduled" | "cancelled" }`). It is refused for events that already started, uses the same idempotency keys as the automatic notice (so it can never double-send), and is audited. Managers see in `GET /events` whether the notice was sent and how many reminders are pending, sent or skipped.
+- Reschedule and cancel notices follow the same rule: not sent while the switch is off, and available through the same manual endpoint afterwards.
+- Nothing runs when the setting changes; the change itself is audited by the settings engine.
+
+### 11.2 Legacy `DELETE /sessions/calendar/events/:eventId`
+Searched `apps/web/src` and `packages/contracts/src`: **no code calls the calendar-event routes** (the web's calendar tab only uses sessions and terms). So there is no known client to break; compatibility is kept for unknown clients anyway.
+- **Status and envelope unchanged:** HTTP 200, the usual success envelope, `data.deleted` stays `true`, `data.title` stays the title.
+- **Draft event:** exactly today's behaviour (hard delete), message "Calendar event deleted successfully".
+- **Published event:** the event becomes `CANCELLED` (history kept, reminders cancelled, **no notification**, as the legacy endpoint never sent any). Same 200 and same fields, plus additive `cancelled: true` and `status: "CANCELLED"`; message "Calendar event cancelled (published events are kept for history)". Additive fields cannot break a client that ignores them.
+- **Already cancelled:** same 200 (idempotent).
+- **The legacy list hides cancelled and draft events**, so after a "delete" the event disappears from it, as an old client expects. The legacy update (`PUT`) treats cancelled and draft events as "not found", the same error a deleted event gave.
+- Audit: a published event logs `calendar_event.cancelled` (with `via: "legacy_delete"`); a draft logs `calendar_event.deleted`. Both existing action names are kept where the behaviour is unchanged.
+- Legacy create stays `PUBLISHED` + everyone + no notification; the legacy response mapper is unchanged (no new fields leak into it).
+- The new `DELETE /events/:id` refuses published events outright with a clear error pointing to cancel; the cancellation-on-DELETE behaviour exists only on the legacy route.
+
+### 11.3 Role templates (exact changes)
+Facts: School Admin has grants-all (receives every permission automatically). `student` and `guardian` are locked and never touched. `principal`, `branch_principal`, `teacher`, `bursar` are editable templates: the sync **adds** new keys to schools' roles that were not customised and never removes or rescales anything. No template currently holds `sessions.manage` except through School Admin's grants-all.
+
+Proposed, nothing else:
+| Template | Added | Why |
+|---|---|---|
+| `principal` | `events.manage` ALL, `events.publish` ALL | already holds `notifications.send` ALL, so publishing event notices adds no new reach |
+| `branch_principal` | `events.manage` BRANCH | can prepare drafts for their own branches. **Not** `events.publish`: this role has no `notifications.send` today and publishing is a messaging action, so a principal or the platform grants it deliberately |
+| `teacher`, `bursar`, `student`, `guardian`, `school_admin` | **none** | unchanged; all keep `sessions.view` |
+
+Two lines in `role-templates.registry.ts` plus the new permission registry file; a test asserts the full set of permission keys of every other template is byte-for-byte unchanged. Schools whose Principal or Branch Principal role was customised keep their customisation (the planner skips them); others receive the keys on the next `sync:registries`. Please confirm or amend this table.
+
 ## 10. Decisions I made, for you to overrule
 1. A new `events` module, same table, legacy routes kept.
 2. Reminders as database rows plus a 5-minute worker.
 3. Everything new is off until `events.notifications_enabled` is switched on; SMS stays behind its existing plan and preference gates.
-4. Legacy `DELETE` of a published event becomes a cancellation.
+4. Legacy `DELETE` of a published event becomes a cancellation (details in 11.2).
 5. Holidays must be school-wide.
 6. Read access stays on `sessions.view`; two new management permissions.
 7. No client-supplied recipient IDs, at all.
