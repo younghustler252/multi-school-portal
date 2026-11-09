@@ -1,28 +1,20 @@
-import { IStudentRepository }             from "../../students/repositories/student.repository";
-import { IGuardianRepository }            from "../../guardians/repositories/guardian.repository";
-import { IStaffRepository }               from "../../staff/repositories/staff.repository";
-import { IUserRepository }                from "../../auth/repositories/user.repository";
 import { SchoolNotificationMapper, SchoolNotificationResponseData } from "../mappers/notification.mapper";
 import { SendSchoolNotificationDtoType }  from "../dtos/notification.dto";
 import { INotificationRepository }        from "../repositories/notification.repository";
 import { DispatchChannel, NotificationDispatchService, OutgoingMessage } from "../services/notification-dispatch.service";
-import { ACTIVE_STUDENT_WHERE, guardianAnnouncementWhere } from "../../students/domain/student-eligibility";
 import { EntitlementsService }            from "../../../foundation/entitlements.service";
 import { PreferencesReader } from "../../../foundation/settings.registry";
 import { ChannelPolicyService } from "../services/channel-policy.service";
 import { AuditService }                   from "../../audit/services/audit.service";
 import { notificationErrors }             from "../domain/notification.errors";
-import { RecipientKind }                  from "../domain/notification.entity";
 import type { Access }                   from "../../../foundation/access.service";
 import { IClassRepository }              from "../../classes/repositories/class.repository";
-import { AudienceFilter, both, guardianAudienceWhere, resolveAudience, staffAudienceWhere, studentAudienceWhere } from "../domain/audience";
+import { AudienceRecipientService } from "../services/audience-recipient.service";
+import { resolveAudience } from "../domain/audience";
 
 interface Dependencies {
     notificationRepository:   INotificationRepository;
-    studentRepository:        IStudentRepository;
-    guardianRepository:       IGuardianRepository;
-    staffRepository:          IStaffRepository;
-    userRepository:           IUserRepository;
+    audienceRecipientService: AudienceRecipientService;     // who the audience is: shared with other features that message groups
     schoolNotificationMapper: SchoolNotificationMapper;
     notificationDispatchService: NotificationDispatchService;
     entitlementsService:      EntitlementsService;
@@ -31,9 +23,6 @@ interface Dependencies {
     channelPolicyService?:    ChannelPolicyService;
     classRepository?:         Pick<IClassRepository, "findAllClasses">;   // only needed to check which branch a chosen class is in
 }
-
-interface ResolvedRecipient { type: RecipientKind; id: string; userId: string | null; email: string | null; phone: string | null }
-
 
 /*
 | SEND an announcement. Every requested channel must be allowed by BOTH the plan (notifications.email / notifications.sms)
@@ -53,7 +42,13 @@ export class SendSchoolNotificationUseCase {
         const classBranch = dto.classIds?.length && this.d.classRepository
             ? new Map((await this.d.classRepository.findAllClasses()).map(c => [c.id, c.branchId])) : new Map<string, string>();
         const { filter, limited } = resolveAudience(access, dto, classBranch);
-        const people = await this.resolveRecipients(dto, filter, limited);
+        const people = await this.d.audienceRecipientService.resolve({
+            wantsStudents:  ["STUDENT", "ALL_STUDENTS", "EVERYONE"].includes(dto.targetType),
+            wantsGuardians: ["GUARDIAN", "ALL_PARENTS", "EVERYONE"].includes(dto.targetType),
+            wantsStaff:     ["STAFF", "ALL_STAFF", "EVERYONE"].includes(dto.targetType),
+            studentIds: dto.studentIds, guardianIds: dto.guardianIds, staffIds: dto.staffIds,
+            includeGraduates: dto.includeGraduates, filter, limited,
+        });
         if (people.length === 0) throw notificationErrors.noRecipients();
 
         const messages: OutgoingMessage[] = [];
@@ -86,44 +81,5 @@ export class SendSchoolNotificationUseCase {
         const policy = this.d.channelPolicyService ?? new ChannelPolicyService(this.d);
         const { blocked } = await policy.evaluate(schoolId, channels);
         if (blocked.length) throw notificationErrors.channelUnavailable(blocked);
-    }
-
-    private async resolveRecipients(dto: SendSchoolNotificationDtoType, filter: AudienceFilter, limited: boolean): Promise<ResolvedRecipient[]> {
-        const out: ResolvedRecipient[] = [];
-        const wantsStudents  = ["STUDENT", "ALL_STUDENTS", "EVERYONE"].includes(dto.targetType);
-        const wantsGuardians = ["GUARDIAN", "ALL_PARENTS", "EVERYONE"].includes(dto.targetType);
-        const wantsStaff     = ["STAFF", "ALL_STAFF", "EVERYONE"].includes(dto.targetType);
-
-        if (wantsStudents) {
-            const base = dto.studentIds?.length ? { id: { in: dto.studentIds } } : dto.includeGraduates ? { isActive: true } : { ...ACTIVE_STUDENT_WHERE };
-            const students = await this.d.studentRepository.findMany(both(base, studentAudienceWhere(filter)));
-            if (limited && dto.studentIds?.length && students.length < new Set(dto.studentIds).size) throw notificationErrors.audienceOutOfScope();
-            const userIds = students.map(s => s.userId).filter(Boolean) as string[];
-            const users = userIds.length ? await this.d.userRepository.findByIds(userIds) : [];
-            const byId = new Map(users.map(u => [u.id, u]));
-            for (const s of students) {
-                const u = s.userId ? byId.get(s.userId) : null;
-                out.push({ type: "STUDENT", id: s.id, userId: s.userId ?? null, email: u?.email ?? null, phone: u?.phone ?? null });
-            }
-        }
-        if (wantsGuardians) {
-            const base = dto.guardianIds?.length ? { id: { in: dto.guardianIds } } : guardianAnnouncementWhere(!!dto.includeGraduates);
-            const guardians = await this.d.guardianRepository.findMany(both(base, guardianAudienceWhere(filter)));
-            if (limited && dto.guardianIds?.length && guardians.length < new Set(dto.guardianIds).size) throw notificationErrors.audienceOutOfScope();
-            for (const g of guardians) out.push({ type: "GUARDIAN", id: g.id, userId: (g as any).userId ?? null, email: g.email ?? null, phone: g.phone ?? null });
-        }
-        if (wantsStaff) {
-            const base = dto.staffIds?.length ? { id: { in: dto.staffIds } } : { isActive: true };
-            const staff = await this.d.staffRepository.findMany(both(base, staffAudienceWhere(filter)));
-            if (limited && dto.staffIds?.length && staff.length < new Set(dto.staffIds).size) throw notificationErrors.audienceOutOfScope();
-            const userIds = staff.map(s => s.userId).filter(Boolean) as string[];
-            const users = userIds.length ? await this.d.userRepository.findByIds(userIds) : [];
-            const byId = new Map(users.map(u => [u.id, u]));
-            for (const s of staff) {
-                const u = s.userId ? byId.get(s.userId) : null;
-                out.push({ type: "STAFF", id: s.id, userId: s.userId ?? null, email: u?.email ?? null, phone: u?.phone ?? null });
-            }
-        }
-        return out;
     }
 }

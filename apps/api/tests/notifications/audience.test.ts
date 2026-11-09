@@ -4,6 +4,7 @@ import { both, guardianAudienceWhere, resolveAudience, staffAudienceWhere, stude
 import { SendSchoolNotificationDto } from "../../src/modules/notifications/dtos/notification.dto";
 import { NOTIFICATION_PERMISSIONS } from "../../src/modules/notifications/notifications.permissions";
 import { notificationsWorld, code } from "./support/notifications-world";
+import { AudienceRecipientService } from "../../src/modules/notifications/services/audience-recipient.service";
 
 const MAIN = "11111111-1111-4111-8111-111111111111", NORTH = "22222222-2222-4222-8222-222222222222", C1 = "33333333-3333-4333-8333-333333333333";
 const sender = (scope: "ALL" | "BRANCH" | null, branches: string[] = []): any => ({ scopeOf: () => scope, branchScope: () => (scope === "ALL" ? "ALL" : branches) });
@@ -45,7 +46,10 @@ describe("announcement audiences by branch and class", () => {
         const w = notificationsWorld();
         const seen: any = {};
         const d: any = (w.send as any).d;
-        d.guardianRepository = { findMany: async (where: any) => { seen.where = where; return where?.AND ? [{ id: "g1", firstName: "Ada", email: null, phone: null, userId: "ug1" }] : []; } };
+        d.audienceRecipientService = new AudienceRecipientService({
+            studentRepository: { findMany: async () => [] } as any, staffRepository: { findMany: async () => [] } as any, userRepository: { findByIds: async () => [] } as any,
+            guardianRepository: { findMany: async (where: any) => { seen.where = where; return where?.AND ? [{ id: "g1", firstName: "Ada", email: null, phone: null, userId: "ug1" }] : []; } } as any,
+        });
         d.classRepository = { findAllClasses: async () => [{ id: C1, branchId: NORTH }] };
         await w.send.execute({ ...base, targetType: "ALL_PARENTS", classIds: [C1] } as any, "sch", "u1", sender("BRANCH", [NORTH]));
         assert.deepEqual(JSON.stringify(seen.where).includes(NORTH), true);                              // narrowed to their branch

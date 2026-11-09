@@ -11,7 +11,9 @@ import { notificationErrors } from "./notification.errors";
 | their own branches: the audience is limited to those branches (all of them when none is chosen) and choosing a branch or
 | class outside them is refused. Specific people picked by id are limited the same way (refused if any is outside).
 */
-export interface AudienceFilter { branchIds?: string[]; classIds?: string[] }
+export type StaffCategoryName = "teaching" | "non_teaching";
+/** `staffCategories` narrows STAFF only (teaching / non-teaching); announcements never set it, school events do. */
+export interface AudienceFilter { branchIds?: string[]; classIds?: string[]; staffCategories?: StaffCategoryName[] }
 
 const has = (a?: string[]) => !!a && a.length > 0;
 
@@ -24,8 +26,11 @@ export function studentAudienceWhere(f: AudienceFilter): Record<string, unknown>
 /** Parents: linked to at least one student who is in the audience. */
 export const guardianAudienceWhere = (f: AudienceFilter): Record<string, unknown> =>
     has(f.branchIds) || has(f.classIds) ? { studentLinks: { some: { student: studentAudienceWhere(f) } } } : {};
-export const staffAudienceWhere = (f: AudienceFilter): Record<string, unknown> =>
-    has(f.branchIds) ? { branches: { some: { branchId: { in: f.branchIds } } } } : {};
+export const staffAudienceWhere = (f: AudienceFilter): Record<string, unknown> => {
+    const branch   = has(f.branchIds) ? { branches: { some: { branchId: { in: f.branchIds } } } } : {};
+    const category = f.staffCategories && f.staffCategories.length > 0 ? { category: { in: f.staffCategories } } : {};
+    return both(branch, category);   // only a branch: the same shape as before; neither: {}
+};
 
 /** Combine a base `where` with an extra one (either may be empty). */
 export const both = (a: Record<string, unknown>, b: Record<string, unknown>): Record<string, unknown> => {

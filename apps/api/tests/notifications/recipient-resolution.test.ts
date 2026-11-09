@@ -1,7 +1,7 @@
 /*
-| CHARACTERISATION of "who does an announcement reach": written BEFORE the recipient lookup is moved out of
-| SendSchoolNotificationUseCase into a shared service, and kept as the guard that the move (and everything built on it,
-| such as Events) does not change who gets what. Only `build()` knows how the use case is wired.
+| CHARACTERISATION of "who does an announcement reach": written BEFORE the recipient lookup was moved out of
+| SendSchoolNotificationUseCase into the shared AudienceRecipientService, and kept as the guard that the move
+| (and everything built on it, such as Events) does not change who gets what. Only `build()` knows how the use case is wired.
 */
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
@@ -9,6 +9,7 @@ import { notificationsWorld, code } from "./support/notifications-world";
 import { SendSchoolNotificationUseCase } from "../../src/modules/notifications/usecases/send-school-notification.usecase";
 import { SchoolNotificationMapper } from "../../src/modules/notifications/mappers/notification.mapper";
 import { ACTIVE_STUDENT_WHERE, guardianAnnouncementWhere } from "../../src/modules/students/domain/student-eligibility";
+import { AudienceRecipientService } from "../../src/modules/notifications/services/audience-recipient.service";
 
 const NORTH = "22222222-2222-4222-8222-222222222222", C1 = "33333333-3333-4333-8333-333333333333";
 const scope = (s: "ALL" | "BRANCH", branches: string[] = []): any => ({ scopeOf: () => s, branchScope: () => (s === "ALL" ? "ALL" : branches) });
@@ -40,6 +41,7 @@ function build(opts: { classBranch?: Record<string, string> } = {}) {
     const base: any = (w.send as any).d;
     const send = new SendSchoolNotificationUseCase({
         ...base, ...repos,
+        audienceRecipientService: new AudienceRecipientService(repos),
         classRepository: { findAllClasses: async () => Object.entries(opts.classBranch ?? {}).map(([id, branchId]) => ({ id, branchId })) },
     } as any);
     return { w, send, seen };
@@ -121,7 +123,9 @@ describe("who an announcement reaches (characterisation)", () => {
         const { send } = build();
         // the (fake) repository returns only g1 for these ids: g2 was "outside" the sender's branches
         const fewer = build();
-        (fewer.send as any).d.guardianRepository = { async findMany() { return [GUARDIANS[0]]; } };
+        (fewer.send as any).d.audienceRecipientService = new AudienceRecipientService({
+            ...(fewer.send as any).d, guardianRepository: { async findMany() { return [GUARDIANS[0]]; } } as any,
+        } as any);
         await assert.rejects(fewer.send.execute(dto({ targetType: "GUARDIAN", guardianIds: ["g1", "g2"], channels: ["IN_APP"] }) as any, "sch", "u1", scope("BRANCH", [NORTH])), code("AUDIENCE_OUT_OF_SCOPE"));
         const ok = await send.execute(dto({ targetType: "GUARDIAN", guardianIds: ["g1"], channels: ["IN_APP"] }) as any, "sch", "u1", scope("BRANCH", [NORTH]));
         assert.equal(ok.recipients, 1);
