@@ -5,13 +5,12 @@ import { IPlanRepository } from "../../../plans/repositories/plan.repository";
 import { PasswordService } from "../../../../shared/services/password.service";
 import { UrlService } from "../../../../shared/services/url.service";
 import { AuthMessageService } from "../../../auth/services/auth-message.service";
-import { RESERVED_SUBDOMAINS } from "../../../auth/domain/auth.enums";
+import { isReservedSubdomain } from "../../../../shared/utils/subdomain";
 import { AuditService } from "../../../audit/services/audit.service";
 import { addProvisionSchemaJob } from "../../../../infrastructure/jobs/queues/provision-schema.queue";
 import { SchoolMapper, PlatformSchoolResponseData } from "../../mappers/school.mapper";
 import { schoolErrors } from "../../domain/school.errors";
 import { CreateSchoolDtoType } from "../../dtos/school.dto";
-import { env } from "../../../../config/env";
 
 interface Dependencies {
     prismaClient: PrismaClient; userRepository: IUserRepository; planRepository: IPlanRepository;
@@ -32,7 +31,7 @@ export class CreatePlatformSchoolUseCase {
 
     async execute(dto: CreateSchoolDtoType, actorUserId: string): Promise<PlatformSchoolResponseData> {
         const d = this.d;
-        if (RESERVED_SUBDOMAINS.includes(dto.subdomain) || dto.subdomain === env.ADMIN_SUBDOMAIN.toLowerCase()) throw schoolErrors.subdomainReserved();
+        if (isReservedSubdomain(dto.subdomain)) throw schoolErrors.subdomainReserved();
 
         const [bySub, byEmail, existingUser, freePlan] = await Promise.all([
             d.prismaClient.school.findFirst({ where: { subdomain: dto.subdomain }, select: { id: true } }),

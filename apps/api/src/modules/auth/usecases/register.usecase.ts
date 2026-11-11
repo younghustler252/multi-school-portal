@@ -8,10 +8,9 @@ import { AuthMessageService } from "../services/auth-message.service";
 import { AuthPolicyService } from "../services/auth-policy.service";
 import { AuthAuditService }  from "../services/auth-audit.service";
 import { authErrors }        from "../domain/auth.errors";
-import { RESERVED_SUBDOMAINS } from "../domain/auth.enums";
+import { isReservedSubdomain } from "../../../shared/utils/subdomain";
 import { RegisterDtoType }   from "../dtos/register.dto";
 import { RequestMeta }       from "../types/auth.types";
-import { env }               from "../../../config/env";
 import { redisConnection }   from "../../../infrastructure/jobs/connection";
 
 const MAX_REGISTRATIONS_PER_IP_PER_DAY = 5;
@@ -61,7 +60,7 @@ export class RegisterUseCase {
         const subdomain = dto.subdomain;
         const email     = dto.email;
 
-        if (RESERVED_SUBDOMAINS.includes(subdomain) || subdomain === env.ADMIN_SUBDOMAIN.toLowerCase()) {
+        if (isReservedSubdomain(subdomain)) {
             throw authErrors.subdomainReserved();
         }
 
