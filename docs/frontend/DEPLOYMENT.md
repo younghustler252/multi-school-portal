@@ -1,5 +1,7 @@
 # Frontend deployment architecture (M2)
 
+> **Where this lives:** this is the authoritative copy. It exists on `phase2/m2-session` only, not yet on `refactor/modules`, which is why the backend developer could not find it. It will appear there when M2 is merged.
+
 > **Status:** architecture DECIDED by the owner (2026-11-08); domain and hosting provider still configurable. Every deployment value is an environment variable; `example.com` below is a placeholder.
 > Written 2026-11-08 from the backend source (`tenant-resolver.middleware.ts`, `cors-origin.ts`, `auth.middleware.ts`, `env.ts`) and the owner's verified login contract.
 
@@ -113,14 +115,22 @@ No token or cookie is ever put in a URL or shared across hosts.
 
 Unchanged and independent of all the above: `localhost:3000` / `greenfield.localhost:3000` / `admin.localhost:3000` against `apps/api` on `:5000` with `BASE_DOMAIN=localhost`; no `NEXT_PUBLIC_API_URL`, http, every origin allowed by the API in development.
 
-## 7. Backend items this architecture depends on (NOT changed here; each needs the owner's decision and its own review)
+## 7. Backend items this architecture depends on
 
-Tenant resolution and authentication behaviour are unchanged by this work. Option A needs none of the tenancy changes that Option B needed. What it does need:
+Tenant resolution and authentication behaviour are unchanged by the web work. The backend developer has since implemented the two items that needed code (commits `5e152f2` findings, `7aea3de` reserved subdomains, `5390a4c` `TRUST_PROXY`, all on `refactor/modules`). The backend's own reference is `docs/RESERVED_SUBDOMAINS_AND_CLIENT_IP.md`; this section only records what the web deployment must line up with.
 
-1. **Trust the proxy.** There is no `trust proxy` setting. Behind the proxy, `req.ip` is the proxy's address for every visitor. The API uses `req.ip` in 7 places (audit/auth records, rate limiting by default key). Without a fix, all users share one rate-limit bucket and audit records show the proxy. Needed: `app.set("trust proxy", <the proxy only, for example "loopback" when the proxy runs on the same machine>)`. Never `true`.
-2. **Reserve platform labels** (`www`, the admin label, and any others you want) in `RESERVED_SUBDOMAINS` so no school can take them. Today only the list in `auth.enums` and the admin label are rejected.
-3. **`COOKIE_DOMAIN` unset in production** (the code already treats it as optional). `NODE_ENV=production` so cookies are `Secure`; the proxy must send `X-Forwarded-Proto: https` only if `trust proxy` is configured to read it.
-4. **Optional, defence in depth:** the API could refuse a request whose `Host` is the raw upstream address (127.0.0.1, the VPS IP) instead of treating it as a custom domain.
+1. **Trust the proxy: DONE (backend).** `TRUST_PROXY` env, unset = off. Accepts a hop count (1 to 10), `loopback` / `linklocal` / `uniquelocal`, or IPs/CIDRs. Production rejects `true`, `*` and `/0` ranges. **Deployment rule:** it must match the real topology. One Caddy/nginx on the same VPS: `TRUST_PROXY=loopback` (or `1`). Leaving it unset behind a proxy means every visitor shares the proxy's IP for rate limiting and audit records. Setting it too wide lets clients spoof their IP via `X-Forwarded-For`.
+2. **Reserved labels: DONE (backend).** One rule, `isReservedSubdomain()`: built-in list + `ADMIN_SUBDOMAIN` + `RESERVED_SUBDOMAINS_EXTRA` (comma-separated), used by registration and platform create-school. It only blocks NEW schools; the backend ships a `report:reserved-subdomains` script to find schools that already hold a reserved label. Run it before go-live.
+3. **`COOKIE_DOMAIN` unset in production** and `NODE_ENV=production` (cookies `Secure`). Unchanged. Still a deployment checklist item.
+4. **Optional, defence in depth:** refuse a request whose `Host` is the raw upstream address instead of treating it as a custom domain. Not implemented; not required.
+
+### Proxy header requirements
+- Caddy: `reverse_proxy` already keeps `Host` and adds `X-Forwarded-For/-Proto/-Host`. Note it overwrites an incoming `X-Forwarded-For` unless the client is in `trusted_proxies`, which is what you want for a public-facing edge.
+- nginx: its default REPLACES Host. Add `proxy_set_header Host $host;` plus `X-Forwarded-For $proxy_add_x_forwarded_for` and `X-Forwarded-Proto $scheme`.
+- Check with `deploy/verify-host-forwarding.sh` on the real VPS (still outstanding; the sandbox run covered Caddy only).
+
+### Separate backend finding (not web, not changed here)
+`request-context.middleware` is documented as "mount FIRST" but is not mounted in `app.ts`. Worth the backend owner confirming whether that is intended.
 
 ## 8. Custom domains: what is still needed for complete support
 
