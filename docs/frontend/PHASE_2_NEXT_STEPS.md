@@ -77,3 +77,6 @@ AUTHZ-002/003: route guards per feature, nav cleanup of the old role-named route
 ## How to verify without npm access
 
 Pure logic can run under Node 22 type stripping; anything importing axios/zustand/React needs a real `npm install` and Vitest.
+
+## Branch workflow (owner, 2026-11-11)
+Frontend milestone/feature branches -> `refactor/web` -> `refactor/modules`. Backend -> `refactor/api` -> `refactor/modules`. Frontend work is never pushed directly to `refactor/modules`. PR #2 is `phase2/m2-session` -> `refactor/web`. No integration into `refactor/modules` without owner approval.

@@ -45,7 +45,7 @@ All `NEXT_PUBLIC_*`, read at **build time** (a change needs a rebuild). One modu
 |---|---|---|---|
 | `NEXT_PUBLIC_BASE_DOMAIN` | Platform domain | `BASE_DOMAIN` | `localhost` |
 | `NEXT_PUBLIC_ADMIN_SUBDOMAIN` | Admin host label | `ADMIN_SUBDOMAIN` | `admin` |
-| `NEXT_PUBLIC_PUBLIC_SUBDOMAINS` | Extra labels that serve the platform itself (comma list, `www` always included) | the API's `classifyHost` | `www` |
+| `NEXT_PUBLIC_PUBLIC_SUBDOMAINS` | Extra labels the web treats as the platform (`www` always included). **Leave unset**, see 7a | no backend counterpart | `www` |
 | `NEXT_PUBLIC_API_URL` | Full API base: `/api/v1` (same origin) or `https://api.example.com/api/v1` | n/a | unset: development derivation |
 | `NEXT_PUBLIC_API_HOST` | Development only: where `apps/api` listens | n/a | `localhost:5000` |
 | `NEXT_PUBLIC_WEB_PORT` | Port in generated links | n/a | `3000` on localhost, none otherwise |
@@ -123,6 +123,24 @@ Tenant resolution and authentication behaviour are unchanged by the web work. Th
 2. **Reserved labels: DONE (backend).** One rule, `isReservedSubdomain()`: built-in list + `ADMIN_SUBDOMAIN` + `RESERVED_SUBDOMAINS_EXTRA` (comma-separated), used by registration and platform create-school. It only blocks NEW schools; the backend ships a `report:reserved-subdomains` script to find schools that already hold a reserved label. Run it before go-live.
 3. **`COOKIE_DOMAIN` unset in production** and `NODE_ENV=production` (cookies `Secure`). Unchanged. Still a deployment checklist item.
 4. **Optional, defence in depth:** refuse a request whose `Host` is the raw upstream address instead of treating it as a custom domain. Not implemented; not required.
+
+### 7a. `NEXT_PUBLIC_PUBLIC_SUBDOMAINS` vs `RESERVED_SUBDOMAINS_EXTRA` (checked against backend source, 2026-11-11)
+
+They are **not** the same list and must **not** be kept identical. They answer different questions:
+
+| | Question answered | Effect |
+|---|---|---|
+| API `RESERVED_SUBDOMAINS_EXTRA` (+ built-in list + `ADMIN_SUBDOMAIN`) | May a NEW school claim this label? | Blocks registration / create-school only. It does not change how any request is routed. |
+| API `classifyHost` (`tenant-resolver.middleware.ts`) | What does this Host mean? | Hard-coded: `base`, `www.base` and `<ADMIN_SUBDOMAIN>.base` are platform; every other single label is looked up as a school. No env list can add platform labels. |
+| Web `NEXT_PUBLIC_PUBLIC_SUBDOMAINS` | Which labels does the web treat as platform (nav, redirects, links)? | Web only. |
+
+Contract:
+- Reserved (API) is a superset concern: the built-in list already reserves `app`, `api`, `portal` and others that the API still routes as *school* lookups (they simply 404 because no school can own them). Reserving a label does not make it a platform host.
+- The API has no way to make an extra label serve the platform. If the web were set to treat `app` as platform, the web would show platform UI while the API answered `School portal 'app.example.com' not found`. So the web value must equal exactly what the API treats as platform: `www` and the admin label. That is the default; **do not set `NEXT_PUBLIC_PUBLIC_SUBDOMAINS`** unless the backend first adds a matching platform label (then change both together and document it here).
+- Any label the web would add should ALSO be in `RESERVED_SUBDOMAINS_EXTRA` so no school can claim it, but that is a one-way rule (platform label implies reserved, not the reverse).
+- `NEXT_PUBLIC_ADMIN_SUBDOMAIN` must equal the API's `ADMIN_SUBDOMAIN`; this one must be identical.
+
+Follow-up for the owner: the web variable is a footgun with no backend support. Cleanest option is to remove it (platform labels fixed to `www` + admin label); I left it in place and documented it rather than change behaviour unasked.
 
 ### Proxy header requirements
 - Caddy: `reverse_proxy` already keeps `Host` and adds `X-Forwarded-For/-Proto/-Host`. Note it overwrites an incoming `X-Forwarded-For` unless the client is in `trusted_proxies`, which is what you want for a public-facing edge.
