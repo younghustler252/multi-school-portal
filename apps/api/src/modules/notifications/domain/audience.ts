@@ -44,13 +44,14 @@ export interface ScopeResult { filter: AudienceFilter; limited: boolean }
 export function resolveAudience(
     access: Access | undefined, dto: AudienceFilter & { targetType: string },
     classBranch: Map<string, string>,
+    permissionKey: string = "notifications.send",       // announcements; school events pass their own key
 ): ScopeResult {
     const staffOnly = ["STAFF", "ALL_STAFF"].includes(dto.targetType);
     if (has(dto.classIds) && (staffOnly || dto.targetType === "EVERYONE")) throw notificationErrors.classAudienceNotForStaff();
-    const scope = access?.scopeOf("notifications.send");
+    const scope = access?.scopeOf(permissionKey);
     if (!access || scope === "ALL") return { filter: { branchIds: dto.branchIds, classIds: dto.classIds }, limited: false };
 
-    const allowed = (access.branchScope("notifications.send") as string[] | null) ?? [];
+    const allowed = (access.branchScope(permissionKey) as string[] | null) ?? [];
     if (scope !== "BRANCH" || allowed.length === 0) throw notificationErrors.audienceOutOfScope();
     if (has(dto.branchIds) && dto.branchIds!.some(b => !allowed.includes(b))) throw notificationErrors.audienceOutOfScope();
     for (const c of dto.classIds ?? []) { const b = classBranch.get(c); if (!b || !allowed.includes(b)) throw notificationErrors.audienceOutOfScope(); }

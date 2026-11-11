@@ -2,9 +2,9 @@ import { Request, Response, NextFunction } from "express";
 import { ListSessionsUseCase, GetCurrentAcademicYearUseCase } from "../usecases/session-queries.usecases";
 import { CreateSessionUseCase, UpdateSessionUseCase, CreateTermUseCase, UpdateTermUseCase } from "../usecases/session-commands.usecases";
 import { SetCurrentSessionUseCase, SetCurrentTermUseCase } from "../usecases/set-current.usecases";
-import { ListCalendarEventsUseCase, CreateCalendarEventUseCase, UpdateCalendarEventUseCase, DeleteCalendarEventUseCase } from "../usecases/calendar.usecases";
+import { ListCalendarEventsUseCase, CreateCalendarEventUseCase, UpdateCalendarEventUseCase, DeleteCalendarEventUseCase } from "../../events/usecases/legacy-calendar.usecases";
 import { sendSuccess, sendCreated } from "../../../shared/utils/api-response";
-import { ListCalendarEventsQuery } from "../dtos/calendar.dto";
+import { ListCalendarEventsQuery } from "../../events/dtos/legacy-calendar.dto";
 import { sessionErrors } from "../domain/session.errors";
 import { SessionActor } from "../domain/session.types";
 
@@ -43,5 +43,11 @@ export class SessionController {
     listEvents = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.listCalendarEventsUseCase.execute(ListCalendarEventsQuery.parse(req.query)), "Calendar events retrieved successfully"); } catch (e) { next(e); } };
     createEvent = async (req: Request, res: Response, next: NextFunction) => { try { sendCreated(res, await this.d.createCalendarEventUseCase.execute(schoolIdOf(req), req.body, actorOf(req)), "Calendar event created successfully"); } catch (e) { next(e); } };
     updateEvent = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.updateCalendarEventUseCase.execute(schoolIdOf(req), param(req, "eventId"), req.body, actorOf(req)), "Calendar event updated successfully"); } catch (e) { next(e); } };
-    deleteEvent = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.deleteCalendarEventUseCase.execute(schoolIdOf(req), param(req, "eventId"), actorOf(req)), "Calendar event deleted successfully"); } catch (e) { next(e); } };
+    deleteEvent = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const out = await this.d.deleteCalendarEventUseCase.execute(schoolIdOf(req), param(req, "eventId"), actorOf(req));
+            // A published event is cancelled, not erased: same 200 and `deleted: true`, with extra fields and a message that says so
+            sendSuccess(res, out, "cancelled" in out ? "Calendar event cancelled (published events are kept for history)" : "Calendar event deleted successfully");
+        } catch (e) { next(e); }
+    };
 }

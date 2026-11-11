@@ -30,7 +30,7 @@ export class AttendanceRepository {
     /** Holiday events that could cover this day (the exact check is done on the date text, see holidayOn). */
     holidayCandidates(day: Date) {
         return this.db.calendarEvent.findMany({
-            where: { isHoliday: true, startDate: { lt: addDays(day, 1) }, OR: [{ endDate: { gte: day } }, { endDate: null }] },
+            where: { isHoliday: true, status: "PUBLISHED", startDate: { lt: addDays(day, 1) }, OR: [{ endDate: { gte: day } }, { endDate: null }] },
             select: { title: true, isHoliday: true, startDate: true, endDate: true },
         });
     }

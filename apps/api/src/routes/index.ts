@@ -29,6 +29,7 @@ import recurringExpenseRouter from "../modules/expenses/routes/recurring.routes"
 import payrollRouter from "../modules/payroll/routes/payroll.routes";
 import myPayslipsRouter from "../modules/payroll/routes/my-payslips.routes";
 import sessionRouter from "../modules/sessions/routes/session.routes"
+import eventRouter from "../modules/events/routes/event.routes"
 import paymentRouter from "../modules/payments/routes/payment.routes";
 import auditRouter from "../modules/audit/routes/audit.routes"
 import ledgerRouter from "../modules/ledger/routes/ledger.routes";
@@ -73,6 +74,7 @@ router.use("/attendance", attendanceRouter);
 router.use("/grades", gradesSetupRouter);
 router.use("/grades", gradesSheetsRouter);
 router.use("/sessions", sessionRouter)
+router.use("/events", eventRouter)
 router.use("/report-cards", reportCardRouter);
 router.use("/finance", financeReportRouter);
 router.use("/expenses", expenseRouter);

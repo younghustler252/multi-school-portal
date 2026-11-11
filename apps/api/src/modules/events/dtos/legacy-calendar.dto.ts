@@ -1,8 +1,7 @@
 import { z } from "zod";
-import { parseDate } from "../domain/session.policy";
 
-/* CALENDAR DTOs. Strict. An event belongs to a term OR a session (a term already implies its session) or to neither (whole school). */
-const date = z.string().trim().refine(v => parseDate(v) !== null, "Enter a valid date");
+/* The OLD calendar-event DTOs of the Sessions routes (/sessions/calendar/events), unchanged: strict, five event types, no times or audience. */
+const date = z.string().trim().refine(v => !Number.isNaN(new Date(v).getTime()), "Enter a valid date");
 const EVENT_TYPES = ["holiday", "event", "exam", "break", "other"] as const;
 const blank = (v: unknown) => (typeof v === "string" && v.trim() === "" ? undefined : v);
 const endNotBefore = (o: { startDate?: string; endDate?: string | null }) =>

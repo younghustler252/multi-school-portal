@@ -6,7 +6,7 @@ import { authenticate } from "../../../infrastructure/middleware/auth.middleware
 import { requireTenant } from "../../../infrastructure/middleware/tenant-resolver.middleware";
 import { requirePermission } from "../../../infrastructure/middleware/rbac.middleware";
 import { CreateSessionDto, UpdateSessionDto, CreateTermDto, UpdateTermDto, SetCurrentTermDto } from "../dtos/session.dto";
-import { CreateCalendarEventDto, UpdateCalendarEventDto } from "../dtos/calendar.dto";
+import { CreateCalendarEventDto, UpdateCalendarEventDto } from "../../events/dtos/legacy-calendar.dto";
 
 /*
 | SESSION ROUTES (school realm, mounted at /sessions on the school's host).

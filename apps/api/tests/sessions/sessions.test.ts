@@ -4,13 +4,13 @@ import { validatePermissionRegistry, PERMISSION_REGISTRY } from "../../src/found
 import { ROLE_TEMPLATES } from "../../src/foundation/role-templates.registry";
 import { rangesOverlap, rangeInside, firstOverlap, isValidSessionName } from "../../src/modules/sessions/domain/session.policy";
 import { CreateSessionDto, UpdateSessionDto, CreateTermDto, UpdateTermDto, SetCurrentTermDto } from "../../src/modules/sessions/dtos/session.dto";
-import { CreateCalendarEventDto, UpdateCalendarEventDto, ListCalendarEventsQuery } from "../../src/modules/sessions/dtos/calendar.dto";
+import { CreateCalendarEventDto, UpdateCalendarEventDto, ListCalendarEventsQuery } from "../../src/modules/events/dtos/legacy-calendar.dto";
 import { planTermAssignments } from "../../src/modules/classes/services/class-subject-plan";
 import { planEnrolmentCarryForward, rolloverInTx } from "../../src/modules/sessions/services/term-rollover";
 import { CreateSessionUseCase, UpdateSessionUseCase, CreateTermUseCase, UpdateTermUseCase } from "../../src/modules/sessions/usecases/session-commands.usecases";
-import { CreateCalendarEventUseCase } from "../../src/modules/sessions/usecases/calendar.usecases";
+import { CreateCalendarEventUseCase } from "../../src/modules/events/usecases/legacy-calendar.usecases";
 import { SessionMapper, TermMapper } from "../../src/modules/sessions/mappers/session.mapper";
-import { CalendarEventMapper } from "../../src/modules/sessions/mappers/calendar.mapper";
+import { EventMapper } from "../../src/modules/events/mappers/event.mapper";
 
 const d = (s: string) => new Date(s);
 const r = (a: string, b: string) => ({ startDate: d(a), endDate: d(b) });
@@ -170,9 +170,9 @@ describe("calendar events", () => {
     function calFakes() {
         const created: any[] = [];
         const sessionRepository: any = { findAllSessions: async () => [session], findSessionById: async (id: string) => (id === SID ? session : null), findTermById: async (id: string) => (id === TID ? session.terms[0] : null) };
-        const calendarRepository: any = { createCalendarEvent: async (x: any) => { created.push(x); return { id: "e1", createdAt: d("2025-01-01"), updatedAt: d("2025-01-01"), description: null, endDate: null, ...x }; } };
+        const eventRepository: any = { create: async ({ data }: any) => { created.push(data); return { id: "e1", createdAt: d("2025-01-01"), updatedAt: d("2025-01-01"), description: null, endDate: null, ...data }; } };
         const audits: any[] = []; const auditService: any = { log: async (p: any) => audits.push(p) };
-        return { created, deps: { calendarRepository, sessionRepository, calendarEventMapper: new CalendarEventMapper(), auditService } };
+        return { created, deps: { eventRepository, sessionRepository, eventMapper: new EventMapper(), auditService, cancelEventUseCase: null as any } };
     }
     it("saves only real columns (no calendarId), derives the session from the term, and answers with names", async () => {
         const { deps, created } = calFakes();

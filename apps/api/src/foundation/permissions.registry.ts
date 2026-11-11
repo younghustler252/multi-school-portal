@@ -26,6 +26,7 @@ import { PAYROLL_TRANSFER_PERMISSIONS } from "../modules/payroll-transfers/payro
 import { SCHOOL_SETTINGS_PERMISSIONS } from "../modules/school-settings/school-settings.permissions";
 import { MESSAGE_TEMPLATE_PERMISSIONS } from "../modules/message-templates/message-templates.permissions";
 import { NOTIFICATION_PERMISSIONS } from "../modules/notifications/notifications.permissions";
+import { EVENT_PERMISSIONS } from "../modules/events/events.permissions";
 import { AUTOMATION_PERMISSIONS } from "../modules/automation/automation.permissions";
 import { PLATFORM_SETTINGS_PERMISSIONS } from "../modules/platform-settings/platform-settings.permissions";
 import { FEEDBACK_PERMISSIONS } from "../modules/feedback/feedback.permissions";
@@ -97,6 +98,7 @@ const ALL: readonly PermissionDef[] = [
     ...SCHOOL_SETTINGS_PERMISSIONS,
     ...MESSAGE_TEMPLATE_PERMISSIONS,
     ...NOTIFICATION_PERMISSIONS,
+    ...EVENT_PERMISSIONS,
     ...AUTOMATION_PERMISSIONS,
     ...PLATFORM_SETTINGS_PERMISSIONS,
     ...FEEDBACK_PERMISSIONS,
