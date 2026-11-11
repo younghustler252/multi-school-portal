@@ -80,3 +80,9 @@ Pure logic can run under Node 22 type stripping; anything importing axios/zustan
 
 ## Branch workflow (owner, 2026-11-11)
 Frontend milestone/feature branches -> `refactor/web` -> `refactor/modules`. Backend -> `refactor/api` -> `refactor/modules`. Frontend work is never pushed directly to `refactor/modules`. PR #2 is `phase2/m2-session` -> `refactor/web`. No integration into `refactor/modules` without owner approval.
+
+## M3 progress (branch `phase2/m3-route-guards`, stacked on `phase2/m2-session`)
+- `lib/route-access.ts`: page -> "any of these permissions" table (derived from `nav-model` plus create/detail pages), longest-segment match, no rule = allowed (API is the authority). `components/layout/route-access-guard.tsx` shows a "no access" panel inside both shells (no redirects). Tested in `tests/lib/route-access.test.ts` (10), including that every menu link resolves to a real page.
+- Fixed: the "Announcements" menu link pointed at `/school-admin/announcement` (no such page); now `/announcements`.
+- NOT done, deliberately: the old role-named folders (`bursar`, `guardian`, `principal`, `student`, `teacher`) are unguarded and still exist. Their permission keys (own-scope guardian/student pages especially) need owner confirmation, and moving routes cannot be verified without a build in my sandbox. Proposed next: confirm keys, map each page to a feature route, then redirect old paths.
+- Unguarded pages (no rule): `/home`, `/settings`, the role-named folders above.

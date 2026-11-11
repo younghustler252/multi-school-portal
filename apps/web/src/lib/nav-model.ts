@@ -32,7 +32,7 @@ export const SCHOOL_NAV: NavEntry[] = [
 	{ label: "Fees", to: "/school-admin/fees", icon: "fees", anyOf: ["fees.invoices.view", "fees.setup.view"] },
 	{ label: "Payments", to: "/school-admin/payments", icon: "payments", anyOf: ["payments.view"] },
 	{ label: "Notifications", to: "/school-admin/notifications", icon: "notifications", anyOf: ["notifications.view"] },
-	{ label: "Announcements", to: "/school-admin/announcement", icon: "announcements", anyOf: ["notifications.send"] },
+	{ label: "Announcements", to: "/school-admin/announcements", icon: "announcements", anyOf: ["notifications.send"] },
 	{ label: "Settings", to: "/school-admin/settings", icon: "settings", anyOf: ["school_settings.view", "school.view"] },
 ];
 

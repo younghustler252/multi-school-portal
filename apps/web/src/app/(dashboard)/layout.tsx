@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { AuthProvider } from "@/components/layout/auth-provider";
+import { RouteAccessGuard } from "@/components/layout/route-access-guard";
 import { SessionGate } from "@/components/layout/session-gate";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 
@@ -10,7 +11,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 	return (
 		<AuthProvider>
 			<SessionGate realm="school">
-				<DashboardShell>{children}</DashboardShell>
+				<DashboardShell>
+					<RouteAccessGuard>{children}</RouteAccessGuard>
+				</DashboardShell>
 			</SessionGate>
 		</AuthProvider>
 	);
