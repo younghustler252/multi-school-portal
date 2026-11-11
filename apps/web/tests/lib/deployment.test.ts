@@ -11,7 +11,6 @@ describe("readDeployment", () => {
 		expect(dev.webPort).toBe("3000");
 		expect(dev.adminSubdomain).toBe("admin");
 		expect(dev.apiUrl).toBeNull();
-		expect(dev.publicSubdomains).toEqual(["www"]);
 	});
 
 	it("a real domain means https and no port in links", () => {
@@ -33,10 +32,6 @@ describe("readDeployment", () => {
 		expect(readDeployment({ NEXT_PUBLIC_API_URL: "" }).apiUrl).toBeNull();
 	});
 
-	it("adds extra platform host labels on top of www", () => {
-		expect(readDeployment({ NEXT_PUBLIC_PUBLIC_SUBDOMAINS: "app, Portal ,," }).publicSubdomains).toEqual(["www", "app", "portal"]);
-	});
-
 	it("an explicit web port wins", () => {
 		expect(readDeployment({ NEXT_PUBLIC_WEB_PORT: "8080" }).webPort).toBe("8080");
 	});
@@ -56,11 +51,10 @@ describe("classifyHost: same rules as the API's tenant resolver", () => {
 		expect(classifyHost("greenfield.example.com", prod)).toEqual({ kind: "school", subdomain: "greenfield" });
 	});
 
-	it("'app' and 'api' are schools unless configured as platform labels (the API reads them the same way)", () => {
+	it("'app' and 'api' are schools (the API reads them the same way; no variable can make them platform hosts)", () => {
 		expect(classifyHost("app.example.com", prod)).toEqual({ kind: "school", subdomain: "app" });
 		expect(classifyHost("api.example.com", prod)).toEqual({ kind: "school", subdomain: "api" });
-		const withApp = readDeployment({ NEXT_PUBLIC_BASE_DOMAIN: "example.com", NEXT_PUBLIC_PUBLIC_SUBDOMAINS: "app" });
-		expect(classifyHost("app.example.com", withApp)).toEqual({ kind: "platform" });
+		expect(classifyHost("www.example.com", prod)).toEqual({ kind: "platform" });
 	});
 
 	it("a.b.<base> is never a school", () => {

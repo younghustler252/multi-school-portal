@@ -7,7 +7,6 @@
 |
 |   NEXT_PUBLIC_BASE_DOMAIN        the platform's domain. Same value as the API's BASE_DOMAIN.   dev: localhost
 |   NEXT_PUBLIC_ADMIN_SUBDOMAIN    platform administration host label. Same as the API's.        default: admin
-|   NEXT_PUBLIC_PUBLIC_SUBDOMAINS  extra host labels that serve the platform itself (comma list) default: www
 |                                  (the API only treats base, www and the admin label as the platform; add a label here
 |                                   only together with the matching change in apps/api tenant-resolver)
 |   NEXT_PUBLIC_API_URL            full API base incl. /api/v1: "/api/v1" (same origin) or "https://api.<domain>/api/v1".
@@ -22,14 +21,13 @@
 export interface Deployment {
 	baseDomain: string;
 	adminSubdomain: string;
-	publicSubdomains: string[];
 	apiUrl: string | null;
 	protocol: "http" | "https";
 	webPort: string;
 }
 
 type Env = Partial<Record<
-	"NEXT_PUBLIC_BASE_DOMAIN" | "NEXT_PUBLIC_ADMIN_SUBDOMAIN" | "NEXT_PUBLIC_PUBLIC_SUBDOMAINS" | "NEXT_PUBLIC_API_URL" | "NEXT_PUBLIC_WEB_PORT",
+	"NEXT_PUBLIC_BASE_DOMAIN" | "NEXT_PUBLIC_ADMIN_SUBDOMAIN" | "NEXT_PUBLIC_API_URL" | "NEXT_PUBLIC_WEB_PORT",
 	string | undefined
 >>;
 
@@ -46,15 +44,9 @@ export function readDeployment(env: Env): Deployment {
 	const rawApi = clean(env.NEXT_PUBLIC_API_URL).replace(/\/+$/, "");
 	const apiUrl = rawApi.startsWith("/") || /^https?:\/\//i.test(rawApi) ? rawApi : null;
 
-	const extra = clean(env.NEXT_PUBLIC_PUBLIC_SUBDOMAINS)
-		.split(",")
-		.map((s) => s.trim().toLowerCase())
-		.filter(Boolean);
-
 	return {
 		baseDomain,
 		adminSubdomain: (clean(env.NEXT_PUBLIC_ADMIN_SUBDOMAIN) || "admin").toLowerCase(),
-		publicSubdomains: Array.from(new Set(["www", ...extra])),
 		apiUrl,
 		protocol: local ? "http" : "https", // production is always https
 		webPort: clean(env.NEXT_PUBLIC_WEB_PORT) || (local ? "3000" : ""),
@@ -69,7 +61,6 @@ export function currentDeployment(): Deployment {
 	return readDeployment({
 		NEXT_PUBLIC_BASE_DOMAIN: process.env.NEXT_PUBLIC_BASE_DOMAIN,
 		NEXT_PUBLIC_ADMIN_SUBDOMAIN: process.env.NEXT_PUBLIC_ADMIN_SUBDOMAIN,
-		NEXT_PUBLIC_PUBLIC_SUBDOMAINS: process.env.NEXT_PUBLIC_PUBLIC_SUBDOMAINS,
 		NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
 		NEXT_PUBLIC_WEB_PORT: process.env.NEXT_PUBLIC_WEB_PORT,
 	});
@@ -94,7 +85,7 @@ export function classifyHost(hostname: string, d: Deployment): HostKind {
 		const label = host.slice(0, -(base.length + 1));
 		if (label.includes(".")) return { kind: "invalid" };
 		if (label === d.adminSubdomain) return { kind: "admin" };
-		if (d.publicSubdomains.includes(label)) return { kind: "platform" };
+		if (label === "www") return { kind: "platform" }; // mirrors the API: only www and the admin label are platform
 		return { kind: "school", subdomain: label };
 	}
 
