@@ -11,11 +11,14 @@ import { assertAudience, assertSchedule, normaliseKinds, normaliseReminderOffset
 import { assertCanActOnEvent, audienceScope, seesEveryEvent } from "../domain/event.scope";
 import { CreateEventDtoType, ListEventsQueryType, UpdateEventDtoType } from "../dtos/event.dto";
 import { nameLookup } from "./event-presenter";
+import type { EventViewerService } from "../services/event-viewer.service";
+import type { EventNoticeService, NoticeOutcome } from "../services/event-notice.service";
 
 export interface EventActor { userId: string }
 interface Deps {
     eventRepository: IEventRepository; sessionRepository: ISessionRepository; branchRepository: Pick<IBranchRepository, "findMany">;
     classRepository: Pick<IClassRepository, "findAllClasses">; eventMapper: EventMapper; auditService: AuditService;
+    eventViewerService?: EventViewerService; eventNoticeService?: EventNoticeService;
 }
 const day = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : null);
 const sameSet = (a: readonly string[], b: readonly string[]) => a.length === b.length && a.every(x => b.includes(x));
@@ -24,17 +27,6 @@ async function present(d: Deps, events: CalendarEventEntity[]): Promise<EventRes
     const names = await nameLookup(d.sessionRepository, events);
     return events.map(e => { const n = names(e); return d.eventMapper.toResponse(e, n.term, n.session); });
 }
-
-/*
-| WHO SEES WHICH EVENT, for now. People who manage events see everything (drafts too).
-| Everyone else sees published and cancelled events that are meant for the whole school. (Audience-specific
-| visibility for students, parents and staff arrives with the viewer matcher in the next step; until then
-| an event aimed at a smaller group is simply not shown to people outside the managers, never shown wrongly.)
-*/
-export const isVisibleToViewer = (e: CalendarEventEntity, access: Access | undefined): boolean => {
-    if (seesEveryEvent(access)) return true;
-    return e.status !== "DRAFT" && e.audienceKinds.includes("EVERYONE") && e.branchIds.length === 0 && e.classIds.length === 0;
-};
 
 export class ListEventsUseCase {
     constructor(private readonly d: Deps) {}
@@ -49,7 +41,9 @@ export class ListEventsUseCase {
         if (q.to) and.push({ startDate: { lte: new Date(q.to) } });
         if (q.from) and.push({ OR: [{ endDate: { gte: new Date(q.from) } }, { endDate: null, startDate: { gte: new Date(q.from) } }] });
         if (and.length) where.AND = and;
-        const events = (await this.d.eventRepository.findMany(where)).filter(e => isVisibleToViewer(e, access));
+        const visible = this.d.eventViewerService!.forViewer(access);
+        const events: CalendarEventEntity[] = [];
+        for (const e of await this.d.eventRepository.findMany(where)) if (await visible(e)) events.push(e);
         return present(this.d, events);
     }
 }
@@ -58,7 +52,7 @@ export class GetEventUseCase {
     constructor(private readonly d: Deps) {}
     async execute(id: string, access?: Access): Promise<EventResponseData> {
         const event = await this.d.eventRepository.findById(id);
-        if (!event || !isVisibleToViewer(event, access)) throw eventErrors.notFound();    // 404, never "forbidden": it does not reveal that the event exists
+        if (!event || !(await this.d.eventViewerService!.forViewer(access)(event))) throw eventErrors.notFound();    // 404, never "forbidden": it does not reveal that the event exists
         return (await present(this.d, [event]))[0];
     }
 }
@@ -163,18 +157,17 @@ export class UpdateEventUseCase {
         if (dto.reminderOffsetsMinutes !== undefined) set("reminderOffsetsMinutes", normaliseReminderOffsets(dto.reminderOffsetsMinutes), event.reminderOffsetsMinutes);
         if (audienceChanged) set("audienceKinds", kinds, event.audienceKinds);
         const rescheduled = scheduleChanged(event, next);
+        if (rescheduled && published) throw eventErrors.useReschedule();
         if (rescheduled) {
             data.startDate = startDate; data.endDate = endDate; data.isAllDay = isAllDay; data.startTime = isAllDay ? null : startTime; data.endTime = isAllDay ? null : endTime;
             before.schedule = { startDate: day(event.startDate), endDate: day(event.endDate), isAllDay: event.isAllDay, startTime: event.startTime, endTime: event.endTime };
             after.schedule = { startDate: day(startDate), endDate: day(endDate), isAllDay, startTime: isAllDay ? null : startTime, endTime: isAllDay ? null : endTime };
-            // Reminders belong to a revision of the schedule: a published event that moves starts a new one
-            if (published) data.revision = event.revision + 1;
         }
         if (Object.keys(data).length === 0 && !audienceChanged) return (await present(this.d, [event]))[0];
 
         data.updatedById = actor.userId;
         const updated = await this.d.eventRepository.update(id, { data, ...(audienceChanged ? { branchIds, classIds } : {}) });
-        await this.d.auditService.log({ userId: actor.userId, schoolId, action: published && rescheduled ? "calendar_event.rescheduled" : "calendar_event.updated", entity: "CalendarEvent", entityId: id, oldValue: before, newValue: after });
+        await this.d.auditService.log({ userId: actor.userId, schoolId, action: "calendar_event.updated", entity: "CalendarEvent", entityId: id, oldValue: before, newValue: after });
         return (await present(this.d, [updated]))[0];
     }
 }
@@ -195,18 +188,20 @@ export class DeleteEventUseCase {
 
 /*
 | CANCEL (published → cancelled). Idempotent: cancelling a cancelled event changes nothing and returns it.
-| A draft cannot be cancelled (delete it). Notices to the audience are added with the lifecycle step; this use case only changes the state.
+| A draft cannot be cancelled (delete it). With `notify` the audience is told (when the school has event notices on); the old DELETE route does not.
 */
 export class CancelEventUseCase {
     constructor(private readonly d: Deps) {}
-    async execute(schoolId: string, id: string, actor: EventActor, opts: { reason?: string | null; via?: string; access?: Access } = {}): Promise<{ event: CalendarEventEntity; changed: boolean }> {
+    async execute(schoolId: string, id: string, actor: EventActor, opts: { reason?: string | null; via?: string; access?: Access; notify?: boolean } = {}): Promise<{ event: CalendarEventEntity; changed: boolean; notice: NoticeOutcome | null }> {
         const event = await this.d.eventRepository.findById(id);
         if (!event) throw eventErrors.notFound();
         assertCanActOnEvent(opts.access, "events.manage", event);
-        if (event.status === "CANCELLED") return { event, changed: false };
+        if (event.status === "CANCELLED") return { event, changed: false, notice: null };
         if (event.status !== "PUBLISHED") throw eventErrors.notPublished();
         const updated = await this.d.eventRepository.update(id, { data: { status: "CANCELLED", cancelledAt: new Date(), cancelledById: actor.userId, cancelReason: opts.reason ?? null, updatedById: actor.userId } });
         await this.d.auditService.log({ userId: actor.userId, schoolId, action: "calendar_event.cancelled", entity: "CalendarEvent", entityId: id, oldValue: { status: "PUBLISHED" }, newValue: { status: "CANCELLED", ...(opts.via ? { via: opts.via } : {}), ...(opts.reason ? { reason: opts.reason } : {}) } });
-        return { event: updated, changed: true };
+        // Only the use case behind the cancel route tells people; the old DELETE route never did
+        const notice = opts.notify && this.d.eventNoticeService ? await this.d.eventNoticeService.send(schoolId, updated, "cancelled", actor.userId) : null;
+        return { event: updated, changed: true, notice };
     }
 }

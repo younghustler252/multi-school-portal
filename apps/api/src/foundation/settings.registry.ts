@@ -1,4 +1,5 @@
 import { NOTIFICATION_SETTING_DEFS } from "../modules/notifications/notifications.settings";
+import { EVENT_SETTING_DEFS } from "../modules/events/events.settings";
 import { AUTOMATION_SETTING_DEFS } from "../modules/automation/automation.settings";
 import { SettingDef, SettingValue, resolveValues, validateDefinitions } from "./settings.engine";
 
@@ -12,6 +13,7 @@ import { SettingDef, SettingValue, resolveValues, validateDefinitions } from "./
 */
 export const SETTING_DEFS: readonly SettingDef[] = [
     ...NOTIFICATION_SETTING_DEFS,
+    ...EVENT_SETTING_DEFS,
     ...AUTOMATION_SETTING_DEFS,
 ];
 

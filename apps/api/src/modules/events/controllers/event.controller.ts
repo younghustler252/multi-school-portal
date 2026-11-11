@@ -2,11 +2,14 @@ import { Request, Response, NextFunction } from "express";
 import { sendSuccess, sendCreated } from "../../../shared/utils/api-response";
 import { eventErrors } from "../domain/event.errors";
 import { ListEventsQuery } from "../dtos/event.dto";
+import { PublishEventUseCase, RescheduleEventUseCase, CancelPublishedEventUseCase, NotifyEventUseCase, PreviewEventAudienceUseCase } from "../usecases/event-lifecycle.usecases";
 import { ListEventsUseCase, GetEventUseCase, CreateEventUseCase, UpdateEventUseCase, DeleteEventUseCase } from "../usecases/events.usecases";
 
 interface Dependencies {
     listEventsUseCase: ListEventsUseCase; getEventUseCase: GetEventUseCase; createEventUseCase: CreateEventUseCase;
     updateEventUseCase: UpdateEventUseCase; deleteEventUseCase: DeleteEventUseCase;
+    publishEventUseCase: PublishEventUseCase; rescheduleEventUseCase: RescheduleEventUseCase; cancelPublishedEventUseCase: CancelPublishedEventUseCase;
+    notifyEventUseCase: NotifyEventUseCase; previewEventAudienceUseCase: PreviewEventAudienceUseCase;
 }
 
 /* EVENT CONTROLLER (school realm, /events). The school is the host's school; the acting person comes ONLY from the verified session. */
@@ -23,4 +26,10 @@ export class EventController {
     create = async (req: Request, res: Response, next: NextFunction) => { try { sendCreated(res, await this.d.createEventUseCase.execute(schoolIdOf(req), req.body, actorOf(req), req.access), "Event saved as a draft"); } catch (e) { next(e); } };
     update = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.updateEventUseCase.execute(schoolIdOf(req), param(req, "id"), req.body, actorOf(req), req.access), "Event updated successfully"); } catch (e) { next(e); } };
     remove = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.deleteEventUseCase.execute(schoolIdOf(req), param(req, "id"), actorOf(req), req.access), "Draft event deleted successfully"); } catch (e) { next(e); } };
+
+    publish    = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.publishEventUseCase.execute(schoolIdOf(req), param(req, "id"), actorOf(req), req.access), "Event published"); } catch (e) { next(e); } };
+    reschedule = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.rescheduleEventUseCase.execute(schoolIdOf(req), param(req, "id"), req.body, actorOf(req), req.access), "Event rescheduled"); } catch (e) { next(e); } };
+    cancel     = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.cancelPublishedEventUseCase.execute(schoolIdOf(req), param(req, "id"), req.body ?? {}, actorOf(req), req.access), "Event cancelled"); } catch (e) { next(e); } };
+    notify     = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.notifyEventUseCase.execute(schoolIdOf(req), param(req, "id"), req.body.kind, actorOf(req), req.access), "Notice processed"); } catch (e) { next(e); } };
+    audience   = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.previewEventAudienceUseCase.execute(param(req, "id"), req.access), "Audience preview"); } catch (e) { next(e); } };
 }

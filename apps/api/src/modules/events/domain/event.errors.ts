@@ -23,5 +23,10 @@ export const eventErrors = {
     cancelled:       () => conflict("This event was cancelled and can no longer be changed", "EVENT_CANCELLED"),
     audienceLocked:  () => conflict("The audience of a published event cannot be changed. Cancel it and create a new one", "EVENT_AUDIENCE_LOCKED"),
     notDraft:        () => conflict("Only a draft can be deleted. A published event is cancelled, so its history is kept", "EVENT_NOT_DRAFT"),
+    useReschedule:   () => conflict("A published event's date and time change through the reschedule action, so the audience can be told", "EVENT_USE_RESCHEDULE"),
+    notDraftToPublish: () => conflict("Only a draft can be published", "EVENT_NOT_DRAFT_TO_PUBLISH"),
+    alreadyStarted:  () => conflict("This event has already started, so a notice can no longer be sent", "EVENT_ALREADY_STARTED"),
+    noticeMismatch:  (kind: string) => conflict(`A "${kind}" notice does not fit the event's current state`, "EVENT_NOTICE_NOT_APPLICABLE"),
+    noticesOff:      () => conflict("Event notices are switched off in the school's settings", "EVENT_NOTIFICATIONS_OFF"),
     notPublished:    () => conflict("Only a published event can be cancelled", "EVENT_NOT_PUBLISHED"),
 };

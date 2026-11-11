@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { NOTICE_KINDS } from "../domain/event.notice";
 import { EVENT_AUDIENCE_KINDS, EVENT_STATUSES, EVENT_TYPES, NOTIFY_CHANNELS } from "../domain/event.entity";
 import { HM, MAX_REMINDERS, MAX_REMINDER_MINUTES, MIN_REMINDER_MINUTES } from "../domain/event.policy";
 
@@ -60,3 +61,17 @@ export const ListEventsQuery = z.object({
 export type CreateEventDtoType = z.infer<typeof CreateEventDto>;
 export type UpdateEventDtoType = z.infer<typeof UpdateEventDto>;
 export type ListEventsQueryType = z.infer<typeof ListEventsQuery>;
+
+/* Lifecycle bodies. The date and time fields are the same rules as create: all-day or a start time. */
+export const RescheduleEventDto = z.object({
+    startDate: date,
+    endDate:   z.preprocess(clearable, date.nullable().optional()),
+    isAllDay:  z.boolean().default(true),
+    startTime: z.preprocess(clearable, time.nullable().optional()),
+    endTime:   z.preprocess(clearable, time.nullable().optional()),
+}).strict();
+export const CancelEventDto = z.object({ reason: z.preprocess(clearable, z.string().trim().max(500).nullable().optional()) }).strict();
+export const NotifyEventDto = z.object({ kind: z.enum(NOTICE_KINDS as unknown as [string, ...string[]]) }).strict();
+export type RescheduleEventDtoType = z.infer<typeof RescheduleEventDto>;
+export type CancelEventDtoType = z.infer<typeof CancelEventDto>;
+export type NotifyEventDtoType = { kind: "published" | "rescheduled" | "cancelled" };

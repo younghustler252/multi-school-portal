@@ -195,3 +195,21 @@ Two lines in `role-templates.registry.ts` plus the new permission registry file;
 5. Holidays must be school-wide.
 6. Read access stays on `sessions.view`; two new management permissions.
 7. No client-supplied recipient IDs, at all.
+
+---
+
+## Implemented: Step C (lifecycle and notices)
+
+Routes (all school realm, under `/events`): `POST /:id/publish`, `POST /:id/reschedule`, `POST /:id/cancel`, `POST /:id/notify`
+(all `events.publish`), `GET /:id/audience` (`events.manage`; counts only, sends nothing). `GET /events` and `GET /events/:id` now show each
+person the events whose audience includes them, using the same audience rules that decide who is notified (managers also see drafts).
+
+Behaviour worth knowing:
+- Setting `events.notifications_enabled` (default OFF) is read at the moment a notice would go out. Publishing, rescheduling and cancelling
+  work the same with it off; nobody is told. Turning it on never sends old notices; use `POST /:id/notify` for that.
+- A published event's date and time change only through `reschedule` (PATCH refuses with `EVENT_USE_RESCHEDULE`). The old
+  `PUT /sessions/calendar/events/:id` still changes dates and never notifies.
+- Notices use the existing dispatch service with one idempotency key per person, channel and notice (a reschedule key includes the
+  revision), so retries and repeated `notify` calls never send twice. Channels come from the event, then plan and school settings decide
+  what is allowed; in-app is always allowed. Events that have started get no automatic notice and `notify` refuses them.
+- Reminders (Step D) are not created yet.

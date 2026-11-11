@@ -6,6 +6,7 @@ import { PERMISSION_REGISTRY, validatePermissionRegistry } from "../../src/found
 import { ROLE_TEMPLATES } from "../../src/foundation/role-templates.registry";
 import { assertAudience, assertSchedule, normaliseKinds, normaliseReminderOffsets, scheduleChanged } from "../../src/modules/events/domain/event.policy";
 import { audienceScope, canActOnEvent } from "../../src/modules/events/domain/event.scope";
+import { EventViewerService } from "../../src/modules/events/services/event-viewer.service";
 import { EventMapper } from "../../src/modules/events/mappers/event.mapper";
 import { CreateEventUseCase, UpdateEventUseCase, DeleteEventUseCase, CancelEventUseCase, ListEventsUseCase, GetEventUseCase } from "../../src/modules/events/usecases/events.usecases";
 import { DeleteCalendarEventUseCase, UpdateCalendarEventUseCase, ListCalendarEventsUseCase } from "../../src/modules/events/usecases/legacy-calendar.usecases";
@@ -105,6 +106,8 @@ function world(seed: any[] = []) {
     const classRepository: any = { findAllClasses: async () => [{ id: C1, branchId: B1 }] };
     const auditService: any = { log: async (p: any) => { audits.push(p); } };
     const deps: any = { eventRepository, sessionRepository, branchRepository, classRepository, eventMapper: new EventMapper(), auditService };
+    const persona = (r: any[]) => ({ findMany: async () => r });
+    deps.eventViewerService = new EventViewerService({ studentRepository: persona([]) as any, guardianRepository: persona([]) as any, staffRepository: persona([]) as any });
     deps.cancelEventUseCase = new CancelEventUseCase(deps);
     return { rows, audits, deps, base };
 }
@@ -139,17 +142,16 @@ describe("event use cases", () => {
         assert.deepEqual(out.audience.branchIds, [B1]);
         await assert.rejects(new CreateEventUseCase(w.deps).execute("s", dto({ branchIds: [B2] }) as any, actor, b1), { code: "EVENT_OUT_OF_SCOPE" });
     });
-    it("update: only changed fields are saved; a published event's audience is locked; a published reschedule bumps the revision", async () => {
+    it("update: only changed fields are saved; a published event's audience is locked; a published event's date moves only through reschedule", async () => {
         const w = world(); w.rows.set("p", w.base("p", { title: "Fair", status: "PUBLISHED", startDate: d("2026-12-01") }));
         const up = new UpdateEventUseCase(w.deps);
         await up.execute("s", "p", { title: "Fair" } as any, actor, all);
         assert.equal(w.audits.length, 0);
         await assert.rejects(up.execute("s", "p", { audienceKinds: ["STUDENTS"] } as any, actor, all), code("EVENT_AUDIENCE_LOCKED"));
         await up.execute("s", "p", { audienceKinds: ["EVERYONE"] } as any, actor, all);             // same audience is fine
-        await up.execute("s", "p", { startDate: "2026-12-05", location: "Hall" } as any, actor, all);
-        assert.equal(w.rows.get("p").revision, 2); assert.equal(w.audits.at(-1).action, "calendar_event.rescheduled");
+        await assert.rejects(up.execute("s", "p", { startDate: "2026-12-05" } as any, actor, all), code("EVENT_USE_RESCHEDULE"));
         await up.execute("s", "p", { location: "Field" } as any, actor, all);
-        assert.equal(w.rows.get("p").revision, 2); assert.equal(w.audits.at(-1).action, "calendar_event.updated");
+        assert.equal(w.rows.get("p").revision, 1); assert.equal(w.audits.at(-1).action, "calendar_event.updated");
     });
     it("update: drafts may change audience; switching to all-day clears times; cancelled is frozen; out-of-scope is refused", async () => {
         const w = world(); w.rows.set("dr", w.base("dr", { status: "DRAFT", isAllDay: false, startTime: "09:00", startDate: d("2026-12-01") }));
@@ -179,7 +181,7 @@ describe("event use cases", () => {
         await assert.rejects(c.execute("s", "dr", actor, { access: all }), code("EVENT_NOT_PUBLISHED"));
     });
     it("viewing: managers see drafts; everyone else sees only published/cancelled whole-school events; a hidden event is a 404", async () => {
-        const w = world(); const viewer = access([], "ALL");
+        const w = world(); const viewer = { ...access([], "ALL"), persona: "STAFF", personaEntityId: "t1" };
         w.rows.set("dr", w.base("dr", { status: "DRAFT" })); w.rows.set("pu", w.base("pu", {})); w.rows.set("ca", w.base("ca", { status: "CANCELLED" }));
         w.rows.set("st", w.base("st", { audienceKinds: ["STUDENTS"] })); w.rows.set("br", w.base("br", { branchIds: [B1] }));
         const list = new ListEventsUseCase(w.deps);
