@@ -55,6 +55,43 @@ describe("canOpenRoute", () => {
 	});
 });
 
+describe("guardian and student pages", () => {
+	const as = (entries: [string, "ALL" | "OWN" | "BRANCH"][]): MyPermissions => ({
+		...me([]), permissions: entries.map(([key, scope]) => ({ key, scope })),
+	});
+	const guardian = as([["students.view", "OWN"], ["fees.view", "OWN"], ["payments.pay", "OWN"], ["report_cards.view", "OWN"]]);
+	const student = as([["attendance.view", "OWN"], ["grades.view", "OWN"], ["report_cards.view", "OWN"], ["fees.view", "OWN"]]);
+
+	it("a guardian can open the guardian pages, including a child's detail page", () => {
+		for (const p of ["/guardian/children", "/guardian/children/42", "/guardian/fees", "/guardian/payments", "/guardian/report-card"]) {
+			expect(canOpenRoute(p, guardian)).toBe(true);
+		}
+	});
+
+	it("a student can open the student pages but not pay (payments.pay is guardian-only)", () => {
+		for (const p of ["/student/attendance", "/student/grades", "/student/report-cards"]) expect(canOpenRoute(p, student)).toBe(true);
+		expect(canOpenRoute("/guardian/payments", student)).toBe(false);
+	});
+
+	it("needs the permission at OWN scope: a staff member with ALL scope does not get the 'my' pages", () => {
+		const staff = as([["students.view", "ALL"], ["fees.view", "ALL"], ["grades.view", "ALL"]]);
+		expect(canOpenRoute("/guardian/children", staff)).toBe(false);
+		expect(canOpenRoute("/guardian/fees", staff)).toBe(false);
+		expect(canOpenRoute("/student/grades", staff)).toBe(false);
+	});
+
+	it("each page asks for its own permission", () => {
+		expect(canOpenRoute("/student/attendance", as([["grades.view", "OWN"]]))).toBe(false);
+		expect(canOpenRoute("/guardian/report-card", as([["fees.view", "OWN"]]))).toBe(false);
+	});
+
+	it("the own inbox and the student dashboard have no permission rule", () => {
+		expect(canOpenRoute("/guardian/notifications", me([]))).toBe(true);
+		expect(canOpenRoute("/student/dashboard", me([]))).toBe(true);
+		expect(canOpenRoute("/student/dashboard", as([["school.dashboard.view", "ALL"]]))).toBe(true);
+	});
+});
+
 describe("menu and pages agree", () => {
 	const appDir = fileURLToPath(new URL("../../src/app", import.meta.url));
 	const pageExists = (to: string, group: string) => existsSync(join(appDir, group, ...to.split("/").filter(Boolean), "page.tsx"));

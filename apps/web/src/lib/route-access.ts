@@ -15,6 +15,8 @@ import { PLATFORM_NAV, SCHOOL_NAV } from "@/lib/nav-model";
 export interface RouteRule {
 	path: string;
 	anyOf: string[];
+	/** The page is "my own data": the permission must be held at OWN scope (a staff member with ALL scope has no business here). */
+	own?: boolean;
 }
 
 /** Pages the menu does not list: create forms, detail pages, tools. */
@@ -26,10 +28,26 @@ const EXTRA_SCHOOL_RULES: RouteRule[] = [
 	{ path: "/school-admin/enrolment/promote", anyOf: ["enrolment.promote"] },
 ];
 
+/*
+| Guardian and student pages (permissions and scopes confirmed by the owner from the backend registry and role templates).
+| Deliberately NO rule: /guardian/notifications (own inbox) and /student/dashboard (no student dashboard permission;
+| school.dashboard.view is STAFF-only, so its sections follow their own permissions).
+*/
+const own = (path: string, key: string): RouteRule => ({ path, anyOf: [key], own: true });
+const FAMILY_RULES: RouteRule[] = [
+	own("/guardian/children", "students.view"),
+	own("/guardian/fees", "fees.view"),
+	own("/guardian/payments", "payments.pay"),
+	own("/guardian/report-card", "report_cards.view"),
+	own("/student/attendance", "attendance.view"),
+	own("/student/grades", "grades.view"),
+	own("/student/report-cards", "report_cards.view"),
+];
+
 const fromNav = (entries: { to: string; anyOf?: string[] }[]): RouteRule[] =>
 	entries.filter((e) => e.anyOf && e.anyOf.length > 0).map((e) => ({ path: e.to, anyOf: e.anyOf as string[] }));
 
-export const SCHOOL_ROUTE_RULES: RouteRule[] = [...fromNav(SCHOOL_NAV), ...EXTRA_SCHOOL_RULES];
+export const SCHOOL_ROUTE_RULES: RouteRule[] = [...fromNav(SCHOOL_NAV), ...EXTRA_SCHOOL_RULES, ...FAMILY_RULES];
 export const PLATFORM_ROUTE_RULES: RouteRule[] = fromNav(PLATFORM_NAV);
 
 const covers = (rulePath: string, pathname: string): boolean =>
@@ -50,6 +68,5 @@ export function canOpenRoute(pathname: string, permissions: MyPermissions | null
 	const rules = permissions.realm === "platform" ? PLATFORM_ROUTE_RULES : SCHOOL_ROUTE_RULES;
 	const rule = ruleFor(pathname, rules);
 	if (!rule) return true;
-	const held = new Set(permissions.permissions.map((p) => p.key));
-	return rule.anyOf.some((k) => held.has(k));
+	return permissions.permissions.some((p) => rule.anyOf.includes(p.key) && (!rule.own || p.scope === "OWN"));
 }
