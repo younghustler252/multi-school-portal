@@ -1,43 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
-import { extractSubdomain, isAdminSubdomain } from "@/lib/get-subdomain";
-
-const AUTH_ROUTES = ["/login", "/register", "/verify-email", "/forgot-password", "/reset-password"];
-
-const PROTECTED_PREFIXES = [
-	"/school-admin", "/teacher", "/bursar", "/principal",
-	"/student", "/guardian", "/schools", "/plans", "/subscriptions",
-];
+import { classifyHost, currentDeployment } from "@/lib/deployment";
+import { decideRoute } from "@/lib/route-guard";
 
 export function middleware(request: NextRequest) {
 	const { pathname } = request.nextUrl;
 	const hostname = request.headers.get("host") ?? "";
-	const subdomain = extractSubdomain(hostname);
-	const hasSession = request.cookies.has("accessToken");
-	
-	if (isAdminSubdomain(hostname) && pathname === "/login") {
+	const host = classifyHost(hostname, currentDeployment());
+	if (host.kind === "admin" && pathname === "/login") {
 		const url = request.nextUrl.clone();
 		url.pathname = "/admin-login";
 		return NextResponse.rewrite(url);
 	}
-	// On a school's subdomain, /login rewrites internally to the
-	// subdomain-branded login page — URL stays "/login" for the user.
-	if (subdomain && pathname === "/login") {
+	// On a school's address (its subdomain or its own verified domain), /login rewrites internally to the
+	// school login page; the URL stays "/login" for the user.
+	if ((host.kind === "school" || host.kind === "custom") && pathname === "/login") {
 		const url = request.nextUrl.clone();
 		url.pathname = "/portal-login";
 		return NextResponse.rewrite(url);
 	}
 
 
-	const isAuthRoute = AUTH_ROUTES.some((route) => pathname.startsWith(route));
-	const isProtectedRoute = PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+	const decision = decideRoute({
+		pathname,
+		hasAccessCookie: request.cookies.has("accessToken"),
+		hasRefreshCookie: request.cookies.has("refreshToken"),
+	});
 
-	if (isAuthRoute && hasSession) {
-		return NextResponse.redirect(new URL("/", request.url));
-	}
-
-	if (isProtectedRoute && !hasSession) {
+	if (decision.action === "redirect-home") return NextResponse.redirect(new URL("/", request.url));
+	if (decision.action === "login") {
 		const loginUrl = new URL("/login", request.url);
-		loginUrl.searchParams.set("redirect", pathname);
+		loginUrl.searchParams.set("redirect", decision.returnTo);
 		return NextResponse.redirect(loginUrl);
 	}
 

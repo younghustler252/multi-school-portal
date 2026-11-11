@@ -11,26 +11,13 @@ import { cn } from "@/lib/utils";
 import { NAV_ICONS } from "@/lib/nav-config";
 import { visibleNav } from "@/lib/nav-model";
 import { useAuthStore } from "@/stores/auth.store";
+import { useCurrentSubdomain } from "@/lib/use-current-subdomain";
 import { usePublicSchoolInfo } from "@/features/school/hooks/use-school";
 import { useOnboardingProgress } from "@/features/school/hooks/use-onboarding-progress";
 
 interface SidebarProps {
 	isOpen: boolean;
 	onClose: () => void;
-}
-
-function useCurrentSubdomain(): string | null {
-	const [subdomain, setSubdomain] = useState<string | null>(null);
-	useEffect(() => {
-		const hostname = window.location.hostname.split(":")[0];
-		const parts = hostname.split(".");
-		const isLocalSub = hostname.endsWith(".localhost");
-		const hasSubdomain = isLocalSub ? parts.length > 1 : parts.length > 2;
-		if (hasSubdomain && parts[0] !== "www" && parts[0] !== "admin") {
-			setSubdomain(parts[0]);
-		}
-	}, []);
-	return subdomain;
 }
 
 // Isolated so its hooks only ever run when this actually mounts — i.e. only

@@ -1,3 +1,5 @@
+import { currentDeployment } from "@/lib/deployment";
+
 /*
 |--------------------------------------------------------------------------
 | API ORIGIN (browser → backend)
@@ -11,15 +13,12 @@
 |   localhost:3000                 → http://localhost:5000/api/v1               (platform / public)
 |   greenfield.localhost:3000      → http://greenfield.localhost:5000/api/v1    (school "greenfield")
 |
-| Production host derivation and custom domains are NOT settled here yet: they are decided
-| with the deployment owner in Phase 2 (API-003 / TENANT-001). The production branch below is
-| unchanged from before and should not be relied on until then.
+| PRODUCTION: set NEXT_PUBLIC_API_URL (lib/deployment.ts, docs/frontend/DEPLOYMENT.md). When it is set it is used as is and
+| nothing below runs. The host derivation below is the development rule; its production branch predates the deployment
+| design and is kept only as a fallback so an unconfigured build behaves as it did before.
 */
 
 export const DEFAULT_API_HOST = "localhost:5000";
-
-// Not used yet: the admin host is currently recognised by lib/get-subdomain.ts. Settled in TENANT-001.
-const ADMIN_SUBDOMAIN = process.env.NEXT_PUBLIC_ADMIN_SUBDOMAIN || "admin";
 
 /**
  * Pure form of the rule (easy to test). `hostname` is the browser's hostname without port,
@@ -62,6 +61,10 @@ export function apiBaseUrlFor(hostname: string | null, apiHost: string): string 
 }
 
 export function getApiBaseUrl(): string {
+	// An explicit API URL (production, or any deployment where the API is not on the derived host) always wins.
+	const configured = currentDeployment().apiUrl;
+	if (configured) return configured;
+
 	// Read here (not at import time) so the value always reflects the environment it runs in.
 	const apiHost = process.env.NEXT_PUBLIC_API_HOST || DEFAULT_API_HOST;
 	return apiBaseUrlFor(typeof window === "undefined" ? null : window.location.hostname, apiHost);

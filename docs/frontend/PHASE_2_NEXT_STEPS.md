@@ -51,7 +51,21 @@ Never force-push these branches. Bring a branch forward by merging; the owner re
 - Onboarding layout still runs queries before the gate decides (pre-existing).
 - 32 business-module type errors are intentionally untouched; each belongs to its feature phase.
 
-## M2 scope (not started)
+## M2 progress (branch `phase2/m2-session`, from `refactor/modules` `a64fd4c`)
+
+Done without needing deployment answers:
+- **Middleware cookie fix:** `lib/route-guard.ts` (`decideRoute`, tested). A protected page loads with EITHER cookie (access lives 15 min, refresh 7 days, both `path: "/"`); `/login` only bounces away on a live access cookie, so a dead refresh cookie cannot cause a redirect loop. `/home` is now protected.
+- **Impersonation fix:** the API returns `{ redirectUrl }` with a one-time `?ticket=`; the button used to read a non-existent `accessToken` and build `?token=undefined`. It now follows `redirectUrl` (http/https only) and `/impersonate-entry` reads `ticket`. Not tested against a real impersonation yet.
+
+- **Deployment-aware configuration (2026-11-08):** `lib/deployment.ts` (env-driven host classification and link building, tested), `NEXT_PUBLIC_API_URL` override in `get-api-base-url.ts`, no hard-coded domains left, middleware treats custom domains like school hosts. Design, options and the backend conflicts are in `docs/frontend/DEPLOYMENT.md`.
+
+- **Owner decisions recorded (2026-11-08, `DEPLOYMENT.md` §0):** same-origin `/api/v1` through one reverse proxy preserving Host; host-only cookies (`COOKIE_DOMAIN` unset); VPS first, Netlify later; root + `admin.` + `<school>.` + eventual custom domains; no `app.`/`api.` hosts.
+- **Proxy verified in a sandbox** (`deploy/Caddyfile.example`, `deploy/verify-host-forwarding.sh`; see `DEPLOYMENT.md` §3a for exactly what was and was not tested). **Not yet run against the real API on the VPS.**
+- Backend items now DONE by the backend developer (`7aea3de` reserved subdomains, `5390a4c` `TRUST_PROXY`); deployment must set `TRUST_PROXY` to match the proxy and run `report:reserved-subdomains` (`DEPLOYMENT.md` §7). `DEPLOYMENT.md` lives on `phase2/m2-session` until M2 is merged. Custom-domain gaps: §8 (no way to set/verify a domain, no TLS ask endpoint, no host-based public school info).
+
+**Owner direction (2026-11-08):** subdomain layout, hosting provider and domain stay configurable via env vars; placeholders only. The proposed `app.`/`api.` hosts conflict with host-based tenancy: see `DEPLOYMENT.md` §1.
+
+## M2 scope (original list)
 
 TENANT-001..003, API-003, AUTH-004..006 remainder: tenant/host handling, persona and school switching UI, destination resolution, custom domains, hard-coded origins (`lib/subdomain-url.ts`, `impersonate-button.tsx`, `documents-gate-step.tsx`, `get-subdomain.ts`).
 **Middleware cookie fix:** `middleware.ts` treats the `accessToken` cookie as "signed in", so after 15 minutes protected routes bounce to `/login` although the refresh cookie is valid. Needs deployment answers: same host for web and API with an `/api` proxy? cookie domain?
@@ -63,3 +77,6 @@ AUTHZ-002/003: route guards per feature, nav cleanup of the old role-named route
 ## How to verify without npm access
 
 Pure logic can run under Node 22 type stripping; anything importing axios/zustand/React needs a real `npm install` and Vitest.
+
+## Branch workflow (owner, 2026-11-11)
+Frontend milestone/feature branches -> `refactor/web` -> `refactor/modules`. Backend -> `refactor/api` -> `refactor/modules`. Frontend work is never pushed directly to `refactor/modules`. PR #2 is `phase2/m2-session` -> `refactor/web`. No integration into `refactor/modules` without owner approval.

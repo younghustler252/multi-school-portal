@@ -1,5 +1,6 @@
 "use client";
 
+import { currentDeployment, schoolHostLabel } from "@/lib/deployment";
 import { useState } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -69,7 +70,7 @@ export default function AdminSchoolDetailPage() {
 				<div>
 					<h1 className="text-2xl font-semibold tracking-tight">{school.name}</h1>
 					<p className="mt-1 text-sm text-muted-foreground">
-						{school.subdomain}.schoolos.app · {school.planName ?? "No plan"} plan · joined {new Date(school.createdAt).toLocaleDateString()}
+						{schoolHostLabel(currentDeployment(), school.subdomain)} · {school.planName ?? "No plan"} plan · joined {new Date(school.createdAt).toLocaleDateString()}
 					</p>
 				</div>
 				<div className="flex flex-wrap gap-2">
@@ -122,7 +123,7 @@ export default function AdminSchoolDetailPage() {
 					<div className="mb-4 font-medium">School profile</div>
 					<dl className="space-y-3 text-sm">
 						{[
-							["Subdomain", `${school.subdomain}.schoolos.app`],
+							["Subdomain", `${schoolHostLabel(currentDeployment(), school.subdomain)}`],
 							["Email", school.email],
 							["Phone", school.phone ?? "—"],
 							["Category", school.schoolCategory.replace("_", " + ")],

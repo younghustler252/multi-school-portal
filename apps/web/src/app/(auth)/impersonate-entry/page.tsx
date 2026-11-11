@@ -10,7 +10,7 @@ import { resolveDestination } from "@/lib/auth/destination";
 export default function ImpersonateEntryPage() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
-	const token = searchParams.get("token");
+	const ticket = searchParams.get("ticket");
 	const started = useRef(false);
 
 	useEffect(() => {
@@ -19,12 +19,12 @@ export default function ImpersonateEntryPage() {
 		started.current = true;
 
 		async function exchange() {
-			if (!token) {
+			if (!ticket) {
 				router.replace("/login");
 				return;
 			}
 			// Trades the one-time ticket for a real HttpOnly session cookie scoped to THIS school host.
-			const res = await authApi.exchangeImpersonationToken(token);
+			const res = await authApi.exchangeImpersonationToken(ticket);
 			if (!res.success) {
 				router.replace("/login");
 				return;
@@ -37,7 +37,7 @@ export default function ImpersonateEntryPage() {
 			router.replace(profile && permissions ? resolveDestination(profile, permissions) : "/login");
 		}
 		void exchange();
-	}, [token, router]);
+	}, [ticket, router]);
 
 	return (
 		<div className="flex min-h-screen items-center justify-center bg-hero-radial">
