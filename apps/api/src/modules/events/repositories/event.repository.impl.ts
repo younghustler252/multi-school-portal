@@ -1,13 +1,11 @@
 import { BaseTenantRepository } from "../../../infrastructure/repository/base.repository";
 import { CalendarEventEntity } from "../domain/event.entity";
-import { eventErrors } from "../domain/event.errors";
+import { translateEventWriteError } from "./event-write-errors";
 import { EventMapper } from "../mappers/event.mapper";
 import { EventWrite, IEventRepository, PlannedReminder, ReminderRow } from "./event.repository";
 
 const WITH_AUDIENCE = { branches: true, classes: true, eventType: true } as const;
 
-// The database refuses a published event moving to or from the holiday type (trigger). Say so with the module's own error.
-const isHolidayLock = (e: unknown): boolean => String((e as { message?: string })?.message ?? "").includes("EVENT_HOLIDAY_TYPE_LOCKED");
 
 export class EventRepositoryImpl extends BaseTenantRepository<CalendarEventEntity> implements IEventRepository {
     protected readonly modelName = "calendarEvent";
@@ -22,8 +20,10 @@ export class EventRepositoryImpl extends BaseTenantRepository<CalendarEventEntit
     }
 
     async create(write: EventWrite): Promise<CalendarEventEntity> {
-        const raw = await this.model().create({ data: { ...write.data, ...this.audienceWrites(write, false) }, include: WITH_AUDIENCE });
-        return this.mapper.toDomain(raw);
+        try {
+            const raw = await this.model().create({ data: { ...write.data, ...this.audienceWrites(write, false) }, include: WITH_AUDIENCE });
+            return this.mapper.toDomain(raw);
+        } catch (e) { return translateEventWriteError(e); }
     }
 
     override async findById(id: string): Promise<CalendarEventEntity | null> {
@@ -38,7 +38,7 @@ export class EventRepositoryImpl extends BaseTenantRepository<CalendarEventEntit
         try {
             const raw = await this.model().update({ where: { id }, data: { ...write.data, ...this.audienceWrites(write, true) }, include: WITH_AUDIENCE });
             return this.mapper.toDomain(raw);
-        } catch (e) { if (isHolidayLock(e)) throw eventErrors.holidayTypeLocked(); throw e; }
+        } catch (e) { return translateEventWriteError(e); }
     }
 
     async deleteDraft(id: string): Promise<void> {

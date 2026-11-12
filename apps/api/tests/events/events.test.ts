@@ -321,6 +321,12 @@ describe("events with school-managed types (stage E3)", () => {
         w.rows.set("L2", applyType(w.base("L2", { startDate: d("2026-12-01"), status: "PUBLISHED", eventTypeId: QUIZ_ID })));
         assert.equal(((await new UpdateCalendarEventUseCase(w.deps).execute("s", "L2", { title: "Quiz night" } as any, actorS)) as any).type, "other");      // custom types look like "other" to the old routes
     });
+    it("a database refusal for an inactive type (a deactivation that raced the write) answers like the normal check", () => {
+        const { translateEventWriteError } = require("../../src/modules/events/repositories/event-write-errors");
+        assert.throws(() => translateEventWriteError(new Error("EVENT_TYPE_INACTIVE: an inactive event type cannot be given to an event")), code("EVENT_TYPE_INACTIVE"));
+        assert.throws(() => translateEventWriteError(new Error("EVENT_HOLIDAY_TYPE_LOCKED: x")), code("EVENT_HOLIDAY_TYPE_LOCKED"));
+        assert.throws(() => translateEventWriteError(new Error("something else")), /something else/);
+    });
     it("the new API no longer takes isHoliday, and the response still reports it (read-only)", () => {
         const dtoSrc = readFileSync(join(__dirname, "../../src/modules/events/dtos/event.dto.ts"), "utf8");
         assert.doesNotMatch(dtoSrc, /isHoliday/);

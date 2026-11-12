@@ -468,3 +468,11 @@ Events themselves still use the enum `type` until stage E3.
 * Manager responses add `publishNoticeSentAt` and a reminder summary for the current revision (one extra query per response; none for other people).
 * Attendance is unchanged: it still reads `isHoliday: true, status: "PUBLISHED"`, never a type name. Tests pin this and show a custom type cannot make a holiday.
 * Frontend guide: `docs/frontend/EVENT_TYPES_API.md`. Not done, by design: the contract migration (NOT NULL `eventTypeId` and dropping the enum), which needs its own approval.
+
+### E3 review fix: inactive types under concurrency
+
+The use case checks that a chosen type is active, but a School Admin can deactivate it between that check and the write (the two are separate statements, and neither event use case runs in a transaction).
+The database now enforces the rule: migration `20261110090200_event_types_inactive_guard` replaces `calendar_event_type_sync()` so that, on INSERT or when `eventTypeId` changes, it reads the type's `isActive` with `FOR SHARE` and raises `EVENT_TYPE_INACTIVE` (the same 409 as the application check) when it is false.
+`FOR SHARE` closes the gap both ways: a deactivation still running is waited for and then seen; a deactivation that starts after the event row holds the type waits until that transaction ends, so the event simply keeps a type that is deactivated afterwards (allowed). Updates that do not change the type (title, reschedule, cancel) never run the check, so events keep an inactive type they already have.
+It covers every writer (new API, old routes, direct SQL). The application check stays for the friendly early error.
+Verification: new cases in `verify-event-types-migration.sh`, and `scripts/db/verify-event-types-inactive-race.sh` runs two real sessions in both orders and a control without the check (the event is then written with an inactive type).

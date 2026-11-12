@@ -33,7 +33,7 @@ describe("event types migration (static)", () => {
     });
     it("the migration sorts after every earlier one and the schema models the new table and relation", () => {
         const names = readdirSync(dir).filter(n => n !== "migration_lock.toml").sort();
-        assert.deepEqual(names.slice(-2), ["20261110090000_event_types_catalog", "20261110090100_event_types_guard_id"]);
+        assert.deepEqual(names.slice(-3), ["20261110090000_event_types_catalog", "20261110090100_event_types_guard_id", "20261110090200_event_types_inactive_guard"]);
         const prisma = readFileSync(join(process.cwd(), "prisma", "tenant.prisma"), "utf8");
         assert.match(prisma, /model CalendarEventType \{/);
         assert.match(prisma, /eventType CalendarEventType\? @relation\(fields: \[eventTypeId\], references: \[id\], onDelete: Restrict\)/);
@@ -46,6 +46,18 @@ describe("event types migration (static)", () => {
         // the replaced body equals the original except for the id check
         const body = (t: string) => t.slice(t.indexOf("RETURNS trigger"), t.indexOf("$$;", t.indexOf("RETURNS trigger") + 60) + 3);
         assert.equal(body(fix).replace('NEW."id" <> OLD."id" OR ', "").replace("the id, key and system flag", "the key and the system flag"), body(sql));
+    });
+    it("the inactive-type guard replaces the sync function, adds only the isActive check, and runs FOR SHARE on INSERT or a changed eventTypeId", () => {
+        const fix = readFileSync(join(dir, "20261110090200_event_types_inactive_guard", "migration.sql"), "utf8");
+        assert.match(fix, /CREATE OR REPLACE FUNCTION calendar_event_type_sync\(\)/);
+        assert.doesNotMatch(fix, /\bDROP\b|CREATE TRIGGER|CREATE TABLE/i);
+        assert.match(fix, /TG_OP = 'INSERT' OR NEW\."eventTypeId" IS DISTINCT FROM OLD\."eventTypeId"/);
+        assert.match(fix, /WHERE t\."id" = NEW\."eventTypeId" FOR SHARE/);
+        assert.match(fix, /EVENT_TYPE_INACTIVE/);
+        // everything else in the function is the original
+        const body = (t: string) => t.slice(t.indexOf("RETURNS trigger"), t.indexOf("END $$;", t.indexOf("RETURNS trigger")));
+        const stripped = body(fix).replace(/\n    -- an event can only be given[\s\S]*?\n    END IF;\n\n/, "\n").replace("    active BOOLEAN;\n", "");
+        assert.equal(stripped, body(sql.slice(sql.indexOf("CREATE FUNCTION calendar_event_type_sync"))));
     });
     it("attendance still reads only isHoliday and status, never a type name or label", () => {
         const repo = readFileSync(join(process.cwd(), "src", "modules", "attendance", "repositories", "attendance.repository.ts"), "utf8");

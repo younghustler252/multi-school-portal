@@ -56,6 +56,7 @@ for S in evtype_old evtype_fresh; do
   expect_error $S "bad colour" "UPDATE \"CalendarEventType\" SET color='red' WHERE id='cu1'" color_format
   expect_error $S "markup in name" "INSERT INTO \"CalendarEventType\"(id,key,name,\"nameKey\",\"updatedAt\") VALUES ('cu3','xx','<b>Hi</b>','<b>hi</b>',now())" name_format
   sql $S "UPDATE \"CalendarEventType\" SET name='Quiz Day', \"nameKey\"='quiz day', color='#000000', \"isActive\"=false WHERE id='cu1'" >/dev/null   # custom: rename/recolour/deactivate allowed
+  sql $S "UPDATE \"CalendarEventType\" SET \"isActive\"=true WHERE id='cu1'" >/dev/null                                                        # reactivate: the cases below use it
   sql $S "UPDATE \"CalendarEventType\" SET color='#FF0000', icon='flag' WHERE key='exam'" >/dev/null                                              # system: colour and icon allowed
   # Rule B: insert paths
   sql $S "INSERT INTO \"CalendarEvent\"(id,title,\"startDate\",type,\"updatedAt\") VALUES ('i1','type only','2031-01-01','sports',now())" >/dev/null
@@ -88,6 +89,18 @@ for S in evtype_old evtype_fresh; do
   sql $S "UPDATE \"CalendarEvent\" SET \"eventTypeId\"='00000000-0000-4000-8000-000000000003' WHERE id='i5'" >/dev/null   # cancelled events may change type
   sql $S "INSERT INTO \"CalendarEvent\"(id,title,\"startDate\",\"eventTypeId\",status,\"updatedAt\") VALUES ('dr1','draft holiday','2031-03-01','00000000-0000-4000-8000-000000000001','DRAFT',now())" >/dev/null
   sql $S "UPDATE \"CalendarEvent\" SET \"eventTypeId\"='00000000-0000-4000-8000-000000000003', status='PUBLISHED' WHERE id='dr1'" >/dev/null   # drafts change freely
+  # inactive types cannot be given to an event; an event that already has one keeps it
+  sql $S "INSERT INTO \"CalendarEventType\"(id,key,name,\"nameKey\",\"isActive\",\"updatedAt\") VALUES ('cu9','retired','Retired','retired',false,now())" >/dev/null
+  expect_error $S "insert event with inactive type" "INSERT INTO \"CalendarEvent\"(id,title,\"startDate\",\"eventTypeId\",\"updatedAt\") VALUES ('n1','x','2031-04-01','cu9',now())" EVENT_TYPE_INACTIVE
+  expect_error $S "move event to inactive type" "UPDATE \"CalendarEvent\" SET \"eventTypeId\"='cu9' WHERE id='i1'" EVENT_TYPE_INACTIVE
+  sql $S "INSERT INTO \"CalendarEvent\"(id,title,\"startDate\",\"eventTypeId\",\"updatedAt\") VALUES ('k1','keeps','2031-04-01','cu1',now())" >/dev/null
+  sql $S "UPDATE \"CalendarEventType\" SET \"isActive\"=false WHERE id='cu1'" >/dev/null           # deactivating a used type is fine
+  sql $S "UPDATE \"CalendarEvent\" SET title='still fine', status='CANCELLED' WHERE id='k1'" >/dev/null   # unrelated updates on an event with an inactive type
+  sql $S "UPDATE \"CalendarEvent\" SET \"eventTypeId\"='cu1' WHERE id='k1'" >/dev/null                   # same type again is not a change
+  expect "$S event keeps its inactive type" "$(sql $S "SELECT \"eventTypeId\" FROM \"CalendarEvent\" WHERE id='k1'")" cu1
+  sql $S "UPDATE \"CalendarEvent\" SET type='exam' WHERE id='k1'" >/dev/null                              # legacy move to a system type is fine
+  sql $S "UPDATE \"CalendarEventType\" SET \"isActive\"=true WHERE id IN ('cu1','cu9')" >/dev/null
+  sql $S "UPDATE \"CalendarEvent\" SET \"eventTypeId\"='cu1' WHERE id='k1'" >/dev/null                   # active again: allowed
   # RESTRICT
   expect_error $S "delete type in use" "DELETE FROM \"CalendarEventType\" WHERE id='cu1'" "violates foreign key"
   sql $S "DELETE FROM \"CalendarEvent\" WHERE \"eventTypeId\"='cu1'" >/dev/null
