@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { MyPermissions } from "@schoolos/contracts";
 import { ROUTES } from "@/lib/routes";
+import { canOpenRoute } from "@/lib/route-access";
 import { notificationsPath, PLATFORM_NAV, SCHOOL_NAV, visibleNav } from "@/lib/nav-model";
 
 function me(keys: string[], realm: "school" | "platform" = "school"): MyPermissions {
@@ -49,5 +50,55 @@ describe("visibleNav", () => {
 	it("points the notification bell at the right inbox", () => {
 		expect(notificationsPath("platform")).toBe(ROUTES.platform.notifications);
 		expect(notificationsPath("school")).toBe(ROUTES.school.notifications);
+	});
+});
+
+describe("persona and scope in the menu (same rules as the route guard)", () => {
+	type Persona = "STAFF" | "GUARDIAN" | "STUDENT";
+	const as = (persona: Persona, entries: [string, "ALL" | "BRANCH" | "ASSIGNED" | "OWN"][]): MyPermissions => ({
+		...me([]), persona, permissions: entries.map(([key, scope]) => ({ key, scope })),
+	});
+	const guardian = as("GUARDIAN", [["students.view", "OWN"], ["attendance.view", "OWN"], ["grades.view", "OWN"], ["report_cards.view", "OWN"], ["fees.view", "OWN"], ["payments.pay", "OWN"]]);
+	const student = as("STUDENT", [["students.view", "OWN"], ["attendance.view", "OWN"], ["grades.view", "OWN"], ["report_cards.view", "OWN"], ["fees.view", "OWN"]]);
+	const teacher = as("STAFF", [["students.view", "ASSIGNED"], ["attendance.mark", "ASSIGNED"], ["classes.view", "ALL"]]);
+
+	it("a guardian or student never sees a school-management entry, even holding students.view and friends at OWN", () => {
+		for (const who of [guardian, student]) {
+			expect(visibleNav(who).filter((e) => e.to.startsWith("/school/"))).toEqual([]);
+			for (const e of SCHOOL_NAV.filter((n) => n.to.startsWith("/school/"))) expect(canOpenRoute(e.to, who)).toBe(false);
+		}
+	});
+
+	it("a guardian gets their own menu", () => {
+		expect(labels(guardian)).toEqual(["Home", "My children", "Fees", "Payments", "Report cards", "Notifications"]);
+	});
+
+	it("a student gets their own menu, with no payments entry", () => {
+		expect(labels(student)).toEqual(["Home", "Dashboard", "Attendance", "Grades", "Report cards"]);
+	});
+
+	it("staff holding keys at ASSIGNED or ALL get management entries, and no family entries", () => {
+		expect(labels(teacher)).toEqual(["Home", "Students", "Classes", "Subjects", "Attendance"]);
+		expect(visibleNav(teacher).some((e) => e.to.startsWith("/family") || e.to.startsWith("/learning"))).toBe(false);
+	});
+
+	it("a STAFF session holding a key only at OWN does not get the entry (scope floor)", () => {
+		expect(labels(as("STAFF", [["students.view", "OWN"]]))).toEqual(["Home"]);
+	});
+
+	it("the menu and the guard always agree", () => {
+		for (const who of [guardian, student, teacher, me(["staff.view", "students.view"]), me([])]) {
+			for (const e of SCHOOL_NAV) {
+				const shown = visibleNav(who).some((v) => v.to === e.to);
+				expect(canOpenRoute(e.to, who), `${e.to}`).toBe(shown);
+			}
+		}
+	});
+
+	it("the bell links to an inbox the session may open", () => {
+		expect(notificationsPath("school", "STAFF")).toBe(ROUTES.school.notifications);
+		expect(notificationsPath("school", "GUARDIAN")).toBe(ROUTES.family.notifications);
+		expect(canOpenRoute(notificationsPath("school", "GUARDIAN"), guardian)).toBe(true);
+		expect(notificationsPath("school", "STUDENT")).toBe(ROUTES.home);
 	});
 });

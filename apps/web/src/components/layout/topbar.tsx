@@ -25,6 +25,7 @@ export function Topbar({ onMenuClick, searchPlaceholder = "Search…" }: TopbarP
 	const router = useRouter();
 	const logout = useAuthStore((s) => s.logout);
 	const user = useAuthStore((s) => s.user);
+	const persona = useAuthStore((s) => s.permissions?.persona ?? null);
 
 	async function handleLogout() {
 		await logout();
@@ -50,7 +51,7 @@ export function Topbar({ onMenuClick, searchPlaceholder = "Search…" }: TopbarP
 				{mounted && theme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
 			</Button>
 
-			<NotificationBell inboxPath={notificationsPath("school")} />
+			<NotificationBell inboxPath={notificationsPath("school", persona)} />
 
 			<DropdownMenu>
 				<DropdownMenuTrigger
