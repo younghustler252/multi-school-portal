@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from "express";
 import multer from "multer";
 import { container } from "../../../container";
 import { EventController } from "../controllers/event.controller";
+import { EventTypeController } from "../controllers/event-type.controller";
 import { validate } from "../../../infrastructure/middleware/validate.middleware";
 import { authenticate } from "../../../infrastructure/middleware/auth.middleware";
 import { requireTenant } from "../../../infrastructure/middleware/tenant-resolver.middleware";
@@ -9,11 +10,16 @@ import { uploadLimiter } from "../../../infrastructure/middleware/rate-limit.mid
 import { reestablishTenantContext } from "../../../infrastructure/middleware/reestablish-tenant-context";
 import { AppError } from "../../../shared/errors/domain.errors";
 import { requirePermission, requirePersona } from "../../../infrastructure/middleware/rbac.middleware";
+import { CreateEventTypeDto, UpdateEventTypeDto } from "../dtos/event-type.dto";
 import { CreateEventDto, UpdateEventDto, RescheduleEventDto, CancelEventDto, NotifyEventDto } from "../dtos/event.dto";
 
 /*
 | EVENT ROUTES (school realm, mounted at /events)
 |   GET    /        any signed-in staff, student or parent: the events they may see
+|   GET    /types        any signed-in staff, student or parent: the ACTIVE event types. ?includeInactive=true needs events.types.manage
+|   POST   /types        events.types.manage   create a custom type { name, color?, icon? }
+|   PATCH  /types/:typeId  events.types.manage  rename, recolour, change icon, deactivate/reactivate (a system type: colour and icon only)
+|   DELETE /types/:typeId  events.types.manage  delete a custom type no event uses (a used one is deactivated instead)
 |   GET    /:id     same (an event you may not see is a 404)
 |   POST   /        events.manage   create an event (always a draft)
 |   PATCH  /:id     events.manage   change a draft or a published event (a cancelled one is frozen)
@@ -37,9 +43,17 @@ const coverFile = (req: Request, res: Response, next: NextFunction) => coverUplo
     next(err);
 });
 const ctrl = () => container.resolve<EventController>("eventController");
+const typesCtrl = () => container.resolve<EventTypeController>("eventTypeController");
 const viewer = [authenticate, requireTenant, requirePersona("STAFF", "STUDENT", "GUARDIAN")] as const;
 const manage = [authenticate, requireTenant, requirePermission("events.manage")] as const;
+const manageTypes = [authenticate, requireTenant, requirePermission("events.types.manage")] as const;
 const publish = [authenticate, requireTenant, requirePermission("events.publish")] as const;
+
+// Declared BEFORE "/:id" so "types" is never read as an event id
+router.get("/types", ...viewer, (q, s, n) => typesCtrl().list(q, s, n));
+router.post("/types", ...manageTypes, validate(CreateEventTypeDto), (q, s, n) => typesCtrl().create(q, s, n));
+router.patch("/types/:typeId", ...manageTypes, validate(UpdateEventTypeDto), (q, s, n) => typesCtrl().update(q, s, n));
+router.delete("/types/:typeId", ...manageTypes, (q, s, n) => typesCtrl().remove(q, s, n));
 
 router.get("/", ...viewer, (q, s, n) => ctrl().list(q, s, n));
 router.get("/:id/audience", ...manage, (q, s, n) => ctrl().audience(q, s, n));

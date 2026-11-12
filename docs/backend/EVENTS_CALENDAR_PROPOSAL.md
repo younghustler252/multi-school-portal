@@ -430,3 +430,30 @@ clear 400 on the legacy routes and removes the field from the new API.
 
 Verification: `scripts/db/verify-event-types-migration.sh` (existing and fresh schemas on a scratch database; every trigger rule) and the unit tests in
 `tests/events/events.types.migration.test.ts`; `events.types.migration.db.test.ts` runs the main trigger checks where `TEST_DATABASE_URL` is set.
+
+## Implemented: stage E2 (event types module)
+
+Endpoints under `/events` (declared before `/events/:id`):
+
+| Route | Access | Notes |
+|---|---|---|
+| `GET /events/types` | any signed-in staff, student or parent | active types; `?includeInactive=true` needs `events.types.manage` (403 otherwise) |
+| `POST /events/types` | `events.types.manage` | `{ name, color?, icon? }`; the `key` is generated (slug, `-2`, `-3` on a clash) and never changes |
+| `PATCH /events/types/:typeId` | `events.types.manage` | `{ name?, color?, icon?, isActive? }`, at least one; system types accept colour and icon only |
+| `DELETE /events/types/:typeId` | `events.types.manage` | only a custom type no event uses; a used one is deactivated instead |
+
+Permission `events.types.manage` (scope ALL, staff only, not sensitive) is held by the School Admin through the role's grant-everything flag. No role template lists it,
+so the Principal and Branch Principal do not have it (a test asserts this). Run `sync:registries` to register the key.
+
+Rules: names are trimmed, spaces collapsed, compared without case (`nameKey`), 2-40 characters, no `<`, `>` or control characters; colour `#RRGGBB`; icon `[a-z0-9-]{1,40}`.
+At most 50 custom types per school (`MAX_CUSTOM_EVENT_TYPES`, application constant); inactive ones count. Creation takes a per-school advisory lock, counts and inserts in one
+transaction. The key is chosen under the lock (a failed insert would abort the transaction). Unknown body fields (`key`, `id`, `isSystem`) are refused by the strict DTOs.
+
+Errors: `EVENT_TYPE_NOT_FOUND` 404, `EVENT_TYPE_NAME_TAKEN`, `EVENT_TYPE_PROTECTED`, `EVENT_TYPE_IN_USE` (with `details.events`), `EVENT_TYPE_LIMIT` 409 (`EVENT_TYPE_INACTIVE` is used by stage E3 when an event picks an inactive type).
+The repository also translates the database's own refusals (trigger `EVENT_TYPE_PROTECTED`, `RESTRICT` foreign key, unique `nameKey`) into the same codes, so a race never leaks SQL.
+Audit actions: `event_type.created`, `.updated`, `.deactivated`, `.activated`, `.deleted`.
+
+Verification: `tests/events/event-types.test.ts` (policy, use cases, permission matrix, routes, wiring, a simulated concurrent-create race), `tests/events/event-types.db.test.ts`
+(two real schools: isolation, name clashes, in-use and system protection, cap under concurrent creates; runs where `TEST_DATABASE_URL` is set) and
+`scripts/db/verify-event-types-cap.sh` (real PostgreSQL, parallel sessions running the same lock, count, insert sequence; a control run without the lock must overrun the cap).
+Events themselves still use the enum `type` until stage E3.

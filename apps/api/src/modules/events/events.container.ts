@@ -11,6 +11,10 @@ import { EventReminderService } from "./services/event-reminder.service";
 import { UploadEventCoverUseCase, RemoveEventCoverUseCase } from "./usecases/event-cover.usecases";
 import { EventViewerService } from "./services/event-viewer.service";
 import { EventNoticeService } from "./services/event-notice.service";
+import { EventTypeMapper } from "./mappers/event-type.mapper";
+import { EventTypeRepositoryImpl } from "./repositories/event-type.repository.impl";
+import { ListEventTypesUseCase, CreateEventTypeUseCase, UpdateEventTypeUseCase, DeleteEventTypeUseCase } from "./usecases/event-types.usecases";
+import { EventTypeController } from "./controllers/event-type.controller";
 import { EventController } from "./controllers/event.controller";
 
 /*
@@ -48,6 +52,14 @@ export const registerEvents = (container: AwilixContainer): void => {
         createCalendarEventUseCase: asClass(CreateCalendarEventUseCase).scoped(),
         updateCalendarEventUseCase: asClass(UpdateCalendarEventUseCase).scoped(),
         deleteCalendarEventUseCase: asClass(DeleteCalendarEventUseCase).scoped(),
+
+        eventTypeMapper:     asClass(EventTypeMapper).singleton(),
+        eventTypeRepository: asClass(EventTypeRepositoryImpl).scoped(),
+        listEventTypesUseCase:  asClass(ListEventTypesUseCase).scoped(),
+        createEventTypeUseCase: asClass(CreateEventTypeUseCase).scoped(),
+        updateEventTypeUseCase: asClass(UpdateEventTypeUseCase).scoped(),
+        deleteEventTypeUseCase: asClass(DeleteEventTypeUseCase).scoped(),
+        eventTypeController:    asClass(EventTypeController).scoped(),
 
         eventController: asClass(EventController).scoped(),
     });
