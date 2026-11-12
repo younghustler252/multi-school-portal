@@ -4,6 +4,7 @@ import { scheduleBilling } from "../queues/billing.queue";
 import { scheduleSchoolLifecycle } from "../queues/school-lifecycle.queue";
 import { scheduleTermLifecycle } from "../queues/term-lifecycle.queue";
 import { scheduleAutomationTick } from "../queues/automation.queue";
+import { scheduleEventReminderTick } from "../queues/event-reminders.queue";
 import { scheduleLedgerIntegrity } from "../queues/ledger-integrity.queue";
 import { scheduleRecurringExpenses } from "../queues/recurring-expenses.queue";
 
@@ -14,6 +15,7 @@ export const initSchedulers = async (): Promise<void> => {
     await scheduleSchoolLifecycle();
     await scheduleTermLifecycle();
     await scheduleAutomationTick();
+    await scheduleEventReminderTick();
     await scheduleLedgerIntegrity();
     await scheduleRecurringExpenses();
 

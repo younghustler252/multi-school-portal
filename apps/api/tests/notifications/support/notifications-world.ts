@@ -4,6 +4,7 @@
 */
 import { NotificationDispatchService } from "../../../src/modules/notifications/services/notification-dispatch.service";
 import { NotificationDeliveryService } from "../../../src/modules/notifications/services/notification-delivery.service";
+import { AudienceRecipientService } from "../../../src/modules/notifications/services/audience-recipient.service";
 import { SendSchoolNotificationUseCase } from "../../../src/modules/notifications/usecases/send-school-notification.usecase";
 import { SchoolNotificationMapper } from "../../../src/modules/notifications/mappers/notification.mapper";
 import { ChannelRegistry } from "../../../src/infrastructure/notifications/channel.registry";
@@ -84,14 +85,17 @@ export function notificationsWorld(opts: { plan?: { email?: boolean; sms?: boole
         schoolAdminDirectory: { async firstContactOf() { return null; } } as any,
     });
 
-    const send = new SendSchoolNotificationUseCase({
-        notificationRepository: repo, schoolNotificationMapper: new SchoolNotificationMapper(), notificationDispatchService: dispatch,
-        entitlementsService: entitlementsService as any, auditService: { async log(p: any) { audit.push(p); } } as any,
-        schoolPreferencesService: { async all() { return prefs as any; } },
+    const audienceRepos = {
         studentRepository: { async findMany() { return people.students; } } as any,
         guardianRepository: { async findMany(where: any) { return where?.id?.in ? people.guardians.filter(g => where.id.in.includes(g.id)) : people.guardians; } } as any,
         staffRepository: { async findMany() { return people.staff; } } as any,
         userRepository: { async findByIds(ids: string[]) { return people.users.filter(u => ids.includes(u.id)); } } as any,
+    };
+    const send = new SendSchoolNotificationUseCase({
+        audienceRecipientService: new AudienceRecipientService(audienceRepos),
+        notificationRepository: repo, schoolNotificationMapper: new SchoolNotificationMapper(), notificationDispatchService: dispatch,
+        entitlementsService: entitlementsService as any, auditService: { async log(p: any) { audit.push(p); } } as any,
+        schoolPreferencesService: { async all() { return prefs as any; } },
     });
 
     return { notifications, rows, queued, sent, audit, repo, dispatch, delivery, send, failChannels: (m: string | null) => { channelFails = m; } };

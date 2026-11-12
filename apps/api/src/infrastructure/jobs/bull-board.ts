@@ -4,6 +4,7 @@ import { ExpressAdapter }       from "@bull-board/express";
 import { provisionSchemaQueue } from "./queues/provision-schema.queue";
 import { notificationQueue }    from "./queues/notification.queue";
 import { automationQueue }      from "./queues/automation.queue";
+import { eventRemindersQueue }  from "./queues/event-reminders.queue";
 import { billingQueue }         from "./queues/billing.queue";
 import { schoolLifecycleQueue } from "./queues/school-lifecycle.queue";
 import { termLifecycleQueue }   from "./queues/term-lifecycle.queue";
@@ -27,6 +28,7 @@ export const createBullBoardRouter = () => {
             new BullMQAdapter(provisionSchemaQueue),
             new BullMQAdapter(notificationQueue),
             new BullMQAdapter(automationQueue),
+            new BullMQAdapter(eventRemindersQueue),
             new BullMQAdapter(billingQueue),
             new BullMQAdapter(schoolLifecycleQueue),
             new BullMQAdapter(termLifecycleQueue),

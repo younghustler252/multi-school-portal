@@ -7,6 +7,7 @@ import { SendSchoolNotificationUseCase } from "./usecases/send-school-notificati
 import { SendPlatformNotificationUseCase } from "./usecases/send-platform-notification.usecase";
 import { NotificationService } from "./services/notification.service";
 import { NotificationDispatchService } from "./services/notification-dispatch.service";
+import { AudienceRecipientService } from "./services/audience-recipient.service";
 import { ChannelPolicyService } from "./services/channel-policy.service";
 import { NotificationDeliveryService } from "./services/notification-delivery.service";
 import { GetNotificationsUseCase } from "./usecases/get-notifications.usecase";
@@ -17,6 +18,7 @@ import {
 import { NotificationController } from "./controllers/notification.controller";
 
 /*
+| `audienceRecipientService` resolves a group to people (announcements use it; so can any feature that messages a group).
 | Requires: the shared mailService, smsService and channelRegistry; the audit module; the foundation (entitlementsService);
 | students, guardians, staff and auth (their repositories); school settings (schoolPreferencesService, optional).
 | `notificationDispatchService` is the one road every school message takes; the automation engine uses it too.
@@ -33,6 +35,7 @@ export const registerNotifications = (container: AwilixContainer): void => {
 				(await import("../../infrastructure/jobs/queues/notification.queue")).enqueueDeliveries(jobs),
 		}),
 		notificationDispatchService: asClass(NotificationDispatchService).scoped(),
+		audienceRecipientService: asClass(AudienceRecipientService).scoped(),
 		channelPolicyService: asClass(ChannelPolicyService).scoped(),
 		notificationDeliveryService: asClass(NotificationDeliveryService).scoped(),
 

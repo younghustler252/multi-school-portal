@@ -48,6 +48,7 @@ export const ROLE_TEMPLATES: RoleTemplateDef[] = [
             { key: "message_templates.view", scope: "ALL" }, { key: "message_templates.manage", scope: "ALL" },
             { key: "notifications.view", scope: "ALL" }, { key: "notifications.send", scope: "ALL" },
             { key: "automation.view", scope: "ALL" }, { key: "automation.manage", scope: "ALL" },
+            { key: "events.manage", scope: "ALL" }, { key: "events.publish", scope: "ALL" },
         ],
     },
     {
@@ -57,6 +58,7 @@ export const ROLE_TEMPLATES: RoleTemplateDef[] = [
             { key: "school.view", scope: "ALL" }, { key: "branches.view", scope: "BRANCH" },
             { key: "classes.view", scope: "BRANCH" }, { key: "classes.manage", scope: "BRANCH" }, { key: "sessions.view", scope: "ALL" }, { key: "enrolment.view", scope: "BRANCH" }, { key: "students.view", scope: "BRANCH" }, { key: "attendance.view", scope: "BRANCH" }, { key: "grades.view", scope: "BRANCH" },
             { key: "fees.view", scope: "BRANCH" }, { key: "staff.view", scope: "BRANCH" }, { key: "staff.manage", scope: "BRANCH" },
+            { key: "events.manage", scope: "BRANCH" },
         ],
     },
     {
