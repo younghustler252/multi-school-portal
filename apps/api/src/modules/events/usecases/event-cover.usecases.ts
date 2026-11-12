@@ -5,12 +5,13 @@ import { sniffFile, FILE_EXTENSION } from "../../../shared/utils/file-sniff";
 import { IEventRepository } from "../repositories/event.repository";
 import { eventErrors } from "../domain/event.errors";
 import { assertCanActOnEvent } from "../domain/event.scope";
+import { managerExtras } from "./event-presenter";
 import { EventMapper, EventResponseData } from "../mappers/event.mapper";
 
 /* COVER IMAGE (optional). Same rules as the school logo: JPEG, PNG or WebP judged by the file's own bytes, at most 2 MB; SVG is refused (it can carry scripts). */
 export const MAX_COVER_BYTES = 2 * 1024 * 1024;
 interface Deps { eventRepository: IEventRepository; eventMapper: EventMapper; storageService: Pick<SupabaseStorageService, "upload">; eventCoverBucket: string; auditService: AuditService }
-const respond = (d: Pick<Deps, "eventMapper">, e: any): EventResponseData => d.eventMapper.toResponse(e);
+const respond = async (d: Pick<Deps, "eventMapper" | "eventRepository">, e: any): Promise<EventResponseData> => d.eventMapper.toResponse(e, null, null, (await managerExtras(d.eventRepository, [e]))(e));
 
 export class UploadEventCoverUseCase {
     constructor(private readonly d: Deps) {}
@@ -27,7 +28,7 @@ export class UploadEventCoverUseCase {
         });
         const updated = await this.d.eventRepository.update(id, { data: { coverImageUrl: result.url, updatedById: actorUserId } });
         await this.d.auditService.log({ userId: actorUserId, schoolId, action: "calendar_event.cover_changed", entity: "CalendarEvent", entityId: id });
-        return respond(this.d, updated);
+        return await respond(this.d, updated);
     }
 }
 
@@ -38,9 +39,9 @@ export class RemoveEventCoverUseCase {
         if (!event) throw eventErrors.notFound();
         assertCanActOnEvent(access, "events.manage", event);
         if (event.status === "CANCELLED") throw eventErrors.cancelled();
-        if (!event.coverImageUrl) return respond(this.d, event);
+        if (!event.coverImageUrl) return await respond(this.d, event);
         const updated = await this.d.eventRepository.update(id, { data: { coverImageUrl: null, updatedById: actorUserId } });
         await this.d.auditService.log({ userId: actorUserId, schoolId, action: "calendar_event.cover_removed", entity: "CalendarEvent", entityId: id });
-        return respond(this.d, updated);
+        return await respond(this.d, updated);
     }
 }

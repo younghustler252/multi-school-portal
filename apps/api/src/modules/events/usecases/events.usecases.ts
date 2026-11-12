@@ -10,23 +10,27 @@ import { eventErrors } from "../domain/event.errors";
 import { assertAudience, assertSchedule, normaliseKinds, normaliseReminderOffsets, scheduleChanged } from "../domain/event.policy";
 import { assertCanActOnEvent, audienceScope, seesEveryEvent } from "../domain/event.scope";
 import { CreateEventDtoType, ListEventsQueryType, UpdateEventDtoType } from "../dtos/event.dto";
-import { nameLookup } from "./event-presenter";
+import { managerExtras, nameLookup } from "./event-presenter";
+import { IEventTypeRepository } from "../repositories/event-type.repository";
+import { eventTypeErrors } from "../domain/event-type.errors";
+import { isHolidayType, resolveEventType } from "./event-type-resolver";
 import type { EventViewerService } from "../services/event-viewer.service";
 import type { EventReminderService } from "../services/event-reminder.service";
 import type { EventNoticeService, NoticeOutcome } from "../services/event-notice.service";
 
 export interface EventActor { userId: string }
 interface Deps {
-    eventRepository: IEventRepository; sessionRepository: ISessionRepository; branchRepository: Pick<IBranchRepository, "findMany">;
+    eventRepository: IEventRepository; eventTypeRepository: Pick<IEventTypeRepository, "findById" | "findByKey">; sessionRepository: ISessionRepository; branchRepository: Pick<IBranchRepository, "findMany">;
     classRepository: Pick<IClassRepository, "findAllClasses">; eventMapper: EventMapper; auditService: AuditService;
     eventViewerService?: EventViewerService; eventNoticeService?: EventNoticeService; eventReminderService?: EventReminderService;
 }
 const day = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : null);
 const sameSet = (a: readonly string[], b: readonly string[]) => a.length === b.length && a.every(x => b.includes(x));
 
-async function present(d: Deps, events: CalendarEventEntity[]): Promise<EventResponseData[]> {
+async function present(d: Deps, events: CalendarEventEntity[], access?: Access): Promise<EventResponseData[]> {
     const names = await nameLookup(d.sessionRepository, events);
-    return events.map(e => { const n = names(e); return d.eventMapper.toResponse(e, n.term, n.session); });
+    const extras = seesEveryEvent(access) && events.length ? await managerExtras(d.eventRepository, events) : null;
+    return events.map(e => { const n = names(e); return d.eventMapper.toResponse(e, n.term, n.session, extras?.(e)); });
 }
 
 export class ListEventsUseCase {
@@ -37,7 +41,8 @@ export class ListEventsUseCase {
         if (manager) { if (q.status) where.status = q.status; } else where.status = { in: ["PUBLISHED", "CANCELLED"] };
         if (q.termId) where.termId = q.termId;
         if (q.sessionId) where.sessionId = q.sessionId;
-        if (q.type) where.type = q.type;
+        if (q.eventTypeId) where.eventTypeId = q.eventTypeId;
+        else if (q.type) where.eventType = { key: q.type };
         const and: Record<string, any>[] = [];
         if (q.to) and.push({ startDate: { lte: new Date(q.to) } });
         if (q.from) and.push({ OR: [{ endDate: { gte: new Date(q.from) } }, { endDate: null, startDate: { gte: new Date(q.from) } }] });
@@ -45,7 +50,7 @@ export class ListEventsUseCase {
         const visible = this.d.eventViewerService!.forViewer(access);
         const events: CalendarEventEntity[] = [];
         for (const e of await this.d.eventRepository.findMany(where)) if (await visible(e)) events.push(e);
-        return present(this.d, events);
+        return present(this.d, events, access);
     }
 }
 
@@ -54,7 +59,7 @@ export class GetEventUseCase {
     async execute(id: string, access?: Access): Promise<EventResponseData> {
         const event = await this.d.eventRepository.findById(id);
         if (!event || !(await this.d.eventViewerService!.forViewer(access)(event))) throw eventErrors.notFound();    // 404, never "forbidden": it does not reveal that the event exists
-        return (await present(this.d, [event]))[0];
+        return (await present(this.d, [event], access))[0];
     }
 }
 
@@ -92,7 +97,8 @@ export class CreateEventUseCase {
         const startDate = new Date(dto.startDate), endDate = dto.endDate ? new Date(dto.endDate) : null;
         const startTime = dto.isAllDay ? null : dto.startTime ?? null, endTime = dto.isAllDay ? null : dto.endTime ?? null;
         assertSchedule({ startDate, endDate, isAllDay: dto.isAllDay, startTime: dto.startTime ?? null, endTime: dto.endTime ?? null });
-        const isHoliday = dto.type === "holiday" || !!dto.isHoliday;
+        const eventType = await resolveEventType(this.d.eventTypeRepository, dto);
+        const isHoliday = isHolidayType(eventType);      // derived: only the system holiday type makes a holiday
 
         const classBranch = await checkAudienceTargets(this.d, dto.branchIds ?? [], dto.classIds ?? []);
         const scope = audienceScope(access, "events.manage", { audienceKinds: kinds, branchIds: dto.branchIds, classIds: dto.classIds }, classBranch);
@@ -101,15 +107,15 @@ export class CreateEventUseCase {
 
         const created = await this.d.eventRepository.create({
             data: {
-                title: dto.title, description: dto.description ?? null, type: dto.type, isHoliday, status: "DRAFT",
+                title: dto.title, description: dto.description ?? null, eventTypeId: eventType.id, isHoliday, status: "DRAFT",
                 startDate, endDate, isAllDay: dto.isAllDay, startTime, endTime, location: dto.location ?? null,
                 termId: dto.termId ?? null, sessionId, audienceKinds: kinds, notifyChannels: [...new Set(dto.notifyChannels)],
                 reminderOffsetsMinutes: offsets, createdById: actor.userId, updatedById: actor.userId,
             },
             branchIds: scope.branchIds, classIds: scope.classIds,
         });
-        await this.d.auditService.log({ userId: actor.userId, schoolId, action: "calendar_event.created", entity: "CalendarEvent", entityId: created.id, newValue: { title: dto.title, type: dto.type, startDate: dto.startDate, status: "DRAFT" } });
-        return (await present(this.d, [created]))[0];
+        await this.d.auditService.log({ userId: actor.userId, schoolId, action: "calendar_event.created", entity: "CalendarEvent", entityId: created.id, newValue: { title: dto.title, type: eventType.key, startDate: dto.startDate, status: "DRAFT" } });
+        return (await present(this.d, [created], access))[0];
     }
 }
 
@@ -132,8 +138,10 @@ export class UpdateEventUseCase {
         const next = { startDate, endDate, isAllDay, startTime, endTime };
         assertSchedule(next);
 
-        const type = dto.type ?? event.type;
-        const isHoliday = type === "holiday" || (dto.isHoliday ?? event.isHoliday);
+        const typeGiven = dto.type !== undefined || dto.eventTypeId !== undefined;
+        const nextType = typeGiven ? await resolveEventType(this.d.eventTypeRepository, dto, event) : null;
+        const isHoliday = nextType ? isHolidayType(nextType) : event.isHoliday;
+        if (published && isHoliday !== event.isHoliday) throw eventErrors.holidayTypeLocked();
         const kinds = dto.audienceKinds ? normaliseKinds(dto.audienceKinds) : event.audienceKinds;
         const audienceGiven = dto.audienceKinds !== undefined || dto.branchIds !== undefined || dto.classIds !== undefined;
         let branchIds = event.branchIds, classIds = event.classIds, audienceChanged = false;
@@ -151,8 +159,10 @@ export class UpdateEventUseCase {
         const set = (k: string, now: unknown, was: unknown) => { if (JSON.stringify(now) !== JSON.stringify(was)) { data[k] = now; before[k] = was; after[k] = now; } };
         if (dto.title !== undefined) set("title", dto.title, event.title);
         if (dto.description !== undefined) set("description", dto.description, event.description);
-        set("type", type, event.type);
-        set("isHoliday", isHoliday, event.isHoliday);
+        if (nextType && nextType.id !== event.eventTypeId) {
+            data.eventTypeId = nextType.id; before.type = event.eventType?.key ?? event.type; after.type = nextType.key;
+            set("isHoliday", isHoliday, event.isHoliday);
+        }
         if (dto.location !== undefined) set("location", dto.location, event.location);
         if (dto.notifyChannels !== undefined) set("notifyChannels", [...new Set(dto.notifyChannels)], event.notifyChannels);
         if (dto.reminderOffsetsMinutes !== undefined) set("reminderOffsetsMinutes", normaliseReminderOffsets(dto.reminderOffsetsMinutes), event.reminderOffsetsMinutes);
@@ -164,13 +174,13 @@ export class UpdateEventUseCase {
             before.schedule = { startDate: day(event.startDate), endDate: day(event.endDate), isAllDay: event.isAllDay, startTime: event.startTime, endTime: event.endTime };
             after.schedule = { startDate: day(startDate), endDate: day(endDate), isAllDay, startTime: isAllDay ? null : startTime, endTime: isAllDay ? null : endTime };
         }
-        if (Object.keys(data).length === 0 && !audienceChanged) return (await present(this.d, [event]))[0];
+        if (Object.keys(data).length === 0 && !audienceChanged) return (await present(this.d, [event], access))[0];
 
         data.updatedById = actor.userId;
         const updated = await this.d.eventRepository.update(id, { data, ...(audienceChanged ? { branchIds, classIds } : {}) });
         if (published && "reminderOffsetsMinutes" in data) await this.d.eventReminderService?.sync(schoolId, updated);
         await this.d.auditService.log({ userId: actor.userId, schoolId, action: "calendar_event.updated", entity: "CalendarEvent", entityId: id, oldValue: before, newValue: after });
-        return (await present(this.d, [updated]))[0];
+        return (await present(this.d, [updated], access))[0];
     }
 }
 

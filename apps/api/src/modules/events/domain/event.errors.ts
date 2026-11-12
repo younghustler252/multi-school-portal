@@ -29,5 +29,7 @@ export const eventErrors = {
     noticeMismatch:  (kind: string) => conflict(`A "${kind}" notice does not fit the event's current state`, "EVENT_NOTICE_NOT_APPLICABLE"),
     noticesOff:      () => conflict("Event notices are switched off in the school's settings", "EVENT_NOTIFICATIONS_OFF"),
     invalidImage:    () => invalid("Upload a JPEG, PNG or WebP image up to 2 MB", "EVENT_INVALID_IMAGE"),
+    holidayTypeLocked: () => conflict("A published event cannot be changed to or from the holiday type, because attendance and the calendar already rely on it. Cancel it and create a new one", "EVENT_HOLIDAY_TYPE_LOCKED"),
+    holidayRequiresHolidayType: () => invalid("isHoliday can only be true for an event of the holiday type", "EVENT_HOLIDAY_REQUIRES_HOLIDAY_TYPE"),
     notPublished:    () => conflict("Only a published event can be cancelled", "EVENT_NOT_PUBLISHED"),
 };

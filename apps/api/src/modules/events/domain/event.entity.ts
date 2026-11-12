@@ -1,3 +1,5 @@
+import type { EventTypeRef } from "./event-type.entity";
+
 export const EVENT_STATUSES = ["DRAFT", "PUBLISHED", "CANCELLED"] as const;
 export type EventStatus = typeof EVENT_STATUSES[number];
 
@@ -16,8 +18,10 @@ export interface CalendarEventEntity {
     description: string | null;
     startDate:   Date;
     endDate:     Date | null;
-    type:        string;
-    isHoliday:   boolean;
+    type:        string;            // the legacy enum mirror, kept in step by the database; custom types show as "other"
+    eventTypeId: string | null;
+    eventType:   EventTypeRef | null;   // the event's real type (system or custom)
+    isHoliday:   boolean;            // derived by the database: true exactly for the system holiday type
     createdById: string | null;
     createdAt:   Date;
     updatedAt:   Date;

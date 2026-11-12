@@ -1,9 +1,13 @@
 import { BaseTenantRepository } from "../../../infrastructure/repository/base.repository";
 import { CalendarEventEntity } from "../domain/event.entity";
+import { eventErrors } from "../domain/event.errors";
 import { EventMapper } from "../mappers/event.mapper";
 import { EventWrite, IEventRepository, PlannedReminder, ReminderRow } from "./event.repository";
 
-const WITH_AUDIENCE = { branches: true, classes: true } as const;
+const WITH_AUDIENCE = { branches: true, classes: true, eventType: true } as const;
+
+// The database refuses a published event moving to or from the holiday type (trigger). Say so with the module's own error.
+const isHolidayLock = (e: unknown): boolean => String((e as { message?: string })?.message ?? "").includes("EVENT_HOLIDAY_TYPE_LOCKED");
 
 export class EventRepositoryImpl extends BaseTenantRepository<CalendarEventEntity> implements IEventRepository {
     protected readonly modelName = "calendarEvent";
@@ -31,8 +35,10 @@ export class EventRepositoryImpl extends BaseTenantRepository<CalendarEventEntit
     }
 
     async update(id: string, write: EventWrite): Promise<CalendarEventEntity> {
-        const raw = await this.model().update({ where: { id }, data: { ...write.data, ...this.audienceWrites(write, true) }, include: WITH_AUDIENCE });
-        return this.mapper.toDomain(raw);
+        try {
+            const raw = await this.model().update({ where: { id }, data: { ...write.data, ...this.audienceWrites(write, true) }, include: WITH_AUDIENCE });
+            return this.mapper.toDomain(raw);
+        } catch (e) { if (isHolidayLock(e)) throw eventErrors.holidayTypeLocked(); throw e; }
     }
 
     async deleteDraft(id: string): Promise<void> {
@@ -79,6 +85,11 @@ export class EventRepositoryImpl extends BaseTenantRepository<CalendarEventEntit
 
     async finishReminder(id: string, status: "SENT" | "SKIPPED" | "CANCELLED" | "FAILED" | "PENDING", note: string | null = null): Promise<void> {
         await this.reminders().update({ where: { id }, data: { status, lastError: note, processedAt: status === "PENDING" ? null : new Date() } });
+    }
+
+    async listRemindersFor(eventIds: string[]): Promise<ReminderRow[]> {
+        if (eventIds.length === 0) return [];
+        return (await this.reminders().findMany({ where: { eventId: { in: eventIds } } })).map(this.toReminder);
     }
 
     async listReminders(eventId: string): Promise<ReminderRow[]> {

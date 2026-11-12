@@ -9,6 +9,9 @@ import { audienceScope, canActOnEvent } from "../../src/modules/events/domain/ev
 import { EventViewerService } from "../../src/modules/events/services/event-viewer.service";
 import { EventMapper } from "../../src/modules/events/mappers/event.mapper";
 import { CreateEventUseCase, UpdateEventUseCase, DeleteEventUseCase, CancelEventUseCase, ListEventsUseCase, GetEventUseCase } from "../../src/modules/events/usecases/events.usecases";
+import { applyType, typeRepository, QUIZ_ID, OLD_ID } from "./fake-types";
+import { HOLIDAY_TYPE_ID } from "../../src/modules/events/domain/event-type.catalog";
+import { CreateCalendarEventUseCase } from "../../src/modules/events/usecases/legacy-calendar.usecases";
 import { DeleteCalendarEventUseCase, UpdateCalendarEventUseCase, ListCalendarEventsUseCase } from "../../src/modules/events/usecases/legacy-calendar.usecases";
 
 const d = (s: string) => new Date(s);
@@ -90,14 +93,15 @@ describe("event scope", () => {
 // ── use cases on an in-memory repository ─────────────────────────────────────
 const SID = "11111111-1111-4111-8111-111111111111", TID = "22222222-2222-4222-8222-222222222222", C1 = "c1", B1 = "b1", B2 = "b2";
 function world(seed: any[] = []) {
-    const rows = new Map<string, any>(seed.map(r => [r.id, r]));
+    const rows = new Map<string, any>(seed.map(r => [r.id, applyType(r)]));
     let n = 0; const audits: any[] = [];
     const base = (id: string, o: any) => ({ id, termId: null, sessionId: null, description: null, endDate: null, type: "event", isHoliday: false, createdById: "u1", createdAt: d("2026-01-01"), updatedAt: d("2026-01-01"), status: "PUBLISHED", isAllDay: true, startTime: null, endTime: null, location: null, coverImageUrl: null, audienceKinds: ["EVERYONE"], branchIds: [], classIds: [], notifyChannels: [], reminderOffsetsMinutes: [], revision: 1, publishedAt: null, publishedById: null, publishNoticeSentAt: null, cancelledAt: null, cancelledById: null, cancelReason: null, updatedById: null, ...o });
     const eventRepository: any = {
-        create: async ({ data, branchIds = [], classIds = [] }: any) => { const id = `e${++n}`; const r = base(id, { ...data, branchIds, classIds }); rows.set(id, r); return r; },
+        create: async ({ data, branchIds = [], classIds = [] }: any) => { const id = `e${++n}`; const r = applyType(base(id, { ...data, branchIds, classIds })); rows.set(id, r); return r; },
         findById: async (id: string) => rows.get(id) ?? null,
         findMany: async (where: any) => [...rows.values()].filter(r => !where.status || (where.status.in ? where.status.in.includes(r.status) : where.status === r.status)),
-        update: async (id: string, { data, branchIds, classIds }: any) => { const r = { ...rows.get(id), ...data, ...(branchIds ? { branchIds } : {}), ...(classIds ? { classIds } : {}) }; rows.set(id, r); return r; },
+        update: async (id: string, { data, branchIds, classIds }: any) => { const r = applyType({ ...rows.get(id), ...data, ...(branchIds ? { branchIds } : {}), ...(classIds ? { classIds } : {}) }); rows.set(id, r); return r; },
+        listRemindersFor: async () => [],
         deleteDraft: async (id: string) => { rows.delete(id); },
     };
     const session: any = { id: SID, name: "2026/2027", terms: [{ id: TID, name: "first", sessionId: SID }] };
@@ -105,7 +109,7 @@ function world(seed: any[] = []) {
     const branchRepository: any = { findMany: async (w: any) => [B1, B2].filter(b => w.id.in.includes(b)).map(id => ({ id })) };
     const classRepository: any = { findAllClasses: async () => [{ id: C1, branchId: B1 }] };
     const auditService: any = { log: async (p: any) => { audits.push(p); } };
-    const deps: any = { eventRepository, sessionRepository, branchRepository, classRepository, eventMapper: new EventMapper(), auditService };
+    const deps: any = { eventRepository, eventTypeRepository: typeRepository(), sessionRepository, branchRepository, classRepository, eventMapper: new EventMapper(), auditService };
     const persona = (r: any[]) => ({ findMany: async () => r });
     deps.eventViewerService = new EventViewerService({ studentRepository: persona([]) as any, guardianRepository: persona([]) as any, staffRepository: persona([]) as any });
     deps.cancelEventUseCase = new CancelEventUseCase(deps);
@@ -234,5 +238,92 @@ describe("events source rules", () => {
     it("the events module never reaches the database client directly", () => {
         const bad = files(join(root, "events")).filter(f => /usecases|controllers/.test(f) && /prisma\.client/.test(readFileSync(f, "utf8")));
         assert.deepEqual(bad, []);
+    });
+});
+
+describe("events with school-managed types (stage E3)", () => {
+    const create = (w: any, o: any = {}) => new CreateEventUseCase(w.deps).execute("s", dto(o) as any, actor, all);
+    const viewer: any = { ...access([], "ALL"), persona: "STAFF", personaEntityId: "t1" };
+
+    it("a custom type by key: the response has type = its key and the full eventType; it is not a holiday", async () => {
+        const w = world(); const out: any = await create(w, { type: "quiz" });
+        assert.equal(out.type, "quiz"); assert.equal(out.isHoliday, false);
+        assert.deepEqual(out.eventType, { id: QUIZ_ID, key: "quiz", name: "Quiz", color: "#123456", icon: "star", isSystem: false, isActive: true });
+        assert.equal(w.rows.get(out.id).eventTypeId, QUIZ_ID);
+        assert.equal(w.rows.get(out.id).type, "other");                         // the enum mirror
+        assert.equal(w.audits[0].newValue.type, "quiz");
+    });
+    it("a type by id works, no type means \"event\", and an unknown or inactive type is refused", async () => {
+        const w = world();
+        assert.equal(((await create(w, { type: undefined, eventTypeId: QUIZ_ID })) as any).type, "quiz");
+        assert.equal(((await create(w, { type: undefined })) as any).type, "event");
+        await assert.rejects(create(w, { type: "nope" }), code("EVENT_TYPE_UNKNOWN"));
+        await assert.rejects(create(w, { type: undefined, eventTypeId: "00000000-0000-4000-8000-0000000000ff" }), code("EVENT_TYPE_UNKNOWN"));
+        await assert.rejects(create(w, { type: "old-type" }), code("EVENT_TYPE_INACTIVE"));
+    });
+    it("holiday is decided by the system holiday type only: it must be school-wide; a custom type never makes a holiday", async () => {
+        const w = world();
+        const h: any = await create(w, { type: "holiday" });
+        assert.equal(h.isHoliday, true); assert.equal(h.eventType.id, HOLIDAY_TYPE_ID);
+        await assert.rejects(create(w, { type: "holiday", audienceKinds: ["STUDENTS"] }), code("EVENT_HOLIDAY_NOT_SCHOOL_WIDE"));
+        assert.equal(((await create(w, { type: "quiz", audienceKinds: ["STUDENTS"] })) as any).isHoliday, false);
+    });
+    it("update: a draft can change type (both ways); a published event cannot enter or leave the holiday type, but can move between other types", async () => {
+        const w = world(); const up = new UpdateEventUseCase(w.deps);
+        const draft: any = await create(w, { type: "event" });
+        assert.equal(((await up.execute("s", draft.id, { type: "holiday" } as any, actor, all)) as any).isHoliday, true);
+        assert.equal(((await up.execute("s", draft.id, { type: "quiz" } as any, actor, all)) as any).isHoliday, false);
+        const pub = w.base("p1", { startDate: d("2026-12-01"), status: "PUBLISHED", type: "exam", publishedAt: d("2026-01-01") }); w.rows.set("p1", applyType(pub));
+        await assert.rejects(up.execute("s", "p1", { type: "holiday" } as any, actor, all), code("EVENT_HOLIDAY_TYPE_LOCKED"));
+        assert.equal(((await up.execute("s", "p1", { type: "quiz" } as any, actor, all)) as any).type, "quiz");
+        w.rows.set("p2", applyType(w.base("p2", { startDate: d("2026-12-01"), status: "PUBLISHED", type: "holiday" })));
+        await assert.rejects(up.execute("s", "p2", { type: "exam" } as any, actor, all), code("EVENT_HOLIDAY_TYPE_LOCKED"));
+        assert.equal(((await up.execute("s", "p2", { type: "holiday", title: "Renamed" } as any, actor, all)) as any).title, "Renamed");      // same type is not a change
+    });
+    it("update: an event keeps an inactive type it already has, but cannot be moved to an inactive one", async () => {
+        const w = world(); const up = new UpdateEventUseCase(w.deps);
+        w.rows.set("o1", applyType(w.base("o1", { startDate: d("2026-12-01"), status: "DRAFT", eventTypeId: OLD_ID })));
+        const out: any = await up.execute("s", "o1", { title: "Still fine", type: "old-type" } as any, actor, all);
+        assert.equal(out.eventType.key, "old-type"); assert.equal(out.eventType.isActive, false);
+        w.rows.set("o2", applyType(w.base("o2", { startDate: d("2026-12-01"), status: "DRAFT", type: "exam" })));
+        await assert.rejects(up.execute("s", "o2", { type: "old-type" } as any, actor, all), code("EVENT_TYPE_INACTIVE"));
+    });
+    it("list filters by type key or by type id", async () => {
+        const w = world(); const seen: any[] = []; const find = w.deps.eventRepository.findMany;
+        w.deps.eventRepository.findMany = async (where: any) => { seen.push(where); return find(where); };
+        const list = new ListEventsUseCase(w.deps);
+        await list.execute({ type: "quiz" } as any, all); await list.execute({ eventTypeId: QUIZ_ID } as any, all);
+        assert.deepEqual(seen[0].eventType, { key: "quiz" }); assert.equal(seen[0].type, undefined);
+        assert.equal(seen[1].eventTypeId, QUIZ_ID);
+    });
+    it("only managers get publishNoticeSentAt and the reminder summary (current revision only)", async () => {
+        const w = world();
+        w.rows.set("m1", applyType(w.base("m1", { startDate: d("2026-12-01"), status: "PUBLISHED", type: "exam", revision: 2, publishNoticeSentAt: d("2026-02-02") })));
+        w.deps.eventRepository.listRemindersFor = async () => [
+            { eventId: "m1", revision: 2, status: "SENT" }, { eventId: "m1", revision: 2, status: "PENDING" }, { eventId: "m1", revision: 2, status: "SKIPPED" },
+            { eventId: "m1", revision: 1, status: "SENT" }, { eventId: "other", revision: 2, status: "SENT" }];
+        const mgr: any = await new GetEventUseCase(w.deps).execute("m1", all);
+        assert.deepEqual(mgr.reminders, { pending: 1, sent: 1, skipped: 1, failed: 0, cancelled: 0 });
+        assert.equal(mgr.publishNoticeSentAt.toISOString(), d("2026-02-02").toISOString());
+        const plain: any = await new GetEventUseCase(w.deps).execute("m1", viewer);
+        assert.ok(!("reminders" in plain) && !("publishNoticeSentAt" in plain));
+        assert.ok("type" in plain && "eventType" in plain && "isHoliday" in plain);
+    });
+    it("legacy routes: isHoliday: true with a non-holiday type is a 400; the old response shape is unchanged", async () => {
+        const w = world(); const actorS: any = { userId: "u1" };
+        const legacyCreate = new CreateCalendarEventUseCase(w.deps);
+        await assert.rejects(legacyCreate.execute("s", { title: "x", type: "exam", startDate: "2026-12-01", isHoliday: true } as any, actorS), code("EVENT_HOLIDAY_REQUIRES_HOLIDAY_TYPE"));
+        const ok: any = await legacyCreate.execute("s", { title: "Term break", type: "holiday", startDate: "2026-12-01", isHoliday: true } as any, actorS);
+        assert.equal(ok.isHoliday, true);
+        assert.deepEqual(Object.keys(ok).sort(), ["createdAt", "description", "endDate", "id", "isHoliday", "startDate", "term", "session", "title", "type"].sort());
+        w.rows.set("L1", applyType(w.base("L1", { startDate: d("2026-12-01"), status: "PUBLISHED", type: "exam" })));
+        await assert.rejects(new UpdateCalendarEventUseCase(w.deps).execute("s", "L1", { isHoliday: true } as any, actorS), code("EVENT_HOLIDAY_REQUIRES_HOLIDAY_TYPE"));
+        w.rows.set("L2", applyType(w.base("L2", { startDate: d("2026-12-01"), status: "PUBLISHED", eventTypeId: QUIZ_ID })));
+        assert.equal(((await new UpdateCalendarEventUseCase(w.deps).execute("s", "L2", { title: "Quiz night" } as any, actorS)) as any).type, "other");      // custom types look like "other" to the old routes
+    });
+    it("the new API no longer takes isHoliday, and the response still reports it (read-only)", () => {
+        const dtoSrc = readFileSync(join(__dirname, "../../src/modules/events/dtos/event.dto.ts"), "utf8");
+        assert.doesNotMatch(dtoSrc, /isHoliday/);
+        assert.match(readFileSync(join(__dirname, "../../src/modules/events/mappers/event.mapper.ts"), "utf8"), /isHoliday: e\.isHoliday/);
     });
 });

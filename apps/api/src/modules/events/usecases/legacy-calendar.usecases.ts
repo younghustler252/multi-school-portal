@@ -6,6 +6,7 @@ import { IEventRepository } from "../repositories/event.repository";
 import { EventMapper, LegacyCalendarEventResponseData } from "../mappers/event.mapper";
 import { CalendarEventEntity } from "../domain/event.entity";
 import { scheduleChanged } from "../domain/event.policy";
+import { eventErrors } from "../domain/event.errors";
 import { CreateCalendarEventDtoType, UpdateCalendarEventDtoType, ListCalendarEventsQueryType } from "../dtos/legacy-calendar.dto";
 import { CancelEventUseCase } from "./events.usecases";
 import type { EventReminderService } from "../services/event-reminder.service";
@@ -50,9 +51,10 @@ export class CreateCalendarEventUseCase {
         }
         if (sessionId && !(await sessions.findSessionById(sessionId))) throw sessionErrors.sessionNotFound();
 
+        if (dto.isHoliday && dto.type !== "holiday") throw eventErrors.holidayRequiresHolidayType();      // it used to be silently accepted; the flag is derived from the type now
         const created = await repo.create({ data: {
             title: dto.title, description: dto.description, startDate: new Date(dto.startDate), endDate: dto.endDate ? new Date(dto.endDate) : undefined,
-            type: dto.type, isHoliday: dto.type === "holiday" || !!dto.isHoliday, termId: dto.termId ?? null, sessionId, createdById: actor.userId,
+            type: dto.type, isHoliday: dto.type === "holiday", termId: dto.termId ?? null, sessionId, createdById: actor.userId,
             status: "PUBLISHED", isAllDay: true, audienceKinds: ["EVERYONE"], publishedAt: new Date(), publishedById: actor.userId, updatedById: actor.userId,
         } });
         await this.d.auditService.log({ userId: actor.userId, schoolId, action: "calendar_event.created", entity: "CalendarEvent", entityId: created.id, newValue: { title: dto.title, type: dto.type, startDate: dto.startDate } });
@@ -79,8 +81,8 @@ export class UpdateCalendarEventUseCase {
         if (dto.startDate !== undefined && day(start) !== day(event.startDate)) { data.startDate = start; before.startDate = day(event.startDate); after.startDate = day(start); }
         if (dto.endDate !== undefined && day(end) !== day(event.endDate)) { data.endDate = end; before.endDate = day(event.endDate); after.endDate = day(end); }
         const type = (dto.type ?? event.type) as string;
-        const holiday = type === "holiday" || (dto.isHoliday ?? event.isHoliday);
-        set("isHoliday", holiday, event.isHoliday);
+        if (dto.isHoliday === true && type !== "holiday") throw eventErrors.holidayRequiresHolidayType();
+        set("isHoliday", type === "holiday", event.isHoliday);          // derived from the type (the database does the same)
         if (Object.keys(data).length === 0) return (await present(this.d, [event]))[0];
 
         // A moved date is a new schedule revision (reminders belong to a revision)

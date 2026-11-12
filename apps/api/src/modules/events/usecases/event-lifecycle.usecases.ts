@@ -13,7 +13,7 @@ import { RescheduleEventDtoType, CancelEventDtoType } from "../dtos/event.dto";
 import { EventReminderService } from "../services/event-reminder.service";
 import { EventNoticeService, NoticeOutcome } from "../services/event-notice.service";
 import { CancelEventUseCase, EventActor } from "./events.usecases";
-import { nameLookup } from "./event-presenter";
+import { managerExtras, nameLookup } from "./event-presenter";
 
 export type LifecycleNotice = NoticeOutcome | { sent: false; reason: "already_started" } | null;
 interface Deps {
@@ -25,7 +25,7 @@ const day = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : null);
 async function timeZoneOf(d: Deps, schoolId: string): Promise<string> { return (await d.schoolRepository.findById(schoolId))?.timezone || "UTC"; }
 async function present(d: Deps, e: CalendarEventEntity): Promise<EventResponseData> {
     const n = (await nameLookup(d.sessionRepository, [e]))(e);
-    return d.eventMapper.toResponse(e, n.term, n.session);
+    return d.eventMapper.toResponse(e, n.term, n.session, (await managerExtras(d.eventRepository, [e]))(e));     // these actions need events.manage / events.publish, so the caller is a manager
 }
 const load = async (d: Deps, id: string) => { const e = await d.eventRepository.findById(id); if (!e) throw eventErrors.notFound(); return e; };
 

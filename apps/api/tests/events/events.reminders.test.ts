@@ -122,7 +122,7 @@ describe("event cover image", () => {
     const all: any = { can: () => true, scopeOf: () => "ALL", branchScope: () => "ALL" };
     function world(status = "PUBLISHED") {
         const row: any = ev({ status }); const uploads: any[] = [], audits: any[] = [];
-        const eventRepository: any = { findById: async () => row, update: async (_id: string, w: any) => Object.assign(row, w.data) };
+        const eventRepository: any = { listRemindersFor: async () => [], findById: async () => row, update: async (_id: string, w: any) => Object.assign(row, w.data) };
         const deps: any = { eventRepository, eventMapper: new EventMapper(), auditService: { log: async (p: any) => { audits.push(p); } }, eventCoverBucket: "pub", storageService: { upload: async (o: any) => { uploads.push(o); return { url: "https://cdn/x.png" }; } } };
         return { row, uploads, audits, up: new UploadEventCoverUseCase(deps), rm: new RemoveEventCoverUseCase(deps) };
     }

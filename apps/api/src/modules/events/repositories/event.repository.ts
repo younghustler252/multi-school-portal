@@ -26,4 +26,6 @@ export interface IEventRepository {
     claimDueReminders(now: Date, limit: number): Promise<ReminderRow[]>;
     finishReminder(id: string, status: "SENT" | "SKIPPED" | "CANCELLED" | "FAILED" | "PENDING", note?: string | null): Promise<void>;
     listReminders(eventId: string): Promise<ReminderRow[]>;
+    /** The reminder rows of many events in one query (for the manager summary). */
+    listRemindersFor(eventIds: string[]): Promise<ReminderRow[]>;
 }

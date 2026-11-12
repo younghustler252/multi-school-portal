@@ -457,3 +457,14 @@ Verification: `tests/events/event-types.test.ts` (policy, use cases, permission 
 (two real schools: isolation, name clashes, in-use and system protection, cap under concurrent creates; runs where `TEST_DATABASE_URL` is set) and
 `scripts/db/verify-event-types-cap.sh` (real PostgreSQL, parallel sessions running the same lock, count, insert sequence; a control run without the lock must overrun the cap).
 Events themselves still use the enum `type` until stage E3.
+
+## Implemented: stage E3 (events use the types)
+
+* Events are written with `eventTypeId` (resolved from the request's `type` key or `eventTypeId`); the database keeps the enum mirror `type` and `isHoliday` in step. `isHoliday` is derived from the system holiday type and is no longer accepted by `POST`/`PATCH /events`.
+* Responses: `type` is the type's key (custom keys included) and `eventType { id, key, name, color, icon, isSystem, isActive }` is added. Filters: `?type=<key>`, `?eventTypeId=<id>`.
+* An event keeps an inactive type it already has; choosing or moving to an inactive type is `EVENT_TYPE_INACTIVE`; an unknown one is `EVENT_TYPE_UNKNOWN` (400).
+* A published event cannot enter or leave the holiday type: `EVENT_HOLIDAY_TYPE_LOCKED` (409), checked in the use case and backed by the database trigger (also mapped on the old routes). Drafts change freely.
+* Old routes: same shapes (custom types show as `other`); `isHoliday: true` with a non-holiday type is `EVENT_HOLIDAY_REQUIRES_HOLIDAY_TYPE` (400).
+* Manager responses add `publishNoticeSentAt` and a reminder summary for the current revision (one extra query per response; none for other people).
+* Attendance is unchanged: it still reads `isHoliday: true, status: "PUBLISHED"`, never a type name. Tests pin this and show a custom type cannot make a holiday.
+* Frontend guide: `docs/frontend/EVENT_TYPES_API.md`. Not done, by design: the contract migration (NOT NULL `eventTypeId` and dropping the enum), which needs its own approval.

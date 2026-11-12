@@ -111,6 +111,7 @@ function lifeWorld(seed: any[], opts: any = {}) {
     const nw = notifyWorld(opts);
     const rows = new Map<string, any>(seed.map(r => [r.id, r]));
     const eventRepository: any = {
+        listRemindersFor: async () => [],
         findById: async (id: string) => rows.get(id) ?? null,
         update: async (id: string, { data }: any) => { const r = { ...rows.get(id), ...data }; rows.set(id, r); return r; },
     };
