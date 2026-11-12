@@ -90,3 +90,9 @@ Frontend milestone/feature branches -> `refactor/web` -> `refactor/modules`. Bac
 - Deliberately no rule: `/guardian/notifications`, `/teacher/notifications` (own inbox), `/student/dashboard` (no student dashboard permission; `school.dashboard.view` is STAFF-only).
 - Still unguarded: `/home`, `/settings`. Role-named folders are not renamed or moved (cannot be verified without a build in my sandbox); next: map pages to feature routes and redirect old paths.
 - Branch: PR #2 is merged into `refactor/web`; M3 merged that back in (no rewrite).
+
+## M3b (branch `phase2/m3b-feature-routes`, contains M3)
+- `lib/routes.ts` is the single registry. Old role-named folders moved with `git mv`: `school-admin`->`school`, `teacher`->`teaching` (`my-classes`->`classes`), `bursar`->`finance`, `principal`->`insights`, `guardian`->`family` (`report-card`->`report-cards`), `student`->`learning`. Old URLs redirect (308) in middleware via `legacyRedirect`. Names are feature/area names and can be changed in that one file.
+- 34 files had hard-coded paths; all now use `ROUTES`. Nav, guards, protected prefixes, robots disallow list and default landing pages derive from it.
+- Platform branding: web called `/platform-settings` but the backend route is `/platform/settings` (public GET, super-admin PUT); fixed. `usePlatformInfo()` / `<PlatformName />` supply name, logo, support contact and legal links; defaults (config/company.json) only show while loading or on failure. Site address derives from `NEXT_PUBLIC_BASE_DOMAIN`.
+- Roadmap: `docs/frontend/ROADMAP.md`.

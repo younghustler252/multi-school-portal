@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PlatformName } from "@/components/layout/platform-name";
 
 export function InstallAppPrompt() {
 	const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -23,7 +24,7 @@ export function InstallAppPrompt() {
 
 	return (
 		<div className="fixed bottom-4 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 rounded-full border border-border bg-card px-4 py-2 shadow-lg">
-			<span className="text-sm">Install SchoolOS for quick access</span>
+			<span className="text-sm">Install <PlatformName /> for quick access</span>
 			<Button size="sm" onClick={async () => { deferredPrompt?.prompt(); setVisible(false); }}>
 				<Download className="size-3.5" /> Install
 			</Button>

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/layout/logo";
-import { COMPANY } from "@/config/company";
+import { PlatformName } from "@/components/layout/platform-name";
 import { userApi } from "@/features/user/services/user.api";
 import { useAuthStore } from "@/stores/auth.store";
 import { isApiError } from "@/lib/api/api-error";
@@ -68,7 +68,7 @@ export default function ChangePasswordPage() {
 			<div className="w-full max-w-sm">
 				<div className="mb-8 flex flex-col items-center text-center">
 					<Logo size={36} />
-					<span className="mt-2 text-lg font-semibold">{COMPANY.name}</span>
+					<span className="mt-2 text-lg font-semibold"><PlatformName /></span>
 					<div className="mt-6 grid size-12 place-items-center rounded-full bg-warning/15">
 						<ShieldAlert className="size-6 text-warning-foreground" />
 					</div>

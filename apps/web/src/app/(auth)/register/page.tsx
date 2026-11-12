@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Logo } from "@/components/layout/logo";
 import { COMPANY } from "@/config/company";
+import { PlatformName } from "@/components/layout/platform-name";
 import { useAuthStore } from "@/stores/auth.store";
 import { useRegisterForm } from "@/features/auth/hooks/use-register-form";
 import { RegisterStepper } from "@/components/marketing/register-stepper";
@@ -96,7 +97,7 @@ export default function RegisterPage() {
 
 				<div className="mt-8 flex items-center gap-2">
 					<Logo size={36} />
-					<span className="font-semibold tracking-tight">{COMPANY.name}</span>
+					<span className="font-semibold tracking-tight"><PlatformName /></span>
 				</div>
 
 				<h1 className="mt-8 text-3xl font-semibold tracking-tight">Register your school</h1>
@@ -322,7 +323,7 @@ export default function RegisterPage() {
 				</div>
 
 				<p className="mt-6 text-center text-sm text-muted-foreground">
-					Already have a school on {COMPANY.name}?{" "}
+					Already have a school on <PlatformName />?{" "}
 					<Link href="/login" className="font-medium text-primary hover:underline">
 						Log in
 					</Link>

@@ -6,7 +6,7 @@ import { Menu, LayoutDashboard } from "lucide-react";
 import { Logo } from "@/components/layout/logo";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { COMPANY } from "@/config/company";
+import { PlatformName } from "@/components/layout/platform-name";
 import { getLastPortal } from "@/lib/last-portal-storage";
 import { buildSubdomainUrl } from "@/lib/subdomain-url";
 import { ROUTES } from "@/lib/routes";
@@ -37,7 +37,7 @@ export function Navbar() {
 			<div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-6">
 				<Link href="/" className="flex items-center gap-2">
 					<Logo size={28} />
-					<span className="font-semibold tracking-tight">{COMPANY.name}</span>
+					<span className="font-semibold tracking-tight"><PlatformName /></span>
 				</Link>
 
 				<nav className="hidden items-center gap-8 text-sm font-medium md:flex">

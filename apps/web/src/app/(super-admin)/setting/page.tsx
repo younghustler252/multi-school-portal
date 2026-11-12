@@ -67,7 +67,7 @@ export default function PlatformSettingsPage() {
 	if (isLoading) {
 		return (
 			<>
-				<PageHeader title="Platform settings" description="Configure global settings for the SchoolOS platform." />
+				<PageHeader title="Platform settings" description="Configure global settings for the platform." />
 				<div className="space-y-4">
 					<Skeleton className="h-48 rounded-xl" />
 					<Skeleton className="h-48 rounded-xl" />
@@ -81,7 +81,7 @@ export default function PlatformSettingsPage() {
 		<>
 			<PageHeader
 				title="Platform settings"
-				description="Configure global settings for the SchoolOS platform."
+				description="Configure global settings for the platform."
 				actions={
 					<Button onClick={handleSave} className="w-full sm:w-auto" disabled={updateSettings.isPending}>
 						{updateSettings.isPending && <Loader2 className="size-4 animate-spin" />}
