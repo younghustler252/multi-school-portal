@@ -420,6 +420,10 @@ It follows 12.2, 12.3 and 12.9: one SQL catalog (`event_type_system_catalog()`) 
 backfilled; stray holiday flags are normalised with a notice (expected zero rows). Nothing is dropped. The TypeScript mirror of the catalog is
 `modules/events/domain/event-type.catalog.ts`.
 
+Review fix `20261110090100_event_types_guard_id`: the guard also rejects any change of `id` (system and custom rows). Without it an `UPDATE` of an id would cascade
+into `CalendarEvent.eventTypeId` while the catalog, the TypeScript constant and any client holding the id kept the old value. A separate migration, so schools that
+already ran the first one receive it; the verification script covers both cases and fails against the unfixed guard.
+
 Until stage E3 the application code still writes `type` and the legacy `isHoliday` flag. The trigger makes that safe (the mirror and `isHoliday` always follow the
 type) with one visible difference: a create or update that sends `isHoliday: true` with a non-holiday type no longer produces a holiday. E3 turns that case into a
 clear 400 on the legacy routes and removes the field from the new API.

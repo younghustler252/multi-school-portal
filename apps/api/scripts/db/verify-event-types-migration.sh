@@ -15,7 +15,8 @@ expect_error() { local out; if out=$(PGOPTIONS="-c search_path=$1" $PSQL -At -c 
 
 $PSQL -c "SET client_min_messages=warning; DROP SCHEMA IF EXISTS evtype_old CASCADE; DROP SCHEMA IF EXISTS evtype_fresh CASCADE; CREATE SCHEMA evtype_old; CREATE SCHEMA evtype_fresh;"
 ALL=$(ls "$M" | grep -v toml)
-BEFORE=$(echo "$ALL" | grep -v "^$NEW$")
+BEFORE=$(echo "$ALL" | awk -v n="$NEW" '$0 < n')
+AFTER=$(echo "$ALL" | awk -v n="$NEW" '$0 > n')   # later fixes (e.g. the id guard) apply on top of the expand migration
 
 # --- existing school: old rows first, then the new migration
 run_schema evtype_old $BEFORE
@@ -28,6 +29,7 @@ sql evtype_old "INSERT INTO \"CalendarEvent\"(id,title,\"startDate\",type,\"isHo
  ('s2','Unflagged holiday','2030-12-06','holiday',false,'PUBLISHED',now())" >/dev/null
 OUT=$(PGOPTIONS="-c search_path=evtype_old" $PSQL -1 -f "$M/$NEW/migration.sql" 2>&1)
 echo "$OUT" | grep -q "1 flagged-holiday event(s) moved to the holiday type, 1 holiday-type event(s) flagged" || fail "preflight notice missing: $OUT"
+[ -z "$AFTER" ] || run_schema evtype_old $AFTER
 expect backfill "$(sql evtype_old "SELECT string_agg(id||':'||type||':'||(SELECT key FROM \"CalendarEventType\" WHERE id=\"eventTypeId\")||':'||\"isHoliday\", ',' ORDER BY id) FROM \"CalendarEvent\"")" \
   "c1:sports:sports:false,d1:meeting:meeting:false,h1:holiday:holiday:true,s1:holiday:holiday:true,s2:holiday:holiday:true,x1:exam:exam:false"
 expect "status kept" "$(sql evtype_old "SELECT string_agg(id||status,',' ORDER BY id) FROM \"CalendarEvent\"")" "c1CANCELLED,d1DRAFT,h1PUBLISHED,s1PUBLISHED,s2PUBLISHED,x1PUBLISHED"
@@ -46,6 +48,9 @@ for S in evtype_old evtype_fresh; do
   expect_error $S "custom with system key" "INSERT INTO \"CalendarEventType\"(id,key,name,\"nameKey\",\"updatedAt\") VALUES ('z2','holiday','Day off','day off',now())" EVENT_TYPE_PROTECTED
   sql $S "INSERT INTO \"CalendarEventType\"(id,key,name,\"nameKey\",color,icon,\"updatedAt\") VALUES ('cu1','inter-house-quiz','Inter-house Quiz','inter-house quiz','#12AB34','trophy',now())" >/dev/null
   expect_error $S "promote custom" "UPDATE \"CalendarEventType\" SET \"isSystem\"=true WHERE id='cu1'" EVENT_TYPE_PROTECTED
+  expect_error $S "change a system type id" "UPDATE \"CalendarEventType\" SET id='00000000-0000-4000-8000-0000000000aa' WHERE key='exam'" EVENT_TYPE_PROTECTED
+  expect_error $S "change a custom type id" "UPDATE \"CalendarEventType\" SET id='cu1-renamed' WHERE id='cu1'" EVENT_TYPE_PROTECTED
+  expect "$S events keep their type after refused id change" "$(sql $S "SELECT count(*) FROM \"CalendarEvent\" WHERE \"eventTypeId\"='00000000-0000-4000-8000-000000000003'")" "$(sql $S "SELECT count(*) FROM \"CalendarEvent\" WHERE type='exam'")"
   expect_error $S "change key" "UPDATE \"CalendarEventType\" SET key='quiz' WHERE id='cu1'" EVENT_TYPE_PROTECTED
   expect_error $S "duplicate name ignoring case/spacing" "INSERT INTO \"CalendarEventType\"(id,key,name,\"nameKey\",\"updatedAt\") VALUES ('cu2','sport-two','SPORTS','sports',now())" "nameKey"
   expect_error $S "bad colour" "UPDATE \"CalendarEventType\" SET color='red' WHERE id='cu1'" color_format

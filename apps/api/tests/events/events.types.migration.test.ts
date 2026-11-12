@@ -33,10 +33,19 @@ describe("event types migration (static)", () => {
     });
     it("the migration sorts after every earlier one and the schema models the new table and relation", () => {
         const names = readdirSync(dir).filter(n => n !== "migration_lock.toml").sort();
-        assert.equal(names.at(-1), "20261110090000_event_types_catalog");
+        assert.deepEqual(names.slice(-2), ["20261110090000_event_types_catalog", "20261110090100_event_types_guard_id"]);
         const prisma = readFileSync(join(process.cwd(), "prisma", "tenant.prisma"), "utf8");
         assert.match(prisma, /model CalendarEventType \{/);
         assert.match(prisma, /eventType CalendarEventType\? @relation\(fields: \[eventTypeId\], references: \[id\], onDelete: Restrict\)/);
+    });
+    it("the id-guard fix makes ids immutable for every row and leaves the rest of the guard as it was", () => {
+        const fix = readFileSync(join(dir, "20261110090100_event_types_guard_id", "migration.sql"), "utf8");
+        assert.match(fix, /CREATE OR REPLACE FUNCTION calendar_event_type_guard\(\)/);
+        assert.match(fix, /NEW\."id" <> OLD\."id" OR NEW\."key" <> OLD\."key" OR NEW\."isSystem" <> OLD\."isSystem"/);
+        assert.doesNotMatch(fix, /\bDROP\b|CREATE TRIGGER|CREATE TABLE/i);
+        // the replaced body equals the original except for the id check
+        const body = (t: string) => t.slice(t.indexOf("RETURNS trigger"), t.indexOf("$$;", t.indexOf("RETURNS trigger") + 60) + 3);
+        assert.equal(body(fix).replace('NEW."id" <> OLD."id" OR ', "").replace("the id, key and system flag", "the key and the system flag"), body(sql));
     });
     it("attendance still reads only isHoliday and status, never a type name or label", () => {
         const repo = readFileSync(join(process.cwd(), "src", "modules", "attendance", "repositories", "attendance.repository.ts"), "utf8");
