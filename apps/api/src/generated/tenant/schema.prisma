@@ -221,8 +221,8 @@ model CalendarEvent {
   description String?
   startDate   DateTime
   endDate     DateTime?
-  type        EventType @default(event)
-  isHoliday   Boolean   @default(false)
+  type        EventType @default(event) // legacy mirror, maintained by a database trigger from eventTypeId (migration 20261110090000); app code writes eventTypeId
+  isHoliday   Boolean   @default(false) // derived by the same trigger: true exactly for the system "holiday" type
   createdById String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -245,7 +245,9 @@ model CalendarEvent {
   cancelledById          String?
   cancelReason           String?
   updatedById            String?
+  eventTypeId            String? // nullable during the expand step; the contract migration makes it required
 
+  eventType CalendarEventType?      @relation(fields: [eventTypeId], references: [id], onDelete: Restrict)
   term      Term?                   @relation(fields: [termId], references: [id])
   session   Session?                @relation(fields: [sessionId], references: [id])
   branches  CalendarEventBranch[]
@@ -255,6 +257,25 @@ model CalendarEvent {
   @@index([startDate])
   @@index([termId])
   @@index([status, startDate])
+  @@index([eventTypeId])
+}
+
+// School-managed event types. System rows (isSystem) come from the SQL catalog in the migration and are sealed by a trigger: never renamed,
+// deactivated or deleted, and a custom row can never become system. A type that events use can never be deleted (Restrict).
+model CalendarEventType {
+  id          String   @id @default(uuid())
+  key         String   @unique // stable identifier, never changes
+  name        String // display label
+  nameKey     String   @unique // lowercased, space-collapsed name: unique ignoring case and spacing
+  color       String? // #RRGGBB
+  icon        String? // identifier from the frontend's icon set
+  isSystem    Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  events CalendarEvent[]
 }
 
 enum CalendarEventStatus {

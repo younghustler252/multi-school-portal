@@ -239,7 +239,22 @@ exports.Prisma.CalendarEventScalarFieldEnum = {
   cancelledAt: 'cancelledAt',
   cancelledById: 'cancelledById',
   cancelReason: 'cancelReason',
-  updatedById: 'updatedById'
+  updatedById: 'updatedById',
+  eventTypeId: 'eventTypeId'
+};
+
+exports.Prisma.CalendarEventTypeScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  name: 'name',
+  nameKey: 'nameKey',
+  color: 'color',
+  icon: 'icon',
+  isSystem: 'isSystem',
+  isActive: 'isActive',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.CalendarEventBranchScalarFieldEnum = {
@@ -1814,6 +1829,7 @@ exports.Prisma.ModelName = {
   Guardian: 'Guardian',
   StudentGuardian: 'StudentGuardian',
   CalendarEvent: 'CalendarEvent',
+  CalendarEventType: 'CalendarEventType',
   CalendarEventBranch: 'CalendarEventBranch',
   CalendarEventClass: 'CalendarEventClass',
   CalendarEventReminder: 'CalendarEventReminder',
