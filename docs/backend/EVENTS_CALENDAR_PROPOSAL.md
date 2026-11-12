@@ -1,6 +1,6 @@
 # School Events & Calendar: architecture proposal
 
-Status: **proposal, before implementation.** Backend only. Branch `feat/api/events-calendar`, cut from `refactor/modules` at `5390a4c` (agreed).
+Status: **Steps A to D are implemented and merged into `refactor/api`** (see "Implemented" below); **section 12 (school-managed event types) is a reviewed proposal, not yet implemented.** Backend only. Branch `feat/api/events-calendar`, cut from `refactor/modules` at `5390a4c` (agreed).
 Recurring events are deliberately **Phase 2** of the product (agreed); section 9 shows why nothing here blocks them.
 
 ---
@@ -92,7 +92,7 @@ New routes under `/events` (the legacy session routes remain as in section 2):
 | `POST /events/:id/publish` | `events.publish` | draft to published; schedules reminders; notifies |
 | `POST /events/:id/cancel` (`reason`, `notify`) | `events.publish` | published to cancelled; cancels pending reminders; notifies |
 | `DELETE /events/:id` | `events.manage` | **drafts only**; published events are cancelled, never erased |
-| `GET /events/:id/audience-preview` | `events.manage` | how many people, per kind and per channel, before publishing |
+| `GET /events/:id/audience` | `events.manage` | how many people, per kind and per channel, before publishing |
 
 All bodies are validated with Zod DTOs; contracts go into `packages/contracts` the way the other modules do.
 
@@ -124,7 +124,7 @@ Rows are written first and queued after, so a queue outage never loses or duplic
 - On **publish** (switch on or off), one `CalendarEventReminder` row per offset for the current revision, `dueAt` computed in the school's timezone from the start date and time. For all-day events the base is 08:00 local on the start date, so "1 day before" is 08:00 the previous day. Offsets already past are not created.
 - On **reschedule**: pending rows of the old revision become `CANCELLED`; new rows are created for the new revision. On **cancel**: pending rows become `CANCELLED`.
 - New queue `event-reminders`, one repeating job every 5 minutes (`upsertJobScheduler`, never duplicated). Per provisioned school, in its tenant context: claim due rows (`PENDING` and `dueAt <= now`) with `FOR UPDATE SKIP LOCKED`, mark `PROCESSING`, resolve the audience **at send time** (people who joined or left since publishing are handled), dispatch with the keys above, mark `SENT`.
-- Failure: back to `PENDING` with `attempts + 1`, `FAILED` after 5. `PROCESSING` rows older than 15 minutes are re-claimed; the dispatch keys make a double send impossible.
+- Failure: back to `PENDING` with `attempts + 1`, `FAILED` after 3 tries. `PROCESSING` rows older than 30 minutes are put back to `PENDING`; the dispatch keys make a double send impossible.
 - Late worker: if the event has already started, the reminder is marked `CANCELLED` rather than sent; reminders only go out between `dueAt` and the event start.
 - Defensive checks at send time: event still `PUBLISHED` and row's revision equals the event's revision, otherwise the row is cancelled.
 - Cost note: each tick runs one cheap `EXISTS` query per school. Fine at current scale; a platform-level index of "schools with due reminders" is the upgrade path if the school count grows large.
@@ -160,7 +160,7 @@ Principle: **the switch is checked when a message is about to be sent, and turni
 - Reminder rows are created at publish whether the switch is on or off (they are just derived data). 
 - When a reminder falls due, the worker checks the switch and the channel policy. **Off:** the row becomes `SKIPPED` with the reason recorded; it is never sent later. **On:** it is sent.
 - So if the switch is turned on after publication, every reminder that is **still in the future** goes out normally; reminders that were already due while it was off stay `SKIPPED`. If it is turned off again, the next due reminders are skipped, and already `SENT` ones are untouched. No scan or backfill job is needed.
-- The **publish notice** is not retroactive. While the switch is off, publishing records `publishNoticeSentAt = null`. After the switch is turned on, a manager can send it deliberately: `POST /events/:id/notify` (`events.publish`, body `{ "kind": "published" | "rescheduled" | "cancelled" }`). It is refused for events that already started, uses the same idempotency keys as the automatic notice (so it can never double-send), and is audited. Managers see in `GET /events` whether the notice was sent and how many reminders are pending, sent or skipped.
+- The **publish notice** is not retroactive. While the switch is off, publishing records `publishNoticeSentAt = null`. After the switch is turned on, a manager can send it deliberately: `POST /events/:id/notify` (`events.publish`, body `{ "kind": "published" | "rescheduled" | "cancelled" }`). It is refused for events that already started, uses the same idempotency keys as the automatic notice (so it can never double-send), and is audited. Managers will see in `GET /events` whether the notice was sent and how many reminders are pending, sent or skipped (**not in the Step B to D responses; added in stage E3** as `publishNoticeSentAt` and a reminder summary, visible to event managers only).
 - Reschedule and cancel notices follow the same rule: not sent while the switch is off, and available through the same manual endpoint afterwards.
 - Nothing runs when the setting changes; the change itself is audited by the settings engine.
 
@@ -274,7 +274,7 @@ New table `CalendarEventType`:
 now as a **mirror** (see 12.3) so nothing that reads it breaks.
 
 Attendance and "holiday" meaning: **unchanged and independent of labels.** Attendance keeps reading `CalendarEvent.isHoliday = true` and
-`status = PUBLISHED`. `isHoliday` is set from the system type's stable `key = 'holiday'` (or the explicit flag), never from the display name.
+`status = PUBLISHED`. `isHoliday` is **derived, never supplied**: it is true exactly when the event's type is the system `holiday` type (stable `key = 'holiday'`), never from a display name and never from a flag. Only the system `holiday` type can make an event a holiday; a custom type can not (12.9).
 The `holiday` row is system, so it cannot be renamed, deactivated or deleted, and a school cannot create a second "holiday" meaning by
 naming a custom type "Holiday" (name clash, see 12.5). A test pins that attendance queries never mention a type name or label.
 
@@ -287,8 +287,13 @@ Tenant migrations only, applied the existing way (each in its own transaction, f
    - add `CalendarEvent.eventTypeId` (**nullable**), index, FK `RESTRICT`;
    - backfill: `eventTypeId = (system row whose key = the event's old type)`. Every existing event, draft, published or cancelled, is kept and
      points at its matching system type. `status`, `isHoliday`, dates, audience and reminders are not touched.
-2. **Code in the same release** always writes both: `eventTypeId`, and the enum `type` as a mirror (the system key, or `other` for a custom
-   type). It tolerates a null `eventTypeId` (reads fall back to the enum key), so a school whose migration is a little behind still works.
+   - **preflight (read-only, run first on staging and production):** count events with `isHoliday = true` and a type other than `holiday`. Expected
+     zero (no client ever sent the flag). If there are any, the migration moves them to the system `holiday` type so attendance behaves exactly as
+     before (their label changes; their closure behaviour does not), and each such event is listed in the migration notes.
+   - a **database trigger on `CalendarEvent`** then keeps `eventTypeId`, `type` and `isHoliday` consistent on every insert and update (12.9, rule B).
+2. **Application code** writes `eventTypeId` only (legacy routes resolve their five keys to it). The enum mirror and `isHoliday` are derived by the
+   trigger, so no code path, script, fixture or old build running during the deploy window can leave them inconsistent. Reads tolerate a null
+   `eventTypeId` (fall back to the enum key), so a school whose migration is a little behind still works.
 3. **`..._event_types_contract` (later, separate approval, not in this work):** `eventTypeId SET NOT NULL`, then drop the `type` enum column and
    the `EventType` enum. It is destructive, so it waits until the expand step has run everywhere and you approve it.
 
@@ -316,13 +321,13 @@ delete), `EVENT_TYPE_IN_USE` 409 (delete a referenced custom type; the message p
 
 ### 12.5 Rules
 
-- **System types** (the 11): cannot be renamed, deleted or deactivated. Enforced in the use case and again in the database (a trigger rejects
-  changing `key`, `name`, `isSystem` or `isActive` on a system row, and deleting any system row), so a script cannot bypass it either.
+- **System types** (the 11): cannot be renamed, deleted or deactivated. Enforced in the use case and again in the database by the
+  trigger in 12.9 rule A, so a script cannot bypass it either.
 - **Custom types:** can be renamed (the key stays), recoloured, given an icon, deactivated and reactivated.
 - **Hard delete:** only for a custom type with **zero** events (drafts, published and cancelled all count). Enforced by a count in the use case
   and by the `RESTRICT` foreign key as a backstop. A type that is in use is deactivated instead.
 - **Names:** unique per school ignoring case and spacing, against system and custom types together.
-- **Limit:** at most 50 custom types per school (a policy constant, in one place) so a pick list stays usable.
+- **Limit:** at most 50 custom types per school (a policy constant, in one place) so a pick list stays usable; enforced race-safely (12.9 rule C).
 - **Existing events** are never rewritten by renaming or recolouring a type: they point to the type by id.
 - Every change is audited: `event_type.created`, `.updated`, `.deactivated`, `.activated`, `.deleted`.
 
@@ -348,10 +353,43 @@ delete), `EVENT_TYPE_IN_USE` 409 (delete a referenced custom type; the message p
 - **E3 integration and docs:** events use `eventTypeId` (create, update, list filter, responses, mirror writes), legacy compatibility tests, attendance
   pin test, a frontend guide `docs/frontend/EVENT_TYPES_API.md` (endpoints, shapes, error codes, examples), and a final regression run of Steps A to D.
 
+### 12.9 Review amendments (agreed after review; these override anything above that differs)
+
+**Rule A: system types are sealed by a trigger on `CalendarEventType`.** The trigger function holds the canonical list of system keys with their fixed ids.
+- INSERT with `isSystem = true` is accepted only if `(key, id)` is exactly on that list; INSERT with `isSystem = false` and a system key is rejected.
+- UPDATE can never change `key` or `isSystem` on any row (so a custom type cannot be promoted, and a system type cannot be demoted).
+- On a system row it also rejects changing `name`, `nameKey` or `isActive`; `color` and `icon` stay editable (decision 1).
+- DELETE of a system row is rejected.
+- Adding a future system type is a migration that also replaces the function. This protects against bugs and scripts; it is not a defence against someone with full database access.
+
+**Rule B: one trigger on `CalendarEvent` owns the triple `eventTypeId`, `type`, `isHoliday`.** Before every insert or update:
+- if `eventTypeId` is set (or changed): `type` := the system key, or `other` for a custom type; `eventTypeId` wins if both changed;
+- else if only `type` is given or changed (legacy routes, old builds, fixtures): `eventTypeId` := the system type with that key;
+- always: `isHoliday` := (the type is the system `holiday` type).
+A legacy `PUT` sending `type: "other"` on a custom-typed event changes nothing (the mirror already says `other`), so the custom type survives.
+Application code does not write `type` or `isHoliday` itself. The trigger and the contract migration are removed/adapted together later.
+
+**Rule C: the 50-type limit is race-safe.** Creating a custom type runs in one transaction: take `pg_advisory_xact_lock` keyed by the school's schema,
+count, insert. Concurrent creations in one school queue; the lock is released at commit. Deactivated types **count** (otherwise create-and-deactivate
+cycles bypass the cap); deleting an unused type frees a slot. The limit stays a constant in the application, not in SQL. Name clashes are race-safe
+through the unique `nameKey` (409 `EVENT_TYPE_NAME_TAKEN`); a clash on the generated key retries with the next suffix.
+
+**Holiday rules (API):**
+- The explicit `isHoliday` field is **removed from the new events API** (the strict DTO rejects it as an unknown field).
+- The legacy `/sessions/calendar/events` routes still accept the field for shape compatibility, but `isHoliday: true` with a type other than `holiday` is
+  refused with 400 `EVENT_HOLIDAY_REQUIRES_HOLIDAY_TYPE` instead of being silently ignored (a school must never believe it declared a closure that attendance
+  does not honour). `isHoliday: false` with type `holiday` is still overridden to true, as today.
+- A **published** event cannot be changed to or from the `holiday` type (409 `EVENT_HOLIDAY_TYPE_LOCKED`), because that would reopen or close attendance for
+  days people were already told about. Drafts can change freely; to correct a published holiday, cancel it and create a new one.
+
+**Regression guard (all stages):** Steps A to D suites stay green at every stage. New pinned tests: attendance reads only `isHoliday` and `status` (never a type
+name or label); renaming or recolouring a type changes no key, no notice idempotency key and no reminder row; publishing, notices, reminders and idempotency
+never read a type name; the trigger rules A and B on a real PostgreSQL (fresh and existing schemas, concurrent create at the cap).
+
 ### 12.8 Decisions I made, for you to overrule
 1. System types' **colour and icon can be changed** by the school (display only; name, key and state are locked). If you want them fully frozen, say so.
 2. `principal` does **not** get `events.types.manage` either (you excluded Branch Principals; I applied the same to Principal). A school can grant it.
-3. The enum column stays as a mirror until a separate contract approval; the contract migration is not part of this work.
+3. The enum column stays as a trigger-maintained mirror until a separate contract approval; the contract migration is not part of this work.
 4. Type **keys never change** and are what clients should store; display names may change.
 5. A deactivated type still shows on events that use it; reactivation is allowed.
 6. Custom types are capped at 50 per school.
