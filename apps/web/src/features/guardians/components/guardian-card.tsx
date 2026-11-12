@@ -2,10 +2,11 @@ import Link from "next/link";
 import { MobileCard, MobileCardHeader } from "@/components/ui/mobile-card";
 import { Badge } from "@/components/ui/badge";
 import { GuardianResponseData } from "../types/guardian.types";
+import { ROUTES } from "@/lib/routes";
 
 export function GuardianCard({ guardian }: { guardian: GuardianResponseData }) {
 	return (
-		<Link href={`/school-admin/guardians/${guardian.id}`} className="block">
+		<Link href={ROUTES.school.guardians.detail(guardian.id)} className="block">
 			<MobileCard>
 				<MobileCardHeader
 					title={`${guardian.firstName} ${guardian.lastName}`}

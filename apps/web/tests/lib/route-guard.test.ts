@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { decideRoute } from "@/lib/route-guard";
+import { ROUTES } from "@/lib/routes";
 
 const none = { hasAccessCookie: false, hasRefreshCookie: false };
 const both = { hasAccessCookie: true, hasRefreshCookie: true };
@@ -7,15 +8,15 @@ const refreshOnly = { hasAccessCookie: false, hasRefreshCookie: true };
 
 describe("decideRoute: protected pages", () => {
 	it("sends a visitor with no cookies to /login and remembers where they were going", () => {
-		expect(decideRoute({ pathname: "/school-admin/fees", ...none })).toEqual({ action: "login", returnTo: "/school-admin/fees" });
+		expect(decideRoute({ pathname: ROUTES.school.fees.list, ...none })).toEqual({ action: "login", returnTo: ROUTES.school.fees.list });
 	});
 
 	it("lets a signed-in visitor through", () => {
-		expect(decideRoute({ pathname: "/school-admin/fees", ...both })).toEqual({ action: "next" });
+		expect(decideRoute({ pathname: ROUTES.school.fees.list, ...both })).toEqual({ action: "next" });
 	});
 
 	it("lets a visitor with ONLY the refresh cookie through (the access cookie expired after 15 minutes; the client refreshes)", () => {
-		expect(decideRoute({ pathname: "/school-admin/fees", ...refreshOnly })).toEqual({ action: "next" });
+		expect(decideRoute({ pathname: ROUTES.school.fees.list, ...refreshOnly })).toEqual({ action: "next" });
 		expect(decideRoute({ pathname: "/home", ...refreshOnly })).toEqual({ action: "next" });
 	});
 

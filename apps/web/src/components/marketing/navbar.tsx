@@ -9,6 +9,7 @@ import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { COMPANY } from "@/config/company";
 import { getLastPortal } from "@/lib/last-portal-storage";
 import { buildSubdomainUrl } from "@/lib/subdomain-url";
+import { ROUTES } from "@/lib/routes";
 
 const NAV_LINKS = [
 	{ href: "/", label: "Home" },
@@ -27,7 +28,7 @@ export function Navbar() {
 		setDashboardHref(
 			portal.type === "super_admin"
 				? buildSubdomainUrl("admin", "/dashboard")
-				: buildSubdomainUrl(portal.subdomain, "/school-admin/dashboard")
+				: buildSubdomainUrl(portal.subdomain, ROUTES.school.dashboard)
 		);
 	}, []);
 

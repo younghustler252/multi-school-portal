@@ -11,6 +11,7 @@ import { useEnrolments, useUpdateEnrolmentStatus } from "../hooks/use-enrolments
 import { useStudents } from "@/features/students/hooks/use-students";
 import { BulkEnrolDialog } from "./bulk-enrol-dialog";
 import { ApiErrorResponse } from "@/types/api-response";
+import { ROUTES } from "@/lib/routes";
 
 interface ClassRosterProps {
 	classId: string;
@@ -43,7 +44,7 @@ export function ClassRoster({ classId, termId }: ClassRosterProps) {
 				<h3 className="font-medium">Students</h3>
 				<p className="mt-3 text-sm text-muted-foreground">
 					No current term set — set one in{" "}
-					<Link href="/school-admin/settings?tab=calendar" className="text-primary hover:underline">
+					<Link href={`${ROUTES.school.settings}?tab=calendar`} className="text-primary hover:underline">
 						Settings → Term &amp; calendar
 					</Link>{" "}
 					before enrolling students.
@@ -73,7 +74,7 @@ export function ClassRoster({ classId, termId }: ClassRosterProps) {
 					return (
 						<div key={enrolment.id} className="flex items-center justify-between rounded-lg border border-border px-3 py-2.5">
 							<Link
-								href={`/school-admin/students/${enrolment.studentId}`}
+								href={ROUTES.school.students.detail(enrolment.studentId)}
 								className="flex items-center gap-2 text-sm font-medium hover:underline"
 							>
 								{student ? `${student.firstName} ${student.lastName}` : "Unknown student"}

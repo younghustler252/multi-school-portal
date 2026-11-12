@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { MyPermissions } from "@schoolos/contracts";
+import { ROUTES } from "@/lib/routes";
 import { notificationsPath, PLATFORM_NAV, SCHOOL_NAV, visibleNav } from "@/lib/nav-model";
 
 function me(keys: string[], realm: "school" | "platform" = "school"): MyPermissions {
@@ -46,7 +47,7 @@ describe("visibleNav", () => {
 	});
 
 	it("points the notification bell at the right inbox", () => {
-		expect(notificationsPath("platform")).toBe("/notifications");
-		expect(notificationsPath("school")).toBe("/school-admin/notifications");
+		expect(notificationsPath("platform")).toBe(ROUTES.platform.notifications);
+		expect(notificationsPath("school")).toBe(ROUTES.school.notifications);
 	});
 });

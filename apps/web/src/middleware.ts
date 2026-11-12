@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { classifyHost, currentDeployment } from "@/lib/deployment";
 import { decideRoute } from "@/lib/route-guard";
+import { legacyRedirect } from "@/lib/routes";
 
 export function middleware(request: NextRequest) {
 	const { pathname } = request.nextUrl;
@@ -19,6 +20,14 @@ export function middleware(request: NextRequest) {
 		return NextResponse.rewrite(url);
 	}
 
+
+	// Old role-named addresses (bookmarks, old emails) go to the feature route, keeping the rest of the path and the query.
+	const moved = legacyRedirect(pathname);
+	if (moved) {
+		const url = request.nextUrl.clone();
+		url.pathname = moved;
+		return NextResponse.redirect(url, 308);
+	}
 
 	const decision = decideRoute({
 		pathname,

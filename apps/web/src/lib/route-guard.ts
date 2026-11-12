@@ -1,3 +1,5 @@
+import { PROTECTED_ROOTS } from "@/lib/routes";
+
 /*
 | The routing decision middleware.ts makes before a page renders (AUTH-005). Pure, so it is tested without Next.
 |
@@ -12,10 +14,8 @@
 
 export const AUTH_ROUTES = ["/login", "/register", "/verify-email", "/forgot-password", "/reset-password"];
 
-export const PROTECTED_PREFIXES = [
-	"/home", "/school-admin", "/teacher", "/bursar", "/principal",
-	"/student", "/guardian", "/schools", "/plans", "/subscriptions",
-];
+// Derived from the route registry so a renamed area is protected automatically.
+export const PROTECTED_PREFIXES: readonly string[] = PROTECTED_ROOTS;
 
 export type RouteDecision = { action: "next" } | { action: "redirect-home" } | { action: "login"; returnTo: string };
 

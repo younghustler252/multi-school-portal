@@ -1,3 +1,4 @@
+import { ROUTES } from "@/lib/routes";
 import type { MyPermissions } from "@schoolos/contracts";
 import type { Profile } from "./session-types";
 
@@ -8,8 +9,8 @@ import type { Profile } from "./session-types";
 | This is the minimal M1 resolver. Persona/school switching and per-feature landing pages are M2/M3.
 */
 
-export const PLATFORM_HOME = "/dashboard"; // existing super-admin route group
-export const SCHOOL_HOME = "/home"; // permission-aware landing introduced in M1
+export const PLATFORM_HOME = ROUTES.platform.dashboard; // existing super-admin route group
+export const SCHOOL_HOME = ROUTES.home; // permission-aware landing introduced in M1
 
 export function resolveDestination(profile: Profile, _permissions: MyPermissions): string {
 	return profile.session.kind === "platform" ? PLATFORM_HOME : SCHOOL_HOME;
