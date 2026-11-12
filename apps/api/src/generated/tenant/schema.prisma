@@ -227,11 +227,98 @@ model CalendarEvent {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  term    Term?    @relation(fields: [termId], references: [id])
-  session Session? @relation(fields: [sessionId], references: [id])
+  // Events & Calendar: lifecycle, schedule, audience, reminders (migration 20261109090100). Existing rows: published, all-day, everyone.
+  status                 CalendarEventStatus   @default(PUBLISHED)
+  isAllDay               Boolean               @default(true)
+  startTime              String? // "HH:mm" school time, null for an all-day event
+  endTime                String?
+  location               String?
+  coverImageUrl          String?
+  audienceKinds          EventAudienceKind[]   @default([EVERYONE])
+  notifyChannels         NotificationChannel[] @default([])
+  reminderOffsetsMinutes Int[]                 @default([])
+  revision               Int                   @default(1) // +1 on every reschedule; keys reminders and message idempotency
+  publishedAt            DateTime?
+  publishedById          String?
+  publishNoticeSentAt    DateTime?
+  cancelledAt            DateTime?
+  cancelledById          String?
+  cancelReason           String?
+  updatedById            String?
+
+  term      Term?                   @relation(fields: [termId], references: [id])
+  session   Session?                @relation(fields: [sessionId], references: [id])
+  branches  CalendarEventBranch[]
+  classes   CalendarEventClass[]
+  reminders CalendarEventReminder[]
 
   @@index([startDate])
   @@index([termId])
+  @@index([status, startDate])
+}
+
+enum CalendarEventStatus {
+  DRAFT
+  PUBLISHED
+  CANCELLED
+}
+
+enum EventAudienceKind {
+  EVERYONE
+  TEACHING_STAFF
+  NON_TEACHING_STAFF
+  STUDENTS
+  GUARDIANS
+}
+
+enum EventReminderStatus {
+  PENDING
+  PROCESSING
+  SENT
+  SKIPPED
+  CANCELLED
+  FAILED
+}
+
+/// An event's audience can be narrowed to branches and classes.
+model CalendarEventBranch {
+  eventId  String
+  branchId String
+  event    CalendarEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  branch   Branch        @relation(fields: [branchId], references: [id])
+
+  @@id([eventId, branchId])
+  @@index([branchId])
+}
+
+model CalendarEventClass {
+  eventId String
+  classId String
+  event   CalendarEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  class   Class         @relation(fields: [classId], references: [id])
+
+  @@id([eventId, classId])
+  @@index([classId])
+}
+
+/// One reminder of one revision of an event; a worker sends the due ones.
+model CalendarEventReminder {
+  id            String              @id @default(uuid())
+  eventId       String
+  revision      Int
+  offsetMinutes Int
+  dueAt         DateTime
+  status        EventReminderStatus @default(PENDING)
+  attempts      Int                 @default(0)
+  lastError     String?
+  processedAt   DateTime?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  event CalendarEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, revision, offsetMinutes], map: "CalendarEventReminder_event_revision_offset_key")
+  @@index([status, dueAt])
 }
 
 enum EventType {
@@ -240,6 +327,12 @@ enum EventType {
   exam
   break
   other
+  meeting
+  sports
+  ceremony
+  graduation
+  resumption
+  pta
 }
 
 model Session {
@@ -297,16 +390,17 @@ model Class {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  branch           Branch             @relation(fields: [branchId], references: [id])
-  classTeacher     Staff?             @relation(fields: [classTeacherId], references: [id])
+  branch           Branch               @relation(fields: [branchId], references: [id])
+  classTeacher     Staff?               @relation(fields: [classTeacherId], references: [id])
   enrolments       Enrolment[]
   classSubjects    ClassSubject[]
-  progressionsFrom ClassProgression[] @relation("ProgressionFrom")
-  progressionsTo   ClassProgression[] @relation("ProgressionTo")
+  progressionsFrom ClassProgression[]   @relation("ProgressionFrom")
+  progressionsTo   ClassProgression[]   @relation("ProgressionTo")
   feeStructures    FeeStructure[]
   feeInvoices      FeeInvoice[]
   attendance       Attendance[]
   reportCards      ReportCard[]
+  calendarEvents   CalendarEventClass[]
 
   @@index([branchId])
 }
@@ -1087,6 +1181,7 @@ model Branch {
   feeStructures  FeeStructure[]
   feeInvoices    FeeInvoice[]
   payments       Payment[]
+  calendarEvents CalendarEventBranch[]
 
   @@index([isActive])
   @@index([deletedAt])

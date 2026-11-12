@@ -222,6 +222,47 @@ exports.Prisma.CalendarEventScalarFieldEnum = {
   isHoliday: 'isHoliday',
   createdById: 'createdById',
   createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  status: 'status',
+  isAllDay: 'isAllDay',
+  startTime: 'startTime',
+  endTime: 'endTime',
+  location: 'location',
+  coverImageUrl: 'coverImageUrl',
+  audienceKinds: 'audienceKinds',
+  notifyChannels: 'notifyChannels',
+  reminderOffsetsMinutes: 'reminderOffsetsMinutes',
+  revision: 'revision',
+  publishedAt: 'publishedAt',
+  publishedById: 'publishedById',
+  publishNoticeSentAt: 'publishNoticeSentAt',
+  cancelledAt: 'cancelledAt',
+  cancelledById: 'cancelledById',
+  cancelReason: 'cancelReason',
+  updatedById: 'updatedById'
+};
+
+exports.Prisma.CalendarEventBranchScalarFieldEnum = {
+  eventId: 'eventId',
+  branchId: 'branchId'
+};
+
+exports.Prisma.CalendarEventClassScalarFieldEnum = {
+  eventId: 'eventId',
+  classId: 'classId'
+};
+
+exports.Prisma.CalendarEventReminderScalarFieldEnum = {
+  id: 'id',
+  eventId: 'eventId',
+  revision: 'revision',
+  offsetMinutes: 'offsetMinutes',
+  dueAt: 'dueAt',
+  status: 'status',
+  attempts: 'attempts',
+  lastError: 'lastError',
+  processedAt: 'processedAt',
+  createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
 
@@ -1393,7 +1434,42 @@ exports.EventType = exports.$Enums.EventType = {
   event: 'event',
   exam: 'exam',
   break: 'break',
-  other: 'other'
+  other: 'other',
+  meeting: 'meeting',
+  sports: 'sports',
+  ceremony: 'ceremony',
+  graduation: 'graduation',
+  resumption: 'resumption',
+  pta: 'pta'
+};
+
+exports.CalendarEventStatus = exports.$Enums.CalendarEventStatus = {
+  DRAFT: 'DRAFT',
+  PUBLISHED: 'PUBLISHED',
+  CANCELLED: 'CANCELLED'
+};
+
+exports.EventAudienceKind = exports.$Enums.EventAudienceKind = {
+  EVERYONE: 'EVERYONE',
+  TEACHING_STAFF: 'TEACHING_STAFF',
+  NON_TEACHING_STAFF: 'NON_TEACHING_STAFF',
+  STUDENTS: 'STUDENTS',
+  GUARDIANS: 'GUARDIANS'
+};
+
+exports.NotificationChannel = exports.$Enums.NotificationChannel = {
+  IN_APP: 'IN_APP',
+  EMAIL: 'EMAIL',
+  SMS: 'SMS'
+};
+
+exports.EventReminderStatus = exports.$Enums.EventReminderStatus = {
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  SENT: 'SENT',
+  SKIPPED: 'SKIPPED',
+  CANCELLED: 'CANCELLED',
+  FAILED: 'FAILED'
 };
 
 exports.TermName = exports.$Enums.TermName = {
@@ -1542,12 +1618,6 @@ exports.MembershipStatus = exports.$Enums.MembershipStatus = {
   active: 'active',
   suspended: 'suspended',
   removed: 'removed'
-};
-
-exports.NotificationChannel = exports.$Enums.NotificationChannel = {
-  IN_APP: 'IN_APP',
-  EMAIL: 'EMAIL',
-  SMS: 'SMS'
 };
 
 exports.AutomationRunStatus = exports.$Enums.AutomationRunStatus = {
@@ -1744,6 +1814,9 @@ exports.Prisma.ModelName = {
   Guardian: 'Guardian',
   StudentGuardian: 'StudentGuardian',
   CalendarEvent: 'CalendarEvent',
+  CalendarEventBranch: 'CalendarEventBranch',
+  CalendarEventClass: 'CalendarEventClass',
+  CalendarEventReminder: 'CalendarEventReminder',
   Session: 'Session',
   Term: 'Term',
   Class: 'Class',
