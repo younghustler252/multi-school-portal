@@ -409,3 +409,20 @@ never read a type name; the trigger rules A and B on a real PostgreSQL (fresh an
 6. Custom types are capped at 50 per school.
 7. Icons are identifiers from the frontend's set, not uploads.
 8. Notices keep their existing `event` / `holiday` category; the custom type name does not change notice routing.
+
+---
+
+## Implemented: stage E1 (event types, schema and expand migration)
+
+Migration `20261110090000_event_types_catalog` and `tenant.prisma` (table `CalendarEventType`, nullable `CalendarEvent.eventTypeId` with `RESTRICT`).
+It follows 12.2, 12.3 and 12.9: one SQL catalog (`event_type_system_catalog()`) seeds the 11 system types and drives the guard trigger (Rule A); a
+`CalendarEvent` trigger owns `eventTypeId` / `type` / `isHoliday` with the `OLD`/`NEW` precedence and the published-holiday lock (Rule B); existing events are
+backfilled; stray holiday flags are normalised with a notice (expected zero rows). Nothing is dropped. The TypeScript mirror of the catalog is
+`modules/events/domain/event-type.catalog.ts`.
+
+Until stage E3 the application code still writes `type` and the legacy `isHoliday` flag. The trigger makes that safe (the mirror and `isHoliday` always follow the
+type) with one visible difference: a create or update that sends `isHoliday: true` with a non-holiday type no longer produces a holiday. E3 turns that case into a
+clear 400 on the legacy routes and removes the field from the new API.
+
+Verification: `scripts/db/verify-event-types-migration.sh` (existing and fresh schemas on a scratch database; every trigger rule) and the unit tests in
+`tests/events/events.types.migration.test.ts`; `events.types.migration.db.test.ts` runs the main trigger checks where `TEST_DATABASE_URL` is set.
