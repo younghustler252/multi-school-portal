@@ -12,6 +12,7 @@ import { NotificationBell } from "./notification-bell";
 import { FeedbackDialog } from "@/features/feedback/components/feedback-dialog";
 import { notificationsPath } from "@/lib/nav-model";
 import { useAuthStore } from "@/stores/auth.store";
+import { ROUTES } from "@/lib/routes";
 
 interface TopbarProps {
 	onMenuClick: () => void;
@@ -29,7 +30,7 @@ export function Topbar({ onMenuClick, searchPlaceholder = "Search…" }: TopbarP
 
 	async function handleLogout() {
 		await logout();
-		router.replace("/login");
+		router.replace(ROUTES.auth.login);
 	}
 
 	useEffect(() => { setMounted(true); }, []);

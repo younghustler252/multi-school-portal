@@ -14,6 +14,7 @@ import { userApi } from "@/features/user/services/user.api";
 import { useAuthStore } from "@/stores/auth.store";
 import { isApiError } from "@/lib/api/api-error";
 import { z } from "zod";
+import { ROUTES } from "@/lib/routes";
 
 const passwordSchema = z
 	.string()
@@ -57,7 +58,7 @@ export default function ChangePasswordPage() {
 			// clean re-login rather than trying to silently refresh in place.
 			toast.success("Password changed — please log in again.");
 			await logout();
-			router.replace("/login");
+			router.replace(ROUTES.auth.login);
 		} catch (err) {
 			toast.error(isApiError(err) ? err.message : "Couldn't change password");
 		}

@@ -14,6 +14,7 @@ import { loginSchema, LoginFormValues } from "@/features/auth/schemas/login.sche
 import { saveLastPortal } from "@/lib/last-portal-storage";
 import { useCurrentSubdomain } from "@/lib/use-current-subdomain";
 import { currentDeployment } from "@/lib/deployment";
+import { ROUTES } from "@/lib/routes";
 
 export default function PortalLoginPage() {
 	const subdomain = useCurrentSubdomain();
@@ -113,7 +114,7 @@ export default function PortalLoginPage() {
 					<div className="space-y-1.5">
 						<div className="flex items-center justify-between">
 							<Label htmlFor="password">Password</Label>
-							<a href="/forgot-password" className="text-xs text-muted-foreground hover:text-primary">
+							<a href={ROUTES.auth.forgotPassword} className="text-xs text-muted-foreground hover:text-primary">
 								Forgot password?
 							</a>
 						</div>

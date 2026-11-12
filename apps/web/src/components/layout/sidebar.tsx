@@ -14,6 +14,7 @@ import { useAuthStore } from "@/stores/auth.store";
 import { useCurrentSubdomain } from "@/lib/use-current-subdomain";
 import { usePublicSchoolInfo } from "@/features/school/hooks/use-school";
 import { useOnboardingProgress } from "@/features/school/hooks/use-onboarding-progress";
+import { ROUTES } from "@/lib/routes";
 
 interface SidebarProps {
 	isOpen: boolean;
@@ -29,7 +30,7 @@ function FinishSetupLink() {
 
 	return (
 		<Link
-			href="/onboarding/setup"
+			href={ROUTES.onboarding.setup}
 			className="mx-3 mt-3 block rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-xs"
 		>
 			<div className="flex items-center justify-between">

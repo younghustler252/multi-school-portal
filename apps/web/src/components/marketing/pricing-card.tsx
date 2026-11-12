@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { formatNaira } from "@/lib/format-money";
 import { PlanResponseData } from "@/features/plans/types/plan.types";
+import { ROUTES } from "@/lib/routes";
 
 interface PricingCardProps {
 	plan: PlanResponseData;
@@ -73,7 +74,7 @@ export function PricingCard({ plan, cycle, featured }: PricingCardProps) {
 				variant={featured ? "default" : "outline"}
 				nativeButton={false}
 				render={
-					<Link href={plan.isCustom ? "/contact" : "/register"}>
+					<Link href={plan.isCustom ? "/contact" : ROUTES.auth.register}>
 						{plan.isCustom ? "Contact sales" : "Get started"}
 					</Link>
 				}

@@ -12,8 +12,14 @@
 |   /learning/*  a student's own attendance, grades and report cards
 | Platform (super-admin) pages sit at the top level on the admin host, exactly as before.
 |
-| A page's URL must match its folder under src/app/(dashboard) or src/app/(super-admin). tests/lib/routes.test.ts
-| fails if a registered page has no folder, so a rename that forgets the folder is caught.
+| SCOPE: every page the app serves, in every route group: auth, public marketing, onboarding, school areas and platform.
+| What is deliberately NOT here: API paths (lib/api), external links, `/api/*`, and anything from outside the app
+| (privacy/terms addresses come from platform settings). Query strings are added at the call site:
+|   `${ROUTES.auth.login}?verified=true`
+|
+| A page's URL must match its folder under src/app. tests/lib/routes.test.ts fails if a registered page has no folder,
+| if a page folder is not registered, or if a route uses a role name, so a rename that forgets the folder is caught.
+| Who may OPEN a school/platform page (and which pages are in the menu) lives in lib/route-access.ts, keyed by these paths.
 */
 
 type Id = string | number | null | undefined; // pages sometimes build a link before the id is known; same behaviour as the old template strings
@@ -22,6 +28,28 @@ const join = (base: string, id: Id) => `${base}/${id}`;
 export const ROUTES = {
 	home: "/home",
 	settings: "/settings",
+
+	/** Sign-in, sign-up and account-recovery pages (route group `(auth)`). */
+	auth: {
+		login: "/login",
+		adminLogin: "/admin-login", // what /login becomes on the admin host (rewrite, the URL stays /login)
+		portalLogin: "/portal-login", // what /login becomes on a school's own host (rewrite)
+		register: "/register",
+		forgotPassword: "/forgot-password",
+		resetPassword: "/reset-password",
+		verifyEmail: "/verify-email",
+		changePassword: "/change-password",
+		impersonate: "/impersonate-entry",
+	},
+
+	/** Public pages: marketing site and the maintenance notice. */
+	public: {
+		landing: "/",
+		pricing: "/pricing",
+		maintenance: "/maintenance",
+	},
+
+	onboarding: { setup: "/onboarding/setup" },
 
 	school: {
 		dashboard: "/school/dashboard",
@@ -103,6 +131,20 @@ export const PLATFORM_AREA_ROOTS = [
 	ROUTES.platform.subscriptions, ROUTES.platform.feedback, ROUTES.platform.notifications, ROUTES.platform.settings,
 ] as const;
 export const PROTECTED_ROOTS: readonly string[] = [ROUTES.home, ROUTES.settings, ...SCHOOL_AREA_ROOTS, ...PLATFORM_AREA_ROOTS];
+
+/** Sign-in and account-recovery pages that middleware bounces away from when a live session exists. */
+export const AUTH_PAGES: readonly string[] = [
+	ROUTES.auth.login, ROUTES.auth.register, ROUTES.auth.verifyEmail, ROUTES.auth.forgotPassword, ROUTES.auth.resetPassword,
+];
+
+/*
+| robots.txt rules for the signed-in areas: each root EXACTLY (end anchor `$`) and everything below it (`/root/`).
+| `Disallow: /home` alone would also block /homework; `Disallow: /home/` alone misses /home itself. The `$` anchor is
+| understood by Google and Bing.
+*/
+export function robotsDisallow(roots: readonly string[] = PROTECTED_ROOTS): string[] {
+	return [...roots.flatMap((r) => [`${r}$`, `${r}/`]), "/api/"];
+}
 
 /*
 | Old role-named paths and where they went. Longest prefix wins; whole path segments only; the rest of the path and
