@@ -1,7 +1,6 @@
 "use client";
 
-import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { usePlatformInfo } from "@/lib/use-platform-info";
 
 interface LogoProps {
@@ -20,6 +19,9 @@ export function Logo({
 
 	// Handles null, undefined, and empty strings
 	const src = logoUrl?.trim() || company.logoUrl;
+
+	// A new address deserves a new try (e.g. right after a logo upload replaced a broken one).
+	useEffect(() => setFailed(false), [src]);
 	const displayName = name ?? company.name;
 
 	// Show fallback if there's no image or it failed to load
@@ -34,8 +36,11 @@ export function Logo({
 		);
 	}
 
+	// Plain <img>, not next/image: logos come from storage (Supabase), a custom domain or a local dev server, and the
+	// image optimizer only serves hosts listed in next.config. A 32px logo gains nothing from it; the letter above is the fallback.
 	return (
-		<Image
+		// eslint-disable-next-line @next/next/no-img-element
+		<img
 			src={src}
 			alt={`${displayName} logo`}
 			width={size}

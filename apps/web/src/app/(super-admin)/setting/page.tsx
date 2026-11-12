@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ImageUploadField } from "@/components/ui/image-upload-fields";
+import { platformSettingsApi } from "@/features/super-admin/services/platform-settings.api";
 import { usePlatformSettings, useUpdatePlatformSettings } from "@/features/super-admin/hooks/use-platform-settings";
 import { UpdatePlatformSettingsDto } from "@/features/super-admin/types/platform-settings.types";
 import { ApiErrorResponse } from "@/types/api-response";
@@ -17,6 +20,7 @@ import { ApiErrorResponse } from "@/types/api-response";
 export default function PlatformSettingsPage() {
 	const { data: settings, isLoading } = usePlatformSettings();
 	const updateSettings = useUpdatePlatformSettings();
+	const queryClient = useQueryClient();
 
 	const [form, setForm] = useState<UpdatePlatformSettingsDto>({});
 
@@ -26,7 +30,6 @@ export default function PlatformSettingsPage() {
 			platformName: settings.platformName,
 			supportEmail: settings.supportEmail,
 			supportPhone: settings.supportPhone ?? "",
-			logoUrl: settings.logoUrl ?? "",
 			termsUrl: settings.termsUrl ?? "",
 			privacyPolicyUrl: settings.privacyPolicyUrl ?? "",
 			subscriptionGracePeriodDays: settings.subscriptionGracePeriodDays,
@@ -50,7 +53,6 @@ export default function PlatformSettingsPage() {
 			const payload: UpdatePlatformSettingsDto = {
 				...form,
 				supportPhone: form.supportPhone || undefined,
-				logoUrl: form.logoUrl || undefined,
 				termsUrl: form.termsUrl || undefined,
 				privacyPolicyUrl: form.privacyPolicyUrl || undefined,
 				maintenanceMessage: form.maintenanceMessage || undefined,
@@ -95,9 +97,15 @@ export default function PlatformSettingsPage() {
 					<Field label="Platform name">
 						<Input value={form.platformName ?? ""} onChange={(e) => update("platformName", e.target.value)} />
 					</Field>
-					<Field label="Logo URL">
-						<Input value={form.logoUrl ?? ""} onChange={(e) => update("logoUrl", e.target.value)} placeholder="https://…" />
-					</Field>
+					<ImageUploadField
+						label="Logo"
+						currentUrl={settings?.logoUrl}
+						uploadFn={async (file) => {
+							const res = await platformSettingsApi.uploadLogo(file);
+							return res.success ? { ...res, data: { url: res.data.logoUrl ?? "" } } : res;
+						}}
+						onUploaded={() => queryClient.invalidateQueries({ queryKey: ["platform-settings"] })}
+					/>
 					<div className="grid gap-4 sm:grid-cols-2">
 						<Field label="Support email">
 							<Input type="email" value={form.supportEmail ?? ""} onChange={(e) => update("supportEmail", e.target.value)} />
