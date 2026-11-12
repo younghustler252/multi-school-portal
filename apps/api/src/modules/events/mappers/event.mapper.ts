@@ -6,7 +6,7 @@ export interface NameRef { id: string; name: string }
 
 export interface EventResponseData {
     id: string; title: string; description: string | null; type: string; status: string; isHoliday: boolean;
-    startDate: Date; endDate: Date | null; isAllDay: boolean; startTime: string | null; endTime: string | null; location: string | null;
+    startDate: Date; endDate: Date | null; isAllDay: boolean; startTime: string | null; endTime: string | null; location: string | null; coverImageUrl: string | null;
     term: NameRef | null; session: NameRef | null;
     audience: { kinds: string[]; branchIds: string[]; classIds: string[] };
     notifyChannels: string[]; reminderOffsetsMinutes: number[]; revision: number;
@@ -41,7 +41,7 @@ export class EventMapper implements IMapper<any, CalendarEventEntity> {
     toResponse(e: CalendarEventEntity, term: NameRef | null = null, session: NameRef | null = null): EventResponseData {
         return {
             id: e.id, title: e.title, description: e.description, type: e.type, status: e.status, isHoliday: e.isHoliday,
-            startDate: e.startDate, endDate: e.endDate, isAllDay: e.isAllDay, startTime: e.startTime, endTime: e.endTime, location: e.location,
+            startDate: e.startDate, endDate: e.endDate, isAllDay: e.isAllDay, startTime: e.startTime, endTime: e.endTime, location: e.location, coverImageUrl: e.coverImageUrl,
             term, session,
             audience: { kinds: e.audienceKinds, branchIds: e.branchIds, classIds: e.classIds },
             notifyChannels: e.notifyChannels, reminderOffsetsMinutes: e.reminderOffsetsMinutes, revision: e.revision,

@@ -1,6 +1,7 @@
 import type { CalendarEventEntity, EventAudienceKind, EventStatus } from "./event.entity";
 import type { StaffCategoryName } from "../../notifications/domain/audience";
 import { includesStaff } from "./event.policy";
+import { humanOffset } from "./event.reminders";
 
 /* PURE RULES for event notices: who is meant, what the message says, when an event has started, and the keys that stop double sending. */
 export type NoticeKind = "published" | "rescheduled" | "cancelled";
@@ -77,3 +78,8 @@ export function buildEventMessage(kind: NoticeKind, e: CalendarEventEntity): { t
 /** One key per person, channel and notice. Published and cancelled happen once; each reschedule is its own revision. */
 export const noticeKey = (e: Pick<CalendarEventEntity, "id" | "revision">, kind: NoticeKind, recipientType: string, recipientId: string, channel: string): string =>
     `event:${e.id}:${kind}${kind === "rescheduled" ? `:r${e.revision}` : ""}:${recipientType}:${recipientId}:${channel}`;
+
+export function buildReminderMessage(e: CalendarEventEntity, offsetMinutes: number): { title: string; message: string } {
+    const where = e.location ? ` Venue: ${e.location}.` : "";
+    return { title: `Reminder: ${e.title}`, message: `${e.title} is in ${humanOffset(offsetMinutes)}: ${whenText(e)}.${where}` };
+}

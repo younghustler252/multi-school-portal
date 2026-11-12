@@ -8,6 +8,7 @@ import { CalendarEventEntity } from "../domain/event.entity";
 import { scheduleChanged } from "../domain/event.policy";
 import { CreateCalendarEventDtoType, UpdateCalendarEventDtoType, ListCalendarEventsQueryType } from "../dtos/legacy-calendar.dto";
 import { CancelEventUseCase } from "./events.usecases";
+import type { EventReminderService } from "../services/event-reminder.service";
 import { nameLookup } from "./event-presenter";
 
 /*
@@ -16,7 +17,7 @@ import { nameLookup } from "./event-presenter";
 |  - the list shows published events only; a draft or cancelled event is "not found" for update;
 |  - DELETE of a published event cancels it (history is kept) and says so with extra fields; a draft is really deleted.
 */
-interface Deps { eventRepository: IEventRepository; sessionRepository: ISessionRepository; eventMapper: EventMapper; auditService: AuditService; cancelEventUseCase: CancelEventUseCase }
+interface Deps { eventRepository: IEventRepository; sessionRepository: ISessionRepository; eventMapper: EventMapper; auditService: AuditService; cancelEventUseCase: CancelEventUseCase; eventReminderService?: EventReminderService }
 const day = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : null);
 
 async function present(d: Deps, events: CalendarEventEntity[]): Promise<LegacyCalendarEventResponseData[]> {
@@ -86,6 +87,7 @@ export class UpdateCalendarEventUseCase {
         if (scheduleChanged(event, { ...event, startDate: start, endDate: end })) data.revision = event.revision + 1;
         data.updatedById = actor.userId;
         const updated = await repo.update(id, { data });
+        if (data.revision) await this.d.eventReminderService?.sync(schoolId, updated);
         await this.d.auditService.log({ userId: actor.userId, schoolId, action: "calendar_event.updated", entity: "CalendarEvent", entityId: id, oldValue: before, newValue: after });
         return (await present(this.d, [updated]))[0];
     }

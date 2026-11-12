@@ -114,12 +114,13 @@ function lifeWorld(seed: any[], opts: any = {}) {
         findById: async (id: string) => rows.get(id) ?? null,
         update: async (id: string, { data }: any) => { const r = { ...rows.get(id), ...data }; rows.set(id, r); return r; },
     };
+    const synced: any[] = [];
     const audits: any[] = []; const auditService: any = { log: async (p: any) => { audits.push(p); } };
-    const deps: any = { eventRepository, schoolRepository: { findById: async () => ({ timezone: "Africa/Lagos" }) }, sessionRepository: { findAllSessions: async () => [] }, eventMapper: new EventMapper(), auditService, eventNoticeService: nw.eventNoticeService };
+    const deps: any = { eventRepository, schoolRepository: { findById: async () => ({ timezone: "Africa/Lagos" }) }, sessionRepository: { findAllSessions: async () => [] }, eventMapper: new EventMapper(), auditService, eventNoticeService: nw.eventNoticeService, eventReminderService: { sync: async (_s: string, e: any) => { synced.push([e.id, e.revision, e.status]); } } };
     deps.cancelEventUseCase = new CancelEventUseCase(deps);
     // the notice service updates through its own repository stub; give it the real rows too
     (nw.eventNoticeService as any).d.eventRepository = eventRepository;
-    return { rows, audits, deps, nw };
+    return { rows, audits, deps, nw, synced };
 }
 
 describe("event lifecycle use cases", () => {
@@ -128,6 +129,7 @@ describe("event lifecycle use cases", () => {
         const pub = new PublishEventUseCase(w.deps);
         const out = await pub.execute("s", "dr", actor, all);
         assert.equal(out.event.status, "PUBLISHED"); assert.equal(out.changed, true); assert.equal((out.notice as any).sent, true);
+        assert.deepEqual(w.synced, [["dr", 1, "PUBLISHED"]]);
         assert.equal(w.rows.get("dr").publishedById, "u1"); assert.equal(w.audits[0].action, "calendar_event.published");
         const again = await pub.execute("s", "dr", actor, all);
         assert.equal(again.changed, false); assert.equal(again.notice, null);
@@ -150,6 +152,7 @@ describe("event lifecycle use cases", () => {
         assert.equal(same.changed, false); assert.equal(w.rows.get("p").revision, 1);
         const moved = await re.execute("s", "p", { startDate: "2030-12-06", isAllDay: false, startTime: "10:00" } as any, actor, all);
         assert.equal(moved.changed, true); assert.equal(moved.event.revision, 2); assert.equal(moved.event.startTime, "10:00");
+        assert.deepEqual(w.synced.at(-1), ["p", 2, "PUBLISHED"]);
         assert.equal(w.audits.at(-1).action, "calendar_event.rescheduled"); assert.equal(w.nw.recipients.length, 2);
         await assert.rejects(re.execute("s", "dr", { startDate: "2030-12-06" } as any, actor, all), code("EVENT_NOT_PUBLISHED"));
         await assert.rejects(re.execute("s", "p", { startDate: "2030-12-06", isAllDay: false } as any, actor, all), code("EVENT_TIME_REQUIRED"));
@@ -158,7 +161,7 @@ describe("event lifecycle use cases", () => {
     it("cancel route: tells the audience once; cancelling again is quiet; the old delete route never tells anyone", async () => {
         const w = lifeWorld([ev({ id: "p" }), ev({ id: "q" })]);
         const out = await new CancelPublishedEventUseCase(w.deps).execute("s", "p", { reason: "Rain" } as any, actor, all);
-        assert.equal(out.event.status, "CANCELLED"); assert.equal((out.notice as any).sent, true); assert.equal(w.nw.recipients.length, 2);
+        assert.equal(out.event.status, "CANCELLED"); assert.equal((out.notice as any).sent, true); assert.deepEqual(w.synced, [["p", 1, "CANCELLED"]]); assert.equal(w.nw.recipients.length, 2);
         const again = await new CancelPublishedEventUseCase(w.deps).execute("s", "p", {} as any, actor, all);
         assert.equal(again.changed, false); assert.equal(again.notice, null); assert.equal(w.nw.recipients.length, 2);
         await w.deps.cancelEventUseCase.execute("s", "q", actor, { via: "legacy_delete" });

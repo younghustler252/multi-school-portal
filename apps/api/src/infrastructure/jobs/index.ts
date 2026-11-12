@@ -4,6 +4,7 @@ export const initWorkers = (): void => {
     require("./workers/provision-schema.worker");
     require("./workers/notification.worker");
     require("./workers/automation.worker");
+    require("./workers/event-reminders.worker");
     require("./workers/billing.worker");
     require("./workers/school-lifecycle.worker");
     require("./workers/term-life-cycle-worker");

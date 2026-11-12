@@ -3,6 +3,7 @@ import { sendSuccess, sendCreated } from "../../../shared/utils/api-response";
 import { eventErrors } from "../domain/event.errors";
 import { ListEventsQuery } from "../dtos/event.dto";
 import { PublishEventUseCase, RescheduleEventUseCase, CancelPublishedEventUseCase, NotifyEventUseCase, PreviewEventAudienceUseCase } from "../usecases/event-lifecycle.usecases";
+import { UploadEventCoverUseCase, RemoveEventCoverUseCase } from "../usecases/event-cover.usecases";
 import { ListEventsUseCase, GetEventUseCase, CreateEventUseCase, UpdateEventUseCase, DeleteEventUseCase } from "../usecases/events.usecases";
 
 interface Dependencies {
@@ -10,6 +11,7 @@ interface Dependencies {
     updateEventUseCase: UpdateEventUseCase; deleteEventUseCase: DeleteEventUseCase;
     publishEventUseCase: PublishEventUseCase; rescheduleEventUseCase: RescheduleEventUseCase; cancelPublishedEventUseCase: CancelPublishedEventUseCase;
     notifyEventUseCase: NotifyEventUseCase; previewEventAudienceUseCase: PreviewEventAudienceUseCase;
+    uploadEventCoverUseCase: UploadEventCoverUseCase; removeEventCoverUseCase: RemoveEventCoverUseCase;
 }
 
 /* EVENT CONTROLLER (school realm, /events). The school is the host's school; the acting person comes ONLY from the verified session. */
@@ -32,4 +34,12 @@ export class EventController {
     cancel     = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.cancelPublishedEventUseCase.execute(schoolIdOf(req), param(req, "id"), req.body ?? {}, actorOf(req), req.access), "Event cancelled"); } catch (e) { next(e); } };
     notify     = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.notifyEventUseCase.execute(schoolIdOf(req), param(req, "id"), req.body.kind, actorOf(req), req.access), "Notice processed"); } catch (e) { next(e); } };
     audience   = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.previewEventAudienceUseCase.execute(param(req, "id"), req.access), "Audience preview"); } catch (e) { next(e); } };
+
+    uploadCover = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            if (!req.file) throw eventErrors.invalidImage();
+            sendSuccess(res, await this.d.uploadEventCoverUseCase.execute(schoolIdOf(req), param(req, "id"), { buffer: req.file.buffer }, actorOf(req).userId, req.access), "Cover image saved");
+        } catch (e) { next(e); }
+    };
+    removeCover = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.removeEventCoverUseCase.execute(schoolIdOf(req), param(req, "id"), actorOf(req).userId, req.access), "Cover image removed"); } catch (e) { next(e); } };
 }

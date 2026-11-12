@@ -12,13 +12,14 @@ import { assertCanActOnEvent, audienceScope, seesEveryEvent } from "../domain/ev
 import { CreateEventDtoType, ListEventsQueryType, UpdateEventDtoType } from "../dtos/event.dto";
 import { nameLookup } from "./event-presenter";
 import type { EventViewerService } from "../services/event-viewer.service";
+import type { EventReminderService } from "../services/event-reminder.service";
 import type { EventNoticeService, NoticeOutcome } from "../services/event-notice.service";
 
 export interface EventActor { userId: string }
 interface Deps {
     eventRepository: IEventRepository; sessionRepository: ISessionRepository; branchRepository: Pick<IBranchRepository, "findMany">;
     classRepository: Pick<IClassRepository, "findAllClasses">; eventMapper: EventMapper; auditService: AuditService;
-    eventViewerService?: EventViewerService; eventNoticeService?: EventNoticeService;
+    eventViewerService?: EventViewerService; eventNoticeService?: EventNoticeService; eventReminderService?: EventReminderService;
 }
 const day = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : null);
 const sameSet = (a: readonly string[], b: readonly string[]) => a.length === b.length && a.every(x => b.includes(x));
@@ -167,6 +168,7 @@ export class UpdateEventUseCase {
 
         data.updatedById = actor.userId;
         const updated = await this.d.eventRepository.update(id, { data, ...(audienceChanged ? { branchIds, classIds } : {}) });
+        if (published && "reminderOffsetsMinutes" in data) await this.d.eventReminderService?.sync(schoolId, updated);
         await this.d.auditService.log({ userId: actor.userId, schoolId, action: "calendar_event.updated", entity: "CalendarEvent", entityId: id, oldValue: before, newValue: after });
         return (await present(this.d, [updated]))[0];
     }
@@ -200,6 +202,7 @@ export class CancelEventUseCase {
         if (event.status !== "PUBLISHED") throw eventErrors.notPublished();
         const updated = await this.d.eventRepository.update(id, { data: { status: "CANCELLED", cancelledAt: new Date(), cancelledById: actor.userId, cancelReason: opts.reason ?? null, updatedById: actor.userId } });
         await this.d.auditService.log({ userId: actor.userId, schoolId, action: "calendar_event.cancelled", entity: "CalendarEvent", entityId: id, oldValue: { status: "PUBLISHED" }, newValue: { status: "CANCELLED", ...(opts.via ? { via: opts.via } : {}), ...(opts.reason ? { reason: opts.reason } : {}) } });
+        await this.d.eventReminderService?.sync(schoolId, updated);      // a cancelled event has no pending reminders
         // Only the use case behind the cancel route tells people; the old DELETE route never did
         const notice = opts.notify && this.d.eventNoticeService ? await this.d.eventNoticeService.send(schoolId, updated, "cancelled", actor.userId) : null;
         return { event: updated, changed: true, notice };

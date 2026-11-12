@@ -10,6 +10,7 @@ import { assertSchedule, scheduleChanged } from "../domain/event.policy";
 import { assertCanActOnEvent } from "../domain/event.scope";
 import { NOTICE_STATUS, NoticeKind, hasStarted } from "../domain/event.notice";
 import { RescheduleEventDtoType, CancelEventDtoType } from "../dtos/event.dto";
+import { EventReminderService } from "../services/event-reminder.service";
 import { EventNoticeService, NoticeOutcome } from "../services/event-notice.service";
 import { CancelEventUseCase, EventActor } from "./events.usecases";
 import { nameLookup } from "./event-presenter";
@@ -17,7 +18,7 @@ import { nameLookup } from "./event-presenter";
 export type LifecycleNotice = NoticeOutcome | { sent: false; reason: "already_started" } | null;
 interface Deps {
     eventRepository: IEventRepository; schoolRepository: Pick<ISchoolRepository, "findById">; sessionRepository: ISessionRepository;
-    eventMapper: EventMapper; auditService: AuditService; eventNoticeService: EventNoticeService; cancelEventUseCase: CancelEventUseCase;
+    eventMapper: EventMapper; auditService: AuditService; eventNoticeService: EventNoticeService; eventReminderService: EventReminderService; cancelEventUseCase: CancelEventUseCase;
 }
 const day = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : null);
 
@@ -39,6 +40,7 @@ export class PublishEventUseCase {
 
         const published = await this.d.eventRepository.update(id, { data: { status: "PUBLISHED", publishedAt: new Date(), publishedById: actor.userId, updatedById: actor.userId } });
         await this.d.auditService.log({ userId: actor.userId, schoolId, action: "calendar_event.published", entity: "CalendarEvent", entityId: id, oldValue: { status: "DRAFT" }, newValue: { status: "PUBLISHED" } });
+        await this.d.eventReminderService.sync(schoolId, published);
         const started = hasStarted(published, new Date(), await timeZoneOf(this.d, schoolId));
         const notice: LifecycleNotice = started ? { sent: false, reason: "already_started" } : await this.d.eventNoticeService.send(schoolId, published, "published", actor.userId);
         return { event: await present(this.d, await this.d.eventRepository.findById(id) ?? published), changed: true, notice };
@@ -64,6 +66,7 @@ export class RescheduleEventUseCase {
             oldValue: { startDate: day(event.startDate), endDate: day(event.endDate), isAllDay: event.isAllDay, startTime: event.startTime, endTime: event.endTime },
             newValue: { startDate: day(next.startDate), endDate: day(next.endDate), isAllDay: next.isAllDay, startTime: next.startTime, endTime: next.endTime, revision: updated.revision },
         });
+        await this.d.eventReminderService.sync(schoolId, updated);          // the old revision's pending reminders are cancelled, the new ones planned
         // The old date may already have passed: the notice is about the NEW start, so it is judged on that
         const notice: LifecycleNotice = hasStarted(updated, new Date(), await timeZoneOf(this.d, schoolId)) ? { sent: false, reason: "already_started" } : await this.d.eventNoticeService.send(schoolId, updated, "rescheduled", actor.userId);
         return { event: await present(this.d, updated), changed: true, notice };

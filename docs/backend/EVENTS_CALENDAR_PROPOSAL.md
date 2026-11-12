@@ -212,4 +212,31 @@ Behaviour worth knowing:
 - Notices use the existing dispatch service with one idempotency key per person, channel and notice (a reschedule key includes the
   revision), so retries and repeated `notify` calls never send twice. Channels come from the event, then plan and school settings decide
   what is allowed; in-app is always allowed. Events that have started get no automatic notice and `notify` refuses them.
-- Reminders (Step D) are not created yet.
+
+---
+
+## Implemented: Step D (reminders, cover image)
+
+**Reminders.** `reminderOffsetsMinutes` on an event (up to 5, from 5 minutes to 90 days before) becomes rows in `CalendarEventReminder`
+when the event is published: one per offset for the event's current schedule revision. The rows are kept right after every change:
+reschedule (new revision: old pending rows cancelled, new ones planned), offset change, cancel (all pending cancelled), and the old calendar
+date edit. A reminder whose time had already passed when planned is created as `SKIPPED`; it never fires late. Reminders count back from the
+start time, or from 08:00 school time for an all-day event; the school's own time zone is used.
+
+**Sending.** The `event-reminders` queue runs one repeating job every 5 minutes (`schedulers/index.ts`, shown in Bull Board). Each tick goes
+through every active, provisioned school in its own tenant context (one school failing does not stop the others) and claims due `PENDING`
+rows so only one worker handles each. Per reminder:
+- the event is no longer published, or its schedule moved on (older revision): `CANCELLED`;
+- event notices are off (`events.notifications_enabled`), nobody to reach, or the event already started: `SKIPPED` with the reason. A skipped
+  reminder never replays, so switching notices on later does not send old reminders;
+- otherwise it is sent through the same notice road as publish/cancel (channel policy, audience rules, one idempotency key per person,
+  channel, revision and offset) and marked `SENT`;
+- a failure puts the row back for the next tick, up to 3 tries, then `FAILED` with the error. Rows stuck in `PROCESSING` for 30 minutes
+  (a worker died) go back to `PENDING`.
+
+**Cover image.** `POST /events/:id/cover` (multipart field `cover`; JPEG, PNG or WebP by the file's own bytes, up to 2 MB, SVG refused)
+and `DELETE /events/:id/cover`, both `events.manage` and refused on a cancelled event. It uses the same storage service and public bucket as the
+school logo, under `schools/<schoolId>/events`. Removing a cover clears the link; the stored file is not deleted.
+
+**Not done (Phase 2, as agreed):** recurring events. The data model does not block them: a series would be a parent record with generated
+occurrences, each with its own rows in the tables above.

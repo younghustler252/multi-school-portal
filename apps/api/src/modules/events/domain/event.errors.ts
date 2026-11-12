@@ -28,5 +28,6 @@ export const eventErrors = {
     alreadyStarted:  () => conflict("This event has already started, so a notice can no longer be sent", "EVENT_ALREADY_STARTED"),
     noticeMismatch:  (kind: string) => conflict(`A "${kind}" notice does not fit the event's current state`, "EVENT_NOTICE_NOT_APPLICABLE"),
     noticesOff:      () => conflict("Event notices are switched off in the school's settings", "EVENT_NOTIFICATIONS_OFF"),
+    invalidImage:    () => invalid("Upload a JPEG, PNG or WebP image up to 2 MB", "EVENT_INVALID_IMAGE"),
     notPublished:    () => conflict("Only a published event can be cancelled", "EVENT_NOT_PUBLISHED"),
 };
