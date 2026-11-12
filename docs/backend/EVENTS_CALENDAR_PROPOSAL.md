@@ -355,19 +355,33 @@ delete), `EVENT_TYPE_IN_USE` 409 (delete a referenced custom type; the message p
 
 ### 12.9 Review amendments (agreed after review; these override anything above that differs)
 
-**Rule A: system types are sealed by a trigger on `CalendarEventType`.** The trigger function holds the canonical list of system keys with their fixed ids.
-- INSERT with `isSystem = true` is accepted only if `(key, id)` is exactly on that list; INSERT with `isSystem = false` and a system key is rejected.
-- UPDATE can never change `key` or `isSystem` on any row (so a custom type cannot be promoted, and a system type cannot be demoted).
-- On a system row it also rejects changing `name`, `nameKey` or `isActive`; `color` and `icon` stay editable (decision 1).
-- DELETE of a system row is rejected.
-- Adding a future system type is a migration that also replaces the function. This protects against bugs and scripts; it is not a defence against someone with full database access.
+**Rule A: system types are sealed by a trigger on `CalendarEventType`, with one canonical catalog.**
+- The 11 system rows are defined **once**, in the SQL function `event_type_system_catalog()` returning `(id, key, name, nameKey)`. The seed insert reads from it, and the
+  trigger validates against it, so the two can never drift. A test asserts the catalog equals the TypeScript constant.
+- INSERT with `isSystem = true` is accepted only if `(id, key, name, nameKey)` matches a catalog row exactly and `isActive = true`; INSERT with `isSystem = false` and a
+  system key is rejected (a custom name equal to a system name is already refused by the unique `nameKey`).
+- UPDATE can never change `key` or `isSystem` on any row (a custom type cannot be promoted, a system type cannot be demoted).
+- On a system row it also rejects changing `name`, `nameKey` or `isActive`; `color` and `icon` stay editable (decision 1). DELETE of a system row is rejected.
+- Fixing a system label later is a migration that briefly disables the trigger, updates the catalog and the row, and re-enables it, all in one transaction. The
+  frontend translates by `key`, which is why names are locked. This guards against bugs and scripts; it is not a defence against full database access.
 
-**Rule B: one trigger on `CalendarEvent` owns the triple `eventTypeId`, `type`, `isHoliday`.** Before every insert or update:
-- if `eventTypeId` is set (or changed): `type` := the system key, or `other` for a custom type; `eventTypeId` wins if both changed;
-- else if only `type` is given or changed (legacy routes, old builds, fixtures): `eventTypeId` := the system type with that key;
-- always: `isHoliday` := (the type is the system `holiday` type).
-A legacy `PUT` sending `type: "other"` on a custom-typed event changes nothing (the mirror already says `other`), so the custom type survives.
-Application code does not write `type` or `isHoliday` itself. The trigger and the contract migration are removed/adapted together later.
+**Rule B: one trigger on `CalendarEvent` owns the triple `eventTypeId`, `type`, `isHoliday`, defined with `OLD` and `NEW`.**
+- **INSERT:** if `eventTypeId` is present, it wins and `type` := its mirror (the system key, or `other` for a custom type); otherwise `eventTypeId` := the system type with
+  key `type`. (Prisma always supplies `type`, default `event`, so "type was given" cannot be told apart on insert; this is why application code writes `eventTypeId` only
+  and the `type`-only branch exists for old builds, scripts and fixtures.)
+- **UPDATE:** compare with `OLD`.
+  - `eventTypeId` changed (alone or together with `type`): `eventTypeId` wins; `type` := its mirror.
+  - only `type` changed: `eventTypeId` := the system type with that key.
+  - neither changed: both left as they are.
+  - `eventTypeId` is null (a row not yet backfilled): filled from `type`.
+- A legacy `PUT` sending `type: "other"` on a custom-typed event is **not** a change (the mirror already says `other`), so the custom type survives; a legacy `PUT`
+  sending `exam` is a real change and moves the event to the system `exam` type.
+- **Always:** `isHoliday` := (the final type is the system `holiday` type).
+- **Published holiday lock, in the database:** on UPDATE, if `OLD.status = 'PUBLISHED'` and the new derived `isHoliday` differs from `OLD.isHoliday`, the trigger raises
+  `EVENT_HOLIDAY_TYPE_LOCKED` (mapped to 409). Draft to published is unaffected (`OLD` is a draft); cancelling keeps the type so it is unaffected; changing the type of an
+  already **cancelled** event is allowed (cancelled events never count for attendance). Anyone who must correct a published holiday by hand does so by deliberately
+  disabling the trigger inside one transaction. The API check stays as the friendly first line.
+- Application code does not write `type` or `isHoliday`. The trigger and the contract migration are removed or adapted together later.
 
 **Rule C: the 50-type limit is race-safe.** Creating a custom type runs in one transaction: take `pg_advisory_xact_lock` keyed by the school's schema,
 count, insert. Concurrent creations in one school queue; the lock is released at commit. Deactivated types **count** (otherwise create-and-deactivate
