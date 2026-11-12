@@ -240,3 +240,120 @@ school logo, under `schools/<schoolId>/events`. Removing a cover clears the link
 
 **Not done (Phase 2, as agreed):** recurring events. The data model does not block them: a series would be a parent record with generated
 occurrences, each with its own rows in the tables above.
+
+---
+
+## 12. School-managed event types (proposal, awaiting review; nothing below is implemented)
+
+Status: **proposal only.** It changes §3 (event type is no longer a fixed list). Steps A to D stay as they are and keep working; this is
+added on top, on `feat/api/events-calendar`, with no integration into `refactor/api` or `refactor/modules` until you approve separately.
+
+### 12.1 Today
+`CalendarEvent.type` is the Prisma enum `EventType` (11 values: holiday, event, exam, break, other, meeting, sports, ceremony, graduation,
+resumption, pta). Adding a value needs a code and migration change, and a school cannot make its own. "Is this a holiday?" is the separate
+column `CalendarEvent.isHoliday`, which attendance reads (published events only). It is set when the type is `holiday` or when the caller
+sets the flag.
+
+### 12.2 Schema design (tenant schema, so every school has its own table)
+
+New table `CalendarEventType`:
+
+| Column | Notes |
+|--------|-------|
+| `id` | uuid. System rows get **fixed, documented ids** (the same in every school); custom rows get random uuids |
+| `key` | **Stable identifier**, unique, lowercase `a-z0-9-` (2 to 40). System keys are the old enum names (`holiday`, `event`, `exam`, ...). Custom keys are made from the name when the type is created (`Inter-house Quiz` → `inter-house-quiz`, `-2` added on a clash). **Never changes**, even when the type is renamed. A custom key can never equal a system key |
+| `name` | Display label, 2 to 40 characters, trimmed, inner spaces collapsed, no `<` `>` or control characters |
+| `nameKey` | Lowercased, space-collapsed `name`; **unique**, so "Sports" and " sports " cannot coexist, and a custom name cannot copy a system name |
+| `color` | `#RRGGBB` hex or null |
+| `icon` | Short identifier from the frontend's icon set (`^[a-z0-9-]{1,40}$`), never a URL or markup; null = default |
+| `isSystem` | true for the 11 predefined types. Set only by migrations, never by the API |
+| `isActive` | default true |
+| `createdById`, `createdAt`, `updatedAt` | |
+
+`CalendarEvent` gets `eventTypeId` (uuid, FK to `CalendarEventType`, **`ON DELETE RESTRICT`**, indexed). The old `type` enum column stays for
+now as a **mirror** (see 12.3) so nothing that reads it breaks.
+
+Attendance and "holiday" meaning: **unchanged and independent of labels.** Attendance keeps reading `CalendarEvent.isHoliday = true` and
+`status = PUBLISHED`. `isHoliday` is set from the system type's stable `key = 'holiday'` (or the explicit flag), never from the display name.
+The `holiday` row is system, so it cannot be renamed, deactivated or deleted, and a school cannot create a second "holiday" meaning by
+naming a custom type "Holiday" (name clash, see 12.5). A test pins that attendance queries never mention a type name or label.
+
+### 12.3 Migration strategy (expand now, contract later)
+
+Tenant migrations only, applied the existing way (each in its own transaction, fresh schools and existing schools alike).
+
+1. **`..._event_types` (expand), in this release:**
+   - create `CalendarEventType`; insert the 11 system rows with fixed ids (`ON CONFLICT (key) DO NOTHING`, so it can be re-run);
+   - add `CalendarEvent.eventTypeId` (**nullable**), index, FK `RESTRICT`;
+   - backfill: `eventTypeId = (system row whose key = the event's old type)`. Every existing event, draft, published or cancelled, is kept and
+     points at its matching system type. `status`, `isHoliday`, dates, audience and reminders are not touched.
+2. **Code in the same release** always writes both: `eventTypeId`, and the enum `type` as a mirror (the system key, or `other` for a custom
+   type). It tolerates a null `eventTypeId` (reads fall back to the enum key), so a school whose migration is a little behind still works.
+3. **`..._event_types_contract` (later, separate approval, not in this work):** `eventTypeId SET NOT NULL`, then drop the `type` enum column and
+   the `EventType` enum. It is destructive, so it waits until the expand step has run everywhere and you approve it.
+
+Legacy `/sessions/calendar/events` keeps its five type values and its response shape: `type` in its responses is the mirror, so an event with
+a custom type appears there as `other`. The legacy create sets `eventTypeId` from the same five keys.
+
+### 12.4 Endpoints (school realm, under `/events/types`; declared before `/events/:id`)
+
+| Method and path | Who | What |
+|-----------------|-----|------|
+| `GET /events/types` | any signed-in staff, student or parent | Active types (system first, then by name) for pickers. `?includeInactive=true` needs `events.types.manage` (others get 403, not a silently smaller list) |
+| `POST /events/types` | `events.types.manage` | Create a custom type `{ name, color?, icon? }`. 201 |
+| `PATCH /events/types/:typeId` | `events.types.manage` | Custom: `{ name?, color?, icon?, isActive? }`. System: only `{ color?, icon? }` (see decisions) |
+| `DELETE /events/types/:typeId` | `events.types.manage` | Hard delete of a **custom type no event uses**. Otherwise refused |
+
+Event endpoints (Step B to D) keep the field name `type`, now accepting any **type key** (system or custom). It is resolved against the
+school's own table; an unknown key is `EVENT_TYPE_NOT_FOUND` (404), an inactive one for a new or changed type is `EVENT_TYPE_INACTIVE` (409).
+Event responses gain an additive `eventType: { id, key, name, color, icon, isSystem, isActive }` next to the existing `type` (the key), so current
+clients do not break. `GET /events?type=<key>` filters by key. An event that already has a type keeps it, with its current name and colour, even
+after the type is deactivated; only choosing it for a new event or changing to it is blocked.
+
+Errors (stable codes): `EVENT_TYPE_NOT_FOUND` 404, `EVENT_TYPE_NAME_TAKEN` 409, `EVENT_TYPE_PROTECTED` 409 (system type: rename, deactivate,
+delete), `EVENT_TYPE_IN_USE` 409 (delete a referenced custom type; the message points to deactivating it), `EVENT_TYPE_INACTIVE` 409,
+`EVENT_TYPE_LIMIT` 409, validation errors 400 with field details.
+
+### 12.5 Rules
+
+- **System types** (the 11): cannot be renamed, deleted or deactivated. Enforced in the use case and again in the database (a trigger rejects
+  changing `key`, `name`, `isSystem` or `isActive` on a system row, and deleting any system row), so a script cannot bypass it either.
+- **Custom types:** can be renamed (the key stays), recoloured, given an icon, deactivated and reactivated.
+- **Hard delete:** only for a custom type with **zero** events (drafts, published and cancelled all count). Enforced by a count in the use case
+  and by the `RESTRICT` foreign key as a backstop. A type that is in use is deactivated instead.
+- **Names:** unique per school ignoring case and spacing, against system and custom types together.
+- **Limit:** at most 50 custom types per school (a policy constant, in one place) so a pick list stays usable.
+- **Existing events** are never rewritten by renaming or recolouring a type: they point to the type by id.
+- Every change is audited: `event_type.created`, `.updated`, `.deactivated`, `.activated`, `.deleted`.
+
+### 12.6 Authorization and tenant isolation
+
+- New permission **`events.types.manage`**: school realm, module events, scope `ALL` only (types are school-wide), staff persona.
+- **School Admin** gets it through the existing grants-all mechanism (the `school_admin` role holds every school permission), so no template
+  line is added for it. **No other template gets it**: not `principal`, not `branch_principal`, not teacher, bursar, student or guardian.
+  A school can still grant it to another role by hand in the role editor. A test asserts that every template other than `school_admin` lacks it
+  and that all existing grants are unchanged (same baseline file as Step B).
+- `sync:registries` registers the permission, as for `events.manage`.
+- Every route sits behind the tenant guard and `requirePermission`; the school is the host's school, never a field in the body or URL.
+- **Isolation:** the table is in each school's own schema and every query runs through the tenant client, so a school can only see or touch its
+  own types. A type id from another school is simply "not found". Tests: a real two-schema database test (create a type in school A; it is
+  invisible to, and cannot be used, renamed or deleted from, school B) plus use-case tests that a missing id and a wrong-tenant id look the same.
+- Reading the list is open to everyone signed in (they need names and colours to draw the calendar); writing needs the permission.
+
+### 12.7 Stages (each reported before the next; all on `feat/api/events-calendar`)
+
+- **E1 schema:** `tenant.prisma`, the expand migration, tests on a real PostgreSQL (existing rows backfilled, system rows seeded, trigger and
+  `RESTRICT` behave, fresh and existing schemas). You regenerate the client again afterwards, as before.
+- **E2 types module:** entity, policy, repository, use cases, DTOs, controller, routes, permission, container, unit and architecture tests.
+- **E3 integration and docs:** events use `eventTypeId` (create, update, list filter, responses, mirror writes), legacy compatibility tests, attendance
+  pin test, a frontend guide `docs/frontend/EVENT_TYPES_API.md` (endpoints, shapes, error codes, examples), and a final regression run of Steps A to D.
+
+### 12.8 Decisions I made, for you to overrule
+1. System types' **colour and icon can be changed** by the school (display only; name, key and state are locked). If you want them fully frozen, say so.
+2. `principal` does **not** get `events.types.manage` either (you excluded Branch Principals; I applied the same to Principal). A school can grant it.
+3. The enum column stays as a mirror until a separate contract approval; the contract migration is not part of this work.
+4. Type **keys never change** and are what clients should store; display names may change.
+5. A deactivated type still shows on events that use it; reactivation is allowed.
+6. Custom types are capped at 50 per school.
+7. Icons are identifiers from the frontend's set, not uploads.
+8. Notices keep their existing `event` / `holiday` category; the custom type name does not change notice routing.
