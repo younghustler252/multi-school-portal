@@ -64,7 +64,7 @@ export function Topbar({ onMenuClick, searchPlaceholder = "Search…" }: TopbarP
 					}
 				/>
 				<DropdownMenuContent align="end" className="w-[min(20rem,calc(100vw-2rem))]">
-					<DropdownMenuItem onClick={() => router.push("/settings")}>
+					<DropdownMenuItem onClick={() => router.push(ROUTES.settings)}>
 						<Settings className="size-4" /> Account settings
 					</DropdownMenuItem>
 					<DropdownMenuItem onClick={() => setFeedbackOpen(true)}>

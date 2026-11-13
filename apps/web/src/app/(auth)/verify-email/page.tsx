@@ -96,7 +96,7 @@ export default function VerifyEmailPage() {
 	return (
 		<div className="flex min-h-screen items-center justify-center bg-hero-radial px-4">
 			<div className="w-full max-w-sm text-center">
-				<Link href="/" className="inline-flex items-center gap-2">
+				<Link href={ROUTES.public.landing} className="inline-flex items-center gap-2">
 					<Logo size={36} />
 					<span className="text-lg font-semibold"><PlatformName /></span>
 				</Link>

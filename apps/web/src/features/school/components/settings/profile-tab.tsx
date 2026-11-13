@@ -83,7 +83,7 @@ export function ProfileTab() {
 		try {
 			const res = await schoolApi.uploadLogo(file);
 			if (res.success) {
-				setLogoUrl(res.data.url);
+				setLogoUrl(res.data.logoUrl);
 				toast.success("Logo updated");
 			} else {
 				toast.error(res.message);

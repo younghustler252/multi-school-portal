@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ImageUploadField } from "@/components/ui/image-upload-fields";
+import { uploadedUrl } from "@/lib/api/upload-result";
 import { platformSettingsApi } from "@/features/super-admin/services/platform-settings.api";
 import { usePlatformSettings, useUpdatePlatformSettings } from "@/features/super-admin/hooks/use-platform-settings";
 import { UpdatePlatformSettingsDto } from "@/features/super-admin/types/platform-settings.types";
@@ -100,10 +101,7 @@ export default function PlatformSettingsPage() {
 					<ImageUploadField
 						label="Logo"
 						currentUrl={settings?.logoUrl}
-						uploadFn={async (file) => {
-							const res = await platformSettingsApi.uploadLogo(file);
-							return res.success ? { ...res, data: { url: res.data.logoUrl ?? "" } } : res;
-						}}
+						uploadFn={async (file) => uploadedUrl(await platformSettingsApi.uploadLogo(file), (s) => s.logoUrl)}
 						onUploaded={() => queryClient.invalidateQueries({ queryKey: ["platform-settings"] })}
 					/>
 					<div className="grid gap-4 sm:grid-cols-2">

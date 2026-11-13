@@ -46,7 +46,7 @@ export default function ForgotPasswordPage() {
 		<div className="flex min-h-screen items-center justify-center bg-hero-radial px-4">
 			<div className="w-full max-w-sm">
 				<div className="mb-8 flex flex-col items-center text-center">
-					<Link href="/" className="flex items-center gap-2">
+					<Link href={ROUTES.public.landing} className="flex items-center gap-2">
 						<Logo size={36} />
 						<span className="text-lg font-semibold"><PlatformName /></span>
 					</Link>

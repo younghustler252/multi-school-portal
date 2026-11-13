@@ -52,7 +52,7 @@ export default function PortalLoginPage() {
 					<p className="mt-2 text-sm text-muted-foreground">
 						There's no school portal at <span className="font-medium text-foreground">{subdomain}</span>. Check the link, or head back home.
 					</p>
-					<a href="/" className="mt-6 inline-block text-sm font-medium text-primary hover:underline">
+					<a href={ROUTES.public.landing} className="mt-6 inline-block text-sm font-medium text-primary hover:underline">
 						Go to {currentDeployment().baseDomain} →
 					</a>
 				</div>

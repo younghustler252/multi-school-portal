@@ -12,6 +12,7 @@ import { PlatformName } from "@/components/layout/platform-name";
 import { buildSubdomainUrl } from "@/lib/subdomain-url";
 import { useMySchool } from "@/features/school/hooks/use-school";
 import { useOnboardingProgress } from "@/features/school/hooks/use-onboarding-progress";
+import { ROUTES } from "@/lib/routes";
 
 export default function OnboardingLayout({ children }: { children: ReactNode }) {
 	const navRouter = useNavRouter();
@@ -37,7 +38,7 @@ export default function OnboardingLayout({ children }: { children: ReactNode }) 
 				<div className="min-h-screen bg-background text-foreground">
 					<header className="sticky top-0 z-20 border-b border-border bg-background/85 backdrop-blur">
 						<div className="flex h-16 items-center gap-3 px-4 md:px-8">
-							<Link href="/" className="flex items-center gap-2">
+							<Link href={ROUTES.public.landing} className="flex items-center gap-2">
 								<Logo size={32} />
 								<span className="hidden font-semibold tracking-tight sm:inline"><PlatformName /></span>
 							</Link>

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { MyPermissions } from "@schoolos/contracts";
 import { ROUTES } from "@/lib/routes";
-import { canOpenRoute } from "@/lib/route-access";
+import { canOpenRoute, NAV_GROUP_VISIBLE, ruleFor, SCHOOL_ROUTE_RULES } from "@/lib/route-access";
 import { notificationsPath, PLATFORM_NAV, SCHOOL_NAV, visibleNav } from "@/lib/nav-model";
 
 function me(keys: string[], realm: "school" | "platform" = "school"): MyPermissions {
@@ -78,7 +78,7 @@ describe("persona and scope in the menu (same rules as the route guard)", () => 
 	});
 
 	it("staff holding keys at ASSIGNED or ALL get management entries, and no family entries", () => {
-		expect(labels(teacher)).toEqual(["Home", "Students", "Classes", "Subjects", "Attendance"]);
+		expect(labels(teacher)).toEqual(["Home", "Students", "Classes", "Subjects", "Overview", "My classes", "Attendance"]);
 		expect(visibleNav(teacher).some((e) => e.to.startsWith("/family") || e.to.startsWith("/learning"))).toBe(false);
 	});
 
@@ -86,11 +86,21 @@ describe("persona and scope in the menu (same rules as the route guard)", () => 
 		expect(labels(as("STAFF", [["students.view", "OWN"]]))).toEqual(["Home"]);
 	});
 
-	it("the menu and the guard always agree", () => {
+	it("every entry the menu shows is a page the guard lets the person open", () => {
 		for (const who of [guardian, student, teacher, me(["staff.view", "students.view"]), me([])]) {
+			for (const e of visibleNav(who)) expect(canOpenRoute(e.to, who), `${e.to}`).toBe(true);
+		}
+	});
+
+	it("an entry is hidden from the menu only for a stated reason: the guard denies, its section is off, or it is superseded", () => {
+		for (const who of [guardian, student, teacher, me(["staff.view", "students.view"]), me([])]) {
+			const shown = new Set(visibleNav(who).map((v) => v.to));
 			for (const e of SCHOOL_NAV) {
-				const shown = visibleNav(who).some((v) => v.to === e.to);
-				expect(canOpenRoute(e.to, who), `${e.to}`).toBe(shown);
+				if (shown.has(e.to)) continue;
+				const denied = !canOpenRoute(e.to, who);
+				const sectionOff = e.rule.group === "teaching" && !NAV_GROUP_VISIBLE.teaching(who);
+				const superseded = !!e.rule.supersededBy && shown.has(e.rule.supersededBy);
+				expect(denied || sectionOff || superseded, `${e.to} hidden without a reason`).toBe(true);
 			}
 		}
 	});
@@ -99,6 +109,38 @@ describe("persona and scope in the menu (same rules as the route guard)", () => 
 		expect(notificationsPath("school", "STAFF")).toBe(ROUTES.school.notifications);
 		expect(notificationsPath("school", "GUARDIAN")).toBe(ROUTES.family.notifications);
 		expect(canOpenRoute(notificationsPath("school", "GUARDIAN"), guardian)).toBe(true);
-		expect(notificationsPath("school", "STUDENT")).toBe(ROUTES.home);
+		expect(notificationsPath("school", "STUDENT")).toBeNull(); // no inbox page: the bell says so
+		expect(notificationsPath("platform")).toBe(ROUTES.platform.notifications);
+	});
+
+	it("teaching: a teacher gets a Teaching section and School drops the duplicate work pages", () => {
+		const groups = visibleNav(teacher).map((e) => e.groupLabel);
+		expect(groups.includes("Teaching")).toBe(true);
+		const paths = visibleNav(teacher).map((e) => e.to);
+		expect(paths.includes(ROUTES.school.attendance)).toBe(false); // replaced by /teaching/attendance
+		expect(paths.includes(ROUTES.teaching.attendance)).toBe(true);
+	});
+
+	it("principal, bursar and admin hold the same keys at ALL, so no Teaching section and no duplicates", () => {
+		const principal = as("STAFF", [["school.dashboard.view", "ALL"], ["attendance.view", "ALL"], ["grades.view", "ALL"], ["classes.view", "ALL"], ["students.view", "ALL"], ["fees.invoices.view", "ALL"], ["payments.view", "ALL"]]);
+		const bursar = as("STAFF", [["school.dashboard.view", "ALL"], ["fees.invoices.view", "ALL"], ["payments.view", "ALL"], ["classes.view", "ALL"], ["students.view", "ALL"]]);
+		for (const who of [principal, bursar]) {
+			const entries = visibleNav(who);
+			expect(entries.some((e) => e.group === "teaching")).toBe(false);
+			const seen = new Set<string>();
+			for (const e of entries) {
+				const k = `${e.group}:${e.label}`;
+				expect(seen.has(k), `duplicate ${k}`).toBe(false);
+				seen.add(k);
+			}
+		}
+		expect(visibleNav(principal).filter((e) => e.group === "insights").map((e) => e.label)).toEqual(["Overview", "Attendance", "Grades"]);
+		expect(visibleNav(bursar).some((e) => e.to === ROUTES.finance.dashboard)).toBe(true);
+		expect(visibleNav(bursar).some((e) => e.to === ROUTES.insights.overview)).toBe(true); // same key; unique page, so not a duplicate
+	});
+
+	it("account settings has an explicit rule and is open to every persona", () => {
+		expect(ruleFor(ROUTES.settings, SCHOOL_ROUTE_RULES)?.path).toBe(ROUTES.settings);
+		for (const who of [guardian, student, teacher, as("STAFF", [])]) expect(canOpenRoute(ROUTES.settings, who)).toBe(true);
 	});
 });

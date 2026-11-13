@@ -2,11 +2,12 @@ import Link from "next/link";
 import { Logo } from "@/components/layout/logo";
 import { Button } from "@/components/ui/button";
 import { PlatformName } from "@/components/layout/platform-name";
+import { ROUTES } from "@/lib/routes";
 
 export default function NotFound() {
 	return (
 		<div className="flex min-h-screen flex-col items-center justify-center bg-hero-radial px-4 text-center">
-			<Link href="/" className="mb-8 flex items-center gap-2">
+			<Link href={ROUTES.public.landing} className="mb-8 flex items-center gap-2">
 				<Logo size={32} />
 				<span className="font-semibold tracking-tight"><PlatformName /></span>
 			</Link>
@@ -17,7 +18,7 @@ export default function NotFound() {
 				The page you're looking for doesn't exist or may have moved.
 			</p>
 
-			<Button className="mt-6" nativeButton={false} render={<Link href="/">Go home</Link>} />
+			<Button className="mt-6" nativeButton={false} render={<Link href={ROUTES.public.landing}>Go home</Link>} />
 		</div>
 	);
 }

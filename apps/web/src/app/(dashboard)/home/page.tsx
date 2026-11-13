@@ -38,6 +38,7 @@ export default function HomePage() {
 								>
 									<Icon className="size-5 text-primary" />
 									<span className="mt-3 text-sm font-medium">{e.label}</span>
+									{e.groupLabel && <span className="text-xs text-muted-foreground">{e.groupLabel}</span>}
 								</Link>
 							</li>
 						);

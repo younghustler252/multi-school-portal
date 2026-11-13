@@ -1,14 +1,41 @@
 "use client";
 
 import Link from "next/link";
-import { Bell, CheckCheck } from "lucide-react";
+import { Bell, BellOff, CheckCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu, DropdownMenuContent, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useMyNotifications, useUnreadCount, useMarkAsRead, useMarkAllAsRead } from "@/features/notifications/hooks/use-notification-inbox";
 
-export function NotificationBell({ inboxPath }: { inboxPath: string }) {
+/**
+ * `inboxPath` null = this kind of account has no inbox page (students). The bell then says so plainly and makes no
+ * requests, instead of showing an empty inbox that implies one exists.
+ */
+export function NotificationBell({ inboxPath }: { inboxPath: string | null }) {
+	return inboxPath ? <InboxBell inboxPath={inboxPath} /> : <NoInboxBell />;
+}
+
+function NoInboxBell() {
+	return (
+		<DropdownMenu>
+			<DropdownMenuTrigger
+				render={
+					<Button variant="ghost" size="icon" aria-label="Notifications are not available for this account">
+						<BellOff className="size-4 text-muted-foreground" />
+					</Button>
+				}
+			/>
+			<DropdownMenuContent align="end" className="w-72">
+				<div className="px-3 py-4 text-center text-sm text-muted-foreground">
+					Notifications are not available for student accounts yet.
+				</div>
+			</DropdownMenuContent>
+		</DropdownMenu>
+	);
+}
+
+function InboxBell({ inboxPath }: { inboxPath: string }) {
 	const unreadCount = useUnreadCount();
 	const { data } = useMyNotifications({ limit: 5 });
 	// console.log("Notification", data);

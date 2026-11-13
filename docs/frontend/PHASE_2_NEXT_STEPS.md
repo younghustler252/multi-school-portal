@@ -103,3 +103,9 @@ Frontend milestone/feature branches -> `refactor/web` -> `refactor/modules`. Bac
 - Registry extended with `auth`, `public`, `onboarding` (22 more files moved off typed paths; `AUTH_PAGES` and middleware use it). `/home` filters with `ROUTES.home`.
 - `robotsDisallow()` emits each protected root as `/x$` plus `/x/`; tested with a small matcher, including look-alikes such as `/homework`.
 - Platform logo: `Logo` renders a plain `<img>` (works for any storage host, custom domain or local); settings page uses an upload field calling `POST /platform/settings/logo` (backend not built yet, see ROADMAP backend asks).
+
+## M3c follow-ups (owner review 2026-11-13)
+- Menu sections + workspace entries for Teaching / Finance / Insights, single listing per page (see ROADMAP "Known limits"). `NavEntry` now carries `group` and `groupLabel`; the sidebar draws headings only when more than one section is visible; `/home` shows the section under each tile.
+- `/settings` has an explicit open-to-all rule. Student bell: `notificationsPath()` returns `null`, the bell shows an explanatory message.
+- Upload responses aligned with the real API (`lib/api/upload-result.ts`): school logo, stamp, signature, platform logo. Platform logo contract unchanged: `POST /platform/settings/logo`, field `logo`, responds with the platform settings (`logoUrl`).
+- Remaining `href="/"` and `/settings`, `/home` literals now use the registry.

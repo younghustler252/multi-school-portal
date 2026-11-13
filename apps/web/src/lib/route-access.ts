@@ -26,8 +26,19 @@ export type NavIcon =
 	| "reportCards" | "fees" | "payments" | "notifications" | "announcements" | "settings"
 	| "schools" | "users" | "plans" | "subscriptions" | "feedback";
 
+/** Menu sections. Entries of one section sit under one heading; "school" is management of the school itself. */
+export type NavGroup = "school" | "teaching" | "finance" | "insights";
+export const NAV_GROUP_LABEL: Record<NavGroup, string> = { school: "School", teaching: "Teaching", finance: "Finance", insights: "Insights" };
+
 export interface RouteRule {
 	path: string;
+	/** Menu section. Omitted = no heading (Home, and the guardian/student menus). */
+	group?: NavGroup;
+	/**
+	 * Menu only: hide this entry while the entry for `supersededBy` is shown, so one piece of work is listed once.
+	 * It does not affect the guard: the page itself stays openable.
+	 */
+	supersededBy?: string;
 	/** Present = the page appears in the menu (and on /home) for sessions that may open it. Array order is menu order. */
 	label?: string;
 	icon?: NavIcon;
@@ -47,26 +58,41 @@ const STAFF: PersonaType[] = ["STAFF"];
 | at OWN, so a key alone would show them staff pages. Persona says who the session is; the scope floor is a second layer
 | that keeps an OWN-only grant out even if a custom role ever mixes things.
 */
-const staffPage = (path: string, label: string | undefined, icon: NavIcon | undefined, anyOf: string[], minScope: Scope = "ASSIGNED"): RouteRule => ({
-	path, label, icon, personas: STAFF, anyOf, minScope,
-});
+const staffPage = (
+	path: string, label: string | undefined, icon: NavIcon | undefined, anyOf: string[], minScope: Scope = "ASSIGNED",
+	extra: Partial<RouteRule> = {},
+): RouteRule => ({ path, label, icon, personas: STAFF, anyOf, minScope, ...extra });
+
+const inSchool = (r: RouteRule): RouteRule => ({ ...r, group: "school" });
+
+/*
+| MENU DESIGN (no duplicate or confusing entries):
+|  - Sections with headings: School, Teaching, Finance, Insights. A page is listed once.
+|  - Teaching is a workspace for people whose work is scoped to ASSIGNED classes/students. It is shown only to a session
+|    holding a teaching key at exactly ASSIGNED (see NAV_GROUP_VISIBLE). Principals, bursars and admins hold those keys at
+|    ALL, so they do not get a Teaching section and keep the school-wide pages.
+|  - While Teaching is shown, School's Attendance / Grades / Report cards are hidden (supersededBy) in favour of the
+|    Teaching versions. The guard still lets the person open either URL.
+|  - Finance has one entry (its overview page); Fees and Payments stay under School because the Finance routes for them
+|    are the same pages. Insights are read-only school-wide overviews, distinct from the management pages.
+*/
 
 /* Menu entries and pages for managing the school (the same pages the old school-admin area had). */
-const SCHOOL_MANAGEMENT: RouteRule[] = [
+const SCHOOL_MANAGEMENT: RouteRule[] = ([
 	staffPage(ROUTES.school.staff.list, "Staff", "staff", ["staff.view"]),
 	staffPage(ROUTES.school.students.list, "Students", "students", ["students.view"]),
 	staffPage(ROUTES.school.guardians.list, "Guardians", "guardians", ["guardians.view"]),
 	staffPage(ROUTES.school.classes.list, "Classes", "classes", ["classes.view"]),
 	staffPage(ROUTES.school.subjects.list, "Subjects", "subjects", ["classes.view"]),
-	staffPage(ROUTES.school.attendance, "Attendance", "attendance", ["attendance.view", "attendance.mark"]),
-	staffPage(ROUTES.school.grades, "Grades", "grades", ["grades.view", "grades.enter"]),
-	staffPage(ROUTES.school.reportCards, "Report cards", "reportCards", ["report_cards.view"]),
+	staffPage(ROUTES.school.attendance, "Attendance", "attendance", ["attendance.view", "attendance.mark"], "ASSIGNED", { supersededBy: ROUTES.teaching.attendance }),
+	staffPage(ROUTES.school.grades, "Grades", "grades", ["grades.view", "grades.enter"], "ASSIGNED", { supersededBy: ROUTES.teaching.grades }),
+	staffPage(ROUTES.school.reportCards, "Report cards", "reportCards", ["report_cards.view"], "ASSIGNED", { supersededBy: ROUTES.teaching.reportCards }),
 	staffPage(ROUTES.school.fees.list, "Fees", "fees", ["fees.invoices.view", "fees.setup.view"]),
 	staffPage(ROUTES.school.payments, "Payments", "payments", ["payments.view"]),
 	staffPage(ROUTES.school.notifications, "Notifications", "notifications", ["notifications.view"]),
 	staffPage(ROUTES.school.announcements, "Announcements", "announcements", ["notifications.send"]),
 	staffPage(ROUTES.school.settings, "Settings", "settings", ["school_settings.view", "school.view"]),
-];
+] as RouteRule[]).map(inSchool);
 
 /* Pages the menu does not list: dashboard, create forms, tools. */
 const SCHOOL_EXTRA: RouteRule[] = [
@@ -85,16 +111,18 @@ const SCHOOL_EXTRA: RouteRule[] = [
 | beyond the STAFF persona.
 */
 const STAFF_AREAS: RouteRule[] = [
-	staffPage(ROUTES.insights.overview, undefined, undefined, ["school.dashboard.view"], "ALL"),
-	staffPage(ROUTES.insights.attendance, undefined, undefined, ["attendance.view"], "ALL"),
-	staffPage(ROUTES.insights.grades, undefined, undefined, ["grades.view"], "ALL"),
-	staffPage(ROUTES.teaching.dashboard, undefined, undefined, ["classes.view"], "ALL"),
-	staffPage(ROUTES.teaching.attendance, undefined, undefined, ["attendance.view", "attendance.mark"], "ASSIGNED"),
-	staffPage(ROUTES.teaching.grades, undefined, undefined, ["grades.view", "grades.enter"], "ASSIGNED"),
-	staffPage(ROUTES.teaching.classes, undefined, undefined, ["classes.view"], "ALL"),
-	staffPage(ROUTES.teaching.reportCards, undefined, undefined, ["report_cards.view"], "ASSIGNED"),
+	staffPage(ROUTES.insights.overview, "Overview", "dashboard", ["school.dashboard.view"], "ALL", { group: "insights" }),
+	staffPage(ROUTES.insights.attendance, "Attendance", "attendance", ["attendance.view"], "ALL", { group: "insights" }),
+	staffPage(ROUTES.insights.grades, "Grades", "grades", ["grades.view"], "ALL", { group: "insights" }),
+	staffPage(ROUTES.teaching.dashboard, "Overview", "dashboard", ["classes.view"], "ALL", { group: "teaching" }),
+	staffPage(ROUTES.teaching.classes, "My classes", "classes", ["classes.view"], "ALL", { group: "teaching" }),
+	staffPage(ROUTES.teaching.attendance, "Attendance", "attendance", ["attendance.view", "attendance.mark"], "ASSIGNED", { group: "teaching" }),
+	staffPage(ROUTES.teaching.grades, "Grades", "grades", ["grades.view", "grades.enter"], "ASSIGNED", { group: "teaching" }),
+	staffPage(ROUTES.teaching.reportCards, "Report cards", "reportCards", ["report_cards.view"], "ASSIGNED", { group: "teaching" }),
 	{ path: ROUTES.teaching.notifications, personas: STAFF },
-	staffPage(ROUTES.finance.dashboard, undefined, undefined, ["school.dashboard.view"], "ALL"),
+	staffPage(ROUTES.finance.dashboard, "Overview", "dashboard", ["school.dashboard.view"], "ALL", { group: "finance" }),
+	// /finance/fees and /finance/payments are the same pages as /school/fees and /school/payments, so they get no menu entry
+	// of their own (one place per page); the guard still covers them.
 	staffPage(ROUTES.finance.fees, undefined, undefined, ["fees.invoices.view", "fees.setup.view"], "ALL"),
 	staffPage(ROUTES.finance.payments, undefined, undefined, ["payments.view"], "ALL"),
 ];
@@ -134,6 +162,9 @@ const LEARNING: RouteRule[] = [
 /** Menu order for a school session: Home, then the rules above in array order (personas never overlap). */
 export const SCHOOL_ROUTE_RULES: RouteRule[] = [
 	{ path: ROUTES.home, label: "Home", icon: "dashboard" },
+	// Personal account page (name, phone, password): deliberately open to every signed-in school persona, so it has an
+	// explicit rule instead of relying on "no rule = allowed". Reached from the account menu, not the sidebar.
+	{ path: ROUTES.settings },
 	...SCHOOL_MANAGEMENT, ...SCHOOL_EXTRA, ...STAFF_AREAS, ...FAMILY, ...LEARNING,
 ];
 
@@ -147,6 +178,16 @@ export const PLATFORM_ROUTE_RULES: RouteRule[] = [
 	{ path: ROUTES.platform.notifications, label: "Notifications", icon: "notifications", anyOf: ["platform.notifications.view"] },
 	{ path: ROUTES.platform.settings, label: "Settings", icon: "settings", anyOf: ["platform.settings.manage"] },
 ];
+
+const TEACHING_KEYS = ["attendance.view", "attendance.mark", "grades.view", "grades.enter", "report_cards.view"];
+
+/** Whether a menu section is shown at all, on top of each entry's own rule. */
+export const NAV_GROUP_VISIBLE: Record<NavGroup, (p: MyPermissions) => boolean> = {
+	school: () => true,
+	insights: () => true,
+	finance: () => true,
+	teaching: (p) => p.permissions.some((x) => TEACHING_KEYS.includes(x.key) && x.scope === "ASSIGNED"),
+};
 
 const covers = (rulePath: string, pathname: string): boolean =>
 	pathname === rulePath || pathname.startsWith(`${rulePath}/`);

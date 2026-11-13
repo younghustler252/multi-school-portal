@@ -11,6 +11,7 @@ import { NAV_ICONS } from "@/lib/nav-config";
 import { visibleNav } from "@/lib/nav-model";
 import { useAuthStore } from "@/stores/auth.store";
 import { PlatformName } from "@/components/layout/platform-name";
+import { ROUTES } from "@/lib/routes";
 
 interface AdminSidebarProps {
 	isOpen: boolean;
@@ -56,7 +57,7 @@ function AdminSidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 			<Separator className="bg-sidebar-border" />
 
 			<div className="p-3">
-				<Link href="/" className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-sidebar-accent/60">
+				<Link href={ROUTES.public.landing} className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-sidebar-accent/60">
 					<LogOut className="size-4" />
 					Back to landing
 				</Link>
