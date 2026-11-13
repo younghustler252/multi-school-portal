@@ -27,6 +27,7 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Authorize the target student before any related lookup; apply the same authorization boundary to every query contributing to the response. Return a not-found/forbidden response or a fully empty response according to the API's established privacy policy. Add tests asserting no student identity, class, enrolment or register-day metadata leaks for an unrelated child.
 - **Owner/workstream:** Attendance backend developer
 - **Acceptance criteria:** Unauthorized target requests reveal no student-specific metadata or aggregates; authorized own/linked-child and staff-scope cases continue to pass.
+- **Resolution (branch `fix/api/p1-remediation-batch1`, not yet merged):** Confirmed in source, then fixed. The summary now finds the student through a visibility filter (`studentViewWhere`) before looking up the class or register days, and an unreachable student is the same 404 as an unknown one. Covered by unit tests and DB-gated cases (own, linked child, class teacher, subject teacher, last-term teacher, no permission).
 
 ### REM-002 — Enrolment BRANCH scope is declared but currently returns no records
 
@@ -1061,6 +1062,7 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Distinguish omitted/null broadcast from an explicitly empty array. Reject empty arrays with a validation error; preferably require an explicit broadcastAll=true confirmation and separate permission/confirmation UX.
 - **Owner/workstream:** Platform Notifications developer
 - **Acceptance criteria:** Omitted/null target can broadcast only through explicit broadcast intent; schoolIds=[] never broadcasts.
+- **Resolution (branch `fix/api/p1-remediation-batch1`, not yet merged):** Confirmed, then fixed. `schoolIds: []` is a 400 (DTO and use case, before anything is saved); `broadcastAll: true` is the explicit broadcast; contradictory combinations are 400. **Open decision:** omitting both fields is still read as a broadcast, because the current web composer sends no target for "all schools". Once the web app sends `broadcastAll: true`, that legacy path should be switched off (one condition in the use case and the DTO).
 
 ### REM-096 — Platform notification sends are not audited
 
@@ -1248,6 +1250,7 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Mount requestContext as the first app middleware, before CORS/webhook/global limiter/optional auth. Ensure the webhook path also receives a context if it is expected to have correlation IDs. Configure proxy trust separately before relying on req.ip.
 - **Owner/workstream:** API Infrastructure/Audit
 - **Acceptance criteria:** HTTP integration test confirms x-request-id response header, RequestContext fields in audit, and actor/impersonation enrichment after authenticate.
+- **Resolution (branch `fix/api/p1-remediation-batch1`, not yet merged):** Confirmed, then fixed. `requestContext` is the first `app.use` (before helmet, CORS, the webhook entry, the global limiter and optional auth); `x-request-id` is exposed through CORS. Covered by middleware, wiring and audit-enrichment tests. `req.ip` still depends on `TRUST_PROXY` being set correctly (REM-115).
 
 ### REM-113 — Query and route-parameter Zod parse results are discarded
 

@@ -35,7 +35,7 @@ All paths are relative to /api/v1/notifications.
 | GET | /platform-inbox | notifications.platform.view | Messages from platform to current school |
 | PATCH | /platform-inbox/:recipientId/read | notifications.platform.view | Mark current school's platform message read |
 | GET | /platform | platform.notifications.view | Platform sent-message history |
-| POST | /platform | platform.notifications.send | Send platform notice to selected/all schools |
+| POST | /platform | platform.notifications.send | Send platform notice. Target: `schoolIds` (at least one; an empty list is a 400) or `broadcastAll: true`. While the web app still sends no target for "all schools", omitting both is read as a broadcast (see REM-095) |
 
 School permissions are STAFF-only. notifications.send is sensitive and supports ALL or BRANCH scope. BRANCH senders can only reach their own branches; class targeting is restricted to student/guardian audiences. Own inbox routes require an authenticated persona but no separate inbox permission. Platform routes require platform-realm permissions.
 
