@@ -1,0 +1,474 @@
+diff --git a/apps/api/src/modules/attendance/repositories/attendance.repository.ts b/apps/api/src/modules/attendance/repositories/attendance.repository.ts
+index 03df82c..fd43610 100644
+--- a/apps/api/src/modules/attendance/repositories/attendance.repository.ts
++++ b/apps/api/src/modules/attendance/repositories/attendance.repository.ts
+@@ -93,6 +93,22 @@ export class AttendanceRepository {
+         return { total, rows };
+     }
+ 
++    /** Is this student on a class list in the term, within what `where` allows? (the same filter the lists use) */
++    async enrolledWithin(where: Record<string, unknown>, studentId: string, termId: string): Promise<boolean> {
++        return (await this.db.enrolment.count({ where: { AND: [where, { studentId, termId }] } as any })) > 0;
++    }
++
++    /** Is this guardian linked to this student? */
++    async guardianLinked(guardianId: string, studentId: string): Promise<boolean> {
++        return (await this.db.studentGuardian.count({ where: { guardianId, studentId } })) > 0;
++    }
++
++    /** Is this class in one of these branches? (used by the BRANCH scope; an empty list matches nothing) */
++    async classInBranches(classId: string, branchIds: string[]): Promise<boolean> {
++        if (branchIds.length === 0) return false;
++        return (await this.db.class.count({ where: { id: classId, branchId: { in: branchIds } } })) > 0;
++    }
++
+     /** Does this staff member lead the class, or teach it in the term? (used by the ASSIGNED scope) */
+     async staffCoversClass(staffId: string, classId: string, termId: string): Promise<boolean> {
+         const [leads, teaches] = await Promise.all([
+diff --git a/apps/api/src/modules/attendance/services/attendance-scope.ts b/apps/api/src/modules/attendance/services/attendance-scope.ts
+index fa3b150..2e07f25 100644
+--- a/apps/api/src/modules/attendance/services/attendance-scope.ts
++++ b/apps/api/src/modules/attendance/services/attendance-scope.ts
+@@ -4,9 +4,11 @@ import type { AttendanceRepository } from "../repositories/attendance.repository
+ /*
+ | WHO MAY SEE OR MARK WHICH ATTENDANCE
+ |   ALL        -> everything
++|   BRANCH     -> staff: the classes that belong to one of their branches (viewing only; attendance.mark never offers BRANCH).
++|                 A class has one branch; a person with no branches sees nothing.
+ |   ASSIGNED   -> a teacher: classes they LEAD (any term) and classes they TEACH
+ |   OWN        -> a student sees their own; a guardian sees their children's  (view only)
+-|   BRANCH, or no permission -> nobody (classes are not linked to branches yet)
++|   no permission -> nobody
+ | For VIEWING lists, "teach" means this term (like the other modules). For MARKING and for opening a class register,
+ | "teach" means in the term of the date: last term's assignment gives nothing.
+ */
+@@ -17,6 +19,7 @@ export function attendanceViewWhere(access: Access): Record<string, unknown> {
+     const scope = access.scopeOf("attendance.view");
+     const me = access.personaEntityId;
+     if (scope === "ALL") return {};
++    if (scope === "BRANCH" && access.persona === "STAFF") return { class: { branchId: { in: (access.branchScope("attendance.view") as string[] | null) ?? [] } } };
+     if (scope === "ASSIGNED" && access.persona === "STAFF" && me) {
+         return { OR: [
+             { class: { classTeacherId: me } },
+@@ -31,10 +34,31 @@ export function attendanceViewWhere(access: Access): Record<string, unknown> {
+ }
+ 
+ /** Is this class one the person's scope covers, in this term? (a class register is opened, or taken, class by class) */
+-export async function classInScope(repo: Pick<AttendanceRepository, "staffCoversClass">, access: Access, permission: "attendance.view" | "attendance.mark", classId: string, termId: string): Promise<boolean> {
++export async function classInScope(repo: Pick<AttendanceRepository, "staffCoversClass" | "classInBranches">, access: Access, permission: "attendance.view" | "attendance.mark", classId: string, termId: string): Promise<boolean> {
+     const scope = access.scopeOf(permission);
+     const me = access.personaEntityId;
+     if (scope === "ALL") return true;
+-    if (scope !== "ASSIGNED" || access.persona !== "STAFF" || !me) return false;   // OWN / BRANCH / none: not by class
++    // BRANCH is for LOOKING only: marking a register is never granted by branch, even if a role were given it by mistake
++    if (scope === "BRANCH") return permission === "attendance.view" && access.persona === "STAFF" && repo.classInBranches(classId, (access.branchScope(permission) as string[] | null) ?? []);
++    if (scope !== "ASSIGNED" || access.persona !== "STAFF" || !me) return false;   // OWN / none: not by class
+     return repo.staffCoversClass(me, classId, termId);
+ }
++
++/**
++ * May this person look at this ONE student's attendance? Same rules as the lists, so a record lookup never shows
++ * more than a list would: ALL -> yes; OWN -> yourself, or a child you are linked to; ASSIGNED / BRANCH -> the student
++ * is on the list of a class the scope covers in that term; anything else -> no.
++ */
++export async function studentInScope(repo: Pick<AttendanceRepository, "enrolledWithin" | "guardianLinked">, access: Access, studentId: string, termId: string): Promise<boolean> {
++    const scope = access.scopeOf("attendance.view");
++    const me = access.personaEntityId;
++    if (scope === "ALL") return true;
++    if (scope === "OWN") {
++        if (!me) return false;
++        if (access.persona === "STUDENT")  return me === studentId;
++        if (access.persona === "GUARDIAN") return repo.guardianLinked(me, studentId);
++        return false;
++    }
++    if ((scope === "ASSIGNED" || scope === "BRANCH") && access.persona === "STAFF") return repo.enrolledWithin(attendanceViewWhere(access), studentId, termId);
++    return false;
++}
+diff --git a/apps/api/src/modules/attendance/usecases/attendance-summaries.usecases.ts b/apps/api/src/modules/attendance/usecases/attendance-summaries.usecases.ts
+index 44f21b6..86fd4cd 100644
+--- a/apps/api/src/modules/attendance/usecases/attendance-summaries.usecases.ts
++++ b/apps/api/src/modules/attendance/usecases/attendance-summaries.usecases.ts
+@@ -1,7 +1,7 @@
+ import type { Access } from "../../../foundation/access.service";
+ import { AttendanceRepository } from "../repositories/attendance.repository";
+ import { NameRef, StudentRef, TermRef, studentRef, termRef } from "../services/attendance-presenter";
+-import { attendanceViewWhere, classInScope } from "../services/attendance-scope";
++import { attendanceViewWhere, classInScope, studentInScope } from "../services/attendance-scope";
+ import { attendanceErrors } from "../domain/attendance.errors";
+ import { AttendanceSummary, Counts, summarize } from "../domain/attendance.policy";
+ import { ClassSummaryQueryType, StudentSummaryQueryType } from "../dtos/attendance.dto";
+@@ -29,6 +29,8 @@ export class StudentSummaryUseCase {
+         const student = await repo.findStudent(query.studentId);
+         if (!student) throw attendanceErrors.studentNotFound();
+         const term = await termOf(repo, query.termId);
++        // a student outside the person's scope looks like one that does not exist (nothing about them is shown)
++        if (!(await studentInScope(repo, access, student.id, term.id))) throw attendanceErrors.studentNotFound();
+ 
+         // what this person may see of this student (a teacher sees only their classes; a guardian only their child)
+         const where = { AND: [attendanceViewWhere(access), { studentId: student.id, termId: term.id }] };
+diff --git a/apps/api/src/modules/enrolment/services/enrolment-scope.ts b/apps/api/src/modules/enrolment/services/enrolment-scope.ts
+index e54bdbe..dfffdb1 100644
+--- a/apps/api/src/modules/enrolment/services/enrolment-scope.ts
++++ b/apps/api/src/modules/enrolment/services/enrolment-scope.ts
+@@ -3,9 +3,11 @@ import type { Access } from "../../../foundation/access.service";
+ /*
+ | WHICH ENROLMENTS A PERSON MAY SEE (applied to every read).
+ |   ALL        -> everything
++|   BRANCH     -> staff: the enrolments in classes that belong to one of their branches (a class has one branch;
++|                 a person with no branches sees nothing)
+ |   ASSIGNED   -> a teacher: the classes they LEAD (any term) and the classes they TEACH this term
+ |   OWN        -> a student sees their own; a guardian sees their children's
+-|   BRANCH, or no permission -> nobody (classes are not linked to branches yet)
++|   no permission -> nobody
+ */
+ const NOBODY = { id: { in: [] as string[] } };
+ 
+@@ -13,6 +15,7 @@ export function enrolmentScopeWhere(access: Access): Record<string, unknown> {
+     const scope = access.scopeOf("enrolment.view");
+     const me = access.personaEntityId;
+     if (scope === "ALL") return {};
++    if (scope === "BRANCH" && access.persona === "STAFF") return { class: { branchId: { in: (access.branchScope("enrolment.view") as string[] | null) ?? [] } } };
+     if (scope === "ASSIGNED" && access.persona === "STAFF" && me) {
+         return { OR: [
+             { class: { classTeacherId: me } },
+diff --git a/apps/api/src/modules/grades/repositories/grades-sheets.repository.ts b/apps/api/src/modules/grades/repositories/grades-sheets.repository.ts
+index f9bda83..501c7c8 100644
+--- a/apps/api/src/modules/grades/repositories/grades-sheets.repository.ts
++++ b/apps/api/src/modules/grades/repositories/grades-sheets.repository.ts
+@@ -7,7 +7,7 @@ import { SheetPart } from "../domain/sheet.policy";
+ export interface Band { minScore: number; grade: string; remark: string; isPass: boolean }
+ 
+ const CLASS_SUBJECT_INCLUDE = {
+-    class:   { select: { id: true, name: true, level: true, classTeacherId: true } },
++    class:   { select: { id: true, name: true, level: true, classTeacherId: true, branchId: true } },
+     subject: { select: { id: true, name: true, code: true } },
+     staff:   { select: { id: true, firstName: true, lastName: true } },
+     term:    { select: { id: true, name: true, isCurrent: true, session: { select: { id: true, name: true } } } },
+diff --git a/apps/api/src/modules/grades/services/grades-scope.ts b/apps/api/src/modules/grades/services/grades-scope.ts
+index 593eace..33facef 100644
+--- a/apps/api/src/modules/grades/services/grades-scope.ts
++++ b/apps/api/src/modules/grades/services/grades-scope.ts
+@@ -3,12 +3,17 @@ import type { Access } from "../../../foundation/access.service";
+ /*
+ | WHO MAY SEE OR WORK ON WHICH MARK SHEET
+ |   ALL        -> everything
++|   BRANCH     -> (viewing only) every sheet and result of a class that belongs to one of the viewer's branches
+ |   ASSIGNED   -> staff: the sheets of subjects they TEACH, and (to look at, not to change) every subject of a class they LEAD
+ |   OWN        -> a student sees their own grades, a guardian their children's, and ONLY once the sheet is published
+-|   BRANCH, or no permission -> nobody (classes are not linked to branches yet)
++|   no permission -> nobody
+ | Entering and submitting is stricter than seeing: ASSIGNED means the teacher of THAT subject, not the class teacher.
++| (grades.enter / grades.submit never offer BRANCH, so a branch person can look but not change.)
++| A class belongs to one branch, so BRANCH is decided by the class's branchId. A person with no branches sees nothing.
+ */
+ const NOBODY = { id: { in: [] as string[] } };
++/** The branches a BRANCH-scoped permission is limited to (empty = none, which matches nothing). */
++const branchIdsOf = (access: Access): string[] => (access.branchScope("grades.view") as string[] | null) ?? [];
+ const PUBLISHED = { sheet: { status: { in: ["published", "locked"] } } };
+ 
+ /** Which Grade rows a person may see (used on the results list). */
+@@ -16,6 +21,7 @@ export function gradesViewWhere(access: Access): Record<string, unknown> {
+     const scope = access.scopeOf("grades.view");
+     const me = access.personaEntityId;
+     if (scope === "ALL") return {};
++    if (scope === "BRANCH" && access.persona === "STAFF") return { classSubject: { class: { branchId: { in: branchIdsOf(access) } } } };
+     if (scope === "ASSIGNED" && access.persona === "STAFF" && me) return { classSubject: { OR: [{ staffId: me }, { class: { classTeacherId: me } }] } };
+     if (scope === "OWN" && me) {
+         if (access.persona === "STUDENT")  return { studentId: me, ...PUBLISHED };
+@@ -29,16 +35,19 @@ export function sheetsViewWhere(access: Access): Record<string, unknown> {
+     const scope = access.scopeOf("grades.view");
+     const me = access.personaEntityId;
+     if (scope === "ALL") return {};
++    if (scope === "BRANCH" && access.persona === "STAFF") return { class: { branchId: { in: branchIdsOf(access) } } };
+     if (scope === "ASSIGNED" && access.persona === "STAFF" && me) return { OR: [{ staffId: me }, { class: { classTeacherId: me } }] };
+     return NOBODY;
+ }
+ 
+-export interface SheetOwner { staffId: string | null; classTeacherId: string | null }
++/** `branchId` is the class's branch. Left out, a BRANCH-scoped viewer is refused (fail closed), never let through. */
++export interface SheetOwner { staffId: string | null; classTeacherId: string | null; branchId?: string | null }
+ 
+ export function mayViewSheet(access: Access, o: SheetOwner): boolean {
+     const scope = access.scopeOf("grades.view");
+     const me = access.personaEntityId;
+     if (scope === "ALL") return true;
++    if (scope === "BRANCH") return access.persona === "STAFF" && !!o.branchId && access.canActInBranch("grades.view", o.branchId);
+     return scope === "ASSIGNED" && access.persona === "STAFF" && !!me && (o.staffId === me || o.classTeacherId === me);
+ }
+ 
+diff --git a/apps/api/src/modules/grades/usecases/grades-sheets-read.usecases.ts b/apps/api/src/modules/grades/usecases/grades-sheets-read.usecases.ts
+index e7482e9..6ee71c6 100644
+--- a/apps/api/src/modules/grades/usecases/grades-sheets-read.usecases.ts
++++ b/apps/api/src/modules/grades/usecases/grades-sheets-read.usecases.ts
+@@ -51,7 +51,7 @@ export class GetSheetUseCase {
+         const repo = this.d.gradesSheetsRepository;
+         const cs = await repo.classSubject(classSubjectId);
+         if (!cs) throw gradesErrors.sheetNotFound();
+-        const owner = { staffId: cs.staffId, classTeacherId: cs.class.classTeacherId };
++        const owner = { staffId: cs.staffId, classTeacherId: cs.class.classTeacherId, branchId: cs.class.branchId };
+         if (!mayViewSheet(access, owner)) throw gradesErrors.cannotSee();
+ 
+         const sheet = await repo.sheetOf(classSubjectId);
+diff --git a/apps/api/tests/attendance/attendance.db.test.ts b/apps/api/tests/attendance/attendance.db.test.ts
+index 5d44059..98180df 100644
+--- a/apps/api/tests/attendance/attendance.db.test.ts
++++ b/apps/api/tests/attendance/attendance.db.test.ts
+@@ -196,7 +196,7 @@ describe("attendance (real database)", { skip: dbTestsEnabled ? false : skipReas
+         it("a guardian can read their child's summary but not another child's", () => school.run(async () => {
+             const { student } = await uc(); const g = access("GUARDIAN", S.guardian.id, { "attendance.view": "OWN" });
+             assert.equal((await student.execute({ studentId: S.s1.id } as any, g)).daysMarked, 5);
+-            assert.equal((await student.execute({ studentId: S.s4.id } as any, g)).daysMarked, 0, "not their child: nothing is shown");
++            await assert.rejects(student.execute({ studentId: S.s4.id } as any, g), (e: any) => e.statusCode === 404 || /not found/i.test(e.message), "not their child: the student looks like they do not exist");
+         }));
+         it("a class summary: every student on the list, class rate, and the same access rules as the register", () => school.run(async () => {
+             const { klass } = await uc();
+diff --git a/apps/api/tests/attendance/fixtures.ts b/apps/api/tests/attendance/fixtures.ts
+index 4740cff..a3eaae4 100644
+--- a/apps/api/tests/attendance/fixtures.ts
++++ b/apps/api/tests/attendance/fixtures.ts
+@@ -41,7 +41,7 @@ export async function seed() {
+     await db.classSubject.create({ data: { classId: C2.id, subjectId: subject.id, staffId: tB.id, termId: term.id } });      // Bisi teaches JSS 2A this term
+     await db.classSubject.create({ data: { classId: C1.id, subjectId: subject2.id, staffId: tC.id, termId: oldTerm.id } });   // Chuka taught JSS 1A LAST term only
+ 
+-    const stu = (firstName: string, extra: Record<string, unknown> = {}) => db.student.create({ data: { firstName, lastName: "Pupil", ...extra } });
++    const stu = (firstName: string, extra: Record<string, unknown> = {}) => db.student.create({ data: { firstName, lastName: "Pupil", branchId, ...extra } });
+     const s1 = await stu("Ada"), s2 = await stu("Bola"), s3 = await stu("Chidi"), s4 = await stu("Dayo"), s5 = await stu("Efe"), s6 = await stu("Femi");
+     const enrol = (s: { id: string }, c: { id: string }, status: any = "active") => db.enrolment.create({ data: { studentId: s.id, classId: c.id, termId: term.id, status } });
+     await enrol(s1, C1); await enrol(s2, C1); await enrol(s3, C1); await enrol(s4, C2); await enrol(s5, C1, "withdrawn");   // s6 is on no class list
+diff --git a/apps/api/tests/branch-scope/branch-scope.db.test.ts b/apps/api/tests/branch-scope/branch-scope.db.test.ts
+new file mode 100644
+index 0000000..497ff05
+--- /dev/null
++++ b/apps/api/tests/branch-scope/branch-scope.db.test.ts
+@@ -0,0 +1,201 @@
++/*
++| BRANCH SCOPE, end to end, on a real database (attendance, enrolment, grades).
++| Two branches, one class in each, students and marks in each. A person scoped to a branch must see that branch and
++| nothing else: lists, single records, summaries, and filters that try to reach across ("widening").
++| (A class belongs to one branch, so the class's branchId decides.)
++*/
++import { describe, it, before, after } from "node:test";
++import assert from "node:assert/strict";
++import { createTestSchool, dbTestsEnabled, skipReason, TestSchool } from "../helpers/test-database";
++import { Access } from "../../src/foundation/access.service";
++import { seed, buildDeps, day, adminAccess } from "../attendance/fixtures";
++import { enrolmentScopeWhere } from "../../src/modules/enrolment/services/enrolment-scope";
++import { ListAttendanceUseCase } from "../../src/modules/attendance/usecases/list-attendance.usecase";
++import { GetRegisterUseCase } from "../../src/modules/attendance/usecases/get-register.usecase";
++import { ClassSummaryUseCase, StudentSummaryUseCase } from "../../src/modules/attendance/usecases/attendance-summaries.usecases";
++import { SubmitRegisterUseCase } from "../../src/modules/attendance/usecases/submit-register.usecase";
++import { GradesSheetsRepository } from "../../src/modules/grades/repositories/grades-sheets.repository";
++import { ListSheetsUseCase, GetSheetUseCase, ListGradesUseCase } from "../../src/modules/grades/usecases/grades-sheets-read.usecases";
++import { SaveScoresUseCase } from "../../src/modules/grades/usecases/save-scores.usecase";
++
++type Perms = Record<string, string>;
++const who = (persona: "STAFF" | "STUDENT" | "GUARDIAN", id: string | null, perms: Perms, branches: string[] = []) =>
++    new Access("school", "user-" + (id ?? "x"), "m1", persona, id, new Set(), false, new Map(Object.entries(perms)) as any, new Set(branches));
++
++const VIEW_BRANCH: Perms = { "attendance.view": "BRANCH", "enrolment.view": "BRANCH", "grades.view": "BRANCH" };
++const statusCode = (e: any) => e?.statusCode;
++
++describe("BRANCH scope (real database)", { skip: dbTestsEnabled ? false : skipReason }, () => {
++    let school: TestSchool;
++    let S: any;   // seed + the second branch
++    const db = () => (require("../../src/infrastructure/database/prisma/prisma.client") as any).getTenantClient();
++    const att = () => {
++        const deps = buildDeps();
++        return {
++            list: new ListAttendanceUseCase(deps as any), reg: new GetRegisterUseCase(deps as any),
++            klass: new ClassSummaryUseCase(deps as any), student: new StudentSummaryUseCase(deps as any), submit: new SubmitRegisterUseCase(deps as any),
++        };
++    };
++    const gdeps = () => ({ gradesSheetsRepository: new GradesSheetsRepository(), auditService: { log: async () => {} } } as any);
++    const sheets   = (a: Access, q: any = {}) => new ListSheetsUseCase(gdeps()).execute({ page: 1, limit: 100, ...q }, a);
++    const sheet    = (id: string, a: Access) => new GetSheetUseCase(gdeps()).execute(id, a);
++    const results  = (a: Access, q: any = {}) => new ListGradesUseCase(gdeps()).execute({ page: 1, limit: 100, ...q }, a);
++
++    const mainPerson  = () => who("STAFF", "p-main",  VIEW_BRANCH, [S.mainId]);
++    const northPerson = () => who("STAFF", "p-north", VIEW_BRANCH, [S.northId]);
++    const bothPerson  = () => who("STAFF", "p-both",  VIEW_BRANCH, [S.mainId, S.northId]);
++    const noBranch    = () => who("STAFF", "p-none",  VIEW_BRANCH, []);
++    const everyone    = () => who("STAFF", "p-all",   { "attendance.view": "ALL", "enrolment.view": "ALL", "grades.view": "ALL" });
++
++    before(async () => {
++        school = await createTestSchool();
++        S = await school.run(async () => {
++            const base = await seed();                                   // Main branch: classes C1, C2, students s1..s6
++            const d = db();
++            const mainId = base.C1.branchId ?? (await d.class.findUnique({ where: { id: base.C1.id } })).branchId;
++            const north = await d.branch.create({ data: { name: "North", code: "NORTH" } });
++            const C3 = await d.class.create({ data: { name: "JSS 3N", branchId: north.id, level: "JSS", classTeacherId: base.tA.id } });
++            const sN1 = await d.student.create({ data: { firstName: "Nnamdi", lastName: "North", branchId: north.id } });
++            const sN2 = await d.student.create({ data: { firstName: "Ngozi", lastName: "North", branchId: north.id } });
++            for (const s of [sN1, sN2]) await d.enrolment.create({ data: { studentId: s.id, classId: C3.id, termId: base.term.id, status: "active" } });
++
++            // marks: one in a Main class (s1 in C1), one in the North class (sN1 in C3)
++            const mark = (studentId: string, classId: string, off: number) =>
++                d.attendance.create({ data: { studentId, classId, termId: base.term.id, date: new Date(`${day(off)}T00:00:00Z`), status: "present" } });
++            await mark(base.s1.id, base.C1.id, -2); await mark(base.s2.id, base.C1.id, -2); await mark(sN1.id, C3.id, -2);
++
++            // mark sheets: Maths in C1 (Main), Maths in C3 (North); one student's scores each, entered by the admin
++            const maths = await d.subject.create({ data: { name: "Maths-bs" } });
++            const csMain  = await d.classSubject.create({ data: { classId: base.C1.id, subjectId: maths.id, staffId: base.tB.id, termId: base.term.id } });
++            const csNorth = await d.classSubject.create({ data: { classId: C3.id,      subjectId: maths.id, staffId: base.tB.id, termId: base.term.id } });
++            const admin = who("STAFF", "admin-staff", { "grades.view": "ALL", "grades.enter": "ALL" }, []);
++            const put = (cs: any, studentId: string) => new SaveScoresUseCase(gdeps()).execute(school.schoolId, cs.id,
++                { entries: [{ studentId, scores: [{ position: 1, score: 30 }, { position: 2, score: 50 }] }] } as any, admin, { userId: "user-admin" });
++            await put(csMain, base.s1.id); await put(csNorth, sN1.id);
++            return { ...base, mainId, northId: north.id, C3, sN1, sN2, csMain, csNorth };
++        });
++    });
++    after(async () => { await school.drop(); });
++
++    /* ───────────────────────────── attendance ───────────────────────────── */
++    describe("attendance", () => {
++        it("LIST: each branch sees only its own marks; two branches see both; no branch sees none; ALL sees all", () => school.run(async () => {
++            const { list } = att();
++            const ids = async (a: Access) => (await list.execute({ page: 1, limit: 100 } as any, a)).data.map((r: any) => r.student.id).sort();
++            assert.deepEqual(await ids(mainPerson()),  [S.s1.id, S.s2.id].sort());
++            assert.deepEqual(await ids(northPerson()), [S.sN1.id]);
++            assert.deepEqual(await ids(bothPerson()),  [S.s1.id, S.s2.id, S.sN1.id].sort());
++            assert.deepEqual(await ids(noBranch()),    []);
++            assert.deepEqual(await ids(everyone()),    [S.s1.id, S.s2.id, S.sN1.id].sort());
++        }));
++
++        it("LIST: filters can narrow but never reach across a branch (classId / studentId of the other branch gives nothing)", () => school.run(async () => {
++            const { list } = att();
++            const r1 = await list.execute({ page: 1, limit: 100, classId: S.C3.id } as any, mainPerson());
++            const r2 = await list.execute({ page: 1, limit: 100, studentId: S.sN1.id } as any, mainPerson());
++            const r3 = await list.execute({ page: 1, limit: 100, classId: S.C3.id } as any, northPerson());
++            assert.equal(r1.data.length, 0); assert.equal(r1.meta.total, 0);
++            assert.equal(r2.data.length, 0);
++            assert.equal(r3.data.length, 1, "their own branch's class is still reachable");
++        }));
++
++        it("REGISTER: opens a class of their branch, is refused another branch's class, and can never mark with a view-only BRANCH grant", () => school.run(async () => {
++            const { reg } = att();
++            const ok = await reg.execute(S.C1.id, day(-2), mainPerson());
++            assert.equal(ok.class.name, "JSS 1A"); assert.equal(ok.canMark, false, "BRANCH is view-only");
++            await assert.rejects(reg.execute(S.C3.id, day(-2), mainPerson()), (e: any) => statusCode(e) === 403);
++            await assert.rejects(reg.execute(S.C1.id, day(-2), northPerson()), (e: any) => statusCode(e) === 403);
++            assert.equal((await reg.execute(S.C3.id, day(-2), northPerson())).students.length, 2);
++            await assert.rejects(reg.execute(S.C1.id, day(-2), noBranch()), (e: any) => statusCode(e) === 403, "no branches: no class");
++        }));
++
++        it("CLASS SUMMARY: same rule as the register", () => school.run(async () => {
++            const { klass } = att();
++            assert.equal((await klass.execute(S.C3.id, {} as any, northPerson())).students.length, 2);
++            await assert.rejects(klass.execute(S.C3.id, {} as any, mainPerson()), (e: any) => statusCode(e) === 403);
++            await assert.rejects(klass.execute(S.C1.id, {} as any, noBranch()), (e: any) => statusCode(e) === 403);
++        }));
++
++        it("STUDENT SUMMARY: a student of another branch looks like they do not exist; their own branch's student is shown", () => school.run(async () => {
++            const { student } = att();
++            assert.equal((await student.execute({ studentId: S.sN1.id } as any, northPerson())).daysMarked, 1);
++            assert.equal((await student.execute({ studentId: S.s1.id } as any, mainPerson())).daysMarked, 1);
++            for (const [a, id] of [[mainPerson(), S.sN1.id], [northPerson(), S.s1.id], [noBranch(), S.s1.id]] as const)
++                await assert.rejects(student.execute({ studentId: id } as any, a), (e: any) => statusCode(e) === 404);
++            assert.equal((await student.execute({ studentId: S.sN1.id } as any, everyone())).daysMarked, 1);
++        }));
++
++        it("BRANCH never lets someone MARK: a branch person cannot take or change a register, even in their own branch", () => school.run(async () => {
++            const { submit } = att();
++            // mark permission only ever offers ALL / ASSIGNED; if a branch person somehow held it as BRANCH it must still match no class
++            const a = who("STAFF", "p-north", { ...VIEW_BRANCH, "attendance.mark": "BRANCH" }, [S.northId]);
++            await assert.rejects(submit.execute(school.schoolId, S.C3.id, { date: day(-1), entries: [{ studentId: S.sN1.id, status: "present" }] } as any, a, { userId: "u" } as any),
++                (e: any) => statusCode(e) === 403);
++            const before = await db().attendance.count({ where: { classId: S.C3.id } });
++            assert.equal(before, 1, "nothing was saved");
++        }));
++
++        it("MOVING a class to another branch moves who can see it (the class's branch decides, not the students')", () => school.run(async () => {
++            const { reg } = att();
++            await db().class.update({ where: { id: S.C3.id }, data: { branchId: S.mainId } });
++            try {
++                assert.equal((await reg.execute(S.C3.id, day(-2), mainPerson())).students.length, 2);
++                await assert.rejects(reg.execute(S.C3.id, day(-2), northPerson()), (e: any) => statusCode(e) === 403);
++            } finally { await db().class.update({ where: { id: S.C3.id }, data: { branchId: S.northId } }); }
++        }));
++    });
++
++    /* ───────────────────────────── enrolment ───────────────────────────── */
++    describe("enrolment (the real filter, run against real rows)", () => {
++        const visible = async (a: Access) =>
++            (await db().enrolment.findMany({ where: { AND: [enrolmentScopeWhere(a), { termId: S.term.id }] }, select: { studentId: true } })).map((r: any) => r.studentId).sort();
++        it("each branch sees only its class lists; two branches both; none sees nothing; ALL everything", () => school.run(async () => {
++            const mainStudents = [S.s1.id, S.s2.id, S.s3.id, S.s4.id, S.s5.id];   // seed: s5 is withdrawn but still on the list
++            assert.deepEqual(await visible(mainPerson()),  [...mainStudents].sort());
++            assert.deepEqual(await visible(northPerson()), [S.sN1.id, S.sN2.id].sort());
++            assert.deepEqual(await visible(bothPerson()),  [...mainStudents, S.sN1.id, S.sN2.id].sort());
++            assert.deepEqual(await visible(noBranch()),    []);
++            assert.deepEqual(await visible(everyone()),    [...mainStudents, S.sN1.id, S.sN2.id].sort());
++        }));
++        it("a student or guardian given a BRANCH grant by mistake sees nothing (BRANCH is for staff only)", () => school.run(async () => {
++            assert.deepEqual(await visible(who("STUDENT", S.s1.id, { "enrolment.view": "BRANCH" }, [S.mainId])), []);
++            assert.deepEqual(await visible(who("GUARDIAN", S.guardian.id, { "enrolment.view": "BRANCH" }, [S.mainId])), []);
++        }));
++    });
++
++    /* ───────────────────────────── grades ───────────────────────────── */
++    describe("grades", () => {
++        it("SHEETS LIST: only the sheets of classes in the person's branches", () => school.run(async () => {
++            const ids = async (a: Access) => (await sheets(a)).data.map((r: any) => r.classSubjectId).filter((id: string) => [S.csMain.id, S.csNorth.id].includes(id)).sort();
++            assert.deepEqual(await ids(mainPerson()),  [S.csMain.id]);
++            assert.deepEqual(await ids(northPerson()), [S.csNorth.id]);
++            assert.deepEqual(await ids(bothPerson()),  [S.csMain.id, S.csNorth.id].sort());
++            assert.deepEqual(await ids(noBranch()),    []);
++            assert.deepEqual(await ids(everyone()),    [S.csMain.id, S.csNorth.id].sort());
++        }));
++        it("ONE SHEET: opens in the person's branch, refused in another, refused with no branches", () => school.run(async () => {
++            assert.equal((await sheet(S.csNorth.id, northPerson())).class.name, "JSS 3N");
++            assert.equal((await sheet(S.csMain.id, mainPerson())).class.name, "JSS 1A");
++            for (const [a, id] of [[mainPerson(), S.csNorth.id], [northPerson(), S.csMain.id], [noBranch(), S.csMain.id]] as const)
++                await assert.rejects(sheet(id, a), (e: any) => statusCode(e) === 403);
++        }));
++        it("ONE SHEET: a branch viewer can look but not change (can.enter / can.submit are false)", () => school.run(async () => {
++            const s = await sheet(S.csNorth.id, northPerson());
++            assert.equal(s.can.enter, false); assert.equal(s.can.submit, false);
++        }));
++        it("RESULTS: only results of classes in the person's branches; filters cannot reach across", () => school.run(async () => {
++            const students = async (a: Access, q: any = {}) => (await results(a, q)).data.map((r: any) => r.student.id).sort();
++            assert.deepEqual(await students(mainPerson()),  [S.s1.id]);
++            assert.deepEqual(await students(northPerson()), [S.sN1.id]);
++            assert.deepEqual(await students(bothPerson()),  [S.s1.id, S.sN1.id].sort());
++            assert.deepEqual(await students(noBranch()),    []);
++            assert.deepEqual(await students(mainPerson(),  { studentId: S.sN1.id }), []);
++            assert.deepEqual(await students(mainPerson(),  { classId: S.C3.id }), []);
++            assert.deepEqual(await students(northPerson(), { classId: S.C3.id }), [S.sN1.id]);
++        }));
++        it("a BRANCH person cannot enter scores (grades.enter never offers BRANCH, and view does not grant it)", () => school.run(async () => {
++            await assert.rejects(new SaveScoresUseCase(gdeps()).execute(school.schoolId, S.csNorth.id,
++                { entries: [{ studentId: S.sN1.id, scores: [{ position: 1, score: 10 }] }] } as any, northPerson(), { userId: "u" }), () => true);
++        }));
++    });
++});
+diff --git a/apps/api/tests/enrolment/enrolment.test.ts b/apps/api/tests/enrolment/enrolment.test.ts
+index 8f0ed27..437accd 100644
+--- a/apps/api/tests/enrolment/enrolment.test.ts
++++ b/apps/api/tests/enrolment/enrolment.test.ts
+@@ -67,7 +67,11 @@ describe("who may see which enrolments", () => {
+         const w: any = enrolmentScopeWhere(access("ASSIGNED", "STAFF", "t1"));
+         assert.deepEqual(w.OR[0], { class: { classTeacherId: "t1" } });
+         assert.deepEqual(w.OR[1].class.classSubjects.some, { staffId: "t1", term: { isCurrent: true } });
+-        for (const a of [access("BRANCH", "STAFF", "t1"), access(null, "STAFF", "t1"), access("OWN", "STAFF", "t1"), access("ASSIGNED", "STUDENT", "st1")])
++        // BRANCH: the classes of the person's branches (a class has one branch); no branches means nobody
++        const inBranches = (ids: string[]) => new Access("school", "u1", "m1", "STAFF", "t1", new Set(), false, new Map([["enrolment.view", "BRANCH"]]) as any, new Set(ids));
++        assert.deepEqual(enrolmentScopeWhere(inBranches(["b1", "b2"])), { class: { branchId: { in: ["b1", "b2"] } } });
++        assert.deepEqual(enrolmentScopeWhere(inBranches([])), { class: { branchId: { in: [] } } }, "no branches: matches no class");
++        for (const a of [access(null, "STAFF", "t1"), access("OWN", "STAFF", "t1"), access("ASSIGNED", "STUDENT", "st1"), access("BRANCH", "STUDENT", "st1")])
+             assert.deepEqual(enrolmentScopeWhere(a), { id: { in: [] } });
+     });
+     it("Students now unlocks ASSIGNED: students enrolled this term in a class the teacher leads or teaches", () => {
+diff --git a/apps/api/tests/grades/sheets.db.test.ts b/apps/api/tests/grades/sheets.db.test.ts
+index a09bdfb..69ca9d7 100644
+--- a/apps/api/tests/grades/sheets.db.test.ts
++++ b/apps/api/tests/grades/sheets.db.test.ts
+@@ -55,7 +55,7 @@ describe("mark sheets (real database)", { skip: dbTestsEnabled ? false : skipRea
+             const csMaths = await d.classSubject.create({ data: { classId: C1.id, subjectId: maths.id, staffId: tB.id, termId: term.id } });
+             const csEng = await d.classSubject.create({ data: { classId: C1.id, subjectId: eng.id, staffId: tC.id, termId: term.id } });
+             const csSci = await d.classSubject.create({ data: { classId: C2.id, subjectId: sci.id, staffId: tC.id, termId: term.id } });
+-            const stu = (n: string) => d.student.create({ data: { firstName: n, lastName: "Pupil" } });
++            const stu = (n: string) => d.student.create({ data: { firstName: n, lastName: "Pupil", branchId } });
+             const s1 = await stu("Ada"), s2 = await stu("Bola"), s3 = await stu("Chidi"), s4 = await stu("Dayo"), s5 = await stu("Efe"), s6 = await stu("Femi");
+             const enrol = (s: any, c: any, st: any = "active") => d.enrolment.create({ data: { studentId: s.id, classId: c.id, termId: term.id, status: st } });
+             await enrol(s1, C1); await enrol(s2, C1); await enrol(s3, C1); await enrol(s6, C1); await enrol(s4, C1, "withdrawn");   // Efe (s5) is on no list

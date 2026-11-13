@@ -67,7 +67,11 @@ describe("who may see which enrolments", () => {
         const w: any = enrolmentScopeWhere(access("ASSIGNED", "STAFF", "t1"));
         assert.deepEqual(w.OR[0], { class: { classTeacherId: "t1" } });
         assert.deepEqual(w.OR[1].class.classSubjects.some, { staffId: "t1", term: { isCurrent: true } });
-        for (const a of [access("BRANCH", "STAFF", "t1"), access(null, "STAFF", "t1"), access("OWN", "STAFF", "t1"), access("ASSIGNED", "STUDENT", "st1")])
+        // BRANCH: the classes of the person's branches (a class has one branch); no branches means nobody
+        const inBranches = (ids: string[]) => new Access("school", "u1", "m1", "STAFF", "t1", new Set(), false, new Map([["enrolment.view", "BRANCH"]]) as any, new Set(ids));
+        assert.deepEqual(enrolmentScopeWhere(inBranches(["b1", "b2"])), { class: { branchId: { in: ["b1", "b2"] } } });
+        assert.deepEqual(enrolmentScopeWhere(inBranches([])), { class: { branchId: { in: [] } } }, "no branches: matches no class");
+        for (const a of [access(null, "STAFF", "t1"), access("OWN", "STAFF", "t1"), access("ASSIGNED", "STUDENT", "st1"), access("BRANCH", "STUDENT", "st1")])
             assert.deepEqual(enrolmentScopeWhere(a), { id: { in: [] } });
     });
     it("Students now unlocks ASSIGNED: students enrolled this term in a class the teacher leads or teaches", () => {

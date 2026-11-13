@@ -7,7 +7,7 @@ import { SheetPart } from "../domain/sheet.policy";
 export interface Band { minScore: number; grade: string; remark: string; isPass: boolean }
 
 const CLASS_SUBJECT_INCLUDE = {
-    class:   { select: { id: true, name: true, level: true, classTeacherId: true } },
+    class:   { select: { id: true, name: true, level: true, classTeacherId: true, branchId: true } },
     subject: { select: { id: true, name: true, code: true } },
     staff:   { select: { id: true, firstName: true, lastName: true } },
     term:    { select: { id: true, name: true, isCurrent: true, session: { select: { id: true, name: true } } } },

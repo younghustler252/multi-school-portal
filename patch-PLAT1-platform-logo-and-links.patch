@@ -1,0 +1,931 @@
+diff --git a/apps/api/package.json b/apps/api/package.json
+index 5f6db7f..e718268 100644
+--- a/apps/api/package.json
++++ b/apps/api/package.json
+@@ -23,6 +23,7 @@
+     "migrate:apply-to-existing-schools": "ts-node scripts/apply-migration-to-existing-schools.ts",
+     "repair:schema-names": "ts-node scripts/repair-schema-names.ts",
+     "report:reserved-subdomains": "ts-node scripts/report-reserved-subdomains.ts",
++    "report:platform-settings-urls": "ts-node scripts/report-platform-settings-urls.ts",
+     "repair:schema-names:dry-run": "ts-node scripts/repair-schema-names.ts --dry-run",
+     "sync:school-roles": "ts-node scripts/sync-school-roles.ts",
+     "sync:school-roles:dry-run": "ts-node scripts/sync-school-roles.ts --dry-run",
+diff --git a/apps/api/scripts/report-platform-settings-urls.ts b/apps/api/scripts/report-platform-settings-urls.ts
+new file mode 100644
+index 0000000..cea51ae
+--- /dev/null
++++ b/apps/api/scripts/report-platform-settings-urls.ts
+@@ -0,0 +1,34 @@
++// scripts/report-platform-settings-urls.ts
++//
++// READ-ONLY. Checks the platform logo and the terms / privacy links that are stored today against the current rules:
++//   - logo: must be a file we uploaded (our public bucket, platform/logos). An older typed-in link is listed so it can be
++//     re-uploaded (Super Admin -> Settings -> upload logo); until then the API shows no logo for it if it is not http(s).
++//   - terms / privacy links: must be https, with no login inside, and not too long.
++// It changes nothing: what to do about a value (fix it, re-upload, clear it) is a decision for a person.
++//
++//   npm run report:platform-settings-urls
++import { Pool } from "pg";
++import { env } from "../src/config/env";
++import { platformLogoPathOf } from "../src/modules/platform-settings/usecases/platform-logo.usecases";
++import { isHttpsUrl } from "../src/shared/utils/safe-url";
++
++async function main() {
++    const pool = new Pool({ connectionString: env.DATABASE_URL });
++    try {
++        const { rows } = await pool.query<{ id: string; logoUrl: string | null; termsUrl: string | null; privacyPolicyUrl: string | null }>(
++            `SELECT id, "logoUrl", "termsUrl", "privacyPolicyUrl" FROM "PlatformSettings"`);
++        if (rows.length === 0) { console.log(" No platform settings row yet: nothing to check."); return; }
++
++        const problems: string[] = [];
++        for (const r of rows) {
++            if (r.logoUrl && !platformLogoPathOf(r.logoUrl)) problems.push(`logo is not one of our uploads (re-upload it): ${r.logoUrl.slice(0, 120)}`);
++            if (r.termsUrl && !isHttpsUrl(r.termsUrl)) problems.push(`terms link is not a valid https link: ${r.termsUrl.slice(0, 120)}`);
++            if (r.privacyPolicyUrl && !isHttpsUrl(r.privacyPolicyUrl)) problems.push(`privacy link is not a valid https link: ${r.privacyPolicyUrl.slice(0, 120)}`);
++        }
++        if (problems.length === 0) { console.log(" The stored logo and legal links already follow the rules."); return; }
++        console.log(` ${problems.length} stored value(s) need attention:`);
++        for (const p of problems) console.log(`  - ${p}`);
++        process.exitCode = 1;
++    } finally { await pool.end(); }
++}
++main().catch((e) => { console.error(e); process.exit(1); });
+diff --git a/apps/api/src/modules/platform-settings/controllers/platform-settings.controller.ts b/apps/api/src/modules/platform-settings/controllers/platform-settings.controller.ts
+index 21037bb..91beec6 100644
+--- a/apps/api/src/modules/platform-settings/controllers/platform-settings.controller.ts
++++ b/apps/api/src/modules/platform-settings/controllers/platform-settings.controller.ts
+@@ -1,21 +1,31 @@
+ import { Request, Response, NextFunction } from "express";
+ import { GetPlatformSettingsUseCase } from "../usecases/get-platform-settings.usecase";
+ import {UpdatePlatformSettingsUseCase } from "../usecases/update-platform-settings.usecase"
++import { UploadPlatformLogoUseCase, RemovePlatformLogoUseCase } from "../usecases/platform-logo.usecases";
+ import { sendSuccess } from "../../../shared/utils/api-response";
++import { AppError } from "../../../shared/errors/domain.errors";
+ 
+ interface Dependencies {
+     getPlatformSettingsUseCase:    GetPlatformSettingsUseCase;
+     updatePlatformSettingsUseCase: UpdatePlatformSettingsUseCase;
++    uploadPlatformLogoUseCase:     UploadPlatformLogoUseCase;
++    removePlatformLogoUseCase:     RemovePlatformLogoUseCase;
+ }
+ 
+ export class PlatformSettingsController {
+     private readonly getPlatformSettingsUseCase:    GetPlatformSettingsUseCase;
+     private readonly updatePlatformSettingsUseCase: UpdatePlatformSettingsUseCase;
++    private readonly uploadPlatformLogoUseCase:     UploadPlatformLogoUseCase;
++    private readonly removePlatformLogoUseCase:     RemovePlatformLogoUseCase;
+ 
+     constructor({
+         getPlatformSettingsUseCase,
+         updatePlatformSettingsUseCase,
++        uploadPlatformLogoUseCase,
++        removePlatformLogoUseCase,
+     }: Dependencies) {
++        this.uploadPlatformLogoUseCase     = uploadPlatformLogoUseCase;
++        this.removePlatformLogoUseCase     = removePlatformLogoUseCase;
+         this.getPlatformSettingsUseCase    = getPlatformSettingsUseCase;
+         this.updatePlatformSettingsUseCase = updatePlatformSettingsUseCase;
+     }
+@@ -61,4 +71,25 @@ export class PlatformSettingsController {
+             next(err);
+         }
+     };
++
++    //  Upload / clear the logo
++
++    uploadLogo = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
++        try {
++            if (!req.file) throw new AppError("No file uploaded", 400, true, "INVALID_IMAGE");
++            const result = await this.uploadPlatformLogoUseCase.execute(req.auth!.userId, { buffer: req.file.buffer });
++            sendSuccess(res, result, "Logo uploaded successfully");
++        } catch (err) {
++            next(err);
++        }
++    };
++
++    removeLogo = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
++        try {
++            const result = await this.removePlatformLogoUseCase.execute(req.auth!.userId);
++            sendSuccess(res, result, "Logo removed successfully");
++        } catch (err) {
++            next(err);
++        }
++    };
+ }
+diff --git a/apps/api/src/modules/platform-settings/dtos/platform-settings.dto.ts b/apps/api/src/modules/platform-settings/dtos/platform-settings.dto.ts
+index 772b3f9..b4f5d49 100644
+--- a/apps/api/src/modules/platform-settings/dtos/platform-settings.dto.ts
++++ b/apps/api/src/modules/platform-settings/dtos/platform-settings.dto.ts
+@@ -1,12 +1,16 @@
+ import { z } from "zod";
++import { nullableHttpsUrl } from "../../../shared/utils/safe-url";
+ 
+ export const UpdatePlatformSettingsDto = z.object({
+     platformName:                z.string().min(1).max(100).optional(),
+     supportEmail:                z.string().email().optional(),
+     supportPhone:                z.string().optional(),
+-    logoUrl:                     z.string().url().optional(),
+-    termsUrl:                    z.string().url().optional(),
+-    privacyPolicyUrl:            z.string().url().optional(),
++    // The logo is never typed in: it is uploaded (POST /platform/settings/logo) and cleared (DELETE /platform/settings/logo).
++    // Sending it here is refused with a clear message, not silently ignored.
++    logoUrl:                     z.never({ error: "Upload the logo with POST /platform/settings/logo (clear it with DELETE)" }).optional(),
++    // Links: https only; send null (or empty text) to clear one.
++    termsUrl:                    nullableHttpsUrl(),
++    privacyPolicyUrl:            nullableHttpsUrl(),
+     subscriptionGracePeriodDays: z.number().int().min(0).max(90).optional(),
+     reminderDaysBeforeExpiry:    z.number().int().min(0).max(30).optional(),
+     defaultTrialDays:            z.number().int().min(0).max(90).optional(),
+diff --git a/apps/api/src/modules/platform-settings/mappers/platform-settings.mapper.ts b/apps/api/src/modules/platform-settings/mappers/platform-settings.mapper.ts
+index 8b7e6ff..a68aaa8 100644
+--- a/apps/api/src/modules/platform-settings/mappers/platform-settings.mapper.ts
++++ b/apps/api/src/modules/platform-settings/mappers/platform-settings.mapper.ts
+@@ -1,5 +1,9 @@
+ import { IMapper } from "../../../infrastructure/repository/base.repository";
+ import { PlatformSettingsEntity } from "../domain/platform-settings.entity";
++import { isHttpsUrl, isSafeHttpUrl } from "../../../shared/utils/safe-url";
++
++// A value saved before the rules tightened (or by hand) is hidden, not shown: only safe links leave the API.
++const safeLink = (v: unknown, check: (s: string) => boolean): string | null => (typeof v === "string" && check(v) ? v : null);
+ 
+ export type PlatformSettingsResponseData = PlatformSettingsEntity;
+ 
+@@ -10,9 +14,9 @@ export class PlatformSettingsMapper implements IMapper<any, PlatformSettingsEnti
+             platformName:                raw.platformName,
+             supportEmail:                raw.supportEmail,
+             supportPhone:                raw.supportPhone ?? null,
+-            logoUrl:                     raw.logoUrl ?? null,
+-            termsUrl:                    raw.termsUrl ?? null,
+-            privacyPolicyUrl:            raw.privacyPolicyUrl ?? null,
++            logoUrl:                     safeLink(raw.logoUrl, isSafeHttpUrl),
++            termsUrl:                    safeLink(raw.termsUrl, isHttpsUrl),
++            privacyPolicyUrl:            safeLink(raw.privacyPolicyUrl, isHttpsUrl),
+             subscriptionGracePeriodDays: raw.subscriptionGracePeriodDays,
+             reminderDaysBeforeExpiry:    raw.reminderDaysBeforeExpiry,
+             defaultTrialDays:            raw.defaultTrialDays,
+diff --git a/apps/api/src/modules/platform-settings/platform-settings.container.ts b/apps/api/src/modules/platform-settings/platform-settings.container.ts
+index 04785fe..f90a8c0 100644
+--- a/apps/api/src/modules/platform-settings/platform-settings.container.ts
++++ b/apps/api/src/modules/platform-settings/platform-settings.container.ts
+@@ -5,6 +5,7 @@ import { PlatformSettingsMapper } from "./mappers/platform-settings.mapper";
+ 
+ import { GetPlatformSettingsUseCase } from "./usecases/get-platform-settings.usecase";
+ import { UpdatePlatformSettingsUseCase } from "./usecases/update-platform-settings.usecase";
++import { UploadPlatformLogoUseCase, RemovePlatformLogoUseCase } from "./usecases/platform-logo.usecases";
+ 
+ import { PlatformSettingsRepositoryImpl } from "./repositories/platform-settings.repository.impl";
+ 
+@@ -27,6 +28,12 @@ export const registerPlatformSettings = (
+         updatePlatformSettingsUseCase:
+             asClass(UpdatePlatformSettingsUseCase).scoped(),
+ 
++        uploadPlatformLogoUseCase:
++            asClass(UploadPlatformLogoUseCase).scoped(),
++
++        removePlatformLogoUseCase:
++            asClass(RemovePlatformLogoUseCase).scoped(),
++
+         platformSettingsController:
+             asClass(PlatformSettingsController).scoped(),
+     });
+diff --git a/apps/api/src/modules/platform-settings/repositories/platform-settings.repository.impl.ts b/apps/api/src/modules/platform-settings/repositories/platform-settings.repository.impl.ts
+index f9527a2..3538c6b 100644
+--- a/apps/api/src/modules/platform-settings/repositories/platform-settings.repository.impl.ts
++++ b/apps/api/src/modules/platform-settings/repositories/platform-settings.repository.impl.ts
+@@ -30,4 +30,8 @@ export class PlatformSettingsRepositoryImpl implements IPlatformSettingsReposito
+ 
+         return this.mapper.toDomain(raw);
+     }
+-}
+\ No newline at end of file
++
++    async setLogo(url: string | null): Promise<PlatformSettingsEntity> {
++        return this.update({ logoUrl: url });
++    }
++}
+diff --git a/apps/api/src/modules/platform-settings/repositories/platform-settings.repository.ts b/apps/api/src/modules/platform-settings/repositories/platform-settings.repository.ts
+index b82ab71..c3e37dd 100644
+--- a/apps/api/src/modules/platform-settings/repositories/platform-settings.repository.ts
++++ b/apps/api/src/modules/platform-settings/repositories/platform-settings.repository.ts
+@@ -3,4 +3,6 @@ import { PlatformSettingsEntity } from "../domain/platform-settings.entity";
+ export interface IPlatformSettingsRepository {
+     find(): Promise<PlatformSettingsEntity>;
+     update(data: Record<string, any>): Promise<PlatformSettingsEntity>;
++    /** Sets the stored logo link, or clears it with null. */
++    setLogo(url: string | null): Promise<PlatformSettingsEntity>;
+ }
+\ No newline at end of file
+diff --git a/apps/api/src/modules/platform-settings/routes/platform-settings.route.ts b/apps/api/src/modules/platform-settings/routes/platform-settings.route.ts
+index ae33b2c..9b05585 100644
+--- a/apps/api/src/modules/platform-settings/routes/platform-settings.route.ts
++++ b/apps/api/src/modules/platform-settings/routes/platform-settings.route.ts
+@@ -1,4 +1,5 @@
+-import { Router } from "express";
++import { Router, Request, Response, NextFunction } from "express";
++import multer from "multer";
+ import { container } from "../../../container";
+ 
+ import { PlatformSettingsController } from "../controllers/platform-settings.controller";
+@@ -6,6 +7,8 @@ import { PlatformSettingsController } from "../controllers/platform-settings.con
+ import { validate } from "../../../infrastructure/middleware/validate.middleware";
+ import { authenticate } from "../../../infrastructure/middleware/auth.middleware";
+ import { requirePermission } from "../../../infrastructure/middleware/rbac.middleware";
++import { uploadLimiter } from "../../../infrastructure/middleware/rate-limit.middleware";
++import { AppError } from "../../../shared/errors/domain.errors";
+ 
+ import { UpdatePlatformSettingsDto } from "../dtos/platform-settings.dto";
+ 
+@@ -35,4 +38,32 @@ router.put(
+     (req, res, next) => ctrl().updateSettings(req, res, next),
+ );
+ 
++// Upload the logo (JPEG, PNG or WebP, up to 2 MB). Super Admin only.
++const logoUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 2 * 1024 * 1024 } });
++const singleLogo = (req: Request, res: Response, next: NextFunction) =>
++    logoUpload.single("logo")(req, res, (err: unknown) => {
++        if (!err) return next();
++        if (err instanceof multer.MulterError) {
++            return next(new AppError(err.code === "LIMIT_FILE_SIZE" ? "File is too large" : "Upload failed", 400, true, "INVALID_IMAGE"));
++        }
++        next(err);
++    });
++
++router.post(
++    "/logo",
++    authenticate,
++    requirePermission("platform.settings.manage"),
++    uploadLimiter,
++    singleLogo,
++    (req, res, next) => ctrl().uploadLogo(req, res, next),
++);
++
++// Clear the logo. Super Admin only.
++router.delete(
++    "/logo",
++    authenticate,
++    requirePermission("platform.settings.manage"),
++    (req, res, next) => ctrl().removeLogo(req, res, next),
++);
++
+ export default router;
+diff --git a/apps/api/src/modules/platform-settings/usecases/platform-logo.usecases.ts b/apps/api/src/modules/platform-settings/usecases/platform-logo.usecases.ts
+new file mode 100644
+index 0000000..c34cf7a
+--- /dev/null
++++ b/apps/api/src/modules/platform-settings/usecases/platform-logo.usecases.ts
+@@ -0,0 +1,73 @@
++import { IPlatformSettingsRepository } from "../repositories/platform-settings.repository";
++import { PlatformSettingsMapper, PlatformSettingsResponseData } from "../mappers/platform-settings.mapper";
++import { SupabaseStorageService } from "../../../infrastructure/storage/supabase-storage.service";
++import { AuditService } from "../../audit/services/audit.service";
++import { ActorType } from "../../audit/domain/audit.enums";
++import { sniffFile, FILE_EXTENSION } from "../../../shared/utils/file-sniff";
++import { AppError } from "../../../shared/errors/domain.errors";
++import { env } from "../../../config/env";
++
++interface Dependencies {
++    platformSettingsRepository: IPlatformSettingsRepository;
++    platformSettingsMapper:     PlatformSettingsMapper;
++    storageService:             SupabaseStorageService;
++    auditService:               AuditService;
++}
++
++const MAX_BYTES = 2 * 1024 * 1024;
++const FOLDER = "platform/logos";   // only this folder is ever written to or cleaned up by this feature
++const invalidImage = (msg = "Upload a JPEG, PNG or WebP image up to 2 MB") => new AppError(msg, 400, true, "INVALID_IMAGE");
++
++/** The storage path of a link that points into our public bucket's platform folder; null for anything else. */
++export function platformLogoPathOf(url: string | null | undefined): string | null {
++    if (!url) return null;
++    const marker = `/${env.supabase.publicBucket}/`;
++    const at = url.indexOf(marker);
++    if (at < 0) return null;
++    const path = decodeURIComponent(url.slice(at + marker.length).split("?")[0] ?? "");
++    return path.startsWith(`${FOLDER}/`) && !path.includes("..") ? path : null;
++}
++
++/*
++| UPLOAD THE PLATFORM LOGO (super admin). Same rules as a school logo: JPEG, PNG or WebP up to 2 MB, judged by the
++| file's own bytes; SVG is refused (it can carry scripts). It goes in our own public bucket, so the link is always ours.
++| The old file is removed afterwards, but only if it lives in this feature's folder (a failed clean-up never fails the upload).
++*/
++export class UploadPlatformLogoUseCase {
++    constructor(private readonly d: Dependencies) {}
++
++    async execute(actorUserId: string, file: { buffer: Buffer }): Promise<PlatformSettingsResponseData> {
++        const type = sniffFile(file.buffer);
++        if (file.buffer.length > MAX_BYTES || !type || type === "application/pdf") throw invalidImage();
++
++        const before = await this.d.platformSettingsRepository.find();
++        const result = await this.d.storageService.upload({
++            bucket: env.supabase.publicBucket, folder: FOLDER,
++            file: file.buffer, mimetype: type, filename: `logo-${Date.now()}.${FILE_EXTENSION[type]}`,
++        });
++        const updated = await this.d.platformSettingsRepository.setLogo(result.url);
++
++        const oldPath = platformLogoPathOf(before.logoUrl);
++        if (oldPath) await this.d.storageService.delete(oldPath, env.supabase.publicBucket).catch(() => undefined);
++
++        await this.d.auditService.log({ userId: actorUserId, actorType: ActorType.SUPER_ADMIN, schoolId: null, action: "platform.logo_changed", entity: "PlatformSettings", entityId: updated.id });
++        return this.d.platformSettingsMapper.toResponse(updated);
++    }
++}
++
++/* CLEAR THE PLATFORM LOGO (super admin). Safe to repeat: clearing an empty logo just returns the settings. */
++export class RemovePlatformLogoUseCase {
++    constructor(private readonly d: Dependencies) {}
++
++    async execute(actorUserId: string): Promise<PlatformSettingsResponseData> {
++        const before = await this.d.platformSettingsRepository.find();
++        if (!before.logoUrl) return this.d.platformSettingsMapper.toResponse(before);
++
++        const updated = await this.d.platformSettingsRepository.setLogo(null);
++        const oldPath = platformLogoPathOf(before.logoUrl);
++        if (oldPath) await this.d.storageService.delete(oldPath, env.supabase.publicBucket).catch(() => undefined);
++
++        await this.d.auditService.log({ userId: actorUserId, actorType: ActorType.SUPER_ADMIN, schoolId: null, action: "platform.logo_removed", entity: "PlatformSettings", entityId: updated.id });
++        return this.d.platformSettingsMapper.toResponse(updated);
++    }
++}
+diff --git a/apps/api/src/shared/utils/safe-url.ts b/apps/api/src/shared/utils/safe-url.ts
+new file mode 100644
+index 0000000..ccaaa23
+--- /dev/null
++++ b/apps/api/src/shared/utils/safe-url.ts
+@@ -0,0 +1,32 @@
++import { z } from "zod";
++
++/*
++| LINKS THE PLATFORM SHOWS TO PEOPLE (terms, privacy policy).
++| Only https links, no embedded login (user:pass@), a sensible length. Nothing else gets through: not javascript:,
++| data:, ftp:, or plain http. Empty text means "clear it". Use `nullableHttpsUrl()` in a DTO; use `isSafeHttpUrl` to
++| double-check a value that is already stored before showing it.
++*/
++export const MAX_URL_LENGTH = 2048;
++
++export function isHttpsUrl(value: string): boolean {
++    if (value.length > MAX_URL_LENGTH) return false;
++    try {
++        const u = new URL(value);
++        return u.protocol === "https:" && !u.username && !u.password && u.hostname.length > 0;
++    } catch { return false; }
++}
++
++/** For values already in the database: http(s) only (http allowed so a local/dev storage link still shows). */
++export function isSafeHttpUrl(value: string): boolean {
++    if (value.length > MAX_URL_LENGTH) return false;
++    try {
++        const u = new URL(value);
++        return (u.protocol === "https:" || u.protocol === "http:") && !u.username && !u.password;
++    } catch { return false; }
++}
++
++/** An https link, or null to clear it. "" and spaces-only count as clear. Left out = leave it alone. */
++export const nullableHttpsUrl = () => z.preprocess(
++    v => (typeof v === "string" && v.trim() === "" ? null : typeof v === "string" ? v.trim() : v),
++    z.string().max(MAX_URL_LENGTH).refine(isHttpsUrl, "Must be an https:// link").nullable().optional(),
++);
+diff --git a/apps/api/tests/settings/platform-settings.test.ts b/apps/api/tests/settings/platform-settings.test.ts
+new file mode 100644
+index 0000000..1d63706
+--- /dev/null
++++ b/apps/api/tests/settings/platform-settings.test.ts
+@@ -0,0 +1,161 @@
++/*
++| PLATFORM SETTINGS: the logo is uploaded (never typed in) and can be cleared; the legal links are https only.
++*/
++import { describe, it } from "node:test";
++import assert from "node:assert/strict";
++import { UpdatePlatformSettingsDto } from "../../src/modules/platform-settings/dtos/platform-settings.dto";
++import { PlatformSettingsMapper } from "../../src/modules/platform-settings/mappers/platform-settings.mapper";
++import { UploadPlatformLogoUseCase, RemovePlatformLogoUseCase, platformLogoPathOf } from "../../src/modules/platform-settings/usecases/platform-logo.usecases";
++import { isHttpsUrl, isSafeHttpUrl } from "../../src/shared/utils/safe-url";
++import { env } from "../../src/config/env";
++
++const PNG = Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), Buffer.alloc(64)]);
++const JPEG = Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe0]), Buffer.alloc(64)]);
++const SVG = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>');
++const PDF = Buffer.concat([Buffer.from("%PDF-1.7\n"), Buffer.alloc(64)]);
++const bucket = () => env.supabase.publicBucket;
++const urlFor = (path: string) => `https://abc.supabase.co/storage/v1/object/public/${bucket()}/${path}`;
++
++const parse = (body: unknown) => UpdatePlatformSettingsDto.safeParse(body);
++
++describe("platform settings: legal links (termsUrl / privacyPolicyUrl)", () => {
++    it("accept a plain https link", () => {
++        const r = parse({ termsUrl: "https://example.com/terms", privacyPolicyUrl: "https://example.com/privacy?x=1" });
++        assert.ok(r.success); assert.equal(r.data.termsUrl, "https://example.com/terms");
++    });
++    it("refuse anything that is not https: javascript:, data:, http:, ftp:, and bare text", () => {
++        for (const bad of ["javascript:alert(1)", "data:text/html;base64,PGgxPg==", "http://example.com/terms", "ftp://example.com/x", "example.com/terms", "https://", "not a url"]) {
++            assert.equal(parse({ termsUrl: bad }).success, false, bad);
++            assert.equal(parse({ privacyPolicyUrl: bad }).success, false, bad);
++        }
++    });
++    it("refuse a link with a login inside it, and one that is too long", () => {
++        assert.equal(parse({ termsUrl: "https://user:pass@example.com/t" }).success, false);
++        assert.equal(parse({ termsUrl: "https://example.com/" + "a".repeat(2100) }).success, false);
++    });
++    it("null or empty text clears a link; leaving it out leaves it alone", () => {
++        const a = parse({ termsUrl: null }); assert.ok(a.success); assert.equal(a.data.termsUrl, null);
++        const b = parse({ termsUrl: "   " }); assert.ok(b.success); assert.equal(b.data.termsUrl, null);
++        const c = parse({ platformName: "SchoolOS" }); assert.ok(c.success); assert.equal("termsUrl" in c.data, false);
++    });
++    it("spaces around a good link are trimmed", () => {
++        const r = parse({ privacyPolicyUrl: "  https://example.com/p  " }); assert.ok(r.success); assert.equal(r.data.privacyPolicyUrl, "https://example.com/p");
++    });
++});
++
++describe("platform settings: the logo can no longer be typed in", () => {
++    it("a logoUrl in the update body is refused with a clear message", () => {
++        for (const v of ["https://evil.example.com/x.png", "javascript:alert(1)", null, ""]) {
++            const r = parse({ logoUrl: v });
++            assert.equal(r.success, false, String(v));
++            assert.match(JSON.stringify(r.error?.issues), /POST \/platform\/settings\/logo/);
++        }
++    });
++    it("other settings still validate as before", () => {
++        assert.ok(parse({ platformName: "SchoolOS", supportEmail: "help@example.com", defaultTrialDays: 14, maintenanceMode: false }).success);
++        assert.equal(parse({ supportEmail: "nope" }).success, false);
++        assert.equal(parse({ defaultTrialDays: 999 }).success, false);
++    });
++});
++
++describe("platform settings: stored links are checked again on the way out", () => {
++    const m = new PlatformSettingsMapper();
++    const raw = (o: any) => ({ id: "1", platformName: "P", supportEmail: "a@b.c", subscriptionGracePeriodDays: 7, reminderDaysBeforeExpiry: 3, defaultTrialDays: 14, allowNewRegistrations: true, maintenanceMode: false, createdAt: new Date(), updatedAt: new Date(), ...o });
++    it("an unsafe value saved earlier is hidden, not shown", () => {
++        const r = m.toDomain(raw({ logoUrl: "javascript:alert(1)", termsUrl: "http://example.com/t", privacyPolicyUrl: "data:text/html,x" }));
++        assert.equal(r.logoUrl, null); assert.equal(r.termsUrl, null); assert.equal(r.privacyPolicyUrl, null);
++    });
++    it("safe values pass through; http storage links still show for a local setup", () => {
++        const r = m.toDomain(raw({ logoUrl: "http://localhost:54321/storage/v1/object/public/b/platform/logos/x.png", termsUrl: "https://example.com/t" }));
++        assert.equal(r.logoUrl, "http://localhost:54321/storage/v1/object/public/b/platform/logos/x.png"); assert.equal(r.termsUrl, "https://example.com/t");
++    });
++    it("helpers", () => {
++        assert.ok(isHttpsUrl("https://a.co")); assert.ok(!isHttpsUrl("http://a.co")); assert.ok(isSafeHttpUrl("http://a.co")); assert.ok(!isSafeHttpUrl("javascript:1"));
++    });
++});
++
++describe("platform logo: where the old file is looked for", () => {
++    it("only a file in platform/logos inside our public bucket counts", () => {
++        assert.equal(platformLogoPathOf(urlFor("platform/logos/a.png")), "platform/logos/a.png");
++        assert.equal(platformLogoPathOf(urlFor("schools/s1/logos/a.png")), null, "a school's file is never touched");
++        assert.equal(platformLogoPathOf(urlFor("platform/logos/../../secrets/x")), null);
++        assert.equal(platformLogoPathOf("https://evil.example.com/platform/logos/a.png"), null, "not our bucket");
++        assert.equal(platformLogoPathOf(null), null);
++    });
++});
++
++/* the use cases, with a pretend database, storage and audit */
++function build(initialLogo: string | null = null, opts: { deleteFails?: boolean } = {}) {
++    let logoUrl = initialLogo;
++    const calls = { uploads: [] as any[], deletes: [] as string[], audits: [] as any[] };
++    const mapper = new PlatformSettingsMapper();
++    const row = () => mapper.toDomain({ id: "ps1", platformName: "P", supportEmail: "a@b.c", logoUrl, subscriptionGracePeriodDays: 7, reminderDaysBeforeExpiry: 3, defaultTrialDays: 14, allowNewRegistrations: true, maintenanceMode: false, createdAt: new Date(), updatedAt: new Date() });
++    const d: any = {
++        platformSettingsMapper: mapper,
++        platformSettingsRepository: { find: async () => row(), setLogo: async (u: string | null) => { logoUrl = u; return row(); } },
++        storageService: {
++            upload: async (o: any) => { calls.uploads.push(o); return { url: urlFor(`${o.folder}/new-uuid.${o.filename.split(".").pop()}`), path: `${o.folder}/new-uuid`, filename: "x", bucket: o.bucket }; },
++            delete: async (p: string) => { calls.deletes.push(p); if (opts.deleteFails) throw new Error("storage down"); },
++        },
++        auditService: { log: async (p: any) => { calls.audits.push(p); } },
++    };
++    return { d, calls, current: () => logoUrl };
++}
++
++describe("platform logo: upload", () => {
++    it("saves a PNG or JPEG into platform/logos of the public bucket and stores the link we got back", async () => {
++        for (const file of [PNG, JPEG]) {
++            const { d, calls, current } = build();
++            const r = await new UploadPlatformLogoUseCase(d).execute("u1", { buffer: file });
++            assert.equal(calls.uploads.length, 1);
++            assert.equal(calls.uploads[0].folder, "platform/logos"); assert.equal(calls.uploads[0].bucket, bucket());
++            assert.equal(r.logoUrl, current()); assert.match(String(current()), /platform\/logos\//);
++        }
++    });
++    it("refuses SVG, PDF, plain text, an empty file and anything over 2 MB, and saves nothing", async () => {
++        for (const file of [SVG, PDF, Buffer.from("hello world, definitely not an image"), Buffer.alloc(0), Buffer.concat([PNG, Buffer.alloc(2 * 1024 * 1024)])]) {
++            const { d, calls, current } = build(urlFor("platform/logos/keep.png"));
++            await assert.rejects(new UploadPlatformLogoUseCase(d).execute("u1", { buffer: file }), (e: any) => e.statusCode === 400 && e.code === "INVALID_IMAGE");
++            assert.equal(calls.uploads.length, 0); assert.equal(current(), urlFor("platform/logos/keep.png")); assert.equal(calls.deletes.length, 0);
++        }
++    });
++    it("replaces the old logo: the old file is removed, but only from our own folder", async () => {
++        const a = build(urlFor("platform/logos/old.png"));
++        await new UploadPlatformLogoUseCase(a.d).execute("u1", { buffer: PNG });
++        assert.deepEqual(a.calls.deletes, ["platform/logos/old.png"]);
++        const b = build("https://elsewhere.example.com/logo.png");   // an older, typed-in link: nothing of ours to delete
++        await new UploadPlatformLogoUseCase(b.d).execute("u1", { buffer: PNG });
++        assert.deepEqual(b.calls.deletes, []);
++    });
++    it("a failed clean-up of the old file never fails the upload", async () => {
++        const { d, current } = build(urlFor("platform/logos/old.png"), { deleteFails: true });
++        const r = await new UploadPlatformLogoUseCase(d).execute("u1", { buffer: PNG });
++        assert.equal(r.logoUrl, current());
++    });
++    it("is recorded in the audit log against the platform (no school), by a super admin", async () => {
++        const { d, calls } = build();
++        await new UploadPlatformLogoUseCase(d).execute("u-admin", { buffer: PNG });
++        assert.equal(calls.audits.length, 1);
++        assert.equal(calls.audits[0].action, "platform.logo_changed"); assert.equal(calls.audits[0].userId, "u-admin"); assert.equal(calls.audits[0].schoolId, null);
++    });
++});
++
++describe("platform logo: clear", () => {
++    it("clears the stored link, removes the file, and audits it", async () => {
++        const { d, calls, current } = build(urlFor("platform/logos/old.png"));
++        const r = await new RemovePlatformLogoUseCase(d).execute("u1");
++        assert.equal(r.logoUrl, null); assert.equal(current(), null);
++        assert.deepEqual(calls.deletes, ["platform/logos/old.png"]);
++        assert.equal(calls.audits[0].action, "platform.logo_removed");
++    });
++    it("clearing when there is no logo is harmless: nothing is deleted or audited", async () => {
++        const { d, calls } = build(null);
++        const r = await new RemovePlatformLogoUseCase(d).execute("u1");
++        assert.equal(r.logoUrl, null); assert.equal(calls.deletes.length, 0); assert.equal(calls.audits.length, 0);
++    });
++    it("a failed file clean-up still clears the logo", async () => {
++        const { d, current } = build(urlFor("platform/logos/old.png"), { deleteFails: true });
++        await new RemovePlatformLogoUseCase(d).execute("u1");
++        assert.equal(current(), null);
++    });
++});
+diff --git a/apps/web/.env.local.example b/apps/web/.env.local.example
+index 2b6de6d..48b7b7d 100644
+--- a/apps/web/.env.local.example
++++ b/apps/web/.env.local.example
+@@ -11,3 +11,9 @@
+ #
+ # Production hosts and custom domains are decided in Phase 2 (API-003 / TENANT-001); do not rely on this for them yet.
+ NEXT_PUBLIC_API_HOST=localhost:5000
++
++# Supabase Storage origin: the SAME value as SUPABASE_URL in apps/api/.env.development. School and platform logos are
++# stored there, and next/image only loads pictures from this host, under /storage/v1/object/public/**.
++# Hosted: https://<project>.supabase.co   Custom domain: https://files.example.com   Local: http://localhost:54321
++# Not exposed to the browser (no NEXT_PUBLIC_ prefix); it is read when the app starts or builds.
++SUPABASE_URL=
+diff --git a/apps/web/next.config.ts b/apps/web/next.config.ts
+index 4b4fe9a..d133f43 100644
+--- a/apps/web/next.config.ts
++++ b/apps/web/next.config.ts
+@@ -1,16 +1,20 @@
+ import type { NextConfig } from "next";
++import { imageHostsFor } from "./src/config/image-hosts";
++
++// Same value the API uses for Supabase Storage (see apps/web/.env.local.example). Decides which picture links next/image accepts.
++const imageHosts = imageHostsFor(process.env.SUPABASE_URL);
++if (imageHosts.usedFallback) {
++	console.warn("[next.config] SUPABASE_URL is not set (or not a valid link): allowing only https://*.supabase.co public files for next/image. Set SUPABASE_URL to the API's value.");
++}
+ 
+ const nextConfig: NextConfig = {
+ 	// @schoolos/contracts is shipped as TypeScript source (its package.json "main" is src/index.ts), so Next must compile it.
+ 	transpilePackages: ["@schoolos/contracts"],
+ 	images: {
+-		remotePatterns: [
+-			{
+-				protocol: "https",
+-				hostname: "*.supabase.co",
+-			},	
+-		],
++		remotePatterns: imageHosts.patterns,
++		// Local Supabase only, development only: Next's image optimiser blocks private addresses by default.
++		...(imageHosts.allowLocalIp ? { dangerouslyAllowLocalIP: true } : {}),
+ 	},
+ };
+ 
+-export default nextConfig;/*  */
+\ No newline at end of file
++export default nextConfig;
+diff --git a/apps/web/src/app/(super-admin)/setting/page.tsx b/apps/web/src/app/(super-admin)/setting/page.tsx
+index 70f8b04..5cac043 100644
+--- a/apps/web/src/app/(super-admin)/setting/page.tsx
++++ b/apps/web/src/app/(super-admin)/setting/page.tsx
+@@ -1,7 +1,7 @@
+ "use client";
+ 
+-import { useState, useEffect } from "react";
+-import { Loader2 } from "lucide-react";
++import { useState, useEffect, useRef } from "react";
++import { Loader2, ImagePlus, Trash2 } from "lucide-react";
+ import { toast } from "sonner";
+ import { PageHeader } from "@/components/layout/page-header";
+ import { Button } from "@/components/ui/button";
+@@ -10,13 +10,30 @@ import { Label } from "@/components/ui/label";
+ import { Textarea } from "@/components/ui/textarea";
+ import { Switch } from "@/components/ui/switch";
+ import { Skeleton } from "@/components/ui/skeleton";
+-import { usePlatformSettings, useUpdatePlatformSettings } from "@/features/super-admin/hooks/use-platform-settings";
++import { usePlatformSettings, useUpdatePlatformSettings, useUploadPlatformLogo, useRemovePlatformLogo } from "@/features/super-admin/hooks/use-platform-settings";
+ import { UpdatePlatformSettingsDto } from "@/features/super-admin/types/platform-settings.types";
+ import { ApiErrorResponse } from "@/types/api-response";
+ 
++const LOGO_TYPES = ["image/jpeg", "image/png", "image/webp"];
++const LOGO_MAX_BYTES = 2 * 1024 * 1024;
++
++/** "" -> null (clear it); a link must be https. Returns the value to send, or an error message. */
++function linkValue(raw: string | null | undefined): { value: string | null } | { error: string } {
++	const v = (raw ?? "").trim();
++	if (!v) return { value: null };
++	try {
++		const u = new URL(v);
++		if (u.protocol === "https:" && !u.username && !u.password) return { value: v };
++	} catch { /* falls through to the message */ }
++	return { error: "Links must be full https:// addresses" };
++}
++
+ export default function PlatformSettingsPage() {
+ 	const { data: settings, isLoading } = usePlatformSettings();
+ 	const updateSettings = useUpdatePlatformSettings();
++	const uploadLogo = useUploadPlatformLogo();
++	const removeLogo = useRemovePlatformLogo();
++	const fileInput = useRef<HTMLInputElement>(null);
+ 
+ 	const [form, setForm] = useState<UpdatePlatformSettingsDto>({});
+ 
+@@ -26,7 +43,6 @@ export default function PlatformSettingsPage() {
+ 			platformName: settings.platformName,
+ 			supportEmail: settings.supportEmail,
+ 			supportPhone: settings.supportPhone ?? "",
+-			logoUrl: settings.logoUrl ?? "",
+ 			termsUrl: settings.termsUrl ?? "",
+ 			privacyPolicyUrl: settings.privacyPolicyUrl ?? "",
+ 			subscriptionGracePeriodDays: settings.subscriptionGracePeriodDays,
+@@ -43,16 +59,43 @@ export default function PlatformSettingsPage() {
+ 		setForm((prev) => ({ ...prev, [key]: value }));
+ 	}
+ 
++	async function handleLogoPicked(e: React.ChangeEvent<HTMLInputElement>) {
++		const file = e.target.files?.[0];
++		e.target.value = "";   // so the same file can be picked again
++		if (!file) return;
++		if (!LOGO_TYPES.includes(file.type)) { toast.error("Choose a JPEG, PNG or WebP image"); return; }
++		if (file.size > LOGO_MAX_BYTES) { toast.error("The logo must be 2 MB or smaller"); return; }
++		try {
++			await uploadLogo.mutateAsync(file);
++			toast.success("Logo updated");
++		} catch (err) {
++			toast.error((err as ApiErrorResponse).message || "Couldn't upload the logo");
++		}
++	}
++
++	async function handleLogoRemove() {
++		try {
++			await removeLogo.mutateAsync();
++			toast.success("Logo removed");
++		} catch (err) {
++			toast.error((err as ApiErrorResponse).message || "Couldn't remove the logo");
++		}
++	}
++
+ 	async function handleSave() {
+ 		try {
++			const terms = linkValue(form.termsUrl);
++			const privacy = linkValue(form.privacyPolicyUrl);
++			if ("error" in terms || "error" in privacy) { toast.error("Links must be full https:// addresses"); return; }
++
+ 			// Strip empty-string optionals back to undefined so we don't
+-			// overwrite a null field with an empty string unintentionally
++			// overwrite a null field with an empty string unintentionally.
++			// The two legal links are different: empty means "clear it", so they go as null.
+ 			const payload: UpdatePlatformSettingsDto = {
+ 				...form,
+ 				supportPhone: form.supportPhone || undefined,
+-				logoUrl: form.logoUrl || undefined,
+-				termsUrl: form.termsUrl || undefined,
+-				privacyPolicyUrl: form.privacyPolicyUrl || undefined,
++				termsUrl: terms.value,
++				privacyPolicyUrl: privacy.value,
+ 				maintenanceMessage: form.maintenanceMessage || undefined,
+ 				announcementBanner: form.announcementBanner || undefined,
+ 			};
+@@ -95,8 +138,34 @@ export default function PlatformSettingsPage() {
+ 					<Field label="Platform name">
+ 						<Input value={form.platformName ?? ""} onChange={(e) => update("platformName", e.target.value)} />
+ 					</Field>
+-					<Field label="Logo URL">
+-						<Input value={form.logoUrl ?? ""} onChange={(e) => update("logoUrl", e.target.value)} placeholder="https://…" />
++					<Field label="Logo">
++						<div className="flex items-center gap-4">
++							<div className="flex size-16 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/40">
++								{settings?.logoUrl ? (
++									// A plain <img> on purpose: a preview must never crash the page if an older value points at another host.
++									// eslint-disable-next-line @next/next/no-img-element
++									<img src={settings.logoUrl} alt="Platform logo" className="size-full object-contain" />
++								) : (
++									<ImagePlus className="size-5 text-muted-foreground" />
++								)}
++							</div>
++							<div className="space-y-2">
++								<input ref={fileInput} type="file" accept={LOGO_TYPES.join(",")} className="hidden" onChange={handleLogoPicked} />
++								<div className="flex flex-wrap gap-2">
++									<Button type="button" variant="outline" size="sm" onClick={() => fileInput.current?.click()} disabled={uploadLogo.isPending || removeLogo.isPending}>
++										{uploadLogo.isPending && <Loader2 className="size-4 animate-spin" />}
++										{settings?.logoUrl ? "Replace logo" : "Upload logo"}
++									</Button>
++									{settings?.logoUrl && (
++										<Button type="button" variant="ghost" size="sm" onClick={handleLogoRemove} disabled={uploadLogo.isPending || removeLogo.isPending}>
++											{removeLogo.isPending ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
++											Remove
++										</Button>
++									)}
++								</div>
++								<p className="text-xs text-muted-foreground">JPEG, PNG or WebP, up to 2 MB. Saved straight away; no need to press Save changes.</p>
++							</div>
++						</div>
+ 					</Field>
+ 					<div className="grid gap-4 sm:grid-cols-2">
+ 						<Field label="Support email">
+diff --git a/apps/web/src/config/image-hosts.ts b/apps/web/src/config/image-hosts.ts
+new file mode 100644
+index 0000000..3420dcf
+--- /dev/null
++++ b/apps/web/src/config/image-hosts.ts
+@@ -0,0 +1,51 @@
++/*
++|--------------------------------------------------------------------------
++| WHERE next/image MAY LOAD PICTURES FROM
++|--------------------------------------------------------------------------
++| School logos and the platform logo are uploaded to our own Supabase Storage (public bucket), and the API stores the
++| link Supabase gives back. That link starts with SUPABASE_URL, the same value the API uses. So the picture rules are
++| built from SUPABASE_URL instead of a wildcard that would allow every Supabase project in the world:
++|
++|   - hosted project   https://abcd.supabase.co             -> https, abcd.supabase.co, /storage/v1/object/public/**
++|   - custom domain    https://files.example.com            -> https, files.example.com, same path
++|   - local Supabase   http://localhost:54321               -> http, localhost, port 54321, same path
++|
++| Only the public-file path is allowed, never the whole host. If SUPABASE_URL is missing or not a link, the old
++| wildcard (https://*.supabase.co, public-file path only) stays in place so nothing breaks, and a warning is printed.
++|
++| Next.js refuses to fetch pictures from a local/private address for its image optimiser unless told otherwise, so
++| for a local Supabase we also switch that on, in development only (never in production).
++*/
++
++export const PUBLIC_FILE_PATH = "/storage/v1/object/public/**";
++
++export interface ImagePattern { protocol: "http" | "https"; hostname: string; port?: string; pathname: string }
++export interface ImageHosts { patterns: ImagePattern[]; allowLocalIp: boolean; usedFallback: boolean }
++
++const FALLBACK: ImagePattern = { protocol: "https", hostname: "*.supabase.co", pathname: PUBLIC_FILE_PATH };
++
++/** localhost, *.localhost, 127.x, ::1 and the private ranges: places Next's optimiser refuses by default. */
++export function isLocalHost(hostname: string): boolean {
++	const h = hostname.replace(/^\[|\]$/g, "").toLowerCase();
++	if (h === "localhost" || h.endsWith(".localhost") || h === "::1") return true;
++	const m = /^(\d{1,3})\.(\d{1,3})\.\d{1,3}\.\d{1,3}$/.exec(h);
++	if (!m) return false;
++	const a = Number(m[1]), b = Number(m[2]);
++	return a === 127 || a === 10 || (a === 192 && b === 168) || (a === 172 && b >= 16 && b <= 31);
++}
++
++export function imageHostsFor(supabaseUrl: string | undefined, nodeEnv: string | undefined = process.env.NODE_ENV): ImageHosts {
++	const fallback: ImageHosts = { patterns: [FALLBACK], allowLocalIp: false, usedFallback: true };
++	if (!supabaseUrl) return fallback;
++	let url: URL;
++	try { url = new URL(supabaseUrl.trim()); } catch { return fallback; }
++	if (url.protocol !== "https:" && url.protocol !== "http:") return fallback;
++
++	const pattern: ImagePattern = {
++		protocol: url.protocol === "https:" ? "https" : "http",
++		hostname: url.hostname.replace(/^\[|\]$/g, ""),
++		...(url.port ? { port: url.port } : {}),
++		pathname: PUBLIC_FILE_PATH,
++	};
++	return { patterns: [pattern], allowLocalIp: isLocalHost(url.hostname) && nodeEnv !== "production", usedFallback: false };
++}
+diff --git a/apps/web/src/features/super-admin/hooks/use-platform-settings.ts b/apps/web/src/features/super-admin/hooks/use-platform-settings.ts
+index fcd550f..d88f0ab 100644
+--- a/apps/web/src/features/super-admin/hooks/use-platform-settings.ts
++++ b/apps/web/src/features/super-admin/hooks/use-platform-settings.ts
+@@ -23,4 +23,28 @@ export function useUpdatePlatformSettings() {
+ 		},
+ 		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["platform-settings"] }),
+ 	});
+-}   
+\ No newline at end of file
++}
++
++export function useUploadPlatformLogo() {
++	const queryClient = useQueryClient();
++	return useMutation({
++		mutationFn: async (file: File) => {
++			const res = await platformSettingsApi.uploadLogo(file);
++			if (!res.success) throw res;
++			return res.data;
++		},
++		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["platform-settings"] }),
++	});
++}
++
++export function useRemovePlatformLogo() {
++	const queryClient = useQueryClient();
++	return useMutation({
++		mutationFn: async () => {
++			const res = await platformSettingsApi.removeLogo();
++			if (!res.success) throw res;
++			return res.data;
++		},
++		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["platform-settings"] }),
++	});
++}
+diff --git a/apps/web/src/features/super-admin/services/platform-settings.api.ts b/apps/web/src/features/super-admin/services/platform-settings.api.ts
+index be7a6a3..f4d63df 100644
+--- a/apps/web/src/features/super-admin/services/platform-settings.api.ts
++++ b/apps/web/src/features/super-admin/services/platform-settings.api.ts
+@@ -4,8 +4,20 @@ import { PlatformSettingsResponseData, UpdatePlatformSettingsDto } from "../type
+ 
+ export const platformSettingsApi = {
+ 	get: (): Promise<ApiResponse<PlatformSettingsResponseData>> =>
+-		API.get("/platform-settings"),
++		API.get("/platform/settings"),
+ 
+ 	update: (data: UpdatePlatformSettingsDto): Promise<ApiResponse<PlatformSettingsResponseData>> =>
+-		API.put("/platform-settings", data),
+-};
+\ No newline at end of file
++		API.put("/platform/settings", data),
++
++	/** JPEG, PNG or WebP, up to 2 MB. The API checks the file itself; this is only what the browser sends. */
++	uploadLogo: (file: File): Promise<ApiResponse<PlatformSettingsResponseData>> => {
++		const formData = new FormData();
++		formData.append("logo", file);
++		return API.post("/platform/settings/logo", formData, {
++			headers: { "Content-Type": "multipart/form-data" },
++		});
++	},
++
++	removeLogo: (): Promise<ApiResponse<PlatformSettingsResponseData>> =>
++		API.delete("/platform/settings/logo"),
++};
+diff --git a/apps/web/src/features/super-admin/types/platform-settings.types.ts b/apps/web/src/features/super-admin/types/platform-settings.types.ts
+index 9b3f9cd..0cca5c9 100644
+--- a/apps/web/src/features/super-admin/types/platform-settings.types.ts
++++ b/apps/web/src/features/super-admin/types/platform-settings.types.ts
+@@ -21,9 +21,10 @@ export interface UpdatePlatformSettingsDto {
+ 	platformName?: string;
+ 	supportEmail?: string;
+ 	supportPhone?: string;
+-	logoUrl?: string;
+-	termsUrl?: string;
+-	privacyPolicyUrl?: string;
++	// The logo is not part of this update: it is uploaded and removed with their own calls (see platform-settings.api.ts).
++	// Links must be https. Send null to clear one.
++	termsUrl?: string | null;
++	privacyPolicyUrl?: string | null;
+ 	subscriptionGracePeriodDays?: number;
+ 	reminderDaysBeforeExpiry?: number;
+ 	defaultTrialDays?: number;
+diff --git a/apps/web/tests/lib/image-hosts.test.ts b/apps/web/tests/lib/image-hosts.test.ts
+new file mode 100644
+index 0000000..a0fe5d0
+--- /dev/null
++++ b/apps/web/tests/lib/image-hosts.test.ts
+@@ -0,0 +1,46 @@
++import { describe, expect, it } from "vitest";
++import { imageHostsFor, isLocalHost, PUBLIC_FILE_PATH } from "@/config/image-hosts";
++
++describe("imageHostsFor: the picture rules follow the configured Supabase address", () => {
++	it("hosted project: that project's host only, https, public-file path only", () => {
++		const r = imageHostsFor("https://abcd1234.supabase.co", "production");
++		expect(r.patterns).toEqual([{ protocol: "https", hostname: "abcd1234.supabase.co", pathname: PUBLIC_FILE_PATH }]);
++		expect(r.usedFallback).toBe(false); expect(r.allowLocalIp).toBe(false);
++	});
++	it("custom domain: the custom host, not *.supabase.co", () => {
++		const r = imageHostsFor("https://files.example.com/", "production");
++		expect(r.patterns[0]).toEqual({ protocol: "https", hostname: "files.example.com", pathname: PUBLIC_FILE_PATH });
++	});
++	it("a trailing path or spaces in the value do not leak into the rule", () => {
++		expect(imageHostsFor("  https://files.example.com/some/path  ", "production").patterns[0]).toEqual({ protocol: "https", hostname: "files.example.com", pathname: PUBLIC_FILE_PATH });
++	});
++	it("local Supabase: http, localhost and the port are kept; the local-address switch is on in development only", () => {
++		const dev = imageHostsFor("http://localhost:54321", "development");
++		expect(dev.patterns[0]).toEqual({ protocol: "http", hostname: "localhost", port: "54321", pathname: PUBLIC_FILE_PATH });
++		expect(dev.allowLocalIp).toBe(true);
++		expect(imageHostsFor("http://localhost:54321", "production").allowLocalIp).toBe(false);
++		expect(imageHostsFor("http://127.0.0.1:54321", "development").allowLocalIp).toBe(true);
++	});
++	it("a public host never switches the local-address override on", () => {
++		expect(imageHostsFor("https://abcd.supabase.co", "development").allowLocalIp).toBe(false);
++	});
++	it("missing, empty or broken values fall back to the old narrow wildcard and say so", () => {
++		for (const v of [undefined, "", "not a url", "ftp://x.example.com", "javascript:alert(1)"]) {
++			const r = imageHostsFor(v, "production");
++			expect(r.usedFallback, String(v)).toBe(true);
++			expect(r.patterns).toEqual([{ protocol: "https", hostname: "*.supabase.co", pathname: PUBLIC_FILE_PATH }]);
++		}
++	});
++	it("a rule is never wider than the public-file path (no host-wide access)", () => {
++		for (const v of ["https://abcd.supabase.co", "http://localhost:54321", undefined]) expect(imageHostsFor(v).patterns.every(p => p.pathname === PUBLIC_FILE_PATH)).toBe(true);
++	});
++});
++
++describe("isLocalHost", () => {
++	it("recognises local and private addresses", () => {
++		for (const h of ["localhost", "files.localhost", "127.0.0.1", "10.1.2.3", "192.168.0.5", "172.16.0.1", "172.31.255.1", "[::1]"]) expect(isLocalHost(h), h).toBe(true);
++	});
++	it("and not public ones", () => {
++		for (const h of ["abcd.supabase.co", "example.com", "8.8.8.8", "172.32.0.1", "172.15.0.1", "192.169.0.1"]) expect(isLocalHost(h), h).toBe(false);
++	});
++});

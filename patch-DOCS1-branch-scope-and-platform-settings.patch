@@ -1,0 +1,124 @@
+diff --git a/docs/backend/modules/attendance.md b/docs/backend/modules/attendance.md
+index 33e17ff..c6c53e7 100644
+--- a/docs/backend/modules/attendance.md
++++ b/docs/backend/modules/attendance.md
+@@ -109,9 +109,9 @@ The focused database tests exercise these intended cases:
+ - List and summary mark visibility uses `attendanceViewWhere`.
+ - For list visibility, ASSIGNED staff see classes they lead, plus classes where they teach in the current term.
+ - OWN student filters by `studentId`; OWN guardian filters through the student's guardian links.
+-- BRANCH and missing scopes resolve to an empty-result predicate. The permission catalog includes BRANCH for future use, but attendance classes are not currently branch-filtered by this service.
++- BRANCH (view only) filters by the class's `branchId`: a staff member sees the registers, marks and summaries of classes in their own branches, and nothing else. A staff member with no branches sees nothing. `attendance.mark` never offers BRANCH, and `classInScope` refuses BRANCH for marking even if a role were given it by mistake. A missing scope resolves to an empty-result predicate.
+ 
+-**Important:** A permission's declared scope is not proof that its data filter is implemented. Do not enable branch-scoped attendance access on the assumption that BRANCH currently returns branch records.
++**Single-student summary:** `studentInScope` applies the same rules as the lists (ALL; OWN = yourself or a linked child; ASSIGNED/BRANCH = the student is on the list of an in-scope class in that term). A student outside the viewer's scope looks like one that does not exist (404): no name, admission number or class is returned. Covered by `tests/branch-scope/branch-scope.db.test.ts`.
+ 
+ ## 4. School-day and term rules
+ 
+@@ -268,7 +268,7 @@ The test sources were inspected but not executed. The database and migration tes
+ ## 10. Open verification and design items
+ 
+ 1. Resolve the student-summary authorization gap described above and add tests asserting unauthorized summaries return no identifying or aggregate metadata.
+-2. Decide whether `attendance.view` BRANCH should remain unavailable until class-branch scoping is implemented; ensure role templates do not grant it prematurely.
++2. (Done) `attendance.view` BRANCH is implemented by class branch and tested for lists, register, class and student summaries, filters that try to reach across branches, and a class moving branch.
+ 3. Decide whether date-range DTO validation should reject `from > to`.
+ 4. Confirm that hard-coded `Africa/Lagos` is acceptable until school timezone settings are wired into attendance.
+ 5. Run the policy, real-database and populated-migration tests against a disposable database, then run API typecheck/build.
+diff --git a/docs/backend/modules/enrolment.md b/docs/backend/modules/enrolment.md
+index 96d6b66..7baf273 100644
+--- a/docs/backend/modules/enrolment.md
++++ b/docs/backend/modules/enrolment.md
+@@ -93,7 +93,7 @@ Read filtering is applied in `enrolmentScopeWhere`:
+ - ASSIGNED staff: classes they lead, plus classes where they teach a subject in the current term.
+ - OWN student: records whose `studentId` is the caller's persona entity ID.
+ - OWN guardian: records whose student has a guardian link to the caller's persona entity ID.
+-- BRANCH currently resolves to an empty result predicate; the scope helper explicitly says classes are not yet linked to branches for this query. Do not interpret the permission declaration as proof branch filtering is implemented.
++- BRANCH (staff only) filters by the class's `branchId`; a person with no branches sees nothing, and a student or guardian given BRANCH by mistake sees nothing. Covered by `tests/branch-scope/branch-scope.db.test.ts` (real filter against real rows) and `tests/enrolment/enrolment.test.ts`.
+ 
+ The actor for mutations comes from the verified session (`req.auth.userId`); the school ID comes from resolved tenant context. Neither is accepted from the request body.
+ 
+@@ -190,7 +190,7 @@ The test file was inspected but not executed in this documentation pass. The fol
+ - Route-level middleware behavior and actual HTTP response/error envelopes.
+ - Database concurrency behavior under real concurrent requests.
+ - Full test execution and typecheck.
+-- Whether BRANCH enrolment visibility is intentionally deferred or should be implemented before branch-scoped roles are enabled.
++- (Resolved) BRANCH enrolment visibility is implemented by class branch.
+ 
+ ## 8. Source map
+ 
+diff --git a/docs/backend/modules/grades.md b/docs/backend/modules/grades.md
+index 1cf9d50..610b094 100644
+--- a/docs/backend/modules/grades.md
++++ b/docs/backend/modules/grades.md
+@@ -124,7 +124,7 @@ A reopen returns any non-draft state to draft. The implementation currently has
+ | `grades.reopen` | ALL; staff; sensitive | Reopens published/locked sheets with a reason |
+ | `grades.config` | ALL; staff | Changes scales and schemes |
+ 
+-The scope service explicitly resolves BRANCH and unsupported scope/persona combinations to an empty result because classes are not branch-linked in the grades scope implementation. This behavior is important for frontend expectations and is recorded as a remediation item below.
++BRANCH (viewing only; `grades.enter` and `grades.submit` never offer it) filters sheets and results by the class's `branchId`, for staff only; no branches means nothing. `mayViewSheet` needs the class's branch on the sheet owner and refuses a BRANCH viewer when it is missing (fail closed). Unsupported scope/persona combinations still resolve to an empty result. This behavior is important for frontend expectations and is recorded as a remediation item below.
+ 
+ The route-level `grades.view` permission also protects scale/scheme reads. The route does not separately restrict those reads to staff, even though the setup is primarily an administrative capability; OWN users can therefore reach the read-only configuration endpoints if their permission is granted. No write access follows from that read permission.
+ 
+@@ -165,7 +165,7 @@ The tests cover scale/scheme validation, default seeding, legacy migration, shee
+ 
+ ## Open implementation and verification items
+ 
+-1. **BRANCH scope is declared but not implemented for grades.** `grades.view` advertises BRANCH, while the scope service returns an empty predicate for it. Confirm intended branch semantics and either implement them after class/branch ownership is defined or remove the unsupported grant.
++1. **(Resolved)** BRANCH scope for grades is implemented by class branch and tested (sheet list, single sheet, results, filters, no-branch).
+ 2. **Approval requirement is hard-coded.** `REQUIRE_APPROVAL` is always true. Decide whether approval is always mandatory or should be backed by a school setting, and remove the misleading unused configurable policy path if it is not configurable.
+ 3. **No HTTP route contract tests were found in the inspected grades test folder.** Existing tests exercise policies and use cases/repositories directly. Add route-level tests for middleware, path params, validation and response envelopes.
+ 4. **Execute the conditional DB/migration tests and full typecheck/build** in a disposable test environment before treating the migration and transaction behavior as runtime-verified.
+diff --git a/docs/backend/modules/platform-settings.md b/docs/backend/modules/platform-settings.md
+index 4e22749..8866dc8 100644
+--- a/docs/backend/modules/platform-settings.md
++++ b/docs/backend/modules/platform-settings.md
+@@ -24,9 +24,11 @@ The module uses the public Prisma client and a singleton PlatformSettingsReposit
+ | Method | Path | Permission | Behavior |
+ |---|---|---|---|
+ | GET | / | Public | Read platform settings; creates default row if table is empty |
+-| PUT | / | platform.settings.manage | Update supplied platform fields |
++| PUT | / | platform.settings.manage | Update supplied platform fields (not the logo) |
++| POST | /logo | platform.settings.manage | Upload the platform logo (multipart field `logo`): JPEG, PNG or WebP, up to 2 MB, judged by the file's bytes, no SVG; saved under `platform/logos` in the public bucket; audited |
++| DELETE | /logo | platform.settings.manage | Clear the logo (and remove its file if it is in `platform/logos`); safe to repeat; audited |
+ 
+-The update DTO accepts optional platformName, supportEmail, supportPhone, logoUrl, termsUrl, privacyPolicyUrl, subscriptionGracePeriodDays, reminderDaysBeforeExpiry, defaultTrialDays, allowNewRegistrations, maintenanceMode, maintenanceMessage and announcementBanner.
++The update DTO accepts optional platformName, supportEmail, supportPhone, termsUrl, privacyPolicyUrl, subscriptionGracePeriodDays, reminderDaysBeforeExpiry, defaultTrialDays, allowNewRegistrations, maintenanceMode, maintenanceMessage and announcementBanner.
+ 
+ ## Configuration fields and consumers
+ 
+@@ -35,8 +37,8 @@ The update DTO accepts optional platformName, supportEmail, supportPhone, logoUr
+ | platformName | SchoolPortal; 1–100 chars | Public branding |
+ | supportEmail | support@schoolportal.com; valid email | Public support contact |
+ | supportPhone | optional | Public support contact |
+-| logoUrl | optional URL | Public branding |
+-| termsUrl/privacyPolicyUrl | optional URL | Public legal links |
++| logoUrl | Set only by the upload/clear endpoints; sending it in PUT is refused | Public branding |
++| termsUrl/privacyPolicyUrl | optional; https only, no embedded login, up to 2048 chars; null or empty clears | Public legal links |
+ | subscriptionGracePeriodDays | 0–90 | Subscription billing lifecycle/dunning |
+ | reminderDaysBeforeExpiry | 0–30 | Subscription reminders |
+ | defaultTrialDays | 0–90 | New school subscription/provisioning |
+@@ -57,21 +59,21 @@ The module does not expose delete or list endpoints. It assumes one global setti
+ 
+ The GET endpoint is intentionally public because its response is used by the public site and login/onboarding screens. The update endpoint is platform-realm and requires sensitive platform.settings.manage permission.
+ 
+-The DTO currently uses z.string().url() for logoUrl, termsUrl and privacyPolicyUrl without restricting URL protocol. This differs from School Settings, which explicitly restricts web links to http/https and letterhead links to https only. Restrict platform public links to http/https before returning them to the browser.
++The logo is never typed in: it is uploaded to our own Supabase public bucket, so the stored link is always ours (same rules as a school logo). `termsUrl` and `privacyPolicyUrl` accept only https links (javascript:, data:, http: and links with an embedded login are refused). The mapper checks stored values again on the way out and hides any unsafe one, so a value saved before the rules tightened is not served. Run `npm run report:platform-settings-urls` (read-only) to list stored values that break the rules; a legacy typed-in logo link must be re-uploaded. On the web side, `next/image` hosts are built from `SUPABASE_URL` (see apps/web/.env.local.example).
+ 
+ UpdatePlatformSettingsUseCase does not inject or call AuditService. Changes to maintenance mode, registration availability, grace periods and public legal/branding configuration are not recorded by the shared audit module.
+ 
+ ## Tests and verification status
+ 
+-No dedicated platform-settings test file was found in apps/api/tests. The module's DTO, repository initialization, public read, platform permission and update behavior were not covered by an inspected automated suite.
++Platform-settings tests: `apps/api/tests/settings/platform-settings.test.ts` (link validation, logo upload/clear rules, audit, mapper hiding). Earlier note: no dedicated test file existed. The module's DTO, repository initialization, public read, platform permission and update behavior were not covered by an inspected automated suite.
+ 
+ Not executed: tests, typecheck, build, public DB migration, public GET/PUT HTTP calls or concurrent first-read initialization.
+ 
+ ## Open implementation and verification items
+ 
+-1. Restrict logoUrl, termsUrl and privacyPolicyUrl to http/https; reject javascript:, data: and other non-web protocols.
++1. (Done) Logo is upload-only; terms/privacy links are https only and nullable.
+ 2. Add a real singleton invariant for PlatformSettings and make first-row initialization atomic/upsert-based. Concurrent public GETs must not create duplicate rows.
+-3. Inject AuditService and record before/after changes for platform settings, especially maintenance mode, registration switch and subscription grace/trial policies.
++3. Logo upload and removal are audited (`platform.logo_changed`, `platform.logo_removed`). Still open: inject AuditService into the general update and record before/after changes, especially maintenance mode, registration switch and subscription grace/trial policies.
+ 4. Add tests for public response shape, update permission, URL protocol validation, settings initialization concurrency and audit.
+ 5. Define which settings are safe to expose publicly and keep all secret provider/email credentials out of this response.
+ 6. Run typecheck/build and public database checks before rollout.

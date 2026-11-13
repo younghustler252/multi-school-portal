@@ -30,4 +30,8 @@ export class PlatformSettingsRepositoryImpl implements IPlatformSettingsReposito
 
         return this.mapper.toDomain(raw);
     }
+
+    async setLogo(url: string | null): Promise<PlatformSettingsEntity> {
+        return this.update({ logoUrl: url });
+    }
 }

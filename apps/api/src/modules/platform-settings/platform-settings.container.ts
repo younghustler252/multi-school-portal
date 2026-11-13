@@ -5,6 +5,7 @@ import { PlatformSettingsMapper } from "./mappers/platform-settings.mapper";
 
 import { GetPlatformSettingsUseCase } from "./usecases/get-platform-settings.usecase";
 import { UpdatePlatformSettingsUseCase } from "./usecases/update-platform-settings.usecase";
+import { UploadPlatformLogoUseCase, RemovePlatformLogoUseCase } from "./usecases/platform-logo.usecases";
 
 import { PlatformSettingsRepositoryImpl } from "./repositories/platform-settings.repository.impl";
 
@@ -26,6 +27,12 @@ export const registerPlatformSettings = (
 
         updatePlatformSettingsUseCase:
             asClass(UpdatePlatformSettingsUseCase).scoped(),
+
+        uploadPlatformLogoUseCase:
+            asClass(UploadPlatformLogoUseCase).scoped(),
+
+        removePlatformLogoUseCase:
+            asClass(RemovePlatformLogoUseCase).scoped(),
 
         platformSettingsController:
             asClass(PlatformSettingsController).scoped(),

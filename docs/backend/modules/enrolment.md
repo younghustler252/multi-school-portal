@@ -93,7 +93,7 @@ Read filtering is applied in `enrolmentScopeWhere`:
 - ASSIGNED staff: classes they lead, plus classes where they teach a subject in the current term.
 - OWN student: records whose `studentId` is the caller's persona entity ID.
 - OWN guardian: records whose student has a guardian link to the caller's persona entity ID.
-- BRANCH currently resolves to an empty result predicate; the scope helper explicitly says classes are not yet linked to branches for this query. Do not interpret the permission declaration as proof branch filtering is implemented.
+- BRANCH (staff only) filters by the class's `branchId`; a person with no branches sees nothing, and a student or guardian given BRANCH by mistake sees nothing. Covered by `tests/branch-scope/branch-scope.db.test.ts` (real filter against real rows) and `tests/enrolment/enrolment.test.ts`.
 
 The actor for mutations comes from the verified session (`req.auth.userId`); the school ID comes from resolved tenant context. Neither is accepted from the request body.
 
@@ -190,7 +190,7 @@ The test file was inspected but not executed in this documentation pass. The fol
 - Route-level middleware behavior and actual HTTP response/error envelopes.
 - Database concurrency behavior under real concurrent requests.
 - Full test execution and typecheck.
-- Whether BRANCH enrolment visibility is intentionally deferred or should be implemented before branch-scoped roles are enabled.
+- (Resolved) BRANCH enrolment visibility is implemented by class branch.
 
 ## 8. Source map
 
