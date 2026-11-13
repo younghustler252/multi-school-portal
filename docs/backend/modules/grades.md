@@ -124,7 +124,7 @@ A reopen returns any non-draft state to draft. The implementation currently has 
 | `grades.reopen` | ALL; staff; sensitive | Reopens published/locked sheets with a reason |
 | `grades.config` | ALL; staff | Changes scales and schemes |
 
-The scope service explicitly resolves BRANCH and unsupported scope/persona combinations to an empty result because classes are not branch-linked in the grades scope implementation. This behavior is important for frontend expectations and is recorded as a remediation item below.
+BRANCH (viewing only; `grades.enter` and `grades.submit` never offer it) filters sheets and results by the class's `branchId`, for staff only; no branches means nothing. `mayViewSheet` needs the class's branch on the sheet owner and refuses a BRANCH viewer when it is missing (fail closed). Unsupported scope/persona combinations still resolve to an empty result. This behavior is important for frontend expectations and is recorded as a remediation item below.
 
 The route-level `grades.view` permission also protects scale/scheme reads. The route does not separately restrict those reads to staff, even though the setup is primarily an administrative capability; OWN users can therefore reach the read-only configuration endpoints if their permission is granted. No write access follows from that read permission.
 
@@ -165,7 +165,7 @@ The tests cover scale/scheme validation, default seeding, legacy migration, shee
 
 ## Open implementation and verification items
 
-1. **BRANCH scope is declared but not implemented for grades.** `grades.view` advertises BRANCH, while the scope service returns an empty predicate for it. Confirm intended branch semantics and either implement them after class/branch ownership is defined or remove the unsupported grant.
+1. **(Resolved)** BRANCH scope for grades is implemented by class branch and tested (sheet list, single sheet, results, filters, no-branch).
 2. **Approval requirement is hard-coded.** `REQUIRE_APPROVAL` is always true. Decide whether approval is always mandatory or should be backed by a school setting, and remove the misleading unused configurable policy path if it is not configurable.
 3. **No HTTP route contract tests were found in the inspected grades test folder.** Existing tests exercise policies and use cases/repositories directly. Add route-level tests for middleware, path params, validation and response envelopes.
 4. **Execute the conditional DB/migration tests and full typecheck/build** in a disposable test environment before treating the migration and transaction behavior as runtime-verified.

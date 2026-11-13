@@ -23,4 +23,28 @@ export function useUpdatePlatformSettings() {
 		},
 		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["platform-settings"] }),
 	});
-}   
+}
+
+export function useUploadPlatformLogo() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: async (file: File) => {
+			const res = await platformSettingsApi.uploadLogo(file);
+			if (!res.success) throw res;
+			return res.data;
+		},
+		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["platform-settings"] }),
+	});
+}
+
+export function useRemovePlatformLogo() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: async () => {
+			const res = await platformSettingsApi.removeLogo();
+			if (!res.success) throw res;
+			return res.data;
+		},
+		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["platform-settings"] }),
+	});
+}

@@ -51,7 +51,7 @@ export class GetSheetUseCase {
         const repo = this.d.gradesSheetsRepository;
         const cs = await repo.classSubject(classSubjectId);
         if (!cs) throw gradesErrors.sheetNotFound();
-        const owner = { staffId: cs.staffId, classTeacherId: cs.class.classTeacherId };
+        const owner = { staffId: cs.staffId, classTeacherId: cs.class.classTeacherId, branchId: cs.class.branchId };
         if (!mayViewSheet(access, owner)) throw gradesErrors.cannotSee();
 
         const sheet = await repo.sheetOf(classSubjectId);

@@ -6,6 +6,7 @@ import { PaymentContextRepositoryImpl } from "./repositories/payment-context.rep
 import { PaymentConfirmationService } from "./services/payment-confirmation.service";
 import { RecordPaymentUseCase, ConfirmPaymentUseCase, RejectPaymentUseCase, PreviewAllocationUseCase } from "./usecases/payment-record.usecases";
 import { ListPaymentsUseCase, GetPaymentUseCase, GetReceiptUseCase } from "./usecases/payment-queries.usecases";
+import { ListMyPaymentsUseCase, GetMyReceiptUseCase } from "./usecases/family-payments.usecases";
 import { RefundMapper } from "./mappers/refund.mapper";
 import { RefundRepositoryImpl } from "./repositories/refund.repository.impl";
 import { CreditService } from "./services/credit.service";
@@ -34,6 +35,8 @@ export const registerPayments = (container: AwilixContainer): void => {
         listPaymentsUseCase:       asClass(ListPaymentsUseCase).scoped(),
         getPaymentUseCase:         asClass(GetPaymentUseCase).scoped(),
         getReceiptUseCase:         asClass(GetReceiptUseCase).scoped(),
+        listMyPaymentsUseCase:     asClass(ListMyPaymentsUseCase).scoped(),
+        getMyReceiptUseCase:       asClass(GetMyReceiptUseCase).scoped(),
 
         refundMapper:                 asClass(RefundMapper).singleton(),
         refundRepository:             asClass(RefundRepositoryImpl).scoped(),

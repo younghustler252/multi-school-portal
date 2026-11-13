@@ -36,7 +36,8 @@ All paths below are relative to `/api/v1/payments`.
 | GET | `/` | `payments.view` | Paginated payment list |
 | POST | `/` | `payments.record` | Record manual payment; cash/POS confirm immediately, other methods wait |
 | POST | `/allocation-preview` | `payments.record` | Preview invoice allocation and credit; no writes |
-| GET | `/my` | `payments.pay` | Authenticated guardian's own payments |
+| GET | `/my` | `payments.pay` | Authenticated guardian's payments: what they paid, plus CONFIRMED/REVERSED payments by others that cover their linked children (their share only) |
+| GET | `/my/:id/receipt` | `payments.pay` | Guardian's receipt, cut down to what they may see (guardian only) |
 | POST | `/online/initialize` | `payments.pay` | Start gateway payment for linked child's invoice |
 | GET | `/online/verify/:reference` | `payments.pay` | Ask gateway to verify and confirm guardian's payment |
 | POST | `/online/settlements` | `payments.settle` | Post gateway gross/fee/net settlement |
@@ -69,7 +70,15 @@ Payment list filters: status, method, guardian, student, branch, from/to dates, 
 | `payments.pay` | OWN / GUARDIAN | Pay linked child's invoice online |
 | `payments.reverse` | ALL / STAFF; sensitive | Reverse confirmed payment |
 
-Family access is deliberately narrow: guardian online payment uses the authenticated guardian persona ID, verifies the invoice student is linked to that guardian, and the guardian's payment history is filtered by that guardian ID. The route does not accept a caller-supplied guardian ID for the family path.
+Family access is deliberately narrow: guardian online payment uses the authenticated guardian persona ID and verifies the invoice student is linked to that guardian. The family routes never accept a caller-supplied guardian or branch filter.
+
+**Guardian list and receipt (`/my`, `/my/:id/receipt`).** A guardian sees (1) every payment they made, in any state, and (2) payments made by other people that cover one of their linked children, but only once money moved (CONFIRMED, or REVERSED afterwards); another person's pending or failed attempts never appear. Links count whether or not the student is still active. Rules for what is shown (`services/family-payment-visibility.ts`, `services/family-payments.where.ts`):
+- Lines and credit for the guardian's own children show in full.
+- Lines and credit for other children: the payer sees them as one anonymous `otherStudents` amount (no names, invoice numbers or balances), so the total still adds up; a guardian who is not the payer does not see them, and sees only their children's share as `amountKobo` with `partial: true`.
+- The payer's phone and the payment reference are shown to the payer only; in the list, a non-payer gets `guardianId`, `reference` and `unallocatedKobo` as null.
+- A payment that is not theirs, covers none of their children, or has no receipt yet all answer `404 NOT_FOUND` ("Receipt not found") identically.
+- A student filter for a child who is not theirs returns nothing; students do not get receipt access.
+Tests: `tests/finance/family-payments.db.test.ts` (real database) and `tests/finance/family-payment-visibility.test.ts`.
 
 ## Manual payment recording and confirmation
 
