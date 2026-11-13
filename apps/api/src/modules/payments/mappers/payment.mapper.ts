@@ -1,3 +1,4 @@
+import { shareForStudents } from "../services/family-payment-visibility";
 import { IMapper } from "../../../infrastructure/repository/base.repository";
 import { koboOut, dayOut } from "../../ledger/mappers/kobo";
 import { PaymentEntity, PaymentMethod, PaymentStatus, PayerType, ReceiptEntity, ReceiptSnapshot } from "../domain/payment.entity";
@@ -56,5 +57,20 @@ export class PaymentMapper implements IMapper<PaymentRow, PaymentEntity> {
     }
 
     // The snapshot already carries the receipt number and issue time as they were printed; money in it is kobo as digit strings
+    /*
+    | A payment as a GUARDIAN sees it in their own list. The payer sees it as before (the whole amount). A guardian who did not
+    | make it sees only the share for their own children, and nothing about the payer's account or reference.
+    */
+    toFamilySummary(e: PaymentEntity, guardianId: string, childIds: ReadonlySet<string>) {
+        const isPayer = e.guardianId === guardianId;
+        return {
+            id: e.id, status: e.status, method: e.method, payerType: e.payerType, payerName: e.payerName, isPayer, partial: !isPayer,
+            amountKobo: koboOut(isPayer ? e.amountKobo : shareForStudents(e.allocations, childIds)),
+            unallocatedKobo: isPayer ? koboOut(e.unallocatedKobo) : null,
+            guardianId: isPayer ? e.guardianId : null, reference: isPayer ? e.reference : null, branchId: e.branchId,
+            paidOn: e.paidAt ? dayOut(e.paidAt) : null, receiptNumber: e.receiptNumber, createdAt: e.createdAt,
+        };
+    }
+
     receiptToResponse(r: ReceiptEntity) { return { id: r.id, paymentId: r.paymentId, ...r.snapshot }; }
 }

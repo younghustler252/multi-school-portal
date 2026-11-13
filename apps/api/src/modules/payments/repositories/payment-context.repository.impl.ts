@@ -13,6 +13,10 @@ export class PaymentContextRepositoryImpl implements IPaymentContextRepository {
         return rows.map(r => r.studentId);
     }
 
+    async guardianLinkedStudentIds(guardianId: string): Promise<string[]> {
+        return (await this.db.studentGuardian.findMany({ where: { guardianId }, select: { studentId: true } })).map(r => r.studentId);
+    }
+
     async students(ids: string[]): Promise<PaymentPerson[]> {
         if (ids.length === 0) return [];
         const rows = await this.db.student.findMany({ where: { id: { in: ids } }, select: { id: true, firstName: true, lastName: true } });

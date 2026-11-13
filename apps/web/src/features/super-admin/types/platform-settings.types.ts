@@ -21,9 +21,10 @@ export interface UpdatePlatformSettingsDto {
 	platformName?: string;
 	supportEmail?: string;
 	supportPhone?: string;
-	logoUrl?: string;
-	termsUrl?: string;
-	privacyPolicyUrl?: string;
+	// The logo is not part of this update: it is uploaded and removed with their own calls (see platform-settings.api.ts).
+	// Links must be https. Send null to clear one.
+	termsUrl?: string | null;
+	privacyPolicyUrl?: string | null;
 	subscriptionGracePeriodDays?: number;
 	reminderDaysBeforeExpiry?: number;
 	defaultTrialDays?: number;

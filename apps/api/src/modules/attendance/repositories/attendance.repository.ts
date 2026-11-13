@@ -93,6 +93,22 @@ export class AttendanceRepository {
         return { total, rows };
     }
 
+    /** Is this student on a class list in the term, within what `where` allows? (the same filter the lists use) */
+    async enrolledWithin(where: Record<string, unknown>, studentId: string, termId: string): Promise<boolean> {
+        return (await this.db.enrolment.count({ where: { AND: [where, { studentId, termId }] } as any })) > 0;
+    }
+
+    /** Is this guardian linked to this student? */
+    async guardianLinked(guardianId: string, studentId: string): Promise<boolean> {
+        return (await this.db.studentGuardian.count({ where: { guardianId, studentId } })) > 0;
+    }
+
+    /** Is this class in one of these branches? (used by the BRANCH scope; an empty list matches nothing) */
+    async classInBranches(classId: string, branchIds: string[]): Promise<boolean> {
+        if (branchIds.length === 0) return false;
+        return (await this.db.class.count({ where: { id: classId, branchId: { in: branchIds } } })) > 0;
+    }
+
     /** Does this staff member lead the class, or teach it in the term? (used by the ASSIGNED scope) */
     async staffCoversClass(staffId: string, classId: string, termId: string): Promise<boolean> {
         const [leads, teaches] = await Promise.all([

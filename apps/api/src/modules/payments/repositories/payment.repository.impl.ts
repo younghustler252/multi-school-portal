@@ -2,6 +2,7 @@ import { BaseTenantRepository } from "../../../infrastructure/repository/base.re
 import { PaymentMapper, PaymentRow } from "../mappers/payment.mapper";
 import { AllocationRow, CreditRow, PaymentEntity, PaymentFilters, ReceiptEntity } from "../domain/payment.entity";
 import { IPaymentRepository, NewAllocation } from "./payment.repository";
+import { familyPaymentsWhere } from "../services/family-payments.where";
 
 const WITH_RECEIPT = { receipt: { select: { receiptNumber: true } } };
 const WITH_DETAIL = {
@@ -35,6 +36,10 @@ export class PaymentRepositoryImpl extends BaseTenantRepository<PaymentEntity, P
             ...((f.from || f.to) && { paidAt: { ...(f.from && { gte: f.from }), ...(f.to && { lte: f.to }) } }),
         };
         return this.paginate({ page, limit, where, include: WITH_RECEIPT, orderBy: { createdAt: "desc" } });
+    }
+
+    listForFamily(guardianId: string, linkedStudentIds: string[], f: PaymentFilters, page?: number, limit?: number) {
+        return this.paginate({ page, limit, where: familyPaymentsWhere(guardianId, linkedStudentIds, f), include: WITH_DETAIL, orderBy: { createdAt: "desc" } });
     }
 
     createPayment(data: Record<string, any>) { return super.create(data, WITH_DETAIL); }

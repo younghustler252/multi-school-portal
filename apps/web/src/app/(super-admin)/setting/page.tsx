@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Loader2 } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Loader2, ImagePlus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
@@ -10,13 +10,30 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
-import { usePlatformSettings, useUpdatePlatformSettings } from "@/features/super-admin/hooks/use-platform-settings";
+import { usePlatformSettings, useUpdatePlatformSettings, useUploadPlatformLogo, useRemovePlatformLogo } from "@/features/super-admin/hooks/use-platform-settings";
 import { UpdatePlatformSettingsDto } from "@/features/super-admin/types/platform-settings.types";
 import { ApiErrorResponse } from "@/types/api-response";
+
+const LOGO_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const LOGO_MAX_BYTES = 2 * 1024 * 1024;
+
+/** "" -> null (clear it); a link must be https. Returns the value to send, or an error message. */
+function linkValue(raw: string | null | undefined): { value: string | null } | { error: string } {
+	const v = (raw ?? "").trim();
+	if (!v) return { value: null };
+	try {
+		const u = new URL(v);
+		if (u.protocol === "https:" && !u.username && !u.password) return { value: v };
+	} catch { /* falls through to the message */ }
+	return { error: "Links must be full https:// addresses" };
+}
 
 export default function PlatformSettingsPage() {
 	const { data: settings, isLoading } = usePlatformSettings();
 	const updateSettings = useUpdatePlatformSettings();
+	const uploadLogo = useUploadPlatformLogo();
+	const removeLogo = useRemovePlatformLogo();
+	const fileInput = useRef<HTMLInputElement>(null);
 
 	const [form, setForm] = useState<UpdatePlatformSettingsDto>({});
 
@@ -26,7 +43,6 @@ export default function PlatformSettingsPage() {
 			platformName: settings.platformName,
 			supportEmail: settings.supportEmail,
 			supportPhone: settings.supportPhone ?? "",
-			logoUrl: settings.logoUrl ?? "",
 			termsUrl: settings.termsUrl ?? "",
 			privacyPolicyUrl: settings.privacyPolicyUrl ?? "",
 			subscriptionGracePeriodDays: settings.subscriptionGracePeriodDays,
@@ -43,16 +59,43 @@ export default function PlatformSettingsPage() {
 		setForm((prev) => ({ ...prev, [key]: value }));
 	}
 
+	async function handleLogoPicked(e: React.ChangeEvent<HTMLInputElement>) {
+		const file = e.target.files?.[0];
+		e.target.value = "";   // so the same file can be picked again
+		if (!file) return;
+		if (!LOGO_TYPES.includes(file.type)) { toast.error("Choose a JPEG, PNG or WebP image"); return; }
+		if (file.size > LOGO_MAX_BYTES) { toast.error("The logo must be 2 MB or smaller"); return; }
+		try {
+			await uploadLogo.mutateAsync(file);
+			toast.success("Logo updated");
+		} catch (err) {
+			toast.error((err as ApiErrorResponse).message || "Couldn't upload the logo");
+		}
+	}
+
+	async function handleLogoRemove() {
+		try {
+			await removeLogo.mutateAsync();
+			toast.success("Logo removed");
+		} catch (err) {
+			toast.error((err as ApiErrorResponse).message || "Couldn't remove the logo");
+		}
+	}
+
 	async function handleSave() {
 		try {
+			const terms = linkValue(form.termsUrl);
+			const privacy = linkValue(form.privacyPolicyUrl);
+			if ("error" in terms || "error" in privacy) { toast.error("Links must be full https:// addresses"); return; }
+
 			// Strip empty-string optionals back to undefined so we don't
-			// overwrite a null field with an empty string unintentionally
+			// overwrite a null field with an empty string unintentionally.
+			// The two legal links are different: empty means "clear it", so they go as null.
 			const payload: UpdatePlatformSettingsDto = {
 				...form,
 				supportPhone: form.supportPhone || undefined,
-				logoUrl: form.logoUrl || undefined,
-				termsUrl: form.termsUrl || undefined,
-				privacyPolicyUrl: form.privacyPolicyUrl || undefined,
+				termsUrl: terms.value,
+				privacyPolicyUrl: privacy.value,
 				maintenanceMessage: form.maintenanceMessage || undefined,
 				announcementBanner: form.announcementBanner || undefined,
 			};
@@ -95,8 +138,34 @@ export default function PlatformSettingsPage() {
 					<Field label="Platform name">
 						<Input value={form.platformName ?? ""} onChange={(e) => update("platformName", e.target.value)} />
 					</Field>
-					<Field label="Logo URL">
-						<Input value={form.logoUrl ?? ""} onChange={(e) => update("logoUrl", e.target.value)} placeholder="https://…" />
+					<Field label="Logo">
+						<div className="flex items-center gap-4">
+							<div className="flex size-16 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/40">
+								{settings?.logoUrl ? (
+									// A plain <img> on purpose: a preview must never crash the page if an older value points at another host.
+									// eslint-disable-next-line @next/next/no-img-element
+									<img src={settings.logoUrl} alt="Platform logo" className="size-full object-contain" />
+								) : (
+									<ImagePlus className="size-5 text-muted-foreground" />
+								)}
+							</div>
+							<div className="space-y-2">
+								<input ref={fileInput} type="file" accept={LOGO_TYPES.join(",")} className="hidden" onChange={handleLogoPicked} />
+								<div className="flex flex-wrap gap-2">
+									<Button type="button" variant="outline" size="sm" onClick={() => fileInput.current?.click()} disabled={uploadLogo.isPending || removeLogo.isPending}>
+										{uploadLogo.isPending && <Loader2 className="size-4 animate-spin" />}
+										{settings?.logoUrl ? "Replace logo" : "Upload logo"}
+									</Button>
+									{settings?.logoUrl && (
+										<Button type="button" variant="ghost" size="sm" onClick={handleLogoRemove} disabled={uploadLogo.isPending || removeLogo.isPending}>
+											{removeLogo.isPending ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
+											Remove
+										</Button>
+									)}
+								</div>
+								<p className="text-xs text-muted-foreground">JPEG, PNG or WebP, up to 2 MB. Saved straight away; no need to press Save changes.</p>
+							</div>
+						</div>
 					</Field>
 					<div className="grid gap-4 sm:grid-cols-2">
 						<Field label="Support email">

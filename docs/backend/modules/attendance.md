@@ -109,9 +109,9 @@ The focused database tests exercise these intended cases:
 - List and summary mark visibility uses `attendanceViewWhere`.
 - For list visibility, ASSIGNED staff see classes they lead, plus classes where they teach in the current term.
 - OWN student filters by `studentId`; OWN guardian filters through the student's guardian links.
-- BRANCH and missing scopes resolve to an empty-result predicate. The permission catalog includes BRANCH for future use, but attendance classes are not currently branch-filtered by this service.
+- BRANCH (view only) filters by the class's `branchId`: a staff member sees the registers, marks and summaries of classes in their own branches, and nothing else. A staff member with no branches sees nothing. `attendance.mark` never offers BRANCH, and `classInScope` refuses BRANCH for marking even if a role were given it by mistake. A missing scope resolves to an empty-result predicate.
 
-**Important:** A permission's declared scope is not proof that its data filter is implemented. Do not enable branch-scoped attendance access on the assumption that BRANCH currently returns branch records.
+**Single-student summary:** `studentInScope` applies the same rules as the lists (ALL; OWN = yourself or a linked child; ASSIGNED/BRANCH = the student is on the list of an in-scope class in that term). A student outside the viewer's scope looks like one that does not exist (404): no name, admission number or class is returned. Covered by `tests/branch-scope/branch-scope.db.test.ts`.
 
 ## 4. School-day and term rules
 
@@ -268,7 +268,7 @@ The test sources were inspected but not executed. The database and migration tes
 ## 10. Open verification and design items
 
 1. Resolve the student-summary authorization gap described above and add tests asserting unauthorized summaries return no identifying or aggregate metadata.
-2. Decide whether `attendance.view` BRANCH should remain unavailable until class-branch scoping is implemented; ensure role templates do not grant it prematurely.
+2. (Done) `attendance.view` BRANCH is implemented by class branch and tested for lists, register, class and student summaries, filters that try to reach across branches, and a class moving branch.
 3. Decide whether date-range DTO validation should reject `from > to`.
 4. Confirm that hard-coded `Africa/Lagos` is acceptable until school timezone settings are wired into attendance.
 5. Run the policy, real-database and populated-migration tests against a disposable database, then run API typecheck/build.

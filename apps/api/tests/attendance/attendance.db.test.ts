@@ -196,7 +196,7 @@ describe("attendance (real database)", { skip: dbTestsEnabled ? false : skipReas
         it("a guardian can read their child's summary but not another child's", () => school.run(async () => {
             const { student } = await uc(); const g = access("GUARDIAN", S.guardian.id, { "attendance.view": "OWN" });
             assert.equal((await student.execute({ studentId: S.s1.id } as any, g)).daysMarked, 5);
-            assert.equal((await student.execute({ studentId: S.s4.id } as any, g)).daysMarked, 0, "not their child: nothing is shown");
+            await assert.rejects(student.execute({ studentId: S.s4.id } as any, g), (e: any) => e.statusCode === 404 || /not found/i.test(e.message), "not their child: the student looks like they do not exist");
         }));
         it("a class summary: every student on the list, class rate, and the same access rules as the register", () => school.run(async () => {
             const { klass } = await uc();
