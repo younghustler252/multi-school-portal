@@ -49,7 +49,7 @@ export default function GradesPage() {
 	const termId = currentSession?.currentTerm?.id;
 
 	const { data: classes, isLoading: classesLoading } = useClasses(termId);
-	const { data: classSubjects, isLoading: classSubjectsLoading } = useClassSubjects(classId);
+	const { data: classSubjects, isLoading: classSubjectsLoading } = useClassSubjects(classId, termId);
 	const { data: allSubjects, isLoading: subjectsLoading } = useSubjects();
 
 	const { data: enrolmentData, isLoading: enrolLoading } = useEnrolments({
@@ -81,7 +81,8 @@ export default function GradesPage() {
 			(subject) => subject.classSubjectId === classSubjectId,
 		);
 		if (!currentSubjectStillExists) {
-			setClassSubjectId(classSubjects[0].classSubjectId);
+			// Only subjects assigned to the class this term (classSubjectId set) can be graded.
+			setClassSubjectId(classSubjects.find((subject) => subject.classSubjectId)?.classSubjectId ?? "");
 		}
 	}, [classId, classSubjects, classSubjectId]);
 

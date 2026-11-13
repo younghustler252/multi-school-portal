@@ -6,7 +6,7 @@ import { useStudentCurrentEnrolment } from "@/features/enrolment/hooks/use-stude
 
 export function StudentGradesCard({ studentId, termId }: { studentId: string; termId?: string }) {
 	const { data: enrolment } = useStudentCurrentEnrolment(studentId, termId);
-	const { data: classSubjects } = useClassSubjects(enrolment?.classId ?? "");
+	const { data: classSubjects } = useClassSubjects(enrolment?.classId ?? "", termId);
 	const { data: allSubjects } = useSubjects();
 	const { data: grades, isLoading } = useGrades({ studentId, termId, isPublished: true });
 
@@ -14,7 +14,7 @@ export function StudentGradesCard({ studentId, termId }: { studentId: string; te
 	if (isLoading) return <Skeleton className="h-40 rounded-xl" />;
 
 	function subjectName(classSubjectId: string) {
-		const cs = classSubjects?.find((c) => c.id === classSubjectId);
+		const cs = classSubjects?.find((c) => c.classSubjectId === classSubjectId);
 		return allSubjects?.find((s) => s.id === cs?.subjectId)?.name ?? "Subject";
 	}
 

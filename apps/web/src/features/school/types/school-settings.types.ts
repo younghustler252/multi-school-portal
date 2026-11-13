@@ -18,7 +18,7 @@ export interface SchoolSettingsResponseData {
 	reportCardLetterheadUrl: string | null;
 	letterheadContentTopMm: number | null;
 	letterheadContentBottomMm: number | null;
-	teachingModel: 	TeachingModel | null;
+	teachingModel?: TeachingModel;
 	updatedAt: string;
 }
 
@@ -34,7 +34,7 @@ export interface UpdateSchoolSettingsDto {
 	reportCardLetterheadUrl?: string;
 	letterheadContentTopMm?: number;
 	letterheadContentBottomMm?: number;
-	teachingModel: 	TeachingModel | null;
+	teachingModel?: TeachingModel;
 }
 
 export interface UploadFileResponseData {

@@ -105,7 +105,11 @@ export function useChangeSchoolPlan() {
 
 export function useResetAdminPassword() {
 	return useMutation({
-		mutationFn: (schoolId: string) => schoolManagementApi.resetAdminPassword(schoolId),
+		mutationFn: async (schoolId: string) => {
+			const res = await schoolManagementApi.resetAdminPassword(schoolId);
+			if (!res.success) throw res;
+			return res.data;
+		},
 	});
 }
 

@@ -42,6 +42,10 @@ export interface EnrichedInvoice {
 
 	discountKobo: number;
 	subtotalKobo: number;
+	/** Added by the API: adjustments (credits/debits) applied after issue. */
+	adjustmentsKobo: number;
+	/** What the invoice is worth now: subtotal - discount + adjustments. This is the "expected" amount. */
+	totalKobo: number;
 	paidKobo: number;
 	balanceKobo: number;
 

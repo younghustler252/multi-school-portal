@@ -19,7 +19,7 @@ export default function PrincipalGradesPage() {
 	const { data: classes } = useClasses();
 	const { data: currentSession } = useCurrentSession();
 	const termId = currentSession?.currentTerm?.id;
-	const { data: classSubjects } = useClassSubjects(classId);
+	const { data: classSubjects } = useClassSubjects(classId, termId);
 	const { data: allSubjects } = useSubjects();
 
 	useEffect(() => {
@@ -27,7 +27,9 @@ export default function PrincipalGradesPage() {
 	}, [classes, classId]);
 
 	useEffect(() => {
-		if (!classSubjectId && classSubjects && classSubjects.length > 0) setClassSubjectId(classSubjects[0].id);
+		// Only subjects actually assigned to this class this term (classSubjectId set) can be graded.
+		const first = classSubjects?.find((c) => c.classSubjectId)?.classSubjectId;
+		if (!classSubjectId && first) setClassSubjectId(first);
 	}, [classSubjects, classSubjectId]);
 
 	const { data: enrolmentData } = useEnrolments({ classId: classId || undefined, termId, status: "active" });
@@ -73,13 +75,14 @@ export default function PrincipalGradesPage() {
 					>
 						<SelectTrigger>
 							<SelectValue placeholder="Select a subject">
-								{(value: string | null) => classSubjects?.find((c) => c.id === value)?.subjectName ?? "Select a subject"}
+								{(value: string | null) => classSubjects?.find((c) => c.classSubjectId === value)?.subjectName ?? "Select a subject"}
 							</SelectValue>
 						</SelectTrigger>
 						<SelectContent>
 							{classSubjects?.map((cs) => {
+								if (!cs.classSubjectId) return null;
 								const subject = allSubjects?.find((s) => s.id === cs.subjectId);
-								return <SelectItem key={cs.id} value={cs.id}>{subject?.name ?? "Unknown"}</SelectItem>;
+								return <SelectItem key={cs.classSubjectId} value={cs.classSubjectId}>{subject?.name ?? "Unknown"}</SelectItem>;
 							})}
 						</SelectContent>
 					</Select>

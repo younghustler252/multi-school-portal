@@ -24,7 +24,7 @@ type ExistingFile = {
 	size?: number;
 	type?: string;
 	dataUrl?: string;
-	status?: "pending" | "approved" | "rejected";
+	status?: "pending" | "under_review" | "approved" | "rejected";
 	uploadedAt?: string;
 	rejectionReason?: string | null;
 };
@@ -184,6 +184,8 @@ export function FileDrop({
 				return "Rejected";
 			case "pending":
 				return "Pending review";
+			case "under_review":
+				return "Under review";
 		}
 	}
 
@@ -198,6 +200,7 @@ export function FileDrop({
 			case "rejected":
 				return <X className="size-3.5" />;
 			case "pending":
+			case "under_review":
 				return <Clock className="size-3.5" />;
 		}
 	}
@@ -213,6 +216,7 @@ export function FileDrop({
 			case "rejected":
 				return "bg-destructive/10 text-destructive";
 			case "pending":
+			case "under_review":
 				return "bg-warning/10 text-warning-foreground";
 		}
 	}
@@ -258,7 +262,7 @@ export function FileDrop({
 						? "border-success/30 bg-success/5"
 						: file.status === "rejected"
 							? "border-destructive/30 bg-destructive/5"
-							: file.status === "pending"
+							: file.status === "pending" || file.status === "under_review"
 								? "border-warning/30 bg-warning/5"
 								: "border-success/30 bg-success/5"
 				}`}
@@ -268,7 +272,7 @@ export function FileDrop({
 						className={`grid size-12 shrink-0 place-items-center rounded-lg ${
 							file.status === "rejected"
 								? "bg-destructive/10 text-destructive"
-								: file.status === "pending"
+								: file.status === "pending" || file.status === "under_review"
 									? "bg-warning/10 text-warning-foreground"
 									: "bg-success/10 text-success"
 						}`}

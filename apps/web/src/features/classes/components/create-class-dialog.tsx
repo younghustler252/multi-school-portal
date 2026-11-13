@@ -15,7 +15,7 @@ import {
 	DialogFooter,
 } from "@/components/ui/dialog";
 import { useCreateClass } from "@/features/classes/hooks/use-classes";
-import { createClassSchema, CreateClassFormValues } from "@/features/classes/schemas/class.schema";
+import { createClassSchema, CreateClassFormInput, CreateClassFormValues } from "@/features/classes/schemas/class.schema";
 import { ApiErrorResponse } from "@/types/api-response";
 
 interface CreateClassDialogProps {
@@ -31,7 +31,7 @@ export function CreateClassDialog({ open, onOpenChange }: CreateClassDialogProps
 		handleSubmit,
 		reset,
 		formState: { errors, isSubmitting },
-	} = useForm<CreateClassFormValues>({
+	} = useForm<CreateClassFormInput, unknown, CreateClassFormValues>({
 		resolver: zodResolver(createClassSchema),
 	});
 

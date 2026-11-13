@@ -15,7 +15,7 @@ export function ResetAdminPasswordButton({ schoolId }: { schoolId: string }) {
 	async function handleConfirm() {
 		try {
 			const res = await resetPassword.mutateAsync(schoolId);
-			toast.success(res.data.message);
+			toast.success(res.message);
 			setConfirmOpen(false);
 		} catch (err) {
 			const apiErr = err as ApiErrorResponse;

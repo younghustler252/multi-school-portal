@@ -6,7 +6,9 @@ export const createClassSchema = z.object({
 	capacity: z.coerce.number().int().positive().optional(),
 });
 
-export type CreateClassFormValues = z.infer<typeof createClassSchema>;
+/** What the inputs hold (coerce takes unknown) vs what the schema produces after parsing. */
+export type CreateClassFormInput = z.input<typeof createClassSchema>;
+export type CreateClassFormValues = z.output<typeof createClassSchema>;
 
 export const createSubjectSchema = z.object({
 	name: z.string().min(1, "Subject name is required").max(100),

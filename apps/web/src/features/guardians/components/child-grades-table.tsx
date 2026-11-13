@@ -13,10 +13,10 @@ interface ChildGradesTableProps {
 
 export function ChildGradesTable({ studentId, classId, termId }: ChildGradesTableProps) {
 	const { data: grades, isLoading } = useMyChildrenGrades({ studentId, termId });
-	const { data: classSubjects } = useClassSubjects(classId ?? "");
+	const { data: classSubjects } = useClassSubjects(classId ?? "", termId);
 
 	function subjectName(classSubjectId: string) {
-		return classSubjects?.find((c) => c.id === classSubjectId)?.subjectName ?? "Subject";
+		return classSubjects?.find((c) => c.classSubjectId === classSubjectId)?.subjectName ?? "Subject";
 	}
 
 	if (isLoading) return <Skeleton className="h-64 rounded-xl" />;
