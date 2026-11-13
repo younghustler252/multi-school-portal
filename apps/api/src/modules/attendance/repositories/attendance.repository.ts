@@ -66,6 +66,10 @@ export class AttendanceRepository {
     findStudent(id: string): Promise<StudentNameRow | null> {
         return this.db.student.findUnique({ where: { id }, select: { id: true, firstName: true, lastName: true, admissionNumber: true } });
     }
+    /** The student, only if they match the person's visibility filter (see studentViewWhere). Null means "not found" and "not yours" alike. */
+    findVisibleStudent(id: string, visibility: Record<string, unknown>): Promise<StudentNameRow | null> {
+        return this.db.student.findFirst({ where: { AND: [visibility, { id }] }, select: { id: true, firstName: true, lastName: true, admissionNumber: true } });
+    }
     findStudents(ids: string[]): Promise<StudentNameRow[]> {
         return ids.length ? this.db.student.findMany({ where: { id: { in: ids } }, select: { id: true, firstName: true, lastName: true, admissionNumber: true } }) : Promise.resolve([]);
     }

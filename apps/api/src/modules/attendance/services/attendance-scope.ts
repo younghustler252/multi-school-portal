@@ -38,3 +38,25 @@ export async function classInScope(repo: Pick<AttendanceRepository, "staffCovers
     if (scope !== "ASSIGNED" || access.persona !== "STAFF" || !me) return false;   // OWN / BRANCH / none: not by class
     return repo.staffCoversClass(me, classId, termId);
 }
+
+/**
+ * Which STUDENTS a person may see summarised in a term (the same people as attendanceViewWhere, as a student filter).
+ * Checked BEFORE anything about the student (name, class, register days) is looked up, so a student outside the person's reach
+ * is indistinguishable from one that does not exist.
+ */
+export function studentViewWhere(access: Access, termId: string): Record<string, unknown> {
+    const scope = access.scopeOf("attendance.view");
+    const me = access.personaEntityId;
+    if (scope === "ALL") return {};
+    if (scope === "ASSIGNED" && access.persona === "STAFF" && me) {
+        return { enrolments: { some: { termId, class: { OR: [
+            { classTeacherId: me },
+            { classSubjects: { some: { staffId: me, termId, term: { isCurrent: true } } } },
+        ] } } } };
+    }
+    if (scope === "OWN" && me) {
+        if (access.persona === "STUDENT")  return { id: me };
+        if (access.persona === "GUARDIAN") return { guardianLinks: { some: { guardianId: me } } };
+    }
+    return NOBODY;
+}
