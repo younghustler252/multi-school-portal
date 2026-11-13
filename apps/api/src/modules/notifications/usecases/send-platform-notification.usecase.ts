@@ -5,6 +5,7 @@ import { PlatformNotificationResponseData }  from "../mappers/notification.mappe
 import { MailService }                       from "../../../infrastructure/mail/mail.service";
 import { ISchoolRepository }                 from "../../school/repositories/school.repository";
 import { SendPlatformNotificationDtoType }   from "../dtos/notification.dto";
+import { ValidationError }                   from "../../../shared/errors/domain.errors";
 
 /*
 |--------------------------------------------------------------------------
@@ -47,6 +48,13 @@ export class SendPlatformNotificationUseCase {
         adminId: string,
     ): Promise<PlatformNotificationResponseData> {
 
+        // ── Who is this for? Decided BEFORE anything is saved ─────────────
+        // Only an absent target (or broadcastAll: true) is a broadcast. An explicitly empty list is a mistake, never "everyone".
+        const chosen = dto.schoolIds;
+        if (chosen !== undefined && chosen.length === 0) throw new ValidationError("Choose at least one school, or set broadcastAll to true");
+        if (chosen !== undefined && dto.broadcastAll === true) throw new ValidationError("Send schoolIds or broadcastAll: true, not both");
+        if (chosen === undefined && dto.broadcastAll === false) throw new ValidationError("Choose schools in schoolIds, or set broadcastAll to true");
+
         // ── Create notification ───────────────────────────────────────────
         const notification = await this.notificationRepository
             .createPlatformNotification({
@@ -59,10 +67,10 @@ export class SendPlatformNotificationUseCase {
             });
 
         // ── Resolve target schools ────────────────────────────────────────
-        let schoolIds = dto.schoolIds ?? [];
+        let schoolIds: string[] = [...new Set<string>(chosen ?? [])];
 
-        if (schoolIds.length === 0) {
-            // Broadcast to all active schools
+        if (chosen === undefined) {
+            // Explicit broadcast (broadcastAll: true, or the legacy "no target") to all active schools
             const schools = await this.schoolRepository.findMany({
                 isActive: true,
                 status:   "active",
