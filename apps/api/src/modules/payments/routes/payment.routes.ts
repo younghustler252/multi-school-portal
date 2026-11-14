@@ -7,8 +7,9 @@ import { requireTenant } from "../../../infrastructure/middleware/tenant-resolve
 import { requirePermission } from "../../../infrastructure/middleware/rbac.middleware";
 import { requireFeature } from "../../../infrastructure/middleware/feature-gate.middleware";
 import {
-    RecordPaymentDto, ConfirmPaymentDto, RejectPaymentDto, AllocationPreviewDto, ApplyCreditDto, InitializeOnlinePaymentDto, RecordSettlementDto, RequestRefundDto, ApproveRefundDto, RejectRefundDto, PayRefundDto, ReversePaymentDto,
+    RecordPaymentDto, ConfirmPaymentDto, RejectPaymentDto, AllocationPreviewDto, ApplyCreditDto, InitializeOnlinePaymentDto, RequestRefundDto, ApproveRefundDto, RejectRefundDto, PayRefundDto, ReversePaymentDto,
 } from "../dtos/payment.dto";
+import { paymentErrors } from "../domain/payment.errors";
 
 /*
 | PAYMENT ROUTES (school realm, mounted at /payments). Every route: authenticate, tenant, permission, fees entitlement, validation.
@@ -18,7 +19,7 @@ import {
 |   GET  /my                     payments.pay      a guardian's own payments
 |   POST /online/initialize       payments.pay      a guardian starts paying a child's invoice online
 |   GET  /online/verify/:reference  payments.pay    the guardian's return visit: asks the gateway and confirms
-|   POST /online/settlements     payments.settle   the gateway paid the bank: clearing account to bank, less the fee
+|   POST /online/settlements     payments.settle   410: moved to POST /finance/settlements (REM-074); posts nothing
 |   GET  /credit/:studentId       payments.view     the credit a student holds
 |   POST /credit/apply            payments.record   use a student's credit on one of their open invoices
 |   GET  /refunds                 payments.view     (?status, ?paymentId, ?studentId, ?page, ?limit)
@@ -44,7 +45,9 @@ router.get("/my", ...guard("payments.pay"), (q, s, n) => ctrl().myPayments(q, s,
 router.get("/my/:id/receipt", ...guard("payments.pay"), (q, s, n) => ctrl().myReceipt(q, s, n));      // a guardian's receipt, cut down to their own children
 router.post("/online/initialize", ...guard("payments.pay"), validate(InitializeOnlinePaymentDto), (q, s, n) => ctrl().initializeOnline(q, s, n));
 router.get("/online/verify/:reference", ...guard("payments.pay"), (q, s, n) => ctrl().verifyOnline(q, s, n));
-router.post("/online/settlements", ...guard("payments.settle"), validate(RecordSettlementDto), (q, s, n) => ctrl().settle(q, s, n));
+// REM-074: this aggregate gross/fee route posted a journal with no settlement record and left the payments "unsettled" in the Gateway Settlements
+// module, so the same money could be settled twice. It no longer posts anything; use POST /api/v1/finance/settlements.
+router.post("/online/settlements", ...guard("payments.settle"), (_q, _s, n) => n(paymentErrors.settlementMoved()));
 router.get("/credit/:studentId", ...guard("payments.view"), (q, s, n) => ctrl().credit(q, s, n));
 router.post("/credit/apply", ...guard("payments.record"), validate(ApplyCreditDto), (q, s, n) => ctrl().applyCredit(q, s, n));
 router.get("/refunds", ...guard("payments.view"), (q, s, n) => ctrl().listRefunds(q, s, n));

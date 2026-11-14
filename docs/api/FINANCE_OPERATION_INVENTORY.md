@@ -113,7 +113,7 @@ Mount: `/payments`. Feature gate: `modules.fees`.
 | GET | `/my` | `payments.pay` | Authenticated guardian payment history |
 | POST | `/online/initialize` | `payments.pay` | `InitializeOnlinePaymentDto` |
 | GET | `/online/verify/:reference` | `payments.pay` | Provider verification; browser return is not trusted as payment proof |
-| POST | `/online/settlements` | `payments.settle` | `RecordSettlementDto`; legacy gross/fee settlement operation |
+| POST | `/online/settlements` | `payments.settle` | **410 `SETTLEMENT_ENDPOINT_MOVED`** (REM-074); use `POST /api/v1/finance/settlements` |
 | GET | `/credit/:studentId` | `payments.view` | Student credit |
 | POST | `/credit/apply` | `payments.record` | `ApplyCreditDto` |
 | GET | `/refunds` | `payments.view` | Refund list |
@@ -349,7 +349,7 @@ Report catalogue keys and parameter schemas are defined in `finance-reports/serv
 
 These are source-audit observations, not runtime-confirmed failures. Existing remediation IDs should be reused rather than duplicated.
 
-1. **Legacy settlement route overlap — known remediation REM-074.** `POST /api/v1/payments/online/settlements` and the itemized settlement workflow under `/api/v1/finance/settlements` are both mounted. The Payments guide identifies the former as legacy gross/fee-only posting that does not create `GatewaySettlementItem` records. The frontend must not treat these as interchangeable. Retire/delegate the legacy route or clearly mark it deprecated before final OpenAPI publication.
+1. **Legacy settlement route retired (REM-074, batch 3).** `POST /api/v1/payments/online/settlements` returns `410 SETTLEMENT_ENDPOINT_MOVED` and posts nothing; the itemized workflow under `/api/v1/finance/settlements` is the only settlement write path. The web app does not call the old route.
 2. **Feature-gate inconsistency requires an explicit product decision.** Ledger routes use `modules.fees` as the feature gate; the route comments call it the finance entitlement. Finance Settings has no plan feature gate. Budgets use `finance.budgets`; bank reconciliation uses `finance.bank_reconciliation`. Confirm these are intentional entitlement boundaries and that the platform catalogue seeds/grants them.
 3. **Finance Reports route guards are intentionally incomplete at the route layer.** `GET /reports/:key` and `GET /reports/:key/export` rely on engine-level report-specific permission/feature checks. OpenAPI security documentation must describe the effective checks, not falsely claim no permission requirement.
 4. **Own payslip endpoint overlap.** `/my/payslips` and `/payroll/payslips` expose overlapping concepts with different controller paths/persona scoping. The client should use the own-persona endpoint for the logged-in staff member and the administrative route for permitted staff-wide access.
