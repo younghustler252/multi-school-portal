@@ -112,9 +112,15 @@ export function buildStatement(src: StatementSource, from: string | null, to: st
     const raws: Raw[] = [];
     const d = (v: Date | null) => (v ? dayString(v) : "0000-00-00");
 
+    // An approved ADDITIONAL_DISCOUNT is also folded into the invoice's own discountKobo (see adjustment.policy), so the invoice line must show
+    // only the discount it was issued with; the extra discount then appears once, as its own dated adjustment line.
+    const extraDiscount = new Map<string, bigint>();
+    for (const a of src.adjustments) if (a.type === "ADDITIONAL_DISCOUNT") extraDiscount.set(a.invoiceId, (extraDiscount.get(a.invoiceId) ?? 0n) + a.amountKobo);
+
     for (const i of src.invoices) {
         if (i.status === "draft" || i.status === "void") continue;
-        raws.push({ date: d(i.issueDate ?? i.createdAt), order: 0, entry: { date: d(i.issueDate ?? i.createdAt), kind: "INVOICE", reference: i.invoiceNumber, description: `Invoice ${i.invoiceNumber ?? ""}`.trim(), amountKobo: i.subtotalKobo - i.discountKobo } });
+        const issuedDiscount = i.discountKobo - (extraDiscount.get(i.id) ?? 0n);
+        raws.push({ date: d(i.issueDate ?? i.createdAt), order: 0, entry: { date: d(i.issueDate ?? i.createdAt), kind: "INVOICE", reference: i.invoiceNumber, description: `Invoice ${i.invoiceNumber ?? ""}`.trim(), amountKobo: i.subtotalKobo - (issuedDiscount > 0n ? issuedDiscount : 0n) } });
     }
     for (const a of src.adjustments) {
         raws.push({ date: d(a.decidedAt), order: 1, entry: { date: d(a.decidedAt), kind: "ADJUSTMENT", reference: a.invoiceNumber, description: `${label(a.type)} on ${a.invoiceNumber ?? "invoice"}: ${a.reason}`, amountKobo: -a.amountKobo } });

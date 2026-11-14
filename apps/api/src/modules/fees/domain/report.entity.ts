@@ -36,7 +36,7 @@ export interface StatementEntry { date: string; kind: StatementKind; reference: 
 export interface StatementSource {
     student: { id: string; name: string; admissionNumber: string | null };
     invoices: { id: string; invoiceNumber: string | null; issueDate: Date | null; subtotalKobo: bigint; discountKobo: bigint; status: string; createdAt: Date }[];
-    adjustments: { id: string; invoiceNumber: string | null; type: string; amountKobo: bigint; decidedAt: Date | null; reason: string }[];       // approved ones; the amount is positive
+    adjustments: { id: string; invoiceId: string; invoiceNumber: string | null; type: string; amountKobo: bigint; decidedAt: Date | null; reason: string }[];       // approved ones; the amount is positive
     payments: { paymentId: string; receiptNumber: string | null; method: string; paidAt: Date | null; status: string; amountKobo: bigint }[];       // what each payment gave THIS student (invoices + credit)
     refunds: { id: string; receiptNumber: string | null; paidAt: Date | null; amountKobo: bigint }[];
     openBalanceKobo: bigint; creditKobo: bigint;

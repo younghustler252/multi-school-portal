@@ -59,7 +59,7 @@ export class FeeReportRepositoryImpl implements IFeeReportRepository {
         if (!student) return null;
         const [invoices, adjustments, allocs, refunds, open, credit] = await Promise.all([
             this.db.feeInvoice.findMany({ where: { studentId }, select: { id: true, invoiceNumber: true, issueDate: true, subtotalKobo: true, discountKobo: true, status: true, createdAt: true } }),
-            this.db.invoiceAdjustment.findMany({ where: { status: "APPROVED", invoice: { studentId } }, select: { id: true, type: true, amountKobo: true, decidedAt: true, reason: true, invoice: { select: { invoiceNumber: true } } } }),
+            this.db.invoiceAdjustment.findMany({ where: { status: "APPROVED", invoice: { studentId } }, select: { id: true, invoiceId: true, type: true, amountKobo: true, decidedAt: true, reason: true, invoice: { select: { invoiceNumber: true } } } }),
             this.db.paymentAllocation.findMany({ where: { studentId, payment: { status: { in: ["CONFIRMED", "REVERSED"] } } }, select: { paymentId: true, amountKobo: true, payment: { select: { method: true, paidAt: true, createdAt: true, status: true, receipt: { select: { receiptNumber: true } } } } } }),
             this.db.refund.findMany({ where: { studentId, status: "PAID" }, select: { id: true, paymentId: true, amountKobo: true, paidAt: true, payment: { select: { receipt: { select: { receiptNumber: true } } } } } }),
             this.db.feeInvoice.aggregate({ where: { studentId, status: { in: ["unpaid", "partial"] } }, _sum: { balanceKobo: true } }),
@@ -76,7 +76,7 @@ export class FeeReportRepositoryImpl implements IFeeReportRepository {
 
         return {
             student: { id: student.id, name: fullName(student), admissionNumber: student.admissionNumber },
-            invoices, adjustments: adjustments.map(a => ({ id: a.id, invoiceNumber: a.invoice.invoiceNumber, type: a.type, amountKobo: a.amountKobo, decidedAt: a.decidedAt, reason: a.reason })),
+            invoices, adjustments: adjustments.map(a => ({ id: a.id, invoiceId: a.invoiceId, invoiceNumber: a.invoice.invoiceNumber, type: a.type, amountKobo: a.amountKobo, decidedAt: a.decidedAt, reason: a.reason })),
             payments: [...shares.values()],
             refunds: refunds.map(r => ({ id: r.id, receiptNumber: r.payment.receipt?.receiptNumber ?? null, paidAt: r.paidAt, amountKobo: r.amountKobo })),
             openBalanceKobo: open._sum.balanceKobo ?? 0n, creditKobo: credit._sum.amountKobo ?? 0n,

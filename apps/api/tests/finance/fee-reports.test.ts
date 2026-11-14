@@ -88,7 +88,7 @@ describe("statement maths", () => {
         student: { id: "s1", name: "Ada Obi", admissionNumber: null },
         invoices: [{ id: "i1", invoiceNumber: "INV-1", issueDate: day("2026-09-01"), subtotalKobo: N(60_000), discountKobo: N(5_000), status: "partial", createdAt: day("2026-09-01") },
                    { id: "d", invoiceNumber: null, issueDate: null, subtotalKobo: N(9_999), discountKobo: 0n, status: "draft", createdAt: day("2026-09-02") }],
-        adjustments: [{ id: "a1", invoiceNumber: "INV-1", type: "WAIVER", amountKobo: N(5_000), decidedAt: day("2026-09-20"), reason: "Staff child" }],
+        adjustments: [{ id: "a1", invoiceId: "i1", invoiceNumber: "INV-1", type: "WAIVER", amountKobo: N(5_000), decidedAt: day("2026-09-20"), reason: "Staff child" }],
         payments: [{ paymentId: "p1", receiptNumber: "R1", method: "cash", paidAt: day("2026-09-10"), status: "CONFIRMED", amountKobo: N(70_000) }],
         refunds: [{ id: "r1", receiptNumber: "R1", paidAt: day("2026-10-05"), amountKobo: N(10_000) }],
         openBalanceKobo: 0n, creditKobo: 0n, ...over,
@@ -101,6 +101,17 @@ describe("statement maths", () => {
         ]);
         assert.deepEqual(s.totals, { chargedKobo: N(55_000), adjustedKobo: N(5_000), paidKobo: N(70_000), refundedKobo: N(10_000) });
         assert.equal(s.closingKobo, -N(10_000));                                           // below zero: in credit
+    });
+
+    it("an approved additional discount is counted once: the invoice's own discountKobo already includes it", () => {
+        // issued with 5,000 discount; a later approved 3,000 extra discount lifts invoice.discountKobo to 8,000
+        const s = buildStatement(src({
+            invoices: [{ id: "i1", invoiceNumber: "INV-1", issueDate: day("2026-09-01"), subtotalKobo: N(60_000), discountKobo: N(8_000), status: "unpaid", createdAt: day("2026-09-01") }],
+            adjustments: [{ id: "a2", invoiceId: "i1", invoiceNumber: "INV-1", type: "ADDITIONAL_DISCOUNT", amountKobo: N(3_000), decidedAt: day("2026-09-20"), reason: "Sibling" }],
+            payments: [], refunds: [],
+        }), null, null);
+        assert.deepEqual(s.entries.map(e => [e.kind, e.amountKobo]), [["INVOICE", N(55_000)], ["ADJUSTMENT", -N(3_000)]]);
+        assert.equal(s.closingKobo, N(52_000));                                            // = invoice total 60,000 - 8,000 = 52,000 (its balance)
     });
 
     it("a period rolls everything earlier into the opening balance", () => {
