@@ -3,7 +3,7 @@
 import { AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMyDocuments } from "../hooks/use-school-document";
-import { DOCUMENT_TYPE_LABELS, DocumentType } from "../types/school-document.types";
+import { DOCUMENT_TYPE_LABELS } from "../types/school-document.types";
 
 export function RejectedScreen() {
 	const { data: documents } = useMyDocuments();
@@ -23,7 +23,7 @@ export function RejectedScreen() {
 				<div className="mt-4 space-y-2 text-left">
 					{rejected.map((doc) => (
 						<div key={doc.id} className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3">
-							<div className="text-sm font-medium">{DOCUMENT_TYPE_LABELS[doc.type as DocumentType] ?? doc.type}</div>
+							<div className="text-sm font-medium">{DOCUMENT_TYPE_LABELS[doc.type] ?? doc.type}</div>
 							{doc.rejectionReason && (
 								<div className="mt-1 text-xs text-muted-foreground">{doc.rejectionReason}</div>
 							)}

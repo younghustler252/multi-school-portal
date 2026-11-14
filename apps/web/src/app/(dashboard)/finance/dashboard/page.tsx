@@ -24,7 +24,7 @@ export default function BursarDashboardPage() {
 
 	const totals = invoiceData?.invoices.reduce(
 		(acc, inv) => {
-			acc.expected += inv.amountKobo;
+			acc.expected += inv.totalKobo;
 			acc.collected += inv.paidKobo;
 			acc.outstanding += inv.balanceKobo;
 			return acc;

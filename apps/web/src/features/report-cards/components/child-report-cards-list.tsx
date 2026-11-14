@@ -1,14 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import { FileText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ReportCardPreviewDialog } from "@/features/report-cards/components/report-card-preview-dialog";
 import { PdfViewerButton } from "@/features/report-cards/components/pdf-viewer-button";
 import { useMyChildrenReportCards } from "@/features/report-cards/hooks/use-report-card-portal";
 import { REPORT_CARD_STATUS_LABELS, REPORT_CARD_STATUS_VARIANT } from "@/features/report-cards/constants/report-card-labels";
 
 export function ChildReportCardsList({ studentId, termId }: { studentId: string; termId?: string }) {
 	const { data: reportCards, isLoading } = useMyChildrenReportCards({ studentId, termId });
+	const [previewId, setPreviewId] = useState<string | null>(null);
 
 	if (isLoading) return <Skeleton className="h-32 rounded-xl" />;
 
@@ -30,12 +33,17 @@ export function ChildReportCardsList({ studentId, termId }: { studentId: string;
 								<Badge variant={REPORT_CARD_STATUS_VARIANT[rc.status]} className="text-[10px]">
 									{REPORT_CARD_STATUS_LABELS[rc.status]}
 								</Badge>
-								<PdfViewerButton reportCardId={rc.id} label="View" />
+								<PdfViewerButton onClick={() => setPreviewId(rc.id)} label="View" />
 							</div>
 						</div>
 					))}
 				</div>
 			)}
+
+			<ReportCardPreviewDialog
+				reportCardId={previewId}
+				onOpenChange={(open) => !open && setPreviewId(null)}
+			/>
 		</div>
 	);
 }

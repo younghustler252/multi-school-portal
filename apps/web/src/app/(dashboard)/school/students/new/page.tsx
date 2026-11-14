@@ -47,6 +47,7 @@ import {
 } from "@/features/students/schemas/student.schema";
 import { ApiErrorResponse } from "@/types/api-response";
 import { ROUTES } from "@/lib/routes";
+import { omitEmpty } from "@/lib/omit-empty";
 
 export default function NewStudentPage() {
 	const router = useRouter();
@@ -66,13 +67,7 @@ export default function NewStudentPage() {
 
 	async function onSubmit(formValues: CreateStudentFormValues) {
 		try {
-			const cleaned = Object.fromEntries(
-				Object.entries(formValues).filter(
-					([, v]) => v !== "" && v !== undefined,
-				),
-			);
-
-			const student = await createStudent.mutateAsync(cleaned);
+			const student = await createStudent.mutateAsync(omitEmpty(formValues));
 
 			toast.success(`${student.firstName} ${student.lastName} added`);
 			router.push(ROUTES.school.students.detail(student.id));
@@ -284,21 +279,18 @@ export default function NewStudentPage() {
 							<Label>State of origin</Label>
 
 							<Popover>
-								<PopoverTrigger asChild>
-									<Button
-										type="button"
-										variant="outline"
-										role="combobox"
-										className={cn(
-											"w-full justify-between font-normal",
-											!values.stateOfOrigin &&
-												"text-muted-foreground",
-										)}
-									>
-										{values.stateOfOrigin ||
-											"Select state"}
-										<ChevronsUpDown className="size-4 opacity-50" />
-									</Button>
+								<PopoverTrigger
+									type="button"
+									role="combobox"
+									className={cn(
+										"inline-flex w-full items-center justify-between rounded-lg border bg-background px-3 py-2 text-sm font-normal shadow-xs",
+										"hover:bg-accent hover:text-accent-foreground",
+										"focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+										!values.stateOfOrigin && "text-muted-foreground",
+									)}
+								>
+									{values.stateOfOrigin || "Select state"}
+									<ChevronsUpDown className="size-4 opacity-50" />
 								</PopoverTrigger>
 
 								<PopoverContent className="w-[--radix-popover-trigger-width] p-0">

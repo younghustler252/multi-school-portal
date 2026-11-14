@@ -17,7 +17,7 @@ describe("uploadedUrl", () => {
 
 	it("passes API failures through untouched", () => {
 		const res: ApiResponse<Rec> = { success: false, message: "That image is not valid", code: "INVALID_IMAGE" };
-		expect(uploadedUrl(res, (r) => r.logoUrl)).toBe(res);
+		expect(uploadedUrl<Rec>(res, (r) => r.logoUrl)).toBe(res);
 	});
 
 	it("reports a missing field instead of returning an undefined address", () => {

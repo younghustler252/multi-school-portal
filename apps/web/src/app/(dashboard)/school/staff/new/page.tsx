@@ -24,6 +24,7 @@ import { STAFF_ROLE_LABELS } from "@/features/staff/constants/staff-role-labels"
 import { DEPARTMENT_OPTIONS, DESIGNATION_OPTIONS, QUALIFICATION_OPTIONS } from "@/features/staff/constants/staff-field-options";
 import { ApiErrorResponse } from "@/types/api-response";
 import { ROUTES } from "@/lib/routes";
+import { omitEmpty } from "@/lib/omit-empty";
 
 export default function NewStaffPage() {
 	const router = useRouter();
@@ -43,10 +44,7 @@ export default function NewStaffPage() {
 
 	async function onSubmit(formValues: CreateStaffFormValues) {
 		try {
-			const cleaned = Object.fromEntries(
-				Object.entries(formValues).filter(([, v]) => v !== "" && v !== undefined)
-			);
-			const staff = await createStaff.mutateAsync(cleaned);
+			const staff = await createStaff.mutateAsync(omitEmpty(formValues));
 			toast.success(`${staff.firstName} ${staff.lastName} added — invite email sent`);
 			router.push(ROUTES.school.staff.detail(staff.id));
 		} catch (err) {

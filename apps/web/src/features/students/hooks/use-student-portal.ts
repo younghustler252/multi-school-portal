@@ -41,9 +41,10 @@ export function useMyInvoices(termId?: string) {
 	return useQuery({
 		queryKey: ["student-portal", "invoices", termId],
 		queryFn: async () => {
-			const res = await feeApi.getMyInvoices({ termId });
+			const res = await feeApi.getMyInvoices();
 			if (!res.success) throw res;
-			return res.data;
+			// The API lists all of the student's invoices; the term filter is applied here.
+			return termId ? res.data.filter((i) => i.termId === termId) : res.data;
 		},
 	});
 }

@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/select";
 
 interface SelectWithOtherProps {
-	options: string[];
+	options: readonly string[];
 	value: string | undefined;
 	onChange: (value: string) => void;
 	placeholder?: string;
