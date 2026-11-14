@@ -34,4 +34,11 @@ export interface RoleRevocation {
     reason: string;
 }
 
-export const ROLE_REVOCATIONS: RoleRevocation[] = [];
+export const ROLE_REVOCATIONS: RoleRevocation[] = [
+    {
+        id: "2026-11-principal-configuration-to-school-admin",
+        templateKey: "principal",
+        permissions: ["school.update", "school_settings.manage", "message_templates.manage", "automation.manage"],
+        reason: "The principal oversees and signs off; changing the school's profile, settings, message wording and automatic messages is school-admin work. The principal keeps the matching view permissions and notifications.send.",
+    },
+];

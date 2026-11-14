@@ -30,7 +30,7 @@ All paths below are relative to /api/v1/school-settings.
 | POST | /stamp | school_settings.manage | Upload school stamp |
 | POST | /signature | school_settings.manage | Upload principal signature |
 
-Both permissions are SCHOOL realm, ALL scope, STAFF-only. Default role templates grant manage/view to principal; teacher, bursar, student and guardian templates do not receive these permissions.
+Both permissions are SCHOOL realm, ALL scope, STAFF-only. Default role templates grant view only to principal (the school admin manages); teacher, bursar, student and guardian templates do not receive these permissions.
 
 ## Branding and report-card fields
 
