@@ -66,10 +66,6 @@ export class AttendanceRepository {
     findStudent(id: string): Promise<StudentNameRow | null> {
         return this.db.student.findUnique({ where: { id }, select: { id: true, firstName: true, lastName: true, admissionNumber: true } });
     }
-    /** The student, only if they match the person's visibility filter (see studentViewWhere). Null means "not found" and "not yours" alike. */
-    findVisibleStudent(id: string, visibility: Record<string, unknown>): Promise<StudentNameRow | null> {
-        return this.db.student.findFirst({ where: { AND: [visibility, { id }] }, select: { id: true, firstName: true, lastName: true, admissionNumber: true } });
-    }
     findStudents(ids: string[]): Promise<StudentNameRow[]> {
         return ids.length ? this.db.student.findMany({ where: { id: { in: ids } }, select: { id: true, firstName: true, lastName: true, admissionNumber: true } }) : Promise.resolve([]);
     }
@@ -95,6 +91,22 @@ export class AttendanceRepository {
             this.db.attendance.findMany({ where: where as any, orderBy: [{ date: "desc" }, { createdAt: "desc" }], skip, take }),
         ]);
         return { total, rows };
+    }
+
+    /** Is this student on a class list in the term, within what `where` allows? (the same filter the lists use) */
+    async enrolledWithin(where: Record<string, unknown>, studentId: string, termId: string): Promise<boolean> {
+        return (await this.db.enrolment.count({ where: { AND: [where, { studentId, termId }] } as any })) > 0;
+    }
+
+    /** Is this guardian linked to this student? */
+    async guardianLinked(guardianId: string, studentId: string): Promise<boolean> {
+        return (await this.db.studentGuardian.count({ where: { guardianId, studentId } })) > 0;
+    }
+
+    /** Is this class in one of these branches? (used by the BRANCH scope; an empty list matches nothing) */
+    async classInBranches(classId: string, branchIds: string[]): Promise<boolean> {
+        if (branchIds.length === 0) return false;
+        return (await this.db.class.count({ where: { id: classId, branchId: { in: branchIds } } })) > 0;
     }
 
     /** Does this staff member lead the class, or teach it in the term? (used by the ASSIGNED scope) */

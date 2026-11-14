@@ -41,6 +41,7 @@ router.get("/", ...guard("payments.view"), (q, s, n) => ctrl().list(q, s, n));
 router.post("/", ...guard("payments.record"), validate(RecordPaymentDto), (q, s, n) => ctrl().record(q, s, n));
 router.post("/allocation-preview", ...guard("payments.record"), validate(AllocationPreviewDto), (q, s, n) => ctrl().preview(q, s, n));
 router.get("/my", ...guard("payments.pay"), (q, s, n) => ctrl().myPayments(q, s, n));
+router.get("/my/:id/receipt", ...guard("payments.pay"), (q, s, n) => ctrl().myReceipt(q, s, n));      // a guardian's receipt, cut down to their own children
 router.post("/online/initialize", ...guard("payments.pay"), validate(InitializeOnlinePaymentDto), (q, s, n) => ctrl().initializeOnline(q, s, n));
 router.get("/online/verify/:reference", ...guard("payments.pay"), (q, s, n) => ctrl().verifyOnline(q, s, n));
 router.post("/online/settlements", ...guard("payments.settle"), validate(RecordSettlementDto), (q, s, n) => ctrl().settle(q, s, n));

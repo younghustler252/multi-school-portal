@@ -10,6 +10,8 @@ export interface IPaymentRepository {
     markFailed(id: string, version: number, data: Record<string, any>): Promise<boolean>;                 // from PENDING or AWAITING_CONFIRMATION; false when it changed meanwhile
     findByClientRequestId(clientRequestId: string): Promise<PaymentEntity | null>;
     list(filters: PaymentFilters, page?: number, limit?: number): Promise<PaginatedResult<PaymentEntity>>;
+    /** A guardian's own list: what they paid, plus confirmed payments that cover their linked children (see family-payments.where). */
+    listForFamily(guardianId: string, linkedStudentIds: string[], filters: PaymentFilters, page?: number, limit?: number): Promise<PaginatedResult<PaymentEntity>>;
     createPayment(data: Record<string, any>): Promise<PaymentEntity>;
     markConfirmed(id: string, version: number, data: Record<string, any>): Promise<boolean>;             // false when it changed meanwhile or is not waiting
     markRejected(id: string, version: number, data: Record<string, any>): Promise<boolean>;

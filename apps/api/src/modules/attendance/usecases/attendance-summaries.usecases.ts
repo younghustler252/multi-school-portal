@@ -1,7 +1,7 @@
 import type { Access } from "../../../foundation/access.service";
 import { AttendanceRepository } from "../repositories/attendance.repository";
 import { NameRef, StudentRef, TermRef, studentRef, termRef } from "../services/attendance-presenter";
-import { attendanceViewWhere, classInScope, studentViewWhere } from "../services/attendance-scope";
+import { attendanceViewWhere, classInScope, studentInScope } from "../services/attendance-scope";
 import { attendanceErrors } from "../domain/attendance.errors";
 import { AttendanceSummary, Counts, summarize } from "../domain/attendance.policy";
 import { ClassSummaryQueryType, StudentSummaryQueryType } from "../dtos/attendance.dto";
@@ -26,11 +26,11 @@ export class StudentSummaryUseCase {
 
     async execute(query: StudentSummaryQueryType, access: Access): Promise<{ student: StudentRef; term: TermRef; class: NameRef | null } & SummaryWithRegisters> {
         const repo = this.d.attendanceRepository;
-        const term = await termOf(repo, query.termId);
-        // Authorize the TARGET first: nothing about a student (name, class, register days) is looked up unless this person may see them.
-        // "Not yours" answers exactly like "does not exist", so the endpoint cannot be used to find out who is a student here.
-        const student = await repo.findVisibleStudent(query.studentId, studentViewWhere(access, term.id));
+        const student = await repo.findStudent(query.studentId);
         if (!student) throw attendanceErrors.studentNotFound();
+        const term = await termOf(repo, query.termId);
+        // a student outside the person's scope looks like one that does not exist (nothing about them is shown)
+        if (!(await studentInScope(repo, access, student.id, term.id))) throw attendanceErrors.studentNotFound();
 
         // what this person may see of this student (a teacher sees only their classes; a guardian only their child)
         const where = { AND: [attendanceViewWhere(access), { studentId: student.id, termId: term.id }] };

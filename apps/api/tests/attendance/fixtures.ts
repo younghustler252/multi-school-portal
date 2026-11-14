@@ -41,7 +41,7 @@ export async function seed() {
     await db.classSubject.create({ data: { classId: C2.id, subjectId: subject.id, staffId: tB.id, termId: term.id } });      // Bisi teaches JSS 2A this term
     await db.classSubject.create({ data: { classId: C1.id, subjectId: subject2.id, staffId: tC.id, termId: oldTerm.id } });   // Chuka taught JSS 1A LAST term only
 
-    const stu = (firstName: string, extra: Record<string, unknown> = {}) => db.student.create({ data: { firstName, lastName: "Pupil", ...extra } });
+    const stu = (firstName: string, extra: Record<string, unknown> = {}) => db.student.create({ data: { firstName, lastName: "Pupil", branchId, ...extra } });
     const s1 = await stu("Ada"), s2 = await stu("Bola"), s3 = await stu("Chidi"), s4 = await stu("Dayo"), s5 = await stu("Efe"), s6 = await stu("Femi");
     const enrol = (s: { id: string }, c: { id: string }, status: any = "active") => db.enrolment.create({ data: { studentId: s.id, classId: c.id, termId: term.id, status } });
     await enrol(s1, C1); await enrol(s2, C1); await enrol(s3, C1); await enrol(s4, C2); await enrol(s5, C1, "withdrawn");   // s6 is on no class list

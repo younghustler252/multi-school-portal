@@ -3,9 +3,11 @@ import type { Access } from "../../../foundation/access.service";
 /*
 | WHICH ENROLMENTS A PERSON MAY SEE (applied to every read).
 |   ALL        -> everything
+|   BRANCH     -> staff: the enrolments in classes that belong to one of their branches (a class has one branch;
+|                 a person with no branches sees nothing)
 |   ASSIGNED   -> a teacher: the classes they LEAD (any term) and the classes they TEACH this term
 |   OWN        -> a student sees their own; a guardian sees their children's
-|   BRANCH, or no permission -> nobody (classes are not linked to branches yet)
+|   no permission -> nobody
 */
 const NOBODY = { id: { in: [] as string[] } };
 
@@ -13,6 +15,7 @@ export function enrolmentScopeWhere(access: Access): Record<string, unknown> {
     const scope = access.scopeOf("enrolment.view");
     const me = access.personaEntityId;
     if (scope === "ALL") return {};
+    if (scope === "BRANCH" && access.persona === "STAFF") return { class: { branchId: { in: (access.branchScope("enrolment.view") as string[] | null) ?? [] } } };
     if (scope === "ASSIGNED" && access.persona === "STAFF" && me) {
         return { OR: [
             { class: { classTeacherId: me } },

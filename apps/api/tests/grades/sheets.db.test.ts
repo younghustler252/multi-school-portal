@@ -55,7 +55,7 @@ describe("mark sheets (real database)", { skip: dbTestsEnabled ? false : skipRea
             const csMaths = await d.classSubject.create({ data: { classId: C1.id, subjectId: maths.id, staffId: tB.id, termId: term.id } });
             const csEng = await d.classSubject.create({ data: { classId: C1.id, subjectId: eng.id, staffId: tC.id, termId: term.id } });
             const csSci = await d.classSubject.create({ data: { classId: C2.id, subjectId: sci.id, staffId: tC.id, termId: term.id } });
-            const stu = (n: string) => d.student.create({ data: { firstName: n, lastName: "Pupil" } });
+            const stu = (n: string) => d.student.create({ data: { firstName: n, lastName: "Pupil", branchId } });
             const s1 = await stu("Ada"), s2 = await stu("Bola"), s3 = await stu("Chidi"), s4 = await stu("Dayo"), s5 = await stu("Efe"), s6 = await stu("Femi");
             const enrol = (s: any, c: any, st: any = "active") => d.enrolment.create({ data: { studentId: s.id, classId: c.id, termId: term.id, status: st } });
             await enrol(s1, C1); await enrol(s2, C1); await enrol(s3, C1); await enrol(s6, C1); await enrol(s4, C1, "withdrawn");   // Efe (s5) is on no list
