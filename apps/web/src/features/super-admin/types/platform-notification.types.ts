@@ -22,7 +22,8 @@ export interface SendPlatformNotificationDto {
 	message: string;
 	type: PlatformNotificationType;
 	channels: NotificationChannel[];
-	schoolIds?: string[]; // omit = all schools
+	schoolIds?: string[]; // the chosen schools (at least one); send this OR broadcastAll, never both
+	broadcastAll?: boolean; // true = every active school
 	metadata?: Record<string, unknown>;
 }
 
