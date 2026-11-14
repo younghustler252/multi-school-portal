@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
@@ -20,9 +21,9 @@ import {
 } from "@/components/ui/select";
 import { useCreateStaff } from "@/features/staff/hooks/use-staff";
 import { createStaffSchema, CreateStaffFormValues } from "@/features/staff/schemas/staff.schema";
-import { STAFF_ROLE_LABELS } from "@/features/staff/constants/staff-role-labels";
+import { EMPLOYMENT_TYPE_LABELS, STAFF_CATEGORY_LABELS } from "@/features/staff/constants/staff-labels";
+import { possibleDuplicateOf } from "@/features/staff/lib/staff-errors";
 import { DEPARTMENT_OPTIONS, DESIGNATION_OPTIONS, QUALIFICATION_OPTIONS } from "@/features/staff/constants/staff-field-options";
-import { ApiErrorResponse } from "@/types/api-response";
 import { ROUTES } from "@/lib/routes";
 import { omitEmpty } from "@/lib/omit-empty";
 
@@ -38,20 +39,27 @@ export default function NewStaffPage() {
 		formState: { errors, isSubmitting },
 	} = useForm<CreateStaffFormValues>({
 		resolver: zodResolver(createStaffSchema),
+		defaultValues: { category: "non_teaching", employmentType: "full_time" },
 	});
+	// Set when the API says a person with the same name and phone already exists; the user must confirm it is someone else.
+	const [duplicateOf, setDuplicateOf] = useState<string | null>(null);
 
 	const values = watch();
 
-	async function onSubmit(formValues: CreateStaffFormValues) {
+	async function submit(formValues: CreateStaffFormValues, confirmNotDuplicate: boolean) {
 		try {
-			const staff = await createStaff.mutateAsync(omitEmpty(formValues));
-			toast.success(`${staff.firstName} ${staff.lastName} added — invite email sent`);
+			const staff = await createStaff.mutateAsync({ ...omitEmpty(formValues), ...(confirmNotDuplicate ? { confirmNotDuplicate: true } : {}) });
+			// Creating a staff record does not create a login; the person is invited to the portal separately.
+			toast.success(`${staff.fullName} added`);
 			router.push(ROUTES.school.staff.detail(staff.id));
 		} catch (err) {
-			const apiErr = err as ApiErrorResponse;
-			toast.error(apiErr.message || "Couldn't add staff member");
+			const existing = possibleDuplicateOf(err);
+			if (existing !== null) { setDuplicateOf(existing); return; }
+			toast.error((err as Error).message || "Couldn't add staff member");
 		}
 	}
+
+	const onSubmit = (formValues: CreateStaffFormValues) => submit(formValues, false);
 
 	return (
 		<>
@@ -59,11 +67,11 @@ export default function NewStaffPage() {
 				<ArrowLeft className="size-3.5" /> Back to staff
 			</Link>
 
-			<PageHeader title="Add staff" description="Create a new staff account for your school." />
+			<PageHeader title="Add staff" description="Add a staff member to your school. Portal access is a separate step: invite them from their profile." />
 
 			<form onSubmit={handleSubmit(onSubmit)} className="max-w-3xl space-y-6">
 				<div className="rounded-xl border border-border bg-card/80 p-5 backdrop-blur-sm md:p-6">
-					<h3 className="font-medium">Account information</h3>
+					<h3 className="font-medium">Personal information</h3>
 
 					<div className="mt-4 grid gap-4 md:grid-cols-2">
 						<div className="space-y-1.5">
@@ -89,35 +97,31 @@ export default function NewStaffPage() {
 							<Input id="phone" {...register("phone")} />
 						</div>
 
-						<div className="space-y-1.5 md:col-span-2">
-							<Label htmlFor="password">Password (optional)</Label>
-							<Input id="password" type="password" {...register("password")} />
-							{errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
-							<p className="text-xs text-muted-foreground">
-								Leave blank to auto-generate — the staff member will receive an invite email.
-							</p>
-						</div>
 					</div>
 				</div>
 
 				<div className="rounded-xl border border-border bg-card/80 p-5 backdrop-blur-sm md:p-6">
-					<h3 className="font-medium">Role & employment details</h3>
+					<h3 className="font-medium">Employment details</h3>
 
 					<div className="mt-4 grid gap-4 md:grid-cols-2">
 						<div className="space-y-1.5">
-							<Label>Role</Label>
-							<Select
-								value={values.role}
-								onValueChange={(v) => setValue("role", v as CreateStaffFormValues["role"])}
-							>
-								<SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+							<Label>Staff type</Label>
+							<Select value={values.category} onValueChange={(v) => setValue("category", v as CreateStaffFormValues["category"])}>
+								<SelectTrigger><SelectValue /></SelectTrigger>
 								<SelectContent>
-									{Object.entries(STAFF_ROLE_LABELS).map(([value, label]) => (
-										<SelectItem key={value} value={value}>{label}</SelectItem>
-									))}
+									{Object.entries(STAFF_CATEGORY_LABELS).map(([value, label]) => <SelectItem key={value} value={value}>{label}</SelectItem>)}
 								</SelectContent>
 							</Select>
-							{errors.role && <p className="text-xs text-destructive">{errors.role.message}</p>}
+						</div>
+
+						<div className="space-y-1.5">
+							<Label>Employment</Label>
+							<Select value={values.employmentType} onValueChange={(v) => setValue("employmentType", v as CreateStaffFormValues["employmentType"])}>
+								<SelectTrigger><SelectValue /></SelectTrigger>
+								<SelectContent>
+									{Object.entries(EMPLOYMENT_TYPE_LABELS).map(([value, label]) => <SelectItem key={value} value={value}>{label}</SelectItem>)}
+								</SelectContent>
+							</Select>
 						</div>
 
 						<div className="space-y-1.5">
@@ -185,6 +189,17 @@ export default function NewStaffPage() {
 						</div>
 					</div>
 				</div>
+
+				{duplicateOf !== null && (
+					<div role="alert" className="rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm">
+						<div className="font-medium">Someone with the same name and phone is already on your staff list.</div>
+						<p className="mt-1 text-muted-foreground">If this is a different person, add them anyway.</p>
+						<div className="mt-3 flex flex-wrap gap-2">
+							{duplicateOf && <Button type="button" variant="outline" size="sm" nativeButton={false} render={<Link href={ROUTES.school.staff.detail(duplicateOf)} target="_blank">View existing</Link>} />}
+							<Button type="button" size="sm" disabled={isSubmitting} onClick={handleSubmit((v) => submit(v, true))}>This is a different person: add</Button>
+						</div>
+					</div>
+				)}
 
 				<div className="sticky bottom-0 -mx-4 flex justify-end gap-2 border-t border-border bg-background/80 px-4 py-3 backdrop-blur">
 					<Button type="button" variant="ghost" nativeButton={false} render={<Link href={ROUTES.school.staff.list}>Cancel</Link>} />

@@ -25,10 +25,10 @@ import {
 } from "@/components/ui/dialog";
 import { useUpdateStaff } from "../hooks/use-staff";
 import { updateStaffSchema, UpdateStaffFormValues } from "../schemas/staff.schema";
-import { STAFF_ROLE_LABELS } from "../constants/staff-role-labels";
+import { EMPLOYMENT_TYPE_LABELS, STAFF_CATEGORY_LABELS } from "../constants/staff-labels";
+import { omitEmpty } from "@/lib/omit-empty";
 import { DEPARTMENT_OPTIONS, DESIGNATION_OPTIONS, QUALIFICATION_OPTIONS } from "../constants/staff-field-options";
 import { StaffResponseData } from "../types/staff.types";
-import { ApiErrorResponse } from "@/types/api-response";
 
 interface EditStaffDialogProps {
 	staff: StaffResponseData;
@@ -55,8 +55,11 @@ export function EditStaffDialog({ staff, open, onOpenChange }: EditStaffDialogPr
 			reset({
 				firstName: staff.firstName ?? "",
 				lastName: staff.lastName ?? "",
+				middleName: staff.middleName ?? "",
+				email: staff.email ?? "",
 				phone: staff.phone ?? "",
-				role: staff.role,
+				category: staff.category,
+				employmentType: staff.employmentType,
 				employeeId: staff.employeeId ?? "",
 				department: staff.department ?? "",
 				designation: staff.designation ?? "",
@@ -71,15 +74,11 @@ export function EditStaffDialog({ staff, open, onOpenChange }: EditStaffDialogPr
 
 	async function onSubmit(values: UpdateStaffFormValues) {
 		try {
-			const cleaned = Object.fromEntries(
-				Object.entries(values).filter(([, v]) => v !== "" && v !== undefined)
-			);
-			await updateStaff.mutateAsync(cleaned);
+			await updateStaff.mutateAsync(omitEmpty(values));
 			toast.success("Staff member updated");
 			onOpenChange(false);
 		} catch (err) {
-			const apiErr = err as ApiErrorResponse;
-			toast.error(apiErr.message || "Couldn't save changes");
+			toast.error((err as Error).message || "Couldn't save changes");
 		}
 	}
 
@@ -89,7 +88,7 @@ export function EditStaffDialog({ staff, open, onOpenChange }: EditStaffDialogPr
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
 				<DialogHeader>
-					<DialogTitle>Edit {staff.firstName} {staff.lastName}</DialogTitle>
+					<DialogTitle>Edit {staff.fullName}</DialogTitle>
 				</DialogHeader>
 
 				<form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 sm:grid-cols-2">
@@ -104,20 +103,30 @@ export function EditStaffDialog({ staff, open, onOpenChange }: EditStaffDialogPr
 						{errors.lastName && <p className="text-xs text-destructive">{errors.lastName.message}</p>}
 					</div>
 					<div className="space-y-1.5">
-						<Label htmlFor="phone">Phone</Label>
-						<Input id="phone" {...register("phone")} />
+						<Label htmlFor="email">Email</Label>
+						<Input id="email" type="email" {...register("email")} />
+						{errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
 					</div>
 					<div className="space-y-1.5">
-						<Label>Role</Label>
-						<Select
-							value={values.role ?? ""}
-							onValueChange={(v) => setValue("role", v as UpdateStaffFormValues["role"])}
-						>
+						<Label htmlFor="phone">Phone</Label>
+						<Input id="phone" {...register("phone")} />
+						{errors.phone && <p className="text-xs text-destructive">{errors.phone.message}</p>}
+					</div>
+					<div className="space-y-1.5">
+						<Label>Staff type</Label>
+						<Select value={values.category ?? ""} onValueChange={(v) => setValue("category", v as UpdateStaffFormValues["category"])}>
 							<SelectTrigger><SelectValue /></SelectTrigger>
 							<SelectContent>
-								{Object.entries(STAFF_ROLE_LABELS).map(([value, label]) => (
-									<SelectItem key={value} value={value}>{label}</SelectItem>
-								))}
+								{Object.entries(STAFF_CATEGORY_LABELS).map(([value, label]) => <SelectItem key={value} value={value}>{label}</SelectItem>)}
+							</SelectContent>
+						</Select>
+					</div>
+					<div className="space-y-1.5">
+						<Label>Employment</Label>
+						<Select value={values.employmentType ?? ""} onValueChange={(v) => setValue("employmentType", v as UpdateStaffFormValues["employmentType"])}>
+							<SelectTrigger><SelectValue /></SelectTrigger>
+							<SelectContent>
+								{Object.entries(EMPLOYMENT_TYPE_LABELS).map(([value, label]) => <SelectItem key={value} value={value}>{label}</SelectItem>)}
 							</SelectContent>
 						</Select>
 					</div>
