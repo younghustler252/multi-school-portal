@@ -66,7 +66,14 @@ export class NotificationDeliveryService {
     async deliverPlatformRecipient(recipientId: string): Promise<DeliveryOutcome> {
         const recipient = await this.d.notificationRepository.findPlatformRecipientById(recipientId);
         if (!recipient || TERMINAL_STATUSES.has(recipient.status)) return { outcome: "skipped" };
+        const outcome = await this.sendPlatformRecipient(recipient);
+        // a failed try is retried by the worker; the parent completes only when no row is still waiting
+        await this.d.notificationRepository.settlePlatformNotification(recipient.notificationId);
+        return outcome;
+    }
 
+    private async sendPlatformRecipient(recipient: { id: string; notificationId: string; schoolId: string; channel: string }): Promise<DeliveryOutcome> {
+        const recipientId = recipient.id;
         const notification = await this.d.notificationRepository.findPlatformNotificationById(recipient.notificationId);
         if (!notification) {
             await this.d.notificationRepository.markPlatformRecipientFailed(recipientId, "Parent notification no longer exists");

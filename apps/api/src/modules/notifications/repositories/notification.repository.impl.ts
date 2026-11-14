@@ -191,6 +191,18 @@ export class NotificationRepositoryImpl implements INotificationRepository {
         });
     }
 
+    async markPlatformRecipientsQueued(ids: string[]): Promise<void> {
+        if (ids.length === 0) return;
+        await prisma.platformNotificationRecipient.updateMany({ where: { id: { in: ids }, status: "PENDING" }, data: { status: "QUEUED" } });
+    }
+
+    async settlePlatformNotification(notificationId: string): Promise<boolean> {
+        const open = await prisma.platformNotificationRecipient.count({ where: { notificationId, status: { in: ["PENDING", "QUEUED"] } } });
+        if (open > 0) return false;
+        const res = await prisma.platformNotification.updateMany({ where: { id: notificationId, state: { not: "COMPLETED" } }, data: { state: "COMPLETED", completedAt: new Date() } });
+        return res.count > 0;
+    }
+
     async markPlatformRecipientRead(recipientId: string, schoolId: string): Promise<boolean> {
         const res = await prisma.platformNotificationRecipient.updateMany({
             where: { id: recipientId, schoolId }, data: { readAt: new Date(), status: "READ" },

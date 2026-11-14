@@ -96,6 +96,10 @@ export interface INotificationRepository {
 
 	markPlatformRecipientSent(id: string, providerMsgId?: string): Promise<void>;
 	markPlatformRecipientFailed(id: string, reason: string): Promise<void>;
+	/** Marks email/SMS recipient rows as handed to the delivery queue. */
+	markPlatformRecipientsQueued(ids: string[]): Promise<void>;
+	/** Completes the parent notification once no recipient is still PENDING or QUEUED (failed ones keep their own FAILED status). */
+	settlePlatformNotification(notificationId: string): Promise<boolean>;
 
 	/** The contact of the school's admin account (platform messages go to this person). */
 

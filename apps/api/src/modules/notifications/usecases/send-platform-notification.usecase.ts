@@ -1,8 +1,7 @@
 import { INotificationRepository }           from "../repositories/notification.repository";
-import type { SchoolAdminDirectory } from "../../school/services/school-admin-directory.service";
+import type { DeliveryQueue } from "../services/notification-dispatch.service";
 import { PlatformNotificationMapper }        from "../mappers/notification.mapper";
 import { PlatformNotificationResponseData }  from "../mappers/notification.mapper";
-import { MailService }                       from "../../../infrastructure/mail/mail.service";
 import { ISchoolRepository }                 from "../../school/repositories/school.repository";
 import { SendPlatformNotificationDtoType }   from "../dtos/notification.dto";
 import { ValidationError }                   from "../../../shared/errors/domain.errors";
@@ -18,29 +17,25 @@ interface Dependencies {
     notificationRepository:      INotificationRepository;
     platformNotificationMapper:  PlatformNotificationMapper;
     schoolRepository:            ISchoolRepository;
-    mailService:                 MailService;
-    schoolAdminDirectory:        SchoolAdminDirectory;
+    notificationDeliveryQueue:   DeliveryQueue;
 }
 
 export class SendPlatformNotificationUseCase {
     private readonly notificationRepository:     INotificationRepository;
     private readonly platformNotificationMapper: PlatformNotificationMapper;
     private readonly schoolRepository:           ISchoolRepository;
-    private readonly mailService:                MailService;
-    private readonly schoolAdminDirectory:       SchoolAdminDirectory;
+    private readonly notificationDeliveryQueue:  DeliveryQueue;
 
     constructor({
         notificationRepository,
         platformNotificationMapper,
         schoolRepository,
-        mailService,
-        schoolAdminDirectory,
+        notificationDeliveryQueue,
     }: Dependencies) {
         this.notificationRepository     = notificationRepository;
         this.platformNotificationMapper = platformNotificationMapper;
         this.schoolRepository           = schoolRepository;
-        this.mailService                = mailService;
-        this.schoolAdminDirectory       = schoolAdminDirectory;
+        this.notificationDeliveryQueue  = notificationDeliveryQueue;
     }
 
     async execute(
@@ -79,41 +74,42 @@ export class SendPlatformNotificationUseCase {
         }
 
         // ── Create recipient records ──────────────────────────────────────
+        // In-app rows are visible at once (SENT). Email and SMS rows wait for the queue, which sends each through the same
+        // platform delivery path the worker uses and records the outcome on the row.
+        const now = new Date();
+        const toQueue: string[] = [];
         for (const schoolId of schoolIds) {
             for (const channel of dto.channels) {
-                await this.notificationRepository.createPlatformRecipient({
+                const inApp = channel === "IN_APP";
+                const row = await this.notificationRepository.createPlatformRecipient({
                     notificationId: notification.id,
                     schoolId,
                     channel,
-                    status: "PENDING",
+                    status: inApp ? "SENT" : "PENDING",
+                    ...(inApp && { sentAt: now }),
                 });
+                if (!inApp) toQueue.push(row.id);
             }
         }
 
-        // ── Send emails to school admins ──────────────────────────────────
-        if (dto.channels.includes("EMAIL")) {
-            // The school admins are found from each school's own memberships (not from a column on the user).
-            const admins = await this.schoolAdminDirectory.contactsOfSchools(schoolIds,
-                (id, e) => console.error(`Platform notification: could not read the admins of school ${id}:`, e.message));
-
-            for (const admin of admins) {
-                await this.mailService.sendLetter(admin.email, {
-                    subject:    dto.title,
-                    title:      dto.title,
-                    greeting:   `Hi ${admin.firstName ?? "School Admin"},`,
-                    paragraphs: [dto.message],
-                });
-            }
+        // ── Hand email/SMS to the queue; the parent is only COMPLETED when nothing is left waiting ──
+        if (toQueue.length === 0) {
+            const updated = await this.notificationRepository.updatePlatformNotification(notification.id, { state: "COMPLETED", sentAt: now, completedAt: now });
+            return this.platformNotificationMapper.toResponse(updated);
         }
 
-        // ── Update notification state ─────────────────────────────────────
-        const updated = await this.notificationRepository
-            .updatePlatformNotification(notification.id, {
-                state:       "COMPLETED",
-                sentAt:      new Date(),
-                completedAt: new Date(),
-            });
-
-        return this.platformNotificationMapper.toResponse(updated);
+        // PROCESSING is set BEFORE queueing so a fast worker that settles the last row is never overwritten by this write.
+        await this.notificationRepository.updatePlatformNotification(notification.id, { state: "PROCESSING", sentAt: now });
+        try {
+            // tenantSchema is unused for platform jobs (they run outside any school's database)
+            await this.notificationDeliveryQueue.enqueue(toQueue.map(recipientId => ({ kind: "platform" as const, recipientId, schoolId: "", tenantSchema: "" })));
+            await this.notificationRepository.markPlatformRecipientsQueued(toQueue);
+        } catch (err) {
+            // Rows stay PENDING and the parent goes back to QUEUED, so the send is visibly unfinished instead of falsely completed.
+            console.error(`⚠️ Could not queue ${toQueue.length} platform message(s) for notification ${notification.id}:`, err instanceof Error ? err.message : err);
+            await this.notificationRepository.updatePlatformNotification(notification.id, { state: "QUEUED" });
+        }
+        const current = await this.notificationRepository.findPlatformNotificationById(notification.id);
+        return this.platformNotificationMapper.toResponse(current ?? notification);
     }
 }

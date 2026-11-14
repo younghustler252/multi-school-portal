@@ -216,6 +216,8 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Owner/workstream:** Fees/reporting developer
 - **Acceptance criteria:** Regression test for an issued invoice followed by an approved additional discount proves statement closing balance equals the authoritative invoice balance/ledger receivable; waiver, write-off and credit-note statement cases still pass.
 
+- **Resolution (branch `fix/api/p1-remediation-batch1`, not yet merged):** Confirmed, then fixed. The invoice line now shows only the discount the invoice was issued with (`discountKobo` minus approved additional discounts); an extra discount appears once, as its own dated adjustment line, so the closing balance equals the invoice balance. Waiver, write-off, credit-note and refund cases are unchanged. The statement source now carries `invoiceId` on adjustments.
+
 ### REM-019 — Opening-balance response/audit converts whole-kobo BigInt through Number
 
 - **Module:** Fees / opening balances
@@ -226,6 +228,8 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Keep amounts as BigInt internally and serialize each result with the shared `koboOut` helper (number when safe, digit string otherwise). Compute the audit total directly from original BigInt values, never from serialized numbers.
 - **Owner/workstream:** Fees developer
 - **Acceptance criteria:** Test an amount above `Number.MAX_SAFE_INTEGER` kobo and assert exact response serialization, audit total and posted invoice amount.
+
+- **Resolution (branch `fix/api/p1-remediation-batch1`, not yet merged):** Confirmed, then fixed. Amounts stay BigInt, are serialised with `koboOut` (number when safe, digit string above 2^53), and the audit total is summed from the original BigInts. Test uses two amounts above `Number.MAX_SAFE_INTEGER` and checks response, posted draft amount and audit total.
 
 ### REM-020 — Persisted finance grace-days setting is not used by late-fee execution
 
@@ -369,6 +373,8 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Make the run-now permission match its effects. Either require `expenses.approve` for run-now when any due template can auto-approve, or split the action so users without approval rights can only run templates that will remain pending. Keep the scheduled system runner separate and explicitly system-authorized.
 - **Owner/workstream:** Expenses/RBAC developer
 - **Acceptance criteria:** A user with only `expenses.create` cannot trigger auto-approval; a user with approval permission and the scheduled system runner can execute the intended workflow.
+
+- **Resolution (branch `fix/api/p1-remediation-batch1`, not yet merged):** Confirmed, then fixed. `run-now` only honours a template's `autoApprove` when the caller holds `expenses.approve`; otherwise due templates are created pending. The scheduled system runner keeps its existing behaviour. See `tests/finance/recurring-run-authorization.test.ts`.
 
 ### REM-033 — Budget block enforcement is vulnerable to concurrent approvals
 
@@ -1040,6 +1046,8 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Route platform notifications through a durable platform outbox/queue using the existing deliverPlatformRecipient worker path. Update per-recipient status from provider outcomes and compute parent state from recipient outcomes (COMPLETED/PARTIAL/FAILED).
 - **Owner/workstream:** Notifications/Platform developer
 - **Acceptance criteria:** IN_APP, EMAIL and SMS each reach the requested channel; recipient rows become SENT/FAILED/READ appropriately; parent state reflects actual completion.
+
+- **Resolution (branch `fix/api/p1-remediation-batch1`, not yet merged):** Confirmed, then fixed. Email/SMS recipients are now queued as platform jobs and delivered by the existing `deliverPlatformRecipient` worker path, which records SENT/FAILED per row; in-app rows are SENT at creation. The parent is PROCESSING while anything is waiting and is COMPLETED only when no row is PENDING/QUEUED (immediately for in-app-only sends). If the queue is down the rows stay PENDING and the parent stays QUEUED. **Remaining:** there is no PARTIAL/FAILED parent state (needs an enum migration; failures are visible per recipient), and no stale-row requeue for platform recipients yet (the school-side `requeueStale` has no platform equivalent).
 
 ### REM-094 — School announcement with no channel-deliverable recipients dereferences an empty notification ID
 

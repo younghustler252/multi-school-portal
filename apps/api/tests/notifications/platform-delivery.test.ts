@@ -8,6 +8,7 @@ function build(contact: { email: string; phone: string | null; firstName: string
     const repo: any = {
         findPlatformRecipientById: async () => ({ id: "r1", status: "PENDING", notificationId: "n1", schoolId: "sch-9", channel }),
         findPlatformNotificationById: async () => ({ id: "n1", title: "Maintenance tonight", message: "Short downtime at 10pm", type: "maintenance" }),
+        settlePlatformNotification: async (id: string) => { marks.push(`settle:${id}`); return true; },
         markPlatformRecipientSent: async () => { marks.push("sent"); },
         markPlatformRecipientFailed: async (_id: string, why: string) => { marks.push(`failed:${why}`); },
     };
@@ -24,7 +25,7 @@ describe("platform notice delivery", () => {
         const w = build({ email: "ada@school.ng", phone: "0801", firstName: "Ada" });
         assert.deepEqual(await w.svc.deliverPlatformRecipient("r1"), { outcome: "sent" });
         assert.deepEqual(w.asked, ["sch-9"]); assert.equal(w.sent[0].to, "ada@school.ng"); assert.equal(w.sent[0].metadata.firstName, "Ada");
-        assert.deepEqual(w.marks, ["sent"]);
+        assert.deepEqual(w.marks, ["sent", "settle:n1"]);
     });
     it("an SMS notice uses the admin's phone", async () => {
         const w = build({ email: "ada@school.ng", phone: "0801", firstName: "Ada" }, "SMS");
@@ -35,6 +36,6 @@ describe("platform notice delivery", () => {
         const w = build(null);
         const r: any = await w.svc.deliverPlatformRecipient("r1");
         assert.equal(r.outcome, "undeliverable"); assert.equal(r.reason, "No school admin contact on file");
-        assert.equal(w.sent.length, 0); assert.deepEqual(w.marks, ["failed:No school admin contact on file"]);
+        assert.equal(w.sent.length, 0); assert.deepEqual(w.marks, ["failed:No school admin contact on file", "settle:n1"]);
     });
 });

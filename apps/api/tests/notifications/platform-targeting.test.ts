@@ -5,20 +5,21 @@ import { SendPlatformNotificationUseCase } from "../../src/modules/notifications
 
 const UUID_A = "00000000-0000-4000-8000-00000000000a", UUID_B = "00000000-0000-4000-8000-00000000000b";
 function world() {
-    const created: any[] = [], recipients: any[] = [], mails: string[] = [];
+    const created: any[] = [], recipients: any[] = [], mails: string[] = [], jobs: any[] = [], states: any[] = [];
     const deps: any = {
         notificationRepository: {
             createPlatformNotification: async (d: any) => { created.push(d); return { id: "n1" }; },
-            createPlatformRecipient: async (r: any) => { recipients.push(r); },
-            updatePlatformNotification: async (id: string, d: any) => ({ id, ...d }),
+            createPlatformRecipient: async (r: any) => { recipients.push(r); return { id: `r${recipients.length}` }; },
+            markPlatformRecipientsQueued: async (ids: string[]) => { for (const r of recipients) if (ids.includes(`r${recipients.indexOf(r) + 1}`)) r.status = "QUEUED"; },
+            findPlatformNotificationById: async (id: string) => ({ id, ...Object.assign({}, ...states) }),
+            updatePlatformNotification: async (id: string, d: any) => { states.push(d); return { id, ...d }; },
         },
         platformNotificationMapper: { toResponse: (x: any) => x },
         schoolRepository: { findMany: async () => [{ id: "s1" }, { id: "s2" }, { id: "s3" }] },
-        mailService: { sendLetter: async (to: string) => { mails.push(to); } },
-        schoolAdminDirectory: { contactsOfSchools: async (ids: string[]) => ids.map(id => ({ email: `${id}@x.test`, firstName: null })) },
+        notificationDeliveryQueue: { enqueue: async (j: any[]) => { if ((deps as any).queueDown) throw new Error("redis down"); jobs.push(...j); } },
     };
     const base = { title: "t", message: "m", type: "system_alert", channels: ["IN_APP", "EMAIL"] } as any;
-    return { uc: new SendPlatformNotificationUseCase(deps), created, recipients, mails, base };
+    return { uc: new SendPlatformNotificationUseCase(deps), deps, created, recipients, mails, jobs, states, base };
 }
 const schoolsOf = (w: ReturnType<typeof world>) => [...new Set(w.recipients.map(r => r.schoolId))].sort();
 
@@ -32,7 +33,25 @@ describe("platform notification targeting", () => {
         const w = world();
         await w.uc.execute({ ...w.base, schoolIds: ["s2", "s2", "s1"] }, "admin");
         assert.deepEqual(schoolsOf(w), ["s1", "s2"]); assert.equal(w.recipients.length, 4);   // 2 schools x 2 channels
-        assert.deepEqual(w.mails.sort(), ["s1@x.test", "s2@x.test"]);
+        assert.deepEqual(w.jobs.map(j => j.recipientId).sort(), ["r2", "r4"]);              // the two EMAIL rows are queued, not mailed inline
+    });
+    it("REM-093: in-app rows are SENT, email rows go to the queue as platform jobs, and the parent is PROCESSING, not COMPLETED", async () => {
+        const w = world();
+        const out: any = await w.uc.execute({ ...w.base, schoolIds: ["s1"] }, "admin");
+        assert.deepEqual(w.recipients.map(r => [r.channel, r.status]), [["IN_APP", "SENT"], ["EMAIL", "QUEUED"]]);
+        assert.deepEqual(w.jobs.map(j => j.kind), ["platform"]);
+        assert.equal(out.state, "PROCESSING"); assert.equal(out.completedAt, undefined);
+    });
+    it("REM-093: an in-app-only notice has nothing to wait for and completes at once", async () => {
+        const w = world();
+        const out: any = await w.uc.execute({ ...w.base, channels: ["IN_APP"], schoolIds: ["s1"] }, "admin");
+        assert.equal(w.jobs.length, 0); assert.equal(out.state, "COMPLETED");
+    });
+    it("REM-093: if the queue is down the rows stay PENDING and the parent is QUEUED, never falsely COMPLETED", async () => {
+        const w = world(); (w.deps as any).queueDown = true;
+        const out: any = await w.uc.execute({ ...w.base, schoolIds: ["s1"] }, "admin");
+        assert.equal(w.recipients.find(r => r.channel === "EMAIL").status, "PENDING");
+        assert.equal(out.state, "QUEUED");
     });
     it("broadcastAll: true reaches every active school", async () => {
         const w = world();
