@@ -5,6 +5,7 @@ import { IFeeInvoiceRepository } from "../../fees/repositories/fee-invoice.repos
 import { ILedgerAccountRepository } from "../../ledger/repositories/ledger-account.repository";
 import { PaymentConfirmationService } from "../services/payment-confirmation.service";
 import { PostingService } from "../../ledger/services/posting.service";
+import { koboOut } from "../../ledger/mappers/kobo";
 import { PaymentMapper } from "../mappers/payment.mapper";
 import { AuditService } from "../../audit/services/audit.service";
 import { ActorType } from "../../audit/domain/audit.enums";
@@ -173,6 +174,6 @@ export class RecordSettlementUseCase {
             userId: actorUserId, schoolId, action: "payments.online.settled", entity: "JournalEntry", entityId: posted.journal.id,
             newValue: { grossKobo: dto.grossKobo.toString(), feeKobo: dto.feeKobo.toString(), accountId: bank.id, settledOn: on, reference: dto.reference ?? null },
         });
-        return { journalId: posted.journal.id, journalNumber: posted.journal.number, receivedKobo: Number(received), feeKobo: Number(dto.feeKobo), grossKobo: Number(dto.grossKobo) };
+        return { journalId: posted.journal.id, journalNumber: posted.journal.number, receivedKobo: koboOut(received), feeKobo: koboOut(dto.feeKobo), grossKobo: koboOut(dto.grossKobo) };
     }
 }
