@@ -71,6 +71,7 @@ export function ComposePlatformNotificationCard() {
 			await sendNotification.mutateAsync({
 				...formValues,
 				schoolIds: audienceMode === "specific" ? selectedSchools.map((s) => s.id) : undefined,
+				broadcastAll: audienceMode === "all" ? true : undefined,
 			});
 			toast.success("Platform notification sent");
 			reset({ channels: ["IN_APP"] });
