@@ -94,6 +94,17 @@ describe("platform notification targeting", () => {
         assert.equal(w.recipients.find(r => r.schoolId === "s1" && r.channel === "EMAIL").status, "SENT");
         assert.equal(resumed.state, "PROCESSING");
     });
+    it("REM-097 recovery limits (documented): a resend re-hands PENDING and QUEUED rows, but NOT a FAILED row or an already-SENT one", async () => {
+        const w = world();
+        const dto = { ...w.base, schoolIds: ["s1", "s2", "s3"], idempotencyKey: "recover-key-01" };
+        await w.uc.execute(dto, "admin");
+        const email = (school: string) => w.recipients.find(r => r.schoolId === school && r.channel === "EMAIL");
+        email("s1").status = "FAILED"; email("s2").status = "SENT"; email("s3").status = "QUEUED";   // s3: its job may have been lost
+        const before = w.jobs.length;
+        await w.uc.execute(dto, "admin");
+        assert.deepEqual(w.jobs.slice(before).map(j => j.recipientId), [email("s3").id]);
+        assert.equal(email("s1").status, "FAILED"); assert.equal(email("s2").status, "SENT");
+    });
     it("REM-097: two requests with one key at the same moment make ONE broadcast (the loser resumes the winner's row)", async () => {
         const w = world();
         const [x, y]: any[] = await Promise.all([1, 2].map(() => w.uc.execute({ ...w.base, schoolIds: ["s1"], idempotencyKey: "race-key-0001" }, "admin")));
@@ -139,7 +150,7 @@ describe("platform notification targeting", () => {
     });
     it("the DTO refuses an empty list, both fields together and broadcastAll: false alone (needs zod)", async t => {
         let Dto: any;
-        try { Dto = (await import("../../src/modules/notifications/dtos/notification.dto")).SendPlatformNotificationDto; } catch { return t.skip("zod is not installed here"); }
+        try { Dto = (await import("../../src/modules/notifications/dtos/notification.dto")).SendPlatformNotificationDto; } catch (e) { if ((e as { code?: string }).code === "MODULE_NOT_FOUND" && /'zod'/.test(String((e as Error).message).split("\n")[0])) return t.skip("zod is not installed here"); throw e; }
         const ok = { title: "t", message: "m", type: "system_alert", channels: ["IN_APP"] };
         assert.equal(Dto.safeParse({ ...ok, schoolIds: [] }).success, false);
         assert.equal(Dto.safeParse({ ...ok, schoolIds: [UUID_A], broadcastAll: true }).success, false);

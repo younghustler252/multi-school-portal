@@ -52,4 +52,10 @@ describe("platform notice delivery", () => {
         await w.svc.deliverPlatformRecipient("r1", { finalAttempt: false });
         assert.deepEqual(w.marks, ["failed:No school admin contact on file", "settle:n1"]);
     });
+    it("wiring: the worker tells the service whether this is the last try (attempts made + 1 >= attempts), so retries keep the parent open", async () => {
+        const { readFileSync } = await import("node:fs");
+        const src = readFileSync(new URL("../../src/infrastructure/jobs/workers/notification.worker.ts", import.meta.url), "utf8");
+        assert.match(src, /deliverPlatformRecipient\(recipientId,\s*\{\s*finalAttempt:\s*job\.attemptsMade \+ 1 >= \(job\.opts\.attempts \?\? 1\)\s*\}\)/);
+        assert.match(src, /result\.outcome === "failed"\) throw/);                   // a failed try still throws, so the queue repeats it
+    });
 });

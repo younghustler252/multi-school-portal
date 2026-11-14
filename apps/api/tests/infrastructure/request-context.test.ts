@@ -35,7 +35,10 @@ describe("requestContext middleware", () => {
     it("the audit log picks the request id, actor and impersonator up with no change to its callers", async t => {
         let AuditService: any;
         try { AuditService = (await import("../../src/modules/audit/services/audit.service")).AuditService; }   // loaded here so the other tests run without its dependencies
-        catch { return t.skip("AuditService dependencies (@sentry/node) are not installed here"); }
+        catch (e) {                                            // skip ONLY when @sentry/node itself is absent; any other import error is a real failure
+            if ((e as { code?: string }).code === "MODULE_NOT_FOUND" && /@sentry\/node/.test(String((e as Error).message).split("\n")[0])) return t.skip("@sentry/node is not installed here");
+            throw e;
+        }
         const rows: any[] = []; const audit = new AuditService({ auditRepository: { create: async (r: any) => { rows.push(r); } } as any });
         const sent: Record<string, string> = {};
         const req: any = { get: () => undefined, ip: "1.2.3.4", socket: {} }; const res: any = { setHeader: (k: string, v: string) => { sent[k] = v; } };

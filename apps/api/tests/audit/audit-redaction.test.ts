@@ -43,7 +43,8 @@ describe("audit redaction", () => {
     });
     it("AuditService.log redacts oldValue, newValue and metadata before persisting (needs @sentry/node)", async t => {
         let AuditService: any;
-        try { AuditService = (await import("../../src/modules/audit/services/audit.service")).AuditService; } catch { return t.skip("@sentry/node is not installed here"); }
+        try { AuditService = (await import("../../src/modules/audit/services/audit.service")).AuditService; }
+        catch (e) { if ((e as { code?: string }).code === "MODULE_NOT_FOUND" && /@sentry\/node/.test(String((e as Error).message).split("\n")[0])) return t.skip("@sentry/node is not installed here"); throw e; }
         const rows: any[] = [];
         const svc = new AuditService({ auditRepository: { create: async (r: any) => { rows.push(r); } } as any });
         await svc.log({ action: "users.updated", entity: "User", entityId: "u1", userId: "admin",
