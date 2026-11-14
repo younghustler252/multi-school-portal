@@ -43,8 +43,8 @@ describe("visibleNav", () => {
 	});
 
 	it("never mixes realms in the tables: platform keys only in PLATFORM_NAV, none in SCHOOL_NAV", () => {
-		for (const e of SCHOOL_NAV) for (const k of e.anyOf ?? []) expect(k.startsWith("platform.")).toBe(false);
-		for (const e of PLATFORM_NAV) for (const k of e.anyOf ?? []) expect(k.startsWith("platform.")).toBe(true);
+		for (const e of SCHOOL_NAV) for (const k of e.rule.anyOf ?? []) expect(k.startsWith("platform.")).toBe(false);
+		for (const e of PLATFORM_NAV) for (const k of e.rule.anyOf ?? []) expect(k.startsWith("platform.")).toBe(true);
 	});
 
 	it("points the notification bell at the right inbox", () => {
@@ -108,7 +108,7 @@ describe("persona and scope in the menu (same rules as the route guard)", () => 
 	it("the bell links to an inbox the session may open", () => {
 		expect(notificationsPath("school", "STAFF")).toBe(ROUTES.school.notifications);
 		expect(notificationsPath("school", "GUARDIAN")).toBe(ROUTES.family.notifications);
-		expect(canOpenRoute(notificationsPath("school", "GUARDIAN"), guardian)).toBe(true);
+		expect(canOpenRoute(ROUTES.family.notifications, guardian)).toBe(true);
 		expect(notificationsPath("school", "STUDENT")).toBeNull(); // no inbox page: the bell says so
 		expect(notificationsPath("platform")).toBe(ROUTES.platform.notifications);
 	});
