@@ -88,3 +88,55 @@ export function planSchoolRole(role: SchoolRoleView, template: TemplateView | un
     if (!changed && !versionBehind) return { type: "none" };
     return { type: "update", plan, grantsAll, version: template.version, versionOnly: !changed };
 }
+
+/* ---------- deliberate revocations (see role-revocations.registry.ts) ---------- */
+
+export interface RevocationView { id: string; templateKey: string; permissions: string[]; reason: string }
+
+/** Problems with the revocation list itself, given the templates as the code defines them. Pure. */
+export function validateRevocations(
+    revocations: RevocationView[],
+    codeTemplates: { key: string; locked: boolean; permissions: { key: string }[] }[],
+): string[] {
+    const problems: string[] = [];
+    const seen = new Set<string>();
+    for (const r of revocations) {
+        if (!r.id.trim())                problems.push("revocation without an id");
+        else if (seen.has(r.id))         problems.push(`revocation "${r.id}": id used twice`);
+        seen.add(r.id);
+        if (!r.reason.trim())            problems.push(`revocation "${r.id}": give a reason`);
+        if (r.permissions.length === 0)  problems.push(`revocation "${r.id}": no permissions named`);
+        const t = codeTemplates.find(x => x.key === r.templateKey);
+        if (!t) { problems.push(`revocation "${r.id}": unknown template "${r.templateKey}"`); continue; }
+        if (t.locked) problems.push(`revocation "${r.id}": "${t.key}" is locked (it already follows the code exactly)`);
+        for (const key of r.permissions) {
+            if (t.permissions.some(p => p.key === key)) problems.push(`revocation "${r.id}": "${t.key}" still lists "${key}" in role-templates.registry.ts; take it out there too or the sync would add it back`);
+        }
+    }
+    return problems;
+}
+
+export type RevocationAction =
+    | { type: "none" }
+    | { type: "revoke";  keys: string[] }
+    | { type: "pending"; keys: string[]; reason: "customised" }
+    | { type: "blocked"; keys: string[]; reason: "template_not_revoked" };
+
+/**
+ * What the revocations mean for ONE school role. Pure.
+ *   - nothing to remove (the role does not hold the permissions)            -> none
+ *   - role not made from an editable template (custom / locked / no source) -> none
+ *   - the school customised it                                              -> pending (left alone, listed with what it still holds)
+ *   - the platform template still holds one of the permissions              -> blocked (run sync:registries first)
+ *   - otherwise                                                             -> revoke those keys
+ */
+export function planRoleRevocations(role: SchoolRoleView, template: TemplateView | undefined, revocations: RevocationView[]): RevocationAction {
+    if (role.kind !== "SYSTEM_EDITABLE" || !role.sourceTemplateKey) return { type: "none" };
+    const named = new Set(revocations.filter(r => r.templateKey === role.sourceTemplateKey).flatMap(r => r.permissions));
+    const held = role.grants.map(g => g.key).filter(k => named.has(k));
+    if (held.length === 0) return { type: "none" };
+    if (role.isCustomized) return { type: "pending", keys: held, reason: "customised" };
+    if (!template || !template.isActive) return { type: "none" };
+    if (held.some(k => template.grants.some(g => g.key === k))) return { type: "blocked", keys: held, reason: "template_not_revoked" };
+    return { type: "revoke", keys: held };
+}
