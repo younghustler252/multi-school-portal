@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { groupByModule, moduleAccess, moduleLabel } from "@/features/school/lib/role-matrix";
+import { accessDisplay, groupByModule, moduleAccess, moduleLabel } from "@/features/school/lib/role-matrix";
 import type { PermissionCatalogEntry } from "@/features/school/types/role.types";
 
 const entry = (key: string, module: string): PermissionCatalogEntry =>
@@ -30,5 +30,21 @@ describe("moduleLabel", () => {
 	it("turns module keys into readable labels", () => {
 		expect(moduleLabel("report-cards")).toBe("Report cards");
 		expect(moduleLabel("billing_setup")).toBe("Billing setup");
+	});
+});
+
+describe("accessDisplay", () => {
+	it("no permission shows no access", () => {
+		expect(accessDisplay({ scope: null, held: 0, total: 5 })).toEqual({ kind: "none" });
+	});
+	it("every permission at ALL (grants-everything) shows full access", () => {
+		expect(accessDisplay({ scope: "ALL", held: 5, total: 5 })).toEqual({ kind: "full" });
+	});
+	it("one permission at ALL scope is not shown as full access", () => {
+		expect(accessDisplay({ scope: "ALL", held: 1, total: 5 })).toEqual({ kind: "partial", text: "All · 1/5" });
+	});
+	it("narrower scopes always show coverage, even when every permission is held", () => {
+		expect(accessDisplay({ scope: "ASSIGNED", held: 5, total: 5 })).toEqual({ kind: "partial", text: "Assigned · 5/5" });
+		expect(accessDisplay({ scope: "OWN", held: 2, total: 4 })).toEqual({ kind: "partial", text: "Own · 2/4" });
 	});
 });

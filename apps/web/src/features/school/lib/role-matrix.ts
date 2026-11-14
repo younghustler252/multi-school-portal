@@ -47,3 +47,21 @@ export function moduleLabel(module: string): string {
 	const words = module.replace(/[-_.]+/g, " ").trim();
 	return words.charAt(0).toUpperCase() + words.slice(1);
 }
+
+const SCOPE_LABEL: Record<Scope, string> = { ALL: "All", BRANCH: "Branch", ASSIGNED: "Assigned", OWN: "Own" };
+
+export type AccessDisplay =
+	| { kind: "none" }
+	| { kind: "full" }
+	| { kind: "partial"; text: string };
+
+/*
+| What a matrix cell shows. Full access (every permission of the module at ALL scope, which is what a
+| grants-everything role has) gets the check. Everything else shows the widest scope AND coverage, e.g.
+| "All · 1/5", so one permission at ALL scope is never read as the whole module.
+*/
+export function accessDisplay(a: ModuleAccess): AccessDisplay {
+	if (a.scope === null) return { kind: "none" };
+	if (a.scope === "ALL" && a.held === a.total) return { kind: "full" };
+	return { kind: "partial", text: `${SCOPE_LABEL[a.scope]} · ${a.held}/${a.total}` };
+}

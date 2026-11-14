@@ -1,17 +1,18 @@
 import { Check, Loader2, X } from "lucide-react";
-import type { Scope } from "@schoolos/contracts";
 import { SettingsSection } from "./settings-section";
 import { useAccess } from "@/lib/use-access";
 import { usePermissionCatalog, useRoles } from "@/features/school/hooks/use-roles";
-import { groupByModule, moduleAccess, moduleLabel } from "@/features/school/lib/role-matrix";
+import { accessDisplay, groupByModule, moduleAccess, moduleLabel, type ModuleAccess } from "@/features/school/lib/role-matrix";
 
-const SCOPE_LABEL: Record<Scope, string> = { ALL: "All", BRANCH: "Branch", ASSIGNED: "Assigned", OWN: "Own" };
-
-function AccessCell({ scope, held, total }: { scope: Scope | null; held: number; total: number }) {
-	if (scope === null) return <X className="mx-auto size-4 text-muted-foreground/30" aria-label="No access" />;
-	const title = `${held} of ${total} permissions`;
-	if (scope === "ALL" && held === total) return <Check className="mx-auto size-4 text-primary" aria-label="Full access" />;
-	return <span className="text-xs text-muted-foreground" title={title}>{SCOPE_LABEL[scope]}</span>;
+function AccessCell({ access }: { access: ModuleAccess }) {
+	const d = accessDisplay(access);
+	if (d.kind === "none") return <X className="mx-auto size-4 text-muted-foreground/30" aria-label="No access" />;
+	if (d.kind === "full") return <Check className="mx-auto size-4 text-primary" aria-label="Full access" />;
+	return (
+		<span className="text-xs whitespace-nowrap text-muted-foreground" title={`Widest scope · permissions held of ${access.total} in this area`}>
+			{d.text}
+		</span>
+	);
 }
 
 export function RolesTab() {
@@ -67,7 +68,7 @@ export function RolesTab() {
 								<td className="sticky left-0 bg-card px-3 py-2.5 font-medium whitespace-nowrap">{moduleLabel(module)}</td>
 								{roles.data.map((role) => {
 									const a = moduleAccess(role, keys);
-									return <td key={role.id} className="px-3 py-2.5 text-center"><AccessCell {...a} /></td>;
+									return <td key={role.id} className="px-3 py-2.5 text-center"><AccessCell access={a} /></td>;
 								})}
 							</tr>
 						))}
