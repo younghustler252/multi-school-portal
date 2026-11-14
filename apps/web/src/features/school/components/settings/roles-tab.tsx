@@ -1,90 +1,75 @@
-import { Check, X } from "lucide-react";
+import { Check, Loader2, X } from "lucide-react";
 import { SettingsSection } from "./settings-section";
-import { RBAC_MATRIX, type Module, type AccessLevel } from "@/lib/rbac";
-import { ROLE_META } from "@/lib/nav-config";
-import { Role } from "@/types/roles";
+import { useAccess } from "@/lib/use-access";
+import { usePermissionCatalog, useRoles } from "@/features/school/hooks/use-roles";
+import { accessDisplay, groupByModule, moduleAccess, moduleLabel, type ModuleAccess } from "@/features/school/lib/role-matrix";
 
-// Only roles relevant to a school admin viewing this — exclude super_admin
-const VISIBLE_ROLES: Role[] = ["school_admin", "principal", "teacher", "bursar", "student", "guardian"];
-
-const MODULE_LABELS: Record<Module, string> = {
-	"super-admin": "Super Admin",
-	plans: "Plans",
-	subscriptions: "Subscriptions",
-	school: "School Settings",
-	staff: "Staff",
-	students: "Students",
-	enrolment: "Enrolment",
-	classes: "Classes",
-	attendance: "Attendance",
-	grades: "Grades",
-	"report-cards": "Report Cards",
-	fees: "Fees",
-	payments: "Payments",
-	notifications: "Notifications",
-	guardians: "Guardians",
-};
-
-// Exclude platform-only modules irrelevant to a school's own staff
-const VISIBLE_MODULES: Module[] = [
-	"school",
-	"staff",
-	"students",
-	"enrolment",
-	"classes",
-	"attendance",
-	"grades",
-	"report-cards",
-	"fees",
-	"payments",
-	"guardians",
-];
-
-function AccessBadge({ level }: { level: AccessLevel }) {
-	if (level === "none") {
-		return <X className="mx-auto size-4 text-muted-foreground/30" />;
-	}
-	if (level === "full") {
-		return <Check className="mx-auto size-4 text-primary" />;
-	}
-	// "view" | "own" | "own_child" — partial access, show label instead of icon
-	const labels: Record<string, string> = {
-		view: "View only",
-		own: "Own only",
-		own_child: "Child only",
-	};
-	return <span className="text-xs text-muted-foreground">{labels[level]}</span>;
+function AccessCell({ access }: { access: ModuleAccess }) {
+	const d = accessDisplay(access);
+	if (d.kind === "none") return <X className="mx-auto size-4 text-muted-foreground/30" aria-label="No access" />;
+	if (d.kind === "full") return <Check className="mx-auto size-4 text-primary" aria-label="Full access" />;
+	return (
+		<span className="text-xs whitespace-nowrap text-muted-foreground" title={`Widest scope · permissions held of ${access.total} in this area`}>
+			{d.text}
+		</span>
+	);
 }
 
 export function RolesTab() {
+	const me = useAccess();
+	const allowed = me.can("roles.view");
+	const roles = useRoles(allowed);
+	const catalog = usePermissionCatalog(allowed);
+
+	const description = "What each role can do across your school, read live from the system. Roles can't be edited here.";
+
+	if (!allowed) {
+		return (
+			<SettingsSection title="Roles & permissions" description={description}>
+				<p className="text-sm text-muted-foreground">You don&apos;t have permission to view roles.</p>
+			</SettingsSection>
+		);
+	}
+	if (roles.isLoading || catalog.isLoading) {
+		return (
+			<SettingsSection title="Roles & permissions" description={description}>
+				<Loader2 className="size-5 animate-spin text-muted-foreground" />
+			</SettingsSection>
+		);
+	}
+	if (!roles.data || !catalog.data) {
+		return (
+			<SettingsSection title="Roles & permissions" description={description}>
+				<p className="text-sm text-destructive">Couldn&apos;t load roles. Please try again.</p>
+			</SettingsSection>
+		);
+	}
+
+	const modules = groupByModule(catalog.data);
+
 	return (
-		<SettingsSection
-			title="Roles & permissions"
-			description="What each role can access across your school portal. This is fixed by the system and can't be edited here."
-		>
+		<SettingsSection title="Roles & permissions" description={description}>
 			<div className="overflow-x-auto rounded-lg border border-border">
 				<table className="w-full text-sm">
 					<thead className="bg-muted/40 text-xs text-muted-foreground">
 						<tr>
-							<th className="sticky left-0 bg-muted/40 px-3 py-2 text-left">Module</th>
-							{VISIBLE_ROLES.map((role) => (
-								<th key={role} className="px-3 py-2 text-center whitespace-nowrap">
-									{ROLE_META[role].label}
+							<th className="sticky left-0 bg-muted/40 px-3 py-2 text-left">Area</th>
+							{roles.data.map((role) => (
+								<th key={role.id} className="px-3 py-2 text-center whitespace-nowrap" title={role.description ?? undefined}>
+									{role.name}
+									<div className="font-normal">{role.memberCount} {role.persona === "STAFF" ? "members" : "people"}</div>
 								</th>
 							))}
 						</tr>
 					</thead>
 					<tbody>
-						{VISIBLE_MODULES.map((module) => (
+						{modules.map(({ module, keys }) => (
 							<tr key={module} className="border-t border-border">
-								<td className="sticky left-0 bg-card px-3 py-2.5 font-medium whitespace-nowrap">
-									{MODULE_LABELS[module]}
-								</td>
-								{VISIBLE_ROLES.map((role) => (
-									<td key={role} className="px-3 py-2.5 text-center">
-										<AccessBadge level={RBAC_MATRIX[module][role]} />
-									</td>
-								))}
+								<td className="sticky left-0 bg-card px-3 py-2.5 font-medium whitespace-nowrap">{moduleLabel(module)}</td>
+								{roles.data.map((role) => {
+									const a = moduleAccess(role, keys);
+									return <td key={role.id} className="px-3 py-2.5 text-center"><AccessCell access={a} /></td>;
+								})}
 							</tr>
 						))}
 					</tbody>

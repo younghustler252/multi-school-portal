@@ -10,7 +10,6 @@ import { PlatformName } from "@/components/layout/platform-name";
 import { authApi } from "@/features/auth/services/auth.api";
 import { useAuthStore } from "@/stores/auth.store";
 import { ApiErrorResponse } from "@/types/api-response";
-import { ROLE_DEFAULT_ROUTE } from "@/types/roles";
 import { ROUTES } from "@/lib/routes";
 
 const OTP_LENGTH = 6;
