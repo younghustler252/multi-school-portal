@@ -11,7 +11,7 @@ import { CreateRecurringDto, UpdateRecurringDto } from "../dtos/recurring.dto";
 /*
 | RECURRING EXPENSE ROUTES (school realm, mounted at /recurring-expenses).
 |   GET /  (?active, ?page, ?limit), GET /:id        expenses.view
-|   POST /, PUT /:id, POST /:id/pause, /resume, DELETE /:id, POST /run   expenses.create
+|   POST /, PUT /:id, POST /:id/pause, /resume, DELETE /:id, POST /run   expenses.create (a template's "approve by itself" is honoured only if the caller also has expenses.approve)
 | Turning on autoApprove also needs expenses.approve (checked in the controller): it skips the approver.
 */
 const router = Router();

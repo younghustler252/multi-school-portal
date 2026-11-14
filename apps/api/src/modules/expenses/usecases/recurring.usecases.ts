@@ -147,8 +147,14 @@ export class RunRecurringExpensesUseCase {
         this.transaction = options.transaction ?? defaultTransaction;
     }
 
-    async execute(schoolId: string): Promise<RecurringRunSummary> {
+    /*
+    | `honourTemplateAutoApprove` is about WHO is running it. The daily job (a system actor) and a person who holds expenses.approve may let a template
+    | that was set to "approve by itself" do so. Anyone else (expenses.create only) still creates the due expenses, but a template's own auto-approve flag is
+    | ignored: they wait for an approver, exactly like a bill sent in by hand. The school's approval policy (below the threshold) applies to everyone as before.
+    */
+    async execute(schoolId: string, options: { honourTemplateAutoApprove?: boolean } = {}): Promise<RecurringRunSummary> {
         const d = this.d;
+        const honourTemplate = options.honourTemplateAutoApprove ?? true;
         const today = todayInFinanceZone(this.now());
         const due = await d.recurringRepository.findDue(today);
         const summary: RecurringRunSummary = { checked: due.length, created: 0, autoApproved: 0, skipped: 0, failed: [] };
@@ -160,7 +166,7 @@ export class RunRecurringExpensesUseCase {
                 while (next <= today && (r.endDate === null || next <= dayString(r.endDate)) && made < MAX_CATCH_UP_RUNS) {
                     if (await d.expenseRepository.recurringExists(r.id, next)) summary.skipped++;
                     else {
-                        const approved = await this.makeOne(schoolId, r, next);
+                        const approved = await this.makeOne(schoolId, r, next, honourTemplate);
                         summary.created++; if (approved) summary.autoApproved++;
                     }
                     made++;
@@ -177,7 +183,7 @@ export class RunRecurringExpensesUseCase {
     }
 
     /* One expense from the template: all or nothing (so a failed approval leaves no half-made expense behind). Returns true when it was approved at once. */
-    private async makeOne(schoolId: string, r: RecurringEntity, day: string): Promise<boolean> {
+    private async makeOne(schoolId: string, r: RecurringEntity, day: string, honourTemplate: boolean): Promise<boolean> {
         const d = this.d;
         return this.transaction(async () => {
             const p = await prepareExpense(d, {
@@ -196,7 +202,7 @@ export class RunRecurringExpensesUseCase {
             const settings = await settingsOf(d);
             // A school that wants two approvers above an amount gets them here too: a repeating bill that large is never approved by the template
             const autoApprove = approvalsRequired(p.totalKobo, settings) === 1
-                && (r.autoApprove || !needsApproval(p.totalKobo, { required: settings.expenseApprovalRequired, thresholdKobo: settings.expenseApprovalThresholdKobo }));
+                && ((honourTemplate && r.autoApprove) || !needsApproval(p.totalKobo, { required: settings.expenseApprovalRequired, thresholdKobo: settings.expenseApprovalThresholdKobo }));
             if (autoApprove) {
                 await d.expenseApprovalService.approve(await loadExpense(d.expenseRepository, draft.id), { schoolId, actorUserId: r.createdById, auto: true });
             }
