@@ -3,7 +3,7 @@ import { classifyHost, currentDeployment } from "@/lib/deployment";
 import { decideRoute } from "@/lib/route-guard";
 import { ROUTES, legacyRedirect } from "@/lib/routes";
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
 	const { pathname } = request.nextUrl;
 	const hostname = request.headers.get("host") ?? "";
 	const host = classifyHost(hostname, currentDeployment());

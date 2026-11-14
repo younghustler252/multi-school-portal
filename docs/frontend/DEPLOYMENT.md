@@ -51,7 +51,7 @@ All `NEXT_PUBLIC_*`, read at **build time** (a change needs a rebuild). One modu
 
 Behaviour that follows from them:
 - **HTTPS:** a non-localhost base domain produces `https://` links only. Cookies are `Secure` in production (already so in the API).
-- **Admin detection:** `classifyHost()` in `lib/deployment.ts` (same rules as the API). The middleware rewrites `/login` to `/admin-login` on the admin host and to `/portal-login` on a school host **or a custom domain**.
+- **Admin detection:** `classifyHost()` in `lib/deployment.ts` (same rules as the API). `proxy.ts` rewrites `/login` to `/admin-login` on the admin host and to `/portal-login` on a school host **or a custom domain**.
 - **API base URL:** `NEXT_PUBLIC_API_URL` wins when set; otherwise the development rule applies (`greenfield.localhost:3000` → `greenfield.localhost:5000`). **Local development needs no configuration** and is unchanged.
 - **Links to schools** (post-onboarding redirect, "last portal", super-admin labels) are built with `schoolUrl()` / `adminUrl()` from the configuration. A school with a custom domain should be linked by the `url` the API returns (login, impersonation already do this).
 
