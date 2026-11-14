@@ -203,6 +203,12 @@ export class NotificationRepositoryImpl implements INotificationRepository {
         });
     }
 
+    async markPlatformRecipientRetrying(id: string, reason: string): Promise<void> {
+        await prisma.platformNotificationRecipient.update({
+            where: { id }, data: { status: "QUEUED", failedReason: reason.slice(0, 500), retryCount: { increment: 1 } },
+        });
+    }
+
     async markPlatformRecipientsQueued(ids: string[]): Promise<void> {
         if (ids.length === 0) return;
         await prisma.platformNotificationRecipient.updateMany({ where: { id: { in: ids }, status: "PENDING" }, data: { status: "QUEUED" } });

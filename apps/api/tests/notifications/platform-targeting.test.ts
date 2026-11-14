@@ -109,6 +109,28 @@ describe("platform notification targeting", () => {
         await w.uc.execute(w.base, "admin");
         assert.deepEqual(schoolsOf(w), ["s1", "s2", "s3"]);
     });
+    it("REM-095 strict switch: with PLATFORM_BROADCAST_STRICT=true an implicit all-schools send is refused BEFORE anything is saved; explicit forms still work", async () => {
+        const prev = process.env.PLATFORM_BROADCAST_STRICT; process.env.PLATFORM_BROADCAST_STRICT = "true";
+        try {
+            const w = world();
+            await assert.rejects(w.uc.execute(w.base, "admin"), { statusCode: 400 });
+            assert.equal(w.created.length, 0); assert.equal(w.recipients.length, 0);
+            await w.uc.execute({ ...w.base, broadcastAll: true }, "admin");
+            assert.deepEqual(schoolsOf(w), ["s1", "s2", "s3"]);
+            const w2 = world(); await w2.uc.execute({ ...w2.base, schoolIds: ["s1"] }, "admin");
+            assert.deepEqual(schoolsOf(w2), ["s1"]);
+        } finally { if (prev === undefined) delete process.env.PLATFORM_BROADCAST_STRICT; else process.env.PLATFORM_BROADCAST_STRICT = prev; }
+    });
+    it("REM-095 legacy mode: the implicit send still works (web composer today) but is marked on the notification, and explicit sends are not marked", async () => {
+        const w = world();
+        const warn = console.warn; let warned = 0; console.warn = () => { warned++; };
+        try {
+            await w.uc.execute(w.base, "admin");
+            assert.equal(w.created[0].metadata.implicitBroadcast, true); assert.equal(warned, 1);
+            const w2 = world(); await w2.uc.execute({ ...w2.base, broadcastAll: true }, "admin");
+            assert.equal(w2.created[0].metadata?.implicitBroadcast, undefined); assert.equal(warned, 1);
+        } finally { console.warn = warn; }
+    });
     it("contradictory intent is refused: schoolIds with broadcastAll: true, or broadcastAll: false with no schools", async () => {
         const w = world();
         await assert.rejects(w.uc.execute({ ...w.base, schoolIds: ["s1"], broadcastAll: true }, "admin"), { statusCode: 400 });

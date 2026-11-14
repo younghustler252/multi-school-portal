@@ -22,7 +22,7 @@ export const notificationWorker = new Worker<NotificationDeliveryJob>(
 
         const deliver = async () => {
             const service = container.createScope().resolve<NotificationDeliveryService>("notificationDeliveryService");
-            return kind === "school" ? service.deliverSchoolRecipient(recipientId) : service.deliverPlatformRecipient(recipientId);
+            return kind === "school" ? service.deliverSchoolRecipient(recipientId) : service.deliverPlatformRecipient(recipientId, { finalAttempt: job.attemptsMade + 1 >= (job.opts.attempts ?? 1) });
         };
 
         const result = kind === "school"

@@ -60,6 +60,15 @@ export class SendPlatformNotificationUseCase {
         if (chosen !== undefined && dto.broadcastAll === true) throw new ValidationError("Send schoolIds or broadcastAll: true, not both");
         if (chosen === undefined && dto.broadcastAll === false) throw new ValidationError("Choose schools in schoolIds, or set broadcastAll to true");
 
+        // Neither field: the legacy "all schools" the web composer still sends (it omits schoolIds and has no broadcastAll yet).
+        // Accepted, but never silently: it is logged and marked on the notification. With PLATFORM_BROADCAST_STRICT=true it is refused,
+        // which is the switch to flip once the composer sends broadcastAll: true (see docs/backend/modules/notifications.md).
+        const implicitBroadcast = chosen === undefined && dto.broadcastAll !== true;
+        if (implicitBroadcast && process.env.PLATFORM_BROADCAST_STRICT === "true") {
+            throw new ValidationError("Choose schools in schoolIds, or set broadcastAll: true to send to every school");
+        }
+        if (implicitBroadcast) console.warn(`⚠️ platform notification by ${adminId}: implicit all-schools send (no schoolIds, no broadcastAll). Deprecated; send broadcastAll: true.`);
+
         // ── Create the notification, or find the one this request key already made ──
         // With an idempotencyKey the id is derived from (operator, key): a retry lands on the same row and RESUMES it.
         const id = dto.idempotencyKey ? broadcastIdFor(adminId, dto.idempotencyKey) : undefined;
@@ -73,7 +82,7 @@ export class SendPlatformNotificationUseCase {
                     type:             dto.type,
                     state:            "QUEUED",
                     createdByAdminId: adminId,
-                    metadata:         dto.metadata,
+                    metadata:         implicitBroadcast ? { ...(dto.metadata ?? {}), implicitBroadcast: true } : dto.metadata,
                 });
             } catch (err) {
                 if (!id || !isUniqueViolation(err)) throw err;                          // two requests with one key at the same moment: the loser resumes
