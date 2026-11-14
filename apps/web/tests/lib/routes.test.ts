@@ -97,7 +97,7 @@ describe("legacy redirects", () => {
 	});
 });
 
-describe("middleware protection derives from the registry", () => {
+describe("proxy protection derives from the registry", () => {
 	it("every signed-in area needs a session cookie", () => {
 		for (const root of PROTECTED_ROOTS) {
 			expect(decideRoute({ pathname: root, ...none }).action, root).toBe("login");

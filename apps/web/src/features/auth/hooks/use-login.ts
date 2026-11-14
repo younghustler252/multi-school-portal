@@ -70,7 +70,7 @@ export function useLogin(options: Options = {}) {
 				}
 				options.onReady?.();
 				const query = new URLSearchParams(window.location.search);
-				// `returnTo` is ours; `redirect` is what middleware.ts sets when it bounces an unauthenticated request.
+				// `returnTo` is ours; `redirect` is what proxy.ts sets when it bounces an unauthenticated request.
 				const returnTo = safeReturnTo(query.get("returnTo") ?? query.get("redirect"));
 				router.replace(returnTo ?? resolveDestination(profile, permissions));
 			} catch (err) {

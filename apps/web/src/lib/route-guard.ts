@@ -1,7 +1,7 @@
 import { AUTH_PAGES, PROTECTED_ROOTS } from "@/lib/routes";
 
 /*
-| The routing decision middleware.ts makes before a page renders (AUTH-005). Pure, so it is tested without Next.
+| The routing decision proxy.ts makes before a page renders (AUTH-005). Pure, so it is tested without Next.
 |
 | The access cookie lives 15 minutes; the refresh cookie lives 7 days (both path "/"). So "signed in" for the purpose of
 | letting a protected page load is: EITHER cookie is present. With only the refresh cookie the page loads, the client's

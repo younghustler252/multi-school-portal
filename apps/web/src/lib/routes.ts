@@ -1,6 +1,6 @@
 /*
 | THE ONE PLACE that knows where pages live (M3b).
-| Pages, menus, guards, redirects and middleware all read this file, so renaming a route means editing it here
+| Pages, menus, guards, redirects and the proxy all read this file, so renaming a route means editing it here
 | (plus moving the folder under src/app to match) and nothing else.
 |
 | Naming: routes are named after the FEATURE or the area of work, never after a role. Roles are tenant data.
@@ -132,7 +132,7 @@ export const PLATFORM_AREA_ROOTS = [
 ] as const;
 export const PROTECTED_ROOTS: readonly string[] = [ROUTES.home, ROUTES.settings, ...SCHOOL_AREA_ROOTS, ...PLATFORM_AREA_ROOTS];
 
-/** Sign-in and account-recovery pages that middleware bounces away from when a live session exists. */
+/** Sign-in and account-recovery pages that the proxy bounces away from when a live session exists. */
 export const AUTH_PAGES: readonly string[] = [
 	ROUTES.auth.login, ROUTES.auth.register, ROUTES.auth.verifyEmail, ROUTES.auth.forgotPassword, ROUTES.auth.resetPassword,
 ];
@@ -148,7 +148,7 @@ export function robotsDisallow(roots: readonly string[] = PROTECTED_ROOTS): stri
 
 /*
 | Old role-named paths and where they went. Longest prefix wins; whole path segments only; the rest of the path and
-| the query string are kept. Used by middleware to send bookmarks and old emails to the new address (HTTP 308).
+| the query string are kept. Used by the proxy to send bookmarks and old emails to the new address (HTTP 308).
 | Kept as data so removing a mapping later is a one-line change.
 */
 export const LEGACY_PREFIXES: ReadonlyArray<readonly [from: string, to: string]> = [

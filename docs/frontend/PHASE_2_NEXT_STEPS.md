@@ -72,7 +72,7 @@ TENANT-001..003, API-003, AUTH-004..006 remainder: tenant/host handling, persona
 
 ## M3 scope (not started)
 
-AUTHZ-002/003: route guards per feature, nav cleanup of the old role-named route folders (`/school-admin`, `/teacher`, …). Separate tracks: `middleware.ts` → `proxy.ts` (Next 16 deprecation); re-pointing each feature at its API contract.
+AUTHZ-002/003: route guards per feature, nav cleanup of the old role-named route folders (`/school-admin`, `/teacher`, …). Separate tracks: `middleware.ts` → `proxy.ts` (done in M4b); re-pointing each feature at its API contract.
 
 ## How to verify without npm access
 
@@ -92,7 +92,7 @@ Frontend milestone/feature branches -> `refactor/web` -> `refactor/modules`. Bac
 - Branch: PR #2 is merged into `refactor/web`; M3 merged that back in (no rewrite).
 
 ## M3b (branch `phase2/m3b-feature-routes`, contains M3)
-- `lib/routes.ts` is the single registry. Old role-named folders moved with `git mv`: `school-admin`->`school`, `teacher`->`teaching` (`my-classes`->`classes`), `bursar`->`finance`, `principal`->`insights`, `guardian`->`family` (`report-card`->`report-cards`), `student`->`learning`. Old URLs redirect (308) in middleware via `legacyRedirect`. Names are feature/area names and can be changed in that one file.
+- `lib/routes.ts` is the single registry. Old role-named folders moved with `git mv`: `school-admin`->`school`, `teacher`->`teaching` (`my-classes`->`classes`), `bursar`->`finance`, `principal`->`insights`, `guardian`->`family` (`report-card`->`report-cards`), `student`->`learning`. Old URLs redirect (308) in `proxy.ts` via `legacyRedirect`. Names are feature/area names and can be changed in that one file.
 - 34 files had hard-coded paths; all now use `ROUTES`. Nav, guards, protected prefixes, robots disallow list and default landing pages derive from it.
 - Platform branding: web called `/platform-settings` but the backend route is `/platform/settings` (public GET, super-admin PUT); fixed. `usePlatformInfo()` / `<PlatformName />` supply name, logo, support contact and legal links; defaults (config/company.json) only show while loading or on failure. Site address derives from `NEXT_PUBLIC_BASE_DOMAIN`.
 - Roadmap: `docs/frontend/ROADMAP.md`.
@@ -100,7 +100,7 @@ Frontend milestone/feature branches -> `refactor/web` -> `refactor/modules`. Bac
 ## M3c (branch `phase2/m3c-access-metadata`, on top of M3b / PR #4)
 - `lib/route-access.ts` is now the one rule table: path, optional menu label+icon, `personas`, `anyOf`, `minScope`, `ownOnly`. `nav-model.ts` has no list of its own: the menu is the labelled rules that the session satisfies, so menu and guard cannot disagree. `/home`, the sidebar and `RouteAccessGuard` all use it.
 - Why: students and guardians hold `students.view`, `attendance.view`, `grades.view`, `report_cards.view` at OWN, which made staff pages visible to them. Staff pages now need persona STAFF and ASSIGNED-or-broader scope. Guardian/student pages keep persona + exactly OWN and now have their own menu entries. The guardian notifications inbox and learning dashboard are persona-only; the bell links to the persona's own inbox.
-- Registry extended with `auth`, `public`, `onboarding` (22 more files moved off typed paths; `AUTH_PAGES` and middleware use it). `/home` filters with `ROUTES.home`.
+- Registry extended with `auth`, `public`, `onboarding` (22 more files moved off typed paths; `AUTH_PAGES` and the proxy use it). `/home` filters with `ROUTES.home`.
 - `robotsDisallow()` emits each protected root as `/x$` plus `/x/`; tested with a small matcher, including look-alikes such as `/homework`.
 - Platform logo: `Logo` renders a plain `<img>` (works for any storage host, custom domain or local); settings page uses an upload field calling `POST /platform/settings/logo` (backend not built yet, see ROADMAP backend asks).
 

@@ -8,7 +8,7 @@
 | Check | Result |
 |---|---|
 | `npm run dev:web` | Starts. Next.js 16.4.3 (Turbopack) on `http://localhost:3000`, ready in 586 ms. `GET /login` returns 200. |
-| Next.js warning | The `middleware` file convention is deprecated in favour of `proxy.ts`. Does not prevent startup. **Tracked separately; not part of Phase 2 foundation work.** |
+| Next.js warning | (Resolved in M4b: `middleware.ts` renamed to `proxy.ts`.) The `middleware` file convention was deprecated in favour of `proxy.ts`. Does not prevent startup. **Tracked separately; not part of Phase 2 foundation work.** |
 | Login against the local API | **Not yet confirmed.** This is the remaining exit criterion of the boot milestone (M1). |
 | `npm run typecheck:web` | **32 errors in 18 files.** |
 
