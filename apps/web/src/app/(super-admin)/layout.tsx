@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { AuthProvider } from "@/components/layout/auth-provider";
+import { RouteAccessGuard } from "@/components/layout/route-access-guard";
 import { SessionGate } from "@/components/layout/session-gate";
 import { AdminShell } from "@/components/layout/admin-shell";
 
@@ -10,7 +11,9 @@ export default function SuperAdminLayout({ children }: { children: ReactNode }) 
 	return (
 		<AuthProvider>
 			<SessionGate realm="platform">
-				<AdminShell>{children}</AdminShell>
+				<AdminShell>
+					<RouteAccessGuard>{children}</RouteAccessGuard>
+				</AdminShell>
 			</SessionGate>
 		</AuthProvider>
 	);
