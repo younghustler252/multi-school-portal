@@ -28,6 +28,19 @@ const broadcastIdFor = (adminId: string, key: string): string => {
     const x = h.subarray(0, 16).toString("hex");
     return `${x.slice(0, 8)}-${x.slice(8, 12)}-${x.slice(12, 16)}-${x.slice(16, 20)}-${x.slice(20, 32)}`;
 };
+/* A stable fingerprint of everything that decides WHAT is sent and to WHOM: title, message, type, the set of channels, the audience
+   (the sorted set of schools, or ALL for broadcastAll / the legacy implicit broadcast) and the free-form metadata. Order and duplicates
+   do not matter. The same idempotencyKey must always carry the same fingerprint, or it is refused. */
+const canonical = (v: unknown): unknown => Array.isArray(v) ? v.map(canonical)
+    : v && typeof v === "object" ? Object.fromEntries(Object.entries(v as Record<string, unknown>).filter(([, x]) => x !== undefined).sort(([a], [b]) => a.localeCompare(b)).map(([k, x]) => [k, canonical(x)]))
+    : v;
+export function sendFingerprint(dto: SendPlatformNotificationDtoType): string {
+    const audience = dto.schoolIds === undefined ? "ALL" : [...new Set(dto.schoolIds)].sort();
+    return createHash("sha256").update(JSON.stringify(canonical({
+        title: dto.title, message: dto.message, type: dto.type, channels: [...new Set(dto.channels)].sort(), audience, metadata: dto.metadata ?? null,
+    }))).digest("hex");
+}
+const FINGERPRINT_KEY = "requestFingerprint";
 const isUniqueViolation = (e: unknown): boolean => (e as { code?: string })?.code === "P2002";
 
 export class SendPlatformNotificationUseCase {
@@ -72,6 +85,9 @@ export class SendPlatformNotificationUseCase {
         // ── Create the notification, or find the one this request key already made ──
         // With an idempotencyKey the id is derived from (operator, key): a retry lands on the same row and RESUMES it.
         const id = dto.idempotencyKey ? broadcastIdFor(adminId, dto.idempotencyKey) : undefined;
+        const fingerprint = id ? sendFingerprint(dto) : undefined;
+        const extra = { ...(implicitBroadcast && { implicitBroadcast: true }), ...(fingerprint && { [FINGERPRINT_KEY]: fingerprint }) };
+        const storedMetadata = Object.keys(extra).length ? { ...(dto.metadata ?? {}), ...extra } : dto.metadata;
         let notification = id ? await this.notificationRepository.findPlatformNotificationById(id) : null;
         if (!notification) {
             try {
@@ -82,7 +98,7 @@ export class SendPlatformNotificationUseCase {
                     type:             dto.type,
                     state:            "QUEUED",
                     createdByAdminId: adminId,
-                    metadata:         implicitBroadcast ? { ...(dto.metadata ?? {}), implicitBroadcast: true } : dto.metadata,
+                    metadata:         storedMetadata,
                 });
             } catch (err) {
                 if (!id || !isUniqueViolation(err)) throw err;                          // two requests with one key at the same moment: the loser resumes
@@ -90,8 +106,14 @@ export class SendPlatformNotificationUseCase {
                 if (!notification) throw err;
             }
         }
-        if (id && (notification.title !== dto.title || notification.message !== dto.message)) {
-            throw new ValidationError("This idempotencyKey was already used for a different message");
+        // The key already belongs to a broadcast: it must be the SAME request. Checked before any recipient row is touched, so a refused
+        // request changes nothing (no rows added, no state change).
+        if (id) {
+            const stored = (notification.metadata as Record<string, unknown> | null)?.[FINGERPRINT_KEY];
+            const same = typeof stored === "string"
+                ? stored === fingerprint
+                : notification.title === dto.title && notification.message === dto.message && notification.type === dto.type;   // a row without a fingerprint: compare what the row itself holds
+            if (!same) throw new ValidationError("This idempotencyKey was already used for a different request (message, type, channels or schools differ). Use a new key for a new send.");
         }
 
         // ── Resolve target schools ────────────────────────────────────────

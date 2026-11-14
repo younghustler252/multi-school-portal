@@ -94,6 +94,58 @@ describe("platform notification targeting", () => {
         assert.equal(w.recipients.find(r => r.schoolId === "s1" && r.channel === "EMAIL").status, "SENT");
         assert.equal(resumed.state, "PROCESSING");
     });
+    /* One broadcast made with a key; then the same key with a changed request must be a 400 that changes NOTHING. */
+    async function reuse(change: Record<string, unknown>) {
+        const w = world();
+        const first: any = await w.uc.execute({ ...w.base, schoolIds: ["s1", "s2"], channels: ["IN_APP", "EMAIL"], idempotencyKey: "fingerprint-key-1" }, "admin");
+        const rowsBefore = JSON.stringify(w.recipients), noteBefore = JSON.stringify(w.notes.get(first.id)), jobsBefore = w.jobs.length, statesBefore = w.states.length;
+        await assert.rejects(w.uc.execute({ ...w.base, schoolIds: ["s1", "s2"], channels: ["IN_APP", "EMAIL"], idempotencyKey: "fingerprint-key-1", ...change }, "admin"), { statusCode: 400 });
+        assert.equal(JSON.stringify(w.recipients), rowsBefore);                       // no rows added or changed
+        assert.equal(JSON.stringify(w.notes.get(first.id)), noteBefore);              // the notification itself is untouched
+        assert.equal(w.jobs.length, jobsBefore); assert.equal(w.states.length, statesBefore); assert.equal(w.created.length, 1);
+    }
+    it("REM-097 fingerprint: same key and an identical request resumes the original (order and duplicates in schoolIds/channels do not matter)", async () => {
+        const w = world();
+        const first: any = await w.uc.execute({ ...w.base, schoolIds: ["s1", "s2"], channels: ["IN_APP", "EMAIL"], idempotencyKey: "fingerprint-key-1" }, "admin");
+        const again: any = await w.uc.execute({ ...w.base, schoolIds: ["s2", "s1", "s2"], channels: ["EMAIL", "IN_APP", "EMAIL"], idempotencyKey: "fingerprint-key-1" }, "admin");
+        assert.equal(again.id, first.id); assert.equal(w.created.length, 1); assert.equal(w.recipients.length, 4);
+    });
+    it("REM-097 fingerprint: same key, DIFFERENT schoolIds (added, removed or swapped) is refused and changes nothing", async () => {
+        await reuse({ schoolIds: ["s1", "s2", "s3"] });
+        await reuse({ schoolIds: ["s1"] });
+        await reuse({ schoolIds: ["s1", "s3"] });
+    });
+    it("REM-097 fingerprint: same key, switching a chosen audience to broadcastAll (or the reverse) is refused and changes nothing", async () => {
+        await reuse({ schoolIds: undefined, broadcastAll: true });
+        const w = world();
+        await w.uc.execute({ ...w.base, broadcastAll: true, idempotencyKey: "fingerprint-key-2" }, "admin");
+        const rows = JSON.stringify(w.recipients);
+        await assert.rejects(w.uc.execute({ ...w.base, schoolIds: ["s1"], idempotencyKey: "fingerprint-key-2" }, "admin"), { statusCode: 400 });
+        assert.equal(JSON.stringify(w.recipients), rows);
+    });
+    it("REM-097 fingerprint: same key, DIFFERENT channels is refused and changes nothing (no SMS rows appear on an existing broadcast)", async () => {
+        await reuse({ channels: ["IN_APP", "EMAIL", "SMS"] });
+        await reuse({ channels: ["IN_APP"] });
+        await reuse({ channels: ["SMS"] });
+    });
+    it("REM-097 fingerprint: same key, DIFFERENT type is refused and changes nothing", async () => { await reuse({ type: "feature_announcement" }); });
+    it("REM-097 fingerprint: same key, different title, message or metadata is refused and changes nothing", async () => {
+        await reuse({ title: "other" }); await reuse({ message: "other" }); await reuse({ metadata: { campaign: "x" } });
+    });
+    it("REM-097 fingerprint: a refused reuse does not block the legitimate retry that follows", async () => {
+        const w = world();
+        const dto = { ...w.base, schoolIds: ["s1"], idempotencyKey: "fingerprint-key-3" };
+        const first: any = await w.uc.execute(dto, "admin");
+        await assert.rejects(w.uc.execute({ ...dto, schoolIds: ["s1", "s2"] }, "admin"), { statusCode: 400 });
+        assert.equal(((await w.uc.execute(dto, "admin")) as any).id, first.id); assert.equal(w.recipients.length, 2);
+    });
+    it("REM-097 fingerprint: the fingerprint is stored on the notification, never replaces caller metadata, and unkeyed sends store none", async () => {
+        const w = world();
+        await w.uc.execute({ ...w.base, schoolIds: ["s1"], metadata: { campaign: "c1" }, idempotencyKey: "fingerprint-key-4" }, "admin");
+        assert.equal(w.created[0].metadata.campaign, "c1"); assert.match(w.created[0].metadata.requestFingerprint, /^[0-9a-f]{64}$/);
+        const w2 = world(); await w2.uc.execute({ ...w2.base, schoolIds: ["s1"] }, "admin");
+        assert.equal(w2.created[0].metadata, undefined);
+    });
     it("REM-097 recovery limits (documented): a resend re-hands PENDING and QUEUED rows, but NOT a FAILED row or an already-SENT one", async () => {
         const w = world();
         const dto = { ...w.base, schoolIds: ["s1", "s2", "s3"], idempotencyKey: "recover-key-01" };
