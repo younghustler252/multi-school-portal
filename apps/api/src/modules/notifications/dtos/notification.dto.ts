@@ -53,9 +53,17 @@ export const SendPlatformNotificationDto = z.object({
                    "system_alert",
                ]),
     channels:  z.array(z.enum(["IN_APP", "EMAIL", "SMS"])).min(1),
-    schoolIds: z.array(z.string().uuid()).optional(), // null = all schools
+    // WHO gets it. Send the chosen schools in schoolIds (at least one), or broadcastAll: true for every active school.
+    // An EMPTY schoolIds is refused: an empty selection must never turn into a message to every school.
+    // (Compatibility: while the web app still sends neither field for "all schools", omitting both is read as a broadcast.)
+    schoolIds:    z.array(z.string().uuid()).min(1, "Choose at least one school, or set broadcastAll to true").max(1000).optional(),
+    broadcastAll: z.boolean().optional(),
+    // Send the same key again (a retry after a timeout) and you get the ORIGINAL broadcast back, with any missing or still-pending
+    // deliveries resumed; nothing already delivered is sent twice. Also accepted as the Idempotency-Key header.
+    idempotencyKey: z.string().trim().min(8).max(100).optional(),
     metadata: z.record(z.string(), z.any()).optional(),
-});
+}).refine(o => !(o.broadcastAll === true && o.schoolIds !== undefined), { message: "Send schoolIds or broadcastAll: true, not both", path: ["broadcastAll"] })
+  .refine(o => !(o.broadcastAll === false && o.schoolIds === undefined), { message: "Choose schools in schoolIds, or set broadcastAll to true", path: ["schoolIds"] });
 
 // ── List notifications ────────────────────────────────────────────────────
 export const ListNotificationsDto = z.object({

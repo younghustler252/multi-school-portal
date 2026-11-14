@@ -87,6 +87,9 @@ export interface INotificationRepository {
 		data: publicPrisma.PlatformNotificationRecipientUncheckedCreateInput,
 	): Promise<PlatformNotificationRecipientEntity>;
 
+	/** Creates the missing recipient rows (one per notification, school and channel) and returns ALL of them; existing rows are never changed. */
+	ensurePlatformRecipients(rows: publicPrisma.PlatformNotificationRecipientUncheckedCreateInput[]): Promise<PlatformNotificationRecipientEntity[]>;
+
 	findPlatformRecipientById(id: string): Promise<PlatformNotificationRecipientEntity | null>;
 
 	findMyPlatformNotifications(
@@ -96,6 +99,12 @@ export interface INotificationRepository {
 
 	markPlatformRecipientSent(id: string, providerMsgId?: string): Promise<void>;
 	markPlatformRecipientFailed(id: string, reason: string): Promise<void>;
+	/** A failed try that the queue will repeat: the row stays QUEUED (not FAILED), with the reason and the try count recorded. */
+	markPlatformRecipientRetrying(id: string, reason: string): Promise<void>;
+	/** Marks email/SMS recipient rows as handed to the delivery queue. */
+	markPlatformRecipientsQueued(ids: string[]): Promise<void>;
+	/** Completes the parent notification once no recipient is still PENDING or QUEUED (failed ones keep their own FAILED status). */
+	settlePlatformNotification(notificationId: string): Promise<boolean>;
 
 	/** The contact of the school's admin account (platform messages go to this person). */
 

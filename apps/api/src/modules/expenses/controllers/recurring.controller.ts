@@ -45,8 +45,8 @@ export class RecurringController {
     remove = async (req: Request, res: Response, next: NextFunction) => {
         try { sendSuccess(res, await this.d.deleteRecurringUseCase.execute(idOf(req), schoolIdOf(req), userIdOf(req)), "Recurring expense deleted successfully"); } catch (e) { next(e); }
     };
-    /* "Run now": the same work as the daily job, for this school only. */
+    /* "Run now": the same work as the daily job, for this school only. Needs expenses.create; a template's "approve by itself" is only honoured when the caller also has expenses.approve (REM-032). */
     runNow = async (req: Request, res: Response, next: NextFunction) => {
-        try { sendSuccess(res, await this.d.runRecurringExpensesUseCase.execute(schoolIdOf(req)), "Recurring expenses processed"); } catch (e) { next(e); }
+        try { sendSuccess(res, await this.d.runRecurringExpensesUseCase.execute(schoolIdOf(req), { honourTemplateAutoApprove: req.access?.can("expenses.approve") === true }), "Recurring expenses processed"); } catch (e) { next(e); }
     };
 }

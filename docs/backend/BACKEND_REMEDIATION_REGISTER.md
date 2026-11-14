@@ -27,6 +27,7 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Authorize the target student before any related lookup; apply the same authorization boundary to every query contributing to the response. Return a not-found/forbidden response or a fully empty response according to the API's established privacy policy. Add tests asserting no student identity, class, enrolment or register-day metadata leaks for an unrelated child.
 - **Owner/workstream:** Attendance backend developer
 - **Acceptance criteria:** Unauthorized target requests reveal no student-specific metadata or aggregates; authorized own/linked-child and staff-scope cases continue to pass.
+- **Resolution (branch `fix/api/p1-remediation-batch1`, not yet merged):** Confirmed in source, then fixed. The summary now finds the student through a visibility filter (`studentViewWhere`) before looking up the class or register days, and an unreachable student is the same 404 as an unknown one. Covered by unit tests and DB-gated cases (own, linked child, class teacher, subject teacher, last-term teacher, no permission).
 
 ### REM-002 — Enrolment BRANCH scope is declared but currently returns no records
 
@@ -215,6 +216,8 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Owner/workstream:** Fees/reporting developer
 - **Acceptance criteria:** Regression test for an issued invoice followed by an approved additional discount proves statement closing balance equals the authoritative invoice balance/ledger receivable; waiver, write-off and credit-note statement cases still pass.
 
+- **Resolution (branch `fix/api/p1-remediation-batch1`, not yet merged):** Confirmed, then fixed. The invoice line now shows only the discount the invoice was issued with (`discountKobo` minus approved additional discounts); an extra discount appears once, as its own dated adjustment line, so the closing balance equals the invoice balance. Waiver, write-off, credit-note and refund cases are unchanged. The statement source now carries `invoiceId` on adjustments.
+
 ### REM-019 — Opening-balance response/audit converts whole-kobo BigInt through Number
 
 - **Module:** Fees / opening balances
@@ -225,6 +228,8 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Keep amounts as BigInt internally and serialize each result with the shared `koboOut` helper (number when safe, digit string otherwise). Compute the audit total directly from original BigInt values, never from serialized numbers.
 - **Owner/workstream:** Fees developer
 - **Acceptance criteria:** Test an amount above `Number.MAX_SAFE_INTEGER` kobo and assert exact response serialization, audit total and posted invoice amount.
+
+- **Resolution (branch `fix/api/p1-remediation-batch1`, not yet merged):** Confirmed, then fixed. Amounts stay BigInt, are serialised with `koboOut` (number when safe, digit string above 2^53), and the audit total is summed from the original BigInts. Test uses two amounts above `Number.MAX_SAFE_INTEGER` and checks response, posted draft amount and audit total.
 
 ### REM-020 — Persisted finance grace-days setting is not used by late-fee execution
 
@@ -280,6 +285,8 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Use the shared `koboOut` serializer for all three response fields and preserve BigInt for calculations.
 - **Owner/workstream:** Payments developer
 - **Acceptance criteria:** A settlement with values above `Number.MAX_SAFE_INTEGER` kobo returns exact digit strings and matches the posted journal amounts.
+
+- **Resolution (branch `fix/api/p1-remediation-batch2`, not yet merged):** Confirmed, then fixed. `RecordSettlementUseCase` returns `grossKobo`, `feeKobo` and `receivedKobo` through `koboOut` (number when safe, digit string above 2^53). Test posts a settlement above 2^53 and checks the response against the journal lines.
 
 ### REM-025 — Settlement idempotency is bypassed when reference is omitted
 
@@ -368,6 +375,8 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Make the run-now permission match its effects. Either require `expenses.approve` for run-now when any due template can auto-approve, or split the action so users without approval rights can only run templates that will remain pending. Keep the scheduled system runner separate and explicitly system-authorized.
 - **Owner/workstream:** Expenses/RBAC developer
 - **Acceptance criteria:** A user with only `expenses.create` cannot trigger auto-approval; a user with approval permission and the scheduled system runner can execute the intended workflow.
+
+- **Resolution (branch `fix/api/p1-remediation-batch1`, not yet merged):** Confirmed, then fixed. `run-now` only honours a template's `autoApprove` when the caller holds `expenses.approve`; otherwise due templates are created pending. The scheduled system runner keeps its existing behaviour. See `tests/finance/recurring-run-authorization.test.ts`.
 
 ### REM-033 — Budget block enforcement is vulnerable to concurrent approvals
 
@@ -886,6 +895,8 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Owner/workstream:** Security/Audit + module owners
 - **Acceptance criteria:** Automated tests prove secret fields are removed before persistence for auth, users, students, guardians, finance, payroll and platform billing events.
 
+- **Resolution (branch `fix/api/p1-remediation-batch2`, not yet merged):** Confirmed, then fixed (safety net). `AuditService.log` passes `oldValue`, `newValue` and `metadata` through `redactAuditValue` (`audit-redaction.ts`): credential-named keys (password/hash, OTP/PIN, token, secret, API/private key, authorization, cookie, signature, CVV) are replaced with `[REDACTED]` at any depth, bank/card/identity numbers keep only the last four characters, and bigint/Date become JSON-safe. Keys are matched as whole words, so `shipping`, `mapping`, `hasPassword`, `tokenType` are untouched. **Remaining:** per-entity allowlists and the caller inventory stay with each module owner, and already-stored unsafe records are not migrated.
+
 ### REM-080 — Audit read/query behavior lacks school/platform isolation and enrichment tests
 
 - **Module:** Audit
@@ -1040,6 +1051,8 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Owner/workstream:** Notifications/Platform developer
 - **Acceptance criteria:** IN_APP, EMAIL and SMS each reach the requested channel; recipient rows become SENT/FAILED/READ appropriately; parent state reflects actual completion.
 
+- **Resolution (branch `fix/api/p1-remediation-batch1`, not yet merged):** Confirmed, then fixed. Email/SMS recipients are now queued as platform jobs and delivered by the existing `deliverPlatformRecipient` worker path, which records SENT/FAILED per row; in-app rows are SENT at creation. The parent is PROCESSING while anything is waiting and is COMPLETED only when no row is PENDING/QUEUED (immediately for in-app-only sends). If the queue is down the rows stay PENDING and the parent stays QUEUED. **Retry window fixed in the integration review:** a failed try that the queue will repeat keeps the row QUEUED and the parent open (the worker passes `finalAttempt`); only the last try marks FAILED and settles. **Remaining:** there is no PARTIAL/FAILED parent state (needs an enum migration; failures are visible per recipient), and no stale-row requeue for platform recipients yet (the school-side `requeueStale` has no platform equivalent).
+
 ### REM-094 — School announcement with no channel-deliverable recipients dereferences an empty notification ID
 
 - **Module:** Notifications / School Announcements
@@ -1055,12 +1068,14 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 
 - **Module:** Notifications / Platform Announcements
 - **Priority:** P1 — unintended mass communication
-- **Status:** Confirmed DTO/use-case behavior
+- **Status:** **Mitigated / deferred — NOT fully resolved.** The empty-list broadcast is fixed; the implicit "all schools" shape is still accepted (compatibility switch) until the web composer sends `broadcastAll: true` and `PLATFORM_BROADCAST_STRICT=true` is enabled
 - **Evidence:** DTO comment says schoolIds null means all schools. SendPlatformNotificationUseCase initializes schoolIds to [] and uses the all-active-schools query whenever schoolIds.length===0, including when the client explicitly submits an empty array.
 - **Risk:** A UI that submits an empty selection can unintentionally broadcast a message to every active school.
 - **Recommended action:** Distinguish omitted/null broadcast from an explicitly empty array. Reject empty arrays with a validation error; preferably require an explicit broadcastAll=true confirmation and separate permission/confirmation UX.
 - **Owner/workstream:** Platform Notifications developer
 - **Acceptance criteria:** Omitted/null target can broadcast only through explicit broadcast intent; schoolIds=[] never broadcasts.
+- **Mitigation (branches `fix/api/p1-remediation-batch1` and `batch2`, not yet merged):** The reported bug is fixed: `schoolIds: []` is a 400 (DTO and use case, before anything is saved); `broadcastAll: true` is the explicit broadcast; contradictory combinations are 400. **Legacy path, now behind a switch:** the web composer sends "All schools" as no fields at all (`schoolIds: undefined`, no `broadcastAll`), so omitting both is still accepted, but it is logged and marked `metadata.implicitBroadcast`. `PLATFORM_BROADCAST_STRICT=true` refuses it with a 400 before anything is saved. Switch it on after the web composer sends `broadcastAll: true` (exact change in `docs/backend/modules/notifications.md`).
+- **Closure condition:** mark Resolved only when (1) the web composer sends `broadcastAll: true` for "All schools", (2) `PLATFORM_BROADCAST_STRICT=true` is set in every environment, and (3) the env check is replaced by a DTO rule that requires one of `schoolIds` / `broadcastAll`.
 
 ### REM-096 — Platform notification sends are not audited
 
@@ -1083,6 +1098,8 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Persist a stable broadcast ID/idempotency key and enqueue one delivery job per school/channel recipient. Resume failed recipients only; never resend completed recipients. Add per-recipient attempt/lease state and a delivery summary.
 - **Owner/workstream:** Notifications/Platform developer
 - **Acceptance criteria:** A partially failed broadcast can resume without duplicating completed deliveries; repeated API requests with the same idempotency key return the original broadcast.
+
+- **Resolution (branch `fix/api/p1-remediation-batch2`, not yet merged):** Confirmed, then fixed without a migration. The request may carry `idempotencyKey` (body or `Idempotency-Key` header). The notification id is derived from (operator, key), so the primary key makes a repeated or concurrent send one broadcast; a retry returns the original and resumes it. Recipient rows are created only if missing (`@@unique([notificationId, schoolId, channel])`, `skipDuplicates`), rows already SENT are never touched, and PENDING/QUEUED rows are handed to the queue again (job id = row id, so the queue drops repeats). The notification stores a request fingerprint (title, message, type, channels, audience, metadata); the same key with a different fingerprint is a 400 before any row is touched. **Remaining (see notifications guide, "Known limitations"):** FAILED rows are not re-driven by a resend (the failed job is retained under the same id); no background requeue of platform rows that were never queued or whose job was lost; a send without a key cannot be resumed, and the web composer does not send an `idempotencyKey` yet (so no browser retry is protected today); no per-recipient lease or summary field.
 
 ### REM-098 — School dispatch notification header and recipient chunks are not atomic
 
@@ -1248,6 +1265,7 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Mount requestContext as the first app middleware, before CORS/webhook/global limiter/optional auth. Ensure the webhook path also receives a context if it is expected to have correlation IDs. Configure proxy trust separately before relying on req.ip.
 - **Owner/workstream:** API Infrastructure/Audit
 - **Acceptance criteria:** HTTP integration test confirms x-request-id response header, RequestContext fields in audit, and actor/impersonation enrichment after authenticate.
+- **Resolution (branch `fix/api/p1-remediation-batch1`, not yet merged):** Confirmed, then fixed. `requestContext` is the first `app.use` (before helmet, CORS, the webhook entry, the global limiter and optional auth); `x-request-id` is exposed through CORS. Covered by middleware, wiring and audit-enrichment tests. `req.ip` still depends on `TRUST_PROXY` being set correctly (REM-115).
 
 ### REM-113 — Query and route-parameter Zod parse results are discarded
 
@@ -1281,6 +1299,8 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Configure trust proxy to the exact trusted proxy chain/hop count for deployment, never blindly trust all forwarded headers. Use a shared Redis-backed rate-limit store for multi-instance deployments. Verify health/static/API behavior and per-user/IP policies.
 - **Owner/workstream:** API Infrastructure/DevOps
 - **Acceptance criteria:** Production-like tests prove distinct client IPs receive distinct limits behind the trusted proxy and all replicas share one limit state.
+
+- **Resolution (branch `fix/api/p1-remediation-batch2`, not yet merged):** Partly pre-existing, now complete in code. `TRUST_PROXY` (explicit trusted hops, never trust-everyone) was already merged. Added an opt-in Redis store (`RATE_LIMIT_STORE=redis`) with one atomic script per hit, per-limiter key prefixes, and fail-open on Redis errors; the Lua was verified against a real Redis (20 parallel hits counted exactly 1..20). **Remaining:** set `RATE_LIMIT_STORE=redis` and the right `TRUST_PROXY` in each multi-replica deployment; the production-like multi-replica test is a DevOps check, and the global 100/15-minute limit still runs before auth.
 
 ### REM-116 — Entitlement warn-mode decisions are not exposed to clients
 

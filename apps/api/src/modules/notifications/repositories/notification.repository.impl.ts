@@ -165,6 +165,18 @@ export class NotificationRepositoryImpl implements INotificationRepository {
         return (await prisma.platformNotificationRecipient.create({ data })) as unknown as PlatformNotificationRecipientEntity;
     }
 
+    async ensurePlatformRecipients(rows: publicPrisma.PlatformNotificationRecipientUncheckedCreateInput[]): Promise<PlatformNotificationRecipientEntity[]> {
+        if (rows.length === 0) return [];
+        for (let i = 0; i < rows.length; i += CHUNK) await prisma.platformNotificationRecipient.createMany({ data: rows.slice(i, i + CHUNK), skipDuplicates: true });
+        const out: PlatformNotificationRecipientEntity[] = [];
+        const notificationId = rows[0].notificationId;
+        const schoolIds = [...new Set(rows.map(r => r.schoolId))];
+        for (let i = 0; i < schoolIds.length; i += CHUNK) {
+            out.push(...((await prisma.platformNotificationRecipient.findMany({ where: { notificationId, schoolId: { in: schoolIds.slice(i, i + CHUNK) } } })) as unknown as PlatformNotificationRecipientEntity[]));
+        }
+        return out;
+    }
+
     async findPlatformRecipientById(id: string): Promise<PlatformNotificationRecipientEntity | null> {
         return (await prisma.platformNotificationRecipient.findUnique({ where: { id } })) as unknown as PlatformNotificationRecipientEntity | null;
     }
@@ -189,6 +201,24 @@ export class NotificationRepositoryImpl implements INotificationRepository {
         await prisma.platformNotificationRecipient.update({
             where: { id }, data: { status: "FAILED", failedAt: new Date(), failedReason: reason.slice(0, 500), retryCount: { increment: 1 } },
         });
+    }
+
+    async markPlatformRecipientRetrying(id: string, reason: string): Promise<void> {
+        await prisma.platformNotificationRecipient.update({
+            where: { id }, data: { status: "QUEUED", failedReason: reason.slice(0, 500), retryCount: { increment: 1 } },
+        });
+    }
+
+    async markPlatformRecipientsQueued(ids: string[]): Promise<void> {
+        if (ids.length === 0) return;
+        await prisma.platformNotificationRecipient.updateMany({ where: { id: { in: ids }, status: "PENDING" }, data: { status: "QUEUED" } });
+    }
+
+    async settlePlatformNotification(notificationId: string): Promise<boolean> {
+        const open = await prisma.platformNotificationRecipient.count({ where: { notificationId, status: { in: ["PENDING", "QUEUED"] } } });
+        if (open > 0) return false;
+        const res = await prisma.platformNotification.updateMany({ where: { id: notificationId, state: { not: "COMPLETED" } }, data: { state: "COMPLETED", completedAt: new Date() } });
+        return res.count > 0;
     }
 
     async markPlatformRecipientRead(recipientId: string, schoolId: string): Promise<boolean> {

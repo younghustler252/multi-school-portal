@@ -198,6 +198,23 @@ describe("attendance (real database)", { skip: dbTestsEnabled ? false : skipReas
             assert.equal((await student.execute({ studentId: S.s1.id } as any, g)).daysMarked, 5);
             await assert.rejects(student.execute({ studentId: S.s4.id } as any, g), (e: any) => e.statusCode === 404 || /not found/i.test(e.message), "not their child: the student looks like they do not exist");
         }));
+        it("REM-001: students see only themselves; teachers only students of the classes they lead or teach this term; nobody else gets any metadata", () => school.run(async () => {
+            const { student } = await uc();
+            const denied = (a: any, who: { id: string }) => assert.rejects(() => student.execute({ studentId: who.id } as any, a), (e: any) => e.statusCode === 404);
+            const stu = access("STUDENT", S.s1.id, { "attendance.view": "OWN" });
+            assert.equal((await student.execute({ studentId: S.s1.id } as any, stu)).student.name, "Ada Pupil");
+            await denied(stu, S.s2); await denied(stu, S.s4);
+            assert.equal((await student.execute({ studentId: S.s1.id } as any, teacherA())).class?.name, "JSS 1A");   // leads JSS 1A
+            await denied(teacherA(), S.s4);                                                                              // a JSS 2A student
+            assert.equal((await student.execute({ studentId: S.s4.id } as any, teacherB())).class?.name, "JSS 2A");   // teaches JSS 2A this term
+            await denied(teacherB(), S.s1);
+            await denied(teacherC(), S.s1);                                                                              // taught JSS 1A last term only
+            await denied(access("STAFF", S.tA.id, {}), S.s1);                                                            // no attendance.view at all
+            await denied(access("STUDENT", null, { "attendance.view": "OWN" }), S.s1);                                  // OWN without an identity
+            const unknown = await student.execute({ studentId: "00000000-0000-4000-8000-000000000000" } as any, stu).then(() => null, (e: any) => e);
+            const other = await student.execute({ studentId: S.s4.id } as any, stu).then(() => null, (e: any) => e);
+            assert.equal(other.message, unknown.message);                                                               // "not yours" and "does not exist" read the same
+        }));
         it("a class summary: every student on the list, class rate, and the same access rules as the register", () => school.run(async () => {
             const { klass } = await uc();
             const r = await klass.execute(S.C1.id, {} as any, teacherA());

@@ -39,7 +39,7 @@ export class NotificationController {
 	};
 
 	sendPlatformNotification = async (req: Request, res: Response, next: NextFunction) => {
-		try { sendCreated(res, await this.d.sendPlatformNotificationUseCase.execute(req.body, userIdOf(req)), "Platform notification sent successfully"); } catch (e) { next(e); }
+		try { sendCreated(res, await this.d.sendPlatformNotificationUseCase.execute({ ...req.body, idempotencyKey: req.body?.idempotencyKey ?? (typeof req.headers["idempotency-key"] === "string" ? req.headers["idempotency-key"] : undefined) }, userIdOf(req)), "Platform notification sent successfully"); } catch (e) { next(e); }
 	};
 
 	getPlatformNotifications = async (req: Request, res: Response, next: NextFunction) => {

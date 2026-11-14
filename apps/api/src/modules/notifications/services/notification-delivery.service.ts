@@ -63,10 +63,19 @@ export class NotificationDeliveryService {
         return { outcome: "failed", reason };
     }
 
-    async deliverPlatformRecipient(recipientId: string): Promise<DeliveryOutcome> {
+    /** `finalAttempt` (default true): false when the queue will try this row again, so a failed try keeps the row QUEUED and the parent open. */
+    async deliverPlatformRecipient(recipientId: string, opts: { finalAttempt?: boolean } = {}): Promise<DeliveryOutcome> {
+        const finalAttempt = opts.finalAttempt ?? true;
         const recipient = await this.d.notificationRepository.findPlatformRecipientById(recipientId);
         if (!recipient || TERMINAL_STATUSES.has(recipient.status)) return { outcome: "skipped" };
+        const outcome = await this.sendPlatformRecipient(recipient, finalAttempt);
+        // the parent completes only when no row is still waiting; a try that will be repeated leaves it open
+        if (outcome.outcome !== "failed" || finalAttempt) await this.d.notificationRepository.settlePlatformNotification(recipient.notificationId);
+        return outcome;
+    }
 
+    private async sendPlatformRecipient(recipient: { id: string; notificationId: string; schoolId: string; channel: string }, finalAttempt: boolean): Promise<DeliveryOutcome> {
+        const recipientId = recipient.id;
         const notification = await this.d.notificationRepository.findPlatformNotificationById(recipient.notificationId);
         if (!notification) {
             await this.d.notificationRepository.markPlatformRecipientFailed(recipientId, "Parent notification no longer exists");
@@ -89,7 +98,8 @@ export class NotificationDeliveryService {
             return { outcome: "sent" };
         }
         const reason = result.error ?? "Unknown delivery error";
-        await this.d.notificationRepository.markPlatformRecipientFailed(recipientId, reason);
+        if (finalAttempt) await this.d.notificationRepository.markPlatformRecipientFailed(recipientId, reason);
+        else await this.d.notificationRepository.markPlatformRecipientRetrying(recipientId, reason);
         return { outcome: "failed", reason };
     }
 

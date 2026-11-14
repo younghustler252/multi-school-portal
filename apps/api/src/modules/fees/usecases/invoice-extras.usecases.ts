@@ -86,7 +86,8 @@ export class OpeningBalancesUseCase {
         const [equity] = await d.ledgerAccountRepository.findPostable([], ["OPENING_EQUITY"]);
         if (!equity) throw feeErrors.openingEquityMissing();
 
-        const created: { studentId: string; invoiceId: string; invoiceNumber: string | null; amountKobo: number }[] = [];
+        const created: { studentId: string; invoiceId: string; invoiceNumber: string | null; amountKobo: number | string }[] = [];
+        let importedKobo = 0n;                       // summed from the original bigints, never from the serialised amounts
         const failed: { studentId: string; code: string; message: string }[] = [];
         for (const e of dto.entries) {
             let draftId: string | null = null;
@@ -99,7 +100,8 @@ export class OpeningBalancesUseCase {
                 }, items, []);
                 draftId = draft.id;
                 const issued = await d.issueInvoiceUseCase.execute(draft.id, schoolId, actorUserId, { issueDate: dto.asOf });
-                created.push({ studentId: e.studentId, invoiceId: draft.id, invoiceNumber: issued.invoiceNumber, amountKobo: Number(e.amountKobo) });
+                created.push({ studentId: e.studentId, invoiceId: draft.id, invoiceNumber: issued.invoiceNumber, amountKobo: koboOut(e.amountKobo) });
+                importedKobo += e.amountKobo;
             } catch (err) {
                 if (!(err instanceof AppError)) throw err;
                 if (draftId) await d.feeInvoiceRepository.deleteDraft(draftId);        // never leave a half-made opening balance behind
@@ -108,7 +110,7 @@ export class OpeningBalancesUseCase {
         }
         await d.auditService.log({
             userId: actorUserId, schoolId, action: "fees.opening_balances.imported", entity: "FeeInvoice",
-            newValue: { asOf: dto.asOf, created: created.length, failed: failed.length, totalKobo: created.reduce((s, c) => s + BigInt(c.amountKobo), 0n).toString() },
+            newValue: { asOf: dto.asOf, created: created.length, failed: failed.length, totalKobo: importedKobo.toString() },
         });
         return { created, failed };
     }

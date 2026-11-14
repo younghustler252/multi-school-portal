@@ -35,7 +35,7 @@ All paths are relative to /api/v1/notifications.
 | GET | /platform-inbox | notifications.platform.view | Messages from platform to current school |
 | PATCH | /platform-inbox/:recipientId/read | notifications.platform.view | Mark current school's platform message read |
 | GET | /platform | platform.notifications.view | Platform sent-message history |
-| POST | /platform | platform.notifications.send | Send platform notice to selected/all schools |
+| POST | /platform | platform.notifications.send | Send platform notice. Target: `schoolIds` (at least one; an empty list is a 400) or `broadcastAll: true`. While the web app still sends no target for "all schools", omitting both is read as a broadcast (see REM-095). Optional `idempotencyKey` (or `Idempotency-Key` header): a retry returns the original broadcast and resumes undelivered rows without resending delivered ones (REM-097). Email/SMS go through the queue; the parent is COMPLETED only when no row is waiting (REM-093) |
 
 School permissions are STAFF-only. notifications.send is sensitive and supports ALL or BRANCH scope. BRANCH senders can only reach their own branches; class targeting is restricted to student/guardian audiences. Own inbox routes require an authenticated persona but no separate inbox permission. Platform routes require platform-realm permissions.
 
@@ -111,16 +111,34 @@ The delivery model is at-least-once with provider-side uncertainty: if the provi
 
 Platform messages are stored in public PlatformNotification and PlatformNotificationRecipient tables. A recipient row is created per school and channel. School admins see IN_APP messages in /platform-inbox.
 
-The current SendPlatformNotificationUseCase differs from school dispatch:
-- It creates the platform notification and recipient rows synchronously.
-- If EMAIL is requested, it resolves school admin contacts and calls MailService directly.
-- It does not call NotificationDispatchService or enqueue platform recipient jobs.
-- It does not update per-recipient status after direct email sends.
-- It does not send SMS through the channel worker.
-- It marks the parent notification COMPLETED after the email loop.
-- It does not call AuditService.
+### Send path (REM-093, REM-095, REM-097)
 
-NotificationDeliveryService has a deliverPlatformRecipient method and the worker supports platform jobs, but the current platform send use case does not enqueue them. This means the platform DTO's SMS/EMAIL/IN_APP channel contract is not fully implemented by the send path.
+`SendPlatformNotificationUseCase` now works like this:
+1. **Target is decided before anything is saved.** `schoolIds` (at least one) or `broadcastAll: true`. An empty list, both together, or `broadcastAll: false` with no schools is a 400.
+2. **Idempotency.** An optional `idempotencyKey` (body, or `Idempotency-Key` header) derives the notification id from (operator, key). The primary key makes a repeated or concurrent send one broadcast; the retry returns the original and resumes it. The notification stores a request fingerprint (SHA-256 of title, message, type, the set of channels, the audience — the sorted set of schools, or ALL for `broadcastAll`/implicit — and metadata) in `metadata.requestFingerprint`. The same key with a different fingerprint is a 400, checked before any recipient row is touched, so a refused reuse adds no rows and changes nothing. Order and duplicates in `schoolIds`/`channels` do not matter.
+3. **Recipient rows** are created only if missing (`@@unique([notificationId, schoolId, channel])`, `skipDuplicates`). IN_APP rows are SENT at creation. EMAIL/SMS rows are PENDING, then handed to the notification queue as `kind: "platform"` jobs (job id = row id) and marked QUEUED.
+4. **Delivery** is `NotificationDeliveryService.deliverPlatformRecipient` in the worker: SENT on success, FAILED when no admin contact exists or the last try fails. A failed try that the queue will repeat keeps the row QUEUED (reason and try count recorded) and the parent open.
+5. **Parent state.** PROCESSING while any EMAIL/SMS row is PENDING or QUEUED; COMPLETED once none is (immediately for in-app-only sends). If the queue refuses the jobs, rows stay PENDING and the parent goes back to QUEUED. There is no PARTIAL/FAILED parent state (it needs an enum migration); failures are visible per recipient.
+
+### Implicit "all schools" (REM-095) — compatibility switch (mitigated, deferred)
+
+The web composer (`compose-platform-notification-card.tsx`) sends "All schools" as `schoolIds: undefined` with no `broadcastAll`, so the JSON body has neither field. The API therefore still accepts that shape, but never silently: it logs a warning and marks the notification `metadata.implicitBroadcast = true`.
+
+To switch it off once the web app is updated:
+1. Web change (not part of the API batches): in `onSubmit`, send `broadcastAll: audienceMode === "all" ? true : undefined` next to `schoolIds`, and add `broadcastAll?: boolean` to `SendPlatformNotificationDto`.
+2. Deploy the web change, then set `PLATFORM_BROADCAST_STRICT=true` on the API. An implicit send then returns 400 before anything is saved.
+3. After that, the env check can be replaced by making the DTO require one of the two fields.
+Until step 2, a stale browser tab keeps working.
+
+### Known limitations after REM-093 + REM-097
+
+- **FAILED rows are not re-driven.** A row that used all 3 tries is FAILED. Re-sending with the same key does not retry it: only PENDING/QUEUED rows are handed back, and the queue still holds the failed job under the same id (`removeOnFail: 5000`). Retrying a failed recipient needs a deliberate "retry failed" action (reset the row, remove the old job).
+- **No background recovery for platform rows.** The school side has `requeueStale()` on the automation tick. Platform rows that were never queued (Redis down at send time) or whose job was lost stay PENDING/QUEUED until the operator re-sends with the same idempotencyKey. A send without a key cannot be resumed (a retry makes a new broadcast). A platform-level sweep needs its own scheduled job, because platform rows are not tenant-scoped.
+- **Operators should send with an idempotencyKey** (a UUID per compose action). The web composer does not send one yet.
+- **A resend with the same key rebuilds its target from the new request.** If the second request names more schools than the first, the missing schools' rows are added to the same broadcast; it does not remove rows.
+- **Provider success followed by a DB write failure** can re-send on the queue's retry (at-least-once, unchanged).
+- **No per-recipient lease or delivery summary** on the parent.
+- **Platform sends are still not audited** (REM-097 does not cover it; see open item 4).
 
 ## Persistence
 
@@ -149,11 +167,11 @@ Not executed: tests, typecheck, build, migrations, Redis/BullMQ, email/SMS provi
 
 ## Open implementation and verification items
 
-1. **Platform notification send path does not honor all requested channels or track recipient outcomes.** DTO accepts IN_APP/EMAIL/SMS; use case creates rows for each but only sends EMAIL directly. SMS rows remain PENDING, and EMAIL rows are not marked SENT/FAILED. Parent notification is marked COMPLETED regardless of actual delivery. Use one outbox/worker path for all channels and compute parent state from recipient outcomes.
+1. **(Resolved in batch 1, REM-093.) Platform notification send path did not honor all requested channels or track recipient outcomes.** DTO accepts IN_APP/EMAIL/SMS; use case creates rows for each but only sends EMAIL directly. SMS rows remain PENDING, and EMAIL rows are not marked SENT/FAILED. Parent notification is marked COMPLETED regardless of actual delivery. Use one outbox/worker path for all channels and compute parent state from recipient outcomes.
 2. **Empty school recipient-message list causes a runtime failure.** When people exist but none has contact details for requested EMAIL/SMS channels, messages is empty. Dispatch returns no notificationIds; the use case then reads notificationIds[0] and maps a null result. Return a clear NO_DELIVERABLE_RECIPIENTS response before dispatch.
-3. **Empty platform schoolIds means broadcast to every active school.** DTO comment says null means all schools, but use case also treats [] as all. Reject an explicitly empty array or require an explicit broadcastAll flag with a confirmation/permission boundary.
+3. **(Mitigated / deferred, REM-095: NOT fully resolved.) Empty platform schoolIds meant broadcast to every active school.** The empty-list case is fixed; the implicit all-schools shape stays accepted behind a compatibility switch until the web composer sends `broadcastAll: true` and `PLATFORM_BROADCAST_STRICT=true` is enabled (see "Implicit all schools" above). DTO comment says null means all schools, but use case also treats [] as all. Reject an explicitly empty array or require an explicit broadcastAll flag with a confirmation/permission boundary.
 4. **Platform notifications have no audit record.** SendPlatformNotificationUseCase does not inject AuditService, despite platform.notifications.send being sensitive.
-5. **Platform sends are not idempotent and are not queued.** A request retry can create duplicate platform notifications/emails; a failure midway leaves some emails sent and others pending without a resumable delivery workflow. Use an outbox with stable request/recipient/channel idempotency.
+5. **(Resolved in batch 2, REM-097, with the limitations above.) Platform sends were not idempotent and not queued.** A request retry can create duplicate platform notifications/emails; a failure midway leaves some emails sent and others pending without a resumable delivery workflow. Use an outbox with stable request/recipient/channel idempotency.
 6. **School dispatch header and recipient chunks are not one transaction.** A failure partway through recipient batch creation can leave partial audience rows/header. Wrap persistence in one tenant transaction or use a resumable dispatch record with expected/created counts.
 7. **Provider delivery is at-least-once.** Provider success followed by DB failure can cause retry duplicate. Use provider idempotency keys where supported and record UNKNOWN/confirmation states when provider acceptance is ambiguous.
 8. **No real DB/HTTP tests were found.** Add school/platform route tests, tenant/public persistence tests, platform send channel/status tests, empty recipient tests, broadcast selection tests and partial failure/retry tests.

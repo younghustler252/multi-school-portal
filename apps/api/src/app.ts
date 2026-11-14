@@ -6,6 +6,7 @@ import cookieParser                                  from "cookie-parser";
 import { env }                                       from "./config/env";
 import { prisma }                                         from "./infrastructure/database/prisma/prisma.client";
 import { redisConnection }                               from "./infrastructure/jobs/connection";
+import { requestContext }                              from "./infrastructure/middleware/request-context.middleware";
 import { errorHandler }                              from "./infrastructure/middleware/error-handler.middleware";
 import { globalLimiter } from "./infrastructure/middleware/rate-limit.middleware";
 import { resolveTenant, validateTenantOwnership }    from "./infrastructure/middleware/tenant-resolver.middleware";
@@ -25,6 +26,11 @@ const app = express();
 app.set("trust proxy", env.trustProxy);
 if (env.NODE_ENV !== "test") console.log(`🌐 trust proxy: ${describeTrustProxy(env.trustProxy)}`);
 
+// ── Request context: FIRST ────────────────────────────────────────────────
+// Gives every request (webhooks and public routes included) an id, returned as the x-request-id header, and the store the audit log reads
+// (request id, IP, user agent; authenticate() adds the person). Nothing before this line may log or audit.
+app.use(requestContext);
+
 // ── Security ──────────────────────────────────────────────────────────────
 app.use(
 	helmet({
@@ -39,6 +45,7 @@ app.use(cors({
         else callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
+    exposedHeaders: ["x-request-id"],       // so the web app can show the id to quote to support
 }));
 
 // Provider webhooks come BEFORE the global rate limit and the JSON parser (own higher limit, raw body for the signature).

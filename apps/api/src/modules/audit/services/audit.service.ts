@@ -2,6 +2,7 @@ import { IAuditRepository } from "../repositories/audit.repository";
 import { ActorType }        from "../domain/audit.enums";
 import { RequestContext } from "../../../shared/context/request-context";
 import { auditFailureSink } from "./audit-failure-reporter";
+import { redactAuditValue } from "./audit-redaction";
 
 /*
 |--------------------------------------------------------------------------
@@ -57,7 +58,7 @@ export class AuditService {
             const inherit = actorType === ActorType.USER || actorType === ActorType.SUPER_ADMIN;
 
             const metadata = {
-                ...(params.metadata && typeof params.metadata === "object" ? params.metadata : {}),
+                ...(params.metadata && typeof params.metadata === "object" ? redactAuditValue(params.metadata) : {}),
                 ...(ctx?.impersonatedBy ? { impersonatedBy: ctx.impersonatedBy } : {}),
             };
 
@@ -72,8 +73,8 @@ export class AuditService {
                 entityId:          params.entityId ?? null,
                 module:            params.module ?? params.action.split(".")[0] ?? null,
                 requestId:         params.requestId ?? ctx?.requestId ?? null,
-                oldValue:          params.oldValue ?? null,
-                newValue:          params.newValue ?? null,
+                oldValue:          redactAuditValue(params.oldValue),
+                newValue:          redactAuditValue(params.newValue),
                 ipAddress:         params.ipAddress ?? ctx?.ip ?? null,
                 userAgent:         (params.userAgent ?? ctx?.userAgent ?? null)?.slice(0, 255) ?? null,
                 metadata:          Object.keys(metadata).length ? metadata : null,

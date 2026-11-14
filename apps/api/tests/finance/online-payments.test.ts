@@ -137,6 +137,14 @@ describe("confirm from the gateway", () => {
 });
 
 describe("settlement", () => {
+    it("REM-024: amounts above 2^53 kobo come back exact and match the posted journal", async () => {
+        const gross = 9_007_199_254_749_999n, fee = 1_234n, received = gross - fee;      // Number() would round both gross and received
+        const s = await w.settle.execute("school-1", "bursar-1", { grossKobo: gross, feeKobo: fee, reference: "STL-BIG" });
+        assert.deepEqual([s.grossKobo, s.feeKobo, s.receivedKobo], [gross.toString(), 1_234, received.toString()]);   // fee is safe, so stays a number
+        const lines = w.books.journals.at(-1)!.lines as any[];
+        assert.equal(lines.find(l => l.creditKobo)!.creditKobo, gross);
+        assert.equal(lines.find(l => l.accountId === "a-bank")!.debitKobo, received);
+    });
     it("moves the gross out of clearing into the bank, less the gateway's fee", async () => {
         const r1 = await start(20_000), r2 = await start(30_000);
         await w.confirmOnline.execute(r1.reference, "school-1");
