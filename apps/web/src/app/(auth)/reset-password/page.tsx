@@ -14,6 +14,7 @@ import { PlatformName } from "@/components/layout/platform-name";
 import { authApi } from "@/features/auth/services/auth.api";
 import { resetPasswordSchema, ResetPasswordFormValues } from "@/features/auth/schemas/password.schema";
 import { ApiErrorResponse } from "@/types/api-response";
+import { ROUTES } from "@/lib/routes";
 
 export default function ResetPasswordPage() {
 	const router = useRouter();
@@ -40,7 +41,7 @@ export default function ResetPasswordPage() {
 				return;
 			}
 			setSuccess(true);
-			setTimeout(() => router.push("/login"), 2000);
+			setTimeout(() => router.push(ROUTES.auth.login), 2000);
 		} catch (err) {
 			const apiErr = err as ApiErrorResponse;
 			setServerError(apiErr.message || "Couldn't reset password — please try again.");
@@ -51,7 +52,7 @@ export default function ResetPasswordPage() {
 		<div className="flex min-h-screen items-center justify-center bg-hero-radial px-4">
 			<div className="w-full max-w-sm">
 				<div className="mb-8 flex flex-col items-center text-center">
-					<Link href="/" className="flex items-center gap-2">
+					<Link href={ROUTES.public.landing} className="flex items-center gap-2">
 						<Logo size={36} />
 						<span className="text-lg font-semibold"><PlatformName /></span>
 					</Link>
@@ -103,7 +104,7 @@ export default function ResetPasswordPage() {
 					</Button>
 				</form>
 
-				<Link href="/login" className="mt-6 block text-center text-sm text-muted-foreground hover:text-foreground">
+				<Link href={ROUTES.auth.login} className="mt-6 block text-center text-sm text-muted-foreground hover:text-foreground">
 					Back to login
 				</Link>
 			</div>

@@ -17,6 +17,7 @@ import { queryClient } from "@/lib/api/query-client";
 import { getSavedSubdomain, clearSavedSubdomain } from "@/lib/onboarding-storage";
 
 import { ProprietorIdDialog } from "./proprietor-id-dialog";
+import { ROUTES } from "@/lib/routes";
 
 interface DocumentsGateStepProps {
 	isVerified: boolean;
@@ -40,7 +41,7 @@ export function DocumentsGateStep({ isVerified, onVerified, schoolCategory }: Do
 		hasRedirected.current = true;
 		clearSavedSubdomain();
 
-		window.location.href = buildSubdomainUrl(subdomain, "/login?verified=true");
+		window.location.href = buildSubdomainUrl(subdomain, `${ROUTES.auth.login}?verified=true`);
 	}, [isVerified]);
 
 	async function handleUpload(file: File, type: SchoolDocumentType, extra?: UploadDocumentExtraFields) {

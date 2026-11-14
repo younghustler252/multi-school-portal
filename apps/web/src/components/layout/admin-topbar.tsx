@@ -9,6 +9,7 @@ import {
 	DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuthStore } from "@/stores/auth.store";
+import { ROUTES } from "@/lib/routes";
 
 export function AdminTopbar({ onMenuClick }: { onMenuClick: () => void }) {
 	const { theme, setTheme } = useTheme();
@@ -21,7 +22,7 @@ export function AdminTopbar({ onMenuClick }: { onMenuClick: () => void }) {
 
 	async function handleLogout() {
 		await logout();
-		router.replace("/login");
+		router.replace(ROUTES.auth.login);
 	}
 
 	return (

@@ -12,6 +12,7 @@ import { NotificationBell } from "./notification-bell";
 import { FeedbackDialog } from "@/features/feedback/components/feedback-dialog";
 import { notificationsPath } from "@/lib/nav-model";
 import { useAuthStore } from "@/stores/auth.store";
+import { ROUTES } from "@/lib/routes";
 
 interface TopbarProps {
 	onMenuClick: () => void;
@@ -25,10 +26,11 @@ export function Topbar({ onMenuClick, searchPlaceholder = "Search…" }: TopbarP
 	const router = useRouter();
 	const logout = useAuthStore((s) => s.logout);
 	const user = useAuthStore((s) => s.user);
+	const persona = useAuthStore((s) => s.permissions?.persona ?? null);
 
 	async function handleLogout() {
 		await logout();
-		router.replace("/login");
+		router.replace(ROUTES.auth.login);
 	}
 
 	useEffect(() => { setMounted(true); }, []);
@@ -50,7 +52,7 @@ export function Topbar({ onMenuClick, searchPlaceholder = "Search…" }: TopbarP
 				{mounted && theme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
 			</Button>
 
-			<NotificationBell inboxPath={notificationsPath("school")} />
+			<NotificationBell inboxPath={notificationsPath("school", persona)} />
 
 			<DropdownMenu>
 				<DropdownMenuTrigger
@@ -62,7 +64,7 @@ export function Topbar({ onMenuClick, searchPlaceholder = "Search…" }: TopbarP
 					}
 				/>
 				<DropdownMenuContent align="end" className="w-[min(20rem,calc(100vw-2rem))]">
-					<DropdownMenuItem onClick={() => router.push("/settings")}>
+					<DropdownMenuItem onClick={() => router.push(ROUTES.settings)}>
 						<Settings className="size-4" /> Account settings
 					</DropdownMenuItem>
 					<DropdownMenuItem onClick={() => setFeedbackOpen(true)}>

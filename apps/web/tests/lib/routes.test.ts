@@ -2,13 +2,13 @@ import { describe, expect, it } from "vitest";
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
-import { allStaticRoutes, legacyRedirect, LEGACY_PREFIXES, PERSONA_HOME, PROTECTED_ROOTS, ROUTES } from "@/lib/routes";
+import { allStaticRoutes, AUTH_PAGES, legacyRedirect, LEGACY_PREFIXES, PERSONA_HOME, PROTECTED_ROOTS, robotsDisallow, ROUTES } from "@/lib/routes";
 import { decideRoute } from "@/lib/route-guard";
 
 const appDir = fileURLToPath(new URL("../../src/app", import.meta.url));
 const none = { hasAccessCookie: false, hasRefreshCookie: false };
 
-/** Static page URLs that exist as folders (route groups removed). Dynamic [id] folders are skipped. */
+/** Static page URLs that exist as folders anywhere under src/app (route groups removed). Dynamic [id] folders are skipped. */
 function pagesOnDisk(): string[] {
 	const out: string[] = [];
 	const walk = (dir: string) => {
@@ -21,14 +21,14 @@ function pagesOnDisk(): string[] {
 			}
 		}
 	};
-	for (const group of ["(dashboard)", "(super-admin)"]) walk(join(appDir, group));
+	walk(appDir);
 	return out;
 }
 
 describe("route registry", () => {
 	it("every registered page has a folder", () => {
 		for (const url of allStaticRoutes()) {
-			const hasGroup = ["(dashboard)", "(super-admin)"].some((g) => existsSync(join(appDir, g, ...url.split("/").filter(Boolean), "page.tsx")));
+			const hasGroup = ["(dashboard)", "(super-admin)", "(auth)", "(marketing)", ""].some((g) => existsSync(join(appDir, g, ...url.split("/").filter(Boolean), "page.tsx")));
 			expect(hasGroup, `no page folder for ${url}`).toBe(true);
 		}
 	});
@@ -105,5 +105,37 @@ describe("middleware protection derives from the registry", () => {
 		expect(decideRoute({ pathname: "/school/staff/abc", ...none }).action).toBe("login");
 		expect(decideRoute({ pathname: "/", ...none }).action).toBe("next");
 		expect(decideRoute({ pathname: "/pricing", ...none }).action).toBe("next");
+	});
+});
+
+/** Minimal robots.txt matcher: prefix match, `$` anchors the end. Enough to check what we emit. */
+const blocked = (path: string, rules: string[]) =>
+	rules.some((r) => (r.endsWith("$") ? path === r.slice(0, -1) : path.startsWith(r)));
+
+describe("robots rules", () => {
+	const rules = robotsDisallow();
+
+	it("blocks every protected root exactly and everything below it", () => {
+		for (const root of PROTECTED_ROOTS) {
+			expect(blocked(root, rules), root).toBe(true);
+			expect(blocked(`${root}/anything/deep`, rules), `${root}/anything/deep`).toBe(true);
+		}
+	});
+
+	it("does not block look-alike public paths", () => {
+		for (const ok of ["/", "/pricing", "/login", "/homework", "/dashboards-guide", "/settings-help"]) {
+			expect(blocked(ok, rules), ok).toBe(false);
+		}
+	});
+
+	it("keeps the API blocked", () => {
+		expect(blocked("/api/v1/health", rules)).toBe(true);
+	});
+});
+
+describe("auth and public pages", () => {
+	it("auth pages bounced for signed-in users come from the registry", () => {
+		expect(AUTH_PAGES.includes(ROUTES.auth.login)).toBe(true);
+		expect(AUTH_PAGES.every((p) => allStaticRoutes().includes(p))).toBe(true);
 	});
 });

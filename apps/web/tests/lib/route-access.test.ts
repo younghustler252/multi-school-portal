@@ -162,12 +162,9 @@ describe("menu and pages agree", () => {
 		for (const e of PLATFORM_NAV) expect(pageExists(e.to, "(super-admin)")).toBe(true);
 	});
 
-	it("every menu entry that needs a permission has a matching route rule", () => {
-		for (const e of SCHOOL_NAV.filter((n) => n.anyOf)) {
-			expect(ruleFor(e.to, SCHOOL_ROUTE_RULES)?.anyOf).toEqual(e.anyOf);
-		}
-		for (const e of PLATFORM_NAV.filter((n) => n.anyOf)) {
-			expect(ruleFor(e.to, PLATFORM_ROUTE_RULES)?.anyOf).toEqual(e.anyOf);
-		}
+	it("every menu entry is backed by the same rule the guard uses", () => {
+		for (const e of SCHOOL_NAV) expect(ruleFor(e.to, SCHOOL_ROUTE_RULES)).toBe(e.rule);
+		for (const e of PLATFORM_NAV) expect(ruleFor(e.to, PLATFORM_ROUTE_RULES)).toBe(e.rule);
+		expect(SCHOOL_NAV.length > 15).toBe(true);
 	});
 });

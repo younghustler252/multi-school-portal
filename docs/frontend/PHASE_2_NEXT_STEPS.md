@@ -96,3 +96,16 @@ Frontend milestone/feature branches -> `refactor/web` -> `refactor/modules`. Bac
 - 34 files had hard-coded paths; all now use `ROUTES`. Nav, guards, protected prefixes, robots disallow list and default landing pages derive from it.
 - Platform branding: web called `/platform-settings` but the backend route is `/platform/settings` (public GET, super-admin PUT); fixed. `usePlatformInfo()` / `<PlatformName />` supply name, logo, support contact and legal links; defaults (config/company.json) only show while loading or on failure. Site address derives from `NEXT_PUBLIC_BASE_DOMAIN`.
 - Roadmap: `docs/frontend/ROADMAP.md`.
+
+## M3c (branch `phase2/m3c-access-metadata`, on top of M3b / PR #4)
+- `lib/route-access.ts` is now the one rule table: path, optional menu label+icon, `personas`, `anyOf`, `minScope`, `ownOnly`. `nav-model.ts` has no list of its own: the menu is the labelled rules that the session satisfies, so menu and guard cannot disagree. `/home`, the sidebar and `RouteAccessGuard` all use it.
+- Why: students and guardians hold `students.view`, `attendance.view`, `grades.view`, `report_cards.view` at OWN, which made staff pages visible to them. Staff pages now need persona STAFF and ASSIGNED-or-broader scope. Guardian/student pages keep persona + exactly OWN and now have their own menu entries. The guardian notifications inbox and learning dashboard are persona-only; the bell links to the persona's own inbox.
+- Registry extended with `auth`, `public`, `onboarding` (22 more files moved off typed paths; `AUTH_PAGES` and middleware use it). `/home` filters with `ROUTES.home`.
+- `robotsDisallow()` emits each protected root as `/x$` plus `/x/`; tested with a small matcher, including look-alikes such as `/homework`.
+- Platform logo: `Logo` renders a plain `<img>` (works for any storage host, custom domain or local); settings page uses an upload field calling `POST /platform/settings/logo` (backend not built yet, see ROADMAP backend asks).
+
+## M3c follow-ups (owner review 2026-11-13)
+- Menu sections + workspace entries for Teaching / Finance / Insights, single listing per page (see ROADMAP "Known limits"). `NavEntry` now carries `group` and `groupLabel`; the sidebar draws headings only when more than one section is visible; `/home` shows the section under each tile.
+- `/settings` has an explicit open-to-all rule. Student bell: `notificationsPath()` returns `null`, the bell shows an explanatory message.
+- Upload responses aligned with the real API (`lib/api/upload-result.ts`): school logo, stamp, signature, platform logo. Platform logo contract unchanged: `POST /platform/settings/logo`, field `logo`, responds with the platform settings (`logoUrl`).
+- Remaining `href="/"` and `/settings`, `/home` literals now use the registry.

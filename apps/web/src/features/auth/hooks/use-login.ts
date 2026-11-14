@@ -8,6 +8,7 @@ import { resolveDestination, safeReturnTo } from "@/lib/auth/destination";
 import { isSafeSchoolUrl } from "@/lib/auth/safe-url";
 import type { Persona, SessionStatus } from "@/lib/auth/session-types";
 import { useAuthStore } from "@/stores/auth.store";
+import { ROUTES } from "@/lib/routes";
 
 /*
 | The login flow shared by /login, /portal-login and /admin-login (AUTH-004).
@@ -56,7 +57,7 @@ export function useLogin(options: Options = {}) {
 					return;
 				}
 				if (outcome.status === "must-change-password") {
-					router.replace("/change-password");
+					router.replace(ROUTES.auth.changePassword);
 					return;
 				}
 				const { profile, permissions } = useAuthStore.getState();
@@ -76,7 +77,7 @@ export function useLogin(options: Options = {}) {
 				credentials.current = null;
 				if (isApiError(err) && err.code === API_CODES.EMAIL_NOT_VERIFIED) {
 					void authApi.resendOtp({ email });
-					router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+					router.push(`${ROUTES.auth.verifyEmail}?email=${encodeURIComponent(email)}`);
 					return;
 				}
 				setError(isApiError(err) ? err.message : "Login failed. Please try again.");

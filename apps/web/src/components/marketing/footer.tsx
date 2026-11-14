@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Logo } from "@/components/layout/logo";
 import { usePlatformInfo } from "@/lib/use-platform-info";
+import { ROUTES } from "@/lib/routes";
 
 export function Footer() {
 	const company = usePlatformInfo();
@@ -22,9 +23,9 @@ export function Footer() {
 						<div>
 							<div className="text-sm font-medium">Product</div>
 							<div className="mt-3 flex flex-col gap-2 text-sm text-muted-foreground">
-								<Link href="/pricing" className="hover:text-foreground">Pricing</Link>
-								<Link href="/login" className="hover:text-foreground">Log in</Link>
-								<Link href="/register" className="hover:text-foreground">Get started</Link>
+								<Link href={ROUTES.public.pricing} className="hover:text-foreground">Pricing</Link>
+								<Link href={ROUTES.auth.login} className="hover:text-foreground">Log in</Link>
+								<Link href={ROUTES.auth.register} className="hover:text-foreground">Get started</Link>
 							</div>
 						</div>
 						<div>

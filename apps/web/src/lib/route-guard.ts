@@ -1,4 +1,4 @@
-import { PROTECTED_ROOTS } from "@/lib/routes";
+import { AUTH_PAGES, PROTECTED_ROOTS } from "@/lib/routes";
 
 /*
 | The routing decision middleware.ts makes before a page renders (AUTH-005). Pure, so it is tested without Next.
@@ -12,7 +12,7 @@ import { PROTECTED_ROOTS } from "@/lib/routes";
 | refresh cookie would trap the person in a redirect loop between /login and a page that cannot load.
 */
 
-export const AUTH_ROUTES = ["/login", "/register", "/verify-email", "/forgot-password", "/reset-password"];
+export const AUTH_ROUTES: readonly string[] = AUTH_PAGES;
 
 // Derived from the route registry so a renamed area is protected automatically.
 export const PROTECTED_PREFIXES: readonly string[] = PROTECTED_ROOTS;

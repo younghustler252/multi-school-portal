@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react";
 import { authApi } from "@/features/auth/services/auth.api";
 import { useAuthStore } from "@/stores/auth.store";
 import { resolveDestination } from "@/lib/auth/destination";
+import { ROUTES } from "@/lib/routes";
 
 export default function ImpersonateEntryPage() {
 	const router = useRouter();
@@ -20,13 +21,13 @@ export default function ImpersonateEntryPage() {
 
 		async function exchange() {
 			if (!ticket) {
-				router.replace("/login");
+				router.replace(ROUTES.auth.login);
 				return;
 			}
 			// Trades the one-time ticket for a real HttpOnly session cookie scoped to THIS school host.
 			const res = await authApi.exchangeImpersonationToken(ticket);
 			if (!res.success) {
-				router.replace("/login");
+				router.replace(ROUTES.auth.login);
 				return;
 			}
 			const store = useAuthStore.getState();
@@ -34,7 +35,7 @@ export default function ImpersonateEntryPage() {
 			useAuthStore.setState({ status: "loading" });
 			await store.bootstrap();
 			const { profile, permissions } = useAuthStore.getState();
-			router.replace(profile && permissions ? resolveDestination(profile, permissions) : "/login");
+			router.replace(profile && permissions ? resolveDestination(profile, permissions) : ROUTES.auth.login);
 		}
 		void exchange();
 	}, [ticket, router]);

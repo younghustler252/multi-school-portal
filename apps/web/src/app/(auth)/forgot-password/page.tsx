@@ -14,6 +14,7 @@ import { PlatformName } from "@/components/layout/platform-name";
 import { authApi } from "@/features/auth/services/auth.api";
 import { forgotPasswordSchema, ForgotPasswordFormValues } from "@/features/auth/schemas/password.schema";
 import { ApiErrorResponse } from "@/types/api-response";
+import { ROUTES } from "@/lib/routes";
 
 export default function ForgotPasswordPage() {
 	const router = useRouter();
@@ -45,7 +46,7 @@ export default function ForgotPasswordPage() {
 		<div className="flex min-h-screen items-center justify-center bg-hero-radial px-4">
 			<div className="w-full max-w-sm">
 				<div className="mb-8 flex flex-col items-center text-center">
-					<Link href="/" className="flex items-center gap-2">
+					<Link href={ROUTES.public.landing} className="flex items-center gap-2">
 						<Logo size={36} />
 						<span className="text-lg font-semibold"><PlatformName /></span>
 					</Link>
@@ -78,14 +79,14 @@ export default function ForgotPasswordPage() {
 							type="button"
 							variant="outline"
 							className="w-full"
-							onClick={() => router.push(`/reset-password?email=${encodeURIComponent(getValues("email"))}`)}
+							onClick={() => router.push(`${ROUTES.auth.resetPassword}?email=${encodeURIComponent(getValues("email"))}`)}
 						>
 							I have a code — reset password
 						</Button>
 					)}
 				</form>
 
-				<Link href="/login" className="mt-6 flex items-center justify-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+				<Link href={ROUTES.auth.login} className="mt-6 flex items-center justify-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
 					<ArrowLeft className="size-3.5" /> Back to login
 				</Link>
 			</div>

@@ -6,6 +6,7 @@ import type { MyPermissions } from "@schoolos/contracts";
 import { useAuthStore } from "@/stores/auth.store";
 import { PLATFORM_HOME, SCHOOL_HOME } from "@/lib/auth/destination";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ROUTES } from "@/lib/routes";
 
 /*
 | UX guard for a route group (AUTHZ-002). It only decides what to SHOW; the API enforces every request regardless.
@@ -41,9 +42,9 @@ export function SessionGate({ children, realm, allow, fallback }: SessionGatePro
 
 	useEffect(() => {
 		if (status === "unauthenticated" || status === "selecting") {
-			router.replace(`/login?returnTo=${encodeURIComponent(pathname)}`);
+			router.replace(`${ROUTES.auth.login}?returnTo=${encodeURIComponent(pathname)}`);
 		} else if (status === "must-change-password") {
-			router.replace("/change-password");
+			router.replace(ROUTES.auth.changePassword);
 		} else if (wrongRealm && profile) {
 			router.replace(profile.session.kind === "platform" ? PLATFORM_HOME : SCHOOL_HOME);
 		} else if (notAllowed) {

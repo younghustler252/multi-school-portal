@@ -13,7 +13,7 @@ import { ROUTES } from "@/lib/routes";
 
 const NAV_LINKS = [
 	{ href: "/", label: "Home" },
-	{ href: "/pricing", label: "Pricing" },
+	{ href: ROUTES.public.pricing, label: "Pricing" },
 ];
 
 export function Navbar() {
@@ -35,7 +35,7 @@ export function Navbar() {
 	return (
 		<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur">
 			<div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-6">
-				<Link href="/" className="flex items-center gap-2">
+				<Link href={ROUTES.public.landing} className="flex items-center gap-2">
 					<Logo size={28} />
 					<span className="font-semibold tracking-tight"><PlatformName /></span>
 				</Link>
@@ -55,8 +55,8 @@ export function Navbar() {
 						} />
 					) : (
 						<>
-							<Button variant="ghost" size="sm" className="hidden sm:inline-flex" nativeButton={false} render={<Link href="/login">Log in</Link>} />
-							<Button size="sm" nativeButton={false} render={<Link href="/register">Get started</Link>} />
+							<Button variant="ghost" size="sm" className="hidden sm:inline-flex" nativeButton={false} render={<Link href={ROUTES.auth.login}>Log in</Link>} />
+							<Button size="sm" nativeButton={false} render={<Link href={ROUTES.auth.register}>Get started</Link>} />
 						</>
 					)}
 
@@ -81,7 +81,7 @@ export function Navbar() {
 						))}
 						{!dashboardHref && (
 							<Link
-								href="/login"
+								href={ROUTES.auth.login}
 								onClick={() => setMenuOpen(false)}
 								className="rounded-md px-3 py-2.5 text-sm font-medium hover:bg-muted sm:hidden"
 							>

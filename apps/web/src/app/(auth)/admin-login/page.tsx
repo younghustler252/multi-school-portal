@@ -11,6 +11,7 @@ import { Logo } from "@/components/layout/logo";
 import { PlatformName } from "@/components/layout/platform-name";
 import { useLogin } from "@/features/auth/hooks/use-login";
 import { loginSchema, LoginFormValues } from "@/features/auth/schemas/login.schema";
+import { ROUTES } from "@/lib/routes";
 
 export default function AdminLoginPage() {
 	// Platform administrators only: a school session signing in here is refused and signed out again.
@@ -32,7 +33,7 @@ export default function AdminLoginPage() {
 		<div className="flex min-h-screen items-center justify-center bg-hero-radial px-4">
 			<div className="w-full max-w-sm">
 				<div className="mb-8 flex flex-col items-center text-center">
-					<Link href="/" className="flex items-center gap-2">
+					<Link href={ROUTES.public.landing} className="flex items-center gap-2">
 						<Logo size={36} />
 						<span className="text-lg font-semibold"><PlatformName /></span>
 					</Link>

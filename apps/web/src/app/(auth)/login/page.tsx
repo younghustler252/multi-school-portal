@@ -12,6 +12,7 @@ import { PlatformName } from "@/components/layout/platform-name";
 import { useLogin } from "@/features/auth/hooks/use-login";
 import { LoginSelection } from "@/features/auth/components/login-selection";
 import { loginSchema, LoginFormValues } from "@/features/auth/schemas/login.schema";
+import { ROUTES } from "@/lib/routes";
 
 export default function LoginPage() {
 	const { submit, choosePersona, cancel, error: serverError, pending, selection } = useLogin();
@@ -32,7 +33,7 @@ export default function LoginPage() {
 		<div className="flex min-h-screen items-center justify-center bg-hero-radial px-4">
 			<div className="w-full max-w-sm">
 				<div className="mb-8 flex flex-col items-center text-center">
-					<Link href="/" className="flex items-center gap-2">
+					<Link href={ROUTES.public.landing} className="flex items-center gap-2">
 						<Logo size={36} />
 						<span className="text-lg font-semibold"><PlatformName /></span>
 					</Link>
@@ -68,7 +69,7 @@ export default function LoginPage() {
 					<div className="space-y-1.5">
 						<div className="flex items-center justify-between">
 							<Label htmlFor="password">Password</Label>
-							<Link href="/forgot-password" className="text-xs text-muted-foreground hover:text-primary">
+							<Link href={ROUTES.auth.forgotPassword} className="text-xs text-muted-foreground hover:text-primary">
 								Forgot password?
 							</Link>
 						</div>
@@ -92,7 +93,7 @@ export default function LoginPage() {
 
 				<p className="mt-6 text-center text-sm text-muted-foreground">
 					Don&apos;t have a school on <PlatformName />?{" "}
-					<Link href="/register" className="font-medium text-primary hover:underline">
+					<Link href={ROUTES.auth.register} className="font-medium text-primary hover:underline">
 						Register your school
 					</Link>
 				</p>

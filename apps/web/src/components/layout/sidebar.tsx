@@ -1,5 +1,6 @@
 "use client";
 
+import { Fragment } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -14,6 +15,7 @@ import { useAuthStore } from "@/stores/auth.store";
 import { useCurrentSubdomain } from "@/lib/use-current-subdomain";
 import { usePublicSchoolInfo } from "@/features/school/hooks/use-school";
 import { useOnboardingProgress } from "@/features/school/hooks/use-onboarding-progress";
+import { ROUTES } from "@/lib/routes";
 
 interface SidebarProps {
 	isOpen: boolean;
@@ -29,7 +31,7 @@ function FinishSetupLink() {
 
 	return (
 		<Link
-			href="/onboarding/setup"
+			href={ROUTES.onboarding.setup}
 			className="mx-3 mt-3 block rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-xs"
 		>
 			<div className="flex items-center justify-between">
@@ -50,12 +52,14 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 	const pathname = usePathname();
 	const permissions = useAuthStore((s) => s.permissions);
 	const navItems = visibleNav(permissions);
+	// Section headings only when there is more than one section to tell apart.
+	const showHeadings = new Set(navItems.map((i) => i.group).filter(Boolean)).size > 1;
 	const subdomain = useCurrentSubdomain();
 	const { data: school } = usePublicSchoolInfo(subdomain ?? "");
 
 	return (
 		<div className="flex h-full flex-col bg-sidebar/95 backdrop-blur-md text-sidebar-foreground">
-			<Link href="/home" className="flex h-16 items-center gap-2 border-b border-sidebar-border px-5">
+			<Link href={ROUTES.home} className="flex h-16 items-center gap-2 border-b border-sidebar-border px-5">
 				<Logo size={32} logoUrl={school?.logoUrl} name={school?.name} />
 				<div className="leading-tight">
 					<div className="max-w-[180px] truncate font-semibold text-sidebar-foreground">
@@ -65,12 +69,16 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 			</Link>
 
 			<nav className="flex-1 space-y-0.5 overflow-y-auto p-3">
-				{navItems.map((item) => {
-					const active = pathname === item.to || (item.to !== "/home" && !item.to.endsWith("/dashboard") && pathname.startsWith(item.to));
+				{navItems.map((item, index) => {
+					const active = pathname === item.to || (item.to !== ROUTES.home && !item.to.endsWith("/dashboard") && pathname.startsWith(item.to));
+					const heading = showHeadings && item.groupLabel && item.group !== navItems[index - 1]?.group ? item.groupLabel : null;
 					const Icon = NAV_ICONS[item.icon];
 					return (
+						<Fragment key={item.to}>
+						{heading && (
+							<div className="px-3 pb-1 pt-4 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{heading}</div>
+						)}
 						<Link
-							key={item.to}
 							href={item.to}
 							onClick={onNavigate}
 							className={cn(
@@ -81,6 +89,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 							<Icon className="size-4" />
 							{item.label}
 						</Link>
+						</Fragment>
 					);
 				})}
 			</nav>
@@ -90,7 +99,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 			<Separator className="bg-sidebar-border" />
 
 			<div className="p-3">
-				<Link href="/" className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-sidebar-accent/60">
+				<Link href={ROUTES.public.landing} className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-sidebar-accent/60">
 					<LogOut className="size-4" />
 					Back to landing
 				</Link>

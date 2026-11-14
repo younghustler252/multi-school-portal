@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useAuthStore } from "@/stores/auth.store";
 import { NAV_ICONS } from "@/lib/nav-config";
 import { visibleNav } from "@/lib/nav-model";
+import { ROUTES } from "@/lib/routes";
 
 /*
 | Landing page for any school session. It is built from what the person may open, so it is correct for every role,
@@ -12,7 +13,7 @@ import { visibleNav } from "@/lib/nav-model";
 export default function HomePage() {
 	const profile = useAuthStore((s) => s.profile);
 	const permissions = useAuthStore((s) => s.permissions);
-	const entries = visibleNav(permissions).filter((e) => e.to !== "/home");
+	const entries = visibleNav(permissions).filter((e) => e.to !== ROUTES.home);
 
 	return (
 		<div className="space-y-6">
@@ -37,6 +38,7 @@ export default function HomePage() {
 								>
 									<Icon className="size-5 text-primary" />
 									<span className="mt-3 text-sm font-medium">{e.label}</span>
+									{e.groupLabel && <span className="text-xs text-muted-foreground">{e.groupLabel}</span>}
 								</Link>
 							</li>
 						);

@@ -5,6 +5,7 @@ import { API_CODES, ApiError, normalizeApiError } from "./api-error";
 import { endsSession, isSessionlessAuthUrl, shouldRefreshFor } from "./refresh-rules";
 import { createRefreshCoordinator, RefreshInProgressError } from "./refresh-coordinator";
 import { emitMustChangePassword, emitSessionEnded } from "./session-events";
+import { ROUTES } from "@/lib/routes";
 
 const axiosInstance: AxiosInstance = axios.create({
 	baseURL: getApiBaseUrl(),
@@ -47,8 +48,8 @@ axiosInstance.interceptors.response.use(
 		const apiErr = normalizeApiError(error.response?.status, body);
 		const config = error.config as RetryableConfig | undefined;
 
-		if (apiErr.code === API_CODES.MAINTENANCE_MODE && typeof window !== "undefined" && window.location.pathname !== "/maintenance") {
-			window.location.href = "/maintenance";
+		if (apiErr.code === API_CODES.MAINTENANCE_MODE && typeof window !== "undefined" && window.location.pathname !== ROUTES.public.maintenance) {
+			window.location.href = ROUTES.public.maintenance;
 			throw apiErr;
 		}
 

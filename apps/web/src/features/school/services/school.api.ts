@@ -5,7 +5,6 @@ import {
 	SchoolResponseData,
 	UpdateSchoolDto,
 	SetupChecklist,
-	UploadFileResponseData,
 	SetupPaymentDto,
 	SchoolDashboardData,
 	PublicSchoolInfo,
@@ -26,9 +25,10 @@ export const schoolApi = {
 	): Promise<ApiResponse<SchoolResponseData>> =>
 		API.put("/schools/me", data),
 
+	/** Returns the updated school; the new logo address is `data.logoUrl`. */
 	uploadLogo: (
 		file: File,
-	): Promise<ApiResponse<UploadFileResponseData>> => {
+	): Promise<ApiResponse<SchoolResponseData>> => {
 		const formData = new FormData();
 
 		formData.append("logo", file);

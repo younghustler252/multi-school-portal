@@ -11,6 +11,7 @@ import { authApi } from "@/features/auth/services/auth.api";
 import { useAuthStore } from "@/stores/auth.store";
 import { ApiErrorResponse } from "@/types/api-response";
 import { ROLE_DEFAULT_ROUTE } from "@/types/roles";
+import { ROUTES } from "@/lib/routes";
 
 const OTP_LENGTH = 6;
 const RESEND_COOLDOWN = 30; // seconds
@@ -66,7 +67,7 @@ export default function VerifyEmailPage() {
 			}
 
 			// Backend never issues a session on verify — always send to login
-			router.push(`/login?verified=true&email=${encodeURIComponent(email)}`);
+			router.push(`${ROUTES.auth.login}?verified=true&email=${encodeURIComponent(email)}`);
 		} catch (err) {
 			const apiErr = err as ApiErrorResponse;
 			setError(apiErr.message || "Invalid or expired code — please try again.");
@@ -95,7 +96,7 @@ export default function VerifyEmailPage() {
 	return (
 		<div className="flex min-h-screen items-center justify-center bg-hero-radial px-4">
 			<div className="w-full max-w-sm text-center">
-				<Link href="/" className="inline-flex items-center gap-2">
+				<Link href={ROUTES.public.landing} className="inline-flex items-center gap-2">
 					<Logo size={36} />
 					<span className="text-lg font-semibold"><PlatformName /></span>
 				</Link>

@@ -23,6 +23,7 @@ import { RegisterStepper } from "@/components/marketing/register-stepper";
 import { ApiErrorResponse } from "@/types/api-response";
 import { saveSubdomain } from "@/lib/onboarding-storage";
 import { cn } from "@/lib/utils";
+import { ROUTES } from "@/lib/routes";
 
 export default function RegisterPage() {
 	const router = useRouter();
@@ -80,7 +81,7 @@ export default function RegisterPage() {
 			const result = await registerSchoolAdmin(values);
 			console.log("auth result",result)
 			saveSubdomain(result.subdomain);
-			router.push(`/verify-email?email=${encodeURIComponent(values.email)}`);
+			router.push(`${ROUTES.auth.verifyEmail}?email=${encodeURIComponent(values.email)}`);
 		} catch (err) {
 			const apiErr = err as ApiErrorResponse;
 			setServerError(apiErr.message || "Registration failed — please check your details and try again.");
@@ -91,7 +92,7 @@ export default function RegisterPage() {
 	return (
 		<div className="min-h-screen bg-hero-radial">
 			<div className="mx-auto max-w-2xl px-6 py-10">
-				<Link href="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+				<Link href={ROUTES.public.landing} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
 					<ArrowLeft className="size-4" /> Back to home
 				</Link>
 
@@ -324,7 +325,7 @@ export default function RegisterPage() {
 
 				<p className="mt-6 text-center text-sm text-muted-foreground">
 					Already have a school on <PlatformName />?{" "}
-					<Link href="/login" className="font-medium text-primary hover:underline">
+					<Link href={ROUTES.auth.login} className="font-medium text-primary hover:underline">
 						Log in
 					</Link>
 				</p>

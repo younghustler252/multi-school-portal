@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { ROUTES } from "@/lib/routes";
 
 export function CtaBand() {
 	return (
@@ -17,7 +18,7 @@ export function CtaBand() {
 						size="lg"
 						nativeButton={false}
 						render={
-							<Link href="/register">
+							<Link href={ROUTES.auth.register}>
 								Get started free <ArrowRight className="size-4" />
 							</Link>
 						}
@@ -26,7 +27,7 @@ export function CtaBand() {
 						size="lg"
 						variant="outline"
 						nativeButton={false}
-						render={<Link href="/pricing">See pricing</Link>}
+						render={<Link href={ROUTES.public.pricing}>See pricing</Link>}
 					/>
 				</div>
 			</div>

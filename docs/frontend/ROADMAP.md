@@ -11,6 +11,7 @@ Rule for every milestone: UX guards only (the API authorizes), permission keys a
 | M2 | Host/tenant/deployment config, same-origin `/api/v1`, middleware cookie fix, deploy docs + proxy check script | merged (PR #2) |
 | M3 | Per-page permission guards (staff, guardian/student with persona + OWN, principal/teacher/bursar) | PR #3 |
 | M3b | One route registry (`lib/routes.ts`), role-named folders moved to feature routes, old paths redirect (308), platform name/logo/support/legal links from `GET /platform/settings` | this PR |
+| M3c | One access table drives menu, `/home` and guards (STAFF persona + ASSIGNED-or-broader scope on staff pages; family/student menus); auth/public/onboarding paths in the registry; robots exact + descendant rules; platform logo upload (frontend side) | PR on top of #4 |
 
 ## Next (proposed order)
 1. **M4 - make the typecheck a real gate.** Fix the 32 baseline type errors in 18 files, feature by feature (grades, staff/students forms, onboarding, report cards). Then `npm run typecheck:web` must stay at 0. Also migrate `middleware.ts` to Next's `proxy.ts` convention.
@@ -21,11 +22,19 @@ Rule for every milestone: UX guards only (the API authorizes), permission keys a
 6. **M9 - UI/UX redesign** (deliberately after the foundation), then Netlify config if wanted.
 
 ## Backend asks (not mine to change; owner decides)
+- **Platform logo upload (decided: Supabase, like the school logo).** Frontend is ready and calls `POST /platform/settings/logo`: multipart field `logo`, `platform.settings.manage`, JPEG/PNG/WebP only (SVG refused), 2 MB, stored in the public bucket (e.g. `platform/logos`), updates `logoUrl`, audited, responds with the updated platform settings (`logoUrl` set). Until it exists the upload button shows an error toast. Also consider dropping `logoUrl` from the `PUT /platform/settings` DTO so arbitrary URLs cannot be set; the web no longer sends it.
+- **Upload responses (verified against the API 2026-11-13).** `POST /schools/me/logo` returns the updated school (`logoUrl`); `POST /school-settings/stamp|signature` return the updated settings (`stamp`, `signature`). The web read `res.data.url` for all three, which the API never sends; fixed with `lib/api/upload-result.ts`. **Still open:** the web calls `POST /school/settings/letterhead` for the letterhead, and the backend has no letterhead upload route (only stamp and signature). Not changed; owner decides whether to add it or drop the web call.
 - Public platform fields the UI still hard-codes in `config/company.json`: tagline, description, social links, sales email, legal company name. Add to `GET /platform/settings` or accept them as static.
 - Custom-domain set/verify, TLS `ask` endpoint, host-based public school info (`DEPLOYMENT.md` section 8).
 - `request-context.middleware` documented "mount FIRST" but not mounted in `app.ts`.
 - Confirm no student dashboard permission is intended (`school.dashboard.view` is STAFF-only).
 
 ## Known limits right now
-- `app/layout.tsx` metadata (title, description, Open Graph) and `robots.ts`/`sitemap` still use the built-in defaults: server-side metadata cannot call the API through the same-origin `/api/v1` proxy. The visible UI uses the live platform settings. The site address in those defaults now comes from `NEXT_PUBLIC_BASE_DOMAIN`, not a typed domain.
-- Routes are named in `lib/routes.ts`. To rename one: edit that file and move the folder; `tests/lib/routes.test.ts` fails if they disagree or a page is unregistered.
+- `app/layout.tsx` metadata (title, description, Open Graph) and the sitemap still use the built-in defaults: server-side metadata cannot call the API through the same-origin `/api/v1` proxy. The visible UI uses the live platform settings. The site address in those defaults comes from `NEXT_PUBLIC_BASE_DOMAIN`.
+- **Route registry scope (`lib/routes.ts`):** every page the app serves, in every route group (auth, public, onboarding, school areas, platform). Not in it: API paths, `/api/*`, external links, and the privacy/terms addresses (those come from platform settings). Query strings are added at the call site. To rename a route: edit the registry and move the folder; `tests/lib/routes.test.ts` fails if they disagree or a page is unregistered. Who may open a page, and the menu, live in `lib/route-access.ts`.
+- **Menus:** sections with headings (School, Teaching, Finance, Insights); every page is listed once. Teaching is shown only to sessions holding a teaching key at exactly ASSIGNED, and while it is shown School's Attendance/Grades/Report cards are hidden in favour of the Teaching versions. Finance has one entry (its overview) because `/finance/fees` and `/finance/payments` are the same pages as `/school/fees` and `/school/payments`. Insights are read-only overviews. The menu is always a subset of what the guard allows. Rules live in `lib/route-access.ts` (header comment explains the design).
+- `/settings` is the personal account page (name, phone, password) and is open to every signed-in school persona by an explicit rule. Platform admins use `/setting`.
+- Students have no inbox page: the bell shows a "not available for student accounts yet" message and makes no requests.
+- `/contact`, `/privacy`, `/terms` remain separate follow-up work (owner agreed).
+- **Dead links found, not changed:** the pricing card links to `/contact`, and `config/company.json` defaults point at `/privacy` and `/terms`; no such pages exist. They are replaced by platform settings values when the API provides them.
+- `next.config.ts` still lists `*.supabase.co` for `next/image`, but nothing uses `next/image` any more (logos are plain images). Safe to remove when convenient.

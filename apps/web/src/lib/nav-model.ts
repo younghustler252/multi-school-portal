@@ -1,61 +1,54 @@
-import type { MyPermissions } from "@schoolos/contracts";
+import type { MyPermissions, PersonaType } from "@schoolos/contracts";
 import { ROUTES } from "@/lib/routes";
+import {
+	NAV_GROUP_LABEL, NAV_GROUP_VISIBLE, PLATFORM_ROUTE_RULES, SCHOOL_ROUTE_RULES, rulesFor, satisfies,
+	type NavGroup, type NavIcon, type RouteRule,
+} from "@/lib/route-access";
+
+export type { NavGroup, NavIcon };
 
 /*
-| Navigation as data: which entry is shown to whom (AUTHZ-003). Pure and icon-free so it can be tested on its own.
-| An entry appears when the session holds at least one of its permissions. Role names are never consulted:
-| they are tenant data, permissions are the contract. Hiding an entry is a convenience; the API still enforces access.
+| Navigation as data (AUTHZ-003). There is NO separate menu list: the menu is the labelled rules in route-access.ts,
+| shown when the session satisfies the same rule the route guard uses (persona, permission, scope). A menu entry and its
+| page therefore cannot disagree. Pure and icon-free so it is tested on its own. Role names are never consulted.
+| Hiding an entry is a convenience; the API still enforces access.
 */
-
-export type NavIcon =
-	| "dashboard" | "staff" | "students" | "guardians" | "classes" | "subjects" | "attendance" | "grades"
-	| "reportCards" | "fees" | "payments" | "notifications" | "announcements" | "settings"
-	| "schools" | "users" | "plans" | "subscriptions" | "feedback";
 
 export interface NavEntry {
 	label: string;
 	to: string;
 	icon: NavIcon;
-	/** Shown when the session holds ANY of these. Omit = always shown. */
-	anyOf?: string[];
+	group: NavGroup | null;
+	groupLabel: string | null;
+	/** The rule behind the entry, for tests and for pages that want to explain why something is missing. */
+	rule: RouteRule;
 }
 
-export const SCHOOL_NAV: NavEntry[] = [
-	{ label: "Home", to: ROUTES.home, icon: "dashboard" },
-	{ label: "Staff", to: ROUTES.school.staff.list, icon: "staff", anyOf: ["staff.view"] },
-	{ label: "Students", to: ROUTES.school.students.list, icon: "students", anyOf: ["students.view"] },
-	{ label: "Guardians", to: ROUTES.school.guardians.list, icon: "guardians", anyOf: ["guardians.view"] },
-	{ label: "Classes", to: ROUTES.school.classes.list, icon: "classes", anyOf: ["classes.view"] },
-	{ label: "Subjects", to: ROUTES.school.subjects.list, icon: "subjects", anyOf: ["classes.view"] },
-	{ label: "Attendance", to: ROUTES.school.attendance, icon: "attendance", anyOf: ["attendance.view", "attendance.mark"] },
-	{ label: "Grades", to: ROUTES.school.grades, icon: "grades", anyOf: ["grades.view", "grades.enter"] },
-	{ label: "Report cards", to: ROUTES.school.reportCards, icon: "reportCards", anyOf: ["report_cards.view"] },
-	{ label: "Fees", to: ROUTES.school.fees.list, icon: "fees", anyOf: ["fees.invoices.view", "fees.setup.view"] },
-	{ label: "Payments", to: ROUTES.school.payments, icon: "payments", anyOf: ["payments.view"] },
-	{ label: "Notifications", to: ROUTES.school.notifications, icon: "notifications", anyOf: ["notifications.view"] },
-	{ label: "Announcements", to: ROUTES.school.announcements, icon: "announcements", anyOf: ["notifications.send"] },
-	{ label: "Settings", to: ROUTES.school.settings, icon: "settings", anyOf: ["school_settings.view", "school.view"] },
-];
+const toEntry = (rule: RouteRule): NavEntry => ({
+	label: rule.label as string, to: rule.path, icon: rule.icon as NavIcon,
+	group: rule.group ?? null, groupLabel: rule.group ? NAV_GROUP_LABEL[rule.group] : null, rule,
+});
 
-export const PLATFORM_NAV: NavEntry[] = [
-	{ label: "Dashboard", to: ROUTES.platform.dashboard, icon: "dashboard", anyOf: ["platform.overview.view"] },
-	{ label: "Schools", to: ROUTES.platform.schools.list, icon: "schools", anyOf: ["platform.schools.view"] },
-	{ label: "Users", to: ROUTES.platform.users, icon: "users", anyOf: ["platform.users.manage"] },
-	{ label: "Plans", to: ROUTES.platform.plans, icon: "plans", anyOf: ["platform.plans.view"] },
-	{ label: "Subscriptions", to: ROUTES.platform.subscriptions, icon: "subscriptions", anyOf: ["platform.subscriptions.view"] },
-	{ label: "Feedback", to: ROUTES.platform.feedback, icon: "feedback", anyOf: ["platform.feedback.manage"] },
-	{ label: "Notifications", to: ROUTES.platform.notifications, icon: "notifications", anyOf: ["platform.notifications.view"] },
-	{ label: "Settings", to: ROUTES.platform.settings, icon: "settings", anyOf: ["platform.settings.manage"] },
-];
+/** Every menu entry that exists, before any session filtering. */
+export const SCHOOL_NAV: NavEntry[] = SCHOOL_ROUTE_RULES.filter((r) => r.label && r.icon).map(toEntry);
+export const PLATFORM_NAV: NavEntry[] = PLATFORM_ROUTE_RULES.filter((r) => r.label && r.icon).map(toEntry);
 
 export function visibleNav(permissions: MyPermissions | null): NavEntry[] {
 	if (!permissions) return [];
-	const held = new Set(permissions.permissions.map((p) => p.key));
-	const source = permissions.realm === "platform" ? PLATFORM_NAV : SCHOOL_NAV;
-	return source.filter((e) => !e.anyOf || e.anyOf.some((k) => held.has(k)));
+	const rules = rulesFor(permissions);
+	const shown = rules.filter((r) => r.label && r.icon && satisfies(r, permissions) && (!r.group || NAV_GROUP_VISIBLE[r.group](permissions)));
+	const shownPaths = new Set(shown.map((r) => r.path));
+	// A page replaced by a workspace version is listed once.
+	return shown.filter((r) => !(r.supersededBy && shownPaths.has(r.supersededBy))).map(toEntry);
 }
 
-/** Where the bell's "see all" link goes. */
-export function notificationsPath(realm: "school" | "platform"): string {
-	return realm === "platform" ? ROUTES.platform.notifications : ROUTES.school.notifications;
+/**
+ * Where the bell's "see all" link goes, or null when the session has no inbox page (students). The bell then says so
+ * instead of linking somewhere that is not an inbox.
+ */
+export function notificationsPath(realm: "school" | "platform", persona?: PersonaType | null): string | null {
+	if (realm === "platform") return ROUTES.platform.notifications;
+	if (persona === "GUARDIAN") return ROUTES.family.notifications;
+	if (persona === "STUDENT") return null;
+	return ROUTES.school.notifications;
 }
