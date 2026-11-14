@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useCurrentPlanFeatures } from "@/features/plans/hooks/use-current-plan-features";
 import { PlanFeatures } from "@/features/plans/types/plan.types";
 import type { ReactNode } from "react";
+import { ROUTES } from "@/lib/routes";
 
 interface FeatureGateProps {
 	feature: keyof PlanFeatures;
@@ -29,7 +30,7 @@ export function FeatureGate({ feature, featureName, children }: FeatureGateProps
 						This feature isn&apos;t included in your current plan.
 					</p>
 				</div>
-				<Button size="sm" render={<Link href="/school-admin/settings?tab=billing">View plans</Link>} />
+				<Button size="sm" render={<Link href={`${ROUTES.school.settings}?tab=billing`}>View plans</Link>} />
 			</div>
 		);
 	}

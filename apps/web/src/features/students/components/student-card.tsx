@@ -2,11 +2,12 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { StudentAvatar } from "./student-avatar";
 import { StudentResponseData } from "../types/student.types";
+import { ROUTES } from "@/lib/routes";
 
 export function StudentCard({ student }: { student: StudentResponseData }) {
 	return (
 		<Link
-			href={`/school-admin/students/${student.id}`}
+			href={ROUTES.school.students.detail(student.id)}
 			className="flex items-center gap-3 rounded-xl border border-border bg-card/80 p-4 backdrop-blur-sm"
 		>
 			<StudentAvatar photoUrl={student.photoUrl} firstName={student.firstName} lastName={student.lastName} size={44} />

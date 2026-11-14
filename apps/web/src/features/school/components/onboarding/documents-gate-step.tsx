@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { FileDrop } from "@/components/ui/file-drop";
-import { COMPANY } from "@/config/company";
+import { PlatformName } from "@/components/layout/platform-name";
 import { useMyDocuments } from "@/features/school/hooks/use-school-document";
 import { schoolApi } from "@/features/school/services/school.api";
 import type { SchoolDocumentType, UploadDocumentExtraFields } from "@/features/school/types/school-document.types";
@@ -120,7 +120,7 @@ export function DocumentsGateStep({ isVerified, onVerified, schoolCategory }: Do
 					<div>
 						<div className="text-sm font-medium">Why we ask for this</div>
 						<p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-							Verification protects parents and confirms your school is a real, registered institution before you start collecting fees through {COMPANY.name}. Documents are reviewed privately and never shared.
+							Verification protects parents and confirms your school is a real, registered institution before you start collecting fees through <PlatformName />. Documents are reviewed privately and never shared.
 						</p>
 					</div>
 				</div>

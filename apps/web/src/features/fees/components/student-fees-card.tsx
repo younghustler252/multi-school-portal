@@ -8,6 +8,7 @@ import { formatNaira } from "@/lib/format-money";
 import { Loader2, Copy } from "lucide-react";
 import { toast } from "sonner";
 import { ApiErrorResponse } from "@/types/api-response";
+import { ROUTES } from "@/lib/routes";
 
 export function StudentFeesCard({ studentId, classId, termId }: { studentId: string; classId?: string; termId?: string }) {
 	const { data, isLoading } = useInvoices({ studentId, termId, limit: 10 });
@@ -34,7 +35,7 @@ export function StudentFeesCard({ studentId, classId, termId }: { studentId: str
 		<div className="rounded-xl border border-border bg-card/80 p-5 backdrop-blur-sm">
 			<div className="flex items-center justify-between">
 				<h3 className="font-medium">Fees this term</h3>
-				<Link href={`/school-admin/fees?studentId=${studentId}`} className="text-xs text-primary hover:underline">
+				<Link href={`${ROUTES.school.fees.list}?studentId=${studentId}`} className="text-xs text-primary hover:underline">
 					View all
 				</Link>
 			</div>

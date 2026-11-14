@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { GuardianStudentLinkResponseData } from "../types/guardian.types";
 import { GUARDIAN_RELATION_LABELS } from "../constants/guardian-relation-labels";
+import { ROUTES } from "@/lib/routes";
 
 export function GuardianStudentsPanel({ students = [] }: { students?: GuardianStudentLinkResponseData[] }) {
 	if (students.length === 0) {
@@ -20,7 +21,7 @@ export function GuardianStudentsPanel({ students = [] }: { students?: GuardianSt
 				{students.map((s) => (
 					<Link
 						key={s.id}
-						href={`/school-admin/students/${s.id}`}
+						href={ROUTES.school.students.detail(s.id)}
 						className="block rounded-lg border border-border p-3 transition-colors hover:border-primary/40"
 					>
 						<div className="flex items-center justify-between gap-2">

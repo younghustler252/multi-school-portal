@@ -1,3 +1,5 @@
+import { ROUTES } from "@/lib/routes";
+
 // Mirrors backend: section 3 of PROJECT_BRIEF.md — role → module access matrix
 
 export type Role =
@@ -20,11 +22,11 @@ export const ROLES: Record<Role, Role> = {
 };
 
 export const ROLE_DEFAULT_ROUTE: Record<Role, string> = {
-	super_admin: "/dashboard",
-	school_admin: "/school-admin/dashboard",
-	principal: "/principal/overview",
-	teacher: "/teacher/dashboard",
-	bursar: "/bursar/fees",
-	student: "/student/grades",
-	guardian: "/guardian/children",
+	super_admin: ROUTES.platform.dashboard,
+	school_admin: ROUTES.school.dashboard,
+	principal: ROUTES.insights.overview,
+	teacher: ROUTES.teaching.dashboard,
+	bursar: ROUTES.finance.fees,
+	student: ROUTES.learning.grades,
+	guardian: ROUTES.family.children.list,
 };

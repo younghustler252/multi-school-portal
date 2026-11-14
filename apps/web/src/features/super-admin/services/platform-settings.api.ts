@@ -4,8 +4,8 @@ import { PlatformSettingsResponseData, UpdatePlatformSettingsDto } from "../type
 
 export const platformSettingsApi = {
 	get: (): Promise<ApiResponse<PlatformSettingsResponseData>> =>
-		API.get("/platform-settings"),
+		API.get("/platform/settings"),
 
 	update: (data: UpdatePlatformSettingsDto): Promise<ApiResponse<PlatformSettingsResponseData>> =>
-		API.put("/platform-settings", data),
+		API.put("/platform/settings", data),
 };

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { useStudentCurrentEnrolment } from "../hooks/use-student-enrolment";
 import { useClasses } from "@/features/classes/hooks/use-classes";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ROUTES } from "@/lib/routes";
 
 export function StudentClassCard({ studentId, termId }: { studentId: string; termId?: string }) {
 	const { data: enrolment, isLoading } = useStudentCurrentEnrolment(studentId, termId);
@@ -17,7 +18,7 @@ export function StudentClassCard({ studentId, termId }: { studentId: string; ter
 			<h3 className="font-medium">Class</h3>
 			{classItem ? (
 				<Link
-					href={`/school-admin/classes/${classItem.id}`}
+					href={ROUTES.school.classes.detail(classItem.id)}
 					className="mt-2 block text-lg font-semibold text-primary hover:underline"
 				>
 					{classItem.name}

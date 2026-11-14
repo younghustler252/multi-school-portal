@@ -16,6 +16,7 @@ import { StaffResponseData } from "../types/staff.types";
 import { STAFF_ROLE_LABELS } from "../constants/staff-role-labels";
 import { useDeactivateStaff, useReactivateStaff } from "../hooks/use-staff";
 import { ApiErrorResponse } from "@/types/api-response";
+import { ROUTES } from "@/lib/routes";
 
 export function StaffCard({ staff }: { staff: StaffResponseData }) {
 	const router = useRouter();
@@ -45,7 +46,7 @@ export function StaffCard({ staff }: { staff: StaffResponseData }) {
 					{initials}
 				</div>
 				<div className="min-w-0 flex-1">
-					<Link href={`/school-admin/staff/${staff.id}`} className="block truncate font-medium hover:underline">
+					<Link href={ROUTES.school.staff.detail(staff.id)} className="block truncate font-medium hover:underline">
 						{staff.firstName} {staff.lastName}
 					</Link>
 					{staff.employeeId && <div className="text-xs text-muted-foreground">#{staff.employeeId}</div>}
@@ -61,7 +62,7 @@ export function StaffCard({ staff }: { staff: StaffResponseData }) {
 						}
 					/>
 					<DropdownMenuContent align="end" className="w-44">
-						<DropdownMenuItem onClick={() => router.push(`/school-admin/staff/${staff.id}`)}>
+						<DropdownMenuItem onClick={() => router.push(ROUTES.school.staff.detail(staff.id))}>
 							<Eye className="size-4" /> View profile
 						</DropdownMenuItem>
 						<DropdownMenuItem onClick={handleToggle}>

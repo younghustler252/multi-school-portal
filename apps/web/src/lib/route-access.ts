@@ -1,5 +1,6 @@
 import type { MyPermissions, PersonaType, Scope } from "@schoolos/contracts";
 import { PLATFORM_NAV, SCHOOL_NAV } from "@/lib/nav-model";
+import { ROUTES } from "@/lib/routes";
 
 /*
 | Which permission a page needs (M3). Pure data + one function, so it can be tested on its own.
@@ -31,11 +32,11 @@ const RANK: Record<Scope, number> = { OWN: 0, ASSIGNED: 1, BRANCH: 2, ALL: 3 };
 
 /** Pages the menu does not list: create forms, detail pages, tools. */
 const EXTRA_SCHOOL_RULES: RouteRule[] = [
-	{ path: "/school-admin/dashboard", anyOf: ["school.dashboard.view"] },
-	{ path: "/school-admin/staff/new", anyOf: ["staff.manage"] },
-	{ path: "/school-admin/students/new", anyOf: ["students.manage"] },
-	{ path: "/school-admin/guardians/new", anyOf: ["guardians.manage"] },
-	{ path: "/school-admin/enrolment/promote", anyOf: ["enrolment.promote"] },
+	{ path: ROUTES.school.dashboard, anyOf: ["school.dashboard.view"] },
+	{ path: ROUTES.school.staff.new, anyOf: ["staff.manage"] },
+	{ path: ROUTES.school.students.new, anyOf: ["students.manage"] },
+	{ path: ROUTES.school.guardians.new, anyOf: ["guardians.manage"] },
+	{ path: ROUTES.school.promote, anyOf: ["enrolment.promote"] },
 ];
 
 /*
@@ -49,18 +50,18 @@ const EXTRA_SCHOOL_RULES: RouteRule[] = [
 |    portal. These pages call the "my children / my grades" endpoints, which would be empty or wrong for them, so
 |    showing the page would only confuse. If a custom role ever needs them, that is a backend decision, not a guard tweak.
 |
-| Deliberately NO rule: /guardian/notifications (own inbox) and /student/dashboard (no student dashboard permission;
+| Deliberately NO rule: the family notifications inbox and the learning dashboard (no student dashboard permission;
 | school.dashboard.view is STAFF-only, so its sections follow their own permissions).
 */
 const family = (persona: PersonaType, path: string, key: string): RouteRule => ({ path, anyOf: [key], selfService: persona });
 const FAMILY_RULES: RouteRule[] = [
-	family("GUARDIAN", "/guardian/children", "students.view"),
-	family("GUARDIAN", "/guardian/fees", "fees.view"),
-	family("GUARDIAN", "/guardian/payments", "payments.pay"),
-	family("GUARDIAN", "/guardian/report-card", "report_cards.view"),
-	family("STUDENT", "/student/attendance", "attendance.view"),
-	family("STUDENT", "/student/grades", "grades.view"),
-	family("STUDENT", "/student/report-cards", "report_cards.view"),
+	family("GUARDIAN", ROUTES.family.children.list, "students.view"),
+	family("GUARDIAN", ROUTES.family.fees, "fees.view"),
+	family("GUARDIAN", ROUTES.family.payments, "payments.pay"),
+	family("GUARDIAN", ROUTES.family.reportCards, "report_cards.view"),
+	family("STUDENT", ROUTES.learning.attendance, "attendance.view"),
+	family("STUDENT", ROUTES.learning.grades, "grades.view"),
+	family("STUDENT", ROUTES.learning.reportCards, "report_cards.view"),
 ];
 
 /*
@@ -68,21 +69,21 @@ const FAMILY_RULES: RouteRule[] = [
 | These guard VIEWING the page. Actions inside a page (mark, enter, issue, record...) keep their own permission checks
 | in the page, so a view permission here never implies an action permission.
 | Scopes are minimums: a teacher page asks for ASSIGNED, so a broader scope (ALL) also qualifies; OWN does not.
-| Deliberately NO rule: /teacher/notifications (own inbox).
+| Deliberately NO rule: the teaching notifications inbox.
 */
 const staff = (path: string, anyOf: string[], minScope: Scope): RouteRule => ({ path, anyOf, minScope });
 const STAFF_AREA_RULES: RouteRule[] = [
-	staff("/principal/overview", ["school.dashboard.view"], "ALL"),
-	staff("/principal/attendance", ["attendance.view"], "ALL"),
-	staff("/principal/grades", ["grades.view"], "ALL"),
-	staff("/teacher/dashboard", ["classes.view"], "ALL"),
-	staff("/teacher/attendance", ["attendance.view", "attendance.mark"], "ASSIGNED"),
-	staff("/teacher/grades", ["grades.view", "grades.enter"], "ASSIGNED"),
-	staff("/teacher/my-classes", ["classes.view"], "ALL"),
-	staff("/teacher/report-cards", ["report_cards.view"], "ASSIGNED"),
-	staff("/bursar/dashboard", ["school.dashboard.view"], "ALL"),
-	staff("/bursar/fees", ["fees.invoices.view", "fees.setup.view"], "ALL"),
-	staff("/bursar/payments", ["payments.view"], "ALL"),
+	staff(ROUTES.insights.overview, ["school.dashboard.view"], "ALL"),
+	staff(ROUTES.insights.attendance, ["attendance.view"], "ALL"),
+	staff(ROUTES.insights.grades, ["grades.view"], "ALL"),
+	staff(ROUTES.teaching.dashboard, ["classes.view"], "ALL"),
+	staff(ROUTES.teaching.attendance, ["attendance.view", "attendance.mark"], "ASSIGNED"),
+	staff(ROUTES.teaching.grades, ["grades.view", "grades.enter"], "ASSIGNED"),
+	staff(ROUTES.teaching.classes, ["classes.view"], "ALL"),
+	staff(ROUTES.teaching.reportCards, ["report_cards.view"], "ASSIGNED"),
+	staff(ROUTES.finance.dashboard, ["school.dashboard.view"], "ALL"),
+	staff(ROUTES.finance.fees, ["fees.invoices.view", "fees.setup.view"], "ALL"),
+	staff(ROUTES.finance.payments, ["payments.view"], "ALL"),
 ];
 
 const fromNav = (entries: { to: string; anyOf?: string[] }[]): RouteRule[] =>

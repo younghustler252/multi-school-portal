@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/layout/logo";
-import { COMPANY } from "@/config/company";
+import { PlatformName } from "@/components/layout/platform-name";
 import { authApi } from "@/features/auth/services/auth.api";
 import { useAuthStore } from "@/stores/auth.store";
 import { ApiErrorResponse } from "@/types/api-response";
@@ -97,7 +97,7 @@ export default function VerifyEmailPage() {
 			<div className="w-full max-w-sm text-center">
 				<Link href="/" className="inline-flex items-center gap-2">
 					<Logo size={36} />
-					<span className="text-lg font-semibold">{COMPANY.name}</span>
+					<span className="text-lg font-semibold"><PlatformName /></span>
 				</Link>
 
 				<h1 className="mt-6 text-2xl font-semibold tracking-tight">Verify your email</h1>

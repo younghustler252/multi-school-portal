@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import { NAV_ICONS } from "@/lib/nav-config";
 import { visibleNav } from "@/lib/nav-model";
 import { useAuthStore } from "@/stores/auth.store";
-import { COMPANY } from "@/config/company";
+import { PlatformName } from "@/components/layout/platform-name";
 
 interface AdminSidebarProps {
 	isOpen: boolean;
@@ -25,9 +25,9 @@ function AdminSidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 	return (
 		<div className="flex h-full flex-col bg-sidebar/95 backdrop-blur-md text-sidebar-foreground">
 			<Link href="/dashboard" className="flex h-16 items-center gap-2 border-b border-sidebar-border px-5">
-				<Logo size={32} name={COMPANY.name} />
+				<Logo size={32} />
 				<div className="leading-tight">
-					<div className="font-semibold text-sidebar-foreground">{COMPANY.name}</div>
+					<div className="font-semibold text-sidebar-foreground"><PlatformName /></div>
 					<div className="text-[11px] text-muted-foreground">Platform Admin</div>
 				</div>
 			</Link>

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/layout/logo";
-import { COMPANY } from "@/config/company";
+import { PlatformName } from "@/components/layout/platform-name";
 import { useLogin } from "@/features/auth/hooks/use-login";
 import { loginSchema, LoginFormValues } from "@/features/auth/schemas/login.schema";
 
@@ -34,7 +34,7 @@ export default function AdminLoginPage() {
 				<div className="mb-8 flex flex-col items-center text-center">
 					<Link href="/" className="flex items-center gap-2">
 						<Logo size={36} />
-						<span className="text-lg font-semibold">{COMPANY.name}</span>
+						<span className="text-lg font-semibold"><PlatformName /></span>
 					</Link>
 					<div className="mt-6 grid size-12 place-items-center rounded-full bg-primary/10">
 						<ShieldCheck className="size-6 text-primary" />

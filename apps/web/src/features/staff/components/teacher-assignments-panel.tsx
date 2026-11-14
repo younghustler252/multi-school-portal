@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTeacherAssignments } from "../hooks/use-teacher-assignments";
+import { ROUTES } from "@/lib/routes";
 
 export function TeacherAssignmentsPanel({ staffId }: { staffId: string }) {
 	const { data: assignments, isLoading } = useTeacherAssignments(staffId);
@@ -31,7 +32,7 @@ export function TeacherAssignmentsPanel({ staffId }: { staffId: string }) {
 							{classNames.map((c) => {
 								const assignment = assignments.find((a) => a.className === c);
 								return (
-									<Link key={c} href={`/school-admin/classes/${assignment?.classId}`}>
+									<Link key={c} href={ROUTES.school.classes.detail(assignment?.classId)}>
 										<Badge variant="secondary">{c}</Badge>
 									</Link>
 								);

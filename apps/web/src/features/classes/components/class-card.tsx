@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ClassResponseData } from "../types/class.types";
+import { ROUTES } from "@/lib/routes";
 
 function inferCategory(level: string | null): string {
 	if (!level) return "Unspecified";
@@ -32,7 +33,7 @@ export function ClassCard({ classItem }: { classItem: ClassResponseData }) {
 					size="sm"
 					variant="outline"
 					nativeButton={false}
-					render={<Link href={`/school-admin/classes/${classItem.id}`}>Manage</Link>}
+					render={<Link href={ROUTES.school.classes.detail(classItem.id)}>Manage</Link>}
 				/>
 			</div>
 		</div>

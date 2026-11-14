@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { StudentGuardianLinkResponseData } from "../types/student.types";
 import { GUARDIAN_RELATION_LABELS } from "@/features/guardians/constants/guardian-relation-labels";
 import { LinkGuardianDialog } from "@/features/guardians/components/link-guardian-dialg";
+import { ROUTES } from "@/lib/routes";
 
 type StudentGuardiansPanelProps = {
 	studentId: string;
@@ -46,7 +47,7 @@ export function StudentGuardiansPanel({
 						{guardians.map((g) => (
 							<Link
 								key={g.id}
-								href={`/school-admin/guardians/${g.id}`}
+								href={ROUTES.school.guardians.detail(g.id)}
 								className="block rounded-lg border border-border p-3 transition-colors hover:border-primary/40"
 							>
 								<div className="flex items-center justify-between gap-2">

@@ -1,14 +1,14 @@
 import Link from "next/link";
 import { Logo } from "@/components/layout/logo";
 import { Button } from "@/components/ui/button";
-import { COMPANY } from "@/config/company";
+import { PlatformName } from "@/components/layout/platform-name";
 
 export default function NotFound() {
 	return (
 		<div className="flex min-h-screen flex-col items-center justify-center bg-hero-radial px-4 text-center">
 			<Link href="/" className="mb-8 flex items-center gap-2">
 				<Logo size={32} />
-				<span className="font-semibold tracking-tight">{COMPANY.name}</span>
+				<span className="font-semibold tracking-tight"><PlatformName /></span>
 			</Link>
 
 			<div className="text-6xl font-bold text-muted-foreground/30">404</div>

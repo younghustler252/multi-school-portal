@@ -27,7 +27,7 @@ export default function SuperAdminDashboardPage() {
 		<>
 			<PageHeader
 				title="Platform Overview"
-				description="All schools on SchoolOS."
+				description="All schools on the platform."
 				actions={<Button onClick={() => setCreateOpen(true)}><Plus className="size-4" /> Create school</Button>}
 			/>
 

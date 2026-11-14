@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useMySchool } from "@/features/school/hooks/use-school";
 import { useMyDocuments } from "@/features/school/hooks/use-school-document";
 import { useRouter } from "next/navigation";
+import { ROUTES } from "@/lib/routes";
 
 export function ReviewStep({ onBack }: { onBack: () => void }) {
 	const { data: school } = useMySchool();
@@ -42,7 +43,7 @@ export function ReviewStep({ onBack }: { onBack: () => void }) {
 
 			<div className="flex items-center justify-between border-t border-border pt-5">
 				<Button variant="ghost" onClick={onBack}>Back</Button>
-				<Button onClick={() => router.push("/school-admin/dashboard")}>Go to dashboard</Button>
+				<Button onClick={() => router.push(ROUTES.school.dashboard)}>Go to dashboard</Button>
 			</div>
 		</div>
 	);

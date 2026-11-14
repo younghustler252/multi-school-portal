@@ -1,4 +1,5 @@
 import companyData from "./company.json";
+import { currentDeployment, platformUrl } from "@/lib/deployment";
 
 export interface CompanyConfig {
 	name: string;
@@ -9,6 +10,7 @@ export interface CompanyConfig {
 	logoLetter: string;
 	primaryColor: string | null; // null = use default --primary from globals.css
 	supportEmail: string;
+	supportPhone?: string | null;
 	salesEmail: string;
 	website: string;
 	socials: {
@@ -23,11 +25,14 @@ export interface CompanyConfig {
 	};
 }
 
-// SchoolOS's own default branding — used on marketing site, super-admin console,
+// Built-in DEFAULTS only. The platform API (GET /platform/settings, via usePlatformInfo) overrides name, logo, support
+// contact and legal links at runtime; these values show while it loads or if it cannot be reached.
+// Used on marketing site, super-admin console,
 // and as the fallback for any school that hasn't set custom branding (or isn't on a plan that allows it).
 export const DEFAULT_COMPANY: CompanyConfig = {
 	...companyData,
 	logoUrl: "/logo.svg", // real logo file in /public
+	website: platformUrl(currentDeployment(), "").replace(/\/$/, ""), // from NEXT_PUBLIC_BASE_DOMAIN, never typed here
 	primaryColor: null,
 };
 

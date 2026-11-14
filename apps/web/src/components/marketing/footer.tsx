@@ -1,8 +1,11 @@
+"use client";
+
 import Link from "next/link";
 import { Logo } from "@/components/layout/logo";
-import { COMPANY } from "@/config/company";
+import { usePlatformInfo } from "@/lib/use-platform-info";
 
 export function Footer() {
+	const company = usePlatformInfo();
 	return (
 		<footer className="border-t border-border bg-card/60">
 			<div className="mx-auto max-w-6xl px-4 py-12 md:px-6">
@@ -10,9 +13,9 @@ export function Footer() {
 					<div className="max-w-xs">
 						<div className="flex items-center gap-2">
 							<Logo size={24} />
-							<span className="font-semibold">{COMPANY.name}</span>
+							<span className="font-semibold">{company.name}</span>
 						</div>
-						<p className="mt-3 text-sm text-muted-foreground">{COMPANY.tagline}</p>
+						<p className="mt-3 text-sm text-muted-foreground">{company.tagline}</p>
 					</div>
 
 					<div className="flex gap-16">
@@ -27,15 +30,15 @@ export function Footer() {
 						<div>
 							<div className="text-sm font-medium">Legal</div>
 							<div className="mt-3 flex flex-col gap-2 text-sm text-muted-foreground">
-								<Link href={COMPANY.legal.privacyPolicyUrl} className="hover:text-foreground">Privacy</Link>
-								<Link href={COMPANY.legal.termsUrl} className="hover:text-foreground">Terms</Link>
+								<Link href={company.legal.privacyPolicyUrl} className="hover:text-foreground">Privacy</Link>
+								<Link href={company.legal.termsUrl} className="hover:text-foreground">Terms</Link>
 							</div>
 						</div>
 					</div>
 				</div>
 
 				<div className="mt-10 border-t border-border pt-6 text-xs text-muted-foreground">
-					© {new Date().getFullYear()} {COMPANY.legal.companyName}. Made for Nigerian schools.
+					© {new Date().getFullYear()} {company.legal.companyName}. Made for Nigerian schools.
 				</div>
 			</div>
 		</footer>

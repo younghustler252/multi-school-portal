@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/layout/logo";
-import { COMPANY } from "@/config/company";
+import { PlatformName } from "@/components/layout/platform-name";
 import { authApi } from "@/features/auth/services/auth.api";
 import { forgotPasswordSchema, ForgotPasswordFormValues } from "@/features/auth/schemas/password.schema";
 import { ApiErrorResponse } from "@/types/api-response";
@@ -47,7 +47,7 @@ export default function ForgotPasswordPage() {
 				<div className="mb-8 flex flex-col items-center text-center">
 					<Link href="/" className="flex items-center gap-2">
 						<Logo size={36} />
-						<span className="text-lg font-semibold">{COMPANY.name}</span>
+						<span className="text-lg font-semibold"><PlatformName /></span>
 					</Link>
 					<h1 className="mt-6 text-2xl font-semibold tracking-tight">Reset your password</h1>
 					<p className="mt-1 text-sm text-muted-foreground">

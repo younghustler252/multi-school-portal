@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { COMPANY } from "@/config/company";
+import { usePlatformInfo } from "@/lib/use-platform-info";
 
 interface LogoProps {
 	logoUrl?: string | null;
@@ -16,10 +16,11 @@ export function Logo({
 	size = 32,
 }: LogoProps) {
 	const [failed, setFailed] = useState(false);
+	const company = usePlatformInfo();
 
 	// Handles null, undefined, and empty strings
-	const src = logoUrl?.trim() || COMPANY.logoUrl;
-	const displayName = name ?? COMPANY.name;
+	const src = logoUrl?.trim() || company.logoUrl;
+	const displayName = name ?? company.name;
 
 	// Show fallback if there's no image or it failed to load
 	if (!src || failed) {

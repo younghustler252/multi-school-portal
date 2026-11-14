@@ -8,7 +8,7 @@ import { useRouter as useNavRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/layout/logo";
-import { COMPANY } from "@/config/company";
+import { PlatformName } from "@/components/layout/platform-name";
 import { buildSubdomainUrl } from "@/lib/subdomain-url";
 import { useMySchool } from "@/features/school/hooks/use-school";
 import { useOnboardingProgress } from "@/features/school/hooks/use-onboarding-progress";
@@ -39,7 +39,7 @@ export default function OnboardingLayout({ children }: { children: ReactNode }) 
 						<div className="flex h-16 items-center gap-3 px-4 md:px-8">
 							<Link href="/" className="flex items-center gap-2">
 								<Logo size={32} />
-								<span className="hidden font-semibold tracking-tight sm:inline">{COMPANY.name}</span>
+								<span className="hidden font-semibold tracking-tight sm:inline"><PlatformName /></span>
 							</Link>
 
 							<span className="rounded-md bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground">
