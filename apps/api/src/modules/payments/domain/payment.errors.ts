@@ -36,6 +36,8 @@ export const paymentErrors = {
     refundNotApproved:  (status: string) => new AppError("Only an approved refund can be paid", 409, true, "REFUND_NOT_APPROVED", { status }),
     secondApproverMustDiffer: () => new AppError("A second, different person must approve this refund", 403, true, "SECOND_APPROVER_MUST_DIFFER"),
     selfApproval:     () => new AppError("A different person must approve this. The person who asked for it cannot", 403, true, "SELF_APPROVAL_NOT_ALLOWED"),
+    creditChanged:    () => new AppError("The student's credit changed while this was being processed. Reload and try again", 409, true, "CREDIT_CHANGED"),
+    settlementMoved:  () => new AppError("Recording a gateway settlement moved to POST /api/v1/finance/settlements, which settles named payments and keeps the settlement record. This endpoint no longer posts anything", 410, true, "SETTLEMENT_ENDPOINT_MOVED"),
     refundChanged:    () => new AppError("This refund was changed by someone else. Reload it and try again", 409, true, "REFUND_CHANGED"),
     paymentHasRefunds: () => new AppError(
         "This payment has refunds. A payment with refunds cannot be reversed", 409, true, "PAYMENT_HAS_REFUNDS"),
