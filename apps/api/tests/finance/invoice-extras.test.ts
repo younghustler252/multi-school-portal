@@ -115,6 +115,17 @@ describe("opening balances", () => {
         assert.equal(r.created.length, 1); assert.equal(r.failed.length, 2);
         assert.equal(w.drafts.size, 1);
     });
+    it("keeps amounts above Number.MAX_SAFE_INTEGER exact in the response, the draft and the audit total", async () => {
+        const w = extrasWorld();
+        const big = 9_007_199_254_740_993n, big2 = 9_007_199_254_740_995n;          // both above 2^53; Number() would round them
+        const r = await new OpeningBalancesUseCase(w.d, opts).execute("sch", "u1", dto([{ studentId: "s1", amountKobo: big }, { studentId: "s2", amountKobo: big2 }]));
+        assert.deepEqual(r.created.map(c => c.amountKobo), [big.toString(), big2.toString()]);
+        const posted = [...w.drafts.values()].map(x => x.items[0].amountKobo);
+        assert.deepEqual(posted, [big, big2]);
+        assert.equal(w.audit.at(-1).newValue.totalKobo, (big + big2).toString());
+        const small = await new OpeningBalancesUseCase(extrasWorld().d, opts).execute("sch", "u1", dto([{ studentId: "s1", amountKobo: N(5_000) }]));
+        assert.equal(small.created[0].amountKobo, 500_000);                           // safe amounts stay plain numbers
+    });
     it("refuses a future date and a missing equity account", async () => {
         const w = extrasWorld();
         await assert.rejects(new OpeningBalancesUseCase(w.d, opts).execute("sch", "u1", dto([{ studentId: "s1", amountKobo: N(1) }], "2026-12-01")), code("OPENING_DATE_IN_FUTURE"));
