@@ -25,6 +25,8 @@ export interface IStudentRepository {
 
     // ── Student specific ──────────────────────────────────────────────────
     findByAdmissionNumber(admissionNumber: string): Promise<StudentEntity | null>;
+    /** The class each of these students is in this term (current term, active enrolment). Students with none are left out. */
+    currentClasses(studentIds: string[]): Promise<Map<string, { id: string; name: string }>>;
     searchStudents(
         query:  string,
         params: PaginateParams,

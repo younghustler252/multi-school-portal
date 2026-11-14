@@ -20,6 +20,7 @@ All routes require authentication and tenant context.
 
 | Permission/persona | Scope behavior |
 |---|---|
+| `students.lookup` | `ALL` only, STAFF only. The picker for people who work with a student's account but not their record (the bursar). Never returns date of birth, gender, blood group, address, religion, nationality, state of origin, photo, guardians or user id. Tests: `tests/students/student-lookup.db.test.ts` |
 | `students.view` | `ALL`: all students; `BRANCH`: students in permitted branches; `ASSIGNED`: students enrolled this term in a class the staff member leads or teaches; `OWN`: the student's own record or a guardian's linked children |
 | `students.manage` | Create, update, deactivate/reactivate, undo graduation and photo changes |
 | `students.transfer` | Transfer a student between branches |
@@ -38,6 +39,7 @@ All paths are under `/api/v1/students`.
 | `POST /import/preview` | `students.import`, upload limiter, multipart field `file` | Validate and preview import; saves nothing |
 | `POST /import` | `students.import`, upload limiter, multipart field `file` | Import valid rows |
 | `GET /me` | STUDENT persona | Current student's own record |
+| `GET /lookup` | `students.lookup` | Find a student by name or admission number: id, admission number, names, branch, status and current class only. Search of 2+ letters required, at most 25 results, `status` active (default) / inactive / graduated / all. Registered before `/:id` |
 | `GET /` | `students.view` | Paginated/searchable directory |
 | `POST /` | `students.manage` | Create student |
 | `GET /:id` | `students.view` | Read student within scope |
@@ -118,3 +120,11 @@ The full update/deactivation/reactivation/graduation/transfer/photo implementati
 - `usecases/create-student.usecase.ts`, `usecases/student-queries.usecases.ts`, `usecases/student-import.usecases.ts`
 - `domain/student.policy.ts`, `domain/student-import.policy.ts`, `services/student-scope.ts`
 - `mappers/student.mapper.ts`, `students.container.ts`, `apps/api/src/routes/index.ts`
+
+
+## Finance staff and student data (findings, for the bursar decision)
+Checked in the API: every finance request identifies students by id (invoices by `studentIds` or `classId`, payments by `studentIds`, refunds and statements by `studentId`). No finance endpoint can search for a student by name or admission number (the invoice list's `q` only finds students who already have an invoice). So the bursar's one real need is a **picker**, which `students.lookup` now provides.
+- `students.view` for the bursar is also what shows the student counts and academic tiles on the school dashboard (`get-dashboard.usecase.ts`); removing it hides those tiles for the bursar.
+- No finance route is guarded by `enrolment.view`, and class bulk-invoicing reads the class list on the server. The bursar holds `enrolment.view ALL` today only for screens; nothing in the API requires it.
+- The full student record that `students.view` returns includes date of birth, gender, blood group, address, religion, nationality and state of origin: more than billing needs.
+- **Not yet changed:** the bursar still holds `students.view` and `enrolment.view` alongside the new `students.lookup`. Removing them is a separate, deliberate step (a revocation in `role-revocations.registry.ts`) once the finance screens use the lookup.

@@ -10,6 +10,7 @@ import { DeactivateStudentUseCase } from "./usecases/deactivate-student.usecase"
 import { ReactivateStudentUseCase } from "./usecases/reactivate-student.usecase";
 import { UndoGraduationUseCase } from "./usecases/undo-graduation.usecase";
 import { ListStudentsUseCase, GetStudentUseCase, GetMyStudentProfileUseCase } from "./usecases/student-queries.usecases";
+import { LookupStudentsUseCase } from "./usecases/student-lookup.usecase";
 import { TransferStudentUseCase } from "./usecases/transfer-student.usecase";
 import { UploadStudentPhotoUseCase } from "./usecases/upload-photo.usecase";
 import { PreviewStudentImportUseCase, ImportStudentsUseCase } from "./usecases/student-import.usecases";
@@ -26,6 +27,7 @@ export const registerStudents = (container: AwilixContainer): void => {
         numberSequenceService: asClass(NumberSequenceService).singleton(),
         studentPhotoService:   asClass(StudentPhotoService).scoped(),
 
+        lookupStudentsUseCase:       asClass(LookupStudentsUseCase).scoped(),
         listStudentsUseCase:         asClass(ListStudentsUseCase).scoped(),
         getStudentUseCase:           asClass(GetStudentUseCase).scoped(),
         getMyStudentProfileUseCase:  asClass(GetMyStudentProfileUseCase).scoped(),

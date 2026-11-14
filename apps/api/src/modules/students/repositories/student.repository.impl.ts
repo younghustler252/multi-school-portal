@@ -35,6 +35,15 @@ export class StudentRepositoryImpl extends BaseTenantRepository<StudentEntity> i
         return this.paginate({ ...params, where: { AND: [params.where ?? {}, ...words.map(matchesWord)] } });
     }
 
+    async currentClasses(studentIds: string[]): Promise<Map<string, { id: string; name: string }>> {
+        if (studentIds.length === 0) return new Map();
+        const rows = await this.prisma.enrolment.findMany({
+            where: { studentId: { in: studentIds }, status: "active", term: { isCurrent: true } },
+            select: { studentId: true, class: { select: { id: true, name: true } } },
+        });
+        return new Map(rows.map(r => [r.studentId, r.class]));
+    }
+
     async undoGraduation(studentId: string, reopen: { termId: string } | null): Promise<UndoGraduationOutcome> {
         class Abort extends Error { constructor(readonly outcome: UndoGraduationOutcome) { super("abort"); } }
         try {
