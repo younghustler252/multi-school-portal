@@ -4,6 +4,7 @@ import { PlatformNotificationMapper }        from "../mappers/notification.mappe
 import { PlatformNotificationResponseData }  from "../mappers/notification.mapper";
 import { ISchoolRepository }                 from "../../school/repositories/school.repository";
 import { SendPlatformNotificationDtoType }   from "../dtos/notification.dto";
+import { createHash } from "node:crypto";
 import { ValidationError }                   from "../../../shared/errors/domain.errors";
 
 /*
@@ -19,6 +20,15 @@ interface Dependencies {
     schoolRepository:            ISchoolRepository;
     notificationDeliveryQueue:   DeliveryQueue;
 }
+
+/* A stable id for one operator's one request key, so the database primary key makes "the same send twice" a single broadcast. */
+const broadcastIdFor = (adminId: string, key: string): string => {
+    const h = createHash("sha1").update(`platform-broadcast:${adminId}:${key}`).digest();
+    h[6] = (h[6] & 0x0f) | 0x50; h[8] = (h[8] & 0x3f) | 0x80;                       // version 5, RFC variant
+    const x = h.subarray(0, 16).toString("hex");
+    return `${x.slice(0, 8)}-${x.slice(8, 12)}-${x.slice(12, 16)}-${x.slice(16, 20)}-${x.slice(20, 32)}`;
+};
+const isUniqueViolation = (e: unknown): boolean => (e as { code?: string })?.code === "P2002";
 
 export class SendPlatformNotificationUseCase {
     private readonly notificationRepository:     INotificationRepository;
@@ -50,16 +60,30 @@ export class SendPlatformNotificationUseCase {
         if (chosen !== undefined && dto.broadcastAll === true) throw new ValidationError("Send schoolIds or broadcastAll: true, not both");
         if (chosen === undefined && dto.broadcastAll === false) throw new ValidationError("Choose schools in schoolIds, or set broadcastAll to true");
 
-        // ── Create notification ───────────────────────────────────────────
-        const notification = await this.notificationRepository
-            .createPlatformNotification({
-                title:            dto.title,
-                message:          dto.message,
-                type:             dto.type,
-                state:            "QUEUED",
-                createdByAdminId: adminId,
-                metadata:         dto.metadata,
-            });
+        // ── Create the notification, or find the one this request key already made ──
+        // With an idempotencyKey the id is derived from (operator, key): a retry lands on the same row and RESUMES it.
+        const id = dto.idempotencyKey ? broadcastIdFor(adminId, dto.idempotencyKey) : undefined;
+        let notification = id ? await this.notificationRepository.findPlatformNotificationById(id) : null;
+        if (!notification) {
+            try {
+                notification = await this.notificationRepository.createPlatformNotification({
+                    ...(id && { id }),
+                    title:            dto.title,
+                    message:          dto.message,
+                    type:             dto.type,
+                    state:            "QUEUED",
+                    createdByAdminId: adminId,
+                    metadata:         dto.metadata,
+                });
+            } catch (err) {
+                if (!id || !isUniqueViolation(err)) throw err;                          // two requests with one key at the same moment: the loser resumes
+                notification = await this.notificationRepository.findPlatformNotificationById(id);
+                if (!notification) throw err;
+            }
+        }
+        if (id && (notification.title !== dto.title || notification.message !== dto.message)) {
+            throw new ValidationError("This idempotencyKey was already used for a different message");
+        }
 
         // ── Resolve target schools ────────────────────────────────────────
         let schoolIds: string[] = [...new Set<string>(chosen ?? [])];
@@ -73,29 +97,27 @@ export class SendPlatformNotificationUseCase {
             schoolIds = schools.map(s => s.id);
         }
 
-        // ── Create recipient records ──────────────────────────────────────
+        // ── Recipient rows: one per school and channel, created only if missing (resume-safe) ─────────────
         // In-app rows are visible at once (SENT). Email and SMS rows wait for the queue, which sends each through the same
-        // platform delivery path the worker uses and records the outcome on the row.
+        // platform delivery path the worker uses and records the outcome on the row. A row already SENT is never touched or re-sent.
         const now = new Date();
-        const toQueue: string[] = [];
-        for (const schoolId of schoolIds) {
-            for (const channel of dto.channels) {
-                const inApp = channel === "IN_APP";
-                const row = await this.notificationRepository.createPlatformRecipient({
-                    notificationId: notification.id,
-                    schoolId,
-                    channel,
-                    status: inApp ? "SENT" : "PENDING",
-                    ...(inApp && { sentAt: now }),
-                });
-                if (!inApp) toQueue.push(row.id);
-            }
-        }
+        const rows = await this.notificationRepository.ensurePlatformRecipients(schoolIds.flatMap(schoolId => dto.channels.map(channel => ({
+            notificationId: notification!.id,
+            schoolId,
+            channel,
+            idempotencyKey: `${notification!.id}:${schoolId}:${channel}`,
+            status: channel === "IN_APP" ? "SENT" as const : "PENDING" as const,
+            ...(channel === "IN_APP" && { sentAt: now }),
+        }))));
+        const toQueue = rows.filter(r => r.channel !== "IN_APP" && (r.status === "PENDING" || r.status === "QUEUED")).map(r => r.id);   // QUEUED again is safe: the job id is the row id
+        const waiting = rows.some(r => r.channel !== "IN_APP" && (r.status === "PENDING" || r.status === "QUEUED"));
 
         // ── Hand email/SMS to the queue; the parent is only COMPLETED when nothing is left waiting ──
         if (toQueue.length === 0) {
-            const updated = await this.notificationRepository.updatePlatformNotification(notification.id, { state: "COMPLETED", sentAt: now, completedAt: now });
-            return this.platformNotificationMapper.toResponse(updated);
+            // nothing new to hand over: either everything is already delivered/failed (settle), or rows are still in flight (leave the state)
+            if (!waiting) await this.notificationRepository.updatePlatformNotification(notification.id, { state: "COMPLETED", sentAt: notification.sentAt ?? now, completedAt: notification.completedAt ?? now });
+            const current = await this.notificationRepository.findPlatformNotificationById(notification.id);
+            return this.platformNotificationMapper.toResponse(current ?? notification);
         }
 
         // PROCESSING is set BEFORE queueing so a fast worker that settles the last row is never overwritten by this write.

@@ -286,6 +286,8 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Owner/workstream:** Payments developer
 - **Acceptance criteria:** A settlement with values above `Number.MAX_SAFE_INTEGER` kobo returns exact digit strings and matches the posted journal amounts.
 
+- **Resolution (branch `fix/api/p1-remediation-batch2`, not yet merged):** Confirmed, then fixed. `RecordSettlementUseCase` returns `grossKobo`, `feeKobo` and `receivedKobo` through `koboOut` (number when safe, digit string above 2^53). Test posts a settlement above 2^53 and checks the response against the journal lines.
+
 ### REM-025 — Settlement idempotency is bypassed when reference is omitted
 
 - **Module:** Payments / settlements
@@ -893,6 +895,8 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Owner/workstream:** Security/Audit + module owners
 - **Acceptance criteria:** Automated tests prove secret fields are removed before persistence for auth, users, students, guardians, finance, payroll and platform billing events.
 
+- **Resolution (branch `fix/api/p1-remediation-batch2`, not yet merged):** Confirmed, then fixed (safety net). `AuditService.log` passes `oldValue`, `newValue` and `metadata` through `redactAuditValue` (`audit-redaction.ts`): credential-named keys (password/hash, OTP/PIN, token, secret, API/private key, authorization, cookie, signature, CVV) are replaced with `[REDACTED]` at any depth, bank/card/identity numbers keep only the last four characters, and bigint/Date become JSON-safe. Keys are matched as whole words, so `shipping`, `mapping`, `hasPassword`, `tokenType` are untouched. **Remaining:** per-entity allowlists and the caller inventory stay with each module owner, and already-stored unsafe records are not migrated.
+
 ### REM-080 — Audit read/query behavior lacks school/platform isolation and enrichment tests
 
 - **Module:** Audit
@@ -1094,6 +1098,8 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Owner/workstream:** Notifications/Platform developer
 - **Acceptance criteria:** A partially failed broadcast can resume without duplicating completed deliveries; repeated API requests with the same idempotency key return the original broadcast.
 
+- **Resolution (branch `fix/api/p1-remediation-batch2`, not yet merged):** Confirmed, then fixed without a migration. The request may carry `idempotencyKey` (body or `Idempotency-Key` header). The notification id is derived from (operator, key), so the primary key makes a repeated or concurrent send one broadcast; a retry returns the original and resumes it. Recipient rows are created only if missing (`@@unique([notificationId, schoolId, channel])`, `skipDuplicates`), rows already SENT are never touched, and PENDING/QUEUED rows are handed to the queue again (job id = row id, so the queue drops repeats). The same key with a different message is a 400. **Remaining:** rows that exhausted the worker's retries (FAILED) are not re-driven by a resend; there is no per-recipient lease or summary field, and no background requeue of platform rows that were never queued.
+
 ### REM-098 — School dispatch notification header and recipient chunks are not atomic
 
 - **Module:** Notifications / School Dispatch
@@ -1292,6 +1298,8 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Configure trust proxy to the exact trusted proxy chain/hop count for deployment, never blindly trust all forwarded headers. Use a shared Redis-backed rate-limit store for multi-instance deployments. Verify health/static/API behavior and per-user/IP policies.
 - **Owner/workstream:** API Infrastructure/DevOps
 - **Acceptance criteria:** Production-like tests prove distinct client IPs receive distinct limits behind the trusted proxy and all replicas share one limit state.
+
+- **Resolution (branch `fix/api/p1-remediation-batch2`, not yet merged):** Partly pre-existing, now complete in code. `TRUST_PROXY` (explicit trusted hops, never trust-everyone) was already merged. Added an opt-in Redis store (`RATE_LIMIT_STORE=redis`) with one atomic script per hit, per-limiter key prefixes, and fail-open on Redis errors; the Lua was verified against a real Redis (20 parallel hits counted exactly 1..20). **Remaining:** set `RATE_LIMIT_STORE=redis` and the right `TRUST_PROXY` in each multi-replica deployment; the production-like multi-replica test is a DevOps check, and the global 100/15-minute limit still runs before auth.
 
 ### REM-116 — Entitlement warn-mode decisions are not exposed to clients
 

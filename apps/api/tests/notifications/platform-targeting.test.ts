@@ -6,20 +6,28 @@ import { SendPlatformNotificationUseCase } from "../../src/modules/notifications
 const UUID_A = "00000000-0000-4000-8000-00000000000a", UUID_B = "00000000-0000-4000-8000-00000000000b";
 function world() {
     const created: any[] = [], recipients: any[] = [], mails: string[] = [], jobs: any[] = [], states: any[] = [];
+    const notes = new Map<string, any>();
     const deps: any = {
         notificationRepository: {
-            createPlatformNotification: async (d: any) => { created.push(d); return { id: "n1" }; },
-            createPlatformRecipient: async (r: any) => { recipients.push(r); return { id: `r${recipients.length}` }; },
-            markPlatformRecipientsQueued: async (ids: string[]) => { for (const r of recipients) if (ids.includes(`r${recipients.indexOf(r) + 1}`)) r.status = "QUEUED"; },
-            findPlatformNotificationById: async (id: string) => ({ id, ...Object.assign({}, ...states) }),
-            updatePlatformNotification: async (id: string, d: any) => { states.push(d); return { id, ...d }; },
+            createPlatformNotification: async (d: any) => {
+                const id = d.id ?? `n${notes.size + 1}`;
+                if (notes.has(id)) throw Object.assign(new Error("Unique constraint"), { code: "P2002" });
+                const row = { sentAt: null, completedAt: null, ...d, id }; notes.set(id, row); created.push(row); return { ...row };
+            },
+            ensurePlatformRecipients: async (rows: any[]) => {
+                for (const r of rows) if (!recipients.some(x => x.notificationId === r.notificationId && x.schoolId === r.schoolId && x.channel === r.channel)) recipients.push({ id: `r${recipients.length + 1}`, ...r });
+                return recipients.filter(x => x.notificationId === rows[0].notificationId);
+            },
+            markPlatformRecipientsQueued: async (ids: string[]) => { for (const r of recipients) if (ids.includes(r.id) && r.status === "PENDING") r.status = "QUEUED"; },
+            findPlatformNotificationById: async (id: string) => (notes.has(id) ? { ...notes.get(id) } : null),
+            updatePlatformNotification: async (id: string, d: any) => { states.push(d); Object.assign(notes.get(id), d); return { ...notes.get(id) }; },
         },
         platformNotificationMapper: { toResponse: (x: any) => x },
         schoolRepository: { findMany: async () => [{ id: "s1" }, { id: "s2" }, { id: "s3" }] },
         notificationDeliveryQueue: { enqueue: async (j: any[]) => { if ((deps as any).queueDown) throw new Error("redis down"); jobs.push(...j); } },
     };
     const base = { title: "t", message: "m", type: "system_alert", channels: ["IN_APP", "EMAIL"] } as any;
-    return { uc: new SendPlatformNotificationUseCase(deps), deps, created, recipients, mails, jobs, states, base };
+    return { uc: new SendPlatformNotificationUseCase(deps), deps, notes, created, recipients, mails, jobs, states, base };
 }
 const schoolsOf = (w: ReturnType<typeof world>) => [...new Set(w.recipients.map(r => r.schoolId))].sort();
 
@@ -40,7 +48,7 @@ describe("platform notification targeting", () => {
         const out: any = await w.uc.execute({ ...w.base, schoolIds: ["s1"] }, "admin");
         assert.deepEqual(w.recipients.map(r => [r.channel, r.status]), [["IN_APP", "SENT"], ["EMAIL", "QUEUED"]]);
         assert.deepEqual(w.jobs.map(j => j.kind), ["platform"]);
-        assert.equal(out.state, "PROCESSING"); assert.equal(out.completedAt, undefined);
+        assert.equal(out.state, "PROCESSING"); assert.equal(out.completedAt, null);
     });
     it("REM-093: an in-app-only notice has nothing to wait for and completes at once", async () => {
         const w = world();
@@ -52,6 +60,44 @@ describe("platform notification targeting", () => {
         const out: any = await w.uc.execute({ ...w.base, schoolIds: ["s1"] }, "admin");
         assert.equal(w.recipients.find(r => r.channel === "EMAIL").status, "PENDING");
         assert.equal(out.state, "QUEUED");
+    });
+    it("REM-097: the same idempotencyKey returns the ORIGINAL broadcast and sends nothing twice", async () => {
+        const w = world();
+        const first: any = await w.uc.execute({ ...w.base, schoolIds: ["s1", "s2"], idempotencyKey: "retry-key-001" }, "admin");
+        const jobsAfterFirst = w.jobs.length;
+        const again: any = await w.uc.execute({ ...w.base, schoolIds: ["s1", "s2"], idempotencyKey: "retry-key-001" }, "admin");
+        assert.equal(again.id, first.id); assert.equal(w.created.length, 1);
+        assert.equal(w.recipients.length, 4);                                     // no second set of rows
+        assert.equal(w.jobs.length, jobsAfterFirst * 2);                          // QUEUED rows are handed over again, but the job id is the row id, so the queue drops the repeat
+        assert.deepEqual(w.jobs.slice(0, jobsAfterFirst).map(j => j.recipientId), w.jobs.slice(jobsAfterFirst).map(j => j.recipientId));
+    });
+    it("REM-097: a different operator or key makes a different broadcast; the same key with a different message is refused", async () => {
+        const w = world();
+        const a: any = await w.uc.execute({ ...w.base, schoolIds: ["s1"], idempotencyKey: "retry-key-001" }, "admin");
+        const b: any = await w.uc.execute({ ...w.base, schoolIds: ["s1"], idempotencyKey: "retry-key-002" }, "admin");
+        const c: any = await w.uc.execute({ ...w.base, schoolIds: ["s1"], idempotencyKey: "retry-key-001" }, "other-admin");
+        assert.equal(new Set([a.id, b.id, c.id]).size, 3);
+        await assert.rejects(w.uc.execute({ ...w.base, message: "changed", schoolIds: ["s1"], idempotencyKey: "retry-key-001" }, "admin"), { statusCode: 400 });
+    });
+    it("REM-097: a send that failed at the queue resumes: only still-pending rows are handed over, delivered rows are untouched", async () => {
+        const w = world();
+        const dto = { ...w.base, schoolIds: ["s1", "s2"], idempotencyKey: "resume-key-01" };
+        (w.deps as any).queueDown = true;
+        const first: any = await w.uc.execute(dto, "admin");
+        assert.equal(first.state, "QUEUED"); assert.equal(w.jobs.length, 0);
+        // a worker (or an earlier partial run) already delivered school s1's email
+        w.recipients.find(r => r.schoolId === "s1" && r.channel === "EMAIL").status = "SENT";
+        (w.deps as any).queueDown = false;
+        const resumed: any = await w.uc.execute(dto, "admin");
+        assert.equal(resumed.id, first.id); assert.equal(w.recipients.length, 4);
+        assert.deepEqual(w.jobs.map(j => j.recipientId), [w.recipients.find(r => r.schoolId === "s2" && r.channel === "EMAIL").id]);   // s1's SENT email is not resent
+        assert.equal(w.recipients.find(r => r.schoolId === "s1" && r.channel === "EMAIL").status, "SENT");
+        assert.equal(resumed.state, "PROCESSING");
+    });
+    it("REM-097: two requests with one key at the same moment make ONE broadcast (the loser resumes the winner's row)", async () => {
+        const w = world();
+        const [x, y]: any[] = await Promise.all([1, 2].map(() => w.uc.execute({ ...w.base, schoolIds: ["s1"], idempotencyKey: "race-key-0001" }, "admin")));
+        assert.equal(x.id, y.id); assert.equal(w.created.length, 1); assert.equal(w.recipients.length, 2);
     });
     it("broadcastAll: true reaches every active school", async () => {
         const w = world();

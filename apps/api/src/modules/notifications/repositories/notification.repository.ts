@@ -87,6 +87,9 @@ export interface INotificationRepository {
 		data: publicPrisma.PlatformNotificationRecipientUncheckedCreateInput,
 	): Promise<PlatformNotificationRecipientEntity>;
 
+	/** Creates the missing recipient rows (one per notification, school and channel) and returns ALL of them; existing rows are never changed. */
+	ensurePlatformRecipients(rows: publicPrisma.PlatformNotificationRecipientUncheckedCreateInput[]): Promise<PlatformNotificationRecipientEntity[]>;
+
 	findPlatformRecipientById(id: string): Promise<PlatformNotificationRecipientEntity | null>;
 
 	findMyPlatformNotifications(
