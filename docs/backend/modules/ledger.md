@@ -133,7 +133,7 @@ The close checklist combines:
 
 A period cannot close until it has ended in the finance timezone. Blockers always stop closure; warnings require `acknowledgeWarnings=true`. Reopen requires a written reason and is audited.
 
-The posting service refuses future dates and closed periods. Period close uses a conditional OPEN→CLOSED update; reopen uses CLOSED→OPEN. The checklist is read-only and runs the whole-school integrity check, not just checks for the target month.
+The posting service refuses future dates and closed periods. Every posting (and reversal) takes the period row's shared lock (`SELECT … FOR SHARE`, `lockForPosting`) until its transaction ends and judges the status it returns; `ClosePeriodUseCase` runs in one transaction that starts with the exclusive lock (`FOR UPDATE`, `lockForClose`), so postings in flight finish first (and are counted by the checklist) and later postings wait, then see CLOSED and are refused (REM-028). Period close still ends with the conditional OPEN→CLOSED update; reopen uses CLOSED→OPEN. The checklist is read-only and runs the whole-school integrity check, not just checks for the target month.
 
 ## Integrity checks
 
@@ -185,7 +185,7 @@ Tests cover posting validation/idempotency/reversal, date helpers, account CRUD/
 
 ## Open implementation and verification items
 
-1. **Period close can race with journal posting.** The posting service reads the period status without locking the period row. Close computes its checklist and then conditionally updates OPEN→CLOSED in a separate operation. A posting transaction that has already read OPEN can potentially insert/commit after the close update, leaving a journal in a closed period. Serialize close and posting on the same period row/lock and add a two-transaction PostgreSQL regression test.
+1. ~~Period close can race with journal posting~~ — fixed in batch 4 (REM-028): shared/exclusive row lock on the period, see above. Held while the checklist and integrity check run, so postings pause briefly during a close.
 2. **No period-close tests or HTTP tests were found.** Add tests for blockers/warnings, ended-month rule, acknowledgement, reconciliation setting, concurrent posting/close, reopen reason and route permission/middleware.
 3. **Finance date/timezone remains global.** `FINANCE_TIMEZONE` is `Africa/Lagos`; decide whether multi-country schools need a school-level timezone before international rollout.
 4. **Fiscal-year setting is not used for journal numbering.** Journal numbering resets by calendar year; confirm whether `finance.fiscal_year_start_month` is intended to affect sequence periods or only financial reports.

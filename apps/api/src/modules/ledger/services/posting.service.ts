@@ -199,7 +199,9 @@ export class PostingService {
             period = await this.d.financePeriodRepository.findContaining(date);
         }
         if (!period) throw ledgerErrors.invalidJournal("Could not find or create the accounting period for this date");
-        if (period.status !== "OPEN") throw ledgerErrors.periodClosed(period.name, day);
+        // Share the period's lock until this transaction ends and judge the CURRENT status: a close that is committing right now makes us wait and then refuse (REM-028).
+        const status = await this.d.financePeriodRepository.lockForPosting(period.id);
+        if (status !== "OPEN") throw ledgerErrors.periodClosed(period.name, day);
         return period;
     }
 
