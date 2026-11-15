@@ -56,6 +56,9 @@ export class SalaryTransferRepositoryImpl implements ISalaryTransferRepository {
         const [r] = await this.db.$queryRawUnsafe<any[]>(`SELECT COALESCE(MAX(attempt), 0)::int AS n FROM "SalaryTransfer" WHERE "payslipId" = $1`, payslipId);
         return Number(r.n);
     }
+    async lockRun(runId: string) {
+        await this.db.$queryRawUnsafe(`SELECT id FROM "PayrollRun" WHERE id = $1 FOR UPDATE`, runId);
+    }
     async hasLiveTransfers(runId: string) {
         const rows = await this.db.$queryRawUnsafe<any[]>(`SELECT 1 FROM "SalaryTransfer" WHERE "runId" = $1 AND status IN ('PENDING','SENDING','PROCESSING','UNKNOWN','SUCCESS') LIMIT 1`, runId);
         return rows.length > 0;

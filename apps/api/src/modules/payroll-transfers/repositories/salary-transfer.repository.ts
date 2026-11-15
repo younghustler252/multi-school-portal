@@ -16,6 +16,8 @@ export interface ISalaryTransferRepository {
     payslipsWithLiveTransfer(payslipIds: string[]): Promise<Set<string>>;
     /** The highest attempt number used for the payslip, 0 when none. */
     lastAttempt(payslipId: string): Promise<number>;
+    /** Take the run row's lock until the surrounding transaction ends, so starting transfers, reversing and manually paying the run queue behind each other (REM-044). */
+    lockRun(runId: string): Promise<void>;
     /** True when any transfer of the run is live: manual payment of the run is then refused. */
     hasLiveTransfers(runId: string): Promise<boolean>;
     /** The bank details in force for a staff member on a day, with the stored (encrypted) account number. */

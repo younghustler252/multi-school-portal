@@ -61,8 +61,9 @@ export class PaystackTransferProvider implements ITransferProvider {
         return { state: mapState(t.status), reference: t.reference ?? p.reference, transferCode: t.transfer_code, message: t.status === "otp" ? "The provider is waiting for an OTP to approve this transfer" : undefined };
     }
 
+    // NOT guarded (REM-045): the switch stops NEW money movement. Asking the provider what happened to a transfer that already exists is read-only
+    // and must keep working, or a transfer left in flight when the switch went off could never be settled.
     async verifyTransfer(reference: string): Promise<TransferResult> {
-        this.guard();
         try {
             const { data } = await this.http.get(`/transfer/verify/${encodeURIComponent(reference)}`);
             const t = data.data;

@@ -519,6 +519,7 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Inject the salary-transfer repository into the reverse use case and block reversal while any live transfer exists. Require pending transfers to be cancelled and unsettled transfers to be reconciled; define a separate recovery workflow for successful/returned transfers before allowing run reversal.
 - **Owner/workstream:** Payroll + Salary Transfers developers
 - **Acceptance criteria:** A run with any live transfer cannot be reversed; tests cover PENDING, PROCESSING, UNKNOWN and SUCCESS states and verify journal/payslip/run invariants.
+- **Resolution (branch `fix/api/p1-remediation-batch6`, not yet merged) **: `ReverseRunUseCase` refuses (409 `RUN_HAS_TRANSFERS`) while any transfer of the run is PENDING, SENDING, PROCESSING, UNKNOWN or SUCCESS; early check plus a re-check inside the transaction after claiming the run (the version compare-and-set locks its row) and before the accrual is reversed. `PayRunUseCase` re-checks after claiming too. Starting and retrying transfers take the run row lock and re-read the run status in the insert transaction, so a reversal or manual payment that got there first wins. Tests: `tests/finance/payroll-transfer-guards.test.ts` (every live and non-live state, the appears-after-the-early-check race, mutation-checked). **Remaining:** a run with a SUCCESS transfer cannot be reversed at all (no recovery workflow for money that has left; define one separately); the start/retry race is covered by source checks plus the row lock, not a two-connection test (needs the real Prisma client); the lock is a raw `FOR UPDATE` not run end to end here.
 
 ### REM-045 — Transfer reconciliation is disabled together with new transfer sending
 
@@ -530,6 +531,7 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Separate the switch for initiating new money movement from permission to reconcile existing transfers. Permit reconciliation of already-created unsettled rows while new starts/sends/retries are disabled, subject to authentication and reconcile permission.
 - **Owner/workstream:** Salary Transfers developer
 - **Acceptance criteria:** Turning off either send switch prevents new sends but does not prevent provider verification/reconciliation of existing unsettled transfers.
+- **Resolution (branch `fix/api/p1-remediation-batch6`, not yet merged) **: `ReconcileTransfersUseCase` no longer calls `assertEnabled`, and `PaystackTransferProvider.verifyTransfer` is no longer behind the new-transfer guard (initiate and recipient creation still are). Start, send and retry keep both switches. Tests prove an existing UNKNOWN transfer is verified and settled with the platform switch off, the school switch off, and both off. **Remaining:** verification still needs the Paystack credentials to be configured; an automatic reconciliation job for transfers is a separate item.
 
 ### REM-046 — Transfer completion attributes run payment to the initiator, not the confirming actor
 

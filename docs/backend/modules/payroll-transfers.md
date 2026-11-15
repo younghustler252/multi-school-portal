@@ -86,9 +86,13 @@ When all positive-net payslips in an APPROVED run have SUCCESS transfers, the ru
 
 A failure books nothing. A late success after FAILED is accepted and flagged because provider truth about money wins. A failure after SUCCESS is rejected and audited. A reversal ensures the original payment is booked if not previously observed, then reverses that journal and marks the transfer REVERSED.
 
+## Run reversal and manual payment (REM-044)
+
+A run cannot be reversed or paid by hand while any of its transfers is live (PENDING, SENDING, PROCESSING, UNKNOWN or SUCCESS; FAILED, REVERSED and CANCELLED do not block). `ReverseRunUseCase` answers `409 RUN_HAS_TRANSFERS` early, then inside its transaction claims the run first (the version compare-and-set locks the row) and checks again before reversing the accrual, so a transfer started in between is caught and the transaction rolls back. `PayRunUseCase` re-checks the same way after claiming. Starting (and retrying) transfers takes the run row lock (`lockRun`, `SELECT … FOR UPDATE`) and re-reads the run status in the insert transaction, so a reversal or manual payment that got there first wins and the start is refused. Cancel PENDING transfers and settle the rest with the provider before reversing; a SUCCESS transfer has no reversal workflow yet (the money has left), so such a run cannot be reversed from here.
+
 ## Reconciliation and retry
 
-Reconciliation examines SENDING, PROCESSING and UNKNOWN:
+Reconciliation is NOT behind the platform or school "transfers enabled" switches (REM-045): those stop starting, sending and retrying only, while verifying existing in-flight transfers (read-only at the provider) keeps working so nothing stays stuck after the switch is turned off. It still needs authentication and `payroll.transfers.reconcile`. Reconciliation examines SENDING, PROCESSING and UNKNOWN:
 
 - SENDING is checked after 5 minutes.
 - PROCESSING is checked after 10 minutes.
@@ -132,8 +136,8 @@ Coverage includes platform/school switches, start and limits, approver separatio
 
 ## Open implementation and verification items
 
-1. **Payroll run reversal does not check for live salary transfers.** Payroll's `ReverseRunUseCase` reverses accrual and cancels the run without consulting `salaryTransferRepository.hasLiveTransfers`. If a transfer is PENDING/PROCESSING/UNKNOWN/SUCCESS, the run can be reversed while the provider may still send or has already sent salary. A later success can post a payment against a cancelled run with reversed accrual. Block payroll reversal while any live transfer exists; require pending transfers cancelled and unsettled transfers reconciled, and define how successful/reversed transfers are handled.
-2. **Reconciliation is blocked when transfers are disabled.** `ReconcileTransfersUseCase` calls `assertEnabled`, which requires both platform and school transfer switches to remain on. If a switch is turned off while transfers are PROCESSING/UNKNOWN, operators cannot query provider state through reconciliation. Webhooks may still arrive, but missed webhooks can leave records stuck and manual payroll pay blocked. Keep reconciliation available for existing unsettled transfers even when new sends are disabled.
+1. ~~Payroll run reversal does not check for live salary transfers~~ — fixed in batch 6 (REM-044): see *Run reversal and manual payment* below.
+2. ~~Reconciliation is blocked when transfers are disabled~~ — fixed in batch 6 (REM-045): see *Reconciliation and retry*.
 3. **Run paid attribution uses the initiator, not the confirming actor/system.** `TransferOutcomeService.completeRunIfPaid` passes the transfer's `initiatedById` as `paidById` when the last success arrives, including webhook confirmation. Ledger payment actor similarly falls back to initiator when webhook actor is null. Record SYSTEM/provider confirmation as actor and keep initiator in a separate field.
 4. **Start response converts BigInt batch total to Number.** `StartTransfersUseCase` returns `totalKobo: Number(total)`; large payroll batches can exceed safe integer precision. Serialize with `koboOut` or a decimal string.
 5. **Start does not reject provider-unsupported amounts before creating transfer rows.** Per-transfer safe-integer validation currently occurs during send after a recipient may have been created. Add an early safe-integer/maximum validation so impossible transfers are not persisted as PENDING.
