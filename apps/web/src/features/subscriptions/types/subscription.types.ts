@@ -1,4 +1,8 @@
-import { PlanResponseData } from "@/features/plans/types/plan.types";
+/*
+| LEGACY shapes, kept only because the super-admin screens still import them (SubscriptionResponseData,
+| BillingHistoryEntry). The school's own billing uses ./billing.types.ts, which matches the API. These go when the
+| super-admin subscription screens are moved over (next M6 stage).
+*/
 import { PaymentStatus } from "@/features/payments/types/payment.types";
 import { PaginationMeta } from "@/types/api-response";
 
@@ -20,43 +24,6 @@ export interface SubscriptionResponseData {
 	setupFeePaid: boolean;
 	nextBillingDate: string | null;
 	createdAt: string;
-}
-
-export interface MySubscriptionResponseData {
-	subscription: SubscriptionResponseData;
-	plan: PlanResponseData;
-}
-export interface UpgradePlanDto {
-	planId: string;
-	billingCycle: BillingCycle;
-	callbackUrl: string;
-	couponCode?: string;
-}
-
-export interface InitiateUpgradeResponseData {
-	authorizationUrl: string;
-	reference: string;
-	amountKobo: number;
-}
-
-export interface CancelSubscriptionDto {
-	cancelAtPeriodEnd: boolean;
-}
-
-export interface VerifyTransactionResult {
-	success: boolean;
-	alreadyVerified: boolean;
-	message: string;
-	reference: string;
-	subscriptionId: string;
-}
-
-export interface ToggleAutoRenewDto {
-	enabled: boolean;
-}
-
-export interface ToggleAutoRenewResult {
-	autoRenew: boolean;
 }
 
 export interface BillingHistoryEntry {
