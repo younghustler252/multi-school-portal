@@ -91,7 +91,7 @@ export function GradingConfigTab() {
 				</Button>
 			}
 		>
-			<FeatureGate feature="customGrading" featureName="Custom grading">	
+			<FeatureGate feature="grading.custom" featureName="Custom grading">	
 
 				<form onSubmit={handleSubmit(onSubmit)}>
 					<div className="overflow-hidden rounded-lg border border-border">

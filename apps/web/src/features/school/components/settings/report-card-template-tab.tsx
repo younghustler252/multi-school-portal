@@ -99,7 +99,7 @@ export function ReportCardTemplateTab() {
 				<TemplatePreviewCard template="modern" selected={selected === "modern"} onSelect={() => handleSelectTemplate("modern")} />
 				<TemplatePreviewCard template="minimal" selected={selected === "minimal"} onSelect={() => handleSelectTemplate("minimal")} />
 
-				<FeatureGate feature="customReportCardTemplate" featureName="Custom letterhead">
+				<FeatureGate feature="report_cards.letterhead" featureName="Custom letterhead">
 					<TemplatePreviewCard
 						template="custom_letterhead"
 						selected={selected === "custom_letterhead"}

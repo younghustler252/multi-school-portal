@@ -51,6 +51,12 @@ export const ROUTES = {
 
 	onboarding: { setup: "/onboarding/setup" },
 
+	/**
+	 * Where the payment provider sends the browser back after a plan checkout. The address is built by the API
+	 * (`/billing/callback` on the school's own host), so it is fixed here and not a page people navigate to.
+	 */
+	billing: { callback: "/billing/callback" },
+
 	school: {
 		dashboard: "/school/dashboard",
 		staff: { list: "/school/staff", new: "/school/staff/new", detail: (id: Id) => join("/school/staff", id) },
