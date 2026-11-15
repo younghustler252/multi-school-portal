@@ -13,3 +13,15 @@ export function usePlans() {
 		},
 	});
 }
+
+/** Pricing page: the public plans in the shape the API returns today (entitlements, no studentLimit/features). */
+export function usePublicPlans() {
+	return useQuery({
+		queryKey: ["plans", "public"],
+		queryFn: async () => {
+			const res = await plansApi.listPublic();
+			if (!res.success) throw res;
+			return res.data;
+		},
+	});
+}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { usePlans } from "@/features/plans/hooks/use-plans";
+import { usePublicPlans } from "@/features/plans/hooks/use-plans";
 import { BillingToggle } from "@/components/marketing/billing-toggle";
 import { PricingCard } from "@/components/marketing/pricing-card";
 import { FeatureComparisonTable } from "@/components/marketing/feature-comparison-table";
@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function PricingPageClient() {
 	const [cycle, setCycle] = useState<"monthly" | "yearly">("monthly");
-	const { data: plans, isLoading, isError } = usePlans();
+	const { data: plans, isLoading, isError } = usePublicPlans();
 
 	return (
 		<div className="mx-auto max-w-6xl px-4 py-16 md:px-6 md:py-24">
