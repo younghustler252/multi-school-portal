@@ -241,6 +241,11 @@ const reconciliationOf = (r: any): ReconciliationEntity => ({
 const RECONCILIATION_SELECT = `SELECT r.*, p.name AS "periodName", p."endDate" AS "periodEnd" FROM "BankReconciliation" r JOIN "FinancePeriod" p ON p.id = r."periodId"`;
 
 export class ReconciliationRepositoryImpl extends Sql implements IReconciliationRepository {
+    // FOR SHARE vs FOR NO KEY UPDATE conflict with each other but not with the FOR KEY SHARE a journal line takes on the account through its foreign key
+    async lockAccount(accountId: string, mode: "shared" | "exclusive"): Promise<void> {
+        await this.db.$queryRawUnsafe(`SELECT id FROM "LedgerAccount" WHERE id = $1 ${mode === "shared" ? "FOR SHARE" : "FOR NO KEY UPDATE"}`, accountId);
+    }
+
     async find(accountId: string, periodId: string): Promise<ReconciliationEntity | null> {
         const [r] = await this.db.$queryRawUnsafe<any[]>(`${RECONCILIATION_SELECT} WHERE r."ledgerAccountId" = $1 AND r."periodId" = $2`, accountId, periodId);
         return r ? reconciliationOf(r) : null;

@@ -38,6 +38,9 @@ export const reconciliationErrors = {
     alreadyReconciled: (period: string) => new AppError(`${period} is already reconciled for this account`, 409, true, "ALREADY_RECONCILED", { period }),
     periodNotEnded:    (period: string, endDate: string, today: string) => new AppError(
         `${period} has not ended yet. It can be reconciled after ${endDate}`, 409, true, "RECONCILIATION_PERIOD_NOT_ENDED", { period, endDate, today }),
+    statementBalanceConflict: (importedKobo: bigint, typedKobo: bigint, asOf: string) => new AppError(
+        `The imported bank statement shows ${importedKobo} kobo at ${asOf}, which cannot be overridden with ${typedKobo} kobo. Fix or re-import the statement instead`, 409, true,
+        "STATEMENT_BALANCE_CONFLICT", { importedKobo: importedKobo.toString(), typedKobo: typedKobo.toString(), asOf }),
     statementBalanceRequired: (asOf: string) => new AppError(
         `Enter the balance the bank shows at the end of ${asOf}: the statement has no running balance for that day`, 400, true, "STATEMENT_BALANCE_REQUIRED", { asOf }),
     unmatchedBankLines: (count: number, netKobo: bigint) => new AppError(

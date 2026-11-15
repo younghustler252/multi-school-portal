@@ -609,6 +609,7 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Accept typed balance only when no usable running/closing balance exists for the selected statement period. If an imported statement header has a closing balance, use it as authoritative. Require a statement covering the period or an explicitly audited manual-statement workflow. Reject a caller value that conflicts with imported evidence.
 - **Owner/workstream:** Bank Reconciliation/finance controls developer
 - **Acceptance criteria:** A test with an imported balance and a conflicting typed value cannot complete; a typed value remains supported only for the documented no-balance statement case.
+- **Resolution (branch `fix/api/p1-remediation-batch7`, not yet merged):** `position()` takes the balance from the imported running balance at month end when the statement has one; a typed value that differs is refused (409 `STATEMENT_BALANCE_CONFLICT`) on both sign-off and the summary. A typed balance is used only when the statement has no running balance, and the audit records `balanceSource` (`imported`/`typed`). Tests: `tests/finance/bank-reconciliation-races.test.ts`. **Remaining:** the statement header closing balance is still not a source (REM-054).
 
 ### REM-053 — Reconciliation sign-off and locked-date mutations have TOCTOU races
 
@@ -620,6 +621,7 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Serialize by ledger account and period using a shared lock/row/advisory lock. Completion must re-read balances/matches under that lock before inserting sign-off; every mutating operation must acquire the same lock and recheck `lockedThrough` inside its transaction.
 - **Owner/workstream:** Bank Reconciliation/Ledger developer
 - **Acceptance criteria:** Two-connection tests prove a completed month cannot be changed and sign-off cannot commit against stale line/match state.
+- **Resolution (branch `fix/api/p1-remediation-batch7`, not yet merged):** every import/match/unmatch/clear/create-entry/delete-statement transaction takes a shared row lock on the bank `LedgerAccount` (`FOR SHARE`) and re-checks the lock date inside it; sign-off and reopen run wholly in one transaction under the exclusive lock (`FOR NO KEY UPDATE`: waits for in-flight changes, blocks new ones, compatible with journal-line FK locks), re-reading the existing sign-off, balances and unmatched lines before the insert. Delete-statement re-checks matches under the lock. Tests (read-write lock fake with delay sweeps, unlocked control, mutation-checked): `tests/finance/bank-reconciliation-races.test.ts`. **Remaining:** postings to the book side of a signed-off month are not covered here; the lock is a raw SQL statement not run end to end against Postgres here.
 
 ### REM-054 — Imported statement closing balance is stored but ignored by summary fallback
 

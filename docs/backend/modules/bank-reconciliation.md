@@ -185,3 +185,9 @@ Coverage includes CSV import/overlap, malformed rows, account eligibility, autom
 - `apps/api/src/routes/index.ts`
 - `apps/api/prisma/tenant-migrations/20261027090000_bank_reconciliation/migration.sql`
 - `apps/api/tests/finance/bank-reconciliation.test.ts`
+
+## Statement authority and locking (REM-052/053)
+
+- A statement with a running balance is authoritative: sign-off and the summary use the imported balance at month end, and a different typed value is refused (`STATEMENT_BALANCE_CONFLICT`). A typed balance is accepted only for statements without a running balance and is audited as `balanceSource: typed`.
+- All changes to a bank account's statements and matches take `FOR SHARE` on its `LedgerAccount` row and re-check the lock date inside the transaction. Sign-off and reopen take `FOR NO KEY UPDATE` and do everything in one transaction, so a sign-off never commits over state it did not read.
+- Limits: the statement header closing balance is not yet a source (REM-054); book postings into a signed-off month are guarded by the period/posting rules, not this lock.
