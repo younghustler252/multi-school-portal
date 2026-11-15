@@ -97,7 +97,13 @@ BillingEngine is the only payment-application path:
 6. Update subscription plan/cycle/period/status, save reusable card when authorized, mark invoice paid and void superseded open invoices.
 7. After commit, invalidate entitlement cache, audit and notify.
 
-Duplicate success for an already-paid invoice is recorded as duplicate and not applied twice. A success for a void invoice is recorded as paid_on_void and audited but not applied. Amount/currency mismatch is marked failed and audited. These exceptional captured-money paths need an operational recovery/refund process; see remediation register.
+Duplicate success for an already-paid invoice is recorded as duplicate and not applied twice. A success for a void invoice is recorded as paid_on_void and audited but not applied. Amount/currency mismatch is marked failed and audited.
+
+**Locks.** Everything that changes a subscription or its invoices takes the SUBSCRIPTION row lock first and the invoice row lock second (`BillingEngine.lockForInvoice`; the lifecycle job's past-due and lapse/cancel steps take the subscription lock and re-read the rows under it). One order, so they queue instead of deadlocking or acting on a stale read (REM-067/068). Before applying, a payment is also checked against newer paid invoices of the same subscription: an older invoice whose period a later payment already covers is voided and its money recorded as `superseded` rather than moving the subscription backwards.
+
+**Captured money that cannot be applied** (paid_on_void, duplicate_payment, amount_mismatch, superseded) is written to `CapturedPaymentException` in the same transaction as the attempt, `status = open`. Platform staff list them (`GET /platform/subscriptions/payment-exceptions`, `platform.subscriptions.view`, with the open count and amount) and close each with a resolution (`refunded`, `applied_manually`, `dismissed`) and a note (`PUT /platform/subscriptions/payment-exceptions/:id/resolve`, `platform.subscriptions.manage`, audited). The system does not refund at the provider itself: the person refunds in the provider dashboard (or applies the money by hand) and records what was done.
+
+**One live checkout per invoice.** `startCheckout` decides under the invoice row lock: a pending checkout with a stored `authorizationUrl` is returned again (same link, no provider call); a request that arrives while the page is still being created waits for it; a page older than 30 minutes is first checked with the provider (it may be paid or abandoned); an attempt that never received a page for 2 minutes is closed. The partial unique index `PaymentAttempt_one_pending_checkout` (on `checkoutKey`, only while pending) is the backstop.
 
 ## Saved cards and automatic renewal
 
@@ -162,11 +168,11 @@ Not executed: tests, typecheck, build, migrations, provider sandbox, webhook sig
 
 ## Open implementation and verification items
 
-1. **Multiple pending checkout attempts can be created for one invoice.** startCheckout checks invoice status, counts attempts and creates a new reference but does not reuse/claim an existing pending attempt. Repeated/concurrent pay requests can create multiple live checkouts; if both are paid, the second is recorded as duplicate but the gateway money has already been captured.
-2. **Lifecycle state changes can race with successful payment application.** past-due updates a subscription based on a previously queried open invoice; lapse/cancel moves subscription to Free and updates invoices without locking/rechecking invoice/subscription state. A payment confirmed concurrently can be overwritten by a stale past-due/lapse transition.
-3. **Different invoices for one subscription are not serialized on the subscription row.** applyPaid locks the invoice row, not the subscription. Renewal and upgrade invoices can be paid concurrently and both attempt to update the same subscription period/plan.
+1. ~~Multiple pending checkout attempts can be created for one invoice~~ — fixed in batch 5 (see the paragraphs above).
+2. ~~Lifecycle state changes can race with successful payment application~~ — fixed in batch 5 (see the paragraphs above).
+3. ~~Different invoices for one subscription are not serialized on the subscription row~~ — fixed in batch 5 (see the paragraphs above).
 4. **Coupon maxUses is not enforced atomically at application.** The conditional usedCount increment's affected-row count is ignored; two invoices can both receive a discount even if only one remaining use exists.
-5. **Successful charges that cannot be applied have no recovery workflow.** paid_on_void, duplicate payment and amount mismatch are audited but not refunded or placed into a clearly actionable manual-reconciliation queue. Captured money can remain unmatched while the invoice is void/paid or still open.
+5. ~~Successful charges that cannot be applied have no recovery workflow~~ — fixed in batch 5 (see the paragraphs above).
 6. **Platform overdue query uses z.coerce.boolean.** Query string overdue=false coerces to true because Boolean("false") is true; use explicit true/false parsing.
 7. **Plan/invoice amount DTO max exceeds Prisma Int capacity.** Align max to 2,147,483,647 or migrate pricing/invoice/payment-attempt amounts to BigInt consistently.
 8. **Plan deactivation with open invoices is not handled.** See REM-064.

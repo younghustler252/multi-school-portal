@@ -623,11 +623,51 @@ model PaymentAttempt {
   failureReason   String?
   createdAt       DateTime             @default(now())
   completedAt     DateTime?
+  // The checkout page the school was sent to, kept so a repeated "pay" request returns the SAME link (REM-066)
+  authorizationUrl String?
+  // = invoiceId on a NEW checkout attempt. A partial unique index (PaymentAttempt_one_pending_checkout, only while status = pending, only where set)
+  // allows one live checkout per invoice. Declared in the migration; Prisma cannot express a partial index.
+  checkoutKey     String?
 
   invoice SubscriptionInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 
   @@index([invoiceId])
   @@index([status, createdAt])
+}
+
+// Money the provider captured that the billing engine could NOT apply to an invoice (REM-070). Never silently lost:
+// each one waits here, open, until a platform person refunds it, applies it by hand, or dismisses it with a reason.
+enum CapturedPaymentExceptionKind {
+  paid_on_void
+  duplicate_payment
+  amount_mismatch
+  superseded
+}
+
+enum CapturedPaymentExceptionStatus {
+  open
+  refunded
+  applied_manually
+  dismissed
+}
+
+model CapturedPaymentException {
+  id           String                         @id @default(uuid())
+  attemptId    String                         @unique
+  invoiceId    String
+  schoolId     String
+  kind         CapturedPaymentExceptionKind
+  reference    String
+  amountKobo   Int
+  detail       Json?
+  status       CapturedPaymentExceptionStatus @default(open)
+  resolution   String?
+  resolvedById String?
+  resolvedAt   DateTime?
+  createdAt    DateTime                       @default(now())
+
+  @@index([status, createdAt])
+  @@index([schoolId])
 }
 
 // Saved payment methods.

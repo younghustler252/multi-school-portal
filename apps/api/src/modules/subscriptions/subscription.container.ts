@@ -19,7 +19,7 @@ import { GetBillingSummaryUseCase, ListMyInvoicesUseCase, GetMyInvoiceUseCase } 
 import { PreviewPlanChangeUseCase, ChangePlanUseCase, RequestDowngradeUseCase } from "./usecases/plan-change.usecases";
 import { VerifyBillingPaymentUseCase, PayInvoiceUseCase, ToggleAutoRenewUseCase, ManagePaymentMethodsUseCase, CancelSubscriptionUseCase } from "./usecases/payments.usecases";
 import {
-    ListSubscriptionsUseCase, GetSchoolSubscriptionUseCase, PlatformChangePlanUseCase, ExtendPeriodUseCase, PlatformInvoicesUseCase, GetBillingStatsUseCase,
+    ListSubscriptionsUseCase, GetSchoolSubscriptionUseCase, PlatformChangePlanUseCase, ExtendPeriodUseCase, PlatformInvoicesUseCase, GetBillingStatsUseCase, PlatformPaymentExceptionsUseCase,
 } from "./usecases/platform/platform-billing.usecases";
 
 import { BillingController } from "./controllers/billing.controller";
@@ -63,6 +63,7 @@ export const registerSubscriptions = (container: AwilixContainer): void => {
         platformChangePlanUseCase:     asClass(PlatformChangePlanUseCase).scoped(),
         extendPeriodUseCase:           asClass(ExtendPeriodUseCase).scoped(),
         platformInvoicesUseCase:       asClass(PlatformInvoicesUseCase).scoped(),
+        platformPaymentExceptionsUseCase: asClass(PlatformPaymentExceptionsUseCase).scoped(),
         getBillingStatsUseCase:        asClass(GetBillingStatsUseCase).scoped(),
 
         billingController:         asClass(BillingController).scoped(),

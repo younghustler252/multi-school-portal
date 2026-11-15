@@ -1,15 +1,15 @@
 import { Request, Response, NextFunction } from "express";
 import {
-    ListSubscriptionsUseCase, GetSchoolSubscriptionUseCase, PlatformChangePlanUseCase, ExtendPeriodUseCase, PlatformInvoicesUseCase, GetBillingStatsUseCase,
+    ListSubscriptionsUseCase, GetSchoolSubscriptionUseCase, PlatformChangePlanUseCase, ExtendPeriodUseCase, PlatformInvoicesUseCase, GetBillingStatsUseCase, PlatformPaymentExceptionsUseCase,
 } from "../usecases/platform/platform-billing.usecases";
 import { sendSuccess } from "../../../shared/utils/api-response";
-import { ListSubscriptionsQuery, ListPlatformInvoicesQuery } from "../dtos/subscription.dto";
+import { ListSubscriptionsQuery, ListPlatformInvoicesQuery, ListPaymentExceptionsQuery } from "../dtos/subscription.dto";
 import { billingErrors } from "../domain/subscription.errors";
 
 interface Dependencies {
     listSubscriptionsUseCase: ListSubscriptionsUseCase; getSchoolSubscriptionUseCase: GetSchoolSubscriptionUseCase;
     platformChangePlanUseCase: PlatformChangePlanUseCase; extendPeriodUseCase: ExtendPeriodUseCase;
-    platformInvoicesUseCase: PlatformInvoicesUseCase; getBillingStatsUseCase: GetBillingStatsUseCase;
+    platformInvoicesUseCase: PlatformInvoicesUseCase; getBillingStatsUseCase: GetBillingStatsUseCase; platformPaymentExceptionsUseCase: PlatformPaymentExceptionsUseCase;
 }
 
 const actorOf = (req: Request): string => { if (!req.auth) throw billingErrors.notFound(); return req.auth.userId; };
@@ -27,5 +27,7 @@ export class BillingPlatformController {
 
     listInvoices = async (req: Request, res: Response, next: NextFunction) => { try { paged(res, "Invoices retrieved successfully", await this.d.platformInvoicesUseCase.list(ListPlatformInvoicesQuery.parse(req.query))); } catch (e) { next(e); } };
     voidInvoice  = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.platformInvoicesUseCase.void(String(req.params.id), actorOf(req), req.body), "Invoice voided"); } catch (e) { next(e); } };
+    listPaymentExceptions = async (req: Request, res: Response, next: NextFunction) => { try { const r = await this.d.platformPaymentExceptionsUseCase.list(ListPaymentExceptionsQuery.parse(req.query)); res.status(200).json({ success: true, message: "Payment exceptions retrieved successfully", data: r.data, summary: r.summary, meta: r.meta }); } catch (e) { next(e); } };
+    resolvePaymentException = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.platformPaymentExceptionsUseCase.resolve(String(req.params.id), actorOf(req), req.body), "Payment exception resolved"); } catch (e) { next(e); } };
     markPaid     = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.platformInvoicesUseCase.markPaid(String(req.params.id), actorOf(req), req.body), "Invoice marked as paid"); } catch (e) { next(e); } };
 }

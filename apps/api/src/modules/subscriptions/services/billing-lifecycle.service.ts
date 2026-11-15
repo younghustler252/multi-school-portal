@@ -162,7 +162,16 @@ export class BillingLifecycleService {
                 include: { plan: { select: { name: true } } }, take: BATCH,
             });
             await each(overdue, async i => {
-                await this.prisma.subscription.updateMany({ where: { id: i.subscriptionId, status: { in: ["active", "trialing"] } }, data: { status: "past_due" } });
+                // Under the subscription lock (the same order the payment path uses) and re-checking the invoice is STILL open and overdue:
+                // a payment confirmed after the query above must not be overwritten by a stale "past due" (REM-067).
+                const marked = await this.prisma.$transaction(async tx => {
+                    await tx.$queryRaw`SELECT id FROM "Subscription" WHERE id = ${i.subscriptionId} FOR UPDATE`;
+                    const still = await tx.subscriptionInvoice.findFirst({ where: { id: i.id, status: "open", reason: "renewal", dueDate: { lt: now } }, select: { id: true } });
+                    if (!still) return false;
+                    const r = await tx.subscription.updateMany({ where: { id: i.subscriptionId, status: { in: ["active", "trialing"] } }, data: { status: "past_due" } });
+                    return r.count > 0;
+                });
+                if (!marked) return;
                 const sent = await this.d.billingNotifier.sendOnce(i.subscriptionId, i.periodStart, "past_due", i.schoolId, billingMessages.pastDue(i.plan.name, addDays(i.dueDate, grace)));
                 if (sent) out.markedPastDue++;
             });
@@ -196,12 +205,30 @@ export class BillingLifecycleService {
     async moveToFree(subscriptionId: string, mode: "lapsed" | "cancelled", now: Date = new Date(), actorId?: string): Promise<void> {
         const free = await this.prisma.plan.findFirst({ where: { systemKey: "free" } as never });
         if (!free) throw new Error("The Free plan is missing (run the registry sync)");
-        const sub = await this.prisma.subscription.findUniqueOrThrow({ where: { id: subscriptionId }, include: { plan: true } });
-        if (sub.planId === free.id && mode === "lapsed") return;
+        const settings = await this.prisma.platformSettings.findFirst({ select: { subscriptionGracePeriodDays: true } });
+        const grace = settings?.subscriptionGracePeriodDays ?? DEFAULT_GRACE_DAYS;
 
-        const wasPaid = sub.plan.monthlyPriceKobo > 0;
-        await this.prisma.$transaction([
-            this.prisma.subscription.update({
+        // Everything below is decided from the rows as they are UNDER the subscription lock (REM-067): a payment that committed after the
+        // job's query is seen here, and the transition is dropped instead of moving a paid school to Free.
+        const moved = await this.prisma.$transaction(async tx => {
+            await tx.$queryRaw`SELECT id FROM "Subscription" WHERE id = ${subscriptionId} FOR UPDATE`;
+            const sub = await tx.subscription.findUniqueOrThrow({ where: { id: subscriptionId }, include: { plan: true } });
+            if (sub.planId === free.id && mode === "lapsed") return null;
+
+            if (!actorId) {
+                if (mode === "lapsed") {
+                    const unpaid = await tx.subscriptionInvoice.findFirst({
+                        where: { subscriptionId: sub.id, status: "open", reason: "renewal", dueDate: { lt: addDays(now, -grace) } }, select: { id: true },
+                    });
+                    if (!unpaid) return null;                                                   // paid (or voided) in the meantime
+                } else {
+                    const due = sub.currentPeriodEnd <= now && ["active", "trialing"].includes(sub.status) && (sub.cancelAtPeriodEnd || !!sub.scheduledDowngradePlanId);
+                    if (!due) return null;                                                      // renewed, resumed or rescheduled in the meantime
+                }
+            }
+
+            const wasPaid = sub.plan.monthlyPriceKobo > 0;
+            await tx.subscription.update({
                 where: { id: sub.id },
                 data: {
                     planId: free.id, status: "active", billingCycle: "monthly", currentPeriodStart: now,
@@ -210,14 +237,17 @@ export class BillingLifecycleService {
                     lapsedPlanId: mode === "lapsed" && wasPaid ? sub.planId : null,
                     cancelledAt: mode === "cancelled" ? now : sub.cancelledAt,
                 } as never,
-            }),
-            this.prisma.subscriptionInvoice.updateMany({
+            });
+            await tx.subscriptionInvoice.updateMany({
                 where: { subscriptionId: sub.id, status: "open" },
                 data: mode === "lapsed"
                     ? { status: "uncollectible", nextAttemptAt: null, note: "Unpaid past the grace period" }
                     : { status: "void", voidedAt: now, nextAttemptAt: null, note: "Subscription ended" },
-            }),
-        ]);
+            });
+            return sub;
+        });
+        if (!moved) return;
+        const sub = moved;
         this.invalidate(sub.schoolId);
         await this.d.auditService.log({
             ...(actorId ? { userId: actorId } : { actorType: ActorType.SYSTEM }), schoolId: sub.schoolId,
