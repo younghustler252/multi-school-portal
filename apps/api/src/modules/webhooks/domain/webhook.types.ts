@@ -35,4 +35,4 @@ export interface WebhookHandler {
     handle(event: WebhookEnvelope): Promise<WebhookOutcome>;
 }
 
-export type WebhookStatus = "received" | "processed" | "ignored" | "failed";
+export type WebhookStatus = "received" | "processing" | "processed" | "ignored" | "failed";

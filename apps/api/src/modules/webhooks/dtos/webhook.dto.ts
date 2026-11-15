@@ -4,7 +4,7 @@ const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD");
 
 export const ListWebhookEventsQuery = z.object({
     provider: z.string().min(1).max(40).optional(),
-    status:   z.enum(["received", "processed", "ignored", "failed"]).optional(),
+    status:   z.enum(["received", "processing", "processed", "ignored", "failed"]).optional(),
     reference: z.string().min(1).max(120).optional(),
     type:     z.string().min(1).max(80).optional(),
     from:     day.optional(),
