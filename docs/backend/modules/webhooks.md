@@ -79,21 +79,21 @@ Fee payment handling resolves the school from provider metadata, requires a prov
 
 ## Event idempotency and retry
 
-Public WebhookEvent is unique by provider + eventKey. Event states: received, processed, ignored and failed.
+Public WebhookEvent is unique by provider + eventKey. Event states: received (legacy, no longer written), processing, processed, ignored and failed.
 
 Receive flow:
 1. Resolve provider and verify signature over raw body.
 2. Parse and slim payload.
-3. Begin event record. New event starts received with attempts=1.
+3. Begin event record. A new event starts `processing` with attempts=1 and a lease (`claimToken`, `claimExpiresAt` = now + 5 minutes, `WEBHOOK_LEASE_MS`).
 4. If event already processed/ignored, return duplicate without running handler.
 5. If no handler claims event, mark ignored.
 6. If exactly one handler claims, process it.
 7. On success mark processed; on error mark failed with error text.
 8. Return a normal provider response even when handler failed; failed event remains available for platform manual retry.
 
-Retry console only permits FAILED events with stored payload. It atomically claims failed→received, increments attempts and invokes the same processor. Retry is audited with admin ID.
+Retry console permits any event that is not processed/ignored and has a stored payload; the claim is a compare-and-set that succeeds only for a failed event or one whose lease has expired (otherwise `WEBHOOK_ALREADY_RETRYING`). It increments attempts, issues a new lease token and invokes the same processor. Retry is audited with admin ID.
 
-The repository currently also treats status=received as claimable when the same provider/eventKey is delivered again. There is no lease/owner token or stale-received threshold; see REM-102.
+**Lease (REM-102).** Exactly one processor holds an event at a time. A redelivery while the lease is live answers `409 WEBHOOK_IN_PROGRESS`, so the provider delivers again later (by then it is processed, a plain duplicate, or the lease has expired and it is reclaimed). Recording the outcome (`finish`) requires the current token, so a slow processor that lost its lease cannot overwrite the new owner's result (it logs a warning). Rows from before leases (`received`, no expiry) are reclaimable once their last attempt is older than the lease. Handlers must still be idempotent: a processor that is merely slower than the lease can overlap with its successor.
 
 ## Operational behavior
 
@@ -103,7 +103,7 @@ The event log stores only normalized allowlisted fields, not the raw body. If th
 
 ## Persistence
 
-Public model WebhookEvent stores provider, eventKey, event type, reference, slim JSON payload, status, attempts, error, receivedAt, processedAt and lastAttemptAt. Unique provider/eventKey prevents duplicate event rows. Public storage permits the platform console to inspect failures across schools.
+Public model WebhookEvent stores provider, eventKey, event type, reference, slim JSON payload, status, attempts, error, receivedAt, processedAt and lastAttemptAt, claimToken and claimExpiresAt. Unique provider/eventKey prevents duplicate event rows. Public storage permits the platform console to inspect failures across schools.
 
 No raw card/customer/bank details should be added to the slim payload without a security/privacy review.
 
@@ -115,13 +115,13 @@ Test sources inspected:
 
 Coverage includes bad signature/body/provider, duplicate processed event, ignored events, multiple handler conflict, handler failure and provider retry, slim payload privacy, manual retry/claim, summary counts, handler ownership, registry discovery, permission registry and DTO bounds.
 
-The in-memory repository intentionally mirrors the real begin behavior, including allowing received events to be claimed again. Tests do not cover simultaneous duplicate deliveries, real raw-body HTTP signature verification, public DB uniqueness/locking, rate limiter behavior or real provider payloads.
+The in-memory repository (`tests/webhooks/support/memory-repo.ts`) mirrors the lease and compare-and-set rules, with a clock and a `leaseOff` control; `tests/webhooks/webhook-lease.test.ts` covers simultaneous deliveries, lease expiry, stale finishers and concurrent retries, and `scripts/db/verify-webhook-lease.sh` proves the claim on PostgreSQL. Tests do not cover real raw-body HTTP signature verification, public DB uniqueness/locking, rate limiter behavior or real provider payloads.
 
 Not executed: tests, typecheck, build, migrations, live HTTP request, Paystack sandbox webhook or concurrent event delivery.
 
 ## Open implementation and verification items
 
-1. **Concurrent duplicate deliveries can both claim a received event.** begin treats failed OR received as claimable and leaves status received after claiming; two concurrent duplicate requests can both update and run the same handler. Add a lease/claim token and stale-received timeout, or transition to a distinct PROCESSING state with compare-and-swap. See REM-102.
+1. ~~Concurrent duplicate deliveries can both claim a received event~~ — fixed in batch 4 (REM-102): processing state with lease token and expiry.
 2. **Failed webhook events have no automatic retry.** The endpoint acknowledges failure and only platform manual retry can recover it. Add bounded backoff retries through a durable worker/cron, with dead-letter/manual review after a maximum. If manual-only is deliberate, add alerts/SLOs so failures cannot remain unnoticed. See REM-103.
 3. **No HTTP/real-DB concurrency tests were found.** Add tests for raw-body signature verification, concurrent duplicate delivery, event unique index, claim lease, manual retry, platform permissions and tenant handler routing. See REM-104.
 4. **Event key fallback "type:none" collapses same-type events without ID/reference.** Such events are not actionable by current handlers, but should be rejected/ignored without persisting a shared collision key or assigned a deterministic payload hash. See REM-105.

@@ -8,41 +8,21 @@ import { SubscriptionWebhookHandler } from "../../src/modules/subscriptions/webh
 import { FeePaymentWebhookHandler } from "../../src/modules/payments/webhooks/fee-payment.webhook-handler";
 import { TransferWebhookHandler } from "../../src/modules/payroll-transfers/webhooks/transfer.webhook-handler";
 import type { WebhookEnvelope, WebhookHandler } from "../../src/modules/webhooks/domain/webhook.types";
-import type { WebhookEventRow, IWebhookEventRepository } from "../../src/modules/webhooks/repositories/webhook-event.repository";
+import { memoryRepo } from "./support/memory-repo";
 
 const SECRET = "sk_test_secret";
 const sign = (body: string) => crypto.createHmac("sha512", SECRET).update(body).digest("hex");
 const paymentProvider: any = { verifyWebhookSignature: (b: string, s: string) => s === sign(b) };
 const body = (event: string, data: Record<string, any>) => JSON.stringify({ event, data });
 
-/** In-memory event log with the same once-only and claim rules as the real repository. */
-function memoryRepo() {
-    const rows = new Map<string, WebhookEventRow>(); let seq = 0;
-    const repo: IWebhookEventRepository = {
-        async begin(i) {
-            const prior = [...rows.values()].find(r => r.provider === i.provider && r.eventKey === i.eventKey);
-            if (!prior) { const row = { id: `e${++seq}`, ...i, status: "received", error: null, attempts: 1, receivedAt: new Date(), processedAt: null, lastAttemptAt: new Date() } as WebhookEventRow; rows.set(row.id, row); return { row, run: true }; }
-            if (prior.status === "processed" || prior.status === "ignored") return { row: prior, run: false };
-            const took = prior.status === "failed" || prior.status === "received"; if (took) { prior.status = "received"; prior.attempts++; }
-            return { row: prior, run: took };
-        },
-        async finish(id, status, error) { const r = rows.get(id)!; r.status = status; r.error = error ?? null; r.processedAt = status === "failed" ? null : new Date(); },
-        async findById(id) { return rows.get(id) ?? null; },
-        async claimForRetry(id) { const r = rows.get(id); if (!r || r.status !== "failed") return false; r.status = "received"; r.attempts++; return true; },
-        async list() { return { rows: [...rows.values()], total: rows.size }; },
-        async summary() { const m = new Map<string, number>(); for (const r of rows.values()) m.set(r.status, (m.get(r.status) ?? 0) + 1); return [...m].map(([status, count]) => ({ status: status as any, count })); },
-    };
-    return { repo, rows };
-}
-
-function world(handlers: WebhookHandler[]) {
-    const { repo, rows } = memoryRepo();
+function world(handlers: WebhookHandler[], repoOpts: Parameters<typeof memoryRepo>[0] = {}) {
+    const { repo, rows, clock } = memoryRepo(repoOpts);
     const provider = new PaystackWebhookProvider({ paymentProvider });
     const processor = new WebhookProcessor({ webhookEventRepository: repo, webhookHandlers: () => handlers });
     const audits: any[] = [];
     const d: any = { webhookEventRepository: repo, webhookProcessor: processor, webhookProviderFor: (n: string) => n === "paystack" ? provider : null, auditService: { log: async (a: any) => { audits.push(a); } } };
     const post = (event: string, data: any, sig?: string) => { const b = body(event, data); return new ReceiveWebhookUseCase(d).execute("paystack", b, { "x-paystack-signature": sig ?? sign(b) }); };
-    return { d, rows, audits, post, repo };
+    return { d, rows, audits, post, repo, clock };
 }
 
 const handler = (name: string, claims: (e: WebhookEnvelope) => boolean, run: (e: WebhookEnvelope) => Promise<"processed" | "ignored">, calls: string[] = []): WebhookHandler =>
@@ -112,9 +92,9 @@ describe("what is kept, and retry from the console", () => {
         const old = { ...row, payload: null }; w.rows.set(row.id, old as WebhookEventRow);
         await assert.rejects(() => new RetryWebhookEventUseCase(w.d).execute(row.id, "u"), { code: "WEBHOOK_NO_PAYLOAD" });
         w.rows.set(row.id, row);
-        assert.equal(await w.repo.claimForRetry(row.id), true);
-        assert.equal(await w.repo.claimForRetry(row.id), false);
-        await assert.rejects(() => new RetryWebhookEventUseCase(w.d).execute(row.id, "u"), { code: "WEBHOOK_NOT_RETRYABLE" });
+        assert.ok(await w.repo.claimForRetry(row.id));
+        assert.equal(await w.repo.claimForRetry(row.id), null);
+        await assert.rejects(() => new RetryWebhookEventUseCase(w.d).execute(row.id, "u"), { code: "WEBHOOK_ALREADY_RETRYING" });
     });
     it("the summary counts events by status over a window", async () => {
         const w = world([handler("a", e => e.reference === "ok", async () => "processed")]);

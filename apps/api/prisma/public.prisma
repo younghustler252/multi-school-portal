@@ -148,6 +148,7 @@ enum PaymentAttemptMethod {
 
 enum WebhookEventStatus {
   received
+  processing
   processed
   ignored
   failed
@@ -667,6 +668,9 @@ model WebhookEvent {
   receivedAt  DateTime           @default(now())
   processedAt DateTime?
   lastAttemptAt DateTime?
+  // Who is processing it right now, and until when (REM-102). A finisher whose token no longer matches has lost the lease.
+  claimToken     String?
+  claimExpiresAt DateTime?
 
   @@unique([provider, eventKey])
   @@index([status, receivedAt])

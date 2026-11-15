@@ -47,6 +47,8 @@ export function setup(opts: { closed?: string[] } = {}) {
     };
     const financePeriodRepository: any = {
         async findContaining(d: Date) { return periods.find(p => p.startDate <= d && p.endDate >= d) ?? null; },
+        async lockForPosting(id: string) { return periods.find(p => p.id === id)?.status ?? null; },
+        async lockForClose() {},
         async createMonthIfMissing(m: any) {
             if (!periods.some(p => p.name === m.name)) periods.push({ id: `p-${m.name}`, name: m.name, status: "OPEN", startDate: parseDay(m.startDate), endDate: parseDay(m.endDate) });
         },

@@ -8,5 +8,6 @@ export const webhookErrors = {
     notFound:        () => new NotFoundError("Webhook event"),
     notRetryable:    (status: string) => new AppError(`Only a failed event can be retried (this one is ${status})`, 409, true, "WEBHOOK_NOT_RETRYABLE", { status }),
     noPayload:       () => new AppError("This event was logged before payloads were kept, so it cannot be retried. Use the payments reconciliation instead", 409, true, "WEBHOOK_NO_PAYLOAD"),
+    inProgress:      () => new AppError("This event is being processed right now; deliver it again later", 409, true, "WEBHOOK_IN_PROGRESS"),
     claimed:         () => new AppError("This event is already being retried", 409, true, "WEBHOOK_ALREADY_RETRYING"),
 };

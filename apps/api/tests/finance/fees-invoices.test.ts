@@ -354,6 +354,7 @@ describe("issue an invoice", () => {
     it("a closed month stops it and leaves the draft untouched", async () => {
         const closed = booksSetup({ closed: ["2026-09"] });
         w.books.deps.financePeriodRepository.findContaining = closed.deps.financePeriodRepository.findContaining;
+        w.books.deps.financePeriodRepository.lockForPosting = closed.deps.financePeriodRepository.lockForPosting;
         await generate();
         await assert.rejects(() => w.issue.execute(ada().id, "s", "u", { issueDate: "2026-09-10" }), code("PERIOD_CLOSED"));
         assert.equal(ada().status, "draft");

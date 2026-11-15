@@ -7,23 +7,23 @@ export type ProcessResult = { processed: boolean; failed?: boolean; error?: stri
 
 /*
 | WEBHOOK PROCESSOR: the one road an event takes to its handler, for a fresh event and for a retry alike.
-| Exactly one handler may claim an event; none means the event is not ours to act on (logged as ignored). A handler that
+| Exactly one processor may hold an event at a time (a lease token, REM-102); exactly one handler may claim it; none means the event is not ours to act on (logged as ignored). A handler that
 | throws marks the event FAILED with the reason; it can be retried from the console, and the provider's own retry is accepted too.
 */
 export class WebhookProcessor {
     constructor(private readonly d: Dependencies) {}
 
-    async process(logId: string, event: WebhookEnvelope): Promise<ProcessResult> {
+    async process(logId: string, claimToken: string, event: WebhookEnvelope): Promise<ProcessResult> {
         try {
             const claimers = this.d.webhookHandlers().filter(h => h.handles(event));
             if (claimers.length > 1) throw new Error(`Event ${event.type} is claimed by more than one handler: ${claimers.map(h => h.name).join(", ")}`);
-            if (claimers.length === 0) { await this.d.webhookEventRepository.finish(logId, "ignored"); return { processed: false }; }
+            if (claimers.length === 0) { await this.d.webhookEventRepository.finish(logId, claimToken, "ignored"); return { processed: false }; }
             const outcome = await claimers[0].handle(event);
-            await this.d.webhookEventRepository.finish(logId, outcome);
+            if (!(await this.d.webhookEventRepository.finish(logId, claimToken, outcome))) console.warn(`Webhook event ${logId}: lease lost before the outcome (${outcome}) could be recorded; another processor owns it now`);
             return { processed: outcome === "processed" };
         } catch (err) {
             const message = err instanceof Error ? err.message : String(err);
-            await this.d.webhookEventRepository.finish(logId, "failed", message);
+            await this.d.webhookEventRepository.finish(logId, claimToken, "failed", message);
             return { processed: false, failed: true, error: message };
         }
     }

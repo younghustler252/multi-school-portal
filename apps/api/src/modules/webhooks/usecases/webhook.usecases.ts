@@ -31,8 +31,10 @@ export class ReceiveWebhookUseCase {
             provider: provider.name, eventKey: event.eventKey, eventType: event.type, reference: event.reference,
             payload: { data: provider.slim(event.data) },
         });
+        // Another processor holds a live lease: answer non-2xx so the provider delivers again later (by then it is processed, or the lease has expired).
+        if (begun.inProgress) throw webhookErrors.inProgress();
         if (!begun.run) return { processed: true, duplicate: true };
-        const r = await this.d.webhookProcessor.process(begun.row.id, event);
+        const r = await this.d.webhookProcessor.process(begun.row.id, begun.claimToken!, event);
         if (r.failed) console.error(`Webhook ${provider.name} ${event.type} failed:`, r.error);
         return { processed: r.processed };
     }
@@ -60,25 +62,27 @@ export class WebhookSummaryUseCase {
     async execute(hours: number) {
         const since = new Date((this.d.now?.() ?? new Date()).getTime() - hours * 3600_000);
         const rows = await this.d.webhookEventRepository.summary(since);
-        const by = { received: 0, processed: 0, ignored: 0, failed: 0 } as Record<string, number>;
+        const by = { received: 0, processing: 0, processed: 0, ignored: 0, failed: 0 } as Record<string, number>;
         for (const r of rows) by[r.status] = r.count;
         return { since, hours, ...by, total: Object.values(by).reduce((a, b) => a + b, 0) };
     }
 }
 
-/* Run a FAILED event again from the console: same road as a fresh one, and audited (it can confirm a payment or settle a transfer). */
+/* Run a FAILED (or stuck) event again from the console: same road as a fresh one, and audited (it can confirm a payment or settle a transfer). */
 export class RetryWebhookEventUseCase {
     constructor(private readonly d: Dependencies) {}
     async execute(id: string, actorUserId: string) {
         const row = await this.d.webhookEventRepository.findById(id);
         if (!row) throw webhookErrors.notFound();
-        if (row.status !== "failed") throw webhookErrors.notRetryable(row.status);
+        // failed, or stuck unfinished (its lease may have run out): claimForRetry decides; a live lease answers "already being processed"
+        if (row.status === "processed" || row.status === "ignored") throw webhookErrors.notRetryable(row.status);
         const stored = row.payload as { data?: Record<string, any> } | null;
         if (!stored?.data) throw webhookErrors.noPayload();
-        if (!(await this.d.webhookEventRepository.claimForRetry(id))) throw webhookErrors.claimed();
+        const token = await this.d.webhookEventRepository.claimForRetry(id);
+        if (!token) throw webhookErrors.claimed();
 
         const event: WebhookEnvelope = { provider: row.provider, type: row.eventType, eventKey: row.eventKey, reference: row.reference, data: stored.data };
-        const r = await this.d.webhookProcessor.process(id, event);
+        const r = await this.d.webhookProcessor.process(id, token, event);
         await this.d.auditService.log({
             userId: actorUserId, action: "webhook.retried", entity: "WebhookEvent", entityId: id, module: "webhooks",
             newValue: { type: row.eventType, reference: row.reference, processed: r.processed, error: r.error ?? null },

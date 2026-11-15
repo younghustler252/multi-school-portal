@@ -268,6 +268,7 @@ describe("period close", () => {
         const d: any = {
             financePeriodRepository: {
                 async findById(id: string) { return w.books.periods.find((p: any) => p.id === id) ?? null; },
+                async lockForClose() {},
                 async close(id: string, userId: string, at: Date) { const p = w.books.periods.find((x: any) => x.id === id); if (p.status !== "OPEN") return false; Object.assign(p, { status: "CLOSED", closedAt: at, closedById: userId }); return true; },
                 async reopen(id: string, userId: string, reason: string, at: Date) { const p = w.books.periods.find((x: any) => x.id === id); if (p.status !== "CLOSED") return false; Object.assign(p, { status: "OPEN", reopenedAt: at, reopenReason: reason }); return true; },
             },
@@ -276,7 +277,7 @@ describe("period close", () => {
             runLedgerIntegrityCheckUseCase: { async execute() { return report; } },
             auditService: { async log(p: any) { audit.push(p); } },
         };
-        return { w, audit, d, close: new ClosePeriodUseCase(d, { now: () => NOW }), reopen: new ReopenPeriodUseCase(d, { now: () => NOW }), checklist: new GetCloseChecklistUseCase(d) };
+        return { w, audit, d, close: new ClosePeriodUseCase(d, { now: () => NOW, transaction: fn => fn() }), reopen: new ReopenPeriodUseCase(d, { now: () => NOW }), checklist: new GetCloseChecklistUseCase(d) };
     };
 
     it("a month that has not ended cannot be closed", async () => {

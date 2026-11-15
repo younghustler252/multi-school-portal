@@ -62,9 +62,17 @@ export class CreateRunUseCase extends Base {
         if (await d.payrollRunRepository.existsForMonth(dto.periodYear, dto.periodMonth)) throw payrollErrors.runExists(dto.periodYear, dto.periodMonth);
 
         const number = runNumber(String(dto.periodYear), await d.numberSequenceService.next("payroll_run", String(dto.periodYear)));
-        const run = await d.payrollRunRepository.create({
-            runNumber: number, periodYear: dto.periodYear, periodMonth: dto.periodMonth, payDate: parseDay(dto.payDate), notes: dto.notes ?? null, createdById: actorUserId,
-        });
+        // The check above is only a friendly early answer; the partial unique index PayrollRun_one_live_per_month is what stops two
+        // simultaneous requests both creating a live run (REM-037).
+        let run;
+        try {
+            run = await d.payrollRunRepository.create({
+                runNumber: number, periodYear: dto.periodYear, periodMonth: dto.periodMonth, payDate: parseDay(dto.payDate), notes: dto.notes ?? null, createdById: actorUserId,
+            });
+        } catch (e) {
+            if ((e as { code?: string })?.code === "P2002") throw payrollErrors.runExists(dto.periodYear, dto.periodMonth);
+            throw e;
+        }
         await d.auditService.log({ userId: actorUserId, schoolId, action: "payroll.run.created", entity: "PayrollRun", entityId: run.id, newValue: { runNumber: number, period: monthLabel(dto.periodYear, dto.periodMonth) } });
         return respond(d, run);
     }

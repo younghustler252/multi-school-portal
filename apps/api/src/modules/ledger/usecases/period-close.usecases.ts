@@ -15,7 +15,13 @@ interface Dependencies {
     runLedgerIntegrityCheckUseCase: RunLedgerIntegrityCheckUseCase; auditService: AuditService;
     financeSettingsService?: FinanceSettingsReader;      // finance.reconciliation_blocks_close; absent in hand-built tests (default: only a warning)
 }
-interface Options { now?: () => Date }
+interface Options { now?: () => Date; transaction?: <T>(fn: () => Promise<T>) => Promise<T> }
+
+// Loaded on first use so that importing this file never needs a database connection
+const defaultTransaction = async <T>(fn: () => Promise<T>): Promise<T> => {
+    const { withTenantTransaction } = await import("../../../infrastructure/database/prisma/prisma.client");
+    return withTenantTransaction(async () => fn());
+};
 
 async function loadPeriod(d: Dependencies, id: string): Promise<FinancePeriodEntity> {
     const p = await d.financePeriodRepository.findById(id);
@@ -45,9 +51,19 @@ export class GetCloseChecklistUseCase {
 */
 export class ClosePeriodUseCase {
     private readonly now: () => Date;
-    constructor(private readonly d: Dependencies, options: Options = {}) { this.now = options.now ?? (() => new Date()); }
+    private readonly transaction: <T>(fn: () => Promise<T>) => Promise<T>;
+    constructor(private readonly d: Dependencies, options: Options = {}) { this.now = options.now ?? (() => new Date()); this.transaction = options.transaction ?? defaultTransaction; }
 
     async execute(periodId: string, schoolId: string, actorUserId: string, dto: ClosePeriodDtoType) {
+        // One transaction, started by taking the period's exclusive lock: postings in flight finish first (so the checklist sees them),
+        // postings that start later wait for this commit and are then refused as CLOSED (REM-028).
+        return this.transaction(async () => {
+            await this.d.financePeriodRepository.lockForClose(periodId);
+            return this.closeLocked(periodId, schoolId, actorUserId, dto);
+        });
+    }
+
+    private async closeLocked(periodId: string, schoolId: string, actorUserId: string, dto: ClosePeriodDtoType) {
         const d = this.d;
         const p = await loadPeriod(d, periodId);
         if (p.status === "CLOSED") throw ledgerErrors.periodAlreadyClosed(p.name);
