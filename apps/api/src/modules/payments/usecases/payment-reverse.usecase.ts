@@ -30,6 +30,8 @@ const defaultTransaction = async <T>(fn: () => Promise<T>): Promise<T> => {
 |   - its allocations are closed and the payment is marked reversed.
 | The original journal is never edited. A payment that has refunds cannot be reversed: the refund must not have happened.
 | It works from the allocations as they stand now, so it stays correct after credit was applied or a credit note moved money to credit.
+| It first takes the student credit lock of every student on the payment (ascending order), so it cannot run at the same time as a credit
+| application, refund request or refund payout on the same credit (REM-022).
 */
 export class ReversePaymentUseCase {
     private readonly now: () => Date;
@@ -48,7 +50,15 @@ export class ReversePaymentUseCase {
         if ((await d.refundRepository.countForPayment(id)) > 0) throw paymentErrors.paymentHasRefunds();
 
         await this.transaction(async () => {
+            // Credit from this payment can be spent or reserved by other requests while we reverse it, and that does not change the payment's
+            // version, so the version check alone cannot see it. Take the credit lock of EVERY student the payment touches, in ascending id order
+            // (one fixed order for every multi-student locker; single-student lockers never wait for a second lock, so no cycle can form),
+            // then read the allocations and refunds again under the locks.
+            const students = [...new Set((await d.paymentRepository.allocationsOfPayment(id)).map(a => a.studentId))].sort();
+            for (const studentId of students) await d.paymentRepository.lockStudentCredit(studentId);
+            if ((await d.refundRepository.countForPayment(id)) > 0) throw paymentErrors.paymentHasRefunds();      // a refund requested after the first check
             const live = await d.paymentRepository.allocationsOfPayment(id);
+            if (live.some(a => !students.includes(a.studentId))) throw paymentErrors.paymentChanged();            // the payment gained a student meanwhile: stop, the caller retries
             const perInvoice = new Map<string, bigint>();
             const owed = new Map<string, bigint>();        // receivable to bring back, per student
             const held = new Map<string, bigint>();        // advance still held, per student

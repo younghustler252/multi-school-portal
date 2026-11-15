@@ -47,7 +47,11 @@ router.post("/online/initialize", ...guard("payments.pay"), validate(InitializeO
 router.get("/online/verify/:reference", ...guard("payments.pay"), (q, s, n) => ctrl().verifyOnline(q, s, n));
 // REM-074: this aggregate gross/fee route posted a journal with no settlement record and left the payments "unsettled" in the Gateway Settlements
 // module, so the same money could be settled twice. It no longer posts anything; use POST /api/v1/finance/settlements.
-router.post("/online/settlements", ...guard("payments.settle"), (_q, _s, n) => n(paymentErrors.settlementMoved()));
+router.post("/online/settlements", ...guard("payments.settle"), (q, _s, n) => {
+    // logged so any caller we do not know about shows up in the logs (there is none in this repository: not the web app, not its history)
+    console.warn(`[REM-074] retired route POST /payments/online/settlements called by user ${q.auth?.userId ?? "unknown"}`);
+    n(paymentErrors.settlementMoved());
+});
 router.get("/credit/:studentId", ...guard("payments.view"), (q, s, n) => ctrl().credit(q, s, n));
 router.post("/credit/apply", ...guard("payments.record"), validate(ApplyCreditDto), (q, s, n) => ctrl().applyCredit(q, s, n));
 router.get("/refunds", ...guard("payments.view"), (q, s, n) => ctrl().listRefunds(q, s, n));

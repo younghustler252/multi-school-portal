@@ -96,7 +96,8 @@ export class PaymentRepositoryImpl extends BaseTenantRepository<PaymentEntity, P
        notes, and reserved by refund requests; this single lock makes each of those read-then-spend sequences run one at a time per student.
        Released automatically at commit or rollback. Outside a transaction it would be released at once, so callers must be inside one. */
     async lockStudentCredit(studentId: string): Promise<void> {
-        await this.prisma.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`student-credit:${studentId}`}, 0))`;
+        // $executeRaw, not $queryRaw: the function returns void, which $queryRaw cannot deserialize. The ::text makes the bound parameter's type explicit.
+        await this.prisma.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`student-credit:${studentId}`}::text, 0))`;
     }
 
     async addCredit(paymentId: string, studentId: string, amountKobo: bigint, createdById: string | null) {

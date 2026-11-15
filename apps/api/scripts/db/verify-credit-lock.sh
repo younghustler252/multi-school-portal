@@ -27,6 +27,24 @@ sleep 0.1; t2=$(now); sql "BEGIN; $(LOCK s2) COMMIT;" >/dev/null || fail "case 1
 [ "$(ms $t2 $t3)" -lt 500 ] || fail "case 1: a different student was blocked ($(ms $t2 $t3) ms)"
 echo "ok 1: same student waited $(ms $t0 $t1) ms for the first; a different student did not wait ($(ms $t2 $t3) ms)"
 
+# 1b. the repository's OWN statement, taken from the source file and run as a prepared statement with a bound text parameter, which is how the
+#     Prisma driver sends a tagged-template $executeRaw. Proves the SQL in PaymentRepositoryImpl parses, binds and locks the same way.
+SRC="$(cd "$(dirname "$0")/../.." && pwd)/src/modules/payments/repositories/payment.repository.impl.ts"
+STMT=$(python3 - "$SRC" <<'PY'
+import sys
+line = next((l for l in open(sys.argv[1]).read().splitlines() if "$executeRaw`SELECT pg_advisory_xact_lock" in l), None)
+if line is None: sys.exit(1)
+body = line.split("$executeRaw`", 1)[1].rsplit("`;", 1)[0]
+print(body.replace("${`student-credit:${studentId}`}", "$1"))
+PY
+) || fail "case 1b: could not find the lock statement in PaymentRepositoryImpl"
+case "$STMT" in "SELECT pg_advisory_xact_lock(hashtextextended(\$1::text, 0))") ;; *) fail "case 1b: unexpected statement: $STMT" ;; esac
+REPO_LOCK() { echo "PREPARE lk(text) AS $STMT; EXECUTE lk('student-credit:$1');"; }
+(PGOPTIONS="-c search_path=$S" $PSQL -At -c "BEGIN; $(REPO_LOCK s9) SELECT pg_sleep(2); COMMIT;" >/dev/null 2>&1) &
+sleep 0.6; t0=$(now); sql "BEGIN; SELECT pg_advisory_xact_lock(hashtextextended('student-credit:s9', 0)); COMMIT;" >/dev/null || fail "case 1b: second session failed"; t1=$(now); wait
+[ "$(ms $t0 $t1)" -ge 1000 ] || fail "case 1b: the repository's statement did not hold the same lock ($(ms $t0 $t1) ms)"
+echo "ok 1b: the statement in PaymentRepositoryImpl ('$STMT'), bound as text, holds the same lock ($(ms $t0 $t1) ms wait)"
+
 # a session that reads the credit, thinks (pg_sleep), then takes up to 8,000, recording what it took
 session() {  # $1 = lock line (or empty); fed through stdin because \gset is a psql meta-command
     PGOPTIONS="-c search_path=$S" $PSQL -At >/dev/null 2>&1 <<SQL

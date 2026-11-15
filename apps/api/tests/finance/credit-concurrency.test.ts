@@ -112,3 +112,68 @@ describe("the lock is taken before credit is read", () => {
         await assert.rejects(w.d.paymentRepository.lockStudentCredit("s1"), /inside a transaction/);
     });
 });
+
+describe("payment reversal takes the same locks (REM-022 follow-up)", () => {
+    async function twoStudentPayment() {
+        await w.addInvoice("i1", "s1", [["a-tuition", N(60_000)]]);
+        await w.addInvoice("i4", "s2", [["a-tuition", N(5_000)]]);
+        // one cash payment of 70,000 over both students: s1's invoice 60,000 + s2's invoice 5,000, 5,000 left over as credit
+        const { payment } = await w.pay({ amountKobo: N(70_000), studentIds: ["s2", "s1"] });
+        return payment;
+    }
+    it("locks every student on the payment in ascending order before it reads the allocations", async () => {
+        const payment = await twoStudentPayment();
+        const calls: string[] = [];
+        const repo = w.d.paymentRepository, lock = repo.lockStudentCredit, read = repo.allocationsOfPayment;
+        repo.lockStudentCredit = async (s: string) => { calls.push(`lock:${s}`); return lock(s); };
+        repo.allocationsOfPayment = async (p: string) => { calls.push("read"); return read(p); };
+        await w.reverse.execute(payment.id, "school-1", ADMIN, { reason: "bounced" } as any);
+        assert.deepEqual(calls.filter(c => c.startsWith("lock")), ["lock:s1", "lock:s2"]);            // s2 was listed first on purpose
+        assert.ok(calls.indexOf("lock:s2") < calls.lastIndexOf("read"), "allocations are read again after the locks");
+        w.assertControl(assert);
+    });
+    it("a reversal racing a credit application on the same payment leaves the books consistent, whichever goes first", async () => {
+        await w.addInvoice("i1", "s1", [["a-tuition", N(60_000)]]);
+        const { payment } = await w.pay({ amountKobo: N(70_000), studentIds: ["s1"] });         // 10,000 credit
+        await w.addInvoice("i2", "s1", [["a-tuition", N(8_000)]]);
+        const rs = await Promise.allSettled([
+            w.reverse.execute(payment.id, "school-1", ADMIN, { reason: "bounced" } as any),
+            w.applyCredit.execute("school-1", ADMIN, { invoiceId: "i2" } as any),
+        ]);
+        assert.ok(settled(rs).ok >= 1, JSON.stringify(settled(rs).failed.map(f => String(f.reason))));
+        w.assertControl(assert);                                                                  // receivable = open balances, advance = credit, credit = unallocated
+    });
+    it("control: with the lock off the same race breaks the books, so the reversal lock is what protects them", async () => {
+        await w.addInvoice("i1", "s1", [["a-tuition", N(60_000)]]);
+        const { payment } = await w.pay({ amountKobo: N(70_000), studentIds: ["s1"] });
+        await w.addInvoice("i2", "s1", [["a-tuition", N(8_000)]]);
+        w.credit.lockOff = true;
+        await Promise.allSettled([
+            w.reverse.execute(payment.id, "school-1", ADMIN, { reason: "bounced" } as any),
+            w.applyCredit.execute("school-1", ADMIN, { invoiceId: "i2" } as any),
+        ]);
+        assert.throws(() => w.assertControl(assert));
+    });
+    it("a refund requested while the payment is being reversed: exactly one wins, never both", async () => {
+        await w.addInvoice("i1", "s1", [["a-tuition", N(60_000)]]);
+        const { payment } = await w.pay({ amountKobo: N(70_000), studentIds: ["s1"] });
+        const rs = await Promise.allSettled([
+            w.reverse.execute(payment.id, "school-1", ADMIN, { reason: "bounced" } as any),
+            w.requestRefund.execute("school-1", BURSAR, { paymentId: payment.id, studentId: "s1", amountKobo: N(6_000), reason: "overpaid" } as any),
+        ]);
+        const reversed = w.payments.get(payment.id)!.status === "REVERSED", refunds = [...w.refunds.values()].length;
+        assert.ok(!(reversed && refunds > 0), `reversed=${reversed} refunds=${refunds}: a reversed payment must not carry a refund (${JSON.stringify(settled(rs).failed.map(f => String(f.reason)))})`);
+        assert.equal(settled(rs).ok, 1);
+        w.assertControl(assert);
+    });
+    it("two reversals of payments that share students, locking in the same order, finish without deadlock", async () => {
+        await w.addInvoice("i1", "s1", [["a-tuition", N(10_000)]]);
+        await w.addInvoice("i4", "s2", [["a-tuition", N(10_000)]]);
+        const a = (await w.pay({ amountKobo: N(10_000), studentIds: ["s1", "s2"] })).payment;
+        const b = (await w.pay({ amountKobo: N(10_000), studentIds: ["s2", "s1"] })).payment;
+        const done = Promise.allSettled([a, b].map(p => w.reverse.execute(p.id, "school-1", ADMIN, { reason: "bounced" } as any)));
+        const timeout = new Promise(r => setTimeout(() => r("timeout"), 3000));
+        assert.notEqual(await Promise.race([done, timeout]), "timeout", "deadlock");
+        w.assertControl(assert);
+    });
+});

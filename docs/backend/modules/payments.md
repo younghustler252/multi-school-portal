@@ -151,6 +151,10 @@ A settlement moves gross online collections out of Online Clearing:
 
 As a second layer, `setAllocationAmount(id, new, expected)` is a compare-and-set: it changes the row only if it still holds the amount that was read, and a miss raises `409 CREDIT_CHANGED` (or `INVOICE_CHANGED` on the credit-note path). Different students never wait for each other. Lock order is always the student lock first, then payment, allocation and invoice rows.
 
+**Payment reversal** takes the lock of every student on the payment too, in ascending student-id order, then re-reads the allocations and the refund count under the locks. This matters because spending credit changes the payment's `unallocatedKobo` but not its `version`, so the reversal's version check alone could not see a concurrent credit application (the books would end with advance payments over-debited and an invoice showing money whose allocation was closed). Single-student lockers never wait for a second lock, and multi-student lockers always go in ascending order, so no lock cycle can form. A student set that changed between the two reads is refused (`PAYMENT_CHANGED`).
+
+**Verification limits.** The lock SQL, its bound `text` parameter, and the compare-and-set predicate are verified on real PostgreSQL by `scripts/db/verify-credit-lock.sh`, which extracts the statement from `PaymentRepositoryImpl` itself. The Prisma call (`$executeRaw` inside `withTenantTransaction`, where the tenant client shim binds raw queries to the open transaction) has not been run end to end, because the npm registry and the `pg` driver are unavailable in the review sandbox. Run `npm run test:local` and a two-request smoke test against a real database before relying on it.
+
 Credit is the confirmed payment allocation with `invoiceId=null`; credit is held per student. Credit already reserved by REQUESTED or APPROVED refunds is excluded from available credit.
 
 - Credit application uses the oldest available credit rows first, posts Dr Advance Payments / Cr Fees Receivable, changes the invoice paid/balance/status, moves allocations from credit to invoice, and reduces payment unallocated amount.
