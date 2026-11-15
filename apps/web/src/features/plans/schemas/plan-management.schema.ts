@@ -1,23 +1,24 @@
 import { z } from "zod";
+import { nairaToKobo, priceProblem } from "../lib/plan-admin";
 
-const featureKeys = [
-	"smsNotifications", "emailNotifications", "reportCardPdf", "customGrading",
-	"attendanceTracking", "gradeManagement", "paymentCollection", "feeManagement",
-	"paymentReceipts", "multipleBranches", "prioritySupport", "apiAccess",
-	"customDomain", "parentPortal", "bulkSms", "advancedReports", "whatsappNotifications",
-] as const;
+// Mirrors CreatePlanDto/UpdatePlanDto (apps/api/src/modules/plans). Prices are typed in naira and converted on submit.
+const naira = z.string().trim().refine((v) => nairaToKobo(v) !== null, "Enter an amount like 25000 or 25,000.50");
 
-export const planFormSchema = z.object({
-	name: z.string().min(2, "At least 2 characters").max(50),
-	description: z.string().optional(),
-	studentLimit: z.string().min(1, "Required"), // "-1" for unlimited
-	staffLimit: z.string().min(1, "Required"),
-	monthlyPriceKobo: z.string().min(1, "Required"), // entered in Naira, converted at submit
-	yearlyPriceKobo: z.string().min(1, "Required"),
-	setupFeeKobo: z.string().optional(),
-	isPublic: z.boolean(),
-	features: z.record(z.enum(featureKeys), z.boolean()),
-});
+export const planFormSchema = z
+	.object({
+		name: z.string().trim().min(2, "At least 2 characters").max(50, "At most 50 characters"),
+		description: z.string().trim().max(500, "At most 500 characters"),
+		monthlyPrice: naira,
+		yearlyPrice: naira,
+		setupFee: z.union([z.literal(""), naira]),
+		isPublic: z.boolean(),
+	})
+	.superRefine((v, ctx) => {
+		const m = nairaToKobo(v.monthlyPrice);
+		const y = nairaToKobo(v.yearlyPrice);
+		if (m === null || y === null) return;
+		const problem = priceProblem(m, y);
+		if (problem) ctx.addIssue({ code: "custom", path: ["yearlyPrice"], message: problem });
+	});
 
 export type PlanFormValues = z.infer<typeof planFormSchema>;
-export { featureKeys };
