@@ -10,10 +10,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ConfirmDialog } from "@/components/feedback/confirm-dialog";
 import { DocumentReviewPanel } from "@/features/super-admin/components/document-review-panel";
 import { ImpersonateButton } from "@/features/super-admin/components/impersonate-button";
-import { SchoolBillingHistory } from "@/features/super-admin/components/school-billing-history";
+import { SchoolBillingPanel } from "@/features/super-admin/components/school-billing-panel";
 import { SchoolActivityFeed } from "@/features/super-admin/components/school-activity-feed";
-import { ChangePlanDialog } from "@/features/super-admin/components/change-plan-dialog";
-import { usePlans } from "@/features/plans/hooks/use-plans";
+import { useAccess } from "@/lib/use-access";
 import { ResetAdminPasswordButton } from "@/features/super-admin/components/reset-admin-password-button";
 import { useAdminSchool, useSuspendSchool, useActivateSchool } from "@/features/super-admin/hooks/use-school-management";
 import { formatNaira } from "@/lib/format-money";
@@ -26,7 +25,7 @@ export default function AdminSchoolDetailPage() {
 	const router = useRouter();
 
 	const { data: school, isLoading } = useAdminSchool(params.id);
-	const { data: plans } = usePlans();
+	const canChangePlan = useAccess().can("platform.subscriptions.manage");
 
 	const suspendSchool = useSuspendSchool();
 	const activateSchool = useActivateSchool();
@@ -75,7 +74,7 @@ export default function AdminSchoolDetailPage() {
 				</div>
 				<div className="flex flex-wrap gap-2">
 					<ResetAdminPasswordButton schoolId={school.id} />
-					<Button nativeButton={false} variant="outline" onClick={() => setChangePlanOpen(true)}>Change plan</Button>
+					{canChangePlan && <Button nativeButton={false} variant="outline" onClick={() => setChangePlanOpen(true)}>Change plan</Button>}
 					{school.status === "active" ? (
 						<Button nativeButton={false} variant="outline" onClick={() => setConfirmSuspend(true)}>
 							<Ban className="size-4" /> Suspend
@@ -142,21 +141,12 @@ export default function AdminSchoolDetailPage() {
 					</dl>
 				</div>
 
-				<SchoolBillingHistory schoolId={params.id} />
+				<SchoolBillingPanel schoolId={params.id} changePlanOpen={changePlanOpen} onChangePlanOpenChange={setChangePlanOpen} />
 			</div>
 
 			<div className="mt-6">
 				<SchoolActivityFeed schoolId={params.id} />
 			</div>
-
-			{/* plans prop still needs a real source — see note below */}
-			<ChangePlanDialog
-				schoolId={school.id}
-				currentPlanId={null}
-				plans={plans ?? []}
-				open={changePlanOpen}
-				onOpenChange={setChangePlanOpen}
-			/>
 
 			<ConfirmDialog
 				open={confirmSuspend}

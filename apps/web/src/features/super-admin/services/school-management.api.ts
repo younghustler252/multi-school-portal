@@ -52,13 +52,6 @@ export const schoolManagementApi = {
 	): Promise<ApiResponse<EnrichedAuditLog[]>> =>
 		API.get(`/super-admin/schools/${schoolId}/activity`, { params }),
 
-	changePlan: (
-		schoolId: string,
-		planId: string,
-	): Promise<ApiResponse<AdminSchoolResponseData>> =>
-		API.put(`/super-admin/schools/${schoolId}/plan`, { planId }),
-
-
 	resetAdminPassword: (
 		schoolId: string,
 	): Promise<ApiResponse<{ message: string }>> =>
