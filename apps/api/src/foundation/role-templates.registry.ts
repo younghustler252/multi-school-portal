@@ -75,7 +75,7 @@ export const ROLE_TEMPLATES: RoleTemplateDef[] = [
         description: "Handles fees, invoices and payments, and views the books and finance reports.",
         permissions: [
             { key: "school.view", scope: "ALL" }, { key: "school.dashboard.view", scope: "ALL" },
-            { key: "classes.view", scope: "ALL" }, { key: "sessions.view", scope: "ALL" }, { key: "enrolment.view", scope: "ALL" }, { key: "students.view", scope: "ALL" }, { key: "students.lookup", scope: "ALL" }, { key: "fees.view", scope: "ALL" },
+            { key: "classes.view", scope: "ALL" }, { key: "sessions.view", scope: "ALL" }, { key: "students.lookup", scope: "ALL" }, { key: "school.dashboard.counts", scope: "ALL" }, { key: "fees.view", scope: "ALL" },
             { key: "fees.setup.view", scope: "ALL" }, { key: "fees.types.manage", scope: "ALL" }, { key: "fees.structures.manage", scope: "ALL" },
             { key: "fees.invoices.view", scope: "ALL" }, { key: "fees.invoices.create", scope: "ALL" }, { key: "fees.invoices.issue", scope: "ALL" },
             { key: "payments.view", scope: "ALL" }, { key: "payments.record", scope: "ALL" }, { key: "payments.confirm", scope: "ALL" },

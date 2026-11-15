@@ -84,7 +84,7 @@ All paths are under `/api/v1/schools`.
 | `GET /documents` | Authenticated; tenant required; `school.documents.manage` | List verification documents with signed file links |
 | `POST /documents` | Authenticated; tenant required; `school.documents.manage`; upload limiter; multipart `document` | Upload verification document and metadata |
 | `POST /payment-setup` | Authenticated; tenant required; `school.payments.manage`; verified school required | Create or change fee settlement account |
-| `GET /dashboard` | Authenticated; tenant required; `school.dashboard.view` | Get school dashboard data |
+| `GET /dashboard` | Authenticated; tenant required; `school.dashboard.view` | Get school dashboard data. `people` is returned to holders of `students.view`, `staff.view` or `school.dashboard.counts`; `academics` to holders of `students.view` or `school.dashboard.counts`; `fees` needs `fees.view`; `attendance` needs `attendance.view`; a section the viewer may not see is null |
 | `GET /setup-checklist` | Authenticated; tenant required; `school.update` | Get setup checklist |
 
 ### Platform realm endpoints
@@ -253,6 +253,7 @@ The three lifecycle windows are platform settings with policy constants as fallb
 | `school.documents.manage` | Upload/view verification documents |
 | `school.payments.manage` | Set up payment settlement account |
 | `school.dashboard.view` | View school dashboard |
+| `school.dashboard.counts` | See school-wide head-counts on the dashboard (people and academics sections: numbers only, no names or records). Held by the bursar by default; anyone with `students.view` or `staff.view` already sees them |
 
 ### Platform realm
 

@@ -78,8 +78,9 @@ describe("students.lookup: who holds it, and where the route sits", () => {
     it("the bursar has it; teachers, students and guardians do not (the school admin has everything)", () => {
         assert.deepEqual(holders, ["bursar"]);
     });
-    it("for now the bursar keeps students.view too: removing it is a separate, later step", () => {
-        assert.ok(ROLE_TEMPLATES.find(t => t.key === "bursar")!.permissions.some(p => p.key === "students.view"));
+    it("the bursar no longer holds the full student record or class lists (students.view, enrolment.view): lookup replaces them", () => {
+        const keys = ROLE_TEMPLATES.find(t => t.key === "bursar")!.permissions.map(p => p.key);
+        assert.ok(keys.includes("students.lookup")); assert.ok(!keys.includes("students.view")); assert.ok(!keys.includes("enrolment.view"));
     });
     it("/students/lookup is registered BEFORE /students/:id, so it is never read as an id", () => {
         // read from the source: importing the router would start the whole container (and its Redis connection)

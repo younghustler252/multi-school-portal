@@ -41,4 +41,10 @@ export const ROLE_REVOCATIONS: RoleRevocation[] = [
         permissions: ["school.update", "school_settings.manage", "message_templates.manage", "automation.manage"],
         reason: "The principal oversees and signs off; changing the school's profile, settings, message wording and automatic messages is school-admin work. The principal keeps the matching view permissions and notifications.send.",
     },
+    {
+        id: "2026-11-bursar-student-record-to-lookup",
+        templateKey: "bursar",
+        permissions: ["students.view", "enrolment.view"],
+        reason: "Billing needs to find a student and see school-wide head-counts, not open the full student record (date of birth, health, address, religion) or class lists. The bursar keeps students.lookup, and gains school.dashboard.counts so the dashboard numbers stay.",
+    },
 ];

@@ -30,7 +30,7 @@ describe("event permissions and role templates", () => {
         // The baseline is from before the events work. Later, deliberate changes are allowed ONLY if they are on record:
         // a permission may be missing only if a revocation names it, and the one known later addition is listed here.
         const revoked = (templateKey: string) => new Set(ROLE_REVOCATIONS.filter(r => r.templateKey === templateKey).flatMap(r => r.permissions));
-        const laterAdditions: Record<string, string[]> = { bursar: ["students.lookup:ALL"] };
+        const laterAdditions: Record<string, string[]> = { bursar: ["students.lookup:ALL", "school.dashboard.counts:ALL"] };
         const added: Record<string, string[]> = {};
         for (const t of ROLE_TEMPLATES) {
             const now = t.permissions.map(p => `${p.key}:${p.scope}`).sort();

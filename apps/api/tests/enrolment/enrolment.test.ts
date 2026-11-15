@@ -27,7 +27,7 @@ describe("enrolment permissions and templates", () => {
         assert.deepEqual(validatePermissionRegistry(), []);
         for (const k of ["enrolment.view", "enrolment.manage", "enrolment.promote"]) assert.equal(PERMISSION_REGISTRY.filter(p => p.key === k).length, 1, k);
         const scopeOf = (role: string) => ROLE_TEMPLATES.find(t => t.key === role)!.permissions.find(p => p.key === "enrolment.view")?.scope;
-        assert.deepEqual(["principal", "branch_principal", "teacher", "bursar", "student", "guardian"].map(scopeOf), ["ALL", "BRANCH", "ASSIGNED", "ALL", "OWN", "OWN"]);
+        assert.deepEqual(["principal", "branch_principal", "teacher", "bursar", "student", "guardian"].map(scopeOf), ["ALL", "BRANCH", "ASSIGNED", undefined, "OWN", "OWN"], "the bursar has no class lists: billing finds students with students.lookup");
         for (const t of ROLE_TEMPLATES) assert.ok(!t.permissions.some(p => p.key === "enrolment.manage" || p.key === "enrolment.promote"));
     });
 });
