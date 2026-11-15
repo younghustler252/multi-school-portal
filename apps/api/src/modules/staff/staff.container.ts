@@ -7,7 +7,7 @@ import { NumberSequenceService } from "../../shared/services/number-sequence.ser
 import { ListStaffUseCase, GetStaffUseCase, GetMyStaffProfileUseCase, ExportStaffUseCase } from "./usecases/staff-queries.usecases";
 import { CreateStaffUseCase } from "./usecases/create-staff.usecase";
 import { UpdateStaffUseCase } from "./usecases/update-staff.usecase";
-import { SetStaffBranchesUseCase } from "./usecases/staff-branches.usecase";
+import { SetStaffBranchesUseCase, ListAssignableBranchesUseCase } from "./usecases/staff-branches.usecase";
 import { DeactivateStaffUseCase, ReactivateStaffUseCase } from "./usecases/staff-status.usecases";
 import { InviteStaffUseCase, ChangeStaffRolesUseCase } from "./usecases/staff-portal.usecases";
 import { GetMyClassesUseCase, GetStaffAssignmentsUseCase } from "./usecases/staff-assignments.usecases";
@@ -31,6 +31,7 @@ export const registerStaff = (container: AwilixContainer): void => {
         createStaffUseCase:       asClass(CreateStaffUseCase).scoped(),
         updateStaffUseCase:       asClass(UpdateStaffUseCase).scoped(),
         setStaffBranchesUseCase:  asClass(SetStaffBranchesUseCase).scoped(),
+        listAssignableBranchesUseCase: asClass(ListAssignableBranchesUseCase).scoped(),
         deactivateStaffUseCase:   asClass(DeactivateStaffUseCase).scoped(),
         reactivateStaffUseCase:   asClass(ReactivateStaffUseCase).scoped(),
         inviteStaffUseCase:       asClass(InviteStaffUseCase).scoped(),

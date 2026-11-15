@@ -52,3 +52,27 @@ export class SetStaffBranchesUseCase {
         return { staffId: id, branchIds: finalIds, primaryBranchId: primary };
     }
 }
+
+/*
+| GET /staff/assignable-branches: the branches the signed-in person may place a staff member in (the branch picker).
+| Guarded by staff.manage, NOT branches.view, so a person who manages staff can fill the picker without being given the
+| wider right to browse branches. It uses the same scope as SetStaffBranchesUseCase and the "new staff" checks
+| (branchScope("staff.manage")):
+|  - ALL scope    every active branch
+|  - BRANCH scope only the active branches among THEIR OWN
+|  - anything else nothing (staff.manage cannot be held any other way; this just fails closed)
+| Inactive and deleted branches are never listed (they could not be assigned anyway). A branch outside the person's reach is
+| not listed, and nothing but what a picker needs is returned. It answers for the person, not for a particular staff member:
+| "who may I act on" and "branches the person already has outside my reach are kept" still apply on PUT /staff/:id/branches.
+*/
+export class ListAssignableBranchesUseCase {
+    constructor(private readonly d: Pick<Dependencies, "staffRepository">) {}
+
+    async execute(actor: StaffActor) {
+        const scope = actor.access.branchScope("staff.manage");
+        let rows: Awaited<ReturnType<IStaffRepository["listActiveBranches"]>> = [];
+        if (scope === "ALL") rows = await this.d.staffRepository.listActiveBranches();
+        else if (Array.isArray(scope) && scope.length > 0) rows = await this.d.staffRepository.listActiveBranches(scope);
+        return rows.map(b => ({ id: b.id, name: b.name, code: b.code, isMain: b.isMain }));
+    }
+}

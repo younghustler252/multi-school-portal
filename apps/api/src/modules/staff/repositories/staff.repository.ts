@@ -1,6 +1,8 @@
 import { StaffEntity } from "../domain/staff.entity";
 import { PaginatedResult, PaginateParams } from "../../../infrastructure/repository/base.repository";
 
+export interface ActiveBranchRow { id: string; name: string; code: string; isMain: boolean }
+
 export interface IStaffRepository {
     findById(id: string, include?: Record<string, any>): Promise<StaffEntity | null>;
     findOne(where: Record<string, any>, include?: Record<string, any>): Promise<StaffEntity | null>;
@@ -24,6 +26,8 @@ export interface IStaffRepository {
     findMainBranchId(): Promise<string | null>;
     /** How many of these branches exist and are active (not deleted). */
     countActiveBranches(ids: string[]): Promise<number>;
+    /** The active (not deleted) branches, main first then by name; only these ids when `ids` is given. Feeds the branch picker. */
+    listActiveBranches(ids?: string[]): Promise<ActiveBranchRow[]>;
     /** Replaces all of a person's branches in one step. */
     replaceBranches(staffId: string, branchIds: string[], primaryBranchId: string, assignedById: string): Promise<void>;
     /** Creates the staff row and its branches in one transaction. `employeeId` may be worked out inside that transaction. */

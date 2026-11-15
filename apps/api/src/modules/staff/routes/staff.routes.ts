@@ -14,7 +14,8 @@ import {
 | staff.view   = see staff (all, or only those in the person's branches, or only themselves, depending on the role's scope)
 | staff.manage = create, edit, set branches, deactivate, invite, change roles (all, or only inside their own branches)
 | Inviting also needs users.invite. The plan's staff limit is checked inside create/reactivate.
-| Fixed paths ("/export", "/me") come before "/:id".
+| GET /assignable-branches is staff.manage (not branches.view): the branches this person may place staff in, for the branch picker.
+| Fixed paths ("/export", "/me", "/assignable-branches") come before "/:id".
 */
 const router = Router();
 const ctrl   = () => container.resolve<StaffController>("staffController");
@@ -25,6 +26,7 @@ const self   = [authenticate, requireTenant, requirePersona("STAFF")] as const;
 router.get("/export", ...view, (q, s, n) => ctrl().export(q, s, n));
 router.get("/me", ...self, (q, s, n) => ctrl().me(q, s, n));
 router.get("/me/classes", ...self, (q, s, n) => ctrl().myClasses(q, s, n));
+router.get("/assignable-branches", ...manage, (q, s, n) => ctrl().assignableBranches(q, s, n));
 
 router.get("/", ...view, (q, s, n) => ctrl().list(q, s, n));
 router.post("/", ...manage, validate(CreateStaffDto), (q, s, n) => ctrl().create(q, s, n));

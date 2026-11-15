@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { ListStaffUseCase, GetStaffUseCase, GetMyStaffProfileUseCase, ExportStaffUseCase } from "../usecases/staff-queries.usecases";
 import { CreateStaffUseCase } from "../usecases/create-staff.usecase";
 import { UpdateStaffUseCase } from "../usecases/update-staff.usecase";
-import { SetStaffBranchesUseCase } from "../usecases/staff-branches.usecase";
+import { SetStaffBranchesUseCase, ListAssignableBranchesUseCase } from "../usecases/staff-branches.usecase";
 import { DeactivateStaffUseCase, ReactivateStaffUseCase } from "../usecases/staff-status.usecases";
 import { InviteStaffUseCase, ChangeStaffRolesUseCase } from "../usecases/staff-portal.usecases";
 import { GetMyClassesUseCase, GetStaffAssignmentsUseCase } from "../usecases/staff-assignments.usecases";
@@ -15,7 +15,7 @@ import { StaffActor } from "../domain/staff.types";
 interface Dependencies {
     listStaffUseCase: ListStaffUseCase; getStaffUseCase: GetStaffUseCase; getMyStaffProfileUseCase: GetMyStaffProfileUseCase;
     exportStaffUseCase: ExportStaffUseCase; createStaffUseCase: CreateStaffUseCase; updateStaffUseCase: UpdateStaffUseCase;
-    setStaffBranchesUseCase: SetStaffBranchesUseCase; deactivateStaffUseCase: DeactivateStaffUseCase; reactivateStaffUseCase: ReactivateStaffUseCase;
+    setStaffBranchesUseCase: SetStaffBranchesUseCase; listAssignableBranchesUseCase: ListAssignableBranchesUseCase; deactivateStaffUseCase: DeactivateStaffUseCase; reactivateStaffUseCase: ReactivateStaffUseCase;
     inviteStaffUseCase: InviteStaffUseCase; changeStaffRolesUseCase: ChangeStaffRolesUseCase;
     getMyClassesUseCase: GetMyClassesUseCase; getStaffAssignmentsUseCase: GetStaffAssignmentsUseCase;
 }
@@ -63,6 +63,7 @@ export class StaffController {
     me   = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.getMyStaffProfileUseCase.execute(schoolIdOf(req), getAccess(req)), "Profile retrieved successfully"); } catch (e) { next(e); } };
     create = async (req: Request, res: Response, next: NextFunction) => { try { sendCreated(res, await this.d.createStaffUseCase.execute(schoolIdOf(req), req.body, actorOf(req)), "Staff member created successfully"); } catch (e) { next(e); } };
     update = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.updateStaffUseCase.execute(schoolIdOf(req), idOf(req), req.body, actorOf(req)), "Staff member updated successfully"); } catch (e) { next(e); } };
+    assignableBranches = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.listAssignableBranchesUseCase.execute(actorOf(req)), "Assignable branches retrieved successfully"); } catch (e) { next(e); } };
     setBranches = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.setStaffBranchesUseCase.execute(schoolIdOf(req), idOf(req), req.body, actorOf(req)), "Branches updated successfully"); } catch (e) { next(e); } };
     deactivate = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.deactivateStaffUseCase.execute(schoolIdOf(req), idOf(req), req.body ?? {}, actorOf(req)), "Staff member deactivated successfully"); } catch (e) { next(e); } };
     reactivate = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.reactivateStaffUseCase.execute(schoolIdOf(req), idOf(req), actorOf(req)), "Staff member reactivated successfully"); } catch (e) { next(e); } };
