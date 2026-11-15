@@ -275,7 +275,7 @@ The TypeScript shape is `AssignableBranch` in `@schoolos/contracts` (`packages/c
 - Deactivation is school-specific; it does not deactivate the global User identity.
 - Deactivation is refused for the caller's own Staff record and for the school's only administrator.
 - The Staff row is marked inactive, the matching tenant Membership is suspended, that membership's refresh sessions are revoked, its access cache is invalidated and pending invitations are cancelled.
-- The response includes a warning count of active class/subject assignments that still need reassignment. The count comes from the Classes-owned reader; deactivation does NOT release or reassign them (open product decision, see TEACHING_OWNERSHIP.md).
+- The response includes a warning count of active class/subject assignments that still need reassignment. The count comes from the Classes-owned reader; deactivation does NOT release or reassign them, by design: deactivation is immediate and never blocked, and Classes will own the outstanding handover (agreed direction, not yet built; see TEACHING_OWNERSHIP.md).
 - Reactivation checks the plan limit again and restores the school's access according to the use case.
 - Staff records are not hard-deleted through these workflows.
 
