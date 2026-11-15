@@ -84,7 +84,13 @@ export class StartTransfersUseCase {
         const problem = checkLimits(rows, settings.transferMaxKobo, settings.transferBatchMaxKobo);
         if (problem) throw transferErrors.overLimit(problem.code, problem.message, problem.staffId);
 
-        await this.transaction(() => d.salaryTransferRepository.insertMany(rows));
+        // Insert only if the run is STILL approved, under the run's lock: a reversal or manual payment that got there first wins and this is refused (REM-044)
+        await this.transaction(async () => {
+            await d.salaryTransferRepository.lockRun(runId);
+            const current = await loadRun(d, runId);
+            if (current.status !== "APPROVED") throw transferErrors.runNotApproved(current.status);
+            await d.salaryTransferRepository.insertMany(rows);
+        });
         const total = rows.reduce((s, r) => s + r.amountKobo, 0n);
         await d.auditService.log({
             userId: actorUserId, schoolId, action: "payroll.transfers.started", entity: "PayrollRun", entityId: runId,
@@ -175,7 +181,7 @@ export class ReconcileTransfersUseCase {
 
     async execute(schoolId: string, actorUserId: string, dto: ReconcileTransfersDtoType = {}) {
         const d = this.d;
-        await assertEnabled(d);
+        // No assertEnabled here (REM-045): the platform and school switches stop NEW transfers; checking what happened to ones already sent must keep working.
         const one = dto.transferId ? await d.salaryTransferRepository.findById(dto.transferId) : null;
         if (dto.transferId && !one) throw transferErrors.notFound();
         const candidates = one ? [one] : await d.salaryTransferRepository.unsettled(200);
@@ -237,7 +243,12 @@ export class RetryTransferUseCase {
             id: randomUUID(), runId: t.runId, payslipId: t.payslipId, staffId: t.staffId, attempt, reference: buildReference(schoolId, randomBytes(6).toString("hex"), attempt),
             amountKobo: t.amountKobo, ...bank, fromAccountId: t.fromAccountId, initiatedById: actorUserId,
         };
-        await this.transaction(() => d.salaryTransferRepository.insertMany([row]));
+        await this.transaction(async () => {
+            await d.salaryTransferRepository.lockRun(run.id);
+            const current = await loadRun(d, run.id);
+            if (current.status !== "APPROVED" && current.status !== "PAID") throw transferErrors.runNotApproved(current.status);
+            await d.salaryTransferRepository.insertMany([row]);
+        });
         await d.auditService.log({
             userId: actorUserId, schoolId, action: "payroll.transfer.retried", entity: "SalaryTransfer", entityId: row.id,
             oldValue: { previous: t.id, status: t.status, reason: t.failureReason }, newValue: { attempt, reference: row.reference, usedCurrentBankDetails: !!dto.useCurrentBankDetails },

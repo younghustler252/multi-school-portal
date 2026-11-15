@@ -29,6 +29,7 @@ export function transfersWorld(opts: { enabled?: boolean; settings?: Record<stri
         async list(f: any) { const rows = [...transfers.values()].filter(t => (!f.status || t.status === f.status) && (!f.runId || t.runId === f.runId)).map(clone); return { rows, total: rows.length }; },
         async payslipsWithLiveTransfer(ids: string[]) { return new Set([...transfers.values()].filter(t => ids.includes(t.payslipId) && ["PENDING", "SENDING", "PROCESSING", "UNKNOWN", "SUCCESS"].includes(t.status)).map(t => t.payslipId)); },
         async lastAttempt(pid: string) { return Math.max(0, ...[...transfers.values()].filter(t => t.payslipId === pid).map(t => t.attempt)); },
+        async lockRun() { await w.onLockRun?.(); },
         async hasLiveTransfers(runId: string) { return [...transfers.values()].some(t => t.runId === runId && ["PENDING", "SENDING", "PROCESSING", "UNKNOWN", "SUCCESS"].includes(t.status)); },
         async payoutDetails(staffId: string) { return bank.get(staffId) ?? null; },
         async insertMany(rows: any[]) {

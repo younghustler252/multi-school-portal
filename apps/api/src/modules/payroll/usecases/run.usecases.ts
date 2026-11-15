@@ -252,13 +252,18 @@ export class ReverseRunUseCase extends Base {
         if (run.status !== "APPROVED") throw payrollErrors.runState(run.status, "reversed");
         const reason = dto.reason.trim();
         if (!reason) throw payrollErrors.reasonRequired();
+        // Cheap early answer; the check that counts is the one inside the transaction below (REM-044).
+        if (await d.salaryTransferRepository?.hasLiveTransfers(id)) throw payrollErrors.hasTransfersReverse();
 
         await this.transaction(async () => {
+            // Claim the run first (compare-and-set locks its row): a transfer start that is queued behind this sees CANCELLED and is refused,
+            // and one that got in first is seen here, so the accrual is never reversed under a transfer that is moving or has paid.
+            const ok = await d.payrollRunRepository.transition(id, ["APPROVED"], run.version, { status: "CANCELLED", cancelledAt: this.now(), cancelledById: actorUserId, cancelReason: reason });
+            if (!ok) throw payrollErrors.runChanged();
+            if (await d.salaryTransferRepository?.hasLiveTransfers(id)) throw payrollErrors.hasTransfersReverse();
             await d.postingService.reverse(run.accrualJournalId!, { reason, entryDate: dto.entryDate, actorUserId });
             await d.loanRepository.reverseRepayments(run.payslips.map(p => p.id), this.now());
             await d.payrollRunRepository.markPayslipsVoid(id);
-            const ok = await d.payrollRunRepository.transition(id, ["APPROVED"], run.version, { status: "CANCELLED", cancelledAt: this.now(), cancelledById: actorUserId, cancelReason: reason });
-            if (!ok) throw payrollErrors.runChanged();
         });
         await d.auditService.log({ userId: actorUserId, schoolId, action: "payroll.run.reversed", entity: "PayrollRun", entityId: id, oldValue: { status: "APPROVED" }, newValue: { status: "CANCELLED", reason } });
         return respond(d, await loadRun(d, id));
@@ -289,6 +294,8 @@ export class PayRunUseCase extends Base {
                 status: "PAID", paidAt: this.now(), paidById: actorUserId, paidOn: parseDay(paidOn), paidFromAccountId: account.id, paymentReference: dto.reference ?? null, paymentJournalId: posted.journal.id,
             });
             if (!ok) throw payrollErrors.runChanged();
+            // A transfer started after the early check above would be paid twice (bank and books): look again with the run claimed (REM-044)
+            if (await d.salaryTransferRepository?.hasLiveTransfers(id)) throw payrollErrors.hasTransfers();
             await d.payrollRunRepository.markPayslipsPaid(id, this.now(), dto.reference ?? null);
         });
         await d.auditService.log({
