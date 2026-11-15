@@ -18,14 +18,6 @@ export class StaffRepositoryImpl extends BaseTenantRepository<StaffEntity> imple
     async findByEmail(email: string): Promise<StaffEntity | null> { return this.findOne({ email: { equals: email, mode: "insensitive" } }); }
     async findWithBranches(id: string): Promise<StaffEntity | null> { return this.findById(id, WITH_BRANCHES as never); }
 
-    async countActiveAssignments(staffId: string): Promise<number> {
-        const [subjects, classes] = await Promise.all([
-            this.prisma.classSubject.count({ where: { staffId, term: { isCurrent: true } } }),
-            this.prisma.class.count({ where: { classTeacherId: staffId } }),
-        ]);
-        return subjects + classes;
-    }
-
     async findMainBranchId(): Promise<string | null> {
         const main = await this.prisma.branch.findFirst({ where: { isMain: true, deletedAt: null }, select: { id: true } });
         return main?.id ?? null;

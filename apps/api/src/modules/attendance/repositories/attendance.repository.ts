@@ -2,6 +2,7 @@ import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.
 import { lockClass } from "../../enrolment/services/class-seats";
 import { addDays, dayKey, ENROLMENT_STATUSES_ON_REGISTER } from "../domain/attendance.policy";
 
+import { classLedBy, classTaughtInTermBy } from "../../classes/services/teaching-access";
 /* All attendance database reads in one place (the tenant client follows the request's school). */
 export interface TermRow { id: string; name: string; startDate: Date; endDate: Date; isCurrent: boolean; session: { id: string; name: string } | null }
 
@@ -111,11 +112,7 @@ export class AttendanceRepository {
 
     /** Does this staff member lead the class, or teach it in the term? (used by the ASSIGNED scope) */
     async staffCoversClass(staffId: string, classId: string, termId: string): Promise<boolean> {
-        const [leads, teaches] = await Promise.all([
-            this.db.class.count({ where: { id: classId, classTeacherId: staffId } }),
-            this.db.classSubject.count({ where: { classId, termId, staffId } }),
-        ]);
-        return leads > 0 || teaches > 0;
+        return (await this.db.class.count({ where: { id: classId, OR: [classLedBy(staffId), classTaughtInTermBy(staffId, termId)] } as any })) > 0;
     }
 
     async updateMark(id: string, data: { status?: AttendanceStatusValue; note?: string | null }, markedById: string): Promise<AttendanceRow> {

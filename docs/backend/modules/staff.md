@@ -28,7 +28,7 @@ Important dependencies:
 - Auth refresh-token repository to revoke sessions for a suspended membership.
 - Foundation `AccessService` for effective authorization and cache invalidation.
 - Branch records for assignment validation.
-- Classes and Sessions modules for staff assignment/profile endpoints.
+- Classes (the Classes-owned `TeachingAssignmentsReader`, read-only) and Sessions (current term) for the staff assignment endpoints. Staff holds no assignment logic of its own: it never queries class tables or imports the Class repository (enforced by `tests/architecture/teaching-ownership.test.ts`). See `docs/backend/TEACHING_OWNERSHIP.md`.
 - Audit service for staff mutations.
 - Plan feature gate for staff quantity limits.
 - `NumberSequenceService` for generated employee numbers.
@@ -170,7 +170,7 @@ The list controller returns `{ success, message, data, meta }`. Other controller
 - Deactivation is school-specific; it does not deactivate the global User identity.
 - Deactivation is refused for the caller's own Staff record and for the school's only administrator.
 - The Staff row is marked inactive, the matching tenant Membership is suspended, that membership's refresh sessions are revoked, its access cache is invalidated and pending invitations are cancelled.
-- The response includes a warning count of active class/subject assignments that still need reassignment.
+- The response includes a warning count of active class/subject assignments that still need reassignment. The count comes from the Classes-owned reader; deactivation does NOT release or reassign them, by design: deactivation is immediate and never blocked, and Classes will own the outstanding handover (agreed direction, not yet built; see TEACHING_OWNERSHIP.md).
 - Reactivation checks the plan limit again and restores the school's access according to the use case.
 - Staff records are not hard-deleted through these workflows.
 
