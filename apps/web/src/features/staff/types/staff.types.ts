@@ -1,54 +1,127 @@
-export type StaffRole = "school_admin" | "principal" | "teacher" | "bursar" | "other";
 export type Gender = "male" | "female";
+export type StaffCategory = "teaching" | "non_teaching";
+export type EmploymentType = "full_time" | "part_time" | "contract" | "volunteer";
+export type StaffStatusFilter = "active" | "inactive" | "all";
+export type PortalStatus = "none" | "invited" | "active" | "suspended";
 
+export interface StaffBranchRef {
+	id: string;
+	name: string;
+	code: string | null;
+	isPrimary: boolean;
+}
+
+/** A staff record as GET /staff and GET /staff/:id return it (docs/backend/modules/staff.md section 6). */
 export interface StaffResponseData {
 	id: string;
-	userId: string;
 	employeeId: string | null;
-	firstName: string | null;
-	lastName: string | null;
-	email: string | undefined;
+	firstName: string;
+	lastName: string;
+	middleName: string | null;
+	fullName: string;
+	email: string | null;
 	phone: string | null;
 	photoUrl: string | null;
-	role: StaffRole;
-	department: string | null;
-	designation: string | null;
-	qualification: string | null;
 	gender: Gender | null;
 	dateOfBirth: string | null;
 	address: string | null;
+	department: string | null;
+	designation: string | null;
+	qualification: string | null;
+	category: StaffCategory;
+	employmentType: EmploymentType;
 	joinDate: string | null;
+	exitDate: string | null;
+	exitReason: string | null;
 	isActive: boolean;
+	branches: StaffBranchRef[];
+	/** Portal login state is separate from employment status: a staff record can exist with no login at all. */
+	portal: { status: PortalStatus; roles: Array<{ id: string; name: string }> };
 	createdAt: string;
 }
 
+/** POST /staff. A login is never created here; `invite` (needs an email) sends the portal invitation straight away. */
 export interface CreateStaffDto {
-	email: string;
 	firstName: string;
 	lastName: string;
+	middleName?: string;
+	email?: string;
 	phone?: string;
-	password?: string; // auto-generated if omitted
-
-	role: StaffRole;
-	employeeId?: string;
-	department?: string;
-	designation?: string;
-	qualification?: string;
 	gender?: Gender;
 	dateOfBirth?: string;
 	address?: string;
+	department?: string;
+	designation?: string;
+	qualification?: string;
+	category?: StaffCategory;
+	employmentType?: EmploymentType;
 	joinDate?: string;
+	employeeId?: string;
+	branchIds?: string[];
+	/** Send true only after the user confirmed a POSSIBLE_DUPLICATE_STAFF warning. */
+	confirmNotDuplicate?: boolean;
+	invite?: { roleId: string };
 }
 
-export type UpdateStaffDto = Partial<Omit<CreateStaffDto, "email" | "password">>;
+/** The created record, plus how the optional invitation went. The record exists even when the invite failed. */
+export type CreateStaffResult = StaffResponseData & { invite?: { status: "sent" | "failed"; code?: string } };
+
+/** PUT /staff/:id. Nullable fields can be cleared with null; at least one field is required. */
+export type UpdateStaffDto = Partial<{
+	firstName: string;
+	lastName: string;
+	middleName: string | null;
+	email: string | null;
+	phone: string | null;
+	gender: Gender | null;
+	dateOfBirth: string | null;
+	address: string | null;
+	department: string | null;
+	designation: string | null;
+	qualification: string | null;
+	category: StaffCategory;
+	employmentType: EmploymentType;
+	joinDate: string | null;
+	employeeId: string;
+}>;
 
 export interface ListStaffParams {
 	page?: number;
 	limit?: number;
-	role?: StaffRole;
-	department?: string;
 	search?: string;
-	isActive?: boolean;
+	category?: StaffCategory;
+	employmentType?: EmploymentType;
+	department?: string;
+	branchId?: string;
+	/** Server default is "active". */
+	status?: StaffStatusFilter;
+}
+
+export interface DeactivateStaffDto {
+	exitDate?: string;
+	exitReason?: string;
+}
+
+/** POST /staff/:id/deactivate. `activeAssignments` classes/subjects still need a new teacher. */
+export interface DeactivateStaffResult {
+	staff: StaffResponseData;
+	warnings: { activeAssignments: number };
+}
+
+export interface SetStaffBranchesDto {
+	branchIds: string[];
+	primaryBranchId?: string;
+}
+
+export interface StaffBranchesResult {
+	staffId: string;
+	branchIds: string[];
+	primaryBranchId: string | null;
+}
+
+export interface StaffRolesResult {
+	staffId: string;
+	roleIds: string[];
 }
 
 export interface StaffAssignmentResponseData {

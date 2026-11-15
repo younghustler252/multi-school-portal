@@ -16,7 +16,7 @@ export function TeacherPicker({ value, onChange }: TeacherPickerProps) {
 	const [open, setOpen] = useState(false);
 	const [search, setSearch] = useState("");
 	const debouncedSearch = useDebouncedValue(search, 300);
-	const { data } = useStaffList({ role: "teacher", limit: 20, search: debouncedSearch || undefined });
+	const { data } = useStaffList({ category: "teaching", limit: 20, search: debouncedSearch || undefined });
 
 	return (
 		<div className="relative">

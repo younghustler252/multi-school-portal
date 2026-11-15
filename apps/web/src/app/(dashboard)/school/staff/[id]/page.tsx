@@ -14,7 +14,8 @@ import { useTeacherRoster } from "@/features/staff/hooks/use-teacher-roster";
 import { useCurrentSession } from "@/features/school/hooks/use-sessions";
 import { EditStaffDialog } from "@/features/staff/components/edit-staff-dialog";
 import { StaffStatusDialog } from "@/features/staff/components/staff-status-dialog";
-import { STAFF_ROLE_LABELS } from "@/features/staff/constants/staff-role-labels";
+import { EMPLOYMENT_TYPE_LABELS, PORTAL_STATUS_LABELS, STAFF_CATEGORY_LABELS } from "@/features/staff/constants/staff-labels";
+import { useAccess } from "@/lib/use-access";
 import { ROUTES } from "@/lib/routes";
 
 export default function StaffDetailPage() {
@@ -22,7 +23,8 @@ export default function StaffDetailPage() {
 	const { data: staff, isLoading } = useStaffMember(params.id);
 	const { data: currentSession } = useCurrentSession();
 	const termId = currentSession?.currentTerm?.id;
-	const isTeacher = staff?.role === "teacher";
+	const isTeacher = staff?.category === "teaching";
+	const canManage = useAccess().can("staff.manage");
 
 	const { data: assignments } = useTeacherAssignments(isTeacher ? params.id : "");
 	const { data: roster, isLoading: rosterLoading } = useTeacherRoster(isTeacher ? params.id : "", termId);
@@ -60,22 +62,26 @@ export default function StaffDetailPage() {
 
 			<div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 				<div>
-					<h1 className="text-2xl font-semibold tracking-tight">{staff.firstName} {staff.lastName}</h1>
+					<h1 className="text-2xl font-semibold tracking-tight">{staff.fullName}</h1>
 					<div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
-						<Badge variant="secondary">{STAFF_ROLE_LABELS[staff.role]}</Badge>
+						<Badge variant="secondary">{STAFF_CATEGORY_LABELS[staff.category]}</Badge>
 						<span>{staff.isActive ? "Active staff" : "Deactivated"}</span>
+						<span>·</span>
+						<span>{PORTAL_STATUS_LABELS[staff.portal.status]}</span>
 					</div>
 				</div>
 
-				<div className="flex flex-wrap gap-2">
-					<Button variant="outline" onClick={() => setEditOpen(true)}>
-						<Pencil className="size-4" /> Edit
-					</Button>
-					<Button variant="outline" onClick={() => setStatusOpen(true)}>
-						{staff.isActive ? <UserX className="size-4" /> : <UserCheck className="size-4" />}
-						{staff.isActive ? "Deactivate" : "Reactivate"}
-					</Button>
-				</div>
+				{canManage && (
+					<div className="flex flex-wrap gap-2">
+						<Button variant="outline" onClick={() => setEditOpen(true)}>
+							<Pencil className="size-4" /> Edit
+						</Button>
+						<Button variant="outline" onClick={() => setStatusOpen(true)}>
+							{staff.isActive ? <UserX className="size-4" /> : <UserCheck className="size-4" />}
+							{staff.isActive ? "Deactivate" : "Reactivate"}
+						</Button>
+					</div>
+				)}
 			</div>
 
 			{isTeacher && (
@@ -112,12 +118,16 @@ export default function StaffDetailPage() {
 						</div>
 					)}
 
-					{!isTeacher && (
-						<div className="mt-4 border-t border-border pt-4 text-sm text-muted-foreground">
-							{staff.department && <div>Department: {staff.department}</div>}
-							{staff.designation && <div className="mt-1">Designation: {staff.designation}</div>}
-						</div>
-					)}
+					<div className="mt-4 space-y-1 border-t border-border pt-4 text-sm text-muted-foreground">
+						<div>Employment: {EMPLOYMENT_TYPE_LABELS[staff.employmentType]}</div>
+						{staff.department && <div>Department: {staff.department}</div>}
+						{staff.designation && <div>Designation: {staff.designation}</div>}
+						{staff.branches.length > 0 && (
+							<div>Branches: {staff.branches.map((b) => (b.isPrimary ? `${b.name} (main)` : b.name)).join(", ")}</div>
+						)}
+						{staff.portal.roles.length > 0 && <div>Portal roles: {staff.portal.roles.map((r) => r.name).join(", ")}</div>}
+						{!staff.isActive && staff.exitReason && <div>Exit reason: {staff.exitReason}</div>}
+					</div>
 				</div>
 
 				{isTeacher && (
