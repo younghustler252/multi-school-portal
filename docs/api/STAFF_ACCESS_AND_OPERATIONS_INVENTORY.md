@@ -6,14 +6,14 @@
 
 | Area | Route files / exported routers | Operations |
 |---|---:|---:|
-| Staff | 1 | 13 |
+| Staff | 1 | 14 |
 | Roles | 1 | 6 |
 | Permission catalogue | 1 exported router | 1 |
 | Branches | 1 | 9 |
 | Classes and subjects | 1 | 17 |
 | Attendance | 1 | 6 |
 | Sessions, terms and calendar | 1 | 12 |
-| **Total** | **7** | **64** |
+| **Total** | **7** | **65** |
 
 The roles source file exports both the `/roles` router and a separate `/permissions` router. The count includes both.
 
@@ -25,7 +25,7 @@ The roles source file exports both the `/roles` router and a separate `/permissi
 - Only writes with explicit `validate(...)` middleware are identified as route-validated DTOs. Read query parsing and unvalidated path IDs must be checked in controllers/use cases.
 - List response envelopes and pagination are not assumed uniform; inspect controller output before defining shared OpenAPI schemas.
 
-## Staff — 13 operations
+## Staff — 14 operations
 
 Mount: `/staff`.
 
@@ -34,6 +34,7 @@ Mount: `/staff`.
 | GET | `/export` | `staff.view`; export current visible staff scope |
 | GET | `/me` | STAFF persona; current staff profile |
 | GET | `/me/classes` | STAFF persona; own teaching classes |
+| GET | `/assignable-roles` | `staff.manage`; roles the caller may grant (invite / change-roles picker); see `docs/backend/modules/staff.md` |
 | GET | `/` | `staff.view`; scoped staff list |
 | POST | `/` | `staff.manage`; `CreateStaffDto`; plan staff limit enforced in use case |
 | GET | `/:id` | `staff.view`; scope-aware detail |

@@ -38,6 +38,17 @@ export const scopeCovers = (held: Scope | null, needed: Scope): boolean => held 
 export const canDelegateRole = (granted: ReadonlyArray<{ key: string; scope: Scope }>, scopeOf: (key: string) => Scope | null): boolean =>
     granted.every(p => scopeCovers(scopeOf(p.key), p.scope));
 
+/**
+ * May this actor hand out this role (invite someone into it, or assign it)? One rule, written once:
+ *   - a role that grants everything: only a school admin
+ *   - any other role: every permission in it must be held at a scope at least as wide (canDelegateRole)
+ * Callers still check that the role exists and is a staff role.
+ */
+export const canGrantRole = (
+    role:  { grantsAll: boolean; permissions: ReadonlyArray<{ key: string; scope: Scope }> },
+    actor: { isAdmin: boolean; scopeOf: (key: string) => Scope | null },
+): boolean => role.grantsAll ? actor.isAdmin : canDelegateRole(role.permissions, actor.scopeOf);
+
 export class Access {
     constructor(
         readonly realm:           Realm,
