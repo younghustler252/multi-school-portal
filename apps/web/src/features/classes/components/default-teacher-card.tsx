@@ -16,7 +16,7 @@ interface DefaultTeacherCardProps {
 
 export function DefaultTeacherCard({ subjectId, defaultTeacherId }: DefaultTeacherCardProps) {
 	const setDefaultTeacher = useSetSubjectDefaultTeacher();
-	const { data: staffData } = useStaffList({ limit: 200 });
+	const { data: staffData } = useStaffList({ category: "teaching", limit: 100 });
 	const [staffId, setStaffId] = useState(defaultTeacherId ?? "");
 	const [editing, setEditing] = useState(false);
 
