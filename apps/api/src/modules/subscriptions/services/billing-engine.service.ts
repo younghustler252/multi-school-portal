@@ -97,7 +97,8 @@ export class BillingEngine {
         }
     }
 
-    private async planCheckout(p: { invoiceId: string; schoolId: string }, providerChecked = false) {
+    /** Public only so its result type can be named; call startCheckout. */
+    async planCheckout(p: { invoiceId: string; schoolId: string }, providerChecked = false) {
         return this.prisma.$transaction(async tx => {
             await tx.$queryRaw`SELECT id FROM "SubscriptionInvoice" WHERE id = ${p.invoiceId} AND "schoolId" = ${p.schoolId} FOR UPDATE`;
             const invoice = await tx.subscriptionInvoice.findFirst({ where: { id: p.invoiceId, schoolId: p.schoolId } });
