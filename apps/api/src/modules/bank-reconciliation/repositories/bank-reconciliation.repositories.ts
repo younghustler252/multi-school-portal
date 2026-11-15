@@ -49,6 +49,12 @@ export interface IReconciliationRepository {
     create(r: { id: string; ledgerAccountId: string; periodId: string; statementBalanceKobo: bigint; bookBalanceKobo: bigint; outstandingBookKobo: bigint; note: string | null; completedById: string | null }): Promise<void>;
     delete(id: string): Promise<void>;
     list(accountId: string | null): Promise<ReconciliationEntity[]>;
+    /**
+     * Take the bank account's lock until the surrounding transaction ends (REM-053). "shared": for anything that changes the account's statement
+     * lines or matches (many may run together). "exclusive": for signing a month off or reopening it, which waits for every one of those in flight
+     * and holds new ones back, so the sign-off is computed from, and committed against, state nobody can change underneath it.
+     */
+    lockAccount(accountId: string, mode: "shared" | "exclusive"): Promise<void>;
     /** The latest month end this account has been signed off through, or null. Everything dated up to it is locked. */
     lockedThrough(accountId: string): Promise<string | null>;
     latest(accountId: string): Promise<ReconciliationEntity | null>;

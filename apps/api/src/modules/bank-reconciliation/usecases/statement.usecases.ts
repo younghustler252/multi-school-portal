@@ -9,7 +9,7 @@ import { reconciliationErrors } from "../domain/reconciliation.errors";
 import { parseDay } from "../../ledger/domain/ledger.dates";
 import { koboOut } from "../../ledger/mappers/kobo";
 import { ImportStatementDtoType, ListStatementsQueryType } from "../dtos/bank-reconciliation.dto";
-import { ReconciliationOptions, assertUnlocked, defaultTransaction, isUniqueViolation, loadBankAccount } from "./reconciliation-shared";
+import { ReconciliationOptions, assertUnlocked, defaultTransaction, isUniqueViolation, loadBankAccount, lockAccountAndCheck } from "./reconciliation-shared";
 
 interface Dependencies {
     bankStatementRepository: IBankStatementRepository; reconciliationRepository: IReconciliationRepository;
@@ -65,14 +65,17 @@ export class ImportStatementUseCase {
         const id = randomUUID();
         const closingBalanceKobo = dto.closingBalanceKobo ?? closing;
         try {
-            await this.transaction(() => d.bankStatementRepository.insert({
+            await this.transaction(async () => {
+                await lockAccountAndCheck(d.reconciliationRepository, account.id, fresh.map(l => l.date));
+                await d.bankStatementRepository.insert({
                 id, ledgerAccountId: account.id, fileName: dto.fileName ?? null, fileHash,
                 startDate: fresh[0].date, endDate: fresh[fresh.length - 1].date,
                 openingBalanceKobo: opening, closingBalanceKobo, lineCount: fresh.length, importedById: actorUserId,
             }, fresh.map(l => ({
                 id: randomUUID(), lineNumber: l.row, date: l.date, description: l.description, reference: l.reference,
                 amountKobo: l.amountKobo, balanceKobo: l.balanceKobo, dedupeKey: l.dedupeKey,
-            }))));
+            })));
+            });
         } catch (e) {
             if (isUniqueViolation(e)) throw reconciliationErrors.statementDuplicate();   // two uploads raced; the loser stops
             throw e;
@@ -115,7 +118,13 @@ export class DeleteStatementUseCase {
         if (matched > 0) throw reconciliationErrors.statementHasMatches(matched);
         await assertUnlocked(d.reconciliationRepository, s.ledgerAccountId, [s.startDate]);
 
-        await this.transaction(() => d.bankStatementRepository.deleteStatement(id));
+        await this.transaction(async () => {
+            await lockAccountAndCheck(d.reconciliationRepository, s.ledgerAccountId, [s.startDate]);
+            // a match made since the check above would be orphaned by the delete: look again under the lock
+            const nowMatched = await d.bankStatementRepository.matchedLineCount(id);
+            if (nowMatched > 0) throw reconciliationErrors.statementHasMatches(nowMatched);
+            await d.bankStatementRepository.deleteStatement(id);
+        });
         await d.auditService.log({
             userId: actorUserId, schoolId, action: "finance.bank_statement.deleted", entity: "BankStatement", entityId: id,
             oldValue: { fileName: s.fileName, startDate: s.startDate, endDate: s.endDate, lineCount: s.lineCount },

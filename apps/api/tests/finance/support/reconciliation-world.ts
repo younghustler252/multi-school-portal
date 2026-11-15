@@ -103,6 +103,7 @@ export function reconciliationWorld() {
         },
     };
     const reconciliationRepository: any = {
+        async lockAccount() {},                       // a no-op here; the race tests install a real read-write lock
         async find(a: string, p: string) { return recs.find(r => r.ledgerAccountId === a && r.periodId === p) ?? null; },
         async findById(id: string) { return recs.find(r => r.id === id) ?? null; },
         async create(r: any) {

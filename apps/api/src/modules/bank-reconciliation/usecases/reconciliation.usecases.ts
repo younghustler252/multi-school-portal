@@ -30,17 +30,23 @@ async function loadPeriod(d: Dependencies, id: string): Promise<FinancePeriodEnt
 
 /* Everything the month-end screen and the sign-off need, worked out from the books and the bank lines as at the month's last day. */
 async function position(d: Dependencies, accountId: string, asOf: string, typedBalance: bigint | null | undefined) {
+    // The imported statement is the evidence (REM-052). A typed balance is accepted ONLY when the statement carries no running balance as of the
+    // month end (a statement without that column); a typed value that disagrees with an imported one is refused, never allowed to win.
+    const imported = statementBalanceAt(await d.bankStatementRepository.balancesUpTo(accountId, asOf), asOf);
+    if (imported !== null && typedBalance !== null && typedBalance !== undefined && typedBalance !== imported) throw reconciliationErrors.statementBalanceConflict(imported, typedBalance, asOf);
+    const balanceSource: "imported" | "typed" | null = imported !== null ? "imported" : typedBalance !== null && typedBalance !== undefined ? "typed" : null;
+
     const bookBalanceKobo = await d.bookLineRepository.balanceAsOf(accountId, asOf);
     const outstanding = dropReversalPairs(await d.bookLineRepository.unmatchedUpTo(accountId, asOf));
     const unmatchedBank = await d.bankStatementRepository.unmatchedUpTo(accountId, asOf);
 
-    const statementBalanceKobo = typedBalance ?? statementBalanceAt(await d.bankStatementRepository.balancesUpTo(accountId, asOf), asOf);
+    const statementBalanceKobo = imported ?? typedBalance ?? null;
     const outstandingBookKobo = outstanding.reduce((s, l) => s + l.amountKobo, 0n);
     const unmatchedBankKobo = unmatchedBank.reduce((s, l) => s + l.amountKobo, 0n);
     const summary: ReconciliationSummary | null = statementBalanceKobo === null ? null : summarise({
         statementBalanceKobo, bookBalanceKobo, outstandingBookKobo, unmatchedBankKobo, unmatchedBankCount: unmatchedBank.length,
     });
-    return { bookBalanceKobo, outstanding, unmatchedBank, statementBalanceKobo, outstandingBookKobo, unmatchedBankKobo, summary };
+    return { bookBalanceKobo, outstanding, unmatchedBank, statementBalanceKobo, balanceSource, outstandingBookKobo, unmatchedBankKobo, summary };
 }
 
 /*
@@ -64,6 +70,7 @@ export class ReconciliationSummaryUseCase {
             period: { id: period.id, name: period.name, endDate: asOf },
             reconciliation: done ? m.reconciliation(done) : null,
             needsStatementBalance: p.statementBalanceKobo === null,
+            statementBalanceSource: p.balanceSource,
             statementBalanceKobo: p.statementBalanceKobo === null ? null : koboOut(p.statementBalanceKobo),
             bookBalanceKobo: koboOut(p.bookBalanceKobo),
             outstandingBook: { count: p.outstanding.length, netKobo: koboOut(p.outstandingBookKobo), items: p.outstanding.slice(0, SAMPLE).map(l => m.bookLine(l)) },
@@ -97,17 +104,24 @@ export class CompleteReconciliationUseCase {
         if (asOf >= today) throw reconciliationErrors.periodNotEnded(period.name, asOf, today);
         if (await d.reconciliationRepository.find(account.id, period.id)) throw reconciliationErrors.alreadyReconciled(period.name);
 
-        const p = await position(d, account.id, asOf, dto.statementBalanceKobo);
-        if (!p.summary) throw reconciliationErrors.statementBalanceRequired(asOf);
-        if (p.unmatchedBank.length > 0) throw reconciliationErrors.unmatchedBankLines(p.unmatchedBank.length, p.unmatchedBankKobo);
-        if (p.summary.differenceKobo !== 0n) throw reconciliationErrors.notAgreed(p.summary.differenceKobo, p.summary.adjustedBankKobo, p.summary.adjustedBookKobo);
-
+        // The whole sign-off is decided AND committed under the account's exclusive lock (REM-053): every import, match, unmatch, clear and
+        // created entry on this account is either finished (and counted) or waits for this commit and is then refused as locked. The
+        // position is therefore computed from state nobody can change underneath it.
         const id = randomUUID();
+        let p!: Awaited<ReturnType<typeof position>>;
         try {
-            await this.transaction(() => d.reconciliationRepository.create({
-                id, ledgerAccountId: account.id, periodId: period.id, statementBalanceKobo: p.summary!.statementBalanceKobo,
-                bookBalanceKobo: p.bookBalanceKobo, outstandingBookKobo: p.outstandingBookKobo, note: dto.note ?? null, completedById: actorUserId,
-            }));
+            await this.transaction(async () => {
+                await d.reconciliationRepository.lockAccount(account.id, "exclusive");
+                if (await d.reconciliationRepository.find(account.id, period.id)) throw reconciliationErrors.alreadyReconciled(period.name);
+                p = await position(d, account.id, asOf, dto.statementBalanceKobo);
+                if (!p.summary) throw reconciliationErrors.statementBalanceRequired(asOf);
+                if (p.unmatchedBank.length > 0) throw reconciliationErrors.unmatchedBankLines(p.unmatchedBank.length, p.unmatchedBankKobo);
+                if (p.summary.differenceKobo !== 0n) throw reconciliationErrors.notAgreed(p.summary.differenceKobo, p.summary.adjustedBankKobo, p.summary.adjustedBookKobo);
+                await d.reconciliationRepository.create({
+                    id, ledgerAccountId: account.id, periodId: period.id, statementBalanceKobo: p.summary.statementBalanceKobo,
+                    bookBalanceKobo: p.bookBalanceKobo, outstandingBookKobo: p.outstandingBookKobo, note: dto.note ?? null, completedById: actorUserId,
+                });
+            });
         } catch (e) {
             if (isUniqueViolation(e)) throw reconciliationErrors.alreadyReconciled(period.name);   // two people signed off at once
             throw e;
@@ -115,7 +129,7 @@ export class CompleteReconciliationUseCase {
         await d.auditService.log({
             userId: actorUserId, schoolId, action: "finance.bank_reconciliation.completed", entity: "BankReconciliation", entityId: id,
             newValue: {
-                account: account.name, period: period.name, statementBalanceKobo: p.summary.statementBalanceKobo.toString(),
+                account: account.name, period: period.name, statementBalanceKobo: p.summary!.statementBalanceKobo.toString(), balanceSource: p.balanceSource,
                 bookBalanceKobo: p.bookBalanceKobo.toString(), outstandingItems: p.outstanding.length, outstandingBookKobo: p.outstandingBookKobo.toString(), note: dto.note ?? null,
             },
         });
@@ -137,7 +151,12 @@ export class ReopenReconciliationUseCase {
         const latest = await d.reconciliationRepository.latest(r.ledgerAccountId);
         if (latest && latest.id !== r.id) throw reconciliationErrors.onlyLatestReopens(latest.periodName);
 
-        await this.transaction(() => d.reconciliationRepository.delete(id));
+        await this.transaction(async () => {
+            await d.reconciliationRepository.lockAccount(r.ledgerAccountId, "exclusive");
+            const latestNow = await d.reconciliationRepository.latest(r.ledgerAccountId);
+            if (latestNow && latestNow.id !== r.id) throw reconciliationErrors.onlyLatestReopens(latestNow.periodName);
+            await d.reconciliationRepository.delete(id);
+        });
         await d.auditService.log({
             userId: actorUserId, schoolId, action: "finance.bank_reconciliation.reopened", entity: "BankReconciliation", entityId: id,
             oldValue: { period: r.periodName, statementBalanceKobo: r.statementBalanceKobo.toString() }, newValue: { reason },

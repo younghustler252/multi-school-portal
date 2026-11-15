@@ -32,6 +32,15 @@ export async function loadBankAccount(repo: ILedgerAccountRepository, accountId:
 }
 
 /* Once a month is signed off, everything dated up to its end is frozen: nothing may be matched, unmatched, imported or deleted there. */
+/**
+ * First thing inside every transaction that changes a bank account's statement lines or matches (REM-053): share the account's lock, then check
+ * the lock date AGAIN. The check before the transaction only gives a quick answer; this is the one that cannot be raced by a sign-off.
+ */
+export async function lockAccountAndCheck(repo: IReconciliationRepository, accountId: string, days: string[]): Promise<void> {
+    await repo.lockAccount(accountId, "shared");
+    await assertUnlocked(repo, accountId, days);
+}
+
 export async function assertUnlocked(repo: IReconciliationRepository, accountId: string, days: string[]): Promise<void> {
     const through = await repo.lockedThrough(accountId);
     if (through && days.some(d => d <= through)) throw reconciliationErrors.locked(through);

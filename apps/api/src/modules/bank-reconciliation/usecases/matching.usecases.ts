@@ -15,7 +15,7 @@ import { koboOut } from "../../ledger/mappers/kobo";
 import {
     AutoMatchDtoType, BankLinesQueryType, BookLinesQueryType, ClearBookLinesDtoType, CreateEntryDtoType, MatchDtoType,
 } from "../dtos/bank-reconciliation.dto";
-import { FAR_FUTURE, ReconciliationOptions, assertUnlocked, defaultTransaction, loadBankAccount } from "./reconciliation-shared";
+import { FAR_FUTURE, ReconciliationOptions, assertUnlocked, defaultTransaction, loadBankAccount, lockAccountAndCheck } from "./reconciliation-shared";
 
 interface Dependencies {
     bankStatementRepository: IBankStatementRepository; bookLineRepository: IBookLineRepository; matchRepository: IMatchRepository;
@@ -104,6 +104,7 @@ export class AutoMatchUseCase {
             if (locked && dates.some(x => x <= locked)) { skipped++; continue; }
             try {
                 await this.transaction(async () => {
+                    await lockAccountAndCheck(d.reconciliationRepository, dto.ledgerAccountId, dates);
                     const ok = await d.matchRepository.createGroup({ id: randomUUID(), ledgerAccountId: dto.ledgerAccountId, kind: "AUTO", note: null, createdById: actorUserId }, [s.bankLineId], s.journalLineIds);
                     if (!ok) throw reconciliationErrors.matchTaken();       // rolls this pairing back; the others carry on
                 });
@@ -149,6 +150,7 @@ export class CreateMatchUseCase {
 
         const id = randomUUID();
         await this.transaction(async () => {
+            await lockAccountAndCheck(d.reconciliationRepository, dto.ledgerAccountId, [...bank.map(l => l.date), ...book.map(l => l.date)]);
             if (!(await d.matchRepository.createGroup({ id, ledgerAccountId: dto.ledgerAccountId, kind: "MANUAL", note: dto.note ?? null, createdById: actorUserId }, bank.map(l => l.id), book.map(l => l.id)))) {
                 throw reconciliationErrors.matchTaken();
             }
@@ -174,7 +176,10 @@ export class RemoveMatchUseCase {
         const book = await d.bookLineRepository.findByIds(g.journalLineIds);
         await assertUnlocked(d.reconciliationRepository, g.ledgerAccountId, [...bank.map(l => l.date), ...book.map(l => l.date)]);
 
-        await this.transaction(() => d.matchRepository.deleteGroup(id));
+        await this.transaction(async () => {
+            await lockAccountAndCheck(d.reconciliationRepository, g.ledgerAccountId, [...bank.map(l => l.date), ...book.map(l => l.date)]);
+            await d.matchRepository.deleteGroup(id);
+        });
         await d.auditService.log({
             userId: actorUserId, schoolId, action: "finance.bank_reconciliation.unmatched", entity: "BankMatchGroup", entityId: id,
             oldValue: { kind: g.kind, bankLines: g.bankLineIds.length, bookLines: g.journalLineIds.length, note: g.note },
@@ -202,6 +207,7 @@ export class ClearBookLinesUseCase {
 
         const id = randomUUID();
         await this.transaction(async () => {
+            await lockAccountAndCheck(d.reconciliationRepository, dto.ledgerAccountId, book.map(l => l.date));
             if (!(await d.matchRepository.createGroup({ id, ledgerAccountId: dto.ledgerAccountId, kind: "CLEARED", note: reason, createdById: actorUserId }, [], book.map(l => l.id)))) {
                 throw reconciliationErrors.matchTaken();
             }
@@ -251,6 +257,7 @@ export class CreateEntryFromBankLineUseCase {
 
         const groupId = randomUUID();
         const journal = await this.transaction(async () => {
+            await lockAccountAndCheck(d.reconciliationRepository, bankAccount.id, [line.date]);
             const posted = await d.postingService.post({
                 entryDate: line.date > today ? today : line.date, description, sourceType: "MANUAL", sourceId: line.id, purpose: "BANK_LINE",
                 lines: [{ accountId: bankAccount.id, ...bankSide }, { accountId: counter.id, ...counterSide }], actorUserId,
