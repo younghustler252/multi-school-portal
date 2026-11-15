@@ -73,3 +73,16 @@ export function comparisonGroups(plans: Array<Pick<PublicPlan, "entitlements">>)
 	}
 	return [...groups].map(([module, rows]) => ({ module, rows }));
 }
+
+/**
+ * Whether a plan includes a feature. The API's plan summary lists only what the plan GRANTS (PlanEntitlementService.describe,
+ * public mode), so a key that is missing means "not included", which is also how the API enforces it (a missing grant denies).
+ * A limit of 0 is no capacity.
+ */
+export function planIncludes(plan: Pick<PublicPlan, "entitlements">, key: string): boolean {
+	const e = find(plan, key);
+	if (!e || !e.granted) return false;
+	if (e.kind === "BOOLEAN") return e.value !== false;
+	if (e.kind === "LIMIT" || e.kind === "QUOTA") return e.unlimited || e.value === null || (typeof e.value === "number" && e.value > 0);
+	return e.value !== null && e.value !== "";
+}
