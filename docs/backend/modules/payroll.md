@@ -161,7 +161,7 @@ Migrations:
 - `20261026090000_payroll_phase5`: payroll components/profiles/runs/payslips/loans/remittances, BigInt amount constraints and indexes.
 - `20261031090000_salary_transfers`: transfer states, one-live-transfer-per-payslip partial unique index and journal/run/payslip/account references.
 
-Important: `PayrollRun` has a non-unique index on `periodYear, periodMonth`, not a unique constraint. The use case's `existsForMonth` check is application-only and can race under concurrent run creation.
+`PayrollRun` now has the partial unique index `PayrollRun_one_live_per_month` (non-cancelled runs, one per year/month; REM-037). `CreateRunUseCase` still checks `existsForMonth` first for a friendly answer, and maps the database unique violation to `PAYROLL_RUN_EXISTS`.
 
 ## Tests and verification status
 
@@ -175,7 +175,7 @@ The suite covers calculation math, bands, profiles, encryption, run lifecycle, m
 
 ## Open implementation and verification items
 
-1. **Concurrent run creation can create multiple payroll runs for the same month.** The use case checks `existsForMonth` before insert, but migration has only a non-unique period index. Add a partial unique index for non-cancelled runs (or equivalent atomic reservation) and handle cancelled-run replacement safely.
+1. ~~Concurrent run creation can create multiple payroll runs for the same month~~ — fixed in batch 4 (REM-037): partial unique index plus unique-violation mapping.
 2. **Second-approval threshold amount is double-counted.** `employerCostKobo` is stored as gross + employer contributions, but `ApproveRunUseCase` calls `approvalsRequired(run.grossKobo + run.employerCostKobo)`. This compares 2×gross + employer contributions against the threshold rather than total employer cost.
 3. **Effective-dated profile replacement is not atomic.** `PayProfileRepositoryImpl.createFrom` closes the current profile then creates the next one without a transaction. If creation fails, the old profile remains closed with no replacement. Concurrent profile writes can also overlap.
 4. **Calculated payroll can become stale before approval.** Calculation uses the profile in force on the month-end date, but approval re-reads the profile for bank details and does not verify that the profile/component/loan inputs are unchanged. A profile change between calculation and approval can make payslip amounts and bank snapshot refer to different profile versions.
