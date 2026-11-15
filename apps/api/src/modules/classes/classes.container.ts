@@ -31,6 +31,7 @@ import { TeachingModelReader } from "./services/teaching-model";
 import { ClassPresenter } from "./services/class-presenter";
 import { ClassController }             from "./controllers/class.controller";
 
+import { TeachingAssignmentsReader } from "./services/teaching-assignments.reader";
 /*
 |--------------------------------------------------------------------------
 | CLASSES CONTAINER
@@ -47,6 +48,7 @@ export const registerClasses = (container: AwilixContainer): void => {
         classSubjectMapper:             asClass(ClassSubjectMapper).singleton(),
 
         classRepository:                asClass(ClassRepositoryImpl).scoped(),
+        teachingAssignmentsReader:      asClass(TeachingAssignmentsReader).scoped(),
         staffNameLookup:                asClass(StaffNameLookup).scoped(),
         teachingModelReader:            asClass(TeachingModelReader).singleton(),
         classPresenter:                 asClass(ClassPresenter).scoped(),

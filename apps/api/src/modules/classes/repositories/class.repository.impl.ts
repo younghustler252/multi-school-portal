@@ -17,6 +17,7 @@ import { ClassProgressionResponseData } from "../types/class.types";
 import { IClassRepository } from "./class.repository";
 import { ClassSubjectAssignmentSource } from "../domain/class.enums";
 
+import { classLedBy } from "../services/teaching-access";
 export class ClassRepositoryImpl
     extends BaseTenantRepository<ClassEntity>
     implements IClassRepository
@@ -461,6 +462,14 @@ export class ClassRepositoryImpl
             createdAt: raw.createdAt,
             updatedAt: raw.updatedAt,
         };
+    }
+
+    async countActiveAssignmentsOf(staffId: string): Promise<number> {
+        const [subjects, classes] = await Promise.all([
+            this.prisma.classSubject.count({ where: { staffId, term: { isCurrent: true } } }),
+            this.prisma.class.count({ where: classLedBy(staffId) as any }),
+        ]);
+        return subjects + classes;
     }
 
     async findClassesByClassTeacher(

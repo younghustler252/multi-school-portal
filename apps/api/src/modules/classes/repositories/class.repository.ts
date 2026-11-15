@@ -102,6 +102,8 @@ export interface IClassRepository {
     setClassProgression(data: { fromClassId: string; toClassId: string | null }): Promise<ClassProgressionEntity>;
     findClassProgressionEnriched(fromClassId: string): Promise<ClassProgressionResponseData | null>;
 
+    /** Classes the person leads (any term) plus subjects they teach in the current term. */
+    countActiveAssignmentsOf(staffId: string): Promise<number>;
     findClassesByClassTeacher(staffId: string): Promise<Array<{
         classId:      string;
         className:    string;

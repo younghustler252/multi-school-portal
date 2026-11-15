@@ -8,6 +8,12 @@
 
 Owns school class groups, subjects, class teachers, class progression rules and term-specific subject-teacher assignments. Enrolment owns student placement into classes; Sessions owns academic terms. Class/subject configuration is not itself an enrolment.
 
+### Teaching ownership (what other modules rely on)
+Classes is the single owner of who leads and who teaches: `Class.classTeacherId`, `ClassSubject.staffId`, `Subject.defaultTeacherId`, and every mutation of them. It publishes two read-only pieces for other modules:
+- `services/teaching-access.ts`: the one definition of "leads / teaches a class" as Prisma filter builders and yes/no checks. Attendance, enrolment, students, grades and report cards build their `ASSIGNED` scope from it instead of keeping their own copy.
+- `services/teaching-assignments.reader.ts`: read-only answers about one staff member (active assignment count, classes led, subjects taught). Staff uses it for its category-change guard, deactivation warning and `/staff/*/assignments` endpoints.
+Details and the intended differences between modules: `docs/backend/TEACHING_OWNERSHIP.md`.
+
 ## 2. Data and dependencies
 
 The module uses a tenant repository, class/subject mappers and presenters, Staff repository/lookups, Sessions repository, teaching-model readers, subject-resolution service and Audit service. The container declares dependencies on Staff, Auth user repository, Sessions, Audit and Foundation access service.
