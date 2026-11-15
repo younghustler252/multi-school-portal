@@ -28,8 +28,22 @@ C. Classes reads Staff only through the Staff repository interface.
 ## Known, deliberately kept differences
 - `attendance.staffCoversClass(staff, class, term)` accepts any term passed in (a subject teacher of a past term can open that term's register), while the ASSIGNED list shows a subject teacher only the current term's rows. Kept as is; decide if it should be one rule.
 
-## Open product decision: a teacher leaves
-Deactivating a staff member returns `warnings.activeAssignments` (a count) but does **not** release their classes or subjects: `Class.classTeacherId` and `ClassSubject.staffId` keep pointing at an inactive person, and mark sheets stay with them. Nothing owns the hand-over. Options: (1) block until reassigned, (2) warn only (today), (3) auto-release, with the default teacher or class teacher taking over. Classes should own the operation. Not implemented until chosen.
+## Agreed product direction: when a teacher leaves (NOT yet implemented; separate piece of work)
+Deactivation and access revocation happen **immediately** and are never blocked or delayed waiting for a replacement. Security and offboarding come first. What changes is that the teaching assignments are no longer treated as a disposable warning:
+1. **Preserve** the existing class and subject assignment records. Nothing is cleared or moved at deactivation.
+2. **Classes owns** the outstanding handover state and the reassignment operation. Staff only reports that the person left.
+3. **Visible to school administrators** until resolved: an unresolved assignment keeps showing as needing a new teacher.
+4. **Reassign only to eligible teachers**: active staff with `category = teaching` (the existing Classes teacher rule, not a new one).
+5. **Preserve history.** Marks, sheet submit/approve/publish records, score audit trails and past-term assignments are never rewritten.
+6. **No automatic release** to subject default teachers or anyone else. A person chooses the replacement.
+The current `warnings.activeAssignments` count stays in the deactivation response; it becomes a pointer to the handover, not the whole story.
+
+### Proposed design (to confirm before building)
+- **Derive the state, do not store it.** "Outstanding" = an assignment (class teacher of a class, a current-or-future-term subject assignment, a subject default) that points at an inactive person. No new table: it cannot drift, it clears itself on reassignment, and a rehire clears it too. Reassigning reuses the existing assign use cases (audited, `manual` source, with the departed teacher recorded in the audit metadata).
+- **Term rollover must not carry a departed teacher forward** (it copies last term's `staffId` and seeds from `defaultTeacherId` today). New rows are created unassigned and appear in the same handover list.
+- **Visibility and "mandatory":** an admin handover list grouped by departed teacher, a dashboard count for `classes.manage` holders, a notification to administrators at deactivation, and reminders. Branch-scoped administrators see only their branches' classes.
+- **Existing orphans:** schools already hold assignments pointing at inactive staff. Run a read-only report first so the first view is not a surprise.
+- **Open choice:** whether any hard gate is added (for example at term rollover or report-card publishing), or visibility plus reminders only.
 
 ## When a Teaching domain would be justified
 Not now: a Teacher table would be 1:1 with Staff with no fields of its own, and a new persona would ripple through access, memberships, sessions and every permission that declares `personas: ["STAFF"]`.
