@@ -40,7 +40,7 @@ All paths below are relative to `/api/v1/payments`.
 | GET | `/my/:id/receipt` | `payments.pay` | Guardian's receipt, cut down to what they may see (guardian only) |
 | POST | `/online/initialize` | `payments.pay` | Start gateway payment for linked child's invoice |
 | GET | `/online/verify/:reference` | `payments.pay` | Ask gateway to verify and confirm guardian's payment |
-| POST | `/online/settlements` | `payments.settle` | Post gateway gross/fee/net settlement |
+| POST | `/online/settlements` | `payments.settle` | **410 Gone** (REM-074): moved to `POST /api/v1/finance/settlements`; posts nothing |
 | GET | `/credit/:studentId` | `payments.view` | Read student's available credit |
 | POST | `/credit/apply` | `payments.record` | Apply student credit to one open invoice |
 | GET | `/refunds` | `payments.view` | List refund requests |
@@ -131,7 +131,7 @@ The fee-payment webhook handler resolves the school from the signed event's meta
 
 ## Gateway settlement
 
-**Important:** The legacy Payments endpoint POST /api/v1/payments/online/settlements is a gross/fee-only journal operation and does not create per-payment GatewaySettlementItem records. The itemized Gateway Settlements module is the intended reconciliation workflow. Both routes are currently mounted and conflict; see REM-074. Do not use the legacy endpoint until it is retired or delegates to the itemized workflow.
+**Retired (REM-074).** `POST /api/v1/payments/online/settlements` used to post a gross/fee journal with no settlement record, so the same payments could be settled again in Gateway Settlements. It now answers `410 SETTLEMENT_ENDPOINT_MOVED` (permission still checked) and posts nothing. Settle through `POST /api/v1/finance/settlements`, which names the payments and keeps the settlement and its items. `RecordSettlementUseCase` is no longer registered in the container or reachable over HTTP; the class remains only for the tests that still construct it and should be deleted with them.
 
 A settlement moves gross online collections out of Online Clearing:
 
@@ -139,9 +139,21 @@ A settlement moves gross online collections out of Online Clearing:
 - Debit Bank Charges for the gateway fee.
 - Credit Online Clearing for gross.
 
-The optional settlement reference is used as the posting source ID; the posting idempotency key therefore prevents a repeated reference from posting twice. If no reference is supplied, the current use case generates a random UUID, so repeated calls are not deduplicated by the same business reference.
+(Description of the retired use case.) The optional settlement reference is used as the posting source ID; the posting idempotency key therefore prevents a repeated reference from posting twice. If no reference is supplied, the current use case generates a random UUID, so repeated calls are not deduplicated by the same business reference.
 
 ## Credit and refunds
+
+**Serialization (REM-022, REM-023).** A student's credit is several allocation rows that are read, then spent or reserved. Every such sequence takes one transaction-scoped lock per student first (`PaymentRepository.lockStudentCredit`, a `pg_advisory_xact_lock` keyed `student-credit:<studentId>`), so they run one at a time per student:
+- applying credit to an invoice (`CreditService.applyToInvoice`, also used by invoice issue auto-apply),
+- requesting a refund (the availability check and the reservation now happen in one transaction),
+- paying a refund out,
+- moving the excess of an approved credit note / waiver / write-off to credit.
+
+As a second layer, `setAllocationAmount(id, new, expected)` is a compare-and-set: it changes the row only if it still holds the amount that was read, and a miss raises `409 CREDIT_CHANGED` (or `INVOICE_CHANGED` on the credit-note path). Different students never wait for each other. Lock order is always the student lock first, then payment, allocation and invoice rows.
+
+**Payment reversal** takes the lock of every student on the payment too, in ascending student-id order, then re-reads the allocations and the refund count under the locks. This matters because spending credit changes the payment's `unallocatedKobo` but not its `version`, so the reversal's version check alone could not see a concurrent credit application (the books would end with advance payments over-debited and an invoice showing money whose allocation was closed). Single-student lockers never wait for a second lock, and multi-student lockers always go in ascending order, so no lock cycle can form. A student set that changed between the two reads is refused (`PAYMENT_CHANGED`).
+
+**Verification limits.** The lock SQL, its bound `text` parameter, and the compare-and-set predicate are verified on real PostgreSQL by `scripts/db/verify-credit-lock.sh`, which extracts the statement from `PaymentRepositoryImpl` itself. The Prisma call (`$executeRaw` inside `withTenantTransaction`, where the tenant client shim binds raw queries to the open transaction) has not been run end to end, because the npm registry and the `pg` driver are unavailable in the review sandbox. Run `npm run test:local` and a two-request smoke test against a real database before relying on it.
 
 Credit is the confirmed payment allocation with `invoiceId=null`; credit is held per student. Credit already reserved by REQUESTED or APPROVED refunds is excluded from available credit.
 

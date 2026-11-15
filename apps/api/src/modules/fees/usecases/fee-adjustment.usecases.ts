@@ -150,11 +150,12 @@ export class DecideAdjustmentUseCase {
     // The money paid beyond the new total stops being "paid on the invoice" and becomes the student's credit, taken from the newest payments first
     private async moveExcessToCredit(inv: FeeInvoiceEntity, excess: bigint, actorUserId: string) {
         const pay = this.d.paymentRepository;
+        await pay.lockStudentCredit(inv.studentId);                             // this adds to the student's credit; keep it in step with anyone spending it
         let left = excess;
         for (const alloc of await pay.invoiceAllocations(inv.id)) {
             if (left <= 0n) break;
             const t = alloc.amountKobo < left ? alloc.amountKobo : left;
-            await pay.setAllocationAmount(alloc.id, alloc.amountKobo - t);
+            if (!(await pay.setAllocationAmount(alloc.id, alloc.amountKobo - t, alloc.amountKobo))) throw feeErrors.invoiceChanged();
             await pay.addCredit(alloc.paymentId, alloc.studentId, t, actorUserId);
             await pay.adjustUnallocated(alloc.paymentId, t);
             left -= t;

@@ -264,6 +264,10 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Owner/workstream:** Payments/ledger developer
 - **Acceptance criteria:** Concurrent operations cannot consume more than the original credit; payment unallocated balance, credit allocations, invoice allocations and Advance Payments ledger balance remain equal.
 
+- **Resolution (branch `fix/api/p1-remediation-batch3`, not yet merged):** Confirmed in source, then fixed. A per-student transaction lock (`lockStudentCredit`, `pg_advisory_xact_lock`) is taken before credit is read by credit application, refund payout and the credit-note move; `setAllocationAmount` gained a compare-and-set (`expectedKobo`) so a stale read can never overwrite, raising `CREDIT_CHANGED`. Tests: `tests/finance/credit-concurrency.test.ts` (concurrent applications share 10,000 as 8,000 + 2,000; a payout racing an application ends correctly; the CAS alone stops the loser when the lock is off). `scripts/db/verify-credit-lock.sh` proves the lock statement and the CAS predicate on real PostgreSQL with two sessions, and a control shows the lost update without the lock. **Not verified:** the Prisma `$executeRaw` call itself and a full DB-backed run (the `pg` driver is not installed in my sandbox); the lock is per student, not per payment.
+- **Payment reversal (found in the batch 3 review, fixed in the same batch):** a reversal racing a credit application on the same payment was a real risk, because `adjustUnallocated` does not bump the payment `version` and the reversal's version check could not see it (advance over-debited; an invoice left showing paid money whose allocation was closed). `ReversePaymentUseCase` now locks every student on the payment in ascending id order, then re-reads allocations and the refund count under the locks (`tests/finance/credit-concurrency.test.ts`, with a no-lock control that breaks the books). A refund requested after the reversal's first refund check is now also caught.
+- **Prisma verification limit:** the lock statement, its `text` binding and the compare-and-set are verified on real PostgreSQL via `scripts/db/verify-credit-lock.sh` (it reads the SQL from `PaymentRepositoryImpl`); the Prisma `$executeRaw` call through `withTenantTransaction` has not been run end to end (registry and `pg` driver unavailable in the review sandbox).
+
 ### REM-023 — Refund requests can over-reserve credit under concurrent requests
 
 - **Module:** Payments / refunds
@@ -274,6 +278,8 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Make refund reservation atomic with credit availability. Serialize on the underlying payment/credit row or create a reservation counter with a database-enforced bound. Coordinate this with REM-022 so credit application and refund reservation/payout cannot race each other.
 - **Owner/workstream:** Payments developer
 - **Acceptance criteria:** Concurrent refund requests cannot reserve more than available credit; test with two requests whose combined amount exceeds the held credit.
+
+- **Resolution (branch `fix/api/p1-remediation-batch3`, not yet merged):** Confirmed in source, then fixed. `RequestRefundUseCase` now checks available credit and creates the refund inside one transaction under the same student lock, so two requests can no longer both see the same available credit. Tests: two 6,000 requests against 10,000 credit give exactly one acceptance and one `INSUFFICIENT_CREDIT`; with the lock off both are accepted (control); a request racing a credit application cannot exceed the credit. **Remaining:** no database aggregate constraint bounds open refunds (the lock is the guard); refund approval does not re-check credit (payout does, under the lock).
 
 ### REM-024 — Gateway settlement response converts BigInt kobo amounts to Number
 
@@ -287,6 +293,8 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Acceptance criteria:** A settlement with values above `Number.MAX_SAFE_INTEGER` kobo returns exact digit strings and matches the posted journal amounts.
 
 - **Resolution (branch `fix/api/p1-remediation-batch2`, not yet merged):** Confirmed, then fixed. `RecordSettlementUseCase` returns `grossKobo`, `feeKobo` and `receivedKobo` through `koboOut` (number when safe, digit string above 2^53). Test posts a settlement above 2^53 and checks the response against the journal lines.
+
+- **Note (batch 3):** the use case this fixed is no longer reachable over HTTP (REM-074); the fix stays in the retained class.
 
 ### REM-025 — Settlement idempotency is bypassed when reference is omitted
 
@@ -839,6 +847,8 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Remove/deprecate the legacy aggregate endpoint or make it delegate to Gateway Settlements using explicit payment IDs and the same persisted settlement/item records. Do not allow a gross/fee-only journal without marking the underlying payment rows as settled.
 - **Owner/workstream:** Payments/Gateway Settlements/Ledger developer
 - **Acceptance criteria:** Only one settlement write path exists; every settlement journal has a GatewaySettlement record and itemized payment links; clearing balance equals unsettled confirmed online payments after every operation.
+
+- **Resolution (branch `fix/api/p1-remediation-batch3`, not yet merged):** Confirmed in source (both routes mounted; the web app does not call the legacy one), then fixed by retiring the legacy route: `POST /api/v1/payments/online/settlements` still checks `payments.settle` and then returns `410 SETTLEMENT_ENDPOINT_MOVED` pointing to `/api/v1/finance/settlements`; the controller method and container registration are removed, so there is one settlement write path. A gross/fee-only journal cannot be mapped to named payments, so delegating was not possible. **Consumers:** none found in this repository (not `apps/web`, not its git history, not `packages/contracts`, no OpenAPI); only docs mention the route. External consumers cannot be ruled out from the repo, so the retired route logs a warning with the caller's user id: check the logs for `[REM-074]` before relying on the retirement. **Remaining:** `RecordSettlementUseCase` and the tests that construct it are unreachable and should be deleted; existing clearing balances created by past legacy settlements are not reconciled automatically (use Gateway Settlements' unsettled report).
 
 ### REM-075 — Gateway Settlements has no dedicated parser/matcher/database/HTTP tests
 

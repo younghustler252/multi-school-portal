@@ -42,6 +42,7 @@ export class CreditService {
         const d = this.d;
         if ((inv.status !== "unpaid" && inv.status !== "partial") || inv.balanceKobo <= 0n) throw paymentErrors.invoiceNotPayable(inv.id);
         const wanted = maxKobo !== undefined && maxKobo < inv.balanceKobo ? maxKobo : inv.balanceKobo;
+        await d.paymentRepository.lockStudentCredit(inv.studentId);               // from here until the transaction ends, nobody else spends or reserves this student's credit
         const { rows } = await this.available(inv.studentId);
         const takes = planCreditUse(rows, wanted);
         if (takes.length === 0) return 0n;
@@ -58,7 +59,7 @@ export class CreditService {
                 ],
                 termId: inv.termId, sessionId: inv.sessionId, branchId: inv.branchId, actorUserId,
             });
-            await d.paymentRepository.setAllocationAmount(row.allocationId, row.amountKobo - takeKobo);
+            if (!(await d.paymentRepository.setAllocationAmount(row.allocationId, row.amountKobo - takeKobo, row.amountKobo))) throw paymentErrors.creditChanged();
             await d.paymentRepository.addAllocations([{ paymentId: row.paymentId, invoiceId: inv.id, studentId: inv.studentId, amountKobo: takeKobo, createdById: actorUserId }]);
             await d.paymentRepository.adjustUnallocated(row.paymentId, -takeKobo);
             applied += takeKobo;

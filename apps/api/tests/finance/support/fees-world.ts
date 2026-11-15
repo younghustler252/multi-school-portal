@@ -1,3 +1,4 @@
+import { AsyncLocalStorage } from "node:async_hooks";
 /*
 | An in-memory fees + payments world over the REAL posting service, used by the tests that follow money through
 | payments, credit, adjustments, refunds and reversal. Repositories are small fakes that obey the same rules the database does.
@@ -97,6 +98,9 @@ export function feesWorld() {
         ...p, receiptNumber: receipts.get(p.id)?.receiptNumber ?? null,
         allocations: allocations.filter(a => a.paymentId === p.id).map(a => ({ id: a.id, invoiceId: a.invoiceId, invoiceNumber: a.invoiceId ? invoices.get(a.invoiceId)!.invoiceNumber : null, studentId: a.studentId, studentName: people.get(a.studentId) ?? null, amountKobo: a.amountKobo, reversedAt: a.reversedAt })),
     });
+    const lockScope = new AsyncLocalStorage<Map<string, () => void>>();
+    const locks = new Map<string, Promise<void>>();
+    const credit = { lockOff: false };
     const paymentRepository: any = {
         async findById(id: string) { const p = payments.get(id); return p ? view(p) : null; },
         async findByClientRequestId() { return null; },
@@ -117,7 +121,21 @@ export function feesWorld() {
         },
         async invoiceAllocations(invoiceId: string) { return allocations.filter(a => a.invoiceId === invoiceId && !a.reversedAt).reverse(); },
         async allocationsOfPayment(paymentId: string) { return allocations.filter(a => a.paymentId === paymentId && !a.reversedAt); },
-        async setAllocationAmount(id: string, amount: bigint) { const i = allocations.findIndex(a => a.id === id); if (amount <= 0n) allocations.splice(i, 1); else allocations[i].amountKobo = amount; },
+        async setAllocationAmount(id: string, amount: bigint, expected?: bigint) {
+            const i = allocations.findIndex(a => a.id === id);
+            if (i < 0 || (expected !== undefined && allocations[i].amountKobo !== expected)) return false;   // compare-and-set, like the repository
+            if (amount <= 0n) allocations.splice(i, 1); else allocations[i].amountKobo = amount;
+            return true;
+        },
+        // The per-student transaction lock. Held until the surrounding (locking) transaction ends; with `lockOff` it does nothing, to show what the lock prevents.
+        async lockStudentCredit(studentId: string) {
+            if (credit.lockOff) return;
+            const held = lockScope.getStore(); if (!held) throw new Error("lockStudentCredit must run inside a transaction");
+            if (held.has(studentId)) return;
+            const prev = locks.get(studentId) ?? Promise.resolve();
+            let release!: () => void; locks.set(studentId, new Promise<void>(r => (release = r)));
+            await prev; held.set(studentId, release);
+        },
         async addCredit(paymentId: string, studentId: string, amount: bigint, createdById: string | null) {
             const ex = allocations.find(a => a.paymentId === paymentId && a.studentId === studentId && a.invoiceId === null && !a.reversedAt);
             if (ex) ex.amountKobo += amount; else allocations.push({ id: `al-${++allocN}`, paymentId, invoiceId: null, studentId, amountKobo: amount, createdById, reversedAt: null });
@@ -187,7 +205,11 @@ export function feesWorld() {
     const refundMapper = new RefundMapper();
     const feeAdjustmentMapper = new FeeAdjustmentMapper();
     const feeInvoiceMapper = new FeeInvoiceMapper();
-    const tx = books.options.transaction;
+    // a transaction that also releases the student credit locks when it ends (commit or rollback)
+    const baseTx = books.options.transaction;
+    const tx: typeof baseTx = (async (fn: any) => lockScope.run(new Map<string, () => void>(), async () => {
+        try { return await baseTx(fn); } finally { for (const r of lockScope.getStore()!.values()) r(); }
+    })) as any;
     const opts = { now: () => NOW, transaction: tx };
 
     const confirmation = new PaymentConfirmationService({ paymentRepository, paymentContextRepository, feeInvoiceRepository, postingService: posting, numberSequenceService: books.deps.numberSequenceService } as any, opts);
@@ -199,9 +221,9 @@ export function feesWorld() {
     };
 
     const world = {
-        d, books, accounts, invoices, payments, allocations, receipts, refunds, adjustments, audit, addInvoice, people,
+        d, books, credit, accounts, invoices, payments, allocations, receipts, refunds, adjustments, audit, addInvoice, people,
         record: new RecordPaymentUseCase(d, opts), applyCredit: new ApplyCreditUseCase(d, { transaction: tx }), getCredit: new GetCreditUseCase(d),
-        requestRefund: new RequestRefundUseCase(d), decideRefund: new DecideRefundUseCase(d, { now: () => NOW }), payRefund: new PayRefundUseCase(d, opts),
+        requestRefund: new RequestRefundUseCase(d, { transaction: tx }), decideRefund: new DecideRefundUseCase(d, { now: () => NOW }), payRefund: new PayRefundUseCase(d, opts),
         reverse: new ReversePaymentUseCase(d, opts), provider, mails,
         initOnline: new InitializeOnlinePaymentUseCase(d), confirmOnline: new ConfirmOnlinePaymentUseCase(d, { now: () => NOW }), settle: new RecordSettlementUseCase(d, { now: () => NOW }),
         requestAdjustment: new RequestAdjustmentUseCase(d), decideAdjustment: new DecideAdjustmentUseCase(d, opts),

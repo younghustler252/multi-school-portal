@@ -83,9 +83,21 @@ export class PaymentRepositoryImpl extends BaseTenantRepository<PaymentEntity, P
             select: { id: true, paymentId: true, invoiceId: true, studentId: true, amountKobo: true } });
     }
 
-    async setAllocationAmount(id: string, amountKobo: bigint) {
-        if (amountKobo <= 0n) await this.prisma.paymentAllocation.delete({ where: { id } });
-        else await this.prisma.paymentAllocation.update({ where: { id }, data: { amountKobo } });
+    async setAllocationAmount(id: string, amountKobo: bigint, expectedKobo?: bigint): Promise<boolean> {
+        // With an expected amount the write only lands if the row still holds it, so a stale read can never overwrite someone else's change
+        const where = expectedKobo === undefined ? { id } : { id, amountKobo: expectedKobo, reversedAt: null };
+        const r = amountKobo <= 0n
+            ? await this.prisma.paymentAllocation.deleteMany({ where })
+            : await this.prisma.paymentAllocation.updateMany({ where, data: { amountKobo } });
+        return r.count === 1;
+    }
+
+    /* A transaction-scoped advisory lock, one per student. Credit is held as several rows and spent by invoices, refund payouts and credit
+       notes, and reserved by refund requests; this single lock makes each of those read-then-spend sequences run one at a time per student.
+       Released automatically at commit or rollback. Outside a transaction it would be released at once, so callers must be inside one. */
+    async lockStudentCredit(studentId: string): Promise<void> {
+        // $executeRaw, not $queryRaw: the function returns void, which $queryRaw cannot deserialize. The ::text makes the bound parameter's type explicit.
+        await this.prisma.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`student-credit:${studentId}`}::text, 0))`;
     }
 
     async addCredit(paymentId: string, studentId: string, amountKobo: bigint, createdById: string | null) {

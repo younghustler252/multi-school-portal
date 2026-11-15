@@ -141,6 +141,10 @@ export class ConfirmOnlinePaymentUseCase {
 }
 
 /*
+| DEPRECATED (REM-074): no HTTP route reaches this any more and it is no longer registered in the container. It posted a gross/fee journal with
+| no settlement record, so the same payments could be settled again in Gateway Settlements. Settle through that module. The class stays only for
+| the tests that still build it; remove it with them.
+|
 | RECORD A SETTLEMENT (brief rule 4): the gateway paid the school's bank. Dr bank (what arrived), Dr bank and gateway charges (the fee),
 | Cr online payments clearing (the gross). When every settlement is recorded, the clearing account is back to nothing.
 | The same gateway settlement reference never posts twice.

@@ -57,7 +57,8 @@ export class GetRefundUseCase {
 | Three steps, two people: ask, approve (not the same person), then pay out (the money leaves a money account).
 */
 export class RequestRefundUseCase {
-    constructor(private readonly d: Dependencies) {}
+    private readonly transaction: <T>(fn: () => Promise<T>) => Promise<T>;
+    constructor(private readonly d: Dependencies, options: Pick<RefundOptions, "transaction"> = {}) { this.transaction = options.transaction ?? defaultTransaction; }
 
     async execute(schoolId: string, actorUserId: string, dto: RequestRefundDtoType) {
         const p = await this.d.paymentRepository.findById(dto.paymentId);
@@ -65,11 +66,14 @@ export class RequestRefundUseCase {
         if (p.status !== "CONFIRMED") throw paymentErrors.notConfirmed(p.status);
         if ((await this.d.paymentContextRepository.students([dto.studentId])).length === 0) throw paymentErrors.studentNotFound(dto.studentId);
 
-        const { available } = await creditOnPayment(this.d, dto.paymentId, dto.studentId);
-        if (dto.amountKobo > available) throw paymentErrors.noCredit(available);
-
-        const created = await this.d.refundRepository.create({
-            paymentId: dto.paymentId, studentId: dto.studentId, amountKobo: dto.amountKobo, reason: dto.reason, requestedById: actorUserId,
+        // Check the credit and reserve it in one step under the student's lock: two requests can no longer both see the same available credit
+        const created = await this.transaction(async () => {
+            await this.d.paymentRepository.lockStudentCredit(dto.studentId);
+            const { available } = await creditOnPayment(this.d, dto.paymentId, dto.studentId);
+            if (dto.amountKobo > available) throw paymentErrors.noCredit(available);
+            return this.d.refundRepository.create({
+                paymentId: dto.paymentId, studentId: dto.studentId, amountKobo: dto.amountKobo, reason: dto.reason, requestedById: actorUserId,
+            });
         });
         await this.d.auditService.log({
             userId: actorUserId, schoolId, action: "payments.refund.requested", entity: "Refund", entityId: created.id,
@@ -143,6 +147,7 @@ export class PayRefundUseCase {
         const account = await this.payoutAccount(dto.payoutAccountId, p.accountId);
 
         await this.transaction(async () => {
+            await d.paymentRepository.lockStudentCredit(studentId);
             const row = (await d.paymentRepository.creditRows(studentId)).find(x => x.paymentId === p.id);
             if (!row || row.amountKobo < r.amountKobo) throw paymentErrors.noCredit(row?.amountKobo ?? 0n);      // the credit was used since it was approved
 
@@ -155,7 +160,7 @@ export class PayRefundUseCase {
                 ],
                 branchId: p.branchId, actorUserId,
             });
-            await d.paymentRepository.setAllocationAmount(row.allocationId, row.amountKobo - r.amountKobo);
+            if (!(await d.paymentRepository.setAllocationAmount(row.allocationId, row.amountKobo - r.amountKobo, row.amountKobo))) throw paymentErrors.creditChanged();
             await d.paymentRepository.adjustUnallocated(p.id, -r.amountKobo);
             const ok = await d.refundRepository.markPaid(r.id, { paidAt: parseDay(paidOn), journalId: posted.journal.id, payoutAccountId: account.id });
             if (!ok) throw paymentErrors.refundChanged();

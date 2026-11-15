@@ -23,7 +23,10 @@ export interface IPaymentRepository {
     creditRows(studentId: string): Promise<CreditRow[]>;                                                  // oldest payment first; availableKobo = amount until refunds are taken off
     invoiceAllocations(invoiceId: string): Promise<AllocationRow[]>;                                     // live ones, newest first
     allocationsOfPayment(paymentId: string): Promise<AllocationRow[]>;                                   // live ones
-    setAllocationAmount(id: string, amountKobo: bigint): Promise<void>;                                  // zero removes the row
+    /** Sets an allocation's amount (zero removes the row). With `expectedKobo` it is a compare-and-set: false when the row no longer holds that amount. */
+    setAllocationAmount(id: string, amountKobo: bigint, expectedKobo?: bigint): Promise<boolean>;
+    /** Takes the student's credit lock until the surrounding transaction ends. Every operation that reads credit and then spends or reserves it takes it first. */
+    lockStudentCredit(studentId: string): Promise<void>;
     addCredit(paymentId: string, studentId: string, amountKobo: bigint, createdById: string | null): Promise<void>;   // adds to the payment's credit for the student
     adjustUnallocated(paymentId: string, deltaKobo: bigint): Promise<void>;
     reverseAllocations(paymentId: string, when: Date): Promise<void>;

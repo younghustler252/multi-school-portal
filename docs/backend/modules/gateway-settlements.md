@@ -14,7 +14,7 @@ Gateway Settlements records the payout of individual confirmed online fee paymen
 
 Payments owns payment collection, confirmation and student allocations. Ledger owns journals and accounts. Gateway Settlements calls the shared PostingService and reads confirmed online payments from the tenant Payments table.
 
-This module is distinct from the legacy POST /api/v1/payments/online/settlements endpoint. Both currently post the same ledger idempotency source type/purpose, but only Gateway Settlements records individual GatewaySettlementItem rows. This duplicate workflow is a critical integrity conflict; see REM-074.
+This module replaces the retired POST /api/v1/payments/online/settlements endpoint (now 410). Both used to post the same ledger idempotency source type/purpose, but only Gateway Settlements records individual GatewaySettlementItem rows. This duplicate workflow is a critical integrity conflict; see REM-074.
 
 ## Runtime composition and route mount
 
@@ -106,7 +106,7 @@ Not executed: tests, typecheck, build, migration, PostgreSQL concurrency, CSV HT
 
 ## Open implementation and verification items
 
-1. **Legacy Payments settlement endpoint conflicts with this module.** POST /api/v1/payments/online/settlements remains mounted and accepts aggregate gross/fee/reference without payment IDs. It posts sourceType TRANSFER/sourceId reference/purpose SETTLE but does not create GatewaySettlement or GatewaySettlementItem records. Gateway Settlements uses the same posting idempotency key and is the only path that marks individual payments settled. The legacy route can therefore make Online Clearing decrease while unsettled payment rows remain; using a different reference in the newer module can settle those payments a second time. Remove/deprecate the legacy route or make it delegate to this module with explicit payment IDs and persisted settlement items.
+1. **(Resolved in batch 3, REM-074.) The legacy Payments settlement endpoint conflicted with this module.** `POST /api/v1/payments/online/settlements` now answers `410 SETTLEMENT_ENDPOINT_MOVED` and posts nothing, so this module is the only settlement write path. Remaining cleanup: delete the unreachable `RecordSettlementUseCase` and the tests that still construct it.
 2. **No module-specific tests were found.** Add pure parser/matcher tests, PostgreSQL unique/concurrency tests, HTTP permission tests and ledger/settlement reversal integration tests.
 3. **Preview can report canRecord for invalid/future dates.** Preview checks only that a date string is present; recordOne later parses and rejects invalid/future dates. Validate the effective date in preview and return the same eligibility decision as record.
 4. **Audit follows the settlement transaction.** If audit persistence fails after journal/settlement commit, the API can return an error even though funds were posted. Align with the shared audit policy and expose failed audit delivery operationally.
