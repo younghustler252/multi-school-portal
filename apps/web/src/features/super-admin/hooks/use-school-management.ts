@@ -1,7 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { schoolManagementApi } from "../services/school-management.api";
-import { subscriptionManagementApi } from "../services/subscription-management.api";
-import { ListBillingHistoryParams } from "@/features/subscriptions/types/subscription.types";
 import { ListSchoolsParams } from "../types/school-management.types";
 import { ListActivityParams } from "../types/audit-log.types";
 
@@ -91,18 +89,6 @@ export function useSchoolActivity(schoolId: string, params: ListActivityParams =
 		enabled: !!schoolId,
 	});
 }
-export function useChangeSchoolPlan() {
-	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: ({ id, planId }: { id: string; planId: string }) =>
-			schoolManagementApi.changePlan(id, planId),
-		onSuccess: (_, variables) => {
-			queryClient.invalidateQueries({ queryKey: ["super-admin", "schools"] });
-			queryClient.invalidateQueries({ queryKey: ["super-admin", "schools", variables.id] });
-		},
-	});
-}
-
 export function useResetAdminPassword() {
 	return useMutation({
 		mutationFn: async (schoolId: string) => {
@@ -110,17 +96,5 @@ export function useResetAdminPassword() {
 			if (!res.success) throw res;
 			return res.data;
 		},
-	});
-}
-
-export function useSchoolBillingHistory(schoolId: string, params: ListBillingHistoryParams = {}) {
-	return useQuery({
-		queryKey: ["super-admin", "schools", schoolId, "billing-history", params],
-		queryFn: async () => {
-			const res = await subscriptionManagementApi.getBillingHistory(schoolId, params);
-			if (!res.success) throw res;
-			return { entries: res.data, meta: res.meta };
-		},
-		enabled: !!schoolId,
 	});
 }

@@ -1,4 +1,3 @@
-import { PaymentStatus } from "@/features/payments/types/payment.types";
 export type SchoolCategory = "primary" | "secondary" | "primary_secondary";
 export type SchoolOwnership = "private" | "public" | "mission" | "international";
 export type SchoolStatus = "pending" | "active" | "suspended" | "deactivated";
@@ -42,17 +41,4 @@ export interface SuspendSchoolDto {
 export interface RejectDocumentDto {
 	documentId: string;
 	reason: string;
-}
-
-
-export interface BillingHistoryEntry {
-	id: string;
-	subscriptionId: string;
-	amountKobo: number;
-	status: PaymentStatus;
-	billingCycle: "monthly" | "yearly";
-	paystackReference: string | null;
-	paidAt: string | null;
-	failureReason: string | null;
-	createdAt: string;
 }
