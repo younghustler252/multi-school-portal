@@ -19,8 +19,8 @@ export function koboToNaira(kobo: number): string {
 
 /** The API's price rules (docs/backend/modules/plans.md): yearly at most 12x monthly; a zero price must be zero on both cycles. */
 export function priceProblem(monthlyKobo: number, yearlyKobo: number): string | null {
-	if (yearlyKobo > monthlyKobo * 12) return "The yearly price can't be more than 12 months at the monthly price.";
 	if ((monthlyKobo === 0) !== (yearlyKobo === 0)) return "A free plan must be free on both monthly and yearly billing.";
+	if (yearlyKobo > monthlyKobo * 12) return "The yearly price can't be more than 12 months at the monthly price.";
 	return null;
 }
 
