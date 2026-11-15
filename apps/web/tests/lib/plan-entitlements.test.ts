@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { capacityLabel, capacityOf, comparisonGroups } from "@/features/plans/lib/plan-entitlements";
+import { capacityLabel, capacityOf, comparisonGroups, planIncludes } from "@/features/plans/lib/plan-entitlements";
 import type { PlanEntitlementView } from "@/features/plans/types/plan.types";
 
 const ent = (o: Partial<PlanEntitlementView> & { key: string }): PlanEntitlementView => ({
@@ -46,5 +46,19 @@ describe("comparisonGroups", () => {
 	it("a boolean granted as false, or not granted, is excluded", () => {
 		const g = comparisonGroups([plan(ent({ key: "k", value: false })), plan(ent({ key: "k", granted: false }))]);
 		expect(g[0].rows[0].cells).toEqual([{ kind: "excluded" }, { kind: "excluded" }]);
+	});
+});
+
+describe("planIncludes", () => {
+	it("a feature the plan does not list is not included (the API lists only granted features)", () => {
+		expect(planIncludes(plan(ent({ key: "other" })), "grading.custom")).toBe(false);
+		expect(planIncludes({} as never, "grading.custom")).toBe(false);
+	});
+	it("booleans, limits and unlimited", () => {
+		expect(planIncludes(plan(ent({ key: "grading.custom" })), "grading.custom")).toBe(true);
+		expect(planIncludes(plan(ent({ key: "grading.custom", value: false })), "grading.custom")).toBe(false);
+		expect(planIncludes(plan(ent({ key: "x", kind: "LIMIT", value: 0 })), "x")).toBe(false);
+		expect(planIncludes(plan(ent({ key: "x", kind: "LIMIT", value: 5 })), "x")).toBe(true);
+		expect(planIncludes(plan(ent({ key: "x", kind: "LIMIT", value: null, unlimited: true })), "x")).toBe(true);
 	});
 });
