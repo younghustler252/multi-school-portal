@@ -3,18 +3,20 @@ import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { formatNaira } from "@/lib/format-money";
-import { PlanResponseData } from "@/features/plans/types/plan.types";
+import type { PublicPlan } from "@/features/plans/types/plan.types";
+import { LIMIT_KEYS, capacityLabel } from "@/features/plans/lib/plan-entitlements";
 import { ROUTES } from "@/lib/routes";
 
 interface PricingCardProps {
-	plan: PlanResponseData;
+	plan: PublicPlan;
 	cycle: "monthly" | "yearly";
 	featured?: boolean;
 }
 
 export function PricingCard({ plan, cycle, featured }: PricingCardProps) {
 	const priceKobo = cycle === "monthly" ? plan.monthlyPriceKobo : plan.yearlyPriceKobo;
-	const isFree = priceKobo === 0 && !plan.isCustom;
+	const isFree = (plan.isFree || priceKobo === 0) && !plan.isCustom;
+	const highlights = [capacityLabel(plan, LIMIT_KEYS.students, "students"), capacityLabel(plan, LIMIT_KEYS.staff, "staff")].filter((l): l is string => l !== null);
 
 	return (
 		<div
@@ -59,14 +61,12 @@ export function PricingCard({ plan, cycle, featured }: PricingCardProps) {
 			</div>
 
 			<div className="mt-5 space-y-2 text-sm">
-				<div className="flex items-center gap-2 text-muted-foreground">
-					<Check className="size-4 text-primary" />
-					{plan.studentLimit === -1 ? "Unlimited students" : `Up to ${plan.studentLimit} students`}
-				</div>
-				<div className="flex items-center gap-2 text-muted-foreground">
-					<Check className="size-4 text-primary" />
-					{plan.staffLimit === -1 ? "Unlimited staff" : `Up to ${plan.staffLimit} staff`}
-				</div>
+				{highlights.map((label) => (
+					<div key={label} className="flex items-center gap-2 text-muted-foreground">
+						<Check className="size-4 text-primary" />
+						{label}
+					</div>
+				))}
 			</div>
 
 			<Button
