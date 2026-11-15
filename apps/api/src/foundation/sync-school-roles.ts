@@ -1,4 +1,5 @@
-import { planSchoolRole, type Grant, type SchoolRoleView, type TemplateView, type RoleAction } from "./role-grants.planner";
+import { planSchoolRole, planRoleRevocations, type Grant, type SchoolRoleView, type TemplateView, type RoleAction } from "./role-grants.planner";
+import { ROLE_REVOCATIONS, type RoleRevocation } from "./role-revocations.registry";
 
 /*
 |--------------------------------------------------------------------------
@@ -8,6 +9,8 @@ import { planSchoolRole, type Grant, type SchoolRoleView, type TemplateView, typ
 |  - locked roles        -> made exactly equal to the template
 |  - editable roles      -> only gain missing permissions (nothing removed) unless --prune
 |  - customised roles    -> skipped and listed in the report
+|  - deliberate revocations (role-revocations.registry.ts): the named permissions are removed from roles the school has NOT
+|    changed; a customised role is never touched, and is listed as "pending" with what it still holds
 | One transaction per school; a failure rolls that school back and the run continues.
 |--------------------------------------------------------------------------
 */
@@ -20,6 +23,12 @@ export interface SchoolRoleSyncReport {
     versionOnly: string[];
     unchanged: number;
     skipped:  { role: string; reason: string }[];
+    /** Named permissions removed from untouched roles (a dry run lists them without removing). */
+    revoked:  { role: string; keys: string[] }[];
+    /** Customised roles that still hold a revoked permission: left alone, to be decided school by school. */
+    pendingRevocations: { role: string; keys: string[] }[];
+    /** Roles not touched because the platform template still holds the permission (run sync:registries first). */
+    blockedRevocations: { role: string; keys: string[] }[];
 }
 
 export async function loadTemplateViews(prisma: any): Promise<Map<string, TemplateView>> {
@@ -67,9 +76,18 @@ async function applyAction(client: SqlClient, roleId: string, a: Extract<RoleAct
 }
 
 /** Sync ONE school (client already pointed at the school's schema). Caller handles BEGIN/COMMIT. */
-export async function syncSchoolRoles(client: SqlClient, templates: Map<string, TemplateView>, opts: { prune: boolean; dryRun: boolean }): Promise<SchoolRoleSyncReport> {
-    const report: SchoolRoleSyncReport = { updated: [], versionOnly: [], unchanged: 0, skipped: [] };
+export async function syncSchoolRoles(client: SqlClient, templates: Map<string, TemplateView>, opts: { prune: boolean; dryRun: boolean; revocations?: RoleRevocation[] }): Promise<SchoolRoleSyncReport> {
+    const report: SchoolRoleSyncReport = { updated: [], versionOnly: [], unchanged: 0, skipped: [], revoked: [], pendingRevocations: [], blockedRevocations: [] };
+    const revocations = opts.revocations ?? ROLE_REVOCATIONS;
     for (const { role, action } of await planSchool(client, templates, opts.prune)) {
+        // deliberate revocations first: only ever the named permissions, only ever on an untouched role
+        const rv = planRoleRevocations(role, templates.get(role.sourceTemplateKey!), revocations);
+        if (rv.type === "pending") report.pendingRevocations.push({ role: role.name, keys: rv.keys });
+        else if (rv.type === "blocked") report.blockedRevocations.push({ role: role.name, keys: rv.keys });
+        else if (rv.type === "revoke") {
+            if (!opts.dryRun) await client.query(`DELETE FROM "SchoolRolePermission" WHERE "roleId" = $1 AND "permissionKey" = ANY($2::text[])`, [role.id, rv.keys]);
+            report.revoked.push({ role: role.name, keys: rv.keys });
+        }
         if (action.type === "skip")  { report.skipped.push({ role: role.name, reason: action.reason }); continue; }
         if (action.type === "none")  { report.unchanged++; continue; }
         if (!opts.dryRun) await applyAction(client, role.id, action);

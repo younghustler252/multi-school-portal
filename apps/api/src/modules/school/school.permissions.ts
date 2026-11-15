@@ -11,6 +11,8 @@ export const SCHOOL_PERMISSIONS = [
     { key: "school.documents.manage", realm: "SCHOOL", module: "school", scopes: ["ALL"], personas: ["STAFF"], label: "Upload and view verification documents", isSensitive: true },
     { key: "school.payments.manage",  realm: "SCHOOL", module: "school", scopes: ["ALL"], personas: ["STAFF"], label: "Set up the payment (settlement) account", isSensitive: true },
     { key: "school.dashboard.view",   realm: "SCHOOL", module: "school", scopes: ["ALL"], personas: ["STAFF"], label: "View the school dashboard" },
+    // School-wide head-counts on the dashboard, for people who need the numbers but not the records behind them (the bursar).
+    { key: "school.dashboard.counts", realm: "SCHOOL", module: "school", scopes: ["ALL"], personas: ["STAFF"], label: "See school-wide head-counts on the dashboard (numbers only, no names or records)" },
     // ── Platform realm ───────────────────────────────────────────────────
     { key: "platform.schools.view",      realm: "PLATFORM", module: "school", scopes: ["ALL"], personas: ["STAFF"], label: "View all schools" },
     { key: "platform.schools.create",    realm: "PLATFORM", module: "school", scopes: ["ALL"], personas: ["STAFF"], label: "Create schools", isSensitive: true },

@@ -1,7 +1,8 @@
 import type { PrismaClient } from "../generated/public/client";
 import { ROLE_TEMPLATES } from "./role-templates.registry";
 import { permissionByKey } from "./permissions.registry";
-import { planTemplateGrants, isEmptyPlan } from "./role-grants.planner";
+import { planTemplateGrants, isEmptyPlan, validateRevocations } from "./role-grants.planner";
+import { ROLE_REVOCATIONS, type RoleRevocation } from "./role-revocations.registry";
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +14,7 @@ import { planTemplateGrants, isEmptyPlan } from "./role-grants.planner";
 |                         changed or removed (the platform owns it). Known limit: until the platform role
 |                         console records deliberate removals, an editable template cannot keep a grant
 |                         the code lists.
+|  - deliberate revocations (role-revocations.registry.ts) are the ONLY way an editable template loses a permission.
 | Whenever a template's permissions change, its version goes up by 1. Schools' copies of roles are updated
 | from the templates by `npm run sync:school-roles`.
 | A template that grants an unknown key, a scope the key does not allow, or a key the template's persona
@@ -20,10 +22,10 @@ import { planTemplateGrants, isEmptyPlan } from "./role-grants.planner";
 |--------------------------------------------------------------------------
 */
 
-export interface RoleTemplateSyncReport { created: string[]; enforced: string[]; kept: string[]; grantsChanged: string[]; conflicts: string[] }
+export interface RoleTemplateSyncReport { created: string[]; enforced: string[]; kept: string[]; grantsChanged: string[]; conflicts: string[]; revoked: string[] }
 
-export async function syncRoleTemplates(prisma: PrismaClient): Promise<RoleTemplateSyncReport> {
-    const report: RoleTemplateSyncReport = { created: [], enforced: [], kept: [], grantsChanged: [], conflicts: [] };
+export async function syncRoleTemplates(prisma: PrismaClient, revocations: RoleRevocation[] = ROLE_REVOCATIONS): Promise<RoleTemplateSyncReport> {
+    const report: RoleTemplateSyncReport = { created: [], enforced: [], kept: [], grantsChanged: [], conflicts: [], revoked: [] };
 
     for (const t of ROLE_TEMPLATES) {
         // validate the grants against the registry
@@ -85,6 +87,21 @@ export async function syncRoleTemplates(prisma: PrismaClient): Promise<RoleTempl
 
         if (Object.keys(patch).length) { await prisma.roleTemplate.update({ where: { key: t.key }, data: patch }); report.enforced.push(t.key); }
         else if (!grantsChanged) report.kept.push(t.key);
+    }
+
+    // ---- deliberate revocations: the one way an editable template loses a permission ----
+    const revocationProblems = validateRevocations(revocations, ROLE_TEMPLATES.map(t => ({ key: t.key, locked: t.locked, permissions: t.permissions })));
+    if (revocationProblems.length) { report.conflicts.push(...revocationProblems); return report; }   // none applied while the list is wrong
+    for (const r of revocations) {
+        const row = await prisma.roleTemplate.findUnique({ where: { key: r.templateKey }, include: { permissions: true } });
+        if (!row) continue;                                                                          // not created yet (a conflict above)
+        const held = row.permissions.map(p => p.permissionKey).filter(k => r.permissions.includes(k));
+        if (held.length === 0) continue;                                                             // already done: repeating is harmless
+        await prisma.$transaction(async (tx) => {
+            await tx.roleTemplatePermission.deleteMany({ where: { templateId: row.id, permissionKey: { in: held } } });
+            await tx.roleTemplate.update({ where: { id: row.id }, data: { version: { increment: 1 } } });
+        });
+        report.revoked.push(`${r.templateKey}: -${held.join(", -")} (${r.id})`);
     }
     return report;
 }

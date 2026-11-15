@@ -26,6 +26,7 @@ import { CreateStudentDto, UpdateStudentDto, DeactivateStudentDto, UndoGraduatio
 const router = Router();
 const ctrl   = () => container.resolve<StudentController>("studentController");
 const view   = [authenticate, requireTenant, requirePermission("students.view")] as const;
+const lookup = [authenticate, requireTenant, requirePermission("students.lookup")] as const;
 const manage = [authenticate, requireTenant, requirePermission("students.manage")] as const;
 const transfer = [authenticate, requireTenant, requirePermission("students.transfer")] as const;
 const importer = [authenticate, requireTenant, requirePermission("students.import")] as const;
@@ -54,6 +55,8 @@ router.post("/import", ...importer, uploadLimiter, csv, reestablishTenantContext
 
 router.get("/me", ...self, (q, s, n) => ctrl().me(q, s, n));
 
+// students.lookup: find a student by name or admission number (name, class, status only). Before "/:id".
+router.get("/lookup", ...lookup, (q, s, n) => ctrl().lookup(q, s, n));
 router.get("/", ...view, (q, s, n) => ctrl().list(q, s, n));
 router.post("/", ...manage, validate(CreateStudentDto), (q, s, n) => ctrl().create(q, s, n));
 

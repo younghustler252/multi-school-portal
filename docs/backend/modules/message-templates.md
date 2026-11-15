@@ -39,7 +39,7 @@ All paths are relative to /api/v1/message-templates.
 
 Channel path accepts in_app, email or sms case-insensitively; in-app and hyphen variants normalize to IN_APP. Unknown channels and keys return stable domain errors.
 
-Permissions are SCHOOL realm, ALL-scope STAFF-only. Principal role receives view/manage; teacher, bursar, student and guardian do not receive these permissions by default.
+Permissions are SCHOOL realm, ALL-scope STAFF-only. Principal role receives view only (changing the wording is school-admin work); teacher, bursar, student and guardian do not receive these permissions by default.
 
 ## Code-owned catalog
 

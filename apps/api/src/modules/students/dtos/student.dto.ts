@@ -101,4 +101,12 @@ export type UpdateStudentDtoType     = z.infer<typeof UpdateStudentDto>;
 export type DeactivateStudentDtoType = z.infer<typeof DeactivateStudentDto>;
 export type UndoGraduationDtoType    = z.infer<typeof UndoGraduationDto>;
 export type TransferStudentDtoType   = z.infer<typeof TransferStudentDto>;
+// Find a student (students.lookup): a search is required and the answer is short, so this cannot be used to list everyone
+export const LookupStudentsQuery = z.object({
+    search: z.string().trim().min(2, "Type at least 2 letters").max(100),
+    limit:  z.coerce.number().int().min(1).max(25).default(10),
+    status: z.enum(["active", "inactive", "graduated", "all"]).default("active"),
+});
+
 export type ListStudentsQueryType    = z.infer<typeof ListStudentsQuery>;
+export type LookupStudentsQueryType  = z.infer<typeof LookupStudentsQuery>;

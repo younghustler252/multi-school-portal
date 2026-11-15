@@ -4,6 +4,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { PERMISSION_REGISTRY, validatePermissionRegistry } from "../../src/foundation/permissions.registry";
 import { ROLE_TEMPLATES } from "../../src/foundation/role-templates.registry";
+import { ROLE_REVOCATIONS } from "../../src/foundation/role-revocations.registry";
 import { assertAudience, assertSchedule, normaliseKinds, normaliseReminderOffsets, scheduleChanged } from "../../src/modules/events/domain/event.policy";
 import { audienceScope, canActOnEvent } from "../../src/modules/events/domain/event.scope";
 import { EventViewerService } from "../../src/modules/events/services/event-viewer.service";
@@ -26,13 +27,17 @@ describe("event permissions and role templates", () => {
     });
     it("only principal and branch_principal gained permissions, exactly the agreed ones; every other grant is unchanged", () => {
         const base = JSON.parse(readFileSync(join(__dirname, "role-templates.baseline.json"), "utf8")) as { templates: Record<string, string[]> };
+        // The baseline is from before the events work. Later, deliberate changes are allowed ONLY if they are on record:
+        // a permission may be missing only if a revocation names it, and the one known later addition is listed here.
+        const revoked = (templateKey: string) => new Set(ROLE_REVOCATIONS.filter(r => r.templateKey === templateKey).flatMap(r => r.permissions));
+        const laterAdditions: Record<string, string[]> = { bursar: ["students.lookup:ALL", "school.dashboard.counts:ALL"] };
         const added: Record<string, string[]> = {};
         for (const t of ROLE_TEMPLATES) {
             const now = t.permissions.map(p => `${p.key}:${p.scope}`).sort();
             const was = base.templates[t.key];
             assert.ok(was, `${t.key} is new`);
-            assert.deepEqual(was.filter(x => !now.includes(x)), [], `${t.key} lost permissions`);
-            added[t.key] = now.filter(x => !was.includes(x));
+            assert.deepEqual(was.filter(x => !now.includes(x) && !revoked(t.key).has(x.split(":")[0])), [], `${t.key} lost permissions that no revocation names`);
+            added[t.key] = now.filter(x => !was.includes(x) && !(laterAdditions[t.key] ?? []).includes(x));
         }
         assert.deepEqual(Object.keys(base.templates).sort(), ROLE_TEMPLATES.map(t => t.key).sort());
         assert.deepEqual(added.principal, ["events.manage:ALL", "events.publish:ALL"]);

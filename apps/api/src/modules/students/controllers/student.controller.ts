@@ -5,18 +5,19 @@ import { DeactivateStudentUseCase } from "../usecases/deactivate-student.usecase
 import { ReactivateStudentUseCase } from "../usecases/reactivate-student.usecase";
 import { UndoGraduationUseCase } from "../usecases/undo-graduation.usecase";
 import { ListStudentsUseCase, GetStudentUseCase, GetMyStudentProfileUseCase } from "../usecases/student-queries.usecases";
+import { LookupStudentsUseCase } from "../usecases/student-lookup.usecase";
 import { TransferStudentUseCase } from "../usecases/transfer-student.usecase";
 import { UploadStudentPhotoUseCase } from "../usecases/upload-photo.usecase";
 import { PreviewStudentImportUseCase, ImportStudentsUseCase } from "../usecases/student-import.usecases";
 import { IMPORT_TEMPLATE } from "../domain/student-import.policy";
 import { sendSuccess, sendCreated } from "../../../shared/utils/api-response";
 import { getAccess } from "../../../infrastructure/middleware/rbac.middleware";
-import { ListStudentsQuery } from "../dtos/student.dto";
+import { ListStudentsQuery, LookupStudentsQuery } from "../dtos/student.dto";
 import { studentErrors } from "../domain/student.errors";
 import { StudentActor } from "../domain/student.types";
 
 interface Dependencies {
-    listStudentsUseCase: ListStudentsUseCase; getStudentUseCase: GetStudentUseCase; getMyStudentProfileUseCase: GetMyStudentProfileUseCase;
+    lookupStudentsUseCase: LookupStudentsUseCase; listStudentsUseCase: ListStudentsUseCase; getStudentUseCase: GetStudentUseCase; getMyStudentProfileUseCase: GetMyStudentProfileUseCase;
     createStudentUseCase: CreateStudentUseCase; updateStudentUseCase: UpdateStudentUseCase;
     deactivateStudentUseCase: DeactivateStudentUseCase; reactivateStudentUseCase: ReactivateStudentUseCase;
     undoGraduationUseCase: UndoGraduationUseCase;
@@ -45,6 +46,11 @@ export class StudentController {
             const r = await this.d.listStudentsUseCase.execute(ListStudentsQuery.parse(req.query), getAccess(req));
             res.status(200).json({ success: true, message: "Students retrieved successfully", data: r.data, meta: r.meta });
         } catch (e) { next(e); }
+    };
+
+    // Find a student by name or admission number: name, class and status only (students.lookup)
+    lookup = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.lookupStudentsUseCase.execute(LookupStudentsQuery.parse(req.query)), "Students found"); } catch (e) { next(e); }
     };
 
     get    = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.getStudentUseCase.execute(idOf(req), getAccess(req)), "Student retrieved successfully"); } catch (e) { next(e); } };

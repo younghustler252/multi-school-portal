@@ -14,7 +14,7 @@ interface Dependencies {
 export interface SchoolDashboard {
     school:  { name: string; status: string; verificationStatus: string };
     plan:    { name: string; status: string; expiresAt: Date | null; studentLimit: number | null; staffLimit: number | null }; // null = unlimited
-    // A section is null when the viewer's role does not allow it (so a bursar never receives student data)
+    // A section is null when the viewer's role does not allow it. People and academics are head-counts only: no names, no records.
     people:     { totalStaff: number; activeStaff: number; totalStudents: number; activeStudents: number; totalGuardians: number } | null;
     academics:  { currentTerm: string | null; totalClasses: number; totalSubjects: number; activeEnrolments: number } | null;
     fees:       { term: string | null; totalInvoicedKobo: number; totalCollectedKobo: number; totalPendingKobo: number; overdueInvoices: number } | null;
@@ -68,10 +68,14 @@ export class GetDashboardUseCase {
         const term = await tenant.currentTermWithSession();
         const termLabel = term ? `${term.session.name} ${term.name}` : null;
 
-        const showPeople = can("students.view") || can("staff.view");
+        // The head-counts (people, academics) are numbers only. They are shown to anyone who may see the records they count
+        // (students.view / staff.view) AND to anyone given school.dashboard.counts: the bursar sees the numbers without
+        // being able to open a student's record or the class lists.
+        const seesCounts = can("school.dashboard.counts");
+        const showPeople = can("students.view") || can("staff.view") || seesCounts;
         const people = showPeople ? await tenant.peopleCounts() : null;
 
-        const academics = can("students.view") ? { currentTerm: termLabel, ...(await tenant.academicCounts()) } : null;
+        const academics = can("students.view") || seesCounts ? { currentTerm: termLabel, ...(await tenant.academicCounts()) } : null;
 
         const fees = can("fees.view") ? await (async () => {
             if (!term) return { term: null, totalInvoicedKobo: 0, totalCollectedKobo: 0, totalPendingKobo: 0, overdueInvoices: 0 };

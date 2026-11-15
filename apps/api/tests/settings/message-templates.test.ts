@@ -48,9 +48,10 @@ describe("message templates: permissions", () => {
         assert.deepEqual(mine.map(p => p.key).sort(), ["message_templates.manage", "message_templates.view"]);
         for (const p of mine) assert.deepEqual([...p.personas], ["STAFF"]);
     });
-    it("principal holds both; no other editable role, student or guardian does", () => {
+    it("principal can look at the wording but not change it (the school admin changes it); no other editable role, student or guardian holds any", () => {
         const granted = (k: string) => ROLE_TEMPLATES.find(r => r.key === k)!.permissions.map(p => p.key);
-        assert.ok(granted("principal").includes("message_templates.manage"));
+        assert.ok(granted("principal").includes("message_templates.view"));
+        assert.ok(!granted("principal").includes("message_templates.manage"), "changing the wording is school-admin work");
         for (const k of ["teacher", "bursar", "branch_principal", "student", "guardian"]) assert.ok(!granted(k).some(x => x.startsWith("message_templates.")), k);
     });
 });

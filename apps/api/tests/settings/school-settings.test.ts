@@ -26,9 +26,10 @@ describe("school settings: permissions", () => {
         assert.deepEqual(mine.map(p => p.key).sort(), ["school_settings.manage", "school_settings.view"]);
         for (const p of mine) assert.deepEqual([...p.personas], ["STAFF"], "students and guardians can never hold them");
     });
-    it("principal can view and manage; teacher, bursar, student and guardian cannot", () => {
+    it("principal can view but not manage (the school admin manages); teacher, bursar, student and guardian hold neither", () => {
         const granted = (k: string) => ROLE_TEMPLATES.find(r => r.key === k)!.permissions.map(p => p.key);
-        assert.ok(granted("principal").includes("school_settings.manage"));
+        assert.ok(granted("principal").includes("school_settings.view"));
+        assert.ok(!granted("principal").includes("school_settings.manage"), "school settings are changed by the school admin");
         for (const k of ["teacher", "bursar", "student", "guardian", "branch_principal"]) {
             assert.ok(!granted(k).some(x => x.startsWith("school_settings.")), `${k} must not hold school settings`);
         }
