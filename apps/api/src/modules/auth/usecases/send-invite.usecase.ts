@@ -4,7 +4,7 @@ import { TokenService }      from "../../../shared/services/token.service";
 import { InviteService }     from "../services/invite.service";
 import { MembershipService, RoleRecord } from "../services/membership.service";
 import { AuthAuditService }  from "../services/auth-audit.service";
-import { canDelegateRole } from "../../../foundation/access.service";
+import { canGrantRole } from "../../../foundation/access.service";
 import { authErrors }        from "../domain/auth.errors";
 import { SendInviteDtoType } from "../dtos/invite.dto";
 import { InviteActor, RequestMeta } from "../types/auth.types";
@@ -44,11 +44,7 @@ export class SendInviteUseCase {
         if (dto.persona === "STAFF") {
             role = await d.membershipService.getRole(dto.roleId!);
             if (!role || role.persona !== "STAFF") throw authErrors.badRequest("That role does not exist");
-            if (role.grantsAll) {
-                if (!actor.isAdmin) throw authErrors.roleNotAllowed();
-            } else if (!canDelegateRole(role.permissions, actor.scopeOf)) {
-                throw authErrors.roleNotAllowed();
-            }
+            if (!canGrantRole(role, actor)) throw authErrors.roleNotAllowed();
         } else {
             role = await d.membershipService.getDefaultRoleForPersona(dto.persona);
             if (!role) throw authErrors.badRequest("This school has no default role for that profile yet");

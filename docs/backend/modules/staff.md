@@ -164,7 +164,7 @@ The list controller returns `{ success, message, data, meta }`. Other controller
 
 The TypeScript shape is `AssignableStaffRole` in `@schoolos/contracts` (`packages/contracts/src/staff.ts`).
 
-**What is in the list.** Live, `STAFF`-persona roles of this school that the caller could grant through the existing invitation / role-change rules (the same `canGrantRole` rule, shared by this endpoint and `PUT /:id/roles`, and agreeing with `POST /:id/invite`):
+**What is in the list.** Live, `STAFF`-persona roles of this school that the caller could grant through the existing invitation / role-change rules (the same `canGrantRole` rule, shared by this endpoint, `PUT /:id/roles` and `POST /:id/invite`):
 
 - a `grantsAll` role is included only for a School Admin;
 - any other role is included only when **every** permission in it is held by the caller at a scope at least as wide (`ALL` > `BRANCH` > `ASSIGNED` > `OWN`);
@@ -212,7 +212,7 @@ The TypeScript shape is `AssignableStaffRole` in `@schoolos/contracts` (`package
 - The Auth invitation engine owns invitation expiry, single use, host binding and role delegation rules.
 - Role changes require an existing portal membership.
 - A user cannot change their own roles.
-- Every granted role must be delegable by the actor; a `grantsAll` role requires a School Admin. This is one rule (`canGrantRole` in `foundation/access.service.ts`) used by role changes and by `GET /assignable-roles`; the Auth invitation engine applies the same scope-aware rule, and a test requires the three to agree.
+- Every granted role must be delegable by the actor; a `grantsAll` role requires a School Admin. This is one rule (`canGrantRole` in `foundation/access.service.ts`) used by the invitation engine (`SendInviteUseCase`), by role changes (`ChangeStaffRolesUseCase`) and by `GET /assignable-roles`; a test keeps the three in agreement.
 - The last active school administrator cannot lose the administrator role.
 - Effective access cache is invalidated after role replacement.
 
@@ -240,7 +240,7 @@ The TypeScript shape is `AssignableStaffRole` in `@schoolos/contracts` (`package
 
 ## 9. Tests and verification gaps
 
-`apps/api/tests/staff/assignable-roles.test.ts` covers `GET /assignable-roles`: which roles each kind of caller gets (School Admin, branch-limited manager, a manager holding only `staff.manage` and `users.invite`), that `grantsAll` is never offered to a non-admin, the exact response fields, that the list agrees with what the real `SendInviteUseCase` and `ChangeStaffRolesUseCase` accept, and that the route is guarded by `staff.manage` and declared before `/:id`. It uses in-memory fakes; the tenant query in `StaffPortalService.listStaffRoles` is not covered by a database test.
+`apps/api/tests/staff/assignable-roles.test.ts` covers `GET /assignable-roles`: which roles each kind of caller gets (School Admin, branch-limited manager, a manager holding only `staff.manage` and `users.invite`), that `grantsAll` is never offered to a non-admin, the exact response fields, that the list agrees with what the real `SendInviteUseCase` and `ChangeStaffRolesUseCase` accept, and that the route is guarded by `staff.manage` and declared before `/:id`. These use in-memory fakes. `apps/api/tests/staff/staff-portal.roles.db.test.ts` covers the tenant query (`StaffPortalService.listStaffRoles`) on a real database with two schools: only the current school's live `STAFF` roles come back (system roles first, then by name), soft-deleted and student/guardian roles are left out, a role with the same name in the other school comes back with its own permissions, and calling it outside a school context fails rather than falling back to a shared schema. It is skipped without `TEST_DATABASE_URL`.
 
 Test files and tenant migration constraints were not fully inspected for the rest of this guide. No tests, migrations, build or runtime requests were executed. Before marking this guide fully verified, inspect the remaining update/assignment use cases, Staff portal service, assignment query implementations, schema indexes/constraints and focused Staff tests.
 
