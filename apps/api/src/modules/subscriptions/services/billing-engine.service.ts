@@ -15,7 +15,14 @@ interface Dependencies {
     entitlementsService: { invalidate(schoolId: string): void };
 }
 
-export type SettleOutcome = "paid" | "failed" | "pending" | "duplicate" | "paid_on_void" | "mismatch" | "ignored";
+export type SettleOutcome = "paid" | "failed" | "pending" | "duplicate" | "paid_on_void" | "mismatch" | "superseded" | "ignored";
+
+type ExceptionKind = "paid_on_void" | "duplicate_payment" | "amount_mismatch" | "superseded";
+
+/** A checkout page that has not been paid is offered again for this long; after that the provider is asked what became of it first. */
+const CHECKOUT_REUSE_MS = 30 * 60_000;
+/** A new checkout attempt that never got its page this long ago can never be paid (nobody was given a link): it is closed. */
+const CHECKOUT_NO_URL_MS = 2 * 60_000;
 
 interface Applied { schoolId: string; planId: string; periodEnd: Date; totalKobo: number; reason: string; invoiceId: string; cardSaved: boolean }
 
@@ -27,14 +34,21 @@ interface Applied { schoolId: string; planId: string; periodEnd: Date; totalKobo
 | reconciliation job, a saved-card charge, a manual bank-transfer confirmation):
 |     attempt  ->  verify with the provider  ->  settle  ->  apply the invoice to the subscription
 |
-|  SAFE TO REPEAT   applying locks the invoice row, so two callers at the same moment cannot both apply it;
+|  SAFE TO REPEAT   applying locks the SUBSCRIPTION row, then the invoice row (always in that order, here and in the lifecycle job), so two
+|                   callers at the same moment cannot both apply an invoice, nor race a lapse or a payment for another invoice (REM-067/068);
 |                   a second payment for a paid invoice is recorded as a duplicate, never applied twice.
+|  NEVER LOST       money the provider captured but that cannot be applied (void invoice, duplicate, wrong amount, an invoice that a later
+|                   payment already superseded) becomes an open CapturedPaymentException for a platform person to refund or settle (REM-070).
 |  CHECKED          the amount and currency the provider reports must match the attempt, or nothing is applied.
 |  NEVER GUESSED    a charge with an unknown outcome (timeout) stays "pending" and is verified later by its
 |                   reference; the reference is deterministic, so a retry can never charge a card twice.
 |--------------------------------------------------------------------------
 */
 export class BillingEngine {
+    /** How long a second "pay" request waits for the first one's checkout page (tests shorten it). */
+    static CHECKOUT_POLL_MS = 250;
+    static CHECKOUT_POLL_TRIES = 20;
+
     private readonly prisma: PrismaClient;
     private readonly d: Dependencies;
 
@@ -48,29 +62,32 @@ export class BillingEngine {
     }
 
     // ── 1. Start a checkout for an open invoice ───────────────────────────
+    // ONE live checkout per invoice (REM-066): a repeated or simultaneous "pay" returns the page already created. The decision is taken
+    // under the invoice row lock; the partial unique index PaymentAttempt_one_pending_checkout is the backstop. The provider is called
+    // OUTSIDE the transaction (no database lock is held across a network call).
     async startCheckout(p: { invoiceId: string; schoolId: string; payerEmail: string; callbackUrl: string; autoRenew: boolean }) {
-        const invoice = await this.prisma.subscriptionInvoice.findFirst({ where: { id: p.invoiceId, schoolId: p.schoolId } });
-        const amount = invoice ? invoice.totalKobo - invoice.amountPaidKobo : 0;
-        if (!invoice || invoice.status !== "open" || amount <= 0) throw billingErrors.invoiceNotPayable();
-
-        let attempt: { id: string; reference: string } | null = null;
-        for (let i = 0; i < 4 && !attempt; i++) {
-            const n = (await this.prisma.paymentAttempt.count({ where: { invoiceId: invoice.id } })) + 1 + i;
-            try {
-                attempt = await this.prisma.paymentAttempt.create({
-                    data: { invoiceId: invoice.id, reference: `${invoice.number}-C${n}`, amountKobo: amount, method: "checkout" },
-                    select: { id: true, reference: true },
-                });
-            } catch (err: any) { if (err?.code !== "P2002") throw err; }
+        type Plan = Awaited<ReturnType<BillingEngine["planCheckout"]>>;
+        let plan: Plan | null = null, reconciled = false;
+        for (let tries = 0; tries < BillingEngine.CHECKOUT_POLL_TRIES; tries++) {
+            plan = await this.planCheckout(p, reconciled);        // after one provider check, a still-pending page is offered again however old
+            if ("stale" in plan) {
+                reconciled = true; await this.reconcile(plan.stale);        // it may have been paid or abandoned: find out, then plan again
+                plan = null; continue;
+            }
+            if ("preparing" in plan) { plan = null; await new Promise(r => setTimeout(r, BillingEngine.CHECKOUT_POLL_MS)); continue; }   // another request is creating the page: wait for it
+            break;
         }
-        if (!attempt) throw billingErrors.paymentUnavailable();
+        if (!plan || "stale" in plan || "preparing" in plan) throw billingErrors.checkoutInProgress();
+        if ("reuse" in plan) return plan.reuse;
 
+        const { attempt, amount } = plan;
         try {
             const init = await this.d.paymentProvider.initializeTransaction({
                 email: p.payerEmail, amountKobo: amount, reference: attempt.reference, callbackUrl: p.callbackUrl, currency: CURRENCY,
                 // NO subaccount: subscription money belongs to the platform, never to the school's settlement account
-                metadata: { type: "subscription_invoice", invoiceId: invoice.id, schoolId: p.schoolId, attemptId: attempt.id, autoRenew: p.autoRenew },
+                metadata: { type: "subscription_invoice", invoiceId: p.invoiceId, schoolId: p.schoolId, attemptId: attempt.id, autoRenew: p.autoRenew },
             });
+            await this.prisma.paymentAttempt.update({ where: { id: attempt.id }, data: { authorizationUrl: init.authorizationUrl } });
             return { authorizationUrl: init.authorizationUrl, reference: attempt.reference, amountKobo: amount };
         } catch (err) {
             await this.prisma.paymentAttempt.update({
@@ -78,6 +95,38 @@ export class BillingEngine {
             });
             throw billingErrors.paymentUnavailable();
         }
+    }
+
+    /** Public only so its result type can be named; call startCheckout. */
+    async planCheckout(p: { invoiceId: string; schoolId: string }, providerChecked = false) {
+        return this.prisma.$transaction(async tx => {
+            await tx.$queryRaw`SELECT id FROM "SubscriptionInvoice" WHERE id = ${p.invoiceId} AND "schoolId" = ${p.schoolId} FOR UPDATE`;
+            const invoice = await tx.subscriptionInvoice.findFirst({ where: { id: p.invoiceId, schoolId: p.schoolId } });
+            const amount = invoice ? invoice.totalKobo - invoice.amountPaidKobo : 0;
+            if (!invoice || invoice.status !== "open" || amount <= 0) throw billingErrors.invoiceNotPayable();
+
+            const live = await tx.paymentAttempt.findFirst({ where: { invoiceId: invoice.id, method: "checkout", status: "pending", checkoutKey: { not: null } } });
+            if (live) {
+                const age = Date.now() - live.createdAt.getTime();
+                if (live.authorizationUrl) {
+                    if (age <= CHECKOUT_REUSE_MS || providerChecked) return { reuse: { authorizationUrl: live.authorizationUrl, reference: live.reference, amountKobo: live.amountKobo } };
+                    return { stale: live.reference };
+                }
+                // Created but never given a page. Within a moment another request is preparing it; later, nobody holds a link, so it can never be paid.
+                if (age <= CHECKOUT_NO_URL_MS) return { preparing: true as const };
+                await tx.paymentAttempt.updateMany({
+                    where: { id: live.id, status: "pending", authorizationUrl: null },
+                    data: { status: "failed", failureReason: "Checkout page was never created", completedAt: new Date() },
+                });
+            }
+
+            const n = (await tx.paymentAttempt.count({ where: { invoiceId: invoice.id } })) + 1;
+            const attempt = await tx.paymentAttempt.create({
+                data: { invoiceId: invoice.id, reference: `${invoice.number}-C${n}`, amountKobo: amount, method: "checkout", checkoutKey: invoice.id },
+                select: { id: true, reference: true },
+            });
+            return { attempt, amount };
+        });
     }
 
     // ── 2. Charge the saved card for an open invoice (renewals and retries) ─
@@ -175,6 +224,26 @@ export class BillingEngine {
         await this.d.billingNotifier.send(inv.schoolId, billingMessages.chargeFailed(plan?.name ?? "your", reason.slice(0, 80), nextAt, addDays(inv.dueDate, grace)));
     }
 
+    /**
+     * The ONE lock order for everything that changes a subscription or its invoices: the SUBSCRIPTION row first, then the invoice row.
+     * Payment application, zero-value and manual application, past-due and lapse/cancel (the lifecycle job) all use it, so they queue behind
+     * each other instead of deadlocking or acting on a stale read (REM-067, REM-068).
+     */
+    private async lockForInvoice(tx: Prisma.TransactionClient, invoiceId: string): Promise<void> {
+        const row = await tx.subscriptionInvoice.findUnique({ where: { id: invoiceId }, select: { subscriptionId: true } });
+        if (!row) return;
+        await tx.$queryRaw`SELECT id FROM "Subscription" WHERE id = ${row.subscriptionId} FOR UPDATE`;
+        await tx.$queryRaw`SELECT id FROM "SubscriptionInvoice" WHERE id = ${invoiceId} FOR UPDATE`;
+    }
+
+    /** Captured money that could not be applied: recorded in the SAME transaction as the attempt, so it cannot be lost (REM-070). */
+    private async recordException(tx: Prisma.TransactionClient, kind: ExceptionKind, inv: { id: string; schoolId: string }, attempt: { id: string; reference: string; amountKobo: number }, detail: Record<string, unknown> = {}): Promise<void> {
+        await tx.capturedPaymentException.createMany({
+            data: [{ attemptId: attempt.id, invoiceId: inv.id, schoolId: inv.schoolId, kind, reference: attempt.reference, amountKobo: attempt.amountKobo, detail: detail as never }],
+            skipDuplicates: true,
+        });
+    }
+
     // ── 5. Apply a verified payment ───────────────────────────────────────
     async applyPaid(attemptId: string, v: VerifyTransactionResult): Promise<SettleOutcome> {
         const holder: { applied: Applied | null; audit: { action: string; schoolId: string; invoiceId: string; meta?: Record<string, unknown> } | null } = { applied: null, audit: null };
@@ -182,7 +251,7 @@ export class BillingEngine {
         const outcome = await this.prisma.$transaction(async (tx): Promise<SettleOutcome> => {
             const first = await tx.paymentAttempt.findUnique({ where: { id: attemptId } });
             if (!first) return "ignored";
-            await tx.$queryRaw`SELECT id FROM "SubscriptionInvoice" WHERE id = ${first.invoiceId} FOR UPDATE`;
+            await this.lockForInvoice(tx, first.invoiceId);
 
             const attempt = await tx.paymentAttempt.findUniqueOrThrow({ where: { id: attemptId } });
             if (attempt.status === "success") return "duplicate";
@@ -191,6 +260,8 @@ export class BillingEngine {
             if (v.amountKobo !== attempt.amountKobo || (v.currency && v.currency !== CURRENCY)) {
                 await tx.paymentAttempt.update({ where: { id: attemptId }, data: { status: "failed", failureReason: "amount_mismatch", completedAt: new Date() } });
                 holder.audit = { action: "billing.amount_mismatch", schoolId: inv.schoolId, invoiceId: inv.id, meta: { expected: attempt.amountKobo, received: v.amountKobo, currency: v.currency } };
+                // The provider took money that does not match what we asked for: that is not an ordinary failed payment, it needs a person
+                await this.recordException(tx, "amount_mismatch", inv, attempt, { expectedKobo: attempt.amountKobo, receivedKobo: v.amountKobo, currency: v.currency ?? null });
                 return "mismatch";
             }
 
@@ -198,11 +269,25 @@ export class BillingEngine {
 
             if (inv.status === "paid") {
                 holder.audit = { action: "billing.duplicate_payment", schoolId: inv.schoolId, invoiceId: inv.id, meta: { reference: attempt.reference, amountKobo: attempt.amountKobo } };
+                await this.recordException(tx, "duplicate_payment", inv, attempt);
                 return "duplicate";
             }
             if (inv.status === "void") {
                 holder.audit = { action: "billing.payment_on_void_invoice", schoolId: inv.schoolId, invoiceId: inv.id, meta: { reference: attempt.reference, amountKobo: attempt.amountKobo } };
+                await this.recordException(tx, "paid_on_void", inv, attempt);
                 return "paid_on_void";
+            }
+            // A payment applied AFTER this invoice was issued already covers a later period (for example a renewal paid while this older
+            // upgrade invoice stayed open): applying it now would move the subscription backwards. Keep the money visible instead.
+            const newer = await tx.subscriptionInvoice.findFirst({
+                where: { subscriptionId: inv.subscriptionId, id: { not: inv.id }, status: "paid", paidAt: { gt: inv.createdAt }, periodEnd: { gt: inv.periodEnd } },
+                select: { id: true, number: true },
+            });
+            if (newer) {
+                await tx.subscriptionInvoice.update({ where: { id: inv.id }, data: { status: "void", voidedAt: new Date(), nextAttemptAt: null, note: `Superseded by ${newer.number}` } });
+                holder.audit = { action: "billing.payment_superseded", schoolId: inv.schoolId, invoiceId: inv.id, meta: { reference: attempt.reference, amountKobo: attempt.amountKobo, supersededBy: newer.number } };
+                await this.recordException(tx, "superseded", inv, attempt, { supersededByInvoiceId: newer.id, supersededByNumber: newer.number });
+                return "superseded";
             }
             holder.applied = await this.applyInvoice(tx, inv, { card: v.reusable ? v : null, autoRenewIntent: v.metadata?.autoRenew === true });
             return "paid";
@@ -216,7 +301,7 @@ export class BillingEngine {
     async applyWithoutPayment(invoiceId: string, actorId: string, note: string): Promise<void> {
         const holder: { applied: Applied | null } = { applied: null };
         await this.prisma.$transaction(async tx => {
-            await tx.$queryRaw`SELECT id FROM "SubscriptionInvoice" WHERE id = ${invoiceId} FOR UPDATE`;
+            await this.lockForInvoice(tx, invoiceId);
             const inv = await tx.subscriptionInvoice.findUniqueOrThrow({ where: { id: invoiceId }, include: { subscription: true } });
             if (inv.status !== "open" || inv.totalKobo !== 0) throw billingErrors.invoiceNotPayable();
             holder.applied = await this.applyInvoice(tx, inv, { card: null, autoRenewIntent: false });
@@ -228,7 +313,7 @@ export class BillingEngine {
     async markPaidManually(invoiceId: string, actorId: string, reference: string, note?: string): Promise<void> {
         const holder: { applied: Applied | null } = { applied: null };
         await this.prisma.$transaction(async tx => {
-            await tx.$queryRaw`SELECT id FROM "SubscriptionInvoice" WHERE id = ${invoiceId} FOR UPDATE`;
+            await this.lockForInvoice(tx, invoiceId);
             const inv = await tx.subscriptionInvoice.findUniqueOrThrow({ where: { id: invoiceId }, include: { subscription: true } });
             if (inv.status !== "open" && inv.status !== "uncollectible") throw billingErrors.invoiceSettled();
             try {
@@ -250,7 +335,7 @@ export class BillingEngine {
         await this.d.auditService.log({ userId: actorId, schoolId: inv.schoolId, action: "billing.invoice_voided", entity: "SubscriptionInvoice", entityId: invoiceId, metadata: { reason } });
     }
 
-    // ── The one place an invoice becomes subscription state (inside a transaction, invoice row locked) ──
+    // ── The one place an invoice becomes subscription state (inside a transaction, subscription and invoice rows locked: lockForInvoice) ──
     private async applyInvoice(
         tx: Prisma.TransactionClient,
         inv: any,

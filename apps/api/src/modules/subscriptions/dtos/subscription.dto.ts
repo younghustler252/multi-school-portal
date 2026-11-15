@@ -55,6 +55,17 @@ export type ListInvoicesQueryType     = z.infer<typeof ListInvoicesQuery>;
 export type ListSubscriptionsQueryType = z.infer<typeof ListSubscriptionsQuery>;
 export type PlatformChangePlanDtoType = z.infer<typeof PlatformChangePlanDto>;
 export type ExtendPeriodDtoType       = z.infer<typeof ExtendPeriodDto>;
+export const ResolvePaymentExceptionDto = z.object({
+    resolution: z.enum(["refunded", "applied_manually", "dismissed"]),
+    note:       z.string().trim().min(10).max(300),         // what was done (provider refund reference, the invoice it was applied to, why it needs nothing)
+}).strict();
+export const ListPaymentExceptionsQuery = z.object({
+    status: z.enum(["open", "refunded", "applied_manually", "dismissed"]).optional(),
+    page:   z.coerce.number().int().min(1).default(1),
+    limit:  z.coerce.number().int().min(1).max(100).default(20),
+});
+export type ResolvePaymentExceptionDtoType = z.infer<typeof ResolvePaymentExceptionDto>;
+export type ListPaymentExceptionsQueryType = z.infer<typeof ListPaymentExceptionsQuery>;
 export type VoidInvoiceDtoType        = z.infer<typeof VoidInvoiceDto>;
 export type MarkInvoicePaidDtoType    = z.infer<typeof MarkInvoicePaidDto>;
 export type ListPlatformInvoicesQueryType = z.infer<typeof ListPlatformInvoicesQuery>;

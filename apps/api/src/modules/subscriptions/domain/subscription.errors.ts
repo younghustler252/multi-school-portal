@@ -21,6 +21,9 @@ export const billingErrors = {
     notCancelling:     () => new ConflictError("No cancellation is scheduled"),
     noScheduledChange: () => new ConflictError("No downgrade is scheduled"),
     paymentUnavailable: () => new AppError("Payments are temporarily unavailable. Please try again in a few minutes", 503, true, "PAYMENT_UNAVAILABLE"),
+    checkoutInProgress: () => new AppError("A payment page for this invoice is being prepared. Try again in a moment", 409, true, "CHECKOUT_IN_PROGRESS"),
+    exceptionNotFound: () => new NotFoundError("Payment exception"),
+    exceptionResolved: () => new ConflictError("This payment exception is already resolved"),
     invoiceSettled:    () => new ConflictError("This invoice is already settled"),
     badExtension:      () => new AppError("Extension must be between 1 and 90 days", 400, true, "INVALID_EXTENSION"),
 };

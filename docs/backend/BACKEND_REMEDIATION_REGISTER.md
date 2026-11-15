@@ -761,6 +761,7 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Enforce one active pending checkout attempt per invoice. Reuse a still-valid pending attempt or atomically expire/abandon the previous attempt before creating another. Add a database-backed claim/partial unique index and concurrent HTTP tests.
 - **Owner/workstream:** Subscriptions/Billing developer
 - **Acceptance criteria:** Repeated/concurrent pay requests return one live checkout reference; only one provider charge can be captured for the invoice.
+- **Resolution (branch `fix/api/p1-remediation-batch5`, not yet merged) **: `startCheckout` decides under the invoice row lock and returns the one live checkout again (new `PaymentAttempt.authorizationUrl`); a simultaneous request waits for the page; a page older than 30 minutes is checked with the provider first (paid -> invoice applied, abandoned -> a new page); an attempt that never got a page for 2 minutes is closed. Backstop: partial unique index `PaymentAttempt_one_pending_checkout` on the new `checkoutKey` (only while pending, only on attempts created by the new code, so existing rows can neither conflict nor be rewritten). **Remaining:** a page for an old attempt from before this change cannot be reused (it resolves through reconciliation as before); two schools' invoices are never affected (per invoice).
 
 ### REM-067 — Billing lifecycle can overwrite a payment-confirmed subscription state
 
@@ -772,6 +773,7 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Serialize payment application and lifecycle transitions on the subscription/invoice rows. Recheck invoice status and subscription period/status inside the transition transaction before changing entitlements or voiding/uncollectible invoices.
 - **Owner/workstream:** Subscriptions/Billing Lifecycle developer
 - **Acceptance criteria:** Concurrent payment confirmation and past-due/lapse/cancel processing always produce a state consistent with the committed invoice status.
+- **Resolution (branch `fix/api/p1-remediation-batch5`, not yet merged) **: one lock order everywhere: Subscription row, then invoice row. The payment path takes both (`lockForInvoice`); past-due re-reads the invoice under the subscription lock and does nothing if it is no longer open and overdue; `moveToFree` (lapse, period-end cancel, scheduled downgrade) re-checks under the lock that an unpaid renewal beyond the grace period still exists / the cancellation is still due, otherwise it drops the transition (an explicit cancel by a person is unaffected). Randomised race tests with no-lock controls (`tests/subscriptions/billing-concurrency.test.ts`) and a real-PostgreSQL check (`scripts/db/verify-billing-locks.sh`). **Remaining:** steps that only touch a subscription row without an invoice (free-roll, reminders) were not changed; the Prisma raw `FOR UPDATE` calls through the real client were not run end to end here.
 
 ### REM-068 — Payments for different invoices of one subscription are not serialized on the subscription row
 
@@ -783,6 +785,7 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Lock the Subscription row in the same transaction before applying any invoice, then re-evaluate whether the invoice is still applicable against current subscription state. Define precedence for renewal vs upgrade and make superseded captures recoverable.
 - **Owner/workstream:** Subscriptions/Billing developer
 - **Acceptance criteria:** Concurrent successful payments for different invoices cannot produce conflicting subscription state or silently strand a captured payment.
+- **Resolution (branch `fix/api/p1-remediation-batch5`, not yet merged) **: payments for different invoices of one subscription now queue on the subscription row, and a payment is checked against newer paid invoices: an older invoice whose period a later payment already covers (for example an upgrade invoice paid after the renewal) is voided and its money recorded as a `superseded` exception, so the subscription never moves backwards and the capture is never stranded. A renewal paid after an upgrade replaced it is the existing paid-on-void path, now also recorded. Precedence rule: the invoice covering the later period wins; an upgrade that keeps the same period is applied normally.
 
 ### REM-069 — Coupon maxUses conditional increment result is ignored
 
@@ -805,6 +808,7 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Persist a first-class exception state for captured-but-unapplied funds, alert platform billing support, expose it in platform billing reports, and provide a refund/manual reconciliation action. Never treat a provider success with mismatched amount as an ordinary failed payment.
 - **Owner/workstream:** Subscriptions/Platform Billing developer
 - **Acceptance criteria:** paid_on_void, duplicate capture and amount mismatch create an actionable reconciliation record and cannot be silently lost.
+- **Resolution (branch `fix/api/p1-remediation-batch5`, not yet merged) **: new table `CapturedPaymentException` (kinds `paid_on_void`, `duplicate_payment`, `amount_mismatch`, `superseded`; status `open` until resolved), written in the SAME transaction as the attempt, one row per attempt (a replayed webhook adds nothing). Amount mismatch is now an exception rather than an ordinary failed payment. Platform endpoints list open items with the open count and amount and resolve them (`refunded`, `applied_manually`, `dismissed`, with a mandatory note, audited). **Remaining:** no automatic provider refund (a person refunds at the provider and records it); no alert/notification to billing support beyond the existing audit entry and the open count on the list (a follow-up if wanted); the web console for this queue is frontend work and not part of this PR.
 
 ### REM-071 — Platform invoice overdue query parses the string false as true
 

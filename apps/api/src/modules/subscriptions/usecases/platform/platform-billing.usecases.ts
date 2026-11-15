@@ -15,7 +15,7 @@ import { billingErrors } from "../../domain/subscription.errors";
 import { addCycle, addDays, monthlyEquivalent, Cycle } from "../../domain/billing.calendar";
 import { LIVE_STATUSES } from "../../domain/billing.policy";
 import {
-    ListSubscriptionsQueryType, PlatformChangePlanDtoType, ExtendPeriodDtoType, VoidInvoiceDtoType, MarkInvoicePaidDtoType, ListPlatformInvoicesQueryType,
+    ListPaymentExceptionsQueryType, ResolvePaymentExceptionDtoType, ListSubscriptionsQueryType, PlatformChangePlanDtoType, ExtendPeriodDtoType, VoidInvoiceDtoType, MarkInvoicePaidDtoType, ListPlatformInvoicesQueryType,
 } from "../../dtos/subscription.dto";
 
 interface Dependencies {
@@ -145,6 +145,46 @@ export class PlatformInvoicesUseCase {
     async markPaid(invoiceId: string, actorId: string, dto: MarkInvoicePaidDtoType) {
         await this.d.billingEngine.markPaidManually(invoiceId, actorId, dto.reference, dto.note);
         return { paid: true };
+    }
+}
+
+/*
+| CAPTURED-BUT-UNAPPLIED MONEY (REM-070). The billing engine records a row here, in the same transaction as the payment attempt, whenever the
+| provider took money that could not be applied: a payment on a void invoice, a second payment for a paid invoice, an amount that does not
+| match, or an invoice a later payment already superseded. A platform person works each one off: refund it at the provider (or apply it by
+| hand), then close the row saying what was done. Nothing here moves money itself.
+*/
+export class PlatformPaymentExceptionsUseCase {
+    constructor(private readonly d: Dependencies) {}
+
+    async list(q: ListPaymentExceptionsQueryType) {
+        const where = q.status ? { status: q.status } : {};
+        const [total, rows, open] = await Promise.all([
+            this.d.prismaClient.capturedPaymentException.count({ where }),
+            this.d.prismaClient.capturedPaymentException.findMany({ where, orderBy: { createdAt: "asc" }, skip: (q.page - 1) * q.limit, take: q.limit }),
+            this.d.prismaClient.capturedPaymentException.aggregate({ _count: { _all: true }, _sum: { amountKobo: true }, where: { status: "open" } }),
+        ]);
+        const totalPages = Math.max(1, Math.ceil(total / q.limit));
+        return {
+            data: rows, summary: { openCount: open._count._all, openAmountKobo: open._sum.amountKobo ?? 0 },
+            meta: { total, page: q.page, limit: q.limit, totalPages, hasNext: q.page < totalPages, hasPrev: q.page > 1 },
+        };
+    }
+
+    async resolve(id: string, actorId: string, dto: ResolvePaymentExceptionDtoType) {
+        const r = await this.d.prismaClient.capturedPaymentException.updateMany({
+            where: { id, status: "open" }, data: { status: dto.resolution, resolution: dto.note, resolvedById: actorId, resolvedAt: new Date() },
+        });
+        if (r.count === 0) {
+            const exists = await this.d.prismaClient.capturedPaymentException.findUnique({ where: { id }, select: { id: true } });
+            throw exists ? billingErrors.exceptionResolved() : billingErrors.exceptionNotFound();
+        }
+        const row = await this.d.prismaClient.capturedPaymentException.findUniqueOrThrow({ where: { id } });
+        await this.d.auditService.log({
+            userId: actorId, schoolId: row.schoolId, action: "billing.payment_exception_resolved", entity: "CapturedPaymentException", entityId: id,
+            metadata: { resolution: dto.resolution, note: dto.note, kind: row.kind, reference: row.reference, amountKobo: row.amountKobo },
+        });
+        return { resolved: true };
     }
 }
 
