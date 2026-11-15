@@ -1,5 +1,6 @@
 import type { Access } from "../../../foundation/access.service";
 
+import { classSubjectsTaughtOrLedBy, teachesSubject, leadsClass } from "../../classes/services/teaching-access";
 /*
 | WHO MAY SEE OR WORK ON WHICH MARK SHEET
 |   ALL        -> everything
@@ -22,7 +23,7 @@ export function gradesViewWhere(access: Access): Record<string, unknown> {
     const me = access.personaEntityId;
     if (scope === "ALL") return {};
     if (scope === "BRANCH" && access.persona === "STAFF") return { classSubject: { class: { branchId: { in: branchIdsOf(access) } } } };
-    if (scope === "ASSIGNED" && access.persona === "STAFF" && me) return { classSubject: { OR: [{ staffId: me }, { class: { classTeacherId: me } }] } };
+    if (scope === "ASSIGNED" && access.persona === "STAFF" && me) return { classSubject: classSubjectsTaughtOrLedBy(me) };
     if (scope === "OWN" && me) {
         if (access.persona === "STUDENT")  return { studentId: me, ...PUBLISHED };
         if (access.persona === "GUARDIAN") return { student: { guardianLinks: { some: { guardianId: me } } }, ...PUBLISHED };
@@ -36,7 +37,7 @@ export function sheetsViewWhere(access: Access): Record<string, unknown> {
     const me = access.personaEntityId;
     if (scope === "ALL") return {};
     if (scope === "BRANCH" && access.persona === "STAFF") return { class: { branchId: { in: branchIdsOf(access) } } };
-    if (scope === "ASSIGNED" && access.persona === "STAFF" && me) return { OR: [{ staffId: me }, { class: { classTeacherId: me } }] };
+    if (scope === "ASSIGNED" && access.persona === "STAFF" && me) return classSubjectsTaughtOrLedBy(me);
     return NOBODY;
 }
 
@@ -48,7 +49,7 @@ export function mayViewSheet(access: Access, o: SheetOwner): boolean {
     const me = access.personaEntityId;
     if (scope === "ALL") return true;
     if (scope === "BRANCH") return access.persona === "STAFF" && !!o.branchId && access.canActInBranch("grades.view", o.branchId);
-    return scope === "ASSIGNED" && access.persona === "STAFF" && !!me && (o.staffId === me || o.classTeacherId === me);
+    return scope === "ASSIGNED" && access.persona === "STAFF" && (teachesSubject(me, o.staffId) || leadsClass(me, o.classTeacherId));
 }
 
 /** Enter scores or submit: ALL, or the teacher of that subject. */
@@ -56,5 +57,5 @@ export function mayWorkOnSheet(access: Access, permission: "grades.enter" | "gra
     const scope = access.scopeOf(permission);
     const me = access.personaEntityId;
     if (scope === "ALL") return true;
-    return scope === "ASSIGNED" && access.persona === "STAFF" && !!me && o.staffId === me;
+    return scope === "ASSIGNED" && access.persona === "STAFF" && teachesSubject(me, o.staffId);
 }

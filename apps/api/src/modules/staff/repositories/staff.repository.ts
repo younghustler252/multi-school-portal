@@ -19,8 +19,6 @@ export interface IStaffRepository {
     findWithBranches(id: string): Promise<StaffEntity | null>;
 
     // ── Assignments and branches ─────────────────────────────────────────
-    /** Subjects taught this term plus classes the person is class teacher of. */
-    countActiveAssignments(staffId: string): Promise<number>;
     findMainBranchId(): Promise<string | null>;
     /** How many of these branches exist and are active (not deleted). */
     countActiveBranches(ids: string[]): Promise<number>;

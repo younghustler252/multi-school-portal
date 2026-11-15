@@ -1,12 +1,12 @@
 import { AppError } from "../../../shared/errors/domain.errors";
 import { IStaffRepository } from "../repositories/staff.repository";
-import { IClassRepository } from "../../classes/repositories/class.repository";
+import type { ITeachingAssignmentsReader } from "../../classes/services/teaching-assignments.reader";
 import { ISessionRepository } from "../../sessions/repositories/session.repository";
 import { assertCanActOnStaff } from "../services/staff-scope";
 import { staffErrors } from "../domain/staff.errors";
 import type { Access } from "../../../foundation/access.service";
 
-interface Dependencies { staffRepository: IStaffRepository; classRepository: IClassRepository; sessionRepository: ISessionRepository }
+interface Dependencies { staffRepository: IStaffRepository; teachingAssignmentsReader: ITeachingAssignmentsReader; sessionRepository: ISessionRepository }
 
 export interface MyClassSubjectData { classSubjectId: string; subjectId: string; subjectName: string; subjectCode: string | null }
 export interface MySubjectClassResponseData { classId: string; className: string; subjects: MyClassSubjectData[] }
@@ -18,7 +18,8 @@ const noTerm = () => new AppError("No current term is set.", 400, true, "NO_CURR
 
 /*
 | The classes and subjects a staff member teaches this term.
-| These read the classes and sessions modules, which are rebuilt later; they keep working unchanged until then.
+| Staff does not own these: Classes does (Class.classTeacherId, ClassSubject.staffId). This is a read-through to the
+| Classes-owned reader, so a staff member's page can show what they teach without Staff holding any assignment logic.
 | The staff member is identified from the SESSION (access.personaEntityId), no longer looked up through the user.
 */
 export class GetMyClassesUseCase {
@@ -31,8 +32,8 @@ export class GetMyClassesUseCase {
         if (!term) throw noTerm();
 
         const [homerooms, assignments] = await Promise.all([
-            d.classRepository.findClassesByClassTeacher(access.personaEntityId),
-            d.classRepository.findStaffAssignments(access.personaEntityId, term.id),
+            d.teachingAssignmentsReader.homeroomsOf(access.personaEntityId),
+            d.teachingAssignmentsReader.assignmentsOf(access.personaEntityId, term.id),
         ]);
 
         const grouped = new Map<string, MySubjectClassResponseData>();
@@ -55,6 +56,6 @@ export class GetStaffAssignmentsUseCase {
 
         const term = await d.sessionRepository.findCurrentTerm();
         if (!term) throw noTerm();
-        return d.classRepository.findStaffAssignments(staffId, term.id);
+        return d.teachingAssignmentsReader.assignmentsOf(staffId, term.id);
     }
 }

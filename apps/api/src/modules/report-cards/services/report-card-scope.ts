@@ -1,5 +1,6 @@
 import type { Access } from "../../../foundation/access.service";
 
+import { classLedBy, leadsClass } from "../../classes/services/teaching-access";
 /*
 | WHO MAY SEE OR WORK ON WHICH REPORT CARD
 |   ALL        -> every card
@@ -16,7 +17,7 @@ export function cardsViewWhere(access: Access): Record<string, unknown> {
     const scope = access.scopeOf("report_cards.view");
     const me = access.personaEntityId;
     if (scope === "ALL") return {};
-    if (scope === "ASSIGNED" && access.persona === "STAFF" && me) return { class: { classTeacherId: me } };
+    if (scope === "ASSIGNED" && access.persona === "STAFF" && me) return { class: classLedBy(me) };
     if (scope === "OWN" && me) {
         if (access.persona === "STUDENT")  return { studentId: me, ...VISIBLE };
         if (access.persona === "GUARDIAN") return { student: { guardianLinks: { some: { guardianId: me } } }, ...VISIBLE };
@@ -28,7 +29,7 @@ export function cardsViewWhere(access: Access): Record<string, unknown> {
 export function mayViewClass(access: Access, classTeacherId: string | null): boolean {
     const scope = access.scopeOf("report_cards.view");
     if (scope === "ALL") return true;
-    return scope === "ASSIGNED" && access.persona === "STAFF" && !!access.personaEntityId && classTeacherId === access.personaEntityId;
+    return scope === "ASSIGNED" && access.persona === "STAFF" && leadsClass(access.personaEntityId, classTeacherId);
 }
 
 /** Build cards and write the teacher's remark for this class. */
@@ -36,7 +37,7 @@ export function mayWorkOnClass(access: Access, classTeacherId: string | null): b
     if (!access.can("report_cards.generate")) return false;
     const scope = access.scopeOf("report_cards.generate");
     if (scope === "ALL") return true;
-    return scope === "ASSIGNED" && access.persona === "STAFF" && !!access.personaEntityId && classTeacherId === access.personaEntityId;
+    return scope === "ASSIGNED" && access.persona === "STAFF" && leadsClass(access.personaEntityId, classTeacherId);
 }
 
 export const isFamily = (access: Access): boolean => access.scopeOf("report_cards.view") === "OWN";
