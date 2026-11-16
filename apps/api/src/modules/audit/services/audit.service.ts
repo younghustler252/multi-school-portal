@@ -3,6 +3,9 @@ import { ActorType }        from "../domain/audit.enums";
 import { RequestContext } from "../../../shared/context/request-context";
 import { auditFailureSink } from "./audit-failure-reporter";
 import { redactAuditValue } from "./audit-redaction";
+import { randomUUID } from "crypto";
+import { TenantContext } from "../../../infrastructure/database/prisma/tenant.context";
+import { IAuditOutboxRepository } from "../repositories/audit-outbox.repository";
 
 /*
 |--------------------------------------------------------------------------
@@ -45,13 +48,38 @@ export interface LogParams {
 
 export class AuditService {
     private readonly auditRepository: IAuditRepository;
+    private readonly outbox?: IAuditOutboxRepository;
 
-    constructor({ auditRepository }: { auditRepository: IAuditRepository }) {
+    constructor({ auditRepository, auditOutboxRepository }: { auditRepository: IAuditRepository; auditOutboxRepository?: IAuditOutboxRepository }) {
         this.auditRepository = auditRepository;
+        this.outbox = auditOutboxRepository;
     }
 
     async log(params: LogParams): Promise<void> {
+        // Inside a school transaction the event is saved in the school's outbox IN THAT TRANSACTION (REM-077): it exists
+        // exactly when the change it describes does. A failure here is NOT swallowed: it would leave the transaction
+        // aborted anyway, and a committed change with no audit event is the thing this prevents.
+        const tx = this.outbox ? TenantContext.getTransaction() : null;
+        if (tx) {
+            const row = this.buildRow(params);
+            await this.outbox!.enqueue(row.id, row);
+            return;
+        }
         try {
+            await this.auditRepository.create(this.buildRow(params));
+        } catch (err) {
+            // Never let audit logging crash the main request, but say why it failed
+            console.error(`⚠️  Audit log failed (${params.action}): ${(err as Error).message}`);
+            auditFailureSink.report(err, {
+                source: "audit", action: params.action, entity: params.entity, entityId: params.entityId,
+                schoolId: params.schoolId, userId: params.userId, requestId: params.requestId ?? RequestContext.get()?.requestId,
+            });
+        }
+    }
+
+    /** The row to store (also what the outbox keeps until it is delivered). Its id is the AuditLog id, which makes delivery idempotent. */
+    private buildRow(params: LogParams): Record<string, any> {
+        {
             const ctx = RequestContext.get();
             const actorType = params.actorType ?? ActorType.USER;
             // A system/webhook entry must not be credited to whoever happened to make the request
@@ -62,7 +90,9 @@ export class AuditService {
                 ...(ctx?.impersonatedBy ? { impersonatedBy: ctx.impersonatedBy } : {}),
             };
 
-            await this.auditRepository.create({
+            return {
+                id:                randomUUID(),
+                createdAt:         new Date().toISOString(),
                 userId:            params.userId ?? (inherit ? ctx?.userId : undefined) ?? null,
                 actorMembershipId: params.actorMembershipId ?? (inherit ? ctx?.membershipId : undefined) ?? null,
                 actorName:         params.actorName ?? null,
@@ -78,14 +108,7 @@ export class AuditService {
                 ipAddress:         params.ipAddress ?? ctx?.ip ?? null,
                 userAgent:         (params.userAgent ?? ctx?.userAgent ?? null)?.slice(0, 255) ?? null,
                 metadata:          Object.keys(metadata).length ? metadata : null,
-            });
-        } catch (err) {
-            // Never let audit logging crash the main request, but say why it failed
-            console.error(`⚠️  Audit log failed (${params.action}): ${(err as Error).message}`);
-            auditFailureSink.report(err, {
-                source: "audit", action: params.action, entity: params.entity, entityId: params.entityId,
-                schoolId: params.schoolId, userId: params.userId, requestId: params.requestId ?? RequestContext.get()?.requestId,
-            });
+            };
         }
     }
 
