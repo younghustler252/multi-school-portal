@@ -9,7 +9,7 @@ import { CreateStaffUseCase } from "./usecases/create-staff.usecase";
 import { UpdateStaffUseCase } from "./usecases/update-staff.usecase";
 import { SetStaffBranchesUseCase } from "./usecases/staff-branches.usecase";
 import { DeactivateStaffUseCase, ReactivateStaffUseCase } from "./usecases/staff-status.usecases";
-import { InviteStaffUseCase, ChangeStaffRolesUseCase } from "./usecases/staff-portal.usecases";
+import { InviteStaffUseCase, ChangeStaffRolesUseCase, ListAssignableStaffRolesUseCase } from "./usecases/staff-portal.usecases";
 import { GetMyClassesUseCase, GetStaffAssignmentsUseCase } from "./usecases/staff-assignments.usecases";
 import { StaffController } from "./controllers/staff.controller";
 
@@ -35,6 +35,7 @@ export const registerStaff = (container: AwilixContainer): void => {
         reactivateStaffUseCase:   asClass(ReactivateStaffUseCase).scoped(),
         inviteStaffUseCase:       asClass(InviteStaffUseCase).scoped(),
         changeStaffRolesUseCase:  asClass(ChangeStaffRolesUseCase).scoped(),
+        listAssignableStaffRolesUseCase: asClass(ListAssignableStaffRolesUseCase).scoped(),
         getMyClassesUseCase:      asClass(GetMyClassesUseCase).scoped(),
         getStaffAssignmentsUseCase: asClass(GetStaffAssignmentsUseCase).scoped(),
 

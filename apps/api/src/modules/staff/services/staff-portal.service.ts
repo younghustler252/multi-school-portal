@@ -1,8 +1,16 @@
 import { PrismaClient } from "../../../generated/public/client";
 import { getTenantClient } from "../../../infrastructure/database/prisma/prisma.client";
+import type { Scope } from "../../../foundation/access.service";
 import { PortalStatus } from "../mappers/staff.mapper";
 
 interface Dependencies { prismaClient: PrismaClient }
+
+export interface StaffRoleRow {
+    id: string; name: string; description: string | null;
+    kind: "SYSTEM_LOCKED" | "SYSTEM_EDITABLE" | "CUSTOM";
+    grantsAll: boolean;
+    permissions: Array<{ key: string; scope: Scope }>;
+}
 
 /*
 | PORTAL STATUS of staff members: do they have a login for this school?
@@ -40,6 +48,22 @@ export class StaffPortalService {
             });
         }
         return out;
+    }
+
+    /**
+     * Every live STAFF-persona role of this school with its permissions, in a stable order (system roles first, then by name).
+     * Callers narrow it to what the acting person may grant; nothing here is shown to the client as it is.
+     */
+    async listStaffRoles(): Promise<StaffRoleRow[]> {
+        const rows = await getTenantClient().schoolRole.findMany({
+            where:   { persona: "STAFF", deletedAt: null },
+            select:  { id: true, name: true, description: true, kind: true, grantsAll: true, permissions: { select: { permissionKey: true, scope: true } } },
+            orderBy: [{ kind: "asc" }, { name: "asc" }],
+        });
+        return rows.map(r => ({
+            id: r.id, name: r.name, description: r.description, kind: r.kind as StaffRoleRow["kind"], grantsAll: r.grantsAll,
+            permissions: r.permissions.map(p => ({ key: p.permissionKey, scope: p.scope as Scope })),
+        }));
     }
 
     /** Cancels invitations still waiting for this staff member (used when they are deactivated). */

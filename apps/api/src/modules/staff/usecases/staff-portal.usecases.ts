@@ -1,9 +1,10 @@
 import { AuditService } from "../../audit/services/audit.service";
-import { canDelegateRole } from "../../../foundation/access.service";
+import { canGrantRole } from "../../../foundation/access.service";
 import type { AccessService } from "../../../foundation/access.service";
 import { IStaffRepository } from "../repositories/staff.repository";
 import { MembershipService } from "../../auth/services/membership.service";
 import { SendInviteUseCase } from "../../auth/usecases/send-invite.usecase";
+import { StaffPortalService } from "../services/staff-portal.service";
 import { assertCanActOnStaff } from "../services/staff-scope";
 import { staffErrors } from "../domain/staff.errors";
 import { StaffActor } from "../domain/staff.types";
@@ -67,8 +68,7 @@ export class ChangeStaffRolesUseCase {
         if (roles.some(r => !r || r.persona !== "STAFF")) throw staffErrors.rolesInvalid();
 
         for (const role of roles) {
-            if (role!.grantsAll) { if (!actor.isAdmin) throw staffErrors.roleNotAllowed(); }
-            else if (!canDelegateRole(role!.permissions, k => actor.access.scopeOf(k))) throw staffErrors.roleNotAllowed();
+            if (!canGrantRole(role!, { isAdmin: actor.isAdmin, scopeOf: k => actor.access.scopeOf(k) })) throw staffErrors.roleNotAllowed();
         }
 
         const keepsAdmin = roles.some(r => r!.sourceTemplateKey === "school_admin");
@@ -84,5 +84,27 @@ export class ChangeStaffRolesUseCase {
             oldValue: { roleIds: before }, newValue: { roleIds: ids },
         });
         return { staffId: id, roleIds: ids };
+    }
+}
+
+/*
+| GET /staff/assignable-roles: the roles the signed-in person may hand out when inviting a staff member or changing their roles.
+| Guarded by staff.manage (the permission every one of those actions needs), NOT roles.view, so a person who manages staff can
+| fill the role picker without being given the wider right to browse and manage roles.
+| It asks the same question as InviteStaffUseCase / ChangeStaffRolesUseCase (canGrantRole): a role that grants everything only for a
+| school admin, any other role only when every permission in it is held at a scope at least as wide. A role the person could not
+| grant is left out entirely, and no permission details are returned, only what a picker needs.
+| It answers for the person, not for a particular staff member: branch scope, "not your own role", "last administrator" and the
+| other per-person checks still run on the invite and change-roles calls themselves.
+*/
+export class ListAssignableStaffRolesUseCase {
+    constructor(private readonly d: { staffPortalService: StaffPortalService }) {}
+
+    async execute(actor: StaffActor) {
+        const roles = await this.d.staffPortalService.listStaffRoles();
+        const who = { isAdmin: actor.isAdmin, scopeOf: (k: string) => actor.access.scopeOf(k) };
+        return roles
+            .filter(r => canGrantRole(r, who))
+            .map(r => ({ id: r.id, name: r.name, description: r.description, kind: r.kind, grantsAll: r.grantsAll }));
     }
 }

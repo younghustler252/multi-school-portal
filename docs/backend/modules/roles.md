@@ -286,6 +286,8 @@ The Auth test directory also contains `role-delegation.test.ts`, which exercises
 
 ## 13. Frontend integration requirements
 
+- Do not use `GET /roles` to fill a staff invite or change-roles picker: it needs `roles.view`, which staff managers do not necessarily hold, and it lists roles the caller cannot grant. Use `GET /staff/assignable-roles` (`staff.manage`), documented in `staff.md`.
+
 1. Load the catalog from `GET /api/v1/permissions`; do not hard-code a permission list in the UI.
 2. Group permission options by `module` and show their supported `scopes` and `personas`.
 3. Create/update forms must submit complete permission objects with `key` and `scope`.
