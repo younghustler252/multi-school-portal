@@ -15,9 +15,9 @@ interface Dependencies {
     entitlementsService: { invalidate(schoolId: string): void };
 }
 
-export type SettleOutcome = "paid" | "failed" | "pending" | "duplicate" | "paid_on_void" | "mismatch" | "superseded" | "ignored";
+export type SettleOutcome = "paid" | "failed" | "pending" | "duplicate" | "paid_on_void" | "mismatch" | "superseded" | "coupon_exhausted" | "ignored";
 
-type ExceptionKind = "paid_on_void" | "duplicate_payment" | "amount_mismatch" | "superseded";
+type ExceptionKind = "paid_on_void" | "duplicate_payment" | "amount_mismatch" | "superseded" | "coupon_exhausted";
 
 /** A checkout page that has not been paid is offered again for this long; after that the provider is asked what became of it first. */
 const CHECKOUT_REUSE_MS = 30 * 60_000;
@@ -236,6 +236,17 @@ export class BillingEngine {
         await tx.$queryRaw`SELECT id FROM "SubscriptionInvoice" WHERE id = ${invoiceId} FOR UPDATE`;
     }
 
+    /**
+     * Counts this invoice's coupon use against maxUses in ONE conditional UPDATE (REM-069). Returns false when the limit was already
+     * reached (zero rows changed): the caller must then NOT apply the discount. Runs inside the invoice-locked transaction, so a
+     * failed apply rolls the use back with it.
+     */
+    private async reserveCoupon(tx: Prisma.TransactionClient, inv: { couponId?: string | null }): Promise<boolean> {
+        if (!inv.couponId) return true;
+        const changed = await tx.$executeRaw`UPDATE "Coupon" SET "usedCount" = "usedCount" + 1 WHERE id = ${inv.couponId} AND ("maxUses" IS NULL OR "usedCount" < "maxUses")`;
+        return changed > 0;
+    }
+
     /** Captured money that could not be applied: recorded in the SAME transaction as the attempt, so it cannot be lost (REM-070). */
     private async recordException(tx: Prisma.TransactionClient, kind: ExceptionKind, inv: { id: string; schoolId: string }, attempt: { id: string; reference: string; amountKobo: number }, detail: Record<string, unknown> = {}): Promise<void> {
         await tx.capturedPaymentException.createMany({
@@ -289,6 +300,14 @@ export class BillingEngine {
                 await this.recordException(tx, "superseded", inv, attempt, { supersededByInvoiceId: newer.id, supersededByNumber: newer.number });
                 return "superseded";
             }
+            // The quote was valid when it was issued, but the last use may have been taken since. The money is already captured, so do not
+            // apply a discount beyond maxUses and do not lose the payment: keep it as an open exception for a person to refund or honour.
+            if (!(await this.reserveCoupon(tx, inv))) {
+                await tx.subscriptionInvoice.update({ where: { id: inv.id }, data: { status: "void", voidedAt: new Date(), nextAttemptAt: null, note: "Coupon limit reached" } });
+                holder.audit = { action: "billing.coupon_exhausted", schoolId: inv.schoolId, invoiceId: inv.id, meta: { reference: attempt.reference, amountKobo: attempt.amountKobo, couponId: inv.couponId } };
+                await this.recordException(tx, "coupon_exhausted", inv, attempt, { couponId: inv.couponId });
+                return "coupon_exhausted";
+            }
             holder.applied = await this.applyInvoice(tx, inv, { card: v.reusable ? v : null, autoRenewIntent: v.metadata?.autoRenew === true });
             return "paid";
         }, { timeout: 20_000, maxWait: 10_000 });
@@ -304,6 +323,7 @@ export class BillingEngine {
             await this.lockForInvoice(tx, invoiceId);
             const inv = await tx.subscriptionInvoice.findUniqueOrThrow({ where: { id: invoiceId }, include: { subscription: true } });
             if (inv.status !== "open" || inv.totalKobo !== 0) throw billingErrors.invoiceNotPayable();
+            if (!(await this.reserveCoupon(tx, inv))) throw billingErrors.couponInvalid("This coupon is no longer available");
             holder.applied = await this.applyInvoice(tx, inv, { card: null, autoRenewIntent: false });
         });
         await this.afterCommit(holder.applied, { action: "billing.invoice_applied_without_payment", schoolId: holder.applied!.schoolId, invoiceId, meta: { note } }, { actorId });
@@ -316,6 +336,7 @@ export class BillingEngine {
             await this.lockForInvoice(tx, invoiceId);
             const inv = await tx.subscriptionInvoice.findUniqueOrThrow({ where: { id: invoiceId }, include: { subscription: true } });
             if (inv.status !== "open" && inv.status !== "uncollectible") throw billingErrors.invoiceSettled();
+            if (!(await this.reserveCoupon(tx, inv))) throw billingErrors.couponInvalid("This coupon is no longer available: void the invoice and issue it again without it");
             try {
                 await tx.paymentAttempt.create({
                     data: { invoiceId, reference: `MANUAL-${reference}`, amountKobo: inv.totalKobo, status: "success", method: "manual", completedAt: new Date(), providerStatus: "manual" },
@@ -385,9 +406,6 @@ export class BillingEngine {
                 where: { subscriptionId: sub.id, status: "open", id: { not: inv.id } },
                 data: { status: "void", voidedAt: now, nextAttemptAt: null, note: "Replaced by a newer payment" },
             });
-        }
-        if (inv.couponId) {
-            await tx.$executeRaw`UPDATE "Coupon" SET "usedCount" = "usedCount" + 1 WHERE id = ${inv.couponId} AND ("maxUses" IS NULL OR "usedCount" < "maxUses")`;
         }
         return { schoolId: inv.schoolId, planId: inv.planId, periodEnd: inv.periodEnd, totalKobo: inv.totalKobo, reason: inv.reason, invoiceId: inv.id, cardSaved };
     }

@@ -642,6 +642,7 @@ enum CapturedPaymentExceptionKind {
   duplicate_payment
   amount_mismatch
   superseded
+  coupon_exhausted
 }
 
 enum CapturedPaymentExceptionStatus {
