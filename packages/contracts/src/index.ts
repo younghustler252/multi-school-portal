@@ -9,6 +9,7 @@ export * from "./errors";
 export * from "./auth";
 export * from "./automation";
 export * from "./message-templates";
+export * from "./staff-branches";
 export * from "./provisioning";
 export * from "./school-settings";
 export * from "./platform";

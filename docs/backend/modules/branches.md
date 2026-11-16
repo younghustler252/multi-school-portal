@@ -113,6 +113,7 @@ The controller uses the shared `sendSuccess` and `sendCreated` response helpers.
 - Support nullable update values to clear optional contact/location/principal fields.
 - Display plan-limit and branch-in-use errors as actionable domain failures; do not assume deactivation is always allowed.
 - Staff assignment is a separate Staff-module operation. Do not implement branch membership by editing the Branch resource.
+- Do not use `GET /branches` or `GET /mine` to fill a staff branch picker: they need `branches.view`, which staff managers do not necessarily hold. Use `GET /staff/assignable-branches` (`staff.manage`), documented in `staff.md`.
 - A branch-limited staff member sees only their assigned branches. Do not assume every authenticated staff account can enumerate the entire school.
 
 ## 9. Tests and verification gaps

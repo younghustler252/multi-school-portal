@@ -63,6 +63,7 @@ All paths are under `/api/v1/staff`.
 |---|---|---|
 | `GET /export` | Authenticated, tenant, `staff.view` | Export the filtered/scope-limited directory as CSV |
 | `GET /me` | Authenticated, tenant, STAFF persona | Get caller's own Staff profile |
+| `GET /assignable-branches` | Authenticated, tenant, `staff.manage` | Active branches the caller may place staff in (branch-picker data) |
 | `GET /me/classes` | Authenticated, tenant, STAFF persona | Get classes associated with caller |
 | `GET /assignable-roles` | Authenticated, tenant, `staff.manage` | Roles the caller may grant when inviting a staff member or changing their roles (role-picker data) |
 | `GET /` | Authenticated, tenant, `staff.view` | List, search and paginate staff |
@@ -205,6 +206,59 @@ The TypeScript shape is `AssignableStaffRole` in `@schoolos/contracts` (`package
 - The staff membership's access cache is invalidated after assignment changes.
 - The change is audited.
 
+### Assignable branches (branch-picker contract)
+
+`GET /api/v1/staff/assignable-branches` returns the branches the **signed-in person** may place a staff member in. Use it, and not `GET /branches` or `GET /branches/mine`, to populate the branch picker on the create-staff form and the staff branch-assignment screen.
+
+- **Permission:** `staff.manage` at scope `ALL` or `BRANCH`. `branches.view` is **not** required.
+- **Request:** no body, no query parameters. The school comes from the host; the actor comes from the session.
+- **Success:** `200`, standard envelope.
+
+```json
+{
+  "success": true,
+  "message": "Assignable branches retrieved successfully",
+  "data": [
+    { "id": "3b9e…", "name": "Main Campus", "code": "MN", "isMain": true },
+    { "id": "a41c…", "name": "Annex", "code": "AN", "isMain": false }
+  ]
+}
+```
+
+| Field | Type | Meaning |
+|---|---|---|
+| `id` | string | Branch id. Send it inside `branchIds` (create staff, `PUT /:id/branches`) and as `primaryBranchId`. |
+| `name` | string | Display name. |
+| `code` | string | The branch's short permanent code. |
+| `isMain` | boolean | The school's main branch. |
+
+The TypeScript shape is `AssignableBranch` in `@schoolos/contracts` (`packages/contracts/src/staff-branches.ts`).
+
+**What is in the list.** Active, not-deleted branches, limited by the caller's own `staff.manage` scope, the same scope `PUT /:id/branches` and create-staff enforce:
+
+- scope `ALL` (School Admin, group-level managers): every active branch;
+- scope `BRANCH`: only the active branches among the caller's own.
+
+**What is not in the list.** A branch outside the caller's scope is omitted entirely, with no placeholder or count. Inactive and deleted branches are never listed (they could not be assigned). Nothing else about a branch (address, contact details, principal) is returned.
+
+**Ordering.** Main branch first, then by name (stable between calls).
+
+**Empty list.** `data: []` with `200` is valid (for example a branch-scoped manager whose own branches are all inactive). Show an empty state; do not treat it as an error.
+
+**Errors.**
+
+| Status | `code` | When |
+|---|---|---|
+| 401 | `TOKEN_MISSING`, `TOKEN_EXPIRED` or `TOKEN_INVALID` | No valid session. |
+| 403 | `PERMISSION_DENIED` (`details.permission: "staff.manage"`) | The caller does not hold `staff.manage`. |
+
+**What this does not decide.** The list answers for the *person*, not for a particular staff member. These rules still apply on the action itself:
+
+- `PUT /:id/branches` replaces the set **within the caller's scope**. A branch-scoped manager's request cannot add or remove a branch outside their own, and the staff member's branches outside the manager's reach are kept as they are. Show those kept branches from the staff record as read-only; they are never in this list.
+- Acting on a staff member outside the caller's branches fails with `BRANCH_FORBIDDEN`.
+- A branch that was closed after the list was loaded fails with `INVALID_BRANCHES`, and one outside the caller's scope with `BRANCH_FORBIDDEN`. Always handle both on submit.
+- At least one branch is always kept; the first (or `primaryBranchId`) is the primary.
+
 ### Portal invitation and roles
 
 - Invitation is sent to the email stored on the Staff record.
@@ -229,6 +283,7 @@ The TypeScript shape is `AssignableStaffRole` in `@schoolos/contracts` (`package
 
 - Create the Staff record first; do not expect a login account to be created automatically.
 - Show portal state separately from employment status.
+- Populate the branch pickers from `GET /staff/assignable-branches`, not from `GET /branches` (which needs `branches.view`, a permission staff managers do not necessarily hold). Load it when the picker opens and do not cache it across users or sessions. Keep using `branches.schoolHasSeveral` from `GET /users/me/permissions` to decide whether to show a branch picker at all, and keep handling `BRANCH_FORBIDDEN` and `INVALID_BRANCHES` on submit.
 - Treat branch assignment as a dedicated operation and preserve the server-returned primary branch.
 - Provide explicit duplicate confirmation when the API reports a possible duplicate.
 - If immediate invitation fails, keep the created staff record and show the returned invitation failure state; do not blindly retry staff creation.
@@ -241,6 +296,8 @@ The TypeScript shape is `AssignableStaffRole` in `@schoolos/contracts` (`package
 ## 9. Tests and verification gaps
 
 `apps/api/tests/staff/assignable-roles.test.ts` covers `GET /assignable-roles`: which roles each kind of caller gets (School Admin, branch-limited manager, a manager holding only `staff.manage` and `users.invite`), that `grantsAll` is never offered to a non-admin, the exact response fields, that the list agrees with what the real `SendInviteUseCase` and `ChangeStaffRolesUseCase` accept, and that the route is guarded by `staff.manage` and declared before `/:id`. These use in-memory fakes. `apps/api/tests/staff/staff-portal.roles.db.test.ts` covers the tenant query (`StaffPortalService.listStaffRoles`) on a real database with two schools: only the current school's live `STAFF` roles come back (system roles first, then by name), soft-deleted and student/guardian roles are left out, a role with the same name in the other school comes back with its own permissions, and calling it outside a school context fails rather than falling back to a shared schema. It is skipped without `TEST_DATABASE_URL`.
+
+`apps/api/tests/staff/assignable-branches.test.ts` covers `GET /assignable-branches`: which branches each kind of caller gets (School Admin, ALL-scope manager, branch-limited managers with one, several, none and a stale branch), that inactive and deleted branches are never listed, that the empty scope never turns into "every branch", the exact response fields, that the list agrees with what the real `SetStaffBranchesUseCase` accepts for every branch in the school, and that the route is guarded by `staff.manage` and declared before `/:id`. It uses in-memory fakes. `apps/api/tests/staff/staff-branches.db.test.ts` covers the repository query (`listActiveBranches`) on a real database with two schools, including asking one school for the other's branch ids; it is skipped without `TEST_DATABASE_URL`.
 
 Test files and tenant migration constraints were not fully inspected for the rest of this guide. No tests, migrations, build or runtime requests were executed. Before marking this guide fully verified, inspect the remaining update/assignment use cases, Staff portal service, assignment query implementations, schema indexes/constraints and focused Staff tests.
 

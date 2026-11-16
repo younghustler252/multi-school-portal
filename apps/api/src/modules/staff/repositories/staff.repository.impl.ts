@@ -1,10 +1,13 @@
 import { BaseTenantRepository } from "../../../infrastructure/repository/base.repository";
 import { StaffMapper } from "../mappers/staff.mapper";
 import { StaffEntity } from "../domain/staff.entity";
-import { IStaffRepository } from "./staff.repository";
+import { IStaffRepository, ActiveBranchRow } from "./staff.repository";
 
 // Loads a staff member's branches with their names in the same query (no extra round trips)
 export const WITH_BRANCHES = { branches: { include: { branch: { select: { id: true, name: true, code: true } } }, orderBy: { isPrimary: "desc" } } } as const;
+
+// What counts as an active branch: the one rule for whether staff can be placed in it (used by the checks and by the picker list)
+const ACTIVE_BRANCH = { isActive: true, deletedAt: null } as const;
 
 export class StaffRepositoryImpl extends BaseTenantRepository<StaffEntity> implements IStaffRepository {
     protected readonly modelName = "staff";
@@ -32,7 +35,15 @@ export class StaffRepositoryImpl extends BaseTenantRepository<StaffEntity> imple
     }
 
     countActiveBranches(ids: string[]): Promise<number> {
-        return this.prisma.branch.count({ where: { id: { in: ids }, isActive: true, deletedAt: null } });
+        return this.prisma.branch.count({ where: { id: { in: ids }, ...ACTIVE_BRANCH } });
+    }
+
+    listActiveBranches(ids?: string[]): Promise<ActiveBranchRow[]> {
+        return this.prisma.branch.findMany({
+            where:   { ...ACTIVE_BRANCH, ...(ids ? { id: { in: ids } } : {}) },
+            select:  { id: true, name: true, code: true, isMain: true },
+            orderBy: [{ isMain: "desc" }, { name: "asc" }],
+        });
     }
 
     async replaceBranches(staffId: string, branchIds: string[], primaryBranchId: string, assignedById: string): Promise<void> {
