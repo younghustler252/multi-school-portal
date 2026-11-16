@@ -23,7 +23,6 @@ export interface PromotionOverride {
 export interface PromoteStudentsDto {
 	currentTermId: string;
 	newTermId: string;
-	rows: { studentId: string; fromClassId: string; toClassId: string | null }[];
 	overrides: PromotionOverride[];
 }
 

@@ -51,10 +51,26 @@ These are my reading of the route lists, not confirmed against use cases. Check 
 
 branches, expenses, vendors, budgets, recurring-expenses, payroll (and transfers), my/payslips, finance (ledger, settings, reconciliation, settlements, reports), automations, message-templates, audit (school), platform webhooks. These are built and waiting for the UI. `branches` matters first because staff assignment needs a branches list.
 
+## Status after the path corrections (2026-11-16)
+
+Fixed (path confirmed against `refactor/api` routes and docs):
+- enrolment: `/enrolments/promotion-preview`, `/enrolments/promote`. The promote body no longer sends `rows` (the strict DTO rejects it; the server works out who moves where, per `docs/backend/modules/enrolment.md`).
+- school (tenant): `/schools`, `/schools/logo`, `/schools/documents`, `/schools/payment-setup`, `/schools/setup-checklist`, `/schools/dashboard`.
+- platform school actions: list, detail, create, verify, reject, suspend, reactivate, documents, document approve/reject now use `/platform/schools/...`. Reject, suspend and document-reject bodies are `{ reason }` only (strict DTOs; the old `schoolId`/`documentId` extras would be rejected). The old "activate" (`/approve`) call became `/reactivate`; it is only used to reactivate a suspended school.
+- The web school list used `GET /schools`, which matched the tenant route by accident; it now calls `/platform/schools`.
+
+Still blocked or needing a contract review (not changed):
+- `POST /platform/schools` requires an `admin` object (firstName, lastName, email); the create-school form has no admin fields yet.
+- Impersonation is a one-time ticket flow in the backend (`POST /platform/schools/:id/impersonate`); the web expects `{ accessToken, school, admin }`. Left on its old path until the flow is reviewed.
+- Reset admin password (`POST /users/schools/:id/admin/reset-password`), school activity feed (`/super-admin/.../activity`), `/super-admin/stats`, `/super-admin/users`, platform logo, letterhead upload: no confirmed equivalent in the requested scope; unchanged.
+- Response shapes for the moved school and platform-school calls (`AdminSchoolResponseData`, `SchoolResponseData`, the promotion preview rows) are not verified against the backend mappers.
+- Notifications read path and the feedback calls: confirmed routes exist but outside the requested scope; unchanged.
+- Grades, attendance, report-cards: workflow changes. Payments and fees: separate contract reviews first. Teacher reassignment/handover and CSV export: outside M6b.
+
 ## Open backend decisions
 
-1. **Assignable roles for invites.** `GET /roles` needs `roles.view`; the invite flow needs `users.invite` + `staff.manage`. Options: an endpoint of the roles the caller may grant (preferred), or require `roles.view` for inviters.
-2. **Branches list permission** for staff assignment.
+1. ~~Assignable roles for invites~~ Resolved: `GET /staff/assignable-roles` (`staff.manage`; returns only roles the caller may grant). Do not use `GET /roles` for the picker.
+2. ~~Branches list permission~~ Resolved: `GET /staff/assignable-branches` (`staff.manage`; active branches in the caller's scope). Show the picker only when `branches.schoolHasSeveral` in `/users/me/permissions`.
 3. **Attendance and grades for guardians/students:** `my-children` / `me` equivalents are missing; are they planned or should those screens use the generic endpoints?
 4. **`/super-admin/users`:** does a platform-staff management API exist or is it planned? (Web has a Users page.)
 5. **Payment helpers:** `/payments/banks` and `/verify-bank-account` (used for school payout setup).
