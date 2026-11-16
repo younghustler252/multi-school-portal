@@ -33,7 +33,7 @@ const RELATIONS: Record<string, Record<string, { table: string; fk: string }>> =
 
 export function billingWorld(o: { locksOff?: boolean } = {}) {
     const w: any = { locksOff: !!o.locksOff, calls: { initialize: 0 }, audits: [] as any[], notices: [] as any[] };
-    const tables: Record<string, Row[]> = { plan: [], subscription: [], subscriptionInvoice: [], paymentAttempt: [], paymentMethod: [], capturedPaymentException: [], platformSettings: [{ subscriptionGracePeriodDays: 7 }] };
+    const tables: Record<string, Row[]> = { plan: [], subscription: [], subscriptionInvoice: [], paymentAttempt: [], paymentMethod: [], capturedPaymentException: [], coupon: [], platformSettings: [{ subscriptionGracePeriodDays: 7 }] };
     let seq = 0; w.tables = tables;
     const als = new AsyncLocalStorage<{ release: Array<() => void>; held: Set<string> }>();
     const locks = new Map<string, Mutex>();
@@ -110,7 +110,16 @@ export function billingWorld(o: { locksOff?: boolean } = {}) {
         }
         return [{ id: values[0] }];
     };
-    client.$executeRaw = async () => 0;
+    // The coupon use counter: ONE conditional UPDATE, atomic like a single SQL statement (the check and the increment happen together)
+    client.$executeRaw = async (strings: TemplateStringsArray, ...values: any[]) => {
+        await yieldNow();
+        if (/UPDATE "Coupon" SET "usedCount"/.test(strings.join("?"))) {
+            const c = tables.coupon.find(r => r.id === values[0]);
+            if (!c || (c.maxUses !== null && c.usedCount >= c.maxUses)) return 0;
+            c.usedCount++; return 1;
+        }
+        return 0;
+    };
     client.$transaction = async (fn: any) => {
         const store = { release: [] as Array<() => void>, held: new Set<string>() };
         try { return await als.run(store, () => fn(client)); } finally { store.release.reverse().forEach(r => r()); }
@@ -136,6 +145,7 @@ export function billingWorld(o: { locksOff?: boolean } = {}) {
     tables.subscription.push({ id: "sub1", schoolId: "sc1", planId: "pro", status: "active", billingCycle: "monthly", currentPeriodStart: day(-30), currentPeriodEnd: day(0), nextBillingDate: day(0), autoRenew: false, paymentMethodId: null, cancelAtPeriodEnd: false, scheduledDowngradePlanId: null, billingAnchorDay: 1, couponId: null, lapsedPlanId: null, failedBillingCount: 0, trialEndsAt: null, cancelledAt: null });
     w.invoice = (over: Row = {}) => { const row = { id: `inv-${++seq}`, number: `INV-${seq}`, subscriptionId: "sub1", schoolId: "sc1", planId: "pro", billingCycle: "monthly", reason: "renewal", status: "open", totalKobo: 1_000_000, amountPaidKobo: 0, periodStart: day(0), periodEnd: day(30), dueDate: day(0), createdAt: day(-3), paidAt: null, attemptCount: 0, nextAttemptAt: null, couponId: null, ...over }; tables.subscriptionInvoice.push(row); return row; };
     w.attempt = (inv: Row, over: Row = {}) => { const row = { id: `att-${++seq}`, invoiceId: inv.id, reference: `${inv.number}-C${seq}`, amountKobo: inv.totalKobo - inv.amountPaidKobo, status: "pending", method: "checkout", createdAt: new Date(), checkoutKey: null, authorizationUrl: null, ...over }; tables.paymentAttempt.push(row); return row; };
+    w.coupon = (over: Row = {}) => { const row = { id: `cp-${++seq}`, maxUses: 1, usedCount: 0, ...over }; tables.coupon.push(row); return row; };
     w.paid = (att: Row, over: Partial<{ amountKobo: number; currency: string }> = {}) => ({ status: "success", reference: att.reference, amountKobo: att.amountKobo, currency: "NGN", paidAt: new Date(), channel: "card", customerEmail: "a@b.c", reusable: false, ...over });
     w.sub = () => tables.subscription[0]; w.inv = (id: string) => tables.subscriptionInvoice.find(i => i.id === id)!;
     return w;
