@@ -6,7 +6,7 @@ import { payrollErrors } from "../domain/payroll.errors";
 import { parseDay, todayInFinanceZone } from "../../ledger/domain/ledger.dates";
 import { dayString } from "../../ledger/domain/ledger.dates";
 import { SetProfileDtoType } from "../dtos/payroll.dto";
-import { PayrollOptions } from "./payroll-shared";
+import { PayrollOptions, defaultTransaction } from "./payroll-shared";
 
 interface Dependencies {
     payProfileRepository: IPayProfileRepository; payComponentRepository: IPayComponentRepository; payrollContextRepository: IPayrollContextRepository;
@@ -19,7 +19,8 @@ interface Dependencies {
 | Everything about pay is audited, without the amounts being written in clear into the audit text.
 */
 export class SetPayProfileUseCase {
-    constructor(private readonly d: Dependencies, private readonly options: PayrollOptions = {}) {}
+    private readonly transaction: <T>(fn: () => Promise<T>) => Promise<T>;
+    constructor(private readonly d: Dependencies, private readonly options: PayrollOptions = {}) { this.transaction = options.transaction ?? defaultTransaction; }
 
     async execute(schoolId: string, actorUserId: string, dto: SetProfileDtoType) {
         const d = this.d;
@@ -27,10 +28,6 @@ export class SetPayProfileUseCase {
         if (!staff || !staff.isActive) throw payrollErrors.refNotFound("The staff member");
 
         parseDay(dto.effectiveFrom);
-        const latest = await d.payProfileRepository.latest(dto.staffId);
-        if (latest && dto.effectiveFrom <= dayString(latest.effectiveFrom)) {
-            throw payrollErrors.profileDateInvalid(`A new pay profile must start after the current one, which starts on ${dayString(latest.effectiveFrom)}`);
-        }
 
         const ids = dto.components.map(c => c.componentId);
         if (new Set(ids).size !== ids.length) throw payrollErrors.profileDateInvalid("A component can only be listed once");
@@ -43,12 +40,22 @@ export class SetPayProfileUseCase {
             if (c.valueOverride !== undefined && comp.calcType !== "FIXED" && c.valueOverride > 10000n) throw payrollErrors.componentInvalid(`A percentage is entered in basis points, from 0 to 10000 (${comp.name})`);
         }
 
-        const created = await d.payProfileRepository.createFrom({
-            staffId: dto.staffId, effectiveFrom: parseDay(dto.effectiveFrom), basicSalaryKobo: dto.basicSalaryKobo,
-            bankCode: dto.bankCode ?? null, bankName: dto.bankName ?? null, accountName: dto.accountName ?? null,
-            accountNumberEncrypted: dto.accountNumber ? d.encryptionService.encrypt(dto.accountNumber) : null, accountNumberLast4: dto.accountNumber ? dto.accountNumber.slice(-4) : null,
-            taxId: dto.taxId ?? null, pensionId: dto.pensionId ?? null, createdById: actorUserId,
-            components: dto.components.map(c => ({ componentId: c.componentId, valueOverride: c.valueOverride ?? null })),
+        // One transaction per staff member's profile change (REM-039): lock, re-read the latest profile, then close it and add the new one together.
+        // Two changes at once, or a failed insert, can no longer leave overlapping or missing profiles.
+        const { created, latest } = await this.transaction(async () => {
+            await d.payProfileRepository.lockStaff(dto.staffId);
+            const latest = await d.payProfileRepository.latest(dto.staffId);
+            if (latest && dto.effectiveFrom <= dayString(latest.effectiveFrom)) {
+                throw payrollErrors.profileDateInvalid(`A new pay profile must start after the current one, which starts on ${dayString(latest.effectiveFrom)}`);
+            }
+            const created = await d.payProfileRepository.createFrom({
+                staffId: dto.staffId, effectiveFrom: parseDay(dto.effectiveFrom), basicSalaryKobo: dto.basicSalaryKobo,
+                bankCode: dto.bankCode ?? null, bankName: dto.bankName ?? null, accountName: dto.accountName ?? null,
+                accountNumberEncrypted: dto.accountNumber ? d.encryptionService.encrypt(dto.accountNumber) : null, accountNumberLast4: dto.accountNumber ? dto.accountNumber.slice(-4) : null,
+                taxId: dto.taxId ?? null, pensionId: dto.pensionId ?? null, createdById: actorUserId,
+                components: dto.components.map(c => ({ componentId: c.componentId, valueOverride: c.valueOverride ?? null })),
+            });
+            return { created, latest };
         });
         await d.auditService.log({
             userId: actorUserId, schoolId, action: "payroll.profile.set", entity: "StaffPayProfile", entityId: created.id,

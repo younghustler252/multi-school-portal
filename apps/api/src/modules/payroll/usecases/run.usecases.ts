@@ -159,7 +159,7 @@ export class ApproveRunUseCase extends Base {
         if (run.createdById === actorUserId && !settings.allowSelfApproval) throw payrollErrors.selfApproval();
 
         // Above the school's second approval amount two different people approve: the first only records who, the second posts the run
-        const steps = approvalsRequired(run.grossKobo + run.employerCostKobo, settings);
+        const steps = approvalsRequired(run.employerCostKobo, settings)   // the amount of the run is its total cost to the school (gross + employer contributions), counted once (REM-038);
         if (steps === 2) {
             if (!run.firstApprovedById) {
                 if (!(await d.payrollRunRepository.transition(id, ["PENDING_APPROVAL"], run.version, { firstApprovedById: actorUserId, firstApprovedAt: this.now() }))) throw payrollErrors.runChanged();

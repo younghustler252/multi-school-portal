@@ -55,10 +55,12 @@ export class CreateRemittanceUseCase {
         const existing = await d.remittanceRepository.findById(id);
         if (existing) return d.remittanceMapper.toResponse(existing, new Map([[liability.id, liability.name]]));
 
-        const owed = (await d.ledgerReportRepository.balancesAsOf(today, false)).find(r => r.accountId === liability.id)?.balanceKobo ?? 0n;
-        if (amount > owed) throw payrollErrors.remittanceAccountInvalid(`Only ${owed.toString()} kobo is owed on ${liability.name}`);
-
         const created = await this.transaction(async () => {
+            // Remittances against one liability run one at a time, and the balance is read AFTER the lock (REM-041): two requests that each
+            // saw the full balance can no longer both pay it.
+            await d.remittanceRepository.lockLiability(liability.id);
+            const owed = (await d.ledgerReportRepository.balancesAsOf(today, false)).find(r => r.accountId === liability.id)?.balanceKobo ?? 0n;
+            if (amount > owed) throw payrollErrors.remittanceAccountInvalid(`Only ${owed.toString()} kobo is owed on ${liability.name}`);
             const posted = await d.postingService.post({
                 entryDate: on, description: `Remittance: ${liability.name}`, sourceType: "PAYROLL_REMITTANCE", sourceId: id, purpose: "REMIT",
                 lines: remittanceLines(liability.id, money.id, amount), actorUserId,

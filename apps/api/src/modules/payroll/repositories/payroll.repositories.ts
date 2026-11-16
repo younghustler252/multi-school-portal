@@ -33,6 +33,8 @@ export interface IPayProfileRepository {
     latest(staffId: string): Promise<PayProfileEntity | null>;
     /** Ends every open profile of the staff member the day before `from`, then adds the new one. */
     createFrom(data: NewProfile): Promise<PayProfileEntity>;
+    /** Serialises pay-profile changes for one staff member until the surrounding transaction ends. */
+    lockStaff(staffId: string): Promise<void>;
     /** Everyone with a profile in force on the day, with the components that apply. Inactive components are left out. */
     subjectsFor(day: Date): Promise<RunSubject[]>;
     list(page?: number, limit?: number): Promise<PaginatedResult<PayProfileEntity>>;     // current profiles only
@@ -80,6 +82,8 @@ export interface IRemittanceRepository {
     findById(id: string): Promise<RemittanceEntity | null>;
     list(f: { year?: number; month?: number; accountId?: string }, page?: number, limit?: number): Promise<PaginatedResult<RemittanceEntity>>;
     create(data: Record<string, any>): Promise<RemittanceEntity>;
+    /** Serialises remittances against one liability account until the surrounding transaction ends. */
+    lockLiability(accountId: string): Promise<void>;
     markReversed(id: string, by: string, reason: string, at: Date): Promise<boolean>;
 }
 
