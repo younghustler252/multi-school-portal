@@ -19,10 +19,15 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { useCreateStaff } from "@/features/staff/hooks/use-staff";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useAssignableBranches, useAssignableRoles, useCreateStaff } from "@/features/staff/hooks/use-staff";
 import { createStaffSchema, CreateStaffFormValues } from "@/features/staff/schemas/staff.schema";
 import { EMPLOYMENT_TYPE_LABELS, STAFF_CATEGORY_LABELS } from "@/features/staff/constants/staff-labels";
-import { possibleDuplicateOf } from "@/features/staff/lib/staff-errors";
+import { inviteFailureMessage, possibleDuplicateOf, staffAccessErrorMessage } from "@/features/staff/lib/staff-errors";
+import { createBranchIds, createBranchProblem, toggleId } from "@/features/staff/lib/staff-pickers";
+import { isApiError } from "@/lib/api/api-error";
+import { useAccess } from "@/lib/use-access";
+import { useAuthStore } from "@/stores/auth.store";
 import { DEPARTMENT_OPTIONS, DESIGNATION_OPTIONS, QUALIFICATION_OPTIONS } from "@/features/staff/constants/staff-field-options";
 import { ROUTES } from "@/lib/routes";
 import { omitEmpty } from "@/lib/omit-empty";
@@ -46,16 +51,36 @@ export default function NewStaffPage() {
 
 	const values = watch();
 
+	// Branch and invitation choices. Both lists come from the staff pickers (staff.manage only) and load only when needed.
+	const access = useAccess();
+	const schoolHasSeveral = useAuthStore((st) => st.permissions?.branches.schoolHasSeveral ?? false);
+	const canInvite = access.can("users.invite");
+	const branches = useAssignableBranches(schoolHasSeveral);
+	const [branchIds, setBranchIds] = useState<string[]>([]);
+	const [inviteNow, setInviteNow] = useState(false);
+	const [inviteRoleId, setInviteRoleId] = useState("");
+	const roles = useAssignableRoles(canInvite && inviteNow);
+	const hasEmail = !!values.email?.trim();
+
 	async function submit(formValues: CreateStaffFormValues, confirmNotDuplicate: boolean) {
+		const branchProblem = schoolHasSeveral ? createBranchProblem({ scope: access.scopeOf("staff.manage"), optionCount: branches.data?.length ?? 0, selected: branchIds }) : null;
+		if (branchProblem) { toast.error(branchProblem); return; }
+		if (inviteNow && (!inviteRoleId || !hasEmail)) { toast.error(!hasEmail ? "Add an email address to send an invitation." : "Choose a role for the invitation."); return; }
 		try {
-			const staff = await createStaff.mutateAsync({ ...omitEmpty(formValues), ...(confirmNotDuplicate ? { confirmNotDuplicate: true } : {}) });
-			// Creating a staff record does not create a login; the person is invited to the portal separately.
+			const staff = await createStaff.mutateAsync({
+				...omitEmpty(formValues),
+				...(schoolHasSeveral ? createBranchIds(branchIds) : {}),
+				...(inviteNow && inviteRoleId ? { invite: { roleId: inviteRoleId } } : {}),
+				...(confirmNotDuplicate ? { confirmNotDuplicate: true } : {}),
+			});
+			// The record exists even when the invitation fails; say so and let them resend from the profile.
 			toast.success(`${staff.fullName} added`);
+			if (staff.invite?.status === "failed") toast.warning(inviteFailureMessage(staff.invite.code), { duration: 10000 });
 			router.push(ROUTES.school.staff.detail(staff.id));
 		} catch (err) {
 			const existing = possibleDuplicateOf(err);
 			if (existing !== null) { setDuplicateOf(existing); return; }
-			toast.error((err as Error).message || "Couldn't add staff member");
+			toast.error(staffAccessErrorMessage(isApiError(err) ? err.code : undefined, (err as Error).message || "Couldn't add staff member"));
 		}
 	}
 
@@ -189,6 +214,51 @@ export default function NewStaffPage() {
 						</div>
 					</div>
 				</div>
+
+				{(schoolHasSeveral || canInvite) && (
+					<div className="rounded-xl border border-border bg-card/80 p-5 backdrop-blur-sm md:p-6">
+						<h3 className="font-medium">Branch and portal access</h3>
+
+						{schoolHasSeveral && (
+							<div className="mt-4 space-y-2">
+								<Label>Branches</Label>
+								{branches.isLoading ? <p className="text-sm text-muted-foreground">Loading branches…</p> : branches.isError ? (
+									<p className="text-sm text-destructive">Couldn't load the branches you manage. Refresh to try again.</p>
+								) : (
+									<ul className="space-y-1">
+										{(branches.data ?? []).map((b) => (
+											<li key={b.id}>
+												<label className="flex cursor-pointer items-center gap-3 rounded-lg border border-border p-3 text-sm">
+													<Checkbox checked={branchIds.includes(b.id)} onCheckedChange={() => setBranchIds((cur) => toggleId(cur, b.id))} />
+													<span className="font-medium">{b.name}</span>
+													<span className="text-xs text-muted-foreground">{b.code}</span>
+												</label>
+											</li>
+										))}
+									</ul>
+								)}
+								<p className="text-xs text-muted-foreground">If you choose none, the school's main branch is used. The first one you choose is their main branch.</p>
+							</div>
+						)}
+
+						{canInvite && (
+							<div className="mt-4 space-y-2">
+								<label className="flex cursor-pointer items-center gap-3 text-sm">
+									<Checkbox checked={inviteNow} onCheckedChange={(v) => setInviteNow(v === true)} />
+									<span>Send a portal invitation now{!hasEmail && " (needs an email address)"}</span>
+								</label>
+								{inviteNow && (
+									<Select value={inviteRoleId} onValueChange={(v) => setInviteRoleId(v ?? "")}>
+										<SelectTrigger><SelectValue placeholder={roles.isLoading ? "Loading roles…" : "Choose a role"}>{(v: string | null) => roles.data?.find((r) => r.id === v)?.name ?? "Choose a role"}</SelectValue></SelectTrigger>
+										<SelectContent>
+											{(roles.data ?? []).map((r) => <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>)}
+										</SelectContent>
+									</Select>
+								)}
+							</div>
+						)}
+					</div>
+				)}
 
 				{duplicateOf !== null && (
 					<div role="alert" className="rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm">
