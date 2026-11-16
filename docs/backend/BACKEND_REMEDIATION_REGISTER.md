@@ -408,6 +408,7 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Wrap delete and create in one tenant transaction or make the repository method explicitly transaction-bound. Add a failure-injection test proving the old lines survive if insertion fails.
 - **Owner/workstream:** Expenses/budget developer
 - **Acceptance criteria:** Budget line replacement is all-or-nothing.
+- **Resolution (branch `fix/api/p1-remediation-batch10`, not yet merged):** `SetBudgetLinesUseCase` runs delete + insert (and the audit event) in one tenant transaction; a failed insert leaves the old lines. Test: `tests/finance/atomicity-and-amounts.test.ts` (control + mutation-checked).
 
 ### REM-035 — Recurring auto-approval is attributed to the template creator rather than the system actor
 
@@ -453,6 +454,7 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Use the intended single measure consistently—likely `employerCostKobo`—and name/document the threshold basis. Add boundary tests just below, at and above the threshold with employer contributions.
 - **Owner/workstream:** Payroll/product owner
 - **Acceptance criteria:** Approval count matches the agreed gross or total-employer-cost policy exactly.
+- **Resolution (branch `fix/api/p1-remediation-batch10`, not yet merged):** the second-approval check now compares the run's `employerCostKobo` (gross + employer contributions, its total cost to the school) once instead of gross + employer cost, matching the setting's description ("a payroll run at or above this amount"). Tests: boundary rule and source check in `atomicity-and-amounts.test.ts`. **Remaining:** the use case itself is not run end to end (the payroll world needs the real zod); runs already pending approval are re-evaluated with the new rule when approved.
 
 ### REM-039 — Effective-dated pay profile replacement is not atomic
 
@@ -464,6 +466,7 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Make profile close+create one tenant transaction. Serialize profile changes for a staff member (row/advisory lock or conditional version update) and enforce non-overlapping effective ranges where feasible.
 - **Owner/workstream:** Payroll developer
 - **Acceptance criteria:** Failure leaves the previous profile unchanged; concurrent profile changes cannot create overlapping active profiles.
+- **Resolution (branch `fix/api/p1-remediation-batch10`, not yet merged):** setting a pay profile runs in one transaction: an advisory lock per staff member, a re-read of the latest profile, then close + create together. A failed insert leaves the previous profile open; two simultaneous changes can no longer leave two open or overlapping profiles. Tests in `atomicity-and-amounts.test.ts` (control + mutation-checked). **Remaining:** no database-level exclusion constraint on overlapping ranges; the advisory lock is not run against Postgres here.
 
 ### REM-040 — Payroll calculation inputs can change before approval without stale-run detection
 
@@ -486,6 +489,7 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Serialize remittance creation by liability account (and period if relevant) or recheck under a lock inside the posting transaction. Add a two-connection PostgreSQL test.
 - **Owner/workstream:** Payroll/ledger developer
 - **Acceptance criteria:** Concurrent remittances cannot exceed the available liability balance unless an explicit overpayment policy is introduced.
+- **Resolution (branch `fix/api/p1-remediation-batch10`, not yet merged):** remittance creation takes an advisory lock per liability account and reads the owed balance AFTER it, inside the posting transaction, so two requests can no longer both pay the whole balance. Tests in `atomicity-and-amounts.test.ts` (control + mutation-checked). **Remaining:** manual journals that debit the liability outside this use case are not serialised by this lock; not run against Postgres here.
 
 ### REM-042 — Payroll remittance due list omits valid liability accounts accepted by components
 

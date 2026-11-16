@@ -49,6 +49,10 @@ export class PayProfileRepositoryImpl extends BaseTenantRepository<PayProfileEnt
 
     history(staffId: string) { return this.findMany({ staffId }, PROFILE_INCLUDE, { effectiveFrom: "desc" }); }
 
+    async lockStaff(staffId: string): Promise<void> {
+        await getTenantClient().$queryRawUnsafe(`SELECT pg_advisory_xact_lock(hashtextextended($1::text, 0))`, `payprofile:${staffId}`);
+    }
+
     async latest(staffId: string) {
         const rows = await this.model().findMany({ where: { staffId }, orderBy: { effectiveFrom: "desc" }, take: 1, include: PROFILE_INCLUDE });
         return this.mapOne(rows[0] ?? null);
@@ -186,6 +190,10 @@ export class LoanRepositoryImpl extends BaseTenantRepository<LoanEntity> impleme
 export class RemittanceRepositoryImpl extends BaseTenantRepository<RemittanceEntity> implements IRemittanceRepository {
     protected readonly modelName = "payrollRemittance";
     constructor({ remittanceMapper }: { remittanceMapper: RemittanceMapper }) { super(remittanceMapper); }
+
+    async lockLiability(accountId: string): Promise<void> {
+        await getTenantClient().$queryRawUnsafe(`SELECT pg_advisory_xact_lock(hashtextextended($1::text, 0))`, `remit:${accountId}`);
+    }
 
     list(f: { year?: number; month?: number; accountId?: string }, page?: number, limit?: number) {
         return this.paginate({

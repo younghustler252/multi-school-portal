@@ -1,3 +1,4 @@
+import { ExpenseOptions, defaultTransaction } from "./expense-shared";
 import { IBudgetRepository, NewBudgetLine } from "../repositories/budget.repository";
 import { IExpenseRepository } from "../repositories/expense.repository";
 import { ILedgerAccountRepository } from "../../ledger/repositories/ledger-account.repository";
@@ -95,15 +96,19 @@ export class UpdateBudgetUseCase {
 
 /* Replace all the lines at once (the screen sends the whole table). */
 export class SetBudgetLinesUseCase {
-    constructor(private readonly d: Dependencies) {}
+    private readonly transaction: <T>(fn: () => Promise<T>) => Promise<T>;
+    constructor(private readonly d: Dependencies, options: ExpenseOptions = {}) { this.transaction = options.transaction ?? defaultTransaction; }
 
     async execute(id: string, schoolId: string, actorUserId: string, dto: SetBudgetLinesDtoType) {
         const b = await load(this.d.budgetRepository, id);
         if (b.status === "CLOSED") throw expenseErrors.budgetClosed();
         const lines = await prepareLines(this.d, dto.lines);
         if (b.status === "ACTIVE" && lines.length === 0) throw expenseErrors.budgetNeedsLines();
-        await this.d.budgetRepository.replaceLines(id, lines);
-        await this.d.auditService.log({ userId: actorUserId, schoolId, action: "budgets.lines_replaced", entity: "Budget", entityId: id, oldValue: { lines: b.lines.length }, newValue: { lines: lines.length } });
+        // Delete + insert are ONE transaction (REM-034): if the insert fails the old lines are still there. The audit event joins it (outbox).
+        await this.transaction(async () => {
+            await this.d.budgetRepository.replaceLines(id, lines);
+            await this.d.auditService.log({ userId: actorUserId, schoolId, action: "budgets.lines_replaced", entity: "Budget", entityId: id, oldValue: { lines: b.lines.length }, newValue: { lines: lines.length } });
+        });
         return this.d.budgetMapper.toResponse(await load(this.d.budgetRepository, id));
     }
 }
