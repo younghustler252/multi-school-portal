@@ -31,6 +31,12 @@ export class AuditRepositoryImpl implements IAuditRepository {
         return this.mapper.toDomain(raw);
     }
 
+    async createManyIdempotent(rows: Record<string, any>[]): Promise<number> {
+        if (!rows.length) return 0;
+        const r = await prisma.auditLog.createMany({ data: rows as Prisma.AuditLogCreateManyInput[], skipDuplicates: true });
+        return r.count;
+    }
+
     async paginate(
         params: PaginateParams,
     ): Promise<PaginatedResult<AuditLogEntity>> {

@@ -64,6 +64,14 @@ Actor rules:
 
 AuditService catches repository errors, writes a console error and reports identifiers-only context to Sentry with audit_failed tags. It never throws to the business caller. Failure reporter deliberately excludes old/new values, tokens and secrets.
 
+## Transactional outbox (REM-077)
+
+- `AuditService.log` inside a school transaction (`TenantContext.getTransaction()`) writes the event to the school's `AuditOutbox` table through the open transaction, so it commits or rolls back with the change it records. A failure there is not swallowed: it fails the transaction.
+- Outside a transaction (or with no school context) it writes straight to the public `AuditLog`, best effort, as before.
+- Each event gets its id when created; that id becomes the `AuditLog` id. The `audit-outbox` job (every minute, all provisioned schools) claims rows (`FOR UPDATE SKIP LOCKED`, 2-minute lease), inserts them with `skipDuplicates`, then deletes them. Redelivery after a crash therefore never duplicates. An undeliverable event backs off (1 minute per attempt, up to an hour), is reported to Sentry (`audit_failed`) and does not block others. The event keeps its original `createdAt`.
+- Limits: events written in a platform (public) transaction are not in an outbox, because there is no public-transaction context; a school-side audit written after its transaction has committed is still a direct, best-effort write; delivery delay is up to about a minute.
+- Deploy: apply the tenant migration `20261116090000_audit_outbox` to every school schema before this code runs (a missing table fails school transactions that log audit events).
+
 ## Read model and enrichment
 
 AuditRepository reads the public AuditLog table and supports paginated filtering. School list forcibly merges schoolId into where clause; platform list may filter any school.
