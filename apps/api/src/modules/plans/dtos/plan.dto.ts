@@ -1,6 +1,9 @@
 import { z } from "zod";
 
-const kobo = z.number().int().min(0).max(10_000_000_000);
+// The public database stores plan prices and invoice amounts as 32-bit integers (largest 2,147,483,647 kobo, about N21.4 million): a bigger value
+// would pass validation and fail at the database. Moving those columns to BigInt is a larger change; until then the limit is stated here (REM-065).
+export const MAX_PLAN_KOBO = 2_147_483_647;
+const kobo = z.number().int().min(0).max(MAX_PLAN_KOBO, `The largest amount is ${MAX_PLAN_KOBO} kobo`);
 
 // One entitlement line. Which value is required depends on the feature's kind and is checked in the use case:
 //   BOOLEAN -> boolValue     LIMIT / QUOTA -> limitValue (null = unlimited)     ENUM -> enumValue

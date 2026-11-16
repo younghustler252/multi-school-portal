@@ -43,7 +43,8 @@ export const ListPlatformInvoicesQuery = z.object({
     page:  z.coerce.number().int().min(1).default(1),
     limit: z.coerce.number().int().min(1).max(100).default(20),
     status: z.enum(["open", "paid", "void", "uncollectible"]).optional(),
-    overdue: z.coerce.boolean().optional(),
+    // Text from the query string: "false" must mean false (z.coerce.boolean() turns every non-empty text, including "false", into true)
+    overdue: z.enum(["true", "false"]).transform(v => v === "true").optional(),
 });
 
 export type PreviewChangeDtoType      = z.infer<typeof PreviewChangeDto>;

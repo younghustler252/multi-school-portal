@@ -725,6 +725,7 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** For LIMIT/QUOTA, define granted as `limitValue === null || limitValue > 0`; keep the numeric value visible if zero is useful to explain no capacity. Share one canonical interpretation between plan presentation and enforcement.
 - **Owner/workstream:** Plans/Entitlements developer
 - **Acceptance criteria:** Public plan output and entitlement checks agree for missing, zero, positive and unlimited grants.
+- **Resolution (branch `fix/api/p1-remediation-batch11`, not yet merged):** for LIMIT/QUOTA features a plan grant is `granted` only when the limit is unlimited (null) or above 0; the numeric 0 stays visible. Presentation now matches enforcement. Tests: `tests/audit/audit-date-range.test.ts`.
 
 ### REM-063 — Plan creation/clone and entitlement grants are not one atomic operation
 
@@ -758,6 +759,7 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Either reduce DTO/domain max to the signed 32-bit limit with a clear error, or migrate all connected plan/invoice/payment amount fields to BigInt and update provider/serialization contracts consistently.
 - **Owner/workstream:** Plans/Subscriptions developer
 - **Acceptance criteria:** Maximum accepted amount is representable in every persistence column and round-trips without database errors.
+- **Resolution (branch `fix/api/p1-remediation-batch11`, not yet merged):** the plan price DTO maximum is the signed 32-bit limit (`MAX_PLAN_KOBO` = 2,147,483,647 kobo, about N21.4 million) with a clear message, matching the Int columns. **Remaining:** moving plan/invoice/payment amounts to BigInt (if larger prices are ever needed) is a separate change. Tests: `tests/audit/audit-date-range.test.ts`.
 
 ### REM-066 — One invoice can have multiple live checkout attempts
 
@@ -829,6 +831,7 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Use explicit string parsing for true/false (or a shared boolean query schema) and reject invalid values.
 - **Owner/workstream:** Subscriptions API developer
 - **Acceptance criteria:** HTTP tests prove overdue=true filters overdue, overdue=false disables the filter, and invalid strings are rejected.
+- **Resolution (branch `fix/api/p1-remediation-batch11`, not yet merged):** `overdue` is parsed from the text `true`/`false` (anything else is a validation error); `?overdue=false` no longer means true. Tests: `tests/audit/audit-date-range.test.ts`.
 
 ### REM-072 — Subscription/billing lifecycle has no dedicated automated test suite
 
@@ -909,6 +912,7 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Use an exclusive next-day bound (`createdAt < startOfNextDay`) in a defined timezone, or normalize endDate to end-of-day. Validate startDate <= endDate.
 - **Owner/workstream:** Audit API developer
 - **Acceptance criteria:** Tests prove start/end date filters include all events on both requested calendar days and exclude the following day.
+- **Resolution (branch `fix/api/p1-remediation-batch11`, not yet merged):** a date-only `endDate` is inclusive of its calendar day (exclusive bound at the next Lagos midnight), `startDate` starts at Lagos midnight, values with a time are used exactly, and a start after the end is rejected. Tests: `tests/audit/audit-date-range.test.ts`.
 
 ### REM-079 — Audit persistence has no centralized redaction for sensitive before/after values
 
@@ -944,6 +948,7 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Apply a shared safeWebUrl schema that permits only HTTPS (or HTTP where explicitly required) and rejects credentials/unsafe protocols. Prefer HTTPS for public legal and asset links.
 - **Owner/workstream:** Platform Settings/security
 - **Acceptance criteria:** DTO tests reject javascript:, data:, ftp: and other non-web protocols while accepting valid HTTPS URLs.
+- **Resolution (branch `fix/api/p1-remediation-batch11`, not yet merged):** verified already fixed in the current code: terms/privacy links use the shared https-only `nullableHttpsUrl` (no credentials, length-capped) and the logo can only be set through the upload endpoint (`logoUrl: z.never`). Source-level test added. Tests: `tests/audit/audit-date-range.test.ts`.
 
 ### REM-082 — Platform settings changes are not audited
 
@@ -966,6 +971,7 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Enforce one singleton row with a fixed unique key or database constraint and use atomic upsert/seed initialization. Avoid creating state as a side effect of public GET where possible.
 - **Owner/workstream:** Platform Settings developer
 - **Acceptance criteria:** Concurrent first reads leave exactly one row and every subsequent read/update targets that row.
+- **Resolution (branch `fix/api/p1-remediation-batch11`, not yet merged):** migration `20261116110000_platform_settings_singleton` keeps the most recently updated row and adds a one-row unique index; `find()` recovers from a lost create race (P2002). Real-PostgreSQL proof: `scripts/db/verify-settings-singleton.sh`. **Remaining:** the public GET can still create the first row (now safe). Tests: `tests/audit/audit-date-range.test.ts`.
 
 ### REM-084 — SchoolSettings singleton can create duplicate rows on concurrent first updates
 
@@ -977,6 +983,7 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Add a fixed singleton key/unique constraint in the tenant schema and use an atomic upsert. Include duplicate-row cleanup in migration preflight.
 - **Owner/workstream:** School Settings developer
 - **Acceptance criteria:** Concurrent first updates in a tenant produce one canonical settings row and all later reads return it.
+- **Resolution (branch `fix/api/p1-remediation-batch11`, not yet merged):** tenant migration `20261116110000_school_settings_singleton` does the same for SchoolSettings; `upsert` updates the winner's row when it loses the create race. Same script. **Deploy:** run the tenant migration on every school schema (it deletes extra rows, keeping the latest). Tests: `tests/audit/audit-date-range.test.ts`.
 
 ### REM-085 — Replacing school stamp/signature leaves old public storage objects orphaned
 

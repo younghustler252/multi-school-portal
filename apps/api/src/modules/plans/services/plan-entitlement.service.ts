@@ -42,7 +42,7 @@ export class PlanEntitlementService {
 
                 if (d.kind === "BOOLEAN")      { granted = r?.boolValue === true; value = granted; }
                 else if (d.kind === "ENUM")    { granted = !!r?.enumValue; value = r?.enumValue ?? null; }
-                else /* LIMIT | QUOTA */       { granted = !!r; unlimited = !!r && r.limitValue === null; value = r ? r.limitValue : 0; }
+                else /* LIMIT | QUOTA */       { granted = !!r && (r.limitValue === null || r.limitValue > 0); unlimited = !!r && r.limitValue === null; value = r ? r.limitValue : 0; }   // a limit of 0 is no capacity: shown as not granted, exactly as enforcement treats it (REM-062)
 
                 if (mode === "public" && !granted) continue;
                 views.push({
