@@ -1,6 +1,6 @@
 import { IAuditRepository } from "../repositories/audit.repository";
 import { AuditLogEnricherService } from "../services/audit-log-enricher.service";
-import { ListPlatformAuditQueryType, ListSchoolAuditQueryType } from "../dtos/audit.dto";
+import { ListPlatformAuditQueryType, ListSchoolAuditQueryType, auditRangeStart, auditRangeEndExclusive } from "../dtos/audit.dto";
 
 interface Dependencies { auditRepository: IAuditRepository; auditLogEnricherService: AuditLogEnricherService }
 
@@ -15,7 +15,7 @@ function buildWhere(f: Filters): Record<string, unknown> {
     if (f.entityId) where.entityId = f.entityId;
     if (f.action)   where.action = f.action.endsWith(".") ? { startsWith: f.action } : f.action;
     if (f.startDate || f.endDate) {
-        where.createdAt = { ...(f.startDate ? { gte: new Date(f.startDate) } : {}), ...(f.endDate ? { lte: new Date(f.endDate) } : {}) };
+        where.createdAt = { ...(f.startDate ? { gte: auditRangeStart(f.startDate) } : {}), ...(f.endDate ? auditRangeEndExclusive(f.endDate) : {}) };
     }
     return where;
 }

@@ -14,7 +14,14 @@ export class PlatformSettingsRepositoryImpl implements IPlatformSettingsReposito
         let raw = await prisma.platformSettings.findFirst();
 
         if (!raw) {
-            raw = await prisma.platformSettings.create({ data: {} });
+            // The table holds at most one row (unique index PlatformSettings_singleton): of two first reads at once, one create wins and the
+            // other gets P2002 and reads the winner's row (REM-083)
+            try { raw = await prisma.platformSettings.create({ data: {} }); }
+            catch (e: any) {
+                if (e?.code !== "P2002") throw e;
+                raw = await prisma.platformSettings.findFirst();
+                if (!raw) throw e;
+            }
         }
 
         return this.mapper.toDomain(raw);

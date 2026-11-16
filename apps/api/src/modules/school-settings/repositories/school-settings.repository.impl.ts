@@ -24,6 +24,14 @@ export class SchoolSettingsRepositoryImpl
             return this.update(existing.id, data);
         }
 
-        return this.create(data);
+        // At most one row exists (unique index SchoolSettings_singleton): of two first saves at once, one create wins and the other
+        // updates the winner's row instead of adding a second one (REM-084)
+        try { return await this.create(data); }
+        catch (e: any) {
+            if (e?.code !== "P2002") throw e;
+            const winner = await this.model().findFirst();
+            if (!winner) throw e;
+            return this.update(winner.id, data);
+        }
     }
 }
