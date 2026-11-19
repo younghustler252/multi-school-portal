@@ -6,59 +6,36 @@
 //
 //   npm run report:orphaned-assignments [-- --json path/to/report.json]
 //
-// Outstanding = a class they lead; a subject assignment in the current or a future term whose mark sheet is NOT published
-// or locked; a subject whose default teacher they are. Finished (published/locked) sheets are listed as "no action needed".
-// Past terms are history: only counted, never listed.
+// Outstanding = a class they lead; a subject assignment in the current or an upcoming term whose mark sheet is NOT
+// published or locked; a subject whose default teacher they are. Finished (published/locked) sheets are listed as
+// "no action needed". Past terms are history: only counted, never listed.
+// A school that cannot be read is reported and skipped; the others continue. Exit code 1 if any school failed.
 import { writeFileSync } from "node:fs";
 import { Pool } from "pg";
 import { env } from "../src/config/env";
 import { prisma } from "../src/infrastructure/database/prisma/prisma.client";
-import { loadOutstandingHandover, type HandoverReport } from "../src/modules/classes/services/handover.read-model";
-
-const quote = (s: string) => `"${s.replace(/"/g, '""')}"`;
-const jsonAt = process.argv.indexOf("--json");
-const JSON_PATH = jsonAt > -1 ? process.argv[jsonAt + 1] : null;
+import { reportAcrossSchools, formatSchoolResult, parseReportArgs } from "../src/modules/classes/services/handover-report.runner";
 
 async function main() {
+    const { jsonPath } = parseReportArgs(process.argv.slice(2));
     console.log("Teacher handover: assignments that still point at deactivated staff (READ ONLY)");
-    const schools = await prisma.school.findMany({ where: { schemaProvisionedAt: { not: null } }, select: { id: true, name: true, schemaName: true } });
+
+    const schools = await prisma.school.findMany({ where: { schemaProvisionedAt: { not: null } }, select: { id: true, name: true, schemaName: true, timezone: true } });
     const pool = new Pool({ connectionString: env.DATABASE_URL });
-    const all: { school: string; report: HandoverReport }[] = [];
-    let failed = 0;
+    try {
+        const r = await reportAcrossSchools({ schools, pool });
+        for (const x of r.results) for (const line of formatSchoolResult(x)) console.log(line);
+        for (const x of r.skipped) console.log(`  ${x.school}: skipped (${x.reason})`);
+        for (const x of r.failures) console.error(` ${x.school} could not be read: ${x.error}`);
 
-    for (const school of schools) {
-        if (!school.schemaName) continue;
-        const client = await pool.connect();
-        try {
-            await client.query("BEGIN READ ONLY");
-            await client.query(`SET LOCAL search_path TO ${quote(school.schemaName)}`);
-            const report = await loadOutstandingHandover(client);
-            await client.query("ROLLBACK");
-            all.push({ school: school.name, report });
-            const t = report.totals;
-            console.log(`${t.teachersNeedingAttention ? "!" : " "} ${school.name}: ${t.teachersNeedingAttention} teacher(s) to hand over, ${t.classesLed} class(es) led, ${t.outstandingSubjects} subject assignment(s) outstanding, ${t.defaultsToUpdate} default(s) to update, ${t.completedSubjects} finished (no action)`);
-            for (const x of report.teachers) {
-                console.log(`     ${x.staff.name} (${x.staff.category}, left ${x.staff.exitDate ?? "date not recorded"}${x.staff.exitReason ? `: ${x.staff.exitReason}` : ""})`);
-                for (const c of x.classesLed) console.log(`        leads ${c.className}`);
-                for (const s of x.outstandingSubjects) console.log(`        teaches ${s.subjectName} in ${s.className} (${s.termName}${s.isCurrentTerm ? ", current" : ", upcoming"}; sheet: ${s.sheetStatus ?? "not started"})`);
-                for (const s of x.completedSubjects) console.log(`        finished: ${s.subjectName} in ${s.className} (${s.termName}; sheet ${s.sheetStatus})`);
-                for (const d of x.defaultsToUpdate) console.log(`        default teacher of ${d.subjectName}`);
-                if (x.pastTermAssignments) console.log(`        (${x.pastTermAssignments} past-term assignment(s): history, untouched)`);
-            }
-        } catch (err) {
-            failed++;
-            await client.query("ROLLBACK").catch(() => undefined);
-            console.error(` ${school.name} failed:`, (err as Error).message);
-        } finally { client.release(); }
+        const s = r.summary;
+        console.log(`\n${s.schoolsWithHandover} of ${s.schoolsRead} school(s) read have a handover outstanding: ${s.teachers} teacher(s), ${s.classesLed} class(es) led, ${s.outstandingSubjects} subject assignment(s), ${s.defaultsToUpdate} default(s).`);
+        if (s.schoolsFailed || s.schoolsSkipped) console.log(`${s.schoolsFailed} school(s) could not be read; ${s.schoolsSkipped} skipped.`);
+        if (jsonPath) { writeFileSync(jsonPath, JSON.stringify(r, null, 2)); console.log(`Wrote ${jsonPath}`); }
+        if (s.schoolsFailed) process.exitCode = 1;
+    } finally {
+        await pool.end();
+        await prisma.$disconnect();
     }
-
-    const sum = (f: (r: HandoverReport) => number) => all.reduce((n, x) => n + f(x.report), 0);
-    console.log(`\n${all.filter(x => x.report.totals.teachersNeedingAttention).length} of ${schools.length} school(s) have a handover outstanding: ` +
-        `${sum(r => r.totals.teachersNeedingAttention)} teacher(s), ${sum(r => r.totals.classesLed)} class(es) led, ${sum(r => r.totals.outstandingSubjects)} subject assignment(s), ${sum(r => r.totals.defaultsToUpdate)} default(s).` +
-        (failed ? `\n${failed} school(s) could not be read.` : ""));
-    if (JSON_PATH) { writeFileSync(JSON_PATH, JSON.stringify(all, null, 2)); console.log(`Wrote ${JSON_PATH}`); }
-    await pool.end();
-    await prisma.$disconnect();
-    if (failed) process.exitCode = 1;
 }
-main().catch((e) => { console.error(e); process.exit(1); });
+main().catch((e) => { console.error(e instanceof Error ? e.message : e); process.exit(1); });
