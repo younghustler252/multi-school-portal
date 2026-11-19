@@ -157,6 +157,31 @@ describe("outstanding handover on a real school schema", { skip: dbTestsEnabled 
         try { assert.ok(!(await read()).teachers.some(t => t.staff.name.startsWith("Tola"))); }
         finally { await school.run(() => db().class.update({ where: { id: W.S.C1.id }, data: { classTeacherId: W.S.tA.id } })); }
     });
+    it("a term that starts TODAY (not yet flagged current) is upcoming, judged by the school's own date", async () => {
+        const created = await school.run(async () => {
+            const d = db();
+            const sam = await d.staff.create({ data: { firstName: "Sam", lastName: "Boundary", category: "teaching", isActive: false, exitDate: new Date("2030-09-01T00:00:00Z") } });
+            const sess = await d.session.create({ data: { name: "2030/9", startDate: new Date("2030-01-01T00:00:00Z"), endDate: new Date("2031-01-01T00:00:00Z"), isCurrent: false } });
+            const term = await d.term.create({ data: { sessionId: sess.id, name: "first", startDate: new Date("2030-09-10T00:00:00Z"), endDate: new Date("2030-12-10T00:00:00Z"), isCurrent: false } });
+            const subj = await d.subject.create({ data: { name: "Boundary-Subject" } });
+            const cs = await d.classSubject.create({ data: { classId: W.S.C1.id, subjectId: subj.id, staffId: sam.id, termId: term.id } });
+            return { sam, sess, term, subj, cs };
+        });
+        try {
+            const c = await pool.connect();
+            try {
+                await c.query("BEGIN READ ONLY"); await c.query(`SET LOCAL search_path TO "${school.schemaName}"`);
+                const onTheDay = await loadOutstandingHandover(c, { today: "2030-09-10" });      // the term begins today: upcoming
+                const dayAfter = await loadOutstandingHandover(c, { today: "2030-09-11" });      // it began yesterday and was never flagged current: history
+                await c.query("ROLLBACK");
+                assert.equal(teacher(onTheDay, "Sam").outstandingSubjects.length, 1, "starts today: outstanding");
+                assert.equal(teacher(onTheDay, "Sam").outstandingSubjects[0].isCurrentTerm, false);
+                assert.equal(dayAfter.teachers.some(t => t.staff.name.startsWith("Sam")), false, "started yesterday: history, not outstanding");
+            } finally { c.release(); }
+        } finally {
+            await school.run(async () => { const d = db(); await d.classSubject.delete({ where: { id: created.cs.id } }); await d.term.delete({ where: { id: created.term.id } }); await d.session.delete({ where: { id: created.sess.id } }); await d.subject.delete({ where: { id: created.subj.id } }); await d.staff.delete({ where: { id: created.sam.id } }); });
+        }
+    });
     it("reading changes nothing (a READ ONLY transaction: a write inside it is refused)", async () => {
         const before = await school.run(async () => [await db().staff.count(), await db().class.count(), await db().classSubject.count()]);
         await read();

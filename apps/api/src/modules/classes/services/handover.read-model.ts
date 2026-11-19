@@ -8,9 +8,11 @@
 |
 | What counts as outstanding (agreed product rules):
 |   - a class they LEAD (Class.classTeacherId): always, whatever their mark sheets look like
-|   - a subject assignment in the CURRENT or a FUTURE term whose mark sheet is not finished
+|   - a subject assignment in the CURRENT or an UPCOMING term whose mark sheet is not finished
 |       (no sheet yet, draft, submitted or approved)
 |   - a subject whose DEFAULT teacher they are (it would otherwise keep proposing them)
+| "Upcoming" = a term that is not flagged current and STARTS TODAY OR LATER, by the school's own calendar date. A term that
+| starts today but has not been made current yet is therefore upcoming, not history. (Term dates are compared by their date part.)
 | What does not:
 |   - a subject assignment whose mark sheet is PUBLISHED or LOCKED: the work is finished. It is listed under "completed"
 |     (so ownership is not hidden) but is not outstanding.
@@ -100,8 +102,11 @@ export function assembleHandover(rows: HandoverRows, generatedAt: Date): Handove
 }
 
 /** Reads one school's schema (the client's search_path must already point at it). Read-only. */
-export async function loadOutstandingHandover(client: SqlClient, opts: { branchIds?: string[] | null; now?: Date } = {}): Promise<HandoverReport> {
+/** `today` = the school's own calendar date (YYYY-MM-DD); left out, the UTC date of `now` is used. */
+export async function loadOutstandingHandover(client: SqlClient, opts: { branchIds?: string[] | null; now?: Date; today?: string } = {}): Promise<HandoverReport> {
     const now = opts.now ?? new Date();
+    const today = opts.today ?? now.toISOString().slice(0, 10);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(today)) throw new Error(`today must be YYYY-MM-DD, got "${today}"`);
     const branchIds = opts.branchIds ?? null;
     const branchSql = (alias: string, n: number) => (branchIds ? ` AND ${alias}."branchId" = ANY($${n}::text[])` : "");
     const branchArgs = branchIds ? [branchIds] : [];
@@ -118,14 +123,14 @@ export async function loadOutstandingHandover(client: SqlClient, opts: { branchI
     const subjects = (await client.query(
         `SELECT cs."staffId", cs.id AS "classSubjectId", c.id AS "classId", c.name AS "className", c."branchId",
                 sub.name AS "subjectName", t.id AS "termId", t.name::text AS "termName", t."isCurrent",
-                (NOT t."isCurrent" AND t."startDate" > $1::timestamptz) AS "startsInFuture", rs.status::text AS "sheetStatus"
+                (NOT t."isCurrent" AND t."startDate"::date >= $1::date) AS "startsInFuture", rs.status::text AS "sheetStatus"
            FROM "ClassSubject" cs
            JOIN "Staff" s   ON s.id = cs."staffId" AND s."isActive" = false
            JOIN "Class" c   ON c.id = cs."classId"
            JOIN "Subject" sub ON sub.id = cs."subjectId"
            JOIN "Term" t    ON t.id = cs."termId"
            LEFT JOIN "ResultSheet" rs ON rs."classSubjectId" = cs.id
-          WHERE true${branchSql("c", 2)}`, [now.toISOString(), ...branchArgs])).rows;
+          WHERE true${branchSql("c", 2)}`, [today, ...branchArgs])).rows;
 
     const defaults = branchIds ? [] : (await client.query(
         `SELECT sub."defaultTeacherId" AS "staffId", sub.id AS "subjectId", sub.name AS "subjectName"
