@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with: { node-version-file: .nvmrc, cache: npm }
       - run: npm ci
       # Regenerate the Prisma clients from the schemas so the typecheck below compares the code with the CURRENT schema,
@@ -32,7 +32,7 @@ jobs:
     continue-on-error: true               # report only until the web app is brought up to date with the API; then remove this line
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with: { node-version-file: .nvmrc, cache: npm }
       - run: npm ci
       # Tests first: they must stay green while the typecheck below is still red (a failing step stops the job).
@@ -48,6 +48,6 @@ jobs:
     continue-on-error: true               # report only for now; make it blocking once the baseline is clean
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with: { node-version-file: .nvmrc, cache: npm }
       - run: npm audit --omit=dev --audit-level=high
