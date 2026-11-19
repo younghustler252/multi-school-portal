@@ -17,10 +17,12 @@ Relationship to other work: independent of PR #22 (the Classes/Staff ownership r
 | Counts | Why |
 |---|---|
 | A class they **lead** (`Class.classTeacherId`) | Always, whatever their mark sheets look like |
-| A **subject assignment** in the current or a future term whose sheet is **not finished** (no sheet yet, draft, submitted, approved) | Unfinished work |
+| A **subject assignment** in the current or an **upcoming** term whose sheet is **not finished** (no sheet yet, draft, submitted, approved) | Unfinished work |
 | A subject whose **default teacher** they are | Otherwise it keeps proposing someone who left |
 | *Not outstanding:* a subject assignment whose sheet is **published or locked** | Finished. Listed as "completed" (ownership stays visible) but needs no action |
 | *Not outstanding:* **past-term** assignments | History: counted, never listed or touched |
+
+**Upcoming** = a term not flagged current whose start date is **today or later, by the school's own calendar date** (its timezone). A term starting today that has not been made current yet is upcoming, not history. Term dates are compared by their date part; a term flagged current counts as current whatever its dates say. Between terms (no term flagged current) a class they lead stays outstanding, the term that just ended is history, and the next term's assignments are outstanding.
 
 Because it is derived, it clears by itself when an assignment is reassigned or the person is reactivated. Branch-scoped administrators see only the classes of their branches; subject defaults belong to no branch and appear only for all-branch viewers.
 
@@ -28,7 +30,12 @@ Code: `classes/services/handover.read-model.ts` (`loadOutstandingHandover`, `ass
 
 ## Step 1: the existing-data report (read-only)
 `npm run report:orphaned-assignments [-- --json report.json]`
-Reads every school inside a `READ ONLY` transaction and lists, per school and per person who left: classes led, outstanding subject assignments (with term and sheet state), finished sheets (no action), defaults to update, and a count of past-term rows. Run it before the feature is switched on so the first administrator view holds no surprises.
+Reads every school inside a `READ ONLY` transaction, each on its own calendar date, and lists, per school and per person who left: classes led, outstanding subject assignments (with term and sheet state), finished sheets (no action), defaults to update, and a count of past-term rows. Run it before the feature is switched on so the first administrator view holds no surprises.
+A school that cannot be read (for example a dropped schema) is reported and skipped; the others continue, and the exit code is 1. A school with no schema yet is skipped. `--json` needs a file path and unknown options are errors. Logic lives in `classes/services/handover-report.runner.ts`; the script is a thin wrapper.
+**No production data exists yet**, so the report has been validated on synthetic schemas only (below). Run it against real data when it exists.
+
+### How it was validated (synthetic)
+`tests/classes/handover-read-model.test.ts` (agreed rules) and `tests/classes/handover-edge-cases.test.ts` (term boundaries, every mark-sheet state, ownership shapes, timezones, failing schools, read-only guarantee, ordering, JSON round trip). The three core rules were mutation-checked: breaking the same-day rule, the finished-sheet rule or the past-term rule each fails several tests. The real command was also run end to end on a scratch database with a good, a quiet and a broken school.
 
 ## Escalation: agreed defaults and the exact clock (NOT built; specification for the notification slice)
 Goal: administrators are told immediately, reminded sensibly, and the principal is brought in if it drags on, **without ever blocking the school**.
