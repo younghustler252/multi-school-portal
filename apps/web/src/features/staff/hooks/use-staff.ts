@@ -76,3 +76,15 @@ export function useInviteStaff(id: string) {
 		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["staff"] }),
 	});
 }
+
+/*
+| Picker data is for the signed-in person only, so it is fetched when a picker opens (`enabled`) and dropped as soon as
+| nothing uses it: no caching across users or sessions (docs/backend/modules/staff.md section 8).
+*/
+export function useAssignableRoles(enabled: boolean) {
+	return useQuery({ queryKey: ["staff", "assignable-roles"], queryFn: staffApi.assignableRoles, enabled, staleTime: 0, gcTime: 0 });
+}
+
+export function useAssignableBranches(enabled: boolean) {
+	return useQuery({ queryKey: ["staff", "assignable-branches"], queryFn: staffApi.assignableBranches, enabled, staleTime: 0, gcTime: 0 });
+}

@@ -26,3 +26,17 @@ export function inviteFailureMessage(code: string | undefined): string {
 		default: return "The invitation wasn't sent. You can send it again from the staff profile.";
 	}
 }
+
+/** One sentence for the errors the invite, change-roles and branch calls can answer with (docs/backend/modules/staff.md). */
+export function staffAccessErrorMessage(code: string | undefined, fallback: string): string {
+	switch (code) {
+		case "ROLE_NOT_ALLOWED": return "You can't give one of those roles any more. Close this and try again.";
+		case "BRANCH_FORBIDDEN": return "That includes a branch you don't manage.";
+		case "INVALID_BRANCHES": return "One of those branches is no longer active. Close this and try again.";
+		case "CANNOT_CHANGE_OWN_ROLE": return "You can't change your own roles.";
+		case "LAST_ADMINISTRATOR": return "This is the school's only administrator, so they must keep the administrator role.";
+		case "NOT_A_PORTAL_USER": return "This person has no portal access yet. Invite them first.";
+		case "STAFF_HAS_NO_EMAIL": return "Add an email address to this staff record first.";
+		default: return fallback;
+	}
+}

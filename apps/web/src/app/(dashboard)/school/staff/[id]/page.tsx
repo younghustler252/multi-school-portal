@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Mail, Phone, Pencil, UserX, UserCheck } from "lucide-react";
+import { ArrowLeft, Mail, Phone, Pencil, UserX, UserCheck, UserPlus, ShieldCheck, Building2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -14,8 +14,11 @@ import { useTeacherRoster } from "@/features/staff/hooks/use-teacher-roster";
 import { useCurrentSession } from "@/features/school/hooks/use-sessions";
 import { EditStaffDialog } from "@/features/staff/components/edit-staff-dialog";
 import { StaffStatusDialog } from "@/features/staff/components/staff-status-dialog";
+import { StaffPortalDialog } from "@/features/staff/components/staff-portal-dialog";
+import { StaffBranchesDialog } from "@/features/staff/components/staff-branches-dialog";
 import { EMPLOYMENT_TYPE_LABELS, PORTAL_STATUS_LABELS, STAFF_CATEGORY_LABELS } from "@/features/staff/constants/staff-labels";
 import { useAccess } from "@/lib/use-access";
+import { useAuthStore } from "@/stores/auth.store";
 import { ROUTES } from "@/lib/routes";
 
 export default function StaffDetailPage() {
@@ -24,13 +27,22 @@ export default function StaffDetailPage() {
 	const { data: currentSession } = useCurrentSession();
 	const termId = currentSession?.currentTerm?.id;
 	const isTeacher = staff?.category === "teaching";
-	const canManage = useAccess().can("staff.manage");
+	const access = useAccess();
+	const canManage = access.can("staff.manage");
+	// Inviting needs users.invite as well; a record with no email can't be invited.
+	const canInvite = canManage && access.can("users.invite") && staff?.portal.status === "none" && !!staff.email && staff.isActive;
+	const canChangeRoles = canManage && staff?.portal.status === "active";
+	const canEditBranches = canManage && access.canAtLeast("staff.manage", "BRANCH") && staff?.isActive;
 
 	const { data: assignments } = useTeacherAssignments(isTeacher ? params.id : "");
 	const { data: roster, isLoading: rosterLoading } = useTeacherRoster(isTeacher ? params.id : "", termId);
 
 	const [editOpen, setEditOpen] = useState(false);
 	const [statusOpen, setStatusOpen] = useState(false);
+	const [portalMode, setPortalMode] = useState<"invite" | "roles" | null>(null);
+	const [branchesOpen, setBranchesOpen] = useState(false);
+	// A school with one branch has nothing to choose (branches.schoolHasSeveral from /users/me/permissions).
+	const schoolHasSeveral = useAuthStore((s) => s.permissions?.branches.schoolHasSeveral ?? false);
 
 	if (isLoading) {
 		return (
@@ -76,6 +88,21 @@ export default function StaffDetailPage() {
 						<Button variant="outline" onClick={() => setEditOpen(true)}>
 							<Pencil className="size-4" /> Edit
 						</Button>
+						{canInvite && (
+							<Button variant="outline" onClick={() => setPortalMode("invite")}>
+								<UserPlus className="size-4" /> Invite to portal
+							</Button>
+						)}
+						{canChangeRoles && (
+							<Button variant="outline" onClick={() => setPortalMode("roles")}>
+								<ShieldCheck className="size-4" /> Portal roles
+							</Button>
+						)}
+						{canEditBranches && schoolHasSeveral && (
+							<Button variant="outline" onClick={() => setBranchesOpen(true)}>
+								<Building2 className="size-4" /> Branches
+							</Button>
+						)}
 						<Button variant="outline" onClick={() => setStatusOpen(true)}>
 							{staff.isActive ? <UserX className="size-4" /> : <UserCheck className="size-4" />}
 							{staff.isActive ? "Deactivate" : "Reactivate"}
@@ -167,6 +194,8 @@ export default function StaffDetailPage() {
 
 			<EditStaffDialog staff={staff} open={editOpen} onOpenChange={setEditOpen} />
 			<StaffStatusDialog staff={staff} open={statusOpen} onOpenChange={setStatusOpen} />
+			<StaffPortalDialog staff={staff} mode={portalMode ?? "invite"} open={portalMode !== null} onOpenChange={(o) => !o && setPortalMode(null)} />
+			<StaffBranchesDialog staff={staff} open={branchesOpen} onOpenChange={setBranchesOpen} />
 		</>
 	);
 }

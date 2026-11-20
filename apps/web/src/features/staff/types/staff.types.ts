@@ -162,3 +162,24 @@ export interface MyClassesResponse {
 	classesAsClassTeacher: MyHomeroomClassResponseData[];
 	classesAsSubjectTeacher: MySubjectClassResponseData[];
 }
+
+/*
+| Picker data (docs/backend/modules/staff.md, "Assignable roles" and "Assignable branches"). Both need `staff.manage` only,
+| answer for the signed-in person, and must be loaded when the picker opens, never cached across users or sessions.
+| The backend declares the same shapes as AssignableStaffRole / AssignableBranch in @schoolos/contracts (on refactor/api).
+*/
+export interface AssignableStaffRole {
+	id: string;
+	name: string;
+	description: string | null;
+	kind: "SYSTEM_LOCKED" | "SYSTEM_EDITABLE" | "CUSTOM";
+	/** Holds every permission (School Admin). Show it as an administrator role. */
+	grantsAll: boolean;
+}
+
+export interface AssignableBranch {
+	id: string;
+	name: string;
+	code: string;
+	isMain: boolean;
+}

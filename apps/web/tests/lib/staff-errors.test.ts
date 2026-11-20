@@ -33,3 +33,16 @@ describe("inviteFailureMessage", () => {
 		expect(inviteFailureMessage(undefined)).toMatch(/send it again|invite again|again/i);
 	});
 });
+
+import { staffAccessErrorMessage } from "@/features/staff/lib/staff-errors";
+
+describe("staffAccessErrorMessage", () => {
+	it("explains the codes and falls back to the server's message", () => {
+		expect(staffAccessErrorMessage("ROLE_NOT_ALLOWED", "x")).toMatch(/can't give/);
+		expect(staffAccessErrorMessage("BRANCH_FORBIDDEN", "x")).toMatch(/branch you don't manage/);
+		expect(staffAccessErrorMessage("INVALID_BRANCHES", "x")).toMatch(/no longer active/);
+		expect(staffAccessErrorMessage("LAST_ADMINISTRATOR", "x")).toMatch(/only administrator/);
+		expect(staffAccessErrorMessage("SOMETHING_ELSE", "server said so")).toBe("server said so");
+		expect(staffAccessErrorMessage(undefined, "fallback")).toBe("fallback");
+	});
+});
