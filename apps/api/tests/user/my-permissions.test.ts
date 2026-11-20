@@ -51,6 +51,7 @@ describe("the web helper built on the response", () => {
         realm: "school", persona: "STAFF", roles: ["branch_principal"], holdsEverything: false,
         permissions: [{ key: "students.view", scope: "BRANCH" }, { key: "sessions.view", scope: "ALL" }, { key: "grades.view", scope: "OWN" }],
         branches: { all: [MAIN, NORTH], assigned: [NORTH], schoolHasSeveral: true },
+        entitlements: null,
     };
     it("can / canAtLeast / scopeOf / canAny", () => {
         const me = accessOf(base);

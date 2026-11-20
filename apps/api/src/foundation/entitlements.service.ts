@@ -1,4 +1,5 @@
 import type { Enforcement, FeatureKind } from "./foundation.db";
+import { FEATURE_REGISTRY } from "./features.registry";
 
 /*
 |--------------------------------------------------------------------------
@@ -53,6 +54,10 @@ export interface EntitlementsDb {
 
 export type Meter = () => Promise<number>;
 
+/* What a school user may be told about one feature (GET /users/me/permissions). Yes/no features are a boolean; limit and quota
+   features carry the cap: { allowed, limit } where limit null = unlimited and 0 = not granted. Never usage, prices or plan names. */
+export type EntitlementFlag = boolean | { allowed: boolean; limit: number | null };
+
 export interface EntitlementsOptions {
     ttlMs?:  number;                      // cache lifetime, default 30s
     now?:    () => number;                // injectable clock for tests
@@ -96,6 +101,30 @@ export class EntitlementsService {
 
         if (this.isGranted(def, resolved.values.get(key))) return { allowed: true };
         return def.enforcement === "WARN" ? { allowed: true, warn: true } : { allowed: false, reason: "not_granted" };
+    }
+
+    /**
+     * Every known feature as the signed-in school's user may see it, with school overrides applied.
+     * - A key is ALWAYS present (registry keys plus any the platform console added), so the screen never guesses from absence.
+     * - Features the platform has marked inactive (not offered yet) are reported as not available, even though the server does not enforce them.
+     * - Everything else mirrors checkFeature(): what the screen shows is what the server will allow.
+     */
+    async effectiveFlags(schoolId: string): Promise<Record<string, EntitlementFlag>> {
+        const defs = await this.getDefs();
+        const resolved = await this.getForSchool(schoolId);
+        const keys = new Set<string>([...FEATURE_REGISTRY.map(f => f.key), ...defs.keys()]);
+        const out: Record<string, EntitlementFlag> = {};
+        for (const key of [...keys].sort()) {
+            const def = defs.get(key);
+            const kind: FeatureKind = def?.kind ?? FEATURE_REGISTRY.find(f => f.key === key)!.kind;
+            const isLimit = kind === "LIMIT" || kind === "QUOTA";
+            if (!def || !def.isActive || !resolved.planId) { out[key] = isLimit ? { allowed: false, limit: 0 } : false; continue; }
+            const allowed = (await this.checkFeature(schoolId, key)).allowed;
+            if (!isLimit) { out[key] = allowed; continue; }
+            const value = resolved.values.get(key);
+            out[key] = { allowed, limit: value ? value.limit : 0 };
+        }
+        return out;
     }
 
     /** `adding` is how many records the caller is about to create (bulk imports pass the batch size). */
