@@ -67,7 +67,20 @@ Still blocked or needing a contract review (not changed):
 - Notifications read path and the feedback calls: confirmed routes exist but outside the requested scope; unchanged.
 - Grades, attendance, report-cards: workflow changes. Payments and fees: separate contract reviews first. Teacher reassignment/handover and CSV export: outside M6b.
 
+## Backend answers received (2026-11-20)
+
+1. **Guardian/student attendance and grades:** no new `/my-children` or `/me` routes. Use `GET /guardians/me/children`, `GET /students/me`, `GET /attendance`, `GET /attendance/summary`, `GET /grades`, `GET /report-cards`. Attendance and grades support OWN scope for students and guardians; guardian grades and report cards are limited to published results.
+2. **Platform users:** replacement is `/users/:id` (GET, `POST deactivate`, `POST reactivate`) plus the school-admin password reset. A platform-wide user list/search endpoint does **not** exist. Do not use `/super-admin/users`. **Blocked: needs a backend addition.**
+3. **Payments bank list / account check:** `POST /schools/payment-setup` takes `bankCode`, `accountNumber`, optional `password`. No bank-list or account-resolution route is exposed. **Pending backend confirmation; do not invent paths.**
+4. **Entitlements for non-billing roles:** `GET /users/me/permissions` has no plan entitlements. **Proposed (not existing) contract for the backend developer:** add a separate `entitlements` object to that response, available to every authenticated school user regardless of billing permissions, e.g. `{ entitlements: { "grading.custom": { granted: true }, "students.max": { granted: true, limit: 200 }, ... } }` or the same `PlanEntitlementView[]` the billing summary uses, granted features only (absent = not included). The web's `useEntitlement` already treats "unknown" as "show the screen, the API enforces", so nothing breaks until this ships.
+5. **Payments and fees:** backend routes exist for fee structures, invoices, adjustments, instalments, payments, refunds, receipts and guardian payment workflows. Contract review comes first; do not assume shapes.
+6. **Grades, attendance, report cards:** workflows exist (registers, summaries, grade sheets, score entry, approval, publication, report cards). Frontend workflow alignment against the existing APIs.
+
+Order of work agreed: attendance, grades and report-card workflows; payments/fees contract review; platform-user list and bank lookup stay pending; entitlements proposal recorded above. Separate reviewable PRs, typecheck + tests for each.
+
 ## Open backend decisions
+
+Items 1 and 2 are resolved (assignable roles and branches). Items 3 to 6 below were answered on 2026-11-20 (see above); what remains open is the backend work for platform-user listing, bank lookup / account verification, and the `entitlements` response extension.
 
 1. ~~Assignable roles for invites~~ Resolved: `GET /staff/assignable-roles` (`staff.manage`; returns only roles the caller may grant). Do not use `GET /roles` for the picker.
 2. ~~Branches list permission~~ Resolved: `GET /staff/assignable-branches` (`staff.manage`; active branches in the caller's scope). Show the picker only when `branches.schoolHasSeveral` in `/users/me/permissions`.
