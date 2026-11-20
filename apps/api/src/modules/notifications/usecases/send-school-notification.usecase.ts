@@ -35,7 +35,7 @@ interface Dependencies {
 export class SendSchoolNotificationUseCase {
     constructor(private readonly d: Dependencies) {}
 
-    async execute(dto: SendSchoolNotificationDtoType, schoolId: string, actorUserId: string, access?: Access): Promise<SchoolNotificationResponseData & { recipients: number; byChannel: Record<string, number> }> {
+    async execute(dto: SendSchoolNotificationDtoType, schoolId: string, actorUserId: string, access?: Access): Promise<SchoolNotificationResponseData & { recipients: number; byChannel: Record<string, number>; skippedNoContact: number }> {
         const channels = [...new Set(dto.channels)] as DispatchChannel[];
         await this.assertChannelsAllowed(schoolId, channels);
 
@@ -52,10 +52,10 @@ export class SendSchoolNotificationUseCase {
         if (people.length === 0) throw notificationErrors.noRecipients();
 
         const messages: OutgoingMessage[] = [];
+        let skippedNoContact = 0;                                // person + channel pairs left out because there is no email address / phone number
         for (const p of people) {
             for (const channel of channels) {
-                if (channel === "EMAIL" && !p.email) continue;
-                if (channel === "SMS" && !p.phone) continue;
+                if ((channel === "EMAIL" && !p.email) || (channel === "SMS" && !p.phone)) { skippedNoContact++; continue; }
                 messages.push({
                     type: dto.type, channel, title: dto.title.trim(), message: dto.message.trim(),
                     recipient: { recipientType: p.type, recipientEntityId: p.id, userId: p.userId },
@@ -63,18 +63,22 @@ export class SendSchoolNotificationUseCase {
             }
         }
 
+        // Nothing to send: say so (REM-094). Without this the dispatcher returns no notification and the code below would look one up by `undefined`.
+        if (messages.length === 0) throw notificationErrors.noDeliverableRecipients(people.length, skippedNoContact);
+
         const result = await this.d.notificationDispatchService.dispatch({
             sentById: actorUserId, targetType: dto.targetType, messages,
             metadata: { ...(dto.metadata ?? {}), source: "manual" },
         });
         const first = result.notificationIds[0];
+        if (!first) throw notificationErrors.noDeliverableRecipients(people.length, skippedNoContact);
         const notification = await this.d.notificationRepository.findSchoolNotificationById(first);
 
         await this.d.auditService.log({
             userId: actorUserId, schoolId, action: "notifications.sent", entity: "SchoolNotification", entityId: first,
-            newValue: { type: dto.type, targetType: dto.targetType, channels, recipients: people.length, byChannel: result.byChannel, branches: filter.branchIds ?? null, classes: dto.classIds ?? null },
+            newValue: { type: dto.type, targetType: dto.targetType, channels, recipients: people.length, byChannel: result.byChannel, skippedNoContact, branches: filter.branchIds ?? null, classes: dto.classIds ?? null },
         });
-        return { ...this.d.schoolNotificationMapper.toResponse(notification!), recipients: people.length, byChannel: result.byChannel };
+        return { ...this.d.schoolNotificationMapper.toResponse(notification!), recipients: people.length, byChannel: result.byChannel, skippedNoContact };
     }
 
     private async assertChannelsAllowed(schoolId: string, channels: DispatchChannel[]): Promise<void> {

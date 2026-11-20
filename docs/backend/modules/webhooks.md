@@ -95,6 +95,11 @@ Retry console permits any event that is not processed/ignored and has a stored p
 
 **Lease (REM-102).** Exactly one processor holds an event at a time. A redelivery while the lease is live answers `409 WEBHOOK_IN_PROGRESS`, so the provider delivers again later (by then it is processed, a plain duplicate, or the lease has expired and it is reclaimed). Recording the outcome (`finish`) requires the current token, so a slow processor that lost its lease cannot overwrite the new owner's result (it logs a warning). Rows from before leases (`received`, no expiry) are reclaimable once their last attempt is older than the lease. Handlers must still be idempotent: a processor that is merely slower than the lease can overlap with its successor.
 
+## Automatic retry (REM-103)
+
+- A job (`webhook-retry` queue, every minute) runs `AutoRetryWebhooksUseCase`: FAILED events under 6 attempts in all (the first delivery counts) are retried once `2^attempts` minutes (cap 6 hours) have passed since the last attempt. Each retry takes the same lease as the manual retry, so a person pressing retry or two job runs never process an event twice; a handler's "ignored" result is final, not a failure.
+- After the last failed attempt the event stays FAILED for the manual retry button, one `webhook.dead` audit event is written and an error is reported to Sentry once. Events with no stored payload are skipped for a person to inspect.
+
 ## Operational behavior
 
 A failed handler event is acknowledged to the provider rather than asking it to retry. The stored event must be retried manually from the platform console; there is no automatic retry scheduler/queue for failed WebhookEvent rows. The design avoids provider retry storms but makes the platform team responsible for discovering and retrying failures.

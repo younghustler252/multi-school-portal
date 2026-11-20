@@ -34,6 +34,7 @@ export function memoryRepo(o: { clock?: { now: Date }; leaseOff?: boolean } = {}
         },
         async findById(id) { return rows.get(id) ?? null; },
         async claimForRetry(id) { const r = rows.get(id); if (!r || !claimable(r)) return null; return take(r); },
+        async findFailedUnderLimit(max, limit) { return [...rows.values()].filter(r => r.status === "failed" && r.attempts < max).sort((a, b) => (a.lastAttemptAt?.getTime() ?? 0) - (b.lastAttemptAt?.getTime() ?? 0)).slice(0, limit); },
         async list() { return { rows: [...rows.values()], total: rows.size }; },
         async summary() { const m = new Map<string, number>(); for (const r of rows.values()) m.set(r.status, (m.get(r.status) ?? 0) + 1); return [...m].map(([status, count]) => ({ status: status as any, count })); },
     };

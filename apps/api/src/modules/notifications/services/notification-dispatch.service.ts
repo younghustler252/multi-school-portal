@@ -40,6 +40,8 @@ interface Dependencies {
     notificationDeliveryQueue: DeliveryQueue;
     /** The current school (id and database schema). Injected so tests need no request. */
     tenantInfo?: () => { schoolId: string; tenantSchema: string };
+    /** Runs the function in one tenant database transaction. Injected so tests can supply their own; the default is the real one. */
+    transaction?: <T>(fn: () => Promise<T>) => Promise<T>;
 }
 interface Options { now?: () => Date }
 
@@ -58,6 +60,11 @@ export class NotificationDispatchService {
     private readonly now: () => Date;
 
     constructor(private readonly d: Dependencies, options: Options = {}) { this.now = options.now ?? (() => new Date()); }
+
+    private run<T>(fn: () => Promise<T>): Promise<T> {
+        if (this.d.transaction) return this.d.transaction(fn);
+        return (async () => { const { withTenantTransaction } = await import("../../../infrastructure/database/prisma/prisma.client"); return withTenantTransaction(async () => fn()); })();
+    }
 
     private tenant() {
         if (this.d.tenantInfo) return this.d.tenantInfo();
@@ -99,27 +106,31 @@ export class NotificationDispatchService {
         const toQueue: { id: string; channel: "EMAIL" | "SMS" }[] = [];
         for (const group of groups.values()) {
             const first = group[0];
-            const notification = await this.d.notificationRepository.createSchoolNotification({
-                title: first.title, message: first.message, type: first.type as any, targetType: input.targetType as any,
-                sentById: input.sentById, metadata: (input.metadata ?? undefined) as any, sentAt: now,
+            // The notification and ALL its recipient rows are written in ONE transaction (REM-098): a failure part-way leaves no
+            // notification without recipients (or with only some). The queue is called after the commit, below.
+            const { id, inserted } = await this.run(async () => {
+                const notification = await this.d.notificationRepository.createSchoolNotification({
+                    title: first.title, message: first.message, type: first.type as any, targetType: input.targetType as any,
+                    sentById: input.sentById, metadata: (input.metadata ?? undefined) as any, sentAt: now,
+                });
+                const inserted = await this.d.notificationRepository.createSchoolRecipientsBatch(group.map(m => ({
+                    notificationId:    notification.id,
+                    recipientType:     m.recipient.recipientType,
+                    recipientEntityId: m.recipient.recipientEntityId,
+                    userId:            m.recipient.userId ?? null,
+                    channel:           m.channel,
+                    priority:          m.priority ?? "NORMAL",
+                    idempotencyKey:    m.idempotencyKey ?? null,
+                    status:            m.channel === "IN_APP" ? "SENT" : "PENDING",
+                    sentAt:            m.channel === "IN_APP" ? now : null,
+                })));
+                return { id: notification.id, inserted };
             });
-            result.notificationIds.push(notification.id);
-
-            const inserted = await this.d.notificationRepository.createSchoolRecipientsBatch(group.map(m => ({
-                notificationId:    notification.id,
-                recipientType:     m.recipient.recipientType,
-                recipientEntityId: m.recipient.recipientEntityId,
-                userId:            m.recipient.userId ?? null,
-                channel:           m.channel,
-                priority:          m.priority ?? "NORMAL",
-                idempotencyKey:    m.idempotencyKey ?? null,
-                status:            m.channel === "IN_APP" ? "SENT" : "PENDING",
-                sentAt:            m.channel === "IN_APP" ? now : null,
-            })));
+            result.notificationIds.push(id);
             result.created += inserted;
             for (const m of group) result.byChannel[m.channel]++;   // an upper bound: a row skipped by a unique rule is not subtracted per channel
 
-            if (group.some(m => m.channel !== "IN_APP")) toQueue.push(...(await this.d.notificationRepository.findUnqueuedDeliverables(notification.id)));
+            if (group.some(m => m.channel !== "IN_APP")) toQueue.push(...(await this.d.notificationRepository.findUnqueuedDeliverables(id)));
         }
 
         // 3. hand email and SMS to the queue

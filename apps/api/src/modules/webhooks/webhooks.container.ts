@@ -5,6 +5,7 @@ import { PaystackWebhookProvider } from "./providers/paystack.webhook-provider";
 import { WebhookProcessor } from "./services/webhook-processor.service";
 import { registryFrom } from "./webhooks.registry";
 import { ReceiveWebhookUseCase, ListWebhookEventsUseCase, GetWebhookEventUseCase, WebhookSummaryUseCase, RetryWebhookEventUseCase } from "./usecases/webhook.usecases";
+import { AutoRetryWebhooksUseCase } from "./usecases/auto-retry.usecase";
 import { WebhookController } from "./controllers/webhook.controller";
 
 /*
@@ -27,6 +28,7 @@ export const registerWebhooks = (container: AwilixContainer): void => {
         getWebhookEventUseCase:     asClass(GetWebhookEventUseCase).scoped(),
         webhookSummaryUseCase:      asClass(WebhookSummaryUseCase).scoped(),
         retryWebhookEventUseCase:   asClass(RetryWebhookEventUseCase).scoped(),
+        autoRetryWebhooksUseCase:   asClass(AutoRetryWebhooksUseCase).scoped(),
         webhookController:          asClass(WebhookController).scoped(),
     });
 };

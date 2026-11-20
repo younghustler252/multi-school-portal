@@ -2,6 +2,9 @@
 
 > **Source snapshot:** refactor/modules, reviewed 2026-11-06. This guide documents the code-owned message catalog, per-school text overrides, placeholder rendering and SMS segmentation. Unit tests were inspected but not executed.
 
+
+> **Subject length (REM-101):** after placeholders are filled, every subject (email and plain/in-app title) is collapsed to one line and cut to at most 120 characters (`SUBJECT_MAX`), ending with an ellipsis when cut. Values can be up to 200 characters each, so the saved template limit alone did not bound the result.
+
 ## Responsibility and boundaries
 
 Message Templates owns the approved wording and variables for system-generated school messages:

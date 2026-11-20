@@ -1096,6 +1096,7 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** After building messages, reject when the array is empty with a stable NO_DELIVERABLE_RECIPIENTS error and return counts for recipients omitted due to missing contact.
 - **Owner/workstream:** Notifications developer
 - **Acceptance criteria:** Email-only/SMS-only announcement with no usable contact returns a clear 4xx and creates no notification rows.
+- **Resolution (branch `fix/api/p1-remediation-batch12`, not yet merged):** the send use case refuses an announcement with no reachable recipient (400 `NO_DELIVERABLE_RECIPIENTS`, with counts) before dispatching, guards against an empty dispatch result, and reports `skippedNoContact` in the response and audit. Tests: `tests/notifications/batch12-dispatch.test.ts` (mutation-checked).
 
 ### REM-095 — Explicit empty platform schoolIds is treated as a broadcast to all schools
 
@@ -1144,6 +1145,7 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Use one tenant transaction for header plus all recipient rows where feasible. For very large audiences, persist a dispatch batch with expected recipient count and resumable chunk cursor, then mark complete only when all recipients are accounted for.
 - **Owner/workstream:** Notifications developer
 - **Acceptance criteria:** Injected chunk failure either rolls back the complete dispatch or leaves a resumable batch with accurate counts and no duplicate recipients.
+- **Resolution (branch `fix/api/p1-remediation-batch12`, not yet merged):** the dispatcher writes the notification header and all its recipient rows in one tenant transaction and queues after the commit; a failure leaves nothing behind. Tests include an old-behaviour control (header and partial audience remain). **Remaining:** one long transaction for a very large audience; the transaction is a fake in tests, real `withTenantTransaction` is not run here.
 
 ### REM-099 — External notification delivery is at-least-once without provider idempotency
 
@@ -1177,6 +1179,7 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Apply a post-render subject length/one-line validation after placeholder substitution. Use a safe deterministic truncation or fail the recipient with a clear template-render error.
 - **Owner/workstream:** Message Templates/Notifications developer
 - **Acceptance criteria:** Long placeholder values cannot produce invalid outbound email subjects; tests cover multi-placeholder expansion and control characters.
+- **Resolution (branch `fix/api/p1-remediation-batch12`, not yet merged):** `finishSubject` makes every rendered subject one line and at most 120 characters (cut on character boundaries with an ellipsis), applied to email subjects and plain titles. Tests in `batch12-dispatch.test.ts` (mutation-checked, header-injection and emoji cases).
 
 ### REM-102 — Concurrent duplicate webhook deliveries can both claim an in-progress event
 
@@ -1200,6 +1203,7 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Add bounded exponential-backoff retries using a durable queue/worker, with a dead-letter state and alert after the retry limit. If manual-only is deliberate, add monitoring/alerts and an operational response-time target.
 - **Owner/workstream:** Webhooks/Platform Operations
 - **Acceptance criteria:** Failed events are automatically retried within a bounded window or trigger an actionable alert; no failed payment event can remain unnoticed.
+- **Resolution (branch `fix/api/p1-remediation-batch12`, not yet merged):** `AutoRetryWebhooksUseCase` + a minute-interval `webhook-retry` job: back-off 2^attempts minutes (cap 6 h), 6 attempts in all, lease-protected, one `webhook.dead` audit event and a Sentry alert at the limit; ignored is final. Tests: `tests/webhooks/webhook-auto-retry.test.ts` (mutation-checked). **Remaining:** a permanently failing event is retried for about an hour before it is declared dead; handlers must stay idempotent per event key (they are, per REM-102).
 
 ### REM-104 — Webhook tests do not cover real HTTP signature/raw-body and concurrent DB claims
 

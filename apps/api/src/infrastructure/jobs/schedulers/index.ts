@@ -7,6 +7,7 @@ import { scheduleAutomationTick } from "../queues/automation.queue";
 import { scheduleEventReminderTick } from "../queues/event-reminders.queue";
 import { scheduleLedgerIntegrity } from "../queues/ledger-integrity.queue";
 import { scheduleAuditOutbox } from "../queues/audit-outbox.queue";
+import { scheduleWebhookRetry } from "../queues/webhook-retry.queue";
 import { scheduleRecurringExpenses } from "../queues/recurring-expenses.queue";
 
 export const initSchedulers = async (): Promise<void> => {
@@ -20,6 +21,7 @@ export const initSchedulers = async (): Promise<void> => {
     await scheduleLedgerIntegrity();
     await scheduleRecurringExpenses();
     await scheduleAuditOutbox();
+    await scheduleWebhookRetry();
 
     console.log("⏰ Job schedulers initialized");
 };

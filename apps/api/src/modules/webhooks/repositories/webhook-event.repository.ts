@@ -20,6 +20,8 @@ export interface IWebhookEventRepository {
     findById(id: string): Promise<WebhookEventRow | null>;
     /** Atomically take a failed (or lease-expired) event for a retry. Returns the lease token, or null when someone else holds it or it is not retryable. */
     claimForRetry(id: string): Promise<string | null>;
+    /** FAILED events still under the retry limit, least recently tried first. The caller applies the back-off. */
+    findFailedUnderLimit(maxAttempts: number, limit: number): Promise<WebhookEventRow[]>;
     list(filter: WebhookEventFilter, page: number, limit: number): Promise<{ rows: WebhookEventRow[]; total: number }>;
     summary(since: Date): Promise<{ status: WebhookStatus; count: number }[]>;
 }

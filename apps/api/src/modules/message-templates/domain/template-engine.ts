@@ -52,6 +52,17 @@ export function validateTemplateText(channel: MessageChannel, t: TemplateText, a
     return problems;
 }
 
+/**
+ * A subject after the placeholders are filled (REM-101): one line (any line break or run of spaces becomes one space) and at most
+ * SUBJECT_MAX characters. A longer one is cut at SUBJECT_MAX - 1 characters and ends with "…", the same way every time. The source
+ * template is already limited to SUBJECT_MAX, but values of up to VALUE_MAX_LENGTH characters each can push the result well past it.
+ */
+export function finishSubject(text: string): string {
+    const oneLine = text.replace(/\s+/g, " ").trim();
+    const chars = [...oneLine];
+    return chars.length <= SUBJECT_MAX ? oneLine : chars.slice(0, SUBJECT_MAX - 1).join("").trimEnd() + "…";
+}
+
 const cleanValue = (v: unknown): string => String(v ?? "").replace(CONTROL, " ").trim().slice(0, VALUE_MAX_LENGTH);
 
 /** One pass: each placeholder becomes its value (or nothing when the value is missing). */
@@ -82,9 +93,9 @@ export function renderMessage(channel: MessageChannel, t: TemplateText, values: 
     if (channel === "EMAIL") {
         const safe = escapeHtml(body.text);
         const paragraphs = safe.split(/\n{2,}/).map(p => p.trim().replace(/\n/g, "<br>")).filter(Boolean);
-        return { channel, subject: subject ? subject.text : null, body: safe, paragraphs, missing };
+        return { channel, subject: subject ? finishSubject(subject.text) : null, body: safe, paragraphs, missing };
     }
-    return { channel, subject: subject ? subject.text : null, body: body.text, paragraphs: [], missing };
+    return { channel, subject: subject ? finishSubject(subject.text) : null, body: body.text, paragraphs: [], missing };
 }
 
 /**
@@ -94,7 +105,7 @@ export function renderMessage(channel: MessageChannel, t: TemplateText, values: 
 export function renderPlain(t: TemplateText, values: Record<string, unknown>): { subject: string | null; body: string; missing: string[] } {
     const body = fillPlaceholders((t.body ?? "").trim(), values);
     const subject = t.subject ? fillPlaceholders(t.subject.trim(), values) : null;
-    return { subject: subject ? subject.text.replace(/\s+/g, " ").trim() : null, body: body.text, missing: [...new Set([...body.missing, ...(subject?.missing ?? [])])] };
+    return { subject: subject ? finishSubject(subject.text) : null, body: body.text, missing: [...new Set([...body.missing, ...(subject?.missing ?? [])])] };
 }
 
 /* ---------- SMS length: how many messages will the school pay for ---------- */
