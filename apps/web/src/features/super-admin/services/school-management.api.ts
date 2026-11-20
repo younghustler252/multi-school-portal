@@ -14,34 +14,34 @@ import { CreateSchoolFormValues } from "../schemas/create-school.schema";
 
 export const schoolManagementApi = {
 	create: (data: CreateSchoolFormValues): Promise<ApiResponse<AdminSchoolResponseData>> =>
-		API.post("/schools", data),
+		API.post("/platform/schools", data),
 
 	list: (params: ListSchoolsParams): Promise<ApiResponse<AdminSchoolResponseData[]>> =>
-		API.get("/schools", { params }),
+		API.get("/platform/schools", { params }),
 
 	getById: (id: string): Promise<ApiResponse<AdminSchoolResponseData>> =>
-		API.get(`/schools/${id}`),
+		API.get(`/platform/schools/${id}`),
 
 	verify: (id: string): Promise<ApiResponse<AdminSchoolResponseData>> =>
-		API.put(`/schools/${id}/verify`),
+		API.put(`/platform/schools/${id}/verify`),
 
 	reject: (id: string, reason: string): Promise<ApiResponse<AdminSchoolResponseData>> =>
-		API.put(`/schools/${id}/reject`, { schoolId: id, reason }),
+		API.put(`/platform/schools/${id}/reject`, { reason }),
 
 	suspend: (id: string, reason: string): Promise<ApiResponse<AdminSchoolResponseData>> =>
-		API.put(`/schools/${id}/suspend`, { schoolId: id, reason }),
+		API.put(`/platform/schools/${id}/suspend`, { reason }),
 
 	activate: (id: string): Promise<ApiResponse<AdminSchoolResponseData>> =>
-		API.put(`/schools/${id}/approve`),
+		API.put(`/platform/schools/${id}/reactivate`),
 
 	getSchoolDocuments: (schoolId: string): Promise<ApiResponse<SchoolDocumentResponseData[]>> =>
-		API.get(`/schools/${schoolId}/documents`),
+		API.get(`/platform/schools/${schoolId}/documents`),
 
 	approveDocument: (documentId: string): Promise<ApiResponse<SchoolDocumentResponseData>> =>
-		API.put(`/schools/documents/${documentId}/approve`),
+		API.put(`/platform/schools/documents/${documentId}/approve`),
 
 	rejectDocument: (documentId: string, reason: string): Promise<ApiResponse<SchoolDocumentResponseData>> =>
-		API.put(`/schools/documents/${documentId}/reject`, { documentId, reason }),
+		API.put(`/platform/schools/documents/${documentId}/reject`, { reason }),
 
 	impersonateSchool: (schoolId: string): Promise<ApiResponse<{ accessToken: string; school: AdminSchoolResponseData; admin: PlatformUserResponseData }>> =>
 		API.post(`/super-admin/schools/${schoolId}/impersonate`),

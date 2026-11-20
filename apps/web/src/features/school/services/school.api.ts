@@ -18,12 +18,12 @@ import {
 
 export const schoolApi = {
 	getMySchool: (): Promise<ApiResponse<SchoolResponseData>> =>
-		API.get("/schools/me"),
+		API.get("/schools"),
 
 	updateMySchool: (
 		data: UpdateSchoolDto,
 	): Promise<ApiResponse<SchoolResponseData>> =>
-		API.put("/schools/me", data),
+		API.put("/schools", data),
 
 	/** Returns the updated school; the new logo address is `data.logoUrl`. */
 	uploadLogo: (
@@ -33,7 +33,7 @@ export const schoolApi = {
 
 		formData.append("logo", file);
 
-		return API.post("/schools/me/logo", formData, {
+		return API.post("/schools/logo", formData, {
 			headers: {
 				"Content-Type": "multipart/form-data",
 			},
@@ -42,7 +42,7 @@ export const schoolApi = {
 
 	getMyDocuments: (): Promise<
 		ApiResponse<SchoolDocumentResponseData[]>
-	> => API.get("/schools/me/documents"),
+	> => API.get("/schools/documents"),
 
 	uploadDocument: (
 		file: File,
@@ -76,7 +76,7 @@ export const schoolApi = {
 			);
 		}
 
-		return API.post("/schools/me/documents", formData, {
+		return API.post("/schools/documents", formData, {
 			headers: {
 				"Content-Type": "multipart/form-data",
 			},
@@ -86,13 +86,13 @@ export const schoolApi = {
 	setupPayment: (
 		data: SetupPaymentDto,
 	): Promise<ApiResponse<SchoolResponseData>> =>
-		API.post("/schools/me/payment-setup", data),
+		API.post("/schools/payment-setup", data),
 
 	getSetupChecklist: (): Promise<ApiResponse<SetupChecklist>> =>
-		API.get("/schools/me/setup-checklist"),
+		API.get("/schools/setup-checklist"),
 
 	getDashboard: (): Promise<ApiResponse<SchoolDashboardData>> =>
-		API.get("/schools/me/dashboard"),
+		API.get("/schools/dashboard"),
 
 	getPublicInfo: (
 		subdomain: string,

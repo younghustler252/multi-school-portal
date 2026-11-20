@@ -70,13 +70,7 @@ export default function PromoteStudentsPage() {
 			const result = await promoteStudents.mutateAsync({
 				currentTermId,
 				newTermId,
-				// Sent back exactly as received from the preview fetch —
-				// never re-derived, per the spec.
-				rows: preview.map((r) => ({
-					studentId: r.studentId,
-					fromClassId: r.fromClassId,
-					toClassId: r.toClassId,
-				})),
+				// The server works out who moves where; only the exceptions are sent (docs/backend/modules/enrolment.md).
 				overrides,
 			});
 			toast.success(`Promoted ${result.promoted} students`);

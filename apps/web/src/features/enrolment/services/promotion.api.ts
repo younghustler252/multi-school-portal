@@ -9,8 +9,8 @@ import {
 
 export const promotionApi = {
 	getPreview: (params: PromotionPreviewDto): Promise<ApiResponse<PromotionPreviewResponseData>> =>
-		API.get("/enrolment/promotion-preview", { params }),
+		API.get("/enrolments/promotion-preview", { params }),
 
 	promote: (data: PromoteStudentsDto): Promise<ApiResponse<PromoteStudentsResult>> =>
-		API.post("/enrolment/promote", data),
+		API.post("/enrolments/promote", data),
 };
