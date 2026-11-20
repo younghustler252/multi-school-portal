@@ -58,6 +58,11 @@ export class WebhookEventRepositoryImpl implements IWebhookEventRepository {
         return r.count === 1 ? token : null;
     }
 
+    async findFailedUnderLimit(maxAttempts: number, limit: number): Promise<WebhookEventRow[]> {
+        const rows = await this.db.webhookEvent.findMany({ where: { status: "failed", attempts: { lt: maxAttempts } }, orderBy: [{ lastAttemptAt: "asc" }, { receivedAt: "asc" }], take: limit });
+        return rows.map(row);
+    }
+
     async list(f: WebhookEventFilter, page: number, limit: number) {
         const where: any = {};
         if (f.provider) where.provider = f.provider;

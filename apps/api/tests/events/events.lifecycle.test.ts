@@ -61,7 +61,7 @@ function notifyWorld(opts: { enabled?: boolean; allowed?: string[]; people?: any
         createSchoolRecipientsBatch: async (rows: any[]) => { for (const r of rows) { if (r.idempotencyKey) keys.add(r.idempotencyKey); recipients.push(r); } return rows.length; },
         findUnqueuedDeliverables: async () => [], markSchoolRecipientsQueued: async () => undefined,
     };
-    const dispatch = new NotificationDispatchService({ notificationRepository, notificationDeliveryQueue: { enqueue: async (j: any) => { queued.push(...j); } }, tenantInfo: () => ({ schoolId: "s", tenantSchema: "t" }) });
+    const dispatch = new NotificationDispatchService({ notificationRepository, notificationDeliveryQueue: { enqueue: async (j: any) => { queued.push(...j); } }, tenantInfo: () => ({ schoolId: "s", tenantSchema: "t" }), transaction: fn => fn() });
     const people = opts.people ?? [{ type: "STUDENT", id: "st1", userId: "u-st1", email: "a@x", phone: null }, { type: "GUARDIAN", id: "g1", userId: "u-g1", email: null, phone: "0800" }];
     const resolved: any[] = [];
     const audienceRecipientService: any = { resolve: async (q: any) => { resolved.push(q); return people; } };

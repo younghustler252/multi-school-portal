@@ -73,7 +73,7 @@ export function notificationsWorld(opts: { plan?: { email?: boolean; sms?: boole
     const prefs = { "notifications.email_enabled": true, "notifications.sms_enabled": true, ...(opts.prefs ?? {}) };
 
     const dispatch = new NotificationDispatchService(
-        { notificationRepository: repo, notificationDeliveryQueue: queue, tenantInfo: () => ({ schoolId: "sch", tenantSchema: "school_sch" }) },
+        { notificationRepository: repo, notificationDeliveryQueue: queue, tenantInfo: () => ({ schoolId: "sch", tenantSchema: "school_sch" }), transaction: fn => fn() },
         { now: () => NOW });
 
     const delivery = new NotificationDeliveryService({

@@ -84,6 +84,11 @@ Notification recipient idempotency is enforced by the unique key in the tenant s
 
 The dispatch service creates notification header and recipient rows as separate repository operations, and recipient batches are chunked by 1,000. There is no single transaction spanning the header and every recipient chunk.
 
+### Batch 12 additions (REM-094, REM-098)
+
+- A school announcement whose recipients cannot be reached on the chosen channels (no email address / phone number for every person) is refused with 400 `NO_DELIVERABLE_RECIPIENTS`, saying how many were left out; nothing is created or audited. When some are reachable the response and the audit event carry `skippedNoContact`.
+- The dispatcher writes each notification header and all its recipient rows in ONE tenant transaction (`withTenantTransaction` by default, injectable as `transaction`), then hands email/SMS rows to the queue after the commit. A failure part-way leaves no header and no partial audience. Limit: a very large audience is one long transaction (rows are inserted in chunks of the repository `CHUNK` size).
+
 ## Worker delivery and status semantics
 
 BullMQ worker:

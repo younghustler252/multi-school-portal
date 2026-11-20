@@ -13,5 +13,6 @@ export const initWorkers = (): void => {
     require("./workers/recurring-expenses.worker")
     require("./workers/class-pdf.worker")
     require("./workers/audit-outbox.worker")
+    require("./workers/webhook-retry.worker")
     console.log("✅ Background workers started");
 };
