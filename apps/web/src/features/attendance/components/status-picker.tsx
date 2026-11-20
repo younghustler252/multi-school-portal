@@ -12,21 +12,24 @@ const ACTIVE_CLASSES: Record<AttendanceStatus, string> = {
 };
 
 interface StatusPickerProps {
-	value: AttendanceStatus;
+	/** null = not marked yet: no button is highlighted. */
+	value: AttendanceStatus | null;
 	onChange: (status: AttendanceStatus) => void;
+	disabled?: boolean;
 }
 
-export function StatusPicker({ value, onChange }: StatusPickerProps) {
+export function StatusPicker({ value, onChange, disabled }: StatusPickerProps) {
 	return (
 		<div className="flex gap-1.5">
 			{STATUSES.map((status) => (
 				<button
 					key={status}
 					type="button"
+					disabled={disabled}
 					onClick={() => onChange(status)}
 					className={cn(
-						"rounded-md border px-2.5 py-1 text-xs font-medium transition-colors",
-						value === status ? ACTIVE_CLASSES[status] : "border-border text-muted-foreground hover:bg-muted"
+						"rounded-md border px-2.5 py-1 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60",
+						value === status ? ACTIVE_CLASSES[status] : "border-border text-muted-foreground enabled:hover:bg-muted"
 					)}
 				>
 					{ATTENDANCE_STATUS_LABELS[status]}

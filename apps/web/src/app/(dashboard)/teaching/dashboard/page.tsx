@@ -13,16 +13,8 @@ import { useCurrentSession } from "@/features/school/hooks/use-sessions";
 import { useTodaysAttendanceStatus } from "@/features/attendance/hooks/use-todays-attendance-status";
 import { ROUTES } from "@/lib/routes";
 
-function ClassStatusRow({
-	classId,
-	className,
-	termId,
-}: {
-	classId: string;
-	className: string;
-	termId?: string;
-}) {
-	const { data: marked, isLoading } = useTodaysAttendanceStatus(classId, termId);
+function ClassStatusRow({ classId, className }: { classId: string; className: string }) {
+	const { complete, closed, holiday, isLoading } = useTodaysAttendanceStatus(classId);
 
 	return (
 		<div className="flex items-center justify-between rounded-lg border border-border p-3">
@@ -30,7 +22,9 @@ function ClassStatusRow({
 
 			{isLoading ? (
 				<Skeleton className="h-6 w-20" />
-			) : marked ? (
+			) : closed ? (
+				<Badge variant="outline">{holiday ?? "No register today"}</Badge>
+			) : complete ? (
 				<Badge variant="secondary">
 					<CheckCircle2 className="size-3" /> Marked today
 				</Badge>
@@ -127,7 +121,7 @@ export default function TeacherDashboardPage() {
 				{termId && classesAsClassTeacher.length > 0 && (
 					<div className="mt-4 space-y-2">
 						{classesAsClassTeacher.map((c) => (
-							<ClassStatusRow key={c.classId} classId={c.classId} className={c.className} termId={termId} />
+							<ClassStatusRow key={c.classId} classId={c.classId} className={c.className} />
 						))}
 					</div>
 				)}
