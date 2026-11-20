@@ -5,6 +5,7 @@ import { UploadLogoUseCase }          from "../usecases/upload-logo.usecase";
 import { UploadDocumentUseCase }      from "../usecases/upload-document.usecase";
 import { GetDocumentsUseCase }        from "../usecases/get-documents.usecase";
 import { SetupPaymentUseCase }        from "../usecases/setup-payment.usecase";
+import { ListBanksUseCase, VerifyBankAccountUseCase } from "../usecases/bank-lookup.usecases";
 import { GetDashboardUseCase }        from "../usecases/get-dashboard.usecase";
 import { GetSetupChecklistUseCase }   from "../usecases/get-setup-checklist.usecase";
 import { GetPublicSchoolInfoUseCase } from "../usecases/get-public-school-info.usecase";
@@ -15,7 +16,7 @@ import { schoolErrors }               from "../domain/school.errors";
 interface Dependencies {
     getSchoolUseCase: GetSchoolUseCase; updateSchoolUseCase: UpdateSchoolUseCase; uploadLogoUseCase: UploadLogoUseCase;
     uploadDocumentUseCase: UploadDocumentUseCase; getDocumentsUseCase: GetDocumentsUseCase;
-    setupPaymentUseCase: SetupPaymentUseCase; getDashboardUseCase: GetDashboardUseCase;
+    setupPaymentUseCase: SetupPaymentUseCase; listBanksUseCase: ListBanksUseCase; verifyBankAccountUseCase: VerifyBankAccountUseCase; getDashboardUseCase: GetDashboardUseCase;
     getSetupChecklistUseCase: GetSetupChecklistUseCase; getPublicSchoolInfoUseCase: GetPublicSchoolInfoUseCase;
 }
 
@@ -63,6 +64,14 @@ export class SchoolController {
         try {
             sendSuccess(res, await this.d.setupPaymentUseCase.execute(schoolIdOf(req), { userId: userIdOf(req), ip: ipOf(req) }, req.body), "Payment setup successful");
         } catch (e) { next(e); }
+    };
+
+    listBanks = async (_req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.listBanksUseCase.execute(), "Banks retrieved successfully"); } catch (e) { next(e); }
+    };
+
+    verifyBankAccount = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.verifyBankAccountUseCase.execute(schoolIdOf(req), req.body), "Bank account verified"); } catch (e) { next(e); }
     };
 
     getDashboard = async (req: Request, res: Response, next: NextFunction) => {

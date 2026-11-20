@@ -84,6 +84,8 @@ All paths are under `/api/v1/schools`.
 | `GET /documents` | Authenticated; tenant required; `school.documents.manage` | List verification documents with signed file links |
 | `POST /documents` | Authenticated; tenant required; `school.documents.manage`; upload limiter; multipart `document` | Upload verification document and metadata |
 | `POST /payment-setup` | Authenticated; tenant required; `school.payments.manage`; verified school required | Create or change fee settlement account |
+| `GET /banks` | Authenticated; tenant required; `school.payments.manage`; verified school required; 60 requests/min per user | Banks the payment-setup form can offer, `[{ name, code }]` sorted by name (cached in memory for 24 h) |
+| `POST /payment-setup/verify` | Authenticated; tenant required; `school.payments.manage`; verified school required; 20 requests/min per user | Preview the account holder name before saving; writes nothing |
 | `GET /dashboard` | Authenticated; tenant required; `school.dashboard.view` | Get school dashboard data |
 | `GET /setup-checklist` | Authenticated; tenant required; `school.update` | Get setup checklist |
 
@@ -146,6 +148,10 @@ Once verified, the school cannot change `name`, `schoolCategory` or `schoolOwner
 - `bankCode`: trimmed, 2–10 characters.
 - `accountNumber`: exactly 10 digits.
 - `password`: optional in DTO; required by use-case logic when changing an existing settlement account.
+
+### VerifyBankAccountDto — `POST /payment-setup/verify`
+
+Same `bankCode` and `accountNumber` rules as `SetupPaymentDto`; no `password`; unknown fields are rejected. Response `data`: `{ accountName, accountNameMatchesSchool }` (the number is never echoed). Errors: `400` the bank could not verify the account (same message as `POST /payment-setup`), `503 BANK_LOOKUP_UNAVAILABLE` (outcome unknown, safe to retry), `403 SCHOOL_NOT_VERIFIED`, `429` from the per-user limiter. `accountNameMatchesSchool` uses the same rule as the real setup (`domain/account-name.ts`).
 
 ### Platform DTOs
 

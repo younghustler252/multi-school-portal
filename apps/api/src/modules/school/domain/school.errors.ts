@@ -11,6 +11,7 @@ export const schoolErrors = {
     invalidImage:       (msg = "Upload a JPEG, PNG or WebP image up to 2 MB") => new AppError(msg, 400, true, "INVALID_IMAGE"),
     tooManyDocuments:   () => new AppError("You have reached the upload limit for this document type", 409, true, "DOCUMENT_LIMIT_REACHED"),
     bankNotVerified:    () => new BadRequestError("Could not verify bank account. Please check the account number and bank"),
+    bankLookupUnavailable: () => new AppError("Bank lookup is unavailable right now. Please try again shortly", 503, true, "BANK_LOOKUP_UNAVAILABLE"),
     passwordRequired:   () => new ForbiddenError("Confirm your password to change the payment account", "PASSWORD_CONFIRMATION_REQUIRED"),
     passwordWrong:      () => new ForbiddenError("Password is incorrect", "CURRENT_PASSWORD_INCORRECT"),
     documentsIncomplete: () => new AppError("Required documents are not all approved yet", 409, true, "DOCUMENTS_INCOMPLETE"),
