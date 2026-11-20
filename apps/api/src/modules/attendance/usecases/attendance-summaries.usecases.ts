@@ -26,11 +26,12 @@ export class StudentSummaryUseCase {
 
     async execute(query: StudentSummaryQueryType, access: Access): Promise<{ student: StudentRef; term: TermRef; class: NameRef | null } & SummaryWithRegisters> {
         const repo = this.d.attendanceRepository;
-        const student = await repo.findStudent(query.studentId);
-        if (!student) throw attendanceErrors.studentNotFound();
+        // The term is checked FIRST: it does not depend on the student, so a bad term gives the same answer whether or not the student
+        // exists. (Checked after the student lookup it was an oracle: "student exists" -> term error, "no such student" -> 404.)
         const term = await termOf(repo, query.termId);
+        const student = await repo.findStudent(query.studentId);
         // a student outside the person's scope looks like one that does not exist (nothing about them is shown)
-        if (!(await studentInScope(repo, access, student.id, term.id))) throw attendanceErrors.studentNotFound();
+        if (!student || !(await studentInScope(repo, access, student.id, term.id))) throw attendanceErrors.studentNotFound();
 
         // what this person may see of this student (a teacher sees only their classes; a guardian only their child)
         const where = { AND: [attendanceViewWhere(access), { studentId: student.id, termId: term.id }] };

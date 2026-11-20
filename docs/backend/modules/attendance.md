@@ -190,84 +190,34 @@ The attendance rate is:
 
 Student summary defaults to the current term. Class summary returns every student on the class register, each student's counts and the aggregate class summary. Counts are grouped in the repository rather than issuing one query per student.
 
-### Summary authorization review item
+### Summary authorization (closed: REM-001 and its November 2026 follow-up)
 
-The student-summary use case applies `attendanceViewWhere` to the attendance aggregation, but it separately fetches the requested student and their enrolment/class/register-day information. For a caller who is not authorized to see that student, the current implementation can therefore return zero attendance counts while still returning student/class/term metadata and register-day totals. The focused test currently checks that a guardian receives zero `daysMarked` for another child; it does not assert that the rest of the response is suppressed.
+Summaries use the same `attendance.view` scope as the lists and the class register; there is no separate permission model.
 
-Treat this as an **open privacy review item**, not as a confirmed exploit: the intended behavior needs a product/security decision and a test that verifies unauthorized summary requests reveal no student/class metadata or attendance-volume information. The use case should enforce access to the target student/class before returning the summary.
+| Who | Student summary (`GET /attendance/summary?studentId`) | Class summary (`GET /attendance/classes/:id/summary`) |
+|---|---|---|
+| Student (`OWN`) | their own only | never |
+| Guardian (`OWN`) | linked children only | never |
+| Class teacher (`ASSIGNED`) | students enrolled in a class they lead | classes they lead |
+| Subject teacher (`ASSIGNED`) | students enrolled in a class they teach **this term** | classes they teach in the term of the summary |
+| Branch staff (`BRANCH`) | students in classes of their branches | classes of their branches |
+| `ALL` | everyone | everything |
+| anyone else | nobody | nobody |
 
-## 7. Response shapes and frontend integration
+Rules the code keeps:
+- The student is found and authorized (`studentInScope`) before the class, register days or counts are looked up. A student outside the caller's scope gets the same 404 as one that does not exist, so no name, admission number, class, enrolment or count is returned.
+- The term is validated first, so a bad `termId` answers the same way for existing and missing students (it used to reveal that the student exists).
+- Every count is taken from rows the caller may see (`attendanceViewWhere`). A teacher sees only the marks of their own classes, so a student who moved class shows the new class's teacher only the days marked in that class, and the old class's teacher nothing.
+- The class summary is class-scoped (`classInScope`); an out-of-scope class is 403, the same as opening that class's register.
+- The school dashboard's attendance block (`GET /dashboard`) is filtered with the same row scope and now carries `scope` (`ALL`, `BRANCH`, `ASSIGNED`); it used to be school-wide for every staff member with `attendance.view`.
 
-### Class register
+Known differences kept on purpose: the lists and the student summary count a subject teacher's classes for the current term only, while the class summary and the register use the term of the summary/date; a withdrawn or transferred student stays visible to the class they were enrolled in (their marks in that class are history), but shows no current class.
 
-The register response contains:
-- `class: { id, name }`
-- `date` as `YYYY-MM-DD`
-- `term: { id, name, session: { id, name } | null }`
-- `holiday` as a title or null
-- `canMark`
-- `students[]`, each with student identity/name/admission number, nullable mark ID/status/note, marker name/time and `editable`
-- `summary` counts for present, absent, late, excused and unmarked
-
-### Attendance mark presenter
-
-List and update responses are presented as:
-```ts
-{
-  id: string;
-  date: string; // YYYY-MM-DD
-  status: string;
-  note: string | null;
-  student: { id: string; name: string; admissionNumber: string | null } | null;
-  class: { id: string; name: string } | null;
-  term: { id: string; name: string; session: { id: string; name: string } | null } | null;
-  markedBy: { id: string; name: string } | null;
-  markedAt: Date;
-  updatedAt: Date;
-}
-```
-
-The presenter batches student, class, term and marker lookups for the page. Missing related records are represented as null. The list endpoint returns `{ success, message, data, meta }`; other read/write endpoints use the shared success response helper.
-
-Frontend implementation guidance:
-- Send calendar dates only, without browser-local time conversion or a timezone suffix.
-- Do not send a term ID when taking a register; the API derives it from the selected date.
-- Build the register from the returned class list; do not construct it from the whole student directory.
-- Show skipped entries and their reasons, plus the remaining unmarked students.
-- Use `canMark` and per-row `editable` as server-calculated capabilities, but still handle authorization/domain errors.
-- Display marker identity and mark/update timestamps as returned.
-- Explain the 48-hour correction limit and the need for authorized override after it.
-- Keep excused counts separate from the attendance-rate calculation.
-- Handle null rates and null class/term references for legacy rows.
-- Treat `ATTENDANCE_TERM_AMBIGUOUS` as an academic-calendar data issue for an administrator, not as a reason to guess a term.
-
-## 8. Persistence and migration
-
-The tenant Prisma model `Attendance` contains:
-- `studentId`, `termId`, optional `classId`, calendar `date`, `status`, optional `note`, optional `markedById`, `createdAt`, `updatedAt`.
-- Unique constraint `[studentId, date]`, enforcing one row per student per stored date value.
-- Indexes `[classId, date]` and `[termId, date]`.
-- Student and term relations; optional class relation uses `ON DELETE SET NULL`.
-- `markedById` is a login ID scalar; the current model does not declare a User relation for it.
-
-Migration `20261102090000_attendance_register` adds class and marker columns plus `updatedAt`. Existing rows keep their prior date/status/note; class and marker remain null because historical values are not invented. Existing `updatedAt` is initialized from `createdAt`. The migration adds the class foreign key and class/date and term/date indexes.
-
-A populated-tenant migration test explicitly applies earlier migrations, seeds old attendance rows (including one with a clock time), then applies only the attendance migration and checks historical preservation and new constraints/indexes. It runs only when `TEST_DATABASE_URL` is set and the configured database name contains `test`.
-
-## 9. Dependencies, registration and tests
-
-The module registers its repository, presenter, register/list/update/summary use cases and controller in `attendance.container.ts`. It is registered in the shared API container after the foundation and before grades/report cards. The repository uses the request's tenant Prisma client and imports the shared `lockClass` helper from Enrolment.
-
-Inspected tests:
-- `apps/api/tests/attendance/attendance.policy.test.ts`: pure date/term/holiday/edit-window/summary rules, permission registry/default role templates and request validation.
-- `apps/api/tests/attendance/attendance.db.test.ts`: real-database class access, register submission, skip reasons, idempotency, audit, correction/override, scoped lists, summaries, legacy timestamp normalization and concurrent submissions.
-- `apps/api/tests/attendance/migration.db.test.ts`: migration against a populated tenant.
-
-The test sources were inspected but not executed. The database and migration tests are conditional on a test database URL. No typecheck, build, migration run or live API request was performed.
+Tests: `tests/attendance/summary-scope.test.ts` (in-memory school running the real scope filters), `attendance.summary-authz.test.ts`, and the database cases in `attendance.db.test.ts`.
 
 ## 10. Open verification and design items
 
-1. Resolve the student-summary authorization gap described above and add tests asserting unauthorized summaries return no identifying or aggregate metadata.
+1. (Done) Student-summary authorization: see section 6.
 2. (Done) `attendance.view` BRANCH is implemented by class branch and tested for lists, register, class and student summaries, filters that try to reach across branches, and a class moving branch.
 3. Decide whether date-range DTO validation should reject `from > to`.
 4. Confirm that hard-coded `Africa/Lagos` is acceptable until school timezone settings are wired into attendance.

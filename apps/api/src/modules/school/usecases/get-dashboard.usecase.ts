@@ -18,7 +18,8 @@ export interface SchoolDashboard {
     people:     { totalStaff: number; activeStaff: number; totalStudents: number; activeStudents: number; totalGuardians: number } | null;
     academics:  { currentTerm: string | null; totalClasses: number; totalSubjects: number; activeEnrolments: number } | null;
     fees:       { term: string | null; totalInvoicedKobo: number; totalCollectedKobo: number; totalPendingKobo: number; overdueInvoices: number } | null;
-    attendance: { date: string; present: number; absent: number; late: number; excused: number } | null;
+    // Counts cover only the attendance the viewer may see: everything (ALL), their branches, their classes (ASSIGNED). `scope` says which.
+    attendance: { date: string; scope: string; present: number; absent: number; late: number; excused: number } | null;
 }
 
 // Today's date in the school's own time zone, as YYYY-MM-DD
@@ -49,7 +50,7 @@ export class GetDashboardUseCase {
         return row ? row.limitValue : 0;
     }
 
-    async execute(schoolId: string, can: (key: string) => boolean): Promise<SchoolDashboard> {
+    async execute(schoolId: string, can: (key: string) => boolean, attendance?: { scope: string; where: Record<string, unknown> }): Promise<SchoolDashboard> {
         const d = this.d;
         const tenant = d.schoolTenantRepository;
 
@@ -79,12 +80,13 @@ export class GetDashboardUseCase {
             return { term: termLabel, ...(await tenant.termInvoiceTotals(term.id, cutoff)) };
         })() : null;
 
-        const attendance = can("attendance.view") ? await (async () => {
+        // Never school-wide for someone whose attendance.view is narrower than ALL (REM-001 follow-up): no scope given means no counts at all
+        const attendanceSection = can("attendance.view") && attendance ? await (async () => {
             const day   = todayIn(school.timezone);
             const start = new Date(`${day}T00:00:00.000Z`);
             const end   = new Date(start.getTime() + 86_400_000);
-            const n = await tenant.attendanceCountsBetween(start, end);
-            return { date: day, present: n.present ?? 0, absent: n.absent ?? 0, late: n.late ?? 0, excused: n.excused ?? 0 };
+            const n = await tenant.attendanceCountsBetween(start, end, attendance.where);
+            return { date: day, scope: attendance.scope, present: n.present ?? 0, absent: n.absent ?? 0, late: n.late ?? 0, excused: n.excused ?? 0 };
         })() : null;
 
         return {
@@ -93,7 +95,7 @@ export class GetDashboardUseCase {
                 name: plan?.name ?? "Free", status: subscription?.status ?? "none",
                 expiresAt: subscription?.currentPeriodEnd ?? null, studentLimit, staffLimit,
             },
-            people, academics, fees, attendance,
+            people, academics, fees, attendance: attendanceSection,
         };
     }
 }
