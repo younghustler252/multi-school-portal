@@ -86,7 +86,7 @@ All paths are under `/api/v1/schools`.
 | `POST /payment-setup` | Authenticated; tenant required; `school.payments.manage`; verified school required | Create or change fee settlement account |
 | `GET /banks` | Authenticated; tenant required; `school.payments.manage`; verified school required; 60 requests/min per user | Banks the payment-setup form can offer, `[{ name, code }]` sorted by name (cached in memory for 24 h) |
 | `POST /payment-setup/verify` | Authenticated; tenant required; `school.payments.manage`; verified school required; 20 requests/min per user | Preview the account holder name before saving; writes nothing |
-| `GET /dashboard` | Authenticated; tenant required; `school.dashboard.view` | Get school dashboard data |
+| `GET /dashboard` | Authenticated; tenant required; `school.dashboard.view` | Get school dashboard data. The `attendance` block (needs `attendance.view`) counts only attendance the viewer's scope allows and includes `scope`; `people` and `academics` still use `students.view`/`staff.view` without scope narrowing (see needs-attention) |
 | `GET /setup-checklist` | Authenticated; tenant required; `school.update` | Get setup checklist |
 
 ### Platform realm endpoints
