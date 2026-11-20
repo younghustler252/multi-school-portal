@@ -99,7 +99,7 @@ export class ClassOverviewUseCase {
         if (!termId) throw reportCardErrors.termNotFound();
         const ctx = await this.d.reportCardBuilder.loadClass(query.classId, termId);
         if (!ctx) throw reportCardErrors.classNotFound();
-        if (!mayViewClass(access, ctx.cls.classTeacherId)) throw reportCardErrors.cannotSee();
+        if (!mayViewClass(access, ctx.cls.classTeacherId, ctx.cls.branchId)) throw reportCardErrors.cannotSee();
 
         const cards = await repo.cardsOfStudents(termId, ctx.students.map(s => s.id));
         const by = new Map(cards.map(c => [c.studentId, c]));
@@ -121,7 +121,7 @@ export class ClassOverviewUseCase {
                 students: rows.length, noCard: rows.filter(r => !r.card).length, draft: rows.filter(r => r.card?.status === "draft").length,
                 published: rows.filter(r => r.card && isVisibleCard(r.card.status)).length, stale: rows.filter(r => r.card?.stale).length,
             },
-            can: { generate: mayWorkOnClass(access, ctx.cls.classTeacherId), publish: access.can("report_cards.publish") },
+            can: { generate: mayWorkOnClass(access, ctx.cls.classTeacherId), publish: access.can("report_cards.publish"), publishIncomplete: access.can("report_cards.publish") && access.can("report_cards.publish_incomplete") },
         };
     }
 }

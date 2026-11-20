@@ -15,7 +15,7 @@ export interface CardRow {
 }
 export interface CardWithRefs extends CardRow {
     student: { id: string; firstName: string; lastName: string; admissionNumber: string | null };
-    class: { id: string; name: string; classTeacherId: string | null } | null;
+    class: { id: string; name: string; classTeacherId: string | null; branchId: string | null } | null;
     term: { id: string; name: string; session: { id: string; name: string } };
 }
 export interface CardTable {
@@ -31,7 +31,7 @@ export const cardTable = (client: unknown): CardTable => (client as { reportCard
 
 export const CARD_INCLUDE = {
     student: { select: { id: true, firstName: true, lastName: true, admissionNumber: true } },
-    class:   { select: { id: true, name: true, classTeacherId: true } },
+    class:   { select: { id: true, name: true, classTeacherId: true, branchId: true } },
     term:    { select: { id: true, name: true, session: { select: { id: true, name: true } } } },
 } as const;
 

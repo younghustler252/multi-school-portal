@@ -6,14 +6,16 @@ export const parts = [{ position: 1, name: "CA", kind: "ca", maxScore: 40 }, { p
 export const scale = [{ minScore: 0, grade: "F", remark: "Fail", isPass: false }, { minScore: 40, grade: "C", remark: "Credit", isPass: true }, { minScore: 70, grade: "A", remark: "Excellent", isPass: true }];
 export const BANDS = scale;
 
-export function access(over: { can?: string[]; scopes?: Record<string, string>; persona?: string; me?: string | null } = {}) {
+export function access(over: { can?: string[]; scopes?: Record<string, string>; persona?: string; me?: string | null; branches?: string[] } = {}) {
     const can = new Set(over.can ?? []);
     return {
         persona: over.persona ?? "STAFF", personaEntityId: over.me === undefined ? "t1" : over.me,
         can: (k: string) => can.has(k), scopeOf: (k: string) => can.has(k) ? (over.scopes?.[k] ?? "ALL") : null,
+        branchScope: (k: string) => !can.has(k) ? null : (over.scopes?.[k] ?? "ALL") === "ALL" ? "ALL" : (over.branches ?? []),
+        canActInBranch: (k: string, b: string) => can.has(k) && ((over.scopes?.[k] ?? "ALL") === "ALL" || (over.branches ?? []).includes(b)),
     } as any;
 }
-export const admin = () => access({ can: ["report_cards.view", "report_cards.generate", "report_cards.principal_remark", "report_cards.publish"] });
+export const admin = () => access({ can: ["report_cards.view", "report_cards.generate", "report_cards.principal_remark", "report_cards.publish", "report_cards.publish_incomplete"] });
 export const classTeacher = (me = "t1") => access({ me, can: ["report_cards.view", "report_cards.generate"], scopes: { "report_cards.view": "ASSIGNED", "report_cards.generate": "ASSIGNED" } });
 
 function matches(row: any, where: any): boolean {
@@ -64,7 +66,7 @@ export function fakeRepo(world: World, cardsInit: any[] = []) {
         inTransaction: async (fn: any) => fn(table),
         currentTerm: async () => ({ id: "term1" }),
         term: async (id: string) => id ? ({ id, name: "FIRST", session: { id: "s1", name: "2026/2027" } }) : null,
-        classOf: async (id: string) => id === "c1" ? ({ id: "c1", name: "JSS 1", level: "jss", classTeacherId: world.classTeacherId === undefined ? "t1" : world.classTeacherId }) : null,
+        classOf: async (id: string) => id === "c1" ? ({ id: "c1", name: "JSS 1", level: "jss", branchId: "b1", classTeacherId: world.classTeacherId === undefined ? "t1" : world.classTeacherId }) : null,
         studentsOnList: async () => world.students.map(s => ({ studentId: s.id, student: s })),
         subjectsWithSheets: async () => world.subjects.map(s => ({
             id: s.id, subject: { name: s.name }, staff: { firstName: "Mr", lastName: "T" },
