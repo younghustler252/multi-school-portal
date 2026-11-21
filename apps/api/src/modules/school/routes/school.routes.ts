@@ -3,14 +3,14 @@ import multer from "multer";
 import { container } from "../../../container";
 import { SchoolController } from "../controllers/school.controller";
 import { validate } from "../../../infrastructure/middleware/validate.middleware";
-import { uploadLimiter } from "../../../infrastructure/middleware/rate-limit.middleware";
+import { uploadLimiter, bankListLimiter, bankVerifyLimiter } from "../../../infrastructure/middleware/rate-limit.middleware";
 import { authenticate } from "../../../infrastructure/middleware/auth.middleware";
 import { requireTenant } from "../../../infrastructure/middleware/tenant-resolver.middleware";
 import { loadAccess, requirePermission } from "../../../infrastructure/middleware/rbac.middleware";
 import { requireVerifiedSchool } from "../../../infrastructure/middleware/require-verified-school.middleware";
 import { reestablishTenantContext } from "../../../infrastructure/middleware/reestablish-tenant-context";
 import { AppError } from "../../../shared/errors/domain.errors";
-import { UpdateSchoolDto, UploadDocumentDto, SetupPaymentDto } from "../dtos/school.dto";
+import { UpdateSchoolDto, UploadDocumentDto, SetupPaymentDto, VerifyBankAccountDto } from "../dtos/school.dto";
 
 /*
 | SCHOOL ROUTES: the school's own data, on the school's host (mounted at /school), plus one public endpoint.
@@ -61,6 +61,16 @@ router.post("/documents",
 router.post("/payment-setup",
     authenticate, requireTenant, requirePermission("school.payments.manage"), requireVerifiedSchool, validate(SetupPaymentDto),
     (q, s, n) => ctrl().setupPayment(q, s, n),
+);
+
+// Bank list and account-name preview for the payment-setup form (same guards as payment-setup; limits are per user)
+router.get("/banks",
+    authenticate, requireTenant, requirePermission("school.payments.manage"), requireVerifiedSchool, bankListLimiter,
+    (q, s, n) => ctrl().listBanks(q, s, n),
+);
+router.post("/payment-setup/verify",
+    authenticate, requireTenant, requirePermission("school.payments.manage"), requireVerifiedSchool, bankVerifyLimiter, validate(VerifyBankAccountDto),
+    (q, s, n) => ctrl().verifyBankAccount(q, s, n),
 );
 
 // ── Dashboard and setup ───────────────────────────────────────────────────

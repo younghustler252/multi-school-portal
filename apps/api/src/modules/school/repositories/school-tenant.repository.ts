@@ -73,8 +73,9 @@ export class SchoolTenantRepository {
         };
     }
 
-    async attendanceCountsBetween(start: Date, end: Date): Promise<Record<string, number>> {
-        const groups = await this.db.attendance.groupBy({ by: ["status"], where: { date: { gte: start, lt: end } }, _count: { _all: true } });
+    /** `scope` is the viewer's attendance row filter (attendanceViewWhere): the counts only cover rows the viewer may see. */
+    async attendanceCountsBetween(start: Date, end: Date, scope: Record<string, unknown> = {}): Promise<Record<string, number>> {
+        const groups = await this.db.attendance.groupBy({ by: ["status"], where: { AND: [scope, { date: { gte: start, lt: end } }] } as any, _count: { _all: true } });
         return Object.fromEntries(groups.map(g => [g.status, g._count._all]));
     }
 }

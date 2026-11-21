@@ -8,7 +8,7 @@
 |---|---:|---:|
 | Authentication and invitations | 1 | 17 |
 | User profile, access and platform account support | 1 | 14 |
-| School profile and platform school administration | 2 | 24 |
+| School profile and platform school administration | 2 | 26 |
 | Public plans and platform plan administration | 2 | 10 |
 | School billing and platform subscription administration | 2 | 22 |
 | School and platform audit | 2 | 2 |
@@ -19,7 +19,7 @@
 | School settings | 1 | 6 |
 | Webhook provider ingress and platform console | 1 | 5 |
 | Feedback | 1 | 7 |
-| **Total** | **17** | **129** |
+| **Total** | **17** | **131** |
 
 Counts are route declarations, not unique URL strings. The provider webhook ingress is a separate exported router in the webhook route file and is counted in addition to the four platform-console declarations.
 
@@ -82,7 +82,7 @@ Mount: `/users`.
 
 The `/me` routes are current-account operations. The last four are platform support/account administration and must not be exposed as ordinary school-user profile routes.
 
-## School profile and platform school administration — 24 operations
+## School profile and platform school administration — 26 operations
 
 ### School self-service — mount `/schools`
 
@@ -95,6 +95,8 @@ The `/me` routes are current-account operations. The last four are platform supp
 | GET | `/documents` | `school.documents.manage` |
 | POST | `/documents` | `school.documents.manage`; multipart `document`, 5 MB maximum; `UploadDocumentDto` |
 | POST | `/payment-setup` | `school.payments.manage`; requires verified school; `SetupPaymentDto` |
+| GET | `/banks` | `school.payments.manage`; requires verified school; per-user limit 60/min |
+| POST | `/payment-setup/verify` | `school.payments.manage`; requires verified school; `VerifyBankAccountDto`; per-user limit 20/min |
 | GET | `/dashboard` | `school.dashboard.view` |
 | GET | `/setup-checklist` | `school.update` |
 
