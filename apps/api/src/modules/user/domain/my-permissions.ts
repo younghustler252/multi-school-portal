@@ -1,5 +1,4 @@
 import type { Access, Scope } from "../../../foundation/access.service";
-import type { SchoolEntitlementsView } from "../../../foundation/entitlements.service";
 
 /*
 | WHAT THE SIGNED-IN PERSON MAY DO (for the web app: menus, buttons, branch pickers). The API still checks every request;
@@ -19,15 +18,6 @@ export interface MyPermissionsResponse {
     holdsEverything: boolean;
     permissions: Array<{ key: string; scope: Scope }>;
     branches: { all: BranchRef[]; assigned: BranchRef[]; schoolHasSeveral: boolean };
-    /** What the school's plan includes (school sessions only; null for platform sessions). Students and guardians get granted/enforced only, no caps or usage. */
-    entitlements: SchoolEntitlementsView | null;
-}
-
-/** Staff see the caps and the usage; students and guardians only whether a feature is on. */
-export function entitlementsFor(access: Access, view: SchoolEntitlementsView | null): SchoolEntitlementsView | null {
-    if (!view || access.realm !== "school") return null;
-    if (access.persona === "STAFF") return view;
-    return { ...view, status: null, features: view.features.map(f => ({ ...f, value: f.kind === "BOOLEAN" ? f.value : null, unlimited: false, current: null, source: "none" as const })) };
 }
 
 export function buildMyPermissions(access: Access, allKeys: ReadonlyArray<string>, activeBranches: BranchRef[]): MyPermissionsResponse {
@@ -44,6 +34,5 @@ export function buildMyPermissions(access: Access, allKeys: ReadonlyArray<string
             assigned: staff ? activeBranches.filter(b => access.branchIds.has(b.id)) : [],
             schoolHasSeveral: school && activeBranches.length > 1,
         },
-        entitlements: null,
     };
 }
