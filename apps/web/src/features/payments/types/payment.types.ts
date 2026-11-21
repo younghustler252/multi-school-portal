@@ -50,8 +50,8 @@ export interface VerifyBankAccountParams {
 	bankCode: string;
 }
 
+/* POST /schools/payment-setup/verify: the account number is never echoed back. */
 export interface VerifyBankAccountResponse {
-	accountNumber: string;
-	bankCode: string;
 	accountName: string;
+	accountNameMatchesSchool: boolean;
 }
