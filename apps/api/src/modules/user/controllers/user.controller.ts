@@ -90,7 +90,7 @@ export class UserController {
 
     // What this session may do (permissions with scopes and the branches to offer): the web app builds menus and buttons from it
     myPermissions = async (req: Request, res: Response, next: NextFunction) => {
-        try { sendSuccess(res, await this.d.myPermissionsUseCase.execute(getAccess(req)), "Permissions retrieved successfully"); }
+        try { sendSuccess(res, await this.d.myPermissionsUseCase.execute(getAccess(req), req.schoolId ?? req.auth?.schoolId ?? null), "Permissions retrieved successfully"); }
         catch (e) { next(e); }
     };
 
