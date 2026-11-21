@@ -137,6 +137,43 @@ export class PlatformInvoicesUseCase {
         };
     }
 
+    /*
+    | ONE SCHOOL'S BILLING HISTORY (GET /platform/subscriptions/:schoolId/invoices): every invoice the school ever had (open, paid, void,
+    | uncollectible), newest first, each with its line items and its payment attempts, so support can answer "what did this school pay
+    | and what failed". `summary` counts the school's whole history, not just the page. Read-only; money is kobo. Never returns a saved card
+    | token or the provider's raw response.
+    */
+    async listForSchool(schoolId: string, q: ListPlatformInvoicesQueryType, now: Date = new Date()) {
+        const school = await this.d.prismaClient.school.findUnique({ where: { id: schoolId }, select: { id: true, name: true, subdomain: true } });
+        if (!school) throw billingErrors.notFound();
+        const where: Record<string, unknown> = { schoolId, ...(q.status ? { status: q.status } : {}), ...(q.overdue ? { status: "open", dueDate: { lt: now } } : {}) };
+        const [total, rows, byStatus] = await Promise.all([
+            this.d.prismaClient.subscriptionInvoice.count({ where: where as never }),
+            this.d.prismaClient.subscriptionInvoice.findMany({
+                where: where as never, orderBy: [{ issuedAt: "desc" }, { id: "asc" }], skip: (q.page - 1) * q.limit, take: q.limit,
+                include: { items: true, attempts: { orderBy: { createdAt: "desc" }, take: 20 } },
+            }),
+            this.d.prismaClient.subscriptionInvoice.groupBy({ by: ["status"], where: { schoolId }, _count: { _all: true }, _sum: { totalKobo: true, amountPaidKobo: true } }),
+        ]);
+        const sum = (st: string, f: "totalKobo" | "amountPaidKobo") => (byStatus.find(g => g.status === st)?._sum[f] as number | null | undefined) ?? 0;
+        const totalPages = Math.max(1, Math.ceil(total / q.limit));
+        return {
+            school,
+            summary: {
+                invoiceCount: byStatus.reduce((n, g) => n + g._count._all, 0),
+                paidCount: byStatus.find(g => g.status === "paid")?._count._all ?? 0,
+                openCount: byStatus.find(g => g.status === "open")?._count._all ?? 0,
+                paidKobo: sum("paid", "amountPaidKobo"),
+                outstandingKobo: sum("open", "totalKobo") - sum("open", "amountPaidKobo"),
+            },
+            data: rows.map(r => ({
+                ...this.d.subscriptionMapper.invoiceToResponse(toInvoice(r), now),
+                attempts: r.attempts.map(a => ({ id: a.id, reference: a.reference, amountKobo: a.amountKobo, status: a.status, method: a.method, failureReason: a.failureReason, createdAt: a.createdAt, completedAt: a.completedAt })),
+            })),
+            meta: { total, page: q.page, limit: q.limit, totalPages, hasNext: q.page < totalPages, hasPrev: q.page > 1 },
+        };
+    }
+
     async void(invoiceId: string, actorId: string, dto: VoidInvoiceDtoType) {
         await this.d.billingEngine.voidInvoice(invoiceId, actorId, dto.reason);
         return { voided: true };
