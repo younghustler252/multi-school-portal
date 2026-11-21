@@ -111,6 +111,8 @@ Mount: `/payments`. Feature gate: `modules.fees`.
 | POST | `/` | `payments.record` | `RecordPaymentDto`; cash/POS may confirm immediately, other methods can remain pending |
 | POST | `/allocation-preview` | `payments.record` | `AllocationPreviewDto`; preview only |
 | GET | `/my` | `payments.pay` | Authenticated guardian payment history |
+| GET | `/by-invoice/:invoiceId` | `payments.view` | Payment history of one invoice: every payment applied to it with `appliedKobo` and `reversedKobo` for this invoice, totals (reversed amounts excluded), payer, method, reference, who recorded and confirmed it. Newest first; an invoice with no payments gives an empty list |
+| GET | `/my/by-invoice/:invoiceId` | `payments.pay` | The guardian's version: only CONFIRMED/REVERSED payments on a linked child's invoice; the payer sees method and reference, another payer only the child's share (`isPayer:false`, method and reference null); an unlinked invoice looks empty, never 403/404 |
 | POST | `/online/initialize` | `payments.pay` | `InitializeOnlinePaymentDto` |
 | GET | `/online/verify/:reference` | `payments.pay` | Provider verification; browser return is not trusted as payment proof |
 | POST | `/online/settlements` | `payments.settle` | **410 `SETTLEMENT_ENDPOINT_MOVED`** (REM-074); use `POST /api/v1/finance/settlements` |
