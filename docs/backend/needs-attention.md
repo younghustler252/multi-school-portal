@@ -20,14 +20,16 @@ Priority is the register's (P1 high, P2 medium, P3 low) unless a section says ot
 
 ## Approved contract additions (roadmap, scope unchanged)
 
+Built to the agreed designs and decisions in open PRs into `refactor/api`; waiting for review and merge (a duplicate set of implementations merged on 2026-11-22 was reverted so these stay the single source).
+
 | Addition | Status |
 |---|---|
 | Bank list and account verification | Done (PR #47) |
-| School entitlements in `/users/me/permissions` | Pending |
-| Invoice-level payment history | Pending |
-| Platform-wide user listing and search | Pending |
-| Report-card letterhead upload | Pending |
-| School-specific subscription billing history | Pending |
+| School entitlements in `/users/me/permissions` | Open PR #49 |
+| Invoice-level payment history | Open PR #51 |
+| Platform-wide user listing and search | Open PR #52 (new `platform.users.view` permission) |
+| Report-card letterhead upload | Open PR #53 (part E) |
+| School-specific subscription billing history | Open PR #53 (part F) |
 
 ## Known smaller observations from the attendance review (not fixed)
 
