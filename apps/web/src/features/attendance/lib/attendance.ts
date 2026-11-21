@@ -84,3 +84,21 @@ export function attendanceErrorMessage(code: string | undefined, fallback: strin
 		default: return fallback;
 	}
 }
+
+/*
+| Classes a staff member leads plus classes they teach a subject in, each once (a class they both lead and teach shows once),
+| led classes first, then the rest in the order given.
+*/
+export function mergeTeachingClasses(
+	led: ReadonlyArray<{ classId: string; className: string }> = [],
+	taught: ReadonlyArray<{ classId: string; className: string }> = [],
+): { id: string; name: string }[] {
+	const seen = new Set<string>();
+	const out: { id: string; name: string }[] = [];
+	for (const c of [...led, ...taught]) {
+		if (seen.has(c.classId)) continue;
+		seen.add(c.classId);
+		out.push({ id: c.classId, name: c.className });
+	}
+	return out;
+}

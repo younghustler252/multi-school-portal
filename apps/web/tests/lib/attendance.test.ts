@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { attendanceErrorMessage, entriesToSend, formatRate, presentForUnmarked, registerClosedReason, statusShown, submitSummary, todayInLagos } from "@/features/attendance/lib/attendance";
+import { mergeTeachingClasses, attendanceErrorMessage, entriesToSend, formatRate, presentForUnmarked, registerClosedReason, statusShown, submitSummary, todayInLagos } from "@/features/attendance/lib/attendance";
 import type { ClassRegister, RegisterRow } from "@/features/attendance/types/attendance.types";
 
 const row = (id: string, o: Partial<RegisterRow> = {}): RegisterRow => ({
@@ -71,5 +71,17 @@ describe("messages", () => {
 		expect(attendanceErrorMessage("ATTENDANCE_HOLIDAY", "x")).toMatch(/holiday/);
 		expect(attendanceErrorMessage("ATTENDANCE_TERM_AMBIGUOUS", "x")).toMatch(/administrator/);
 		expect(attendanceErrorMessage("OTHER", "server")).toBe("server");
+	});
+});
+
+describe("mergeTeachingClasses", () => {
+	it("lists led and taught classes, each once, led first", () => {
+		const led = [{ classId: "a", className: "JSS1" }];
+		const taught = [{ classId: "b", className: "JSS2" }, { classId: "a", className: "JSS1" }];
+		expect(mergeTeachingClasses(led, taught)).toEqual([{ id: "a", name: "JSS1" }, { id: "b", name: "JSS2" }]);
+	});
+	it("handles missing lists", () => {
+		expect(mergeTeachingClasses(undefined, undefined)).toEqual([]);
+		expect(mergeTeachingClasses(undefined, [{ classId: "b", className: "JSS2" }])).toEqual([{ id: "b", name: "JSS2" }]);
 	});
 });
