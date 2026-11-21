@@ -23,6 +23,7 @@ import { FeeAdjustmentMapper } from "./mappers/fee-adjustment.mapper";
 import { FeeAdjustmentRepositoryImpl } from "./repositories/fee-adjustment.repository.impl";
 import { ListAdjustmentsUseCase, GetAdjustmentUseCase, RequestAdjustmentUseCase, DecideAdjustmentUseCase } from "./usecases/fee-adjustment.usecases";
 import { FeeAdjustmentController } from "./controllers/fee-adjustment.controller";
+import { InvoicePaymentsUseCase, MyInvoicePaymentsUseCase } from "./usecases/invoice-payments.usecases";
 import { FeeReportRepositoryImpl } from "./repositories/fee-report.repository.impl";
 import { AgeingReportUseCase, DefaultersReportUseCase, CollectionsReportUseCase, StatementUseCase, MyChildrenUseCase, MyInvoicesUseCase, MyStatementUseCase } from "./usecases/fee-report.usecases";
 import { FeeReportController } from "./controllers/fee-report.controller";
@@ -98,6 +99,8 @@ export const registerFees = (container: AwilixContainer): void => {
         statementUseCase:              asClass(StatementUseCase).scoped(),
         myChildrenUseCase:             asClass(MyChildrenUseCase).scoped(),
         myInvoicesUseCase:             asClass(MyInvoicesUseCase).scoped(),
+        invoicePaymentsUseCase:        asClass(InvoicePaymentsUseCase).scoped(),
+        myInvoicePaymentsUseCase:      asClass(MyInvoicePaymentsUseCase).scoped(),
         myStatementUseCase:            asClass(MyStatementUseCase).scoped(),
         feeReportController:           asClass(FeeReportController).scoped(),
 
