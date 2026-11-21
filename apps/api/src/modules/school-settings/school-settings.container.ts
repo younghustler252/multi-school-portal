@@ -7,6 +7,7 @@ import { SchoolPreferencesService }       from "./services/school-preferences.se
 import { GetSchoolSettingsUseCase }       from "./usecases/get-school-settings.usecase";
 import { UpdateSchoolSettingsUseCase }    from "./usecases/update-school-settings.usecase";
 import { UploadStampUseCase }             from "./usecases/upload-stamp.usecase";
+import { UploadLetterheadUseCase }        from "./usecases/upload-letterhead.usecase";
 import { GetSchoolPreferencesUseCase, UpdateSchoolPreferencesUseCase } from "./usecases/school-preferences.usecases";
 import { SchoolSettingsController }       from "./controllers/school-settings.controller";
 
@@ -24,6 +25,7 @@ export const registerSchoolSettings = (container: AwilixContainer): void => {
         getSchoolSettingsUseCase:       asClass(GetSchoolSettingsUseCase).scoped(),
         updateSchoolSettingsUseCase:    asClass(UpdateSchoolSettingsUseCase).scoped(),
         uploadStampUseCase:             asClass(UploadStampUseCase).scoped(),
+        uploadLetterheadUseCase:        asClass(UploadLetterheadUseCase).scoped(),
         getSchoolPreferencesUseCase:    asClass(GetSchoolPreferencesUseCase).scoped(),
         updateSchoolPreferencesUseCase: asClass(UpdateSchoolPreferencesUseCase).scoped(),
 

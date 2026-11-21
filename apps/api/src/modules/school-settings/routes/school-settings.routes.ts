@@ -8,7 +8,7 @@ import { requireTenant }            from "../../../infrastructure/middleware/ten
 import { requirePermission }        from "../../../infrastructure/middleware/rbac.middleware";
 import { reestablishTenantContext } from "../../../infrastructure/middleware/reestablish-tenant-context";
 import { UpdateSchoolSettingsDto, UpdateSchoolPreferencesDto } from "../dtos/school-settings.dto";
-import { BRANDING_IMAGE_MAX_BYTES } from "../domain/branding-image";
+import { BRANDING_IMAGE_MAX_BYTES, LETTERHEAD_IMAGE_MAX_BYTES } from "../domain/branding-image";
 
 /*
 | SCHOOL SETTINGS ROUTES (school realm, mounted at /school-settings)
@@ -16,6 +16,7 @@ import { BRANDING_IMAGE_MAX_BYTES } from "../domain/branding-image";
 |   PUT  /               school_settings.manage   change them (the custom letterhead template needs the plan feature report_cards.letterhead)
 |   POST /stamp          school_settings.manage   multipart field "stamp": PNG, JPEG or WebP, 2 MB at most
 |   POST /signature      school_settings.manage   multipart field "signature": same rules
+|   POST /letterhead      school_settings.manage   multipart field "letterhead": PNG, JPEG or WebP, 5 MB at most; needs the plan feature report_cards.letterhead
 |   GET  /preferences    school_settings.view     message and automation preferences with defaults
 |   PUT  /preferences    school_settings.manage   { values: { key: value | null } }  null restores the default
 | The permission check runs BEFORE the upload is read, so a person without it cannot push a file at all.
@@ -32,6 +33,8 @@ router.get("/preferences", ...guard("school_settings.view"), (q, s, n) => ctrl()
 router.put("/preferences", ...guard("school_settings.manage"), validate(UpdateSchoolPreferencesDto), (q, s, n) => ctrl().updatePreferences(q, s, n));
 
 // multer leaves the tenant context behind, so it is re-established after it (same as before)
+const uploadLetterhead = multer({ storage: multer.memoryStorage(), limits: { fileSize: LETTERHEAD_IMAGE_MAX_BYTES, files: 1 } });
+router.post("/letterhead", ...guard("school_settings.manage"), uploadLetterhead.single("letterhead"), reestablishTenantContext, (q, s, n) => ctrl().uploadLetterhead(q, s, n));
 router.post("/stamp", ...guard("school_settings.manage"), upload.single("stamp"), reestablishTenantContext, (q, s, n) => ctrl().uploadStamp(q, s, n));
 router.post("/signature", ...guard("school_settings.manage"), upload.single("signature"), reestablishTenantContext, (q, s, n) => ctrl().uploadSignature(q, s, n));
 

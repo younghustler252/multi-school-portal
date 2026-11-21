@@ -159,7 +159,7 @@ describe("school settings: routes", () => {
     const code2 = src.split("\n").filter(l => !l.trim().startsWith("//") && !l.trim().startsWith("|")).join("\n");
     it("every route is behind a permission, none behind the old role guard", () => {
         const routes = [...code2.matchAll(/^router\.(get|put|post)\(/gm)];
-        assert.equal(routes.length, 6);
+        assert.equal(routes.length, 7);
         const lines = code2.split("\n").filter(l => /^router\.(get|put|post)\(/.test(l));
         for (const l of lines) assert.match(l, /\.\.\.guard\("school_settings\.(view|manage)"\)/, l);
         assert.ok(!/requireSchoolAdmin/.test(code2));
