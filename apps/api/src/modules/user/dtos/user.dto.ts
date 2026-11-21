@@ -19,6 +19,17 @@ export const DeactivateUserDto = z.object({
     reason: z.string().trim().min(3).max(500).optional(),
 }).strict();
 
+// GET /users (platform.users.manage): list and search every account
+export const ListPlatformUsersQuery = z.object({
+    q:            z.string().trim().max(100).optional(),
+    status:       z.enum(["active", "inactive", "locked"]).optional(),
+    schoolId:     z.string().trim().min(1).max(64).optional(),
+    platformOnly: z.enum(["true", "false"]).transform(v => v === "true").optional(),
+    page:         z.coerce.number().int().min(1).default(1),
+    limit:        z.coerce.number().int().min(1).max(100).default(20),
+});
+export type ListPlatformUsersQueryType = z.infer<typeof ListPlatformUsersQuery>;
+
 export type UpdateProfileDtoType      = z.infer<typeof UpdateProfileDto>;
 export type ResetAdminPasswordDtoType = z.infer<typeof ResetAdminPasswordDto>;
 export type DeactivateUserDtoType     = z.infer<typeof DeactivateUserDto>;

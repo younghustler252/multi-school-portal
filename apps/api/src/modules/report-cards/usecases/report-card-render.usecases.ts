@@ -105,7 +105,7 @@ export class ClassPdfUseCase {
         if (!termId) throw reportCardErrors.termNotFound();
         const cls = await repo.classOf(query.classId);
         if (!cls) throw reportCardErrors.classNotFound();
-        if (!mayViewClass(access, cls.classTeacherId)) throw reportCardErrors.cannotSee();
+        if (!mayViewClass(access, cls.classTeacherId, cls.branchId)) throw reportCardErrors.cannotSee();
 
         const { items } = await loadClassPdfItems(repo, termId, query.classId, query.include);
         const filename = safeFilename(cls.name);

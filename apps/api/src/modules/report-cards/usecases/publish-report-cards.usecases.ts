@@ -15,7 +15,7 @@ export interface CardOutcome { id: string; ok: boolean; reason?: string; detail?
 /*
 | PUBLISH report cards (report_cards.publish).
 |  - only a DRAFT built from the sheets AS THEY ARE NOW can go out: a card that has gone stale must be generated again first
-|  - a card with no scored subject cannot be published; with subjects still unpublished it needs allowMissing
+|  - a card with no scored subject cannot be published; with subjects still unpublished it needs allowMissing AND report_cards.publish_incomplete (audited with the missing subjects)
 |  - publishing freezes the card (the snapshot never changes again), shows it to the student and guardians, and tells the guardians
 |  - one card's problem never stops the others: the answer lists each card
 */
@@ -24,10 +24,13 @@ export class PublishReportCardsUseCase {
 
     async execute(dto: PublishDtoType, schoolId: string, access: Access, actor: { userId: string }, now: Date = new Date()) {
         if (!access.can("report_cards.publish")) throw reportCardErrors.notAllowed("publish report cards");
+        // Publishing with subjects still unpublished is its own sensitive permission, never just a flag in the request.
+        if (dto.allowMissing && !access.can("report_cards.publish_incomplete")) throw reportCardErrors.notAllowed("publish report cards with unpublished subjects");
         const repo = this.d.reportCardsRepository;
         const ids = [...new Set(dto.ids)];
         const rows = await repo.cards.findMany({ where: { id: { in: ids } }, include: CARD_INCLUDE });
         const by = new Map(rows.map(r => [r.id, r]));
+        const overridden: { id: string; missing: string[] }[] = [];
         const prints = new Map<string, string[]>();
         const outcomes: CardOutcome[] = []; const out: PublishedCardRef[] = [];
 
@@ -46,6 +49,7 @@ export class PublishReportCardsUseCase {
 
             const res = await repo.cards.updateMany({ where: { id, status: { in: ["draft", "generated"] } }, data: { status: "published", publishedAt: now, publishedById: actor.userId, unpublishReason: null } });
             if (res.count === 0) { outcomes.push({ id, ok: false, reason: "already_published" }); continue; }
+            if (snap.result.missing.length) overridden.push({ id, missing: snap.result.missing.map(m => m.subjectName) });
             outcomes.push({ id, ok: true }); out.push({ id, studentId: row.studentId, publishedAt: now, snapshot: snap });
         }
 
@@ -59,7 +63,7 @@ export class PublishReportCardsUseCase {
 
         await this.d.auditService.log({
             userId: actor.userId, schoolId, action: "report_cards.published", entity: "ReportCard", module: "report_cards",
-            newValue: { published: out.length, requested: ids.length, ids: out.slice(0, 100).map(c => c.id), allowMissing: !!dto.allowMissing, guardiansTold: told, notifyError },
+            newValue: { published: out.length, requested: ids.length, ids: out.slice(0, 100).map(c => c.id), allowMissing: !!dto.allowMissing, incompleteOverride: overridden.length > 0, overridden: overridden.slice(0, 100), guardiansTold: told, notifyError },
         });
         return { published: out.length, guardiansTold: told, notifyError, results: outcomes };
     }

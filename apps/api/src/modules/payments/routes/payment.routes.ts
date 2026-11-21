@@ -17,6 +17,8 @@ import { paymentErrors } from "../domain/payment.errors";
 |   POST /                       payments.record   cash and POS are confirmed at once; transfers and cheques wait for a second person
 |   POST /allocation-preview     payments.record   how an amount would be applied, nothing saved
 |   GET  /my                     payments.pay      a guardian's own payments
+|   GET  /by-invoice/:invoiceId  payments.view     every payment applied to one invoice (applied and reversed amounts)
+|   GET  /my/by-invoice/:invoiceId payments.pay    the same for a guardian, only for a linked child's invoice
 |   POST /online/initialize       payments.pay      a guardian starts paying a child's invoice online
 |   GET  /online/verify/:reference  payments.pay    the guardian's return visit: asks the gateway and confirms
 |   POST /online/settlements     payments.settle   410: moved to POST /finance/settlements (REM-074); posts nothing
@@ -42,6 +44,8 @@ router.get("/", ...guard("payments.view"), (q, s, n) => ctrl().list(q, s, n));
 router.post("/", ...guard("payments.record"), validate(RecordPaymentDto), (q, s, n) => ctrl().record(q, s, n));
 router.post("/allocation-preview", ...guard("payments.record"), validate(AllocationPreviewDto), (q, s, n) => ctrl().preview(q, s, n));
 router.get("/my", ...guard("payments.pay"), (q, s, n) => ctrl().myPayments(q, s, n));
+router.get("/my/by-invoice/:invoiceId", ...guard("payments.pay"), (q, s, n) => ctrl().myInvoiceHistory(q, s, n));   // a guardian: payments on a linked child's invoice
+router.get("/by-invoice/:invoiceId", ...guard("payments.view"), (q, s, n) => ctrl().invoiceHistory(q, s, n));   // staff: the full history of one invoice
 router.get("/my/:id/receipt", ...guard("payments.pay"), (q, s, n) => ctrl().myReceipt(q, s, n));      // a guardian's receipt, cut down to their own children
 router.post("/online/initialize", ...guard("payments.pay"), validate(InitializeOnlinePaymentDto), (q, s, n) => ctrl().initializeOnline(q, s, n));
 router.get("/online/verify/:reference", ...guard("payments.pay"), (q, s, n) => ctrl().verifyOnline(q, s, n));

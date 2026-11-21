@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { RecordPaymentUseCase, ConfirmPaymentUseCase, RejectPaymentUseCase, PreviewAllocationUseCase } from "../usecases/payment-record.usecases";
 import { ListPaymentsUseCase, GetPaymentUseCase, GetReceiptUseCase } from "../usecases/payment-queries.usecases";
 import { ListMyPaymentsUseCase, GetMyReceiptUseCase } from "../usecases/family-payments.usecases";
+import { InvoicePaymentHistoryUseCase, MyInvoicePaymentHistoryUseCase } from "../usecases/invoice-payment-history.usecases";
 import { sendSuccess, sendCreated } from "../../../shared/utils/api-response";
 import { UnauthorizedError } from "../../../shared/errors/domain.errors";
 import { ListPaymentsQuery, ListRefundsQuery } from "../dtos/payment.dto";
@@ -15,6 +16,7 @@ interface Dependencies {
     recordPaymentUseCase: RecordPaymentUseCase; confirmPaymentUseCase: ConfirmPaymentUseCase; rejectPaymentUseCase: RejectPaymentUseCase;
     previewAllocationUseCase: PreviewAllocationUseCase; listPaymentsUseCase: ListPaymentsUseCase; getPaymentUseCase: GetPaymentUseCase; getReceiptUseCase: GetReceiptUseCase;
     listMyPaymentsUseCase: ListMyPaymentsUseCase; getMyReceiptUseCase: GetMyReceiptUseCase;
+    invoicePaymentHistoryUseCase: InvoicePaymentHistoryUseCase; myInvoicePaymentHistoryUseCase: MyInvoicePaymentHistoryUseCase;
     getCreditUseCase: GetCreditUseCase; applyCreditUseCase: ApplyCreditUseCase;
     listRefundsUseCase: ListRefundsUseCase; getRefundUseCase: GetRefundUseCase; requestRefundUseCase: RequestRefundUseCase;
     decideRefundUseCase: DecideRefundUseCase; payRefundUseCase: PayRefundUseCase; reversePaymentUseCase: ReversePaymentUseCase;
@@ -66,6 +68,14 @@ export class PaymentController {
             const r = await this.d.listMyPaymentsUseCase.execute(guardianIdOf(req), ListPaymentsQuery.parse(req.query));     // what they paid + payments that cover their own children (their share only)
             res.status(200).json({ success: true, message: "Payments retrieved successfully", data: r.data, meta: r.meta });
         } catch (e) { next(e); }
+    };
+    invoiceHistory = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.invoicePaymentHistoryUseCase.execute(String(req.params.invoiceId)), "Invoice payment history retrieved successfully"); }
+        catch (e) { next(e); }
+    };
+    myInvoiceHistory = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.myInvoicePaymentHistoryUseCase.execute(String(req.params.invoiceId), guardianIdOf(req)), "Invoice payment history retrieved successfully"); }
+        catch (e) { next(e); }
     };
     myReceipt = async (req: Request, res: Response, next: NextFunction) => {
         try { sendSuccess(res, await this.d.getMyReceiptUseCase.execute(idOf(req), guardianIdOf(req)), "Receipt retrieved successfully"); } catch (e) { next(e); }
