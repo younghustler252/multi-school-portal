@@ -1,82 +1,43 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { LogOut } from "lucide-react";
 import { Logo } from "@/components/layout/logo";
-import { Separator } from "@/components/ui/separator";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { cn } from "@/lib/utils";
-import { NAV_ICONS } from "@/lib/nav-config";
+import { PlatformName } from "@/components/layout/platform-name";
+import { SidebarFrame } from "@/components/layout/sidebar-frame";
 import { visibleNav } from "@/lib/nav-model";
 import { useAuthStore } from "@/stores/auth.store";
-import { PlatformName } from "@/components/layout/platform-name";
 import { ROUTES } from "@/lib/routes";
 
 interface AdminSidebarProps {
 	isOpen: boolean;
 	onClose: () => void;
+	collapsed: boolean;
+	onToggleCollapsed: () => void;
 }
 
-function AdminSidebarContent({ onNavigate }: { onNavigate?: () => void }) {
-	const pathname = usePathname();
+export function AdminSidebar({ isOpen, onClose, collapsed, onToggleCollapsed }: AdminSidebarProps) {
 	const permissions = useAuthStore((s) => s.permissions);
-	const navItems = visibleNav(permissions);
 
 	return (
-		<div className="flex h-full flex-col bg-sidebar/95 backdrop-blur-md text-sidebar-foreground">
-			<Link href="/dashboard" className="flex h-16 items-center gap-2 border-b border-sidebar-border px-5">
-				<Logo size={32} />
-				<div className="leading-tight">
-					<div className="font-semibold text-sidebar-foreground"><PlatformName /></div>
-					<div className="text-[11px] text-muted-foreground">Platform Admin</div>
-				</div>
-			</Link>
-
-			<nav className="flex-1 space-y-0.5 overflow-y-auto p-3">
-				{navItems.map((item) => {
-					const active = pathname === item.to || (!item.to.endsWith("/dashboard") && pathname.startsWith(item.to));
-					const Icon = NAV_ICONS[item.icon];
-					return (
-						<Link
-							key={item.to}
-							href={item.to}
-							onClick={onNavigate}
-							className={cn(
-								"flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
-								active ? "bg-sidebar-primary text-sidebar-primary-foreground" : "text-sidebar-foreground hover:bg-sidebar-accent/60"
-							)}
-						>
-							<Icon className="size-4" />
-							{item.label}
-						</Link>
-					);
-				})}
-			</nav>
-
-			<Separator className="bg-sidebar-border" />
-
-			<div className="p-3">
-				<Link href={ROUTES.public.landing} className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-sidebar-accent/60">
-					<LogOut className="size-4" />
-					Back to landing
-				</Link>
-			</div>
-		</div>
-	);
-}
-
-export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
-	return (
-		<>
-			<aside className="hidden w-64 shrink-0 border-r border-sidebar-border lg:block">
-				<AdminSidebarContent />
-			</aside>
-			<Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
-				<SheetContent side="left" className="w-64 border-sidebar-border bg-sidebar/95 p-0 backdrop-blur-md lg:hidden">
-					<AdminSidebarContent onNavigate={onClose} />
-				</SheetContent>
-			</Sheet>
-		</>
+		<SidebarFrame
+			items={visibleNav(permissions)}
+			homeHref={ROUTES.platform.dashboard}
+			isOpen={isOpen}
+			onClose={onClose}
+			collapsed={collapsed}
+			onToggleCollapsed={onToggleCollapsed}
+			header={({ collapsed: rail }) => (
+				<>
+					<span className="grid shrink-0 place-items-center rounded-lg bg-card p-1">
+						<Logo size={28} />
+					</span>
+					{!rail && (
+						<span className="min-w-0 leading-tight">
+							<span className="block truncate font-semibold text-sidebar-foreground"><PlatformName /></span>
+							<span className="block truncate text-[11px] text-sidebar-foreground/60">Platform Admin</span>
+						</span>
+					)}
+				</>
+			)}
+		/>
 	);
 }

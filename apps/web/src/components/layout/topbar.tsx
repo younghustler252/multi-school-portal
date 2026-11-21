@@ -1,81 +1,33 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useTheme } from "next-themes";
-import { Menu, Search, Sun, Moon, UserCircle, Settings, LogOut, MessageSquarePlus } from "lucide-react";
+import { useState } from "react";
+import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-	DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { NotificationBell } from "./notification-bell";
+import { CommandPalette } from "@/components/layout/command-palette";
+import { NotificationBell } from "@/components/layout/notification-bell";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { UserMenu } from "@/components/layout/user-menu";
 import { FeedbackDialog } from "@/features/feedback/components/feedback-dialog";
 import { notificationsPath } from "@/lib/nav-model";
 import { useAuthStore } from "@/stores/auth.store";
-import { ROUTES } from "@/lib/routes";
 
-interface TopbarProps {
-	onMenuClick: () => void;
-	searchPlaceholder?: string;
-}
-
-export function Topbar({ onMenuClick, searchPlaceholder = "Search…" }: TopbarProps) {
-	const { theme, setTheme } = useTheme();
-	const [mounted, setMounted] = useState(false);
+export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
 	const [feedbackOpen, setFeedbackOpen] = useState(false);
-	const router = useRouter();
-	const logout = useAuthStore((s) => s.logout);
-	const user = useAuthStore((s) => s.user);
 	const persona = useAuthStore((s) => s.permissions?.persona ?? null);
 
-	async function handleLogout() {
-		await logout();
-		router.replace(ROUTES.auth.login);
-	}
-
-	useEffect(() => { setMounted(true); }, []);
-
 	return (
-		<header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur md:px-6">
-			<button type="button" className="lg:hidden" onClick={onMenuClick} aria-label="Open menu">
-				<Menu className="size-5" />
-			</button>
-
-			<div className="hidden h-9 max-w-md flex-1 items-center gap-2 rounded-md border border-border bg-muted/40 px-3 md:flex">
-				<Search className="size-4 text-muted-foreground" />
-				<input type="search" placeholder={searchPlaceholder} className="flex-1 bg-transparent text-sm outline-none" />
-			</div>
-
-			<div className="flex-1 md:hidden" />
-
-			<Button type="button" variant="ghost" size="icon" onClick={() => setTheme(theme === "dark" ? "light" : "dark")} aria-label="Toggle theme">
-				{mounted && theme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
+		<header className="sticky top-0 z-20 flex h-14 items-center gap-2 border-b border-border bg-background/90 px-3 backdrop-blur md:h-16 md:gap-3 md:px-6">
+			<Button type="button" variant="ghost" size="icon" className="lg:hidden" onClick={onMenuClick} aria-label="Open navigation">
+				<Menu aria-hidden="true" />
 			</Button>
 
-			<NotificationBell inboxPath={notificationsPath("school", persona)} />
+			<CommandPalette />
 
-			<DropdownMenu>
-				<DropdownMenuTrigger
-					render={
-						<Button type="button" variant="ghost" size="sm" className="gap-2">
-							<UserCircle className="size-4" />
-							<span className="hidden text-sm sm:inline">{user?.firstName ?? "Account"}</span>
-						</Button>
-					}
-				/>
-				<DropdownMenuContent align="end" className="w-[min(20rem,calc(100vw-2rem))]">
-					<DropdownMenuItem onClick={() => router.push(ROUTES.settings)}>
-						<Settings className="size-4" /> Account settings
-					</DropdownMenuItem>
-					<DropdownMenuItem onClick={() => setFeedbackOpen(true)}>
-						<MessageSquarePlus className="size-4" /> Send feedback
-					</DropdownMenuItem>
-					<DropdownMenuSeparator />
-					<DropdownMenuItem onClick={handleLogout}>
-						<LogOut className="size-4" /> Log out
-					</DropdownMenuItem>
-				</DropdownMenuContent>
-			</DropdownMenu>
+			<div className="flex-1" />
+
+			<ThemeToggle />
+			<NotificationBell inboxPath={notificationsPath("school", persona)} />
+			<UserMenu onFeedback={() => setFeedbackOpen(true)} />
 
 			<FeedbackDialog open={feedbackOpen} onOpenChange={setFeedbackOpen} />
 		</header>
