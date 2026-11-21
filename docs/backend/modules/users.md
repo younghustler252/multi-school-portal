@@ -61,6 +61,7 @@ All paths below are full paths under `/api/v1/users`.
 | `GET /me/sessions` | Authenticated; tenant ownership validation | List caller's active sessions |
 | `DELETE /me/sessions/:id` | Authenticated; tenant ownership validation | Revoke one session family |
 | `POST /schools/:schoolId/admin/reset-password` | Authenticated; `platform.users.manage`; ResetAdminPasswordDto | Reset a school administrator's password |
+| `GET /` | Authenticated; `platform.users.view` | Paginated, searchable list of global accounts (see `docs/api/contract-additions/platform-users.md`) |
 | `GET /:id` | Authenticated; `platform.users.manage` | Retrieve safe platform-wide user summary |
 | `POST /:id/deactivate` | Authenticated; `platform.users.manage`; DeactivateUserDto | Deactivate a global user identity |
 | `POST /:id/reactivate` | Authenticated; `platform.users.manage` | Reactivate a global user identity |
@@ -208,6 +209,7 @@ The module declares one sensitive platform permission:
 
 | Key | Realm | Scope | Persona | Sensitive |
 |---|---|---|---|---|
+| `platform.users.view` | PLATFORM | ALL | STAFF | No |
 | `platform.users.manage` | PLATFORM | ALL | STAFF | Yes |
 
 It guards platform user lookup, deactivation/reactivation and school-admin password reset. Personal profile, password, avatar, access and session endpoints operate only on the authenticated caller and require authentication rather than a separate permission.

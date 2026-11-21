@@ -8,11 +8,13 @@ import { ListMyAccessUseCase }          from "../usecases/list-my-access.usecase
 import { ManageMySessionsUseCase }      from "../usecases/manage-my-sessions.usecase";
 import { ResetSchoolAdminPasswordUseCase } from "../usecases/reset-school-admin-password.usecase";
 import { ManagePlatformUsersUseCase }   from "../usecases/manage-platform-users.usecase";
-import { sendSuccess }                  from "../../../shared/utils/api-response";
+import { sendSuccess, sendPaginated } from "../../../shared/utils/api-response";
 import { setAuthCookies, clearAuthCookies } from "../../../infrastructure/middleware/auth.middleware";
 import { getAccess }                    from "../../../infrastructure/middleware/rbac.middleware";
 import { userErrors }                   from "../domain/user.errors";
 import { UserActionContext }            from "../domain/user.types";
+import { ListPlatformUsersUseCase } from "../usecases/list-platform-users.usecase";
+import { ListPlatformUsersQuery } from "../dtos/user.dto";
 import { MyPermissionsUseCase } from "../usecases/my-permissions.usecase";
 
 interface Dependencies {
@@ -23,6 +25,7 @@ interface Dependencies {
     removeAvatarUseCase:    RemoveAvatarUseCase;
     listMyAccessUseCase:    ListMyAccessUseCase;
     myPermissionsUseCase:   MyPermissionsUseCase;
+    listPlatformUsersUseCase: ListPlatformUsersUseCase;
     manageMySessionsUseCase: ManageMySessionsUseCase;
     resetSchoolAdminPasswordUseCase: ResetSchoolAdminPasswordUseCase;
     managePlatformUsersUseCase: ManagePlatformUsersUseCase;
@@ -92,6 +95,14 @@ export class UserController {
     myPermissions = async (req: Request, res: Response, next: NextFunction) => {
         try { sendSuccess(res, await this.d.myPermissionsUseCase.execute(getAccess(req)), "Permissions retrieved successfully"); }
         catch (e) { next(e); }
+    };
+
+    // Platform console: every global account, paginated (platform.users.view)
+    listPlatformUsers = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const r = await this.d.listPlatformUsersUseCase.execute(ListPlatformUsersQuery.parse(req.query));
+            sendPaginated(res, r.data, r.meta, "Users retrieved successfully");
+        } catch (e) { next(e); }
     };
 
     listMyAccess = async (req: Request, res: Response, next: NextFunction) => {

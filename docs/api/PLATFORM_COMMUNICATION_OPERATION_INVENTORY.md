@@ -7,7 +7,7 @@
 | Area | Route files | Operations |
 |---|---:|---:|
 | Authentication and invitations | 1 | 17 |
-| User profile, access and platform account support | 1 | 13 |
+| User profile, access and platform account support | 1 | 14 |
 | School profile and platform school administration | 2 | 24 |
 | Public plans and platform plan administration | 2 | 10 |
 | School billing and platform subscription administration | 2 | 22 |
@@ -19,7 +19,7 @@
 | School settings | 1 | 6 |
 | Webhook provider ingress and platform console | 1 | 5 |
 | Feedback | 1 | 7 |
-| **Total** | **17** | **128** |
+| **Total** | **17** | **129** |
 
 Counts are route declarations, not unique URL strings. The provider webhook ingress is a separate exported router in the webhook route file and is counted in addition to the four platform-console declarations.
 
@@ -59,7 +59,7 @@ Mount: `/auth`.
 
 Important auth semantics: login uses per-(email + IP) attempt tracking in addition to the route IP limiter; generic invalid-credential responses avoid revealing account membership. Invite acceptance supports existing and new global accounts, claims the invite atomically, and compensates on failure across public and tenant data stores. Persona switching is tenant-bound. Impersonation-token exchange is separate from the platform school impersonation initiation endpoint.
 
-## Users — 13 operations
+## Users — 14 operations
 
 Mount: `/users`.
 
@@ -75,6 +75,7 @@ Mount: `/users`.
 | GET | `/me/sessions` | Authenticated; tenant ownership validation |
 | DELETE | `/me/sessions/:id` | Authenticated; tenant ownership validation |
 | POST | `/schools/:schoolId/admin/reset-password` | Platform permission `platform.users.manage`; `ResetAdminPasswordDto` |
+| GET | `/` | Platform permission `platform.users.view`; query `ListPlatformUsersQuery` (paginated list) |
 | GET | `/:id` | Platform permission `platform.users.manage` |
 | POST | `/:id/deactivate` | Platform permission `platform.users.manage`; `DeactivateUserDto` |
 | POST | `/:id/reactivate` | Platform permission `platform.users.manage` |
