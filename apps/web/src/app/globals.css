@@ -1,237 +1,326 @@
-	@import "tailwindcss";
+@import "tailwindcss";
 
-	@theme inline {
-		--color-background: var(--background);
-		--color-foreground: var(--foreground);
+/*
+|--------------------------------------------------------------------------
+| DESIGN TOKENS — SchoolOS
+|--------------------------------------------------------------------------
+| Everything visual is decided here once. Components use the semantic names
+| (bg-card, text-muted-foreground, border-border ...) and never raw colours.
+| Rationale and usage: docs/UI_UX_REDESIGN.md
+|
+|  Primary    deep green, matches the app's declared themeColor (#1F7A4D)
+|  Highlight  one warm amber accent, used sparingly (active marker, nudges)
+|  Neutrals   warm paper surfaces, green-tinted ink for text
+|  Sidebar    deep ink green with light text
+|--------------------------------------------------------------------------
+*/
 
-		--color-card: var(--card);
-		--color-card-foreground: var(--card-foreground);
+@theme inline {
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
 
-		--color-popover: var(--popover);
-		--color-popover-foreground: var(--popover-foreground);
+	--color-card: var(--card);
+	--color-card-foreground: var(--card-foreground);
 
-		--color-primary: var(--primary);
-		--color-primary-foreground: var(--primary-foreground);
+	--color-popover: var(--popover);
+	--color-popover-foreground: var(--popover-foreground);
 
-		--color-secondary: var(--secondary);
-		--color-secondary-foreground: var(--secondary-foreground);
+	--color-primary: var(--primary);
+	--color-primary-foreground: var(--primary-foreground);
 
-		--color-muted: var(--muted);
-		--color-muted-foreground: var(--muted-foreground);
+	--color-secondary: var(--secondary);
+	--color-secondary-foreground: var(--secondary-foreground);
 
-		--color-accent: var(--accent);
-		--color-accent-foreground: var(--accent-foreground);
+	--color-muted: var(--muted);
+	--color-muted-foreground: var(--muted-foreground);
 
-		--color-destructive: var(--destructive);
-		--color-destructive-foreground: var(--destructive-foreground);
+	--color-accent: var(--accent);
+	--color-accent-foreground: var(--accent-foreground);
 
-		--color-success: var(--success);
-		--color-success-foreground: var(--success-foreground);
+	--color-highlight: var(--highlight);
+	--color-highlight-foreground: var(--highlight-foreground);
 
-		--color-warning: var(--warning);
-		--color-warning-foreground: var(--warning-foreground);
+	--color-destructive: var(--destructive);
+	--color-destructive-foreground: var(--destructive-foreground);
 
-		--color-info: var(--info);
-		--color-info-foreground: var(--info-foreground);
+	--color-success: var(--success);
+	--color-success-foreground: var(--success-foreground);
 
-		--color-border: var(--border);
-		--color-input: var(--input);
-		--color-ring: var(--ring);
+	--color-warning: var(--warning);
+	--color-warning-foreground: var(--warning-foreground);
 
-		--color-chart-1: var(--chart-1);
-		--color-chart-2: var(--chart-2);
-		--color-chart-3: var(--chart-3);
-		--color-chart-4: var(--chart-4);
-		--color-chart-5: var(--chart-5);
+	--color-info: var(--info);
+	--color-info-foreground: var(--info-foreground);
 
-		--color-sidebar: var(--sidebar);
-		--color-sidebar-foreground: var(--sidebar-foreground);
-		--color-sidebar-border: var(--sidebar-border);
-		--color-sidebar-accent: var(--sidebar-accent);
-		--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-		--color-sidebar-primary: var(--sidebar-primary);
-		--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-		--color-sidebar-ring: var(--sidebar-ring);
+	--color-border: var(--border);
+	--color-input: var(--input);
+	--color-ring: var(--ring);
 
-		--radius-sm: calc(var(--radius) - 4px);
-		--radius-md: calc(var(--radius) - 2px);
-		--radius-lg: var(--radius);
-		--radius-xl: calc(var(--radius) + 4px);
+	--color-chart-1: var(--chart-1);
+	--color-chart-2: var(--chart-2);
+	--color-chart-3: var(--chart-3);
+	--color-chart-4: var(--chart-4);
+	--color-chart-5: var(--chart-5);
 
-		--font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+	--color-sidebar: var(--sidebar);
+	--color-sidebar-foreground: var(--sidebar-foreground);
+	--color-sidebar-border: var(--sidebar-border);
+	--color-sidebar-accent: var(--sidebar-accent);
+	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+	--color-sidebar-primary: var(--sidebar-primary);
+	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+	--color-sidebar-ring: var(--sidebar-ring);
+
+	--radius-sm: calc(var(--radius) - 4px);
+	--radius-md: calc(var(--radius) - 2px);
+	--radius-lg: var(--radius);
+	--radius-xl: calc(var(--radius) + 4px);
+
+	/* Fonts are loaded in app/layout.tsx (next/font) and exposed as these two variables. */
+	--font-sans: var(--font-source-sans), ui-sans-serif, system-ui, sans-serif;
+	--font-display: var(--font-newsreader), Georgia, "Times New Roman", serif;
+}
+
+/* Elevation: soft, low and tinted with the ink colour. Borders carry most of the structure. */
+@theme {
+	--shadow-xs: 0 1px 1px oklch(0.2 0.02 165 / 0.05);
+	--shadow-sm: 0 1px 2px oklch(0.2 0.02 165 / 0.07), 0 1px 1px oklch(0.2 0.02 165 / 0.04);
+	--shadow-md: 0 4px 12px -2px oklch(0.2 0.02 165 / 0.10), 0 2px 4px -2px oklch(0.2 0.02 165 / 0.06);
+	--shadow-lg: 0 12px 28px -6px oklch(0.2 0.02 165 / 0.16), 0 4px 8px -4px oklch(0.2 0.02 165 / 0.08);
+
+	--ease-standard: cubic-bezier(0.2, 0, 0, 1);
+}
+
+:root {
+	--radius: 0.625rem;
+
+	/* Brand */
+	--primary: oklch(0.5 0.105 158);
+	--primary-foreground: oklch(0.99 0.004 150);
+
+	/* Surfaces */
+	--background: oklch(0.985 0.004 95);
+	--foreground: oklch(0.205 0.02 165);
+
+	--card: oklch(1 0 0);
+	--card-foreground: oklch(0.205 0.02 165);
+
+	--popover: oklch(1 0 0);
+	--popover-foreground: oklch(0.205 0.02 165);
+
+	--secondary: oklch(0.955 0.008 150);
+	--secondary-foreground: oklch(0.28 0.03 160);
+
+	--muted: oklch(0.962 0.006 110);
+	--muted-foreground: oklch(0.47 0.015 160);
+
+	--accent: color-mix(in oklch, var(--primary) 9%, oklch(0.975 0 0));
+	--accent-foreground: oklch(0.28 0.06 160);
+
+	/* The single warm accent. Use for small emphasis, not for large fills. */
+	--highlight: oklch(0.78 0.145 78);
+	--highlight-foreground: oklch(0.3 0.07 70);
+
+	/* Status. Text colours reach 4.5:1 on their own 10% tint. */
+	--destructive: oklch(0.53 0.2 27);
+	--destructive-foreground: oklch(0.99 0 0);
+
+	--success: oklch(0.5 0.13 155);
+	--success-foreground: oklch(0.99 0 0);
+
+	--warning: oklch(0.8 0.15 80);
+	--warning-foreground: oklch(0.3 0.07 70);
+
+	--info: oklch(0.5 0.12 245);
+	--info-foreground: oklch(0.99 0 0);
+
+	/* --input is the border of form controls, so it needs 3:1 against the surface (WCAG 1.4.11). */
+	--border: oklch(0.905 0.008 120);
+	--input: oklch(0.66 0.01 150);
+	--ring: oklch(0.55 0.12 158);
+
+	/* Categorical chart colours: distinct in lightness as well as hue. */
+	--chart-1: var(--primary);
+	--chart-2: oklch(0.62 0.1 230);
+	--chart-3: oklch(0.78 0.14 78);
+	--chart-4: oklch(0.58 0.15 25);
+	--chart-5: oklch(0.55 0.09 305);
+
+	/* Sidebar: deep ink green, light text. Muted text in the sidebar is sidebar-foreground at 70%. */
+	--sidebar: oklch(0.24 0.035 165);
+	--sidebar-foreground: oklch(0.96 0.01 150);
+	--sidebar-border: oklch(1 0 0 / 10%);
+	--sidebar-accent: oklch(1 0 0 / 8%);
+	--sidebar-accent-foreground: oklch(0.99 0 0);
+	--sidebar-primary: oklch(0.8 0.13 78);
+	--sidebar-primary-foreground: oklch(0.25 0.04 165);
+	--sidebar-ring: oklch(0.8 0.13 78);
+}
+
+.dark {
+	--primary: oklch(0.72 0.13 158);
+	--primary-foreground: oklch(0.17 0.02 165);
+
+	--background: oklch(0.165 0.012 165);
+	--foreground: oklch(0.955 0.006 150);
+
+	--card: oklch(0.205 0.014 165);
+	--card-foreground: oklch(0.955 0.006 150);
+
+	--popover: oklch(0.225 0.014 165);
+	--popover-foreground: oklch(0.955 0.006 150);
+
+	--secondary: oklch(0.26 0.014 165);
+	--secondary-foreground: oklch(0.955 0.006 150);
+
+	--muted: oklch(0.25 0.012 165);
+	--muted-foreground: oklch(0.72 0.015 155);
+
+	--accent: color-mix(in oklch, var(--primary) 18%, oklch(0.26 0 0));
+	--accent-foreground: oklch(0.955 0.006 150);
+
+	--highlight: oklch(0.8 0.13 78);
+	--highlight-foreground: oklch(0.25 0.06 70);
+
+	--destructive: oklch(0.68 0.19 25);
+	--destructive-foreground: oklch(0.99 0 0);
+
+	--success: oklch(0.72 0.14 155);
+	--success-foreground: oklch(0.17 0.02 165);
+
+	--warning: oklch(0.8 0.15 80);
+	--warning-foreground: oklch(0.2 0.05 75);
+
+	--info: oklch(0.72 0.12 240);
+	--info-foreground: oklch(0.17 0.02 165);
+
+	--border: oklch(1 0 0 / 11%);
+	--input: oklch(1 0 0 / 38%);
+	--ring: oklch(0.72 0.13 158);
+
+	--chart-1: var(--primary);
+	--chart-2: oklch(0.72 0.11 230);
+	--chart-3: oklch(0.8 0.13 78);
+	--chart-4: oklch(0.7 0.15 25);
+	--chart-5: oklch(0.7 0.1 305);
+
+	--sidebar: oklch(0.14 0.016 165);
+	--sidebar-foreground: oklch(0.955 0.006 150);
+	--sidebar-border: oklch(1 0 0 / 10%);
+	--sidebar-accent: oklch(1 0 0 / 8%);
+	--sidebar-accent-foreground: oklch(0.99 0 0);
+	--sidebar-primary: oklch(0.8 0.13 78);
+	--sidebar-primary-foreground: oklch(0.22 0.04 165);
+	--sidebar-ring: oklch(0.8 0.13 78);
+}
+
+@layer base {
+	* {
+		border-color: var(--border);
 	}
 
-	/*
-	|--------------------------------------------------------------------------
-	| BRAND TOKENS — SchoolOS
-	|--------------------------------------------------------------------------
-	| Change --primary (light + dark) to rebrand the ENTIRE app.
-	| --background, --card, --sidebar are all derived from --primary via
-	| color-mix(), so surface tints automatically follow whatever brand
-	| color is set here — no other edits needed anywhere else.
-	|--------------------------------------------------------------------------
-	*/
-
-	:root {
-		--radius: 0.625rem;
-
-		/* Brand — SchoolOS green. Change this to rebrand everything below. */
-		--primary: oklch(0.55 0.16 145);
-		--primary-foreground: oklch(0.99 0.005 150);
-
-		/* Surfaces — derived from --primary. Subtle tint (2-3%) keeps contrast safe. */
-		--background: color-mix(in oklch, var(--primary) 3%, oklch(0.99 0 0));
-		--foreground: oklch(0.18 0.02 160);
-
-		--card: color-mix(in oklch, var(--primary) 2%, oklch(1 0 0));
-		--card-foreground: oklch(0.18 0.02 160);
-
-		--popover: color-mix(in oklch, var(--primary) 2%, oklch(1 0 0));
-		--popover-foreground: oklch(0.18 0.02 160);
-
-		--secondary: oklch(0.96 0.01 160);
-		--secondary-foreground: oklch(0.25 0.03 160);
-
-		--muted: oklch(0.96 0.01 160);
-		--muted-foreground: oklch(0.5 0.02 160);
-
-		--accent: color-mix(in oklch, var(--primary) 12%, oklch(0.96 0 0));
-		--accent-foreground: oklch(0.25 0.05 158);
-
-		--destructive: oklch(0.58 0.22 27);
-		--destructive-foreground: oklch(0.99 0 0);
-
-		--success: oklch(0.6 0.15 155);
-		--success-foreground: oklch(0.99 0 0);
-
-		--warning: oklch(0.78 0.16 75);
-		--warning-foreground: oklch(0.25 0.05 75);
-
-		--info: oklch(0.6 0.15 240);
-		--info-foreground: oklch(0.99 0 0);
-
-		--border: oklch(0.92 0.01 160);
-		--input: oklch(0.92 0.01 160);
-		--ring: var(--primary);
-
-		--chart-1: var(--primary);
-		--chart-2: oklch(0.6 0.15 200);
-		--chart-3: oklch(0.7 0.16 75);
-		--chart-4: oklch(0.6 0.2 25);
-		--chart-5: oklch(0.55 0.2 300);
-
-		/* Sidebar — also derived from --primary */
-		--sidebar: color-mix(in oklch, var(--primary) 2.5%, oklch(0.985 0 0));
-		--sidebar-foreground: oklch(0.25 0.02 160);
-		--sidebar-border: oklch(0.92 0.01 160);
-		--sidebar-accent: color-mix(in oklch, var(--primary) 8%, oklch(0.94 0 0));
-		--sidebar-accent-foreground: oklch(0.2 0.03 160);
-		--sidebar-primary: var(--primary);
-		--sidebar-primary-foreground: oklch(0.99 0 0);
-		--sidebar-ring: var(--primary);
+	html {
+		font-family: var(--font-sans);
+		-webkit-text-size-adjust: 100%;
+		text-size-adjust: 100%;
 	}
 
-	.dark {
-		/* Brand — slightly lighter/brighter for dark-mode contrast */
-		--primary: oklch(0.70 0.16 158);
-		--primary-foreground: oklch(0.16 0.02 160);
-
-		/* Surfaces — derived from --primary, stronger mix (8-10%) since dark
-		backgrounds show tint more visibly than light ones */
-		--background: color-mix(in oklch, var(--primary) 8%, oklch(0.16 0 0));
-		--foreground: oklch(0.97 0.005 150);
-
-		--card: color-mix(in oklch, var(--primary) 10%, oklch(0.21 0 0));
-		--card-foreground: oklch(0.97 0.005 150);
-
-		--popover: color-mix(in oklch, var(--primary) 10%, oklch(0.21 0 0));
-		--popover-foreground: oklch(0.97 0.005 150);
-
-		--secondary: oklch(0.26 0.02 160);
-		--secondary-foreground: oklch(0.97 0.005 150);
-
-		--muted: oklch(0.26 0.02 160);
-		--muted-foreground: oklch(0.70 0.02 160);
-
-		--accent: color-mix(in oklch, var(--primary) 20%, oklch(0.3 0 0));
-		--accent-foreground: oklch(0.97 0.005 150);
-
-		--destructive: oklch(0.65 0.2 25);
-		--destructive-foreground: oklch(0.99 0 0);
-
-		--success: oklch(0.70 0.16 155);
-		--success-foreground: oklch(0.16 0.02 160);
-
-		--warning: oklch(0.78 0.16 75);
-		--warning-foreground: oklch(0.20 0.05 75);
-
-		--info: oklch(0.70 0.15 240);
-		--info-foreground: oklch(0.16 0.02 160);
-
-		--border: oklch(1 0 0 / 10%);
-		--input: oklch(1 0 0 / 15%);
-		--ring: var(--primary);
-
-		--chart-1: var(--primary);
-		--chart-2: oklch(0.70 0.15 200);
-		--chart-3: oklch(0.75 0.16 75);
-		--chart-4: oklch(0.65 0.2 25);
-		--chart-5: oklch(0.65 0.2 300);
-
-		/* Sidebar — also derived from --primary */
-		--sidebar: color-mix(in oklch, var(--primary) 9%, oklch(0.19 0 0));
-		--sidebar-foreground: oklch(0.97 0.005 150);
-		--sidebar-border: oklch(1 0 0 / 10%);
-		--sidebar-accent: color-mix(in oklch, var(--primary) 18%, oklch(0.26 0 0));
-		--sidebar-accent-foreground: oklch(0.97 0.005 150);
-		--sidebar-primary: var(--primary);
-		--sidebar-primary-foreground: oklch(0.16 0.02 160);
-		--sidebar-ring: var(--primary);
+	body {
+		background-color: var(--background);
+		color: var(--foreground);
+		font-variant-numeric: lining-nums;
 	}
 
-	@layer base {
-		* {
-			border-color: var(--border);
-		}
-
-		html {
-			font-family: var(--font-sans);
-		}
-
-		body {
-			background-color: var(--background);
-			color: var(--foreground);
-			font-feature-settings: "cv11", "ss01";
-		}
+	/* Fallback focus indicator for plain links and elements that do not draw their own ring. */
+	:where(a, button, [role="button"], summary):focus-visible {
+		outline: 2px solid var(--ring);
+		outline-offset: 2px;
 	}
+}
 
-	@layer utilities {
-		.bg-grid {
-			background-image:
-				linear-gradient(
-					to right,
-					color-mix(in oklab, var(--foreground) 6%, transparent) 1px,
-					transparent 1px
-				),
-				linear-gradient(
-					to bottom,
-					color-mix(in oklab, var(--foreground) 6%, transparent) 1px,
-					transparent 1px
-				);
-			background-size: 48px 48px;
-		}
+/*
+| Typography scale. Defined once; pages use these classes instead of inventing sizes.
+|   text-display      hero and auth headings (display serif, fluid)
+|   text-page-title   the one title at the top of a page (display serif, fluid)
+|   text-section      heading of a card or section (UI sans)
+|   text-eyebrow      small label above a title or value
+|   text-figure       money and counts: tabular, lining numerals
+|   tabular           tabular numerals only, for table columns of numbers
+*/
+@utility text-display {
+	font-family: var(--font-display);
+	font-size: clamp(2rem, 1.4rem + 2.4vw, 3rem);
+	line-height: 1.08;
+	letter-spacing: -0.02em;
+	font-weight: 500;
+	font-optical-sizing: auto;
+	text-wrap: balance;
+}
 
-		.bg-hero-radial {
-			background:
-				radial-gradient(
-					ellipse 80% 50% at 50% -10%,
-					color-mix(in oklab, var(--primary) 18%, transparent),
-					transparent 60%
-				),
-				var(--background);
-		}
+@utility text-page-title {
+	font-family: var(--font-display);
+	font-size: clamp(1.625rem, 1.35rem + 1.1vw, 2.125rem);
+	line-height: 1.15;
+	letter-spacing: -0.015em;
+	font-weight: 500;
+	font-optical-sizing: auto;
+	text-wrap: balance;
+}
 
-		.text-balance {
-			text-wrap: balance;
-		}
+@utility text-section {
+	font-size: 1.0625rem;
+	line-height: 1.4;
+	letter-spacing: -0.005em;
+	font-weight: 600;
+}
+
+@utility text-eyebrow {
+	font-size: 0.75rem;
+	line-height: 1.2;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	font-weight: 600;
+	color: var(--muted-foreground);
+}
+
+@utility text-figure {
+	font-size: 1.75rem;
+	line-height: 1.1;
+	letter-spacing: -0.015em;
+	font-weight: 600;
+	font-variant-numeric: lining-nums tabular-nums;
+}
+
+@utility tabular {
+	font-variant-numeric: lining-nums tabular-nums;
+}
+
+@utility bg-grid {
+	background-image:
+		linear-gradient(to right, color-mix(in oklab, var(--foreground) 6%, transparent) 1px, transparent 1px),
+		linear-gradient(to bottom, color-mix(in oklab, var(--foreground) 6%, transparent) 1px, transparent 1px);
+	background-size: 48px 48px;
+}
+
+/* Marketing and auth pages only. The application shells use a flat background. */
+@utility bg-hero-radial {
+	background:
+		radial-gradient(ellipse 80% 50% at 50% -10%, color-mix(in oklab, var(--primary) 14%, transparent), transparent 60%),
+		var(--background);
+}
+
+@utility text-balance {
+	text-wrap: balance;
+}
+
+/* Motion communicates state; people who ask for less get none. */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
 	}
+}

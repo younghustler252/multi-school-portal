@@ -1,13 +1,24 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Newsreader, Source_Sans_3 } from "next/font/google";
 import { Providers } from "./providers";
 import { COMPANY } from "@/config/company";
 import { Toaster } from "sonner";
 import "./globals.css";
 
-const inter = Inter({
-	variable: "--font-sans",
-	subsets: ["latin"],
+/*
+| Two variable fonts, self-hosted at build time (no request to Google from the browser).
+| latin-ext is included because money is shown in naira (the ₦ sign lives in that range).
+| UI and body: Source Sans 3. Display and page titles only: Newsreader. Why: docs/UI_UX_REDESIGN.md.
+*/
+const sourceSans = Source_Sans_3({
+	variable: "--font-source-sans",
+	subsets: ["latin", "latin-ext"],
+	display: "swap",
+});
+
+const newsreader = Newsreader({
+	variable: "--font-newsreader",
+	subsets: ["latin", "latin-ext"],
 	display: "swap",
 });
 
@@ -83,7 +94,7 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="en" className={`${inter.variable} h-full antialiased`} suppressHydrationWarning>
+		<html lang="en" className={`${sourceSans.variable} ${newsreader.variable} h-full antialiased`} suppressHydrationWarning>
 			<body className="flex min-h-full flex-col">
 				<Toaster
 					position="top-right"
