@@ -47,6 +47,9 @@ export const ListPlatformInvoicesQuery = z.object({
     overdue: z.enum(["true", "false"]).transform(v => v === "true").optional(),
 });
 
+// GET /platform/subscriptions/schools/:schoolId/invoices: one school's billing history (the same filters as the all-schools list, minus "overdue")
+export const ListSchoolInvoicesQuery = ListPlatformInvoicesQuery.omit({ overdue: true });
+
 export type PreviewChangeDtoType      = z.infer<typeof PreviewChangeDto>;
 export type ChangePlanDtoType         = z.infer<typeof ChangePlanDto>;
 export type RequestDowngradeDtoType   = z.infer<typeof RequestDowngradeDto>;
@@ -70,3 +73,4 @@ export type ListPaymentExceptionsQueryType = z.infer<typeof ListPaymentException
 export type VoidInvoiceDtoType        = z.infer<typeof VoidInvoiceDto>;
 export type MarkInvoicePaidDtoType    = z.infer<typeof MarkInvoicePaidDto>;
 export type ListPlatformInvoicesQueryType = z.infer<typeof ListPlatformInvoicesQuery>;
+export type ListSchoolInvoicesQueryType   = z.infer<typeof ListSchoolInvoicesQuery>;

@@ -16,3 +16,5 @@ export * from "./platform";
 export * from "./report-cards";
 export * from "./me-permissions";
 export * from "./staff";
+export * from "./letterhead-upload";
+export * from "./school-billing-history";

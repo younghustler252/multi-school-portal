@@ -4,6 +4,8 @@
 | The type is read from the first bytes of the file (PNG, JPEG, WebP), never trusted from the upload's label.
 */
 export const BRANDING_IMAGE_MAX_BYTES = 2 * 1024 * 1024;
+/* A report-card letterhead is a full-width page header, so it may be larger than a stamp or signature. */
+export const LETTERHEAD_IMAGE_MAX_BYTES = 5 * 1024 * 1024;
 
 export type BrandingImageType = { mimetype: "image/png" | "image/jpeg" | "image/webp"; extension: "png" | "jpg" | "webp" };
 
@@ -24,9 +26,9 @@ export function sniffImageType(buffer: Uint8Array): BrandingImageType | null {
 
 export type ImageCheck = { ok: true; type: BrandingImageType } | { ok: false; code: "IMAGE_EMPTY" | "IMAGE_TOO_LARGE" | "IMAGE_TYPE_NOT_ALLOWED"; message: string };
 
-export function checkBrandingImage(buffer: Uint8Array | undefined | null): ImageCheck {
+export function checkBrandingImage(buffer: Uint8Array | undefined | null, maxBytes: number = BRANDING_IMAGE_MAX_BYTES): ImageCheck {
     if (!buffer || buffer.length === 0) return { ok: false, code: "IMAGE_EMPTY", message: "The file is empty" };
-    if (buffer.length > BRANDING_IMAGE_MAX_BYTES) return { ok: false, code: "IMAGE_TOO_LARGE", message: "The image must be 2 MB or smaller" };
+    if (buffer.length > maxBytes) return { ok: false, code: "IMAGE_TOO_LARGE", message: `The image must be ${maxBytes / (1024 * 1024)} MB or smaller` };
     const type = sniffImageType(buffer);
     if (!type) return { ok: false, code: "IMAGE_TYPE_NOT_ALLOWED", message: "Upload a PNG, JPEG or WebP image" };
     return { ok: true, type };

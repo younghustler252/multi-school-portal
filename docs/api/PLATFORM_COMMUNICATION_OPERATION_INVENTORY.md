@@ -10,16 +10,16 @@
 | User profile, access and platform account support | 1 | 13 |
 | School profile and platform school administration | 2 | 24 |
 | Public plans and platform plan administration | 2 | 10 |
-| School billing and platform subscription administration | 2 | 22 |
+| School billing and platform subscription administration | 2 | 23 |
 | School and platform audit | 2 | 2 |
 | Notifications | 1 | 9 |
 | Message templates | 1 | 5 |
 | Automation | 1 | 6 |
 | Platform settings | 1 | 2 |
-| School settings | 1 | 6 |
+| School settings | 1 | 7 |
 | Webhook provider ingress and platform console | 1 | 5 |
 | Feedback | 1 | 7 |
-| **Total** | **17** | **128** |
+| **Total** | **17** | **130** |
 
 Counts are route declarations, not unique URL strings. The provider webhook ingress is a separate exported router in the webhook route file and is counted in addition to the four platform-console declarations.
 
@@ -141,7 +141,7 @@ Platform school provisioning, verification, suspension and impersonation are pri
 | PUT | `/:id/reactivate` | `platform.plans.manage` |
 | POST | `/:id/clone` | `platform.plans.manage`; `ClonePlanDto` |
 
-## Subscriptions and billing — 22 operations
+## Subscriptions and billing — 23 operations
 
 ### School subscription — mount `/subscriptions`
 
@@ -171,6 +171,7 @@ The route file composes shared `view` and `manage` middleware arrays; resolve th
 | GET | `/` | `platform.subscriptions.view` |
 | GET | `/stats` | `platform.subscriptions.view` |
 | GET | `/invoices` | `platform.subscriptions.view` |
+| GET | `/schools/:schoolId/invoices` | `platform.subscriptions.view`; one school's invoices, newest due date first |
 | PUT | `/invoices/:id/void` | `platform.subscriptions.manage`; `VoidInvoiceDto` |
 | PUT | `/invoices/:id/mark-paid` | `platform.subscriptions.manage`; `MarkInvoicePaidDto` |
 | GET | `/:schoolId` | `platform.subscriptions.view` |
@@ -242,7 +243,7 @@ Mount: `/platform/settings`.
 
 Existing remediation items REM-081 and REM-082 cover unsafe URL protocol validation and missing audit logging for platform setting changes. Do not duplicate those findings in a new handoff.
 
-## School settings — 6 operations
+## School settings — 7 operations
 
 Mount: `/school-settings`. All routes use authenticated school tenant guards.
 
@@ -254,6 +255,7 @@ Mount: `/school-settings`. All routes use authenticated school tenant guards.
 | PUT | `/preferences` | `school_settings.manage`; `UpdateSchoolPreferencesDto` |
 | POST | `/stamp` | `school_settings.manage`; multipart upload field `stamp`; tenant context re-established |
 | POST | `/signature` | `school_settings.manage`; multipart upload field `signature`; tenant context re-established |
+| POST | `/letterhead` | `school_settings.manage` + plan feature `report_cards.letterhead`; multipart upload field `letterhead`, 5 MB; tenant context re-established |
 
 Both uploads use in-memory Multer storage, a one-file limit and `BRANDING_IMAGE_MAX_BYTES`; the domain route comment specifies PNG, JPEG or WebP up to 2 MB. The controller rejects missing files and delegates image validation/storage to `UploadStampUseCase`.
 
