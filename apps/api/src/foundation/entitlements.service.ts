@@ -67,25 +67,6 @@ interface Value { bool: boolean | null; limit: number | null; enumValue: string 
 interface Resolved { planId: string | null; status: string | null; values: Map<string, Value> }
 interface Entry<T> { value: T; expires: number }
 
-/** One feature as a school's plan resolves it: for menus and upgrade prompts (GET /users/me/permissions). */
-export interface SchoolFeatureView {
-    key: string; kind: FeatureKind; enforcement: Enforcement;
-    /** false = the platform does not enforce this feature yet, so it is open to everyone */
-    enforced: boolean;
-    granted: boolean;
-    /** BOOLEAN: true/false. LIMIT/QUOTA: the cap (null = unlimited, 0 = none). ENUM: the chosen value. */
-    value: boolean | number | string | null;
-    unlimited: boolean;
-    /** current usage of a LIMIT/QUOTA feature when the platform meters it; null otherwise */
-    current: number | null;
-    source: "plan" | "override" | "none";
-}
-export interface SchoolEntitlementsView {
-    subscribed: boolean;
-    status: string | null;
-    features: SchoolFeatureView[];
-}
-
 export class EntitlementsService {
     private readonly ttlMs:  number;
     private readonly now:    () => number;
@@ -137,27 +118,6 @@ export class EntitlementsService {
         if (current + adding <= limit) return { allowed: true };
         if (def.enforcement === "WARN") return { allowed: true, warn: true };
         return { allowed: false, reason: "limit_reached", limit, current };
-    }
-
-    /** Every feature with what this school gets (override, else plan, else nothing). Pure read; never throws for a missing meter. */
-    async describeForSchool(schoolId: string): Promise<SchoolEntitlementsView> {
-        const [defs, resolved] = await Promise.all([this.getDefs(), this.getForSchool(schoolId)]);
-        const features: SchoolFeatureView[] = [];
-        for (const def of [...defs.values()].sort((a, b) => a.key.localeCompare(b.key))) {
-            const v = resolved.values.get(def.key);
-            const limited = def.kind === "LIMIT" || def.kind === "QUOTA";
-            const subscribed = !!resolved.planId;
-            const granted = !def.isActive ? true : subscribed && this.isGranted(def, v);
-            let current: number | null = null;
-            if (limited && def.meterKey && this.meters[def.meterKey] && subscribed) { try { current = await this.meters[def.meterKey](); } catch { current = null; } }
-            features.push({
-                key: def.key, kind: def.kind, enforcement: def.enforcement, enforced: def.isActive, granted,
-                value: !v ? (def.kind === "BOOLEAN" ? false : limited ? 0 : null) : def.kind === "BOOLEAN" ? v.bool === true : def.kind === "ENUM" ? v.enumValue : v.limit,
-                unlimited: limited && !!v && v.limit === null,
-                current, source: v ? v.source : "none",
-            });
-        }
-        return { subscribed: !!resolved.planId, status: resolved.status, features };
     }
 
     async getForSchool(schoolId: string): Promise<Resolved> {

@@ -20,7 +20,6 @@ router.get("/payment-exceptions", authenticate, requirePermission("platform.subs
 router.put("/payment-exceptions/:id/resolve", authenticate, requirePermission("platform.subscriptions.manage"), validate(ResolvePaymentExceptionDto), (q, s, n) => ctrl().resolvePaymentException(q, s, n));
 
 router.get("/:schoolId",        authenticate, requirePermission("platform.subscriptions.view"),   (q, s, n) => ctrl().get(q, s, n));
-router.get("/:schoolId/invoices", authenticate, requirePermission("platform.subscriptions.view"), (q, s, n) => ctrl().listSchoolInvoices(q, s, n));   // one school's billing history
 router.put("/:schoolId/plan",   authenticate, requirePermission("platform.subscriptions.manage"), validate(PlatformChangePlanDto), (q, s, n) => ctrl().changePlan(q, s, n));
 router.put("/:schoolId/extend", authenticate, requirePermission("platform.subscriptions.manage"), validate(ExtendPeriodDto), (q, s, n) => ctrl().extend(q, s, n));
 

@@ -62,7 +62,6 @@ All paths below are full paths under `/api/v1/users`.
 | `DELETE /me/sessions/:id` | Authenticated; tenant ownership validation | Revoke one session family |
 | `POST /schools/:schoolId/admin/reset-password` | Authenticated; `platform.users.manage`; ResetAdminPasswordDto | Reset a school administrator's password |
 | `GET /:id` | Authenticated; `platform.users.manage` | Retrieve safe platform-wide user summary |
-| `GET /` | Authenticated; `platform.users.manage` | List and search every account on the platform (read-only), newest first, paginated (`page`, `limit` max 100). Filters: `q` (part of email, first or last name; several words must all match), `status` (`active`, `inactive`, `locked`), `schoolId`, `platformOnly` (`true`/`false`). Row: `id, email, firstName, lastName, isActive, isEmailVerified, isLocked, lastLoginAt, createdAt, schoolCount, isPlatformMember`. Never returns password hash, phone, sign-in IP or tokens. Use `GET /:id` and the deactivate/reactivate actions on a row |
 | `POST /:id/deactivate` | Authenticated; `platform.users.manage`; DeactivateUserDto | Deactivate a global user identity |
 | `POST /:id/reactivate` | Authenticated; `platform.users.manage` | Reactivate a global user identity |
 
@@ -275,20 +274,3 @@ No tests were found in the inspected User test directory for profile update, pas
 - [Auth security audit](../../AUTH_AUDIT.md)
 - [School module](school.md)
 - [Roles module](roles.md)
-
-## `GET /users/me/permissions`: school entitlements
-
-Besides `permissions` and `branches`, the response carries `entitlements` (school sessions only; `null` for platform sessions) so the web app can hide or label features the school's plan does not include and show upgrade prompts.
-
-```
-entitlements: { subscribed, status, features: [{ key, kind, enforcement, enforced, granted, value, unlimited, current, source }] }
-```
-
-- Resolved exactly as enforcement does: an unexpired school override, else the plan's value, else not granted (BOOLEAN false, LIMIT/QUOTA 0). A feature the platform does not enforce yet (`enforced:false`) is `granted:true`. With no live subscription nothing enforced is granted.
-- `value`: BOOLEAN on/off; LIMIT/QUOTA the cap (`null` + `unlimited:true` = unlimited, `0` = none); ENUM the choice.
-- `current` is the metered usage for limits such as `students.max`; a failing meter gives `null`, never an error.
-- **Staff** get everything above. **Students and guardians** get only `granted`/`enforced`/`enforcement`/boolean `value`: no caps, usage, source or subscription status.
-- It is for what to show. Every request is still checked by `requireFeature` / `requirePlanLimit`.
-- Contract: `SchoolEntitlements` in `packages/contracts/src/me-permissions.ts`, with `accessOf(p).hasFeature(key)` and `.limitOf(key)`.
-
-Tests: `tests/user/my-permissions-entitlements.test.ts`.

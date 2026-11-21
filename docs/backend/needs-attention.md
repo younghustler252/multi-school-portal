@@ -20,14 +20,16 @@ Priority is the register's (P1 high, P2 medium, P3 low) unless a section says ot
 
 ## Approved contract additions (roadmap, scope unchanged)
 
+Built to the agreed designs and decisions in open PRs into `refactor/api`; waiting for review and merge (a duplicate set of implementations merged on 2026-11-22 was reverted so these stay the single source).
+
 | Addition | Status |
 |---|---|
 | Bank list and account verification | Done (PR #47) |
-| School entitlements in `/users/me/permissions` | Done (PR `feat/api/me-permissions-entitlements`) |
-| Invoice-level payment history | Done (PR `feat/api/invoice-payment-history`): `GET /payments/by-invoice/:invoiceId`, `GET /payments/my/by-invoice/:invoiceId` |
-| Platform-wide user listing and search | Done (PR `feat/api/platform-user-list`): `GET /users` |
-| Report-card letterhead upload | Done (PR `feat/api/letterhead-upload`): `POST /school-settings/letterhead` |
-| School-specific subscription billing history | Done (PR `feat/api/school-billing-history`): `GET /platform/subscriptions/:schoolId/invoices` |
+| School entitlements in `/users/me/permissions` | Open PR #49 |
+| Invoice-level payment history | Open PR #51 |
+| Platform-wide user listing and search | Open PR #52 (new `platform.users.view` permission) |
+| Report-card letterhead upload | Open PR #53 (part E) |
+| School-specific subscription billing history | Open PR #53 (part F) |
 
 ## Known smaller observations from the attendance review (not fixed)
 
