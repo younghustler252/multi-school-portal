@@ -14,8 +14,10 @@ export function useMySchool(options?: { poll?: boolean }) {
 	});
 }
 
-export function useSetupChecklist() {
+/** `enabled` lets a caller skip the request when the person lacks the permission behind it (school.update). */
+export function useSetupChecklist(enabled = true) {
 	return useQuery({
+		enabled,
 		queryKey: ["school", "setup-checklist"],
 		queryFn: async () => {
 			const res = await schoolApi.getSetupChecklist();

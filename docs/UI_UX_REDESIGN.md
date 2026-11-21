@@ -117,3 +117,36 @@ Pure logic (initials, persona labels, breadcrumb building, active-nav matching) 
 **`Button` / `Input`**: unchanged API. On touch devices (`pointer-coarse`) they grow to 40-48px so touch targets reach about 44px; desktop density is unchanged.
 
 **Shell**: `AppShell` (skip link, main landmark, breadcrumbs) takes a `sidebar` and a `topbar`. `SidebarFrame` + `NavList` are shared by the school and platform sidebars; the menu comes from `visibleNav(permissions)` and the components never decide permissions. `UserMenu`, `CommandPalette` (Ctrl/Cmd+K, pages only) and `ThemeToggle` are shared by both top bars. Pure logic (`lib/people`, `lib/breadcrumbs`, `lib/nav-active`) has no React or browser imports and has unit tests in `tests/lib`.
+
+
+---
+
+## 4. Stage 3 — School administrator dashboard (`/school/dashboard`)
+
+### Where every figure comes from
+| On the page | Source | Shown when |
+|---|---|---|
+| Students, Staff cards; plan capacity meters | `GET /school/dashboard` → `people` | the API sent `people` (needs `students.view` or `staff.view`) |
+| Attendance today card and panel | `…/dashboard` → `attendance` | `attendance.view` |
+| Fees outstanding card and Fees this term panel | `…/dashboard` → `fees` | `fees.view` |
+| Current term in the page subtitle | `…/dashboard` → `academics.currentTerm` or `fees.term` | when present |
+| Plan name, expiry badge, limits | `…/dashboard` → `plan` | always |
+| Setup checklist | `GET /school/setup-checklist` | `school.update` and the checklist is under 100% |
+| Quick-action links | `canOpenRoute()` (the same rule table as the menu and route guard) | the session may open that page |
+
+Nothing is computed from invented data. A section the API leaves out is not drawn, and if all four are missing the page says so.
+
+### Fixed: the frontend type did not match the API
+`SchoolDashboardData` (frontend) disagreed with `SchoolDashboard` (API): sections can be `null` by role, `attendance` uses `present/absent/late/excused/date` (the page read `todayPresent…`), `fees` uses `…Kobo` fields and `overdueInvoices` (the page read `totalPending`, `defaulters`), `academics` has `activeEnrolments` and `currentTerm`, and plan limits can be `null` (unlimited). The old page would have shown blanks or thrown for any role missing a section. The type now mirrors the API, and `/insights/overview` (which read the same data) got a minimal null-safe mapping fix only.
+
+### Display rules
+- **Attendance rate** = (present + late) / everyone marked today, shown with the count ("90 of 100 marked present or late"). With nothing marked it shows "—", never 0%. The old card used present / (present + absent); this needs your confirmation as a business definition.
+- **Fees**: collected / invoiced for the current term; outstanding as money; overdue invoices as a count.
+- **Plan limits**: `null` limit = "no limit" (no meter); 90% or more = "close to your plan limit"; 100% = "plan limit reached"; ends within 14 days = badge.
+- Part-to-whole uses a segmented bar with 2px gaps and a legend carrying every label and value, so colour is never the only signal. No chart library was added.
+
+### Backend gaps (reported, not worked around)
+1. **No branch scope.** `GET /school/dashboard` takes no branch parameter and the counts are school-wide, so a branch-scoped user still sees school-wide figures. Needs an optional `branchId` (validated against the caller's branch scope) on the endpoint.
+2. **No time series.** There is no attendance-over-time or collections-over-time endpoint, so there are no trend charts. Needs, for example, a daily attendance series and a weekly payments series for the current term.
+3. **No actionable lists.** The contract has no pending approvals, recent activity or upcoming events for administrators, so those panels are not built.
+4. **Verification status** (`school.verificationStatus`) is in the response but its allowed values are not in the shared contract, so no banner is shown for unverified schools yet.

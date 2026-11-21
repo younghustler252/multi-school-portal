@@ -80,6 +80,11 @@ export interface UploadFileResponseData {
 }
 
 
+/**
+ * GET /school/dashboard. Mirrors `SchoolDashboard` in apps/api/src/modules/school/usecases/get-dashboard.usecase.ts.
+ * Each section except `school` and `plan` is null when the viewer's role does not allow it (a bursar never receives
+ * student data), so the UI must render only the sections that are present.
+ */
 export interface SchoolDashboardData {
 	school: {
 		name: string;
@@ -88,10 +93,12 @@ export interface SchoolDashboardData {
 	};
 	plan: {
 		name: string;
-		studentLimit: number;
-		staffLimit: number;
 		status: string;
 		expiresAt: string | null;
+		/** null = unlimited. */
+		studentLimit: number | null;
+		/** null = unlimited. */
+		staffLimit: number | null;
 	};
 	people: {
 		totalStaff: number;
@@ -99,21 +106,27 @@ export interface SchoolDashboardData {
 		totalStudents: number;
 		activeStudents: number;
 		totalGuardians: number;
-	};
+	} | null;
 	academics: {
+		currentTerm: string | null;
 		totalClasses: number;
 		totalSubjects: number;
-		totalEnrolments: number;
-	};
+		activeEnrolments: number;
+	} | null;
 	fees: {
-		totalInvoiced: number; // kobo
-		totalCollected: number; // kobo
-		totalPending: number; // kobo
-		defaulters: number;
-	};
+		/** Current term label, null when no term is current. */
+		term: string | null;
+		totalInvoicedKobo: number;
+		totalCollectedKobo: number;
+		totalPendingKobo: number;
+		overdueInvoices: number;
+	} | null;
 	attendance: {
-		todayPresent: number;
-		todayAbsent: number;
-		todayLate: number;
-	};
+		/** The school's own calendar day, YYYY-MM-DD. */
+		date: string;
+		present: number;
+		absent: number;
+		late: number;
+		excused: number;
+	} | null;
 }
