@@ -55,6 +55,7 @@ billing.view is ALL/STAFF within the current school. billing.manage is ALL/STAFF
 | GET | / | platform.subscriptions.view | Paginated subscriptions |
 | GET | /stats | platform.subscriptions.view | MRR/ARR, collections, overdue, status and plan distribution |
 | GET | /invoices | platform.subscriptions.view | Platform invoice list/filter |
+| GET | /:schoolId/invoices | platform.subscriptions.view | One school's whole billing history, newest first: every invoice (any status, `status`/`overdue`/`page`/`limit` filters) with line items and payment attempts (reference, amount, status, method, failure reason, times; never the provider payload or a saved card token). Response also has `school` and a `summary` of the school's complete history (`invoiceCount`, `paidCount`, `openCount`, `paidKobo`, `outstandingKobo`) that ignores the page and filters. Unknown school: 404 |
 | PUT | /invoices/:id/void | platform.subscriptions.manage | Void open invoice with reason |
 | PUT | /invoices/:id/mark-paid | platform.subscriptions.manage | Confirm offline bank transfer |
 | GET | /:schoolId | platform.subscriptions.view | One school's billing detail |
