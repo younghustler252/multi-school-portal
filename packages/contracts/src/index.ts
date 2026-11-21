@@ -18,3 +18,4 @@ export * from "./me-permissions";
 export * from "./staff";
 export * from "./letterhead-upload";
 export * from "./school-billing-history";
+export * from "./bank-lookup";

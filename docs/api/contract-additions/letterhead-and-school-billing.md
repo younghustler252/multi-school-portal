@@ -24,4 +24,4 @@ Types: `packages/contracts/src/school-billing-history.ts`. Platform realm, permi
 - Errors: 404 `School not found`, 400 invalid query, 401, 403.
 - Reuses the existing invoice mapper; no second invoice implementation. The school's own billing screen (`/subscriptions` school realm) is unchanged.
 
-Inventory: School settings 6 -> 7; School billing and platform subscription administration 22 -> 23; total 128 -> 130.
+Inventory: School settings 6 -> 7; School billing and platform subscription administration 22 -> 23; total 130 -> 132 (after the bank-lookup PR).
