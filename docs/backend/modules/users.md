@@ -62,6 +62,7 @@ All paths below are full paths under `/api/v1/users`.
 | `DELETE /me/sessions/:id` | Authenticated; tenant ownership validation | Revoke one session family |
 | `POST /schools/:schoolId/admin/reset-password` | Authenticated; `platform.users.manage`; ResetAdminPasswordDto | Reset a school administrator's password |
 | `GET /:id` | Authenticated; `platform.users.manage` | Retrieve safe platform-wide user summary |
+| `GET /` | Authenticated; `platform.users.manage` | List and search every account on the platform (read-only), newest first, paginated (`page`, `limit` max 100). Filters: `q` (part of email, first or last name; several words must all match), `status` (`active`, `inactive`, `locked`), `schoolId`, `platformOnly` (`true`/`false`). Row: `id, email, firstName, lastName, isActive, isEmailVerified, isLocked, lastLoginAt, createdAt, schoolCount, isPlatformMember`. Never returns password hash, phone, sign-in IP or tokens. Use `GET /:id` and the deactivate/reactivate actions on a row |
 | `POST /:id/deactivate` | Authenticated; `platform.users.manage`; DeactivateUserDto | Deactivate a global user identity |
 | `POST /:id/reactivate` | Authenticated; `platform.users.manage` | Reactivate a global user identity |
 
