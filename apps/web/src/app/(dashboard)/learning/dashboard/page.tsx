@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthStore } from "@/stores/auth.store";
 import { useCurrentSession } from "@/features/school/hooks/use-sessions";
-import { useMyStudentProfile, useMyGrades, useMyAttendance, useMyInvoices } from "@/features/students/hooks/use-student-portal";
+import { formatRate } from "@/features/attendance/lib/attendance";
+import { useMyStudentProfile, useMyGrades, useMyAttendanceSummary, useMyInvoices } from "@/features/students/hooks/use-student-portal";
 import { formatNaira } from "@/lib/format-money";
 import { ROUTES } from "@/lib/routes";
 
@@ -19,7 +20,7 @@ export default function StudentDashboardPage() {
 
 	const { data: profile, isLoading: profileLoading } = useMyStudentProfile();
 	const { data: grades } = useMyGrades(termId);
-	const { data: attendance } = useMyAttendance(termId);
+	const { data: attendance } = useMyAttendanceSummary(termId);
 	const { data: invoices } = useMyInvoices(termId);
 
 	const publishedGrades = grades?.filter((g) => g.isPublished) ?? [];
@@ -27,8 +28,6 @@ export default function StudentDashboardPage() {
 		? Math.round(publishedGrades.reduce((sum, g) => sum + (g.total ?? 0), 0) / publishedGrades.length)
 		: null;
 
-	const present = attendance?.filter((a) => a.status === "present").length ?? 0;
-	const attendancePct = attendance && attendance.length > 0 ? Math.round((present / attendance.length) * 100) : null;
 
 	const totalOwed = invoices?.reduce((sum, i) => sum + i.balanceKobo, 0) ?? 0;
 
@@ -47,7 +46,7 @@ export default function StudentDashboardPage() {
 			) : (
 				<div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
 					<StatCard label="Term average" value={avgTotal !== null ? `${avgTotal}%` : "—"} accent="primary" />
-					<StatCard label="Attendance" value={attendancePct !== null ? `${attendancePct}%` : "—"} accent="success" />
+					<StatCard label="Attendance" value={formatRate(attendance?.rate ?? null)} accent="success" />
 					<StatCard label="Outstanding fees" value={formatNaira(totalOwed)} accent="warning" />
 					<StatCard label="Subjects graded" value={String(publishedGrades.length)} accent="info" />
 				</div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { useMyChildrenAttendance } from "../hooks/use-guardian-portal";
+import { useChildAttendance } from "../hooks/use-guardian-portal";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface ChildAttendanceCalendarProps {
@@ -17,7 +17,8 @@ const STATUS_CLASSES: Record<string, string> = {
 };
 
 export function ChildAttendanceCalendar({ studentId, termId }: ChildAttendanceCalendarProps) {
-	const { data: records, isLoading } = useMyChildrenAttendance({ studentId, termId });
+	const { data, isLoading } = useChildAttendance(studentId, termId);
+	const records = data?.data;
 
 	const byDate = useMemo(() => {
 	const map = new Map<string, string>();
@@ -43,7 +44,7 @@ export function ChildAttendanceCalendar({ studentId, termId }: ChildAttendanceCa
 				{["M", "T", "W", "T", "F", "S", "S"].map((d, i) => <div key={i}>{d}</div>)}
 				{Array.from({ length: daysInMonth }).map((_, i) => {
 					const day = i + 1;
-					const dateStr = new Date(now.getFullYear(), now.getMonth(), day).toISOString().slice(0, 10);
+					const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`; // a calendar day, not a UTC instant
 					const status = byDate.get(dateStr);
 					const cls = status ? STATUS_CLASSES[status] : "bg-muted/40 text-muted-foreground";
 					return (

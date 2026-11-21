@@ -1,6 +1,7 @@
 import { useClasses } from "@/features/classes/hooks/use-classes";
 import { useMyClasses } from "@/features/staff/hooks/use-my-classes";
 import { useAccess } from "@/lib/use-access";
+import { mergeTeachingClasses } from "../lib/attendance";
 
 export interface ScopedClass {
 	id: string;
@@ -10,8 +11,8 @@ export interface ScopedClass {
 /*
 | Classes the person may take attendance for. The permission's scope decides, not a role name:
 |   ALL / BRANCH  → every class the API returns
-|   ASSIGNED / OWN → only the classes they are the class teacher of
-| Attendance is a class-teacher (homeroom) responsibility at the narrow scopes; being a subject teacher does not count.
+|   ASSIGNED / OWN → the classes they lead plus the classes they teach a subject in (ASSIGNED covers both, per the backend)
+| The server still decides: a class the person cannot mark comes back with canMark=false on its register.
 */
 export function useScopedClasses(): { classes: ScopedClass[]; isLoading: boolean } {
 	const me = useAccess();
@@ -22,7 +23,7 @@ export function useScopedClasses(): { classes: ScopedClass[]; isLoading: boolean
 
 	if (!wide) {
 		return {
-			classes: (myClasses?.classesAsClassTeacher ?? []).map((c) => ({ id: c.classId, name: c.className })),
+			classes: mergeTeachingClasses(myClasses?.classesAsClassTeacher, myClasses?.classesAsSubjectTeacher),
 			isLoading: myLoading,
 		};
 	}

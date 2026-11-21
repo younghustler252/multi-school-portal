@@ -7,7 +7,9 @@ import { StatCard } from "@/components/ui/stat-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useMyChildren, useMyChildrenAttendance, useMyChildrenInvoices } from "@/features/guardians/hooks/use-guardian-portal";
+import { useMyChildren, useMyChildrenInvoices } from "@/features/guardians/hooks/use-guardian-portal";
+import { useAttendanceSummaries } from "@/features/attendance/hooks/use-attendance";
+import { formatRate } from "@/features/attendance/lib/attendance";
 import { useCurrentSession } from "@/features/school/hooks/use-sessions";
 import { useAuthStore } from "@/stores/auth.store";
 import { GUARDIAN_RELATION_LABELS } from "@/features/guardians/constants/guardian-relation-labels";
@@ -20,17 +22,16 @@ export default function MyChildrenPage() {
 	const { data: currentSession } = useCurrentSession();
 	const termId = currentSession?.currentTerm?.id;
 
-	const { data: attendance } = useMyChildrenAttendance({ termId });
+	// One summary per child; the rate is the server's (excused days are left out).
+	const summaries = useAttendanceSummaries((children ?? []).map((c) => c.studentId), termId);
 	const { data: invoiceData } = useMyChildrenInvoices({ termId });
 
 	const totalOwed = invoiceData?.invoices.reduce((sum, i) => sum + i.balanceKobo, 0) ?? 0;
 	const totalPaid = invoiceData?.invoices.reduce((sum, i) => sum + i.paidKobo, 0) ?? 0;
 
-	function attendancePctFor(studentId: string) {
-		const records = attendance?.filter((a) => a.studentId === studentId) ?? [];
-		if (records.length === 0) return null;
-		const present = records.filter((a) => a.status === "present").length;
-		return Math.round((present / records.length) * 100);
+	function attendanceRateFor(studentId: string): number | null {
+		const i = (children ?? []).findIndex((c) => c.studentId === studentId);
+		return i >= 0 ? summaries[i]?.data?.rate ?? null : null;
 	}
 
 	function balanceFor(studentId: string) {
@@ -64,7 +65,7 @@ export default function MyChildrenPage() {
 						<StatCard
 							label="Avg. attendance"
 							value={(() => {
-								const pcts = children.map((c) => attendancePctFor(c.studentId)).filter((p): p is number => p !== null);
+								const pcts = children.map((c) => attendanceRateFor(c.studentId)).filter((p): p is number => p !== null);
 								return pcts.length > 0 ? `${Math.round(pcts.reduce((a, b) => a + b, 0) / pcts.length)}%` : "—";
 							})()}
 							accent="info"
@@ -74,7 +75,7 @@ export default function MyChildrenPage() {
 					<div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
 						{children.map((child) => {
 							const balance = balanceFor(child.studentId);
-							const pct = attendancePctFor(child.studentId);
+							const rate = attendanceRateFor(child.studentId);
 
 							return (
 								<Link
@@ -101,7 +102,7 @@ export default function MyChildrenPage() {
 
 									<div className="mt-4 grid grid-cols-2 gap-2 text-center">
 										<div className="rounded-lg bg-muted/50 p-2">
-											<div className="text-sm font-semibold">{pct !== null ? `${pct}%` : "—"}</div>
+											<div className="text-sm font-semibold">{formatRate(rate)}</div>
 											<div className="text-[10px] text-muted-foreground">Attendance</div>
 										</div>
 										<div className="rounded-lg bg-muted/50 p-2">
