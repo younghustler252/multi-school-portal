@@ -3,7 +3,9 @@ import { IRefreshTokenRepository } from "../../auth/repositories/refresh-token.r
 import { AuthAuditService }        from "../../auth/services/auth-audit.service";
 import { userErrors }              from "../domain/user.errors";
 import { UserActionContext }       from "../domain/user.types";
-import { DeactivateUserDtoType }   from "../dtos/user.dto";
+import { DeactivateUserDtoType, ListPlatformUsersQueryType } from "../dtos/user.dto";
+import { platformUserView, platformUserWhere } from "../domain/platform-user-search";
+import { buildPaginationMeta } from "../../../shared/utils/pagination";
 
 interface Dependencies {
     userRepository:         IUserRepository;
@@ -30,6 +32,13 @@ const summarise = (u: { id: string; email: string; firstName: string | null; las
 */
 export class ManagePlatformUsersUseCase {
     constructor(private readonly d: Dependencies) {}
+
+    /** GET /users: every account on the platform, filtered. Read-only; never returns credentials, phone or IP. */
+    async list(q: ListPlatformUsersQueryType, now: Date = new Date()) {
+        const { q: text, status, schoolId, platformOnly, page, limit } = q;
+        const { rows, total } = await this.d.userRepository.searchForPlatform(platformUserWhere({ q: text, status, schoolId, platformOnly }, now), page, limit);
+        return { data: rows.map(r => platformUserView(r, now)), meta: buildPaginationMeta(total, page, limit) };
+    }
 
     async find(id: string) {
         const user = await this.d.userRepository.findById(id);

@@ -25,7 +25,7 @@ Priority is the register's (P1 high, P2 medium, P3 low) unless a section says ot
 | Bank list and account verification | Done (PR #47) |
 | School entitlements in `/users/me/permissions` | Done (PR `feat/api/me-permissions-entitlements`) |
 | Invoice-level payment history | Done (PR `feat/api/invoice-payment-history`): `GET /payments/by-invoice/:invoiceId`, `GET /payments/my/by-invoice/:invoiceId` |
-| Platform-wide user listing and search | Pending |
+| Platform-wide user listing and search | Done (PR `feat/api/platform-user-list`): `GET /users` |
 | Report-card letterhead upload | Pending |
 | School-specific subscription billing history | Pending |
 

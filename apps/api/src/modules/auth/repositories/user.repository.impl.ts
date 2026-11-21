@@ -3,6 +3,7 @@ import { UserMapper }           from "../mappers/user.mapper";
 import { UserEntity }           from "../domain/auth.entity";
 import { UserWithPassword }     from "../types/auth.types";
 import { IUserRepository }      from "./user.repository";
+import type { PlatformUserRow } from "../../user/domain/platform-user-search";
 
 export class UserRepositoryImpl implements IUserRepository {
     private readonly prisma: PrismaClient;
@@ -29,6 +30,21 @@ export class UserRepositoryImpl implements IUserRepository {
         if (!ids.length) return [];
         const rows = await this.prisma.user.findMany({ where: { id: { in: ids } } });
         return rows.map(r => this.mapper.toDomain(r));
+    }
+
+    async searchForPlatform(where: Record<string, unknown>, page: number, limit: number): Promise<{ rows: PlatformUserRow[]; total: number }> {
+        const [total, raw] = await Promise.all([
+            this.prisma.user.count({ where: where as Prisma.UserWhereInput }),
+            this.prisma.user.findMany({
+                where: where as Prisma.UserWhereInput, orderBy: [{ createdAt: "desc" }, { id: "asc" }], skip: (page - 1) * limit, take: limit,
+                select: { id: true, email: true, firstName: true, lastName: true, isActive: true, isEmailVerified: true, lastLoginAt: true, createdAt: true, lockedUntil: true,
+                          _count: { select: { schools: true } }, platformMember: { select: { id: true } } },
+            }),
+        ]);
+        return { total, rows: raw.map(u => ({
+            id: u.id, email: u.email, firstName: u.firstName, lastName: u.lastName, isActive: u.isActive, isEmailVerified: u.isEmailVerified, lastLoginAt: u.lastLoginAt,
+            createdAt: u.createdAt, lockedUntil: u.lockedUntil, schoolCount: u._count.schools, isPlatformMember: !!u.platformMember,
+        })) };
     }
 
     async findByEmailWithPassword(email: string): Promise<UserWithPassword | null> {
