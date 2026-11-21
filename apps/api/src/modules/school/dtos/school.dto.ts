@@ -45,6 +45,9 @@ export const SetupPaymentDto = z.object({
     password:      z.string().max(128).optional(),   // required when a payment account already exists
 });
 
+// POST /schools/payment-setup/verify: the same bank and account rules as setting the account up, without the password
+export const VerifyBankAccountDto = SetupPaymentDto.pick({ bankCode: true, accountNumber: true }).strict();
+
 // ── Platform realm ────────────────────────────────────────────────────────
 export const ListSchoolsQuery = z.object({
     page:               z.coerce.number().int().min(1).default(1),
@@ -84,6 +87,7 @@ export const RejectDocumentDto = z.object({ reason: z.string().trim().min(10).ma
 export type UpdateSchoolDtoType         = z.infer<typeof UpdateSchoolDto>;
 export type UploadDocumentDtoType       = z.infer<typeof UploadDocumentDto>;
 export type SetupPaymentDtoType         = z.infer<typeof SetupPaymentDto>;
+export type VerifyBankAccountDtoType    = z.infer<typeof VerifyBankAccountDto>;
 export type ListSchoolsQueryType        = z.infer<typeof ListSchoolsQuery>;
 export type CreateSchoolDtoType         = z.infer<typeof CreateSchoolDto>;
 export type PlatformUpdateSchoolDtoType = z.infer<typeof PlatformUpdateSchoolDto>;
