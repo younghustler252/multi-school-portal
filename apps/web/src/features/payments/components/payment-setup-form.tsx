@@ -99,10 +99,15 @@ export function PaymentSetupForm({
 			});
 
 			setVerifiedName(result.accountName);
+			if (!result.accountNameMatchesSchool) {
+				toast.warning("The account name doesn't match your school name. Check that this is the right account before connecting.");
+			}
 		} catch (err) {
-			const apiErr = err as ApiErrorResponse;
+			const apiErr = err as ApiErrorResponse & { code?: string };
 
-			toast.error(apiErr.message || "Couldn't verify this account");
+			if (apiErr.code === "BANK_LOOKUP_UNAVAILABLE") toast.error("The bank lookup is unavailable right now. Please try again in a moment.");
+			else if (apiErr.code === "SCHOOL_NOT_VERIFIED") toast.error("Your school must be verified before you can set up payments.");
+			else toast.error(apiErr.message || "Couldn't verify this account");
 		}
 	}
 

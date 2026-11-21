@@ -36,8 +36,8 @@ export const paymentApi = {
 		API.get("/payments/my-payments", { params }),
 
 	listBanks: (): Promise<ApiResponse<BankResponseData[]>> =>
-			API.get("/payments/banks"),
+			API.get("/schools/banks"),
 	
 	verifyBankAccount: (params: VerifyBankAccountParams): Promise<ApiResponse<VerifyBankAccountResponse>> =>
-		API.post("/payments/verify-bank-account", params),
+		API.post("/schools/payment-setup/verify", params),
 };
