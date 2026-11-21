@@ -28,7 +28,6 @@ All paths below are relative to /api/v1/school-settings.
 | GET | /preferences | school_settings.view | Read notification/automation preference registry with defaults |
 | PUT | /preferences | school_settings.manage | Atomically update 1–20 preferences; null resets default |
 | POST | /stamp | school_settings.manage | Upload school stamp |
-| POST | /letterhead | school_settings.manage | Upload the report card letterhead picture (multipart field `letterhead`; PNG, JPEG or WebP read from the file bytes; 5 MB at most). Needs the plan feature `report_cards.letterhead`, checked before anything is stored (403 `FEATURE_NOT_AVAILABLE`-style response otherwise). Sets only `reportCardLetterheadUrl`; choose the `custom_letterhead` template and margins with `PUT /`. Audited as `school_settings.letterhead_uploaded` |
 | POST | /signature | school_settings.manage | Upload principal signature |
 
 Both permissions are SCHOOL realm, ALL scope, STAFF-only. Default role templates grant manage/view to principal; teacher, bursar, student and guardian templates do not receive these permissions.
@@ -50,7 +49,7 @@ The response also returns logoUrl, stamp, signature, report-card layout, allowSt
 
 ## Stamp/signature uploads
 
-- Multipart field name is stamp or signature (2 MB), or letterhead (5 MB, plan-gated).
+- Multipart field name is stamp or signature.
 - Multer memory storage; maximum file size 2 MB and one file.
 - Permission check runs before multer reads the file.
 - The use case inspects file magic bytes, not browser MIME/filename.

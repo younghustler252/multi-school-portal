@@ -26,7 +26,7 @@ Priority is the register's (P1 high, P2 medium, P3 low) unless a section says ot
 | School entitlements in `/users/me/permissions` | Done (PR `feat/api/me-permissions-entitlements`) |
 | Invoice-level payment history | Done (PR `feat/api/invoice-payment-history`): `GET /payments/by-invoice/:invoiceId`, `GET /payments/my/by-invoice/:invoiceId` |
 | Platform-wide user listing and search | Done (PR `feat/api/platform-user-list`): `GET /users` |
-| Report-card letterhead upload | Done (PR `feat/api/letterhead-upload`): `POST /school-settings/letterhead` |
+| Report-card letterhead upload | Pending |
 | School-specific subscription billing history | Pending |
 
 ## Known smaller observations from the attendance review (not fixed)
