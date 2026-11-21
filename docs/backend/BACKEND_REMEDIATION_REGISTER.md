@@ -27,7 +27,7 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Authorize the target student before any related lookup; apply the same authorization boundary to every query contributing to the response. Return a not-found/forbidden response or a fully empty response according to the API's established privacy policy. Add tests asserting no student identity, class, enrolment or register-day metadata leaks for an unrelated child.
 - **Owner/workstream:** Attendance backend developer
 - **Acceptance criteria:** Unauthorized target requests reveal no student-specific metadata or aggregates; authorized own/linked-child and staff-scope cases continue to pass.
-- **Resolution (branch `fix/api/p1-remediation-batch1`, not yet merged):** Confirmed in source, then fixed. The summary now finds the student through a visibility filter (`studentViewWhere`) before looking up the class or register days, and an unreachable student is the same 404 as an unknown one. Covered by unit tests and DB-gated cases (own, linked child, class teacher, subject teacher, last-term teacher, no permission).
+- **Resolution (merged to `refactor/api`, commit f82e0b8; follow-up below):** Confirmed in source, then fixed. The summary now finds the student through a visibility filter (`studentViewWhere`) before looking up the class or register days, and an unreachable student is the same 404 as an unknown one. Covered by unit tests and DB-gated cases (own, linked child, class teacher, subject teacher, last-term teacher, no permission).
 - **Follow-up (branch `fix/api/attendance-summary-scope`, November 2026):** re-verified against the merged code: the student-summary gate holds for student, guardian, class teacher, subject teacher, branch staff, ALL and no-permission callers, and all counts are row-scoped. Two residual leaks fixed: (1) the school dashboard's attendance counts were school-wide for any staff member with `attendance.view` (now row-scoped, with `scope` in the response); (2) the term was validated after the student lookup, so a bad `termId` revealed whether a student exists (term is now validated first). The stale "open privacy review item" text in `docs/backend/modules/attendance.md` was replaced by the current rules. Tests: `tests/attendance/summary-scope.test.ts` (mutation-checked). **Remaining:** the dashboard's `people`/`academics` blocks use `students.view`/`staff.view` without narrowing (recorded in `docs/backend/needs-attention.md`).
 
 ### REM-002 — Enrolment BRANCH scope is declared but currently returns no records
@@ -51,6 +51,7 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Define branch visibility against the class's branch and implement it consistently for results, sheet lists and individual sheet reads; or remove the unsupported BRANCH scope from the permission declaration and role grants until class/branch authorization is available.
 - **Owner/workstream:** Grades/RBAC developer
 - **Acceptance criteria:** Branch-scoped access is tested across list, detail and result endpoints; no cross-branch data is visible.
+- **Resolution (branch `fix/api/grades-reportcards-decisions`, 2026-11-20):** Grades BRANCH was already implemented by class branch (commit e76bb69; the register entry was stale) and is now covered by `tests/grades/grades-scope.test.ts`. Report cards had the same gap (BRANCH resolved to nobody): `report_cards.view` now offers BRANCH, filtering cards, class overview and class PDF by the class's branch, fail closed when the branch is unknown. Decision: branch visibility follows the class's assigned branch consistently.
 
 ### REM-004 — Grades approval requirement is hard-coded rather than school-configurable
 
@@ -73,6 +74,7 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Decide whether family-facing clients need these configuration endpoints. If not, introduce a staff-only read permission or enforce the intended persona/permission. If yes, document the deliberate exposure and add an authorization test.
 - **Owner/workstream:** Grades/RBAC developer
 - **Acceptance criteria:** Explicit decision reflected in permission metadata, route behavior and tests.
+- **Resolution (branch `fix/api/grades-reportcards-decisions`, 2026-11-20):** Decision (product owner): students and guardians keep read-only access to the school's grading scales/schemes and their own published grades; no editing or configuration. Behavior unchanged; now documented and asserted in tests.
 
 ### REM-006 — Grades domain writes and audit writes are not atomic
 
@@ -150,6 +152,7 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Confirm whether this is a deliberate per-action override. If so, keep it explicit, audit it and test it. If it is a school policy, read a persisted setting instead of trusting the client. If it is exceptional, use a separate sensitive permission.
 - **Owner/workstream:** Report cards/product owner
 - **Acceptance criteria:** The selected policy is enforced server-side and represented in role/permission metadata and tests.
+- **Resolution (branch `fix/api/grades-reportcards-decisions`, 2026-11-20):** Decision: separate sensitive permission `report_cards.publish_incomplete` (ALL, staff). `allowMissing=true` without it is refused; every override is audited with `incompleteOverride` and the missing subjects per card; the administrator role template holds the permission, so existing administrators keep the capability. Existing schools' custom roles need the permission granted explicitly.
 
 ### REM-013 — Report-card integration tests do not cover database migrations or HTTP routing
 

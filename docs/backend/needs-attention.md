@@ -40,21 +40,12 @@ Priority is the register's (P1 high, P2 medium, P3 low) unless a section says ot
 | Withdrawn/transferred student's history stays visible to that class's teacher | attendance summary | P3 | Intended (marks are class history); confirm with product |
 
 
-## A. Blockers for the frontend roadmap (NOT deferred)
+## A. Frontend blockers (not deferred)
 
-These change what the frontend can build or how it handles responses. Tracked here only so the list is complete; they are the next backend work after the attendance PR.
-
-**Impact:** Frontend grades/report-card work (REM-003, 005, 012) and every list/error integration (REM-113, 114).
-
-**Dependency / condition:** REM-005 and REM-012 need a product decision first (see the report). REM-003 needs the class-to-branch rule.
-
-| Id | Module | Problem | Priority |
-|---|---|---|---|
-| REM-003 | Grades | Grades BRANCH scope is declared but explicitly resolves to no records | P2 |
-| REM-005 | Grades | Grades setup read endpoints share a permission that includes family personas | P3 |
-| REM-012 | Report Cards | Report-card publish override is controlled by the request payload | P2 |
-| REM-113 | API Infrastructure / Validation | Query and route-parameter Zod parse results are discarded | P2 |
-| REM-114 | API Infrastructure / Error Handling | Validation, 404 and rate-limit errors do not share one response envelope | P2 |
+| Id | Status |
+|---|---|
+| REM-003, REM-005, REM-012 | Done in PR `fix/api/grades-reportcards-decisions` (see the register) |
+| REM-113, REM-114 | Next PR: request validation results and the common error envelope |
 
 ## B. Integrity risks: real, but need production conditions; do next after the blockers
 
