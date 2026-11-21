@@ -26,12 +26,6 @@ export class BillingPlatformController {
     extend = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.extendPeriodUseCase.execute(String(req.params.schoolId), actorOf(req), req.body), "Period extended successfully"); } catch (e) { next(e); } };
 
     listInvoices = async (req: Request, res: Response, next: NextFunction) => { try { paged(res, "Invoices retrieved successfully", await this.d.platformInvoicesUseCase.list(ListPlatformInvoicesQuery.parse(req.query))); } catch (e) { next(e); } };
-    listSchoolInvoices = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const r = await this.d.platformInvoicesUseCase.listForSchool(String(req.params.schoolId), ListPlatformInvoicesQuery.parse(req.query));
-            res.status(200).json({ success: true, message: "Billing history retrieved successfully", data: r.data, school: r.school, summary: r.summary, meta: r.meta });
-        } catch (e) { next(e); }
-    };
     voidInvoice  = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.platformInvoicesUseCase.void(String(req.params.id), actorOf(req), req.body), "Invoice voided"); } catch (e) { next(e); } };
     listPaymentExceptions = async (req: Request, res: Response, next: NextFunction) => { try { const r = await this.d.platformPaymentExceptionsUseCase.list(ListPaymentExceptionsQuery.parse(req.query)); res.status(200).json({ success: true, message: "Payment exceptions retrieved successfully", data: r.data, summary: r.summary, meta: r.meta }); } catch (e) { next(e); } };
     resolvePaymentException = async (req: Request, res: Response, next: NextFunction) => { try { sendSuccess(res, await this.d.platformPaymentExceptionsUseCase.resolve(String(req.params.id), actorOf(req), req.body), "Payment exception resolved"); } catch (e) { next(e); } };
