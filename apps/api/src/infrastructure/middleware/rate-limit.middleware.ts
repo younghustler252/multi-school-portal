@@ -26,6 +26,7 @@ export const globalLimiter = rateLimit({
     max:             100,
     message: {
         success: false,
+        code: "RATE_LIMITED",
         message: "Too many requests, please try again later",
     },
     standardHeaders: true,
@@ -40,6 +41,7 @@ export const authLimiter = rateLimit({
     max:             10,
     message: {
         success: false,
+        code: "RATE_LIMITED",
         message: "Too many authentication attempts. Please try again in 15 minutes.",
     },
     standardHeaders: true,
@@ -55,6 +57,7 @@ export const otpLimiter = rateLimit({
     max:             5,
     message: {
         success: false,
+        code: "RATE_LIMITED",
         message: "Too many OTP requests. Please wait 15 minutes before trying again.",
     },
     standardHeaders: true,
@@ -76,6 +79,7 @@ export const uploadLimiter = rateLimit({
     max:      20,
     message: {
         success: false,
+        code: "RATE_LIMITED",
         message: "Too many file uploads. Please try again later.",
     },
     standardHeaders: true,
@@ -93,7 +97,7 @@ export const bankVerifyLimiter = rateLimit({
     windowMs: 60 * 1000,
     max:      20,
     keyGenerator: perUserKey as any,
-    message: { success: false, message: "Too many bank verification attempts. Please wait a minute and try again." },
+    message: { success: false, code: "RATE_LIMITED", message: "Too many bank verification attempts. Please wait a minute and try again." },
     standardHeaders: true,
     legacyHeaders:   false,
 });
@@ -103,7 +107,7 @@ export const bankListLimiter = rateLimit({
     windowMs: 60 * 1000,
     max:      60,
     keyGenerator: perUserKey as any,
-    message: { success: false, message: "Too many requests. Please wait a minute and try again." },
+    message: { success: false, code: "RATE_LIMITED", message: "Too many requests. Please wait a minute and try again." },
     standardHeaders: true,
     legacyHeaders:   false,
 });

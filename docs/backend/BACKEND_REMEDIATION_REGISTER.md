@@ -1319,6 +1319,7 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Store parsed data in a typed request-local field (e.g. res.locals.validatedQuery/validatedParams) and require controllers to consume it, or parse in the controller and pass parsed values. Do not reassign Express's getter-only req.query directly.
 - **Owner/workstream:** API Infrastructure
 - **Acceptance criteria:** Tests prove numeric/boolean coercion, defaults, transforms and unknown-key stripping are reflected in controller/use-case inputs for query and params.
+- **Resolution (branch `fix/api/request-validation-errors`, 2026-11-21):** `validate` now stores the parsed result: body to `req.body`, params to `req.params`, query to `res.locals.validated.query` (read with `validated(res, part, raw)`). Only five query routes use the middleware (feedback list, four notification lists); the feedback list controller now reads the parsed query, so page/limit are numbers with defaults and the 100 cap. About 79 other controllers already `parse(req.query)` themselves and are unchanged. Tests: `tests/infrastructure/validate.middleware.test.ts`.
 
 ### REM-114 — Validation, 404 and rate-limit errors do not share one response envelope
 
@@ -1330,6 +1331,7 @@ No P0 finding has been established in the modules recorded here. Priority may ch
 - **Recommended action:** Centralize validation errors through the global handler or a shared serializer; give 404 ROUTE_NOT_FOUND and 429 RATE_LIMITED; standardize errors as a stable field map with documented value type.
 - **Owner/workstream:** API Infrastructure
 - **Acceptance criteria:** Contract tests assert one common error envelope for Zod, AppError, unknown route, CORS and rate-limit responses.
+- **Resolution (branch `fix/api/request-validation-errors`, 2026-11-21):** Validation failures now go through the global handler (`VALIDATION_ERROR`, field map of strings); the 404 handler returns `ROUTE_NOT_FOUND`; the six rate limiters return `RATE_LIMITED`. The webhook limiter is left as is (provider-facing). The old middleware's per-field arrays are gone: the frontend should read `errors[field]` as a string.
 
 ### REM-115 — Rate limiting is not configured for reverse proxies or multiple API instances
 

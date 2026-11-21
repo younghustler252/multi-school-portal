@@ -45,7 +45,7 @@ Priority is the register's (P1 high, P2 medium, P3 low) unless a section says ot
 | Id | Status |
 |---|---|
 | REM-003, REM-005, REM-012 | Done in PR `fix/api/grades-reportcards-decisions` (see the register) |
-| REM-113, REM-114 | Next PR: request validation results and the common error envelope |
+| REM-113, REM-114 | Done in PR `fix/api/request-validation-errors` (frontend note: validation `errors` values are now strings) |
 
 ## B. Integrity risks: real, but need production conditions; do next after the blockers
 
