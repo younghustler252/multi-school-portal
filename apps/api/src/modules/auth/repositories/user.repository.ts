@@ -1,14 +1,11 @@
 import { Prisma }                      from "../../../generated/public/client";
 import { UserEntity }                  from "../domain/auth.entity";
 import { UserWithPassword }            from "../types/auth.types";
-import type { PlatformUserRow }        from "../../user/domain/platform-user-search";
 
 export interface IUserRepository {
     findById(id: string): Promise<UserEntity | null>;
     findByEmail(email: string): Promise<UserEntity | null>;
     findByIds(ids: string[]): Promise<UserEntity[]>;
-    /** Platform support list: filtered, newest first, with how many schools each person belongs to. */
-    searchForPlatform(where: Record<string, unknown>, page: number, limit: number): Promise<{ rows: PlatformUserRow[]; total: number }>;
     findByEmailWithPassword(email: string): Promise<UserWithPassword | null>;
     create(data: Prisma.UserUncheckedCreateInput): Promise<UserEntity>;
     update(id: string, data: Prisma.UserUncheckedUpdateInput): Promise<UserEntity>;

@@ -8,8 +8,7 @@ import { ListMyAccessUseCase }          from "../usecases/list-my-access.usecase
 import { ManageMySessionsUseCase }      from "../usecases/manage-my-sessions.usecase";
 import { ResetSchoolAdminPasswordUseCase } from "../usecases/reset-school-admin-password.usecase";
 import { ManagePlatformUsersUseCase }   from "../usecases/manage-platform-users.usecase";
-import { sendSuccess, sendPaginated }       from "../../../shared/utils/api-response";
-import { ListPlatformUsersQuery }          from "../dtos/user.dto";
+import { sendSuccess }                  from "../../../shared/utils/api-response";
 import { setAuthCookies, clearAuthCookies } from "../../../infrastructure/middleware/auth.middleware";
 import { getAccess }                    from "../../../infrastructure/middleware/rbac.middleware";
 import { userErrors }                   from "../domain/user.errors";
@@ -118,11 +117,6 @@ export class UserController {
             const r = await this.d.resetSchoolAdminPasswordUseCase.execute(String(req.params.schoolId), req.body, ctxOf(req));
             sendSuccess(res, null, r.message);
         } catch (e) { next(e); }
-    };
-
-    listPlatformUsers = async (req: Request, res: Response, next: NextFunction) => {
-        try { const r = await this.d.managePlatformUsersUseCase.list(ListPlatformUsersQuery.parse(req.query)); sendPaginated(res, r.data, r.meta); }
-        catch (e) { next(e); }
     };
 
     getPlatformUser = async (req: Request, res: Response, next: NextFunction) => {
