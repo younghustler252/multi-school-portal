@@ -1,16 +1,10 @@
 "use client";
 
-import { Fragment } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
-import { LogOut } from "lucide-react";
 import { Logo } from "@/components/layout/logo";
-import { Separator } from "@/components/ui/separator";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { cn } from "@/lib/utils";
-import { NAV_ICONS } from "@/lib/nav-config";
+import { SidebarFrame } from "@/components/layout/sidebar-frame";
 import { visibleNav } from "@/lib/nav-model";
+import { sessionLabel } from "@/lib/people";
 import { useAuthStore } from "@/stores/auth.store";
 import { useCurrentSubdomain } from "@/lib/use-current-subdomain";
 import { usePublicSchoolInfo } from "@/features/school/hooks/use-school";
@@ -20,6 +14,8 @@ import { ROUTES } from "@/lib/routes";
 interface SidebarProps {
 	isOpen: boolean;
 	onClose: () => void;
+	collapsed: boolean;
+	onToggleCollapsed: () => void;
 }
 
 // Isolated so its hooks only ever run when this actually mounts — i.e. only
@@ -32,15 +28,22 @@ function FinishSetupLink() {
 	return (
 		<Link
 			href={ROUTES.onboarding.setup}
-			className="mx-3 mt-3 block rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-xs"
+			className="mx-3 mb-3 block rounded-md border border-sidebar-primary/40 bg-sidebar-accent px-3 py-2.5 text-xs outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring"
 		>
 			<div className="flex items-center justify-between">
-				<span className="font-medium text-primary">Finish setup</span>
-				<span className="text-muted-foreground">{progress.currentStepNumber}/{progress.totalSteps}</span>
+				<span className="font-semibold text-sidebar-primary">Finish setup</span>
+				<span className="tabular text-sidebar-foreground/70">{progress.currentStepNumber}/{progress.totalSteps}</span>
 			</div>
-			<div className="mt-1.5 h-1 overflow-hidden rounded-full bg-muted">
+			<div
+				role="progressbar"
+				aria-label="Setup progress"
+				aria-valuemin={0}
+				aria-valuemax={progress.totalSteps}
+				aria-valuenow={progress.currentStepNumber}
+				className="mt-2 h-1 overflow-hidden rounded-full bg-sidebar-border"
+			>
 				<div
-					className="h-full bg-primary transition-all"
+					className="h-full rounded-full bg-sidebar-primary transition-[width]"
 					style={{ width: `${(progress.currentStepNumber / progress.totalSteps) * 100}%` }}
 				/>
 			</div>
@@ -48,77 +51,36 @@ function FinishSetupLink() {
 	);
 }
 
-function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
-	const pathname = usePathname();
+export function Sidebar({ isOpen, onClose, collapsed, onToggleCollapsed }: SidebarProps) {
 	const permissions = useAuthStore((s) => s.permissions);
-	const navItems = visibleNav(permissions);
-	// Section headings only when there is more than one section to tell apart.
-	const showHeadings = new Set(navItems.map((i) => i.group).filter(Boolean)).size > 1;
 	const subdomain = useCurrentSubdomain();
 	const { data: school } = usePublicSchoolInfo(subdomain ?? "");
 
 	return (
-		<div className="flex h-full flex-col bg-sidebar/95 backdrop-blur-md text-sidebar-foreground">
-			<Link href={ROUTES.home} className="flex h-16 items-center gap-2 border-b border-sidebar-border px-5">
-				<Logo size={32} logoUrl={school?.logoUrl} name={school?.name} />
-				<div className="leading-tight">
-					<div className="max-w-[180px] truncate font-semibold text-sidebar-foreground">
-						{school?.name ?? "School Portal"}
-					</div>
-				</div>
-			</Link>
-
-			<nav className="flex-1 space-y-0.5 overflow-y-auto p-3">
-				{navItems.map((item, index) => {
-					const active = pathname === item.to || (item.to !== ROUTES.home && !item.to.endsWith("/dashboard") && pathname.startsWith(item.to));
-					const heading = showHeadings && item.groupLabel && item.group !== navItems[index - 1]?.group ? item.groupLabel : null;
-					const Icon = NAV_ICONS[item.icon];
-					return (
-						<Fragment key={item.to}>
-						{heading && (
-							<div className="px-3 pb-1 pt-4 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{heading}</div>
-						)}
-						<Link
-							href={item.to}
-							onClick={onNavigate}
-							className={cn(
-								"flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
-								active ? "bg-sidebar-primary text-sidebar-primary-foreground" : "text-sidebar-foreground hover:bg-sidebar-accent/60"
-							)}
-						>
-							<Icon className="size-4" />
-							{item.label}
-						</Link>
-						</Fragment>
-					);
-				})}
-			</nav>
-
-			{permissions?.holdsEverything && <FinishSetupLink />}
-
-			<Separator className="bg-sidebar-border" />
-
-			<div className="p-3">
-				<Link href={ROUTES.public.landing} className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-sidebar-accent/60">
-					<LogOut className="size-4" />
-					Back to landing
-				</Link>
-			</div>
-		</div>
+		<SidebarFrame
+			items={visibleNav(permissions)}
+			homeHref={ROUTES.home}
+			isOpen={isOpen}
+			onClose={onClose}
+			collapsed={collapsed}
+			onToggleCollapsed={onToggleCollapsed}
+			extra={permissions?.holdsEverything ? <FinishSetupLink /> : undefined}
+			header={({ collapsed: rail }) => (
+				<>
+					{/* A light chip keeps any uploaded logo legible on the dark sidebar. */}
+					<span className="grid shrink-0 place-items-center rounded-lg bg-card p-1">
+						<Logo size={28} logoUrl={school?.logoUrl} name={school?.name} />
+					</span>
+					{!rail && (
+						<span className="min-w-0 leading-tight">
+							<span className="block truncate font-semibold text-sidebar-foreground">{school?.name ?? "School Portal"}</span>
+							<span className="block truncate text-[11px] text-sidebar-foreground/60">
+								{sessionLabel(permissions?.realm ?? "school", permissions?.persona)}
+							</span>
+						</span>
+					)}
+				</>
+			)}
+		/>
 	);
 }
-
-export function Sidebar({ isOpen, onClose }: SidebarProps) {
-	return (
-		<>
-			<aside className="hidden w-64 shrink-0 border-r border-sidebar-border lg:block">
-				<SidebarContent />
-			</aside>
-			<Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
-				<SheetContent side="left" className="w-64 border-sidebar-border bg-sidebar/95 p-0 backdrop-blur-md lg:hidden">
-					<SidebarContent onNavigate={onClose} />
-				</SheetContent>
-			</Sheet>
-		</>
-	);
-}	

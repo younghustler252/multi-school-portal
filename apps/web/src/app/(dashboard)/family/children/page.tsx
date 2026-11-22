@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { StatCard } from "@/components/ui/stat-card";
+import { PersonAvatar } from "@/components/ui/person-avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -83,14 +84,7 @@ export default function MyChildrenPage() {
 									className="block rounded-xl border border-border bg-card/80 p-5 backdrop-blur-sm active:bg-muted/40 transition-colors hover:border-primary/40"
 								>
 									<div className="flex items-start gap-3">
-										{child.photoUrl ? (
-											// eslint-disable-next-line @next/next/no-img-element
-											<img src={child.photoUrl} alt={child.firstName} className="size-12 rounded-full object-cover" />
-										) : (
-											<div className="grid size-12 place-items-center rounded-full bg-primary/10 font-semibold text-primary">
-												{child.firstName.charAt(0)}{child.lastName.charAt(0)}
-											</div>
-										)}
+										<PersonAvatar photoUrl={child.photoUrl} firstName={child.firstName} lastName={child.lastName} size={48} />
 										<div className="min-w-0 flex-1">
 											<div className="truncate font-medium">{child.firstName} {child.lastName}</div>
 											<div className="text-xs text-muted-foreground">{GUARDIAN_RELATION_LABELS[child.relation]}</div>

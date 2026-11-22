@@ -13,7 +13,7 @@ function Input({
 			type={type}
 			data-slot="input"
 			className={cn(
-				"flex h-10 w-full min-w-0 rounded-lg border border-input bg-transparent px-4 py-2 text-base shadow-sm transition-colors outline-none",
+				"flex h-10 pointer-coarse:h-11 w-full min-w-0 rounded-lg border border-input bg-transparent px-4 py-2 text-base shadow-sm transition-colors outline-none",
 				"placeholder:text-muted-foreground",
 				"file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground",
 				"focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring",

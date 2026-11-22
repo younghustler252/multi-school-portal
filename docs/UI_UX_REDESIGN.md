@@ -1,0 +1,212 @@
+# Web UI/UX redesign — assessment, direction and component guide
+
+Branch: `feature/ui-ux-redesign` (from `refactor/web`). Scope: `apps/web` only. No backend, auth, API-client or permission-logic changes.
+
+This file is the Stage 0 assessment plus the running reference for the design system. Everything under "Current state" was read from the repository; anything not verified is marked as such.
+
+---
+
+## 1. Current state (verified from the repo)
+
+### Architecture
+- npm-workspaces monorepo: `apps/web` (Next 16 App Router, React 19, TypeScript), `apps/api`, `packages/contracts` (shared types such as `MyPermissions`, `PersonaType`, `LoginResult`).
+- Route groups: `(auth)`, `(marketing)`, `(dashboard)` for school-side sessions (`/home`, `/school/*`, `/teaching/*`, `/finance/*`, `/insights/*`, `/family/*`, `/learning/*`, `/settings`), `(super-admin)` for platform sessions, plus `onboarding` and `billing`.
+- Feature folders under `src/features/<module>/{components,hooks,services,types}`; shared UI in `src/components/{ui,layout,feedback}`.
+- Data: TanStack Query. Forms: react-hook-form + zod. Toasts: sonner. Command palette primitive: cmdk (wrapped in `ui/command.tsx`, currently unused by the shell).
+
+### Session, school context and permissions (all kept as-is)
+- `stores/auth.store.ts` + pure `lib/auth/session-reducer.ts`. Nothing is persisted; HttpOnly cookies are the session and the app bootstraps from `/users/me` and `/users/me/permissions`.
+- School context comes from the subdomain (`use-current-subdomain`, `usePublicSchoolInfo`). Login can return persona or school selection; the API also has `/auth/switch-persona` (a client method exists, no UI uses it).
+- `lib/route-access.ts` is one rule table that drives the route guard, the sidebar (`visibleNav`) and `/home`. This is good architecture and the redesign builds on it rather than replacing it.
+- API access is centralized (`lib/api/*`, base URL from `get-api-base-url.ts`).
+
+### Design system
+- shadcn "base-nova" style on Base UI, Tailwind 4, OKLCH tokens in `globals.css`, complete light and dark token sets, `next-themes`.
+- Font: Inter, with Inter-specific `font-feature-settings`.
+- Primitives present in `components/ui`: alert-dialog, avatar, badge, button, card, checkbox, command, dialog, dropdown-menu, file-drop, image-upload-fields, info-row, input, input-group, label, loading-button (`AppButton`), mobile-card, popover, select, select-with-other, separator, sheet, skeleton, sonner, stat-card, switch, table, tabs, textarea.
+- Feedback: `confirm-dialog`, `feature-gate`, `coming-soon`.
+
+### Problems found
+| # | Finding | Evidence |
+|---|---------|----------|
+| 1 | Topbar search box does nothing (no handler, no results). Same in the platform topbar. | `layout/topbar.tsx`, `layout/admin-topbar.tsx` |
+| 2 | User menu shows a generic icon, although the profile carries `photoUrl`. | `topbar.tsx`, `lib/auth/session-types.ts` |
+| 3 | Avatar logic is duplicated: `StudentAvatar`, a raw `<img>` in `family/children`, another in `photo-upload`. Neither fallback handles a failed image load. | `features/students/components/student-avatar.tsx`, `app/(dashboard)/family/children/page.tsx` |
+| 4 | Two near-identical sidebars and topbars (school and platform). | `sidebar.tsx` / `admin-sidebar.tsx`, `topbar.tsx` / `admin-topbar.tsx` |
+| 5 | No collapsible desktop navigation, no breadcrumbs, no skip link. | `dashboard-shell.tsx` |
+| 6 | "Back to landing" uses a log-out icon. | `sidebar.tsx` |
+| 7 | `StatCard` renders a literal `●` character as its icon. | `ui/stat-card.tsx` |
+| 8 | Buttons are 32px high and inputs 40px, with no larger touch targets on touch devices. | `ui/button.tsx`, `ui/input.tsx` |
+| 9 | Input border (`--input`) is too light to meet the 3:1 non-text contrast target. | `globals.css` |
+| 10 | No tooltip, empty-state or error-state component; pages hand-write "No students found." rows. | `components/ui`, `school/students/page.tsx` |
+| 11 | Tables are hand-rolled per page. `@tanstack/react-table` is a dependency but `useReactTable` is not used anywhere. Only 7 files use `MobileCard`, so most list pages have no deliberate mobile layout (not individually checked). | grep |
+| 12 | No reduced-motion handling in the global styles. | `globals.css` |
+| 13 | Brand token (`oklch(0.55 0.16 145)`, a saturated grass green) does not match the declared `themeColor` `#1F7A4D`. | `globals.css`, `app/layout.tsx` |
+| 14 | `bg-hero-radial` (a gradient) is used on the platform app shell and on auth/marketing pages. | `admin-shell.tsx`, others |
+
+### What is reusable
+Keep: auth store/reducer, route-access table and `visibleNav`, API client, feature hooks/services, all Base UI wrappers, `ConfirmDialog`, `FeatureGate`, form stack, token architecture (CSS variables mapped through `@theme inline`).
+Improve: Button, Input, Badge, Table (header style), StatCard, PageHeader, Avatar usage.
+Replace: the decorative search boxes, the duplicated sidebar/topbar internals, the `●` glyph.
+
+---
+
+## 2. Design direction
+
+**Tone:** calm, institutional, precise. Closer to a well-set financial or editorial product than to a "school" theme: paper-warm neutrals, deep green ink, one warm accent used sparingly, no gradients, soft low shadows, hairline borders.
+
+### Colour (all tokens in `globals.css`)
+- **Primary** `oklch(0.50 0.105 158)`. This is the green the product already declares as its `themeColor` (`#1F7A4D`), deepened and desaturated from the old grass green so it reads as trustworthy rather than playful. White text on it is about 6:1.
+- **Neutrals** are warm "paper" surfaces (`--background`) with white cards, and a slightly green-tinted ink for text, so the greys belong to the brand instead of being cool default greys.
+- **Highlight** `oklch(0.78 0.145 78)` (amber). One accent only: active-nav marker, setup nudges, key emphasis. It is not used for large fills.
+- **Sidebar** is a deep ink green with light text, which gives the product a recognisable frame while the content area stays light and calm.
+- **Status colours** (success, warning, info, destructive) are chosen so their text colour reaches 4.5:1 on their own 10% tint.
+- **Charts** use a five-colour categorical set (green, blue, amber, terracotta, violet) with distinct lightness, so series do not rely on hue alone.
+- **Dark mode** stays, because the token system already had a complete dark set; it was updated in the same pass so the two themes stay in sync. Not verified visually yet (see Known limitations).
+
+### Typography
+- **Interface and body: Source Sans 3.** Humanist, narrow, very legible at 13–15px, strong in dense tables, supports tabular and lining figures for money and counts, open licence (OFL), served as a variable font through `next/font` (self-hosted at build, no runtime request to Google).
+- **Display and page titles: Newsreader.** A restrained text serif with optical sizing. Used only for page titles and display headings, which gives the product an educational, trustworthy voice and sets it apart from the usual all-sans SaaS look. Never used in tables, forms or navigation.
+- Both are loaded with `latin` and `latin-ext` subsets because the app formats money in naira (`₦`), which sits in the latin-ext range. Whether both families contain the glyph could not be checked offline; if one does not, the browser falls back for that single character only.
+- Scale is defined once as utilities in `globals.css`: `text-display`, `text-page-title`, `text-section`, `text-eyebrow`, `text-figure`, plus `tabular`. Pages should use these rather than ad-hoc sizes.
+
+### Icons
+Lucide React (already the app's only icon library, `lucide-react`). Conventions: `size-4` in buttons, menus and navigation, `size-5` for standalone icon buttons, default 2px stroke, no emoji, no decorative oversized icons. A nav or action icon must match what the action does (e.g. back-to-website no longer uses the log-out icon).
+
+### Application shell
+- Deep-green sidebar, collapsible to an icon rail on desktop (preference stored in `localStorage` as a convenience only), slide-in sheet on mobile.
+- Top bar: menu button (mobile), a working "Jump to…" command palette (Ctrl/Cmd+K) that lists only the pages the session may open (same `visibleNav` as the sidebar), theme toggle, notifications, user menu with the real profile photo or initials.
+- Breadcrumbs appear automatically on detail and create pages; on small screens they collapse to a single "back to parent" link.
+- Skip-to-content link and a `main` landmark.
+- One shared navigation list and user menu used by both the school and platform shells.
+
+### Component architecture
+1. **Tokens** (`globals.css`) →
+2. **Primitives** (`components/ui`: Button, Input, Badge, Tooltip, PersonAvatar, StatCard, Table…) →
+3. **Patterns** (`components/feedback`: EmptyState, ErrorState; `components/layout`: PageHeader, Breadcrumbs, NavList, UserMenu, CommandPalette) →
+4. **Shells** (`DashboardShell`, `AdminShell`).
+Pure logic (initials, persona labels, breadcrumb building, active-nav matching) lives in `src/lib` with no React or browser imports, so it is unit-testable and reusable by a future native app.
+
+### Implementation sequence
+1. Stage 1: tokens, fonts, Button/Input/Badge touch and status variants, Tooltip, PersonAvatar, StatCard, EmptyState, ErrorState, Table header.
+2. Stage 2: shared NavList, collapsible Sidebar, UserMenu, CommandPalette, Breadcrumbs, PageHeader, both shells.
+3. Stage 3: school dashboard pilot.
+4. Stage 4: module-by-module adoption (tables first: `DataTable` pattern with a mobile card layout).
+5. Stage 5: responsive and accessibility verification in a browser.
+
+### Decisions that need your call
+- **Brand colour change.** The primary is deepened to match the existing `themeColor`. If the exact old green is a brand requirement, change `--primary` in one place.
+- **School/context selector.** Schools are separate subdomains and the API exposes no "list my schools" endpoint for an in-app switcher, so none was built. The API does have `/auth/switch-persona`, so a persona switcher is possible when a person holds several profiles; say if you want that in the user menu.
+
+---
+
+## 3. Component usage
+
+**Typography classes** (`globals.css`): `text-display`, `text-page-title` (display serif), `text-section`, `text-eyebrow`, `text-figure`, `tabular` (UI sans). Do not set font sizes ad hoc on pages.
+
+**`PersonAvatar`** (`ui/person-avatar`): the only way to show a person. `<PersonAvatar firstName lastName photoUrl fallbackText size="sm|md|lg|xl|number" />`. Pass `photoUrl` exactly as the API returned it. Empty or failing photo falls back to initials. `StudentAvatar` is a thin wrapper kept for existing callers.
+
+**`Badge`**: variants `default | secondary | destructive | outline | success | warning | info`. Use the status variants instead of hand-coloured spans.
+
+**`StatCard`**: `<StatCard label value hint accent icon />`. `icon` is an optional Lucide icon in a small chip; without it `accent` shows a dot. The old `●` glyph is gone.
+
+**`Tooltip`** (`ui/tooltip`): for icon-only controls and the collapsed sidebar. Hover/focus only, so the control must also have an `aria-label`. `TooltipProvider` is mounted once in `AppShell`.
+
+**`EmptyState` / `ErrorState`** (`feedback/`): `EmptyState title description icon action` for "nothing yet"; `ErrorState title description onRetry retrying` for failed requests (announces with `role="alert"`). Do not use one for the other.
+
+**`Button` / `Input`**: unchanged API. On touch devices (`pointer-coarse`) they grow to 40-48px so touch targets reach about 44px; desktop density is unchanged.
+
+**Shell**: `AppShell` (skip link, main landmark, breadcrumbs) takes a `sidebar` and a `topbar`. `SidebarFrame` + `NavList` are shared by the school and platform sidebars; the menu comes from `visibleNav(permissions)` and the components never decide permissions. `UserMenu`, `CommandPalette` (Ctrl/Cmd+K, pages only) and `ThemeToggle` are shared by both top bars. Pure logic (`lib/people`, `lib/breadcrumbs`, `lib/nav-active`) has no React or browser imports and has unit tests in `tests/lib`.
+
+
+---
+
+## 4. Stage 3 — School administrator dashboard (`/school/dashboard`)
+
+### Where every figure comes from
+| On the page | Source | Shown when |
+|---|---|---|
+| Students card, Staff card, capacity meters | `GET /school/dashboard` → `people` | the API sent `people` **and** the session holds `students.view` (Students) or `staff.view` (Staff) |
+| Attendance today card and panel | `…/dashboard` → `attendance` | `attendance.view` |
+| Fees outstanding card and Fees this term panel | `…/dashboard` → `fees` | `fees.view` |
+| Current term in the subtitle | `…/dashboard` → `academics.currentTerm`, else `fees.term` | when present |
+| Plan name, expiry badge, limits | `…/dashboard` → `plan` | always |
+| Setup checklist | `GET /school/setup-checklist` | `school.update`, and under 100% |
+| Quick-action links | `canOpenRoute()` (same rule table as the menu and route guard) | the session may open that page |
+
+`academics` is not drawn on the page (only its `currentTerm` feeds the subtitle), so it is not counted when deciding whether the page has anything to show.
+
+### Fixed: the frontend type did not match the API
+`SchoolDashboardData` disagreed with `SchoolDashboard` in the API: sections are `null` by role, `attendance` uses `present/absent/late/excused/date`, `fees` uses `…Kobo` fields and `overdueInvoices`, `academics` has `activeEnrolments`/`currentTerm`, and plan limits can be `null` (unlimited). The type now mirrors the API. `attendance.scope` is typed **optional** because it exists only on `fix/api/attendance-summary-scope` and not yet on `refactor/web` or `refactor/modules`; the UI says nothing about coverage when it is missing.
+
+### Display rules
+- **Attendance rate** = (present + late) / (present + late + absent). Excused is left out of the denominator and stays visible in the breakdown ("90 of 95 present or late · 20 excused not counted"). "—" when nobody is counted (nothing marked, or everyone excused), never 0%.
+- **Attendance coverage** is shown from `attendance.scope`: ALL "Whole school", BRANCH "Your branches", ASSIGNED "Your classes", OWN "Your own records". Missing or unknown: no label.
+- **Fees**: collected / invoiced for the current term; outstanding as money; overdue invoices as a count.
+- **Plan limits**: `null` = "no limit"; 90%+ "close to your plan limit"; 100% "plan limit reached"; ends within 14 days = badge.
+- Part-to-whole uses a segmented bar with 2px gaps and a legend carrying every label and value. No chart library was added.
+
+### What is scoped on the backend (read from the code)
+Checked in `get-dashboard.usecase.ts`, `school-tenant.repository.ts` and `school.controller.ts` on `refactor/web`, `refactor/modules` and `fix/api/attendance-summary-scope`.
+
+| Section | Scoped to the viewer? | Detail |
+|---|---|---|
+| `school`, `plan` | Not applicable | School-level by definition. |
+| `attendance` | **Only on `fix/api/attendance-summary-scope`** | The controller passes `attendanceViewWhere(access)` and `scope` into the use case: ALL / BRANCH (their branches) / ASSIGNED (their classes) / OWN. On `refactor/web` and `refactor/modules` the counts are **not** filtered: any holder of `attendance.view` gets the whole school's counts. |
+| `people` | **No, on any branch** | `peopleCounts()` takes no scope: whole-school staff, student and guardian counts. |
+| `academics` | **No, on any branch** | `academicCounts()` takes no scope (not drawn by the UI). |
+| `fees` | **No, on any branch** | `termInvoiceTotals(termId, cutoff)` takes no scope: whole-school totals for the current term. |
+
+Why this is not exposed in practice today: the dashboard route needs `school.dashboard.view`, and in the shipped role templates only School Admin (grants all), Principal (`ALL`) and Bursar (`ALL` on `students.view` and `fees.view`) hold it. Branch Principal and Teacher do not. It becomes reachable if a school builds a custom role with `school.dashboard.view` plus a `BRANCH`/`ASSIGNED`/`OWN` scope on `students.view`, `staff.view` or `fees.view`: that person would receive whole-school `people`, `academics` and `fees` figures.
+
+### Backend gaps (reported, not worked around)
+1. **Unscoped sections.** `people`, `academics` and `fees` ignore the viewer's scope. Following the principle already applied to attendance ("never school-wide for someone narrower than ALL"), return those sections as `null` unless the matching permission scope is `ALL`, or add scoped counts.
+2. **`people` is returned on `students.view` OR `staff.view`.** A Bursar (`students.view`, no `staff.view`) therefore receives staff counts. The dashboard hides the Staff card and staff meter unless `staff.view` is held; the backend should split `people` instead.
+3. **`attendance.scope` is not on `refactor/web` yet** (branch `fix/api/attendance-summary-scope`). Until it merges, attendance on `refactor/web` is unscoped, as above.
+4. **No time series.** No attendance-over-time or collections-over-time endpoint, so no trend charts.
+5. **No actionable lists.** No pending approvals, recent activity or upcoming events for administrators.
+6. **`school.verificationStatus` values** are not in the shared contract, so there is no "unverified school" banner.
+
+---
+
+## 5. Accessibility check (computed, not estimated)
+
+WCAG contrast ratios computed from the OKLCH tokens in `globals.css` (script: composite of tint over card, sRGB). Targets: text 4.5:1, UI controls and graphics 3:1.
+
+| Pair | Light | Dark |
+|---|---|---|
+| Body text on background | 17.1 | 16.9 |
+| Muted text on card | 6.8 | 7.2 |
+| Primary button label on primary | 5.5 | 8.1 |
+| Primary text (links) on card | 5.7 | 7.6 |
+| Success / info text on own tint (badges) | 4.9 / 5.2 | 5.3 / 5.1 |
+| Destructive text on card | 5.9 | 5.7 |
+| Sidebar nav text, smallest group heading (11px) | 8.7, 5.3 | 5.6 (heading) |
+| Form-control border on card | 3.1 | 3.6 |
+
+All pass. A first pass of the segmented bar did **not**: the amber segment was 1.9:1 and the neutral segment 2.0:1 on the card. Fixed with two data-ink tokens, `--data-warning` and `--data-neutral` (3.4:1 and 3.6:1 light; 9.4:1 and 5.8:1 dark). Approved palette tokens are unchanged. Not computed: hover/pressed states, focus ring against every surface, the dark-mode tints of every badge.
+
+---
+
+## 6. What remains before the redesign is complete
+
+**Status:** Stages 0, 1 and 2 approved. Stage 3 (admin dashboard pilot) is in review in PR #63. Stages 4 and 5 are not started; Stage 4 waits for the pilot to be approved.
+
+### Stage 1 components in the brief that do not exist yet
+Form-field wrapper (label, helper, error wiring for react-hook-form), password input with show/hide, searchable select (combobox), date picker, radio group, alert, data table (sorting, filters, pagination, mobile card layout), avatar group, role badge, school/branch badge. Already present and restyled by tokens: dialog, alert-dialog, sheet (drawer), dropdown, popover, command, tabs, switch, checkbox, textarea, select, skeleton, toast (sonner).
+
+### Stage 4: adoption (nothing outside the pilot has been migrated)
+- Other dashboards: Principal overview (`/insights/overview`, only a data-mapping fix so far), teacher, bursar/finance, family (guardian and student), platform admin.
+- List and form pages across modules (students, staff, guardians, classes, enrolment, fees, payments, attendance, grades). Most hand-roll tables; only 7 files use `MobileCard`.
+- Auth, onboarding and marketing pages (these still use the `bg-hero-radial` gradient the direction rules out for app screens).
+- Notifications inbox, account settings, feedback.
+- Replace ad-hoc font sizes and raw colours with the typography classes and tokens (count not yet measured).
+
+### Stage 5: verification (none of this has been done)
+- Browser checks at desktop, tablet and phone widths, with screenshots: nothing has been rendered from this environment.
+- Dark mode visual review; keyboard and focus order, dialog focus trapping, skip link, screen-reader pass.
+- Horizontal-overflow check at 360px; touch-target check on real touch input.
+- Real `vitest`, lint and full typecheck on the final branch (the author of the request ran typecheck on Stages 1-2; Stage 3 and the review fixes are unconfirmed outside the pure modules).
+
+### Code I could not run and so treat as unverified
+`Tooltip` with a Next `Link` as trigger, the mobile sheet's custom close button, `PersonAvatar` image-failure fallback, command palette keyboard behaviour, the sidebar collapse persistence, and every React component's rendering. They follow the repo's existing Base UI patterns and were proofread, nothing more.

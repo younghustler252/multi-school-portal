@@ -1,28 +1,20 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
+import { AppShell } from "@/components/layout/app-shell";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
+import { useSidebarState } from "@/components/layout/use-sidebar-state";
 
-interface DashboardShellProps {
-	children: ReactNode;
-	searchPlaceholder?: string;
-}
-
-export function DashboardShell({ children, searchPlaceholder }: DashboardShellProps) {
-	const [sidebarOpen, setSidebarOpen] = useState(false);
+export function DashboardShell({ children }: { children: ReactNode }) {
+	const { open, openSidebar, closeSidebar, collapsed, toggleCollapsed } = useSidebarState();
 
 	return (
-		<div className="flex min-h-screen bg-background text-foreground">
-			<Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
-			<div className="flex min-w-0 flex-1 flex-col">
-				<Topbar onMenuClick={() => setSidebarOpen(true)} searchPlaceholder={searchPlaceholder} />
-
-				<main className="mx-auto w-full max-w-[1400px] flex-1 p-4 md:p-8">
-					{children}
-				</main>
-			</div>
-		</div>
+		<AppShell
+			sidebar={<Sidebar isOpen={open} onClose={closeSidebar} collapsed={collapsed} onToggleCollapsed={toggleCollapsed} />}
+			topbar={<Topbar onMenuClick={openSidebar} />}
+		>
+			{children}
+		</AppShell>
 	);
-}      
+}

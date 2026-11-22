@@ -5,17 +5,20 @@ import { StatCard } from "@/components/ui/stat-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSchoolDashboard } from "@/features/school/hooks/use-school";
 import { useAuthStore } from "@/stores/auth.store";
-import { formatNaira } from "@/lib/format-money";
+import { attendanceScopeLabel, attendanceView } from "@/lib/school-dashboard";
 
+// Not part of the dashboard pilot: only the data mapping was corrected here, to the API's real response (sections can
+// be null for a role, and the field names changed). The layout is left for its own stage.
 export default function PrincipalOverviewPage() {
 	const user = useAuthStore((s) => s.user);
 	const { data: dashboard, isLoading } = useSchoolDashboard();
+	const attendance = dashboard?.attendance ? attendanceView(dashboard.attendance) : null;
 
 	return (
 		<>
 			<PageHeader
 				title={`Welcome, ${user?.firstName ?? ""}`}
-				description={dashboard ? `${dashboard.school.name} — school-wide overview` : undefined}
+				description={dashboard?.school.name}
 			/>
 
 			{isLoading ? (
@@ -24,18 +27,19 @@ export default function PrincipalOverviewPage() {
 				</div>
 			) : dashboard ? (
 				<div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-					<StatCard label="Total Students" value={String(dashboard.people.totalStudents)} accent="primary" hint={`${dashboard.people.activeStudents} active`} />
-					<StatCard
-						label="Attendance Today"
-						value={
-							dashboard.attendance.todayPresent + dashboard.attendance.todayAbsent > 0
-								? `${Math.round((dashboard.attendance.todayPresent / (dashboard.attendance.todayPresent + dashboard.attendance.todayAbsent)) * 100)}%`
-								: "—"
-						}
-						accent="success"
-					/>
-					<StatCard label="Total Staff" value={String(dashboard.people.totalStaff)} accent="info" />
-					<StatCard label="Classes" value={String(dashboard.academics.totalClasses)} accent="warning" />
+					{dashboard.people && (
+						<StatCard label="Total Students" value={String(dashboard.people.totalStudents)} accent="primary" hint={`${dashboard.people.activeStudents} active`} />
+					)}
+					{attendance && (
+						<StatCard
+							label="Attendance Today"
+							value={attendance.ratePercent === null ? "—" : `${attendance.ratePercent}%`}
+							accent="success"
+							hint={dashboard.attendance?.scope && dashboard.attendance.scope !== "ALL" ? attendanceScopeLabel(dashboard.attendance.scope) ?? undefined : undefined}
+						/>
+					)}
+					{dashboard.people && <StatCard label="Total Staff" value={String(dashboard.people.totalStaff)} accent="info" />}
+					{dashboard.academics && <StatCard label="Classes" value={String(dashboard.academics.totalClasses)} accent="warning" />}
 				</div>
 			) : null}
 		</>
