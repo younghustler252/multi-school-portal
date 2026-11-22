@@ -109,6 +109,7 @@ export class EntitlementsService {
      * - Features marked inactive (defined, not switched on yet) are reported as not available so the screen does not offer them. This is a
      *   READINESS answer: the server does NOT enforce them (checkFeature allows them), so false there is not a 403. See notReadyFeatures().
      * - Every active feature mirrors checkFeature(): a false is a plan decision and the gated route answers 403.
+     * - A true is "the gate lets it through", not "the plan lists it": enforcement WARN lets an ungranted feature through (flagged server-side only).
      */
     async effectiveFlags(schoolId: string): Promise<Record<string, EntitlementFlag>> {
         const defs = await this.getDefs();

@@ -99,6 +99,17 @@ describe("readiness is reported separately from plan entitlement", () => {
     });
 });
 
+describe("WARN enforcement", () => {
+    it("an ungranted WARN feature is let through by the gate, so it is true here; an ungranted BLOCK feature is false (true is not 'in the plan')", async () => {
+        const s = service({ plan: [], defs: defs({ "grading.custom": { enforcement: "WARN" } }) });
+        const flags = await s.effectiveFlags("s1");
+        assert.equal((await s.checkFeature("s1", "grading.custom")).warn, true);
+        assert.equal(flags["grading.custom"], true);
+        assert.equal(flags["reports.advanced"], false);
+        assert.ok(!(await s.notReadyFeatures()).includes("grading.custom"));
+    });
+});
+
 describe("GET /users/me/permissions carries entitlements", () => {
     it("a school session gets the flags for its own school", async () => {
         let asked = "";

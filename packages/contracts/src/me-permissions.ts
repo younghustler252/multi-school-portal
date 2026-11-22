@@ -25,7 +25,9 @@ export interface MyPermissions {
     };
     /**
      * What the school's plan (plus any platform override) lets it use, by feature key, e.g. entitlements["modules.fees"] === true.
-     * Every known feature is present (a missing key never means "maybe"). true = the plan grants it AND it is switched on.
+     * Every known feature is present (a missing key never means "maybe"). true = the school may use it: it is switched on AND
+     * the server's gate lets it through. That is NOT always "the plan lists it": a feature whose enforcement is WARN is let through
+     * (and only flagged server-side) even when the plan does not grant it, so it shows true. Do not read true as "included in the plan".
      * false has two causes: the plan does not grant it (the server answers 403 FEATURE_NOT_AVAILABLE on a gated route),
      * or the feature is not switched on yet (listed in `entitlementsNotReady`; the server does NOT enforce those, so do not
      * read false as a 403 for them; just do not offer the feature). No usage, prices or plan names. null in a platform session.
