@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "test": "tsx --import ./tests/setup/env.ts --test --test-reporter=spec \"tests/**/*.test.ts\"",
+    "test": "tsx --import ./tests/setup/env.ts --test --test-force-exit --test-timeout=120000 --test-reporter=spec \"tests/**/*.test.ts\"",
     "dev": "nodemon",
     "prebuild": "npm run prisma:generate",
     "build": "tsc",
