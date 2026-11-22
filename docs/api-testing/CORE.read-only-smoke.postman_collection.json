@@ -1080,7 +1080,17 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/users/me/permissions"
+              "raw": "{{baseUrl}}/api/v1/users/me/permissions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "me",
+                "permissions"
+              ]
             },
             "description": "Read-only route template; replace placeholders with valid IDs."
           },
@@ -3566,7 +3576,18 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/attendance/classes/{{classId}}/summary"
+              "raw": "{{baseUrl}}/api/v1/attendance/classes/{{classId}}/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "attendance",
+                "classes",
+                "{{classId}}",
+                "summary"
+              ]
             },
             "description": "Read-only route template; replace placeholders with valid IDs."
           },
@@ -3602,7 +3623,18 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/report-cards/class-pdf/status/{{jobId}}"
+              "raw": "{{baseUrl}}/api/v1/report-cards/class-pdf/status/{{jobId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "report-cards",
+                "class-pdf",
+                "status",
+                "{{jobId}}"
+              ]
             },
             "description": "Read-only route template; replace placeholders with valid IDs."
           },
@@ -5248,7 +5280,18 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/fees/invoices/{{id}}/instalments"
+              "raw": "{{baseUrl}}/api/v1/fees/invoices/{{id}}/instalments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "fees",
+                "invoices",
+                "{{id}}",
+                "instalments"
+              ]
             },
             "description": "Read-only route template; replace placeholders with valid IDs."
           },
@@ -5284,7 +5327,18 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/payments/online/verify/{{reference}}"
+              "raw": "{{baseUrl}}/api/v1/payments/online/verify/{{reference}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "online",
+                "verify",
+                "{{reference}}"
+              ]
             },
             "description": "Read-only route template; replace placeholders with valid IDs."
           },
@@ -7106,7 +7160,18 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/finance/periods/{{id}}/close-checklist"
+              "raw": "{{baseUrl}}/api/v1/finance/periods/{{id}}/close-checklist",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "finance",
+                "periods",
+                "{{id}}",
+                "close-checklist"
+              ]
             },
             "description": "Read-only route template; replace placeholders with valid IDs."
           },
@@ -7975,7 +8040,18 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/payroll/transfers/runs/{{runId}}"
+              "raw": "{{baseUrl}}/api/v1/payroll/transfers/runs/{{runId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payroll",
+                "transfers",
+                "runs",
+                "{{runId}}"
+              ]
             },
             "description": "Read-only route template; replace placeholders with valid IDs."
           },
@@ -8469,7 +8545,17 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/automations/{{id}}/runs"
+              "raw": "{{baseUrl}}/api/v1/automations/{{id}}/runs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "automations",
+                "{{id}}",
+                "runs"
+              ]
             },
             "description": "Read-only route template; replace placeholders with valid IDs."
           },
@@ -9465,7 +9551,17 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/platform/schools/overview"
+              "raw": "{{baseUrl}}/api/v1/platform/schools/overview",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "platform",
+                "schools",
+                "overview"
+              ]
             },
             "description": "Read-only route template; replace placeholders with valid IDs."
           },
@@ -9501,7 +9597,17 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/platform/schools/provisioning"
+              "raw": "{{baseUrl}}/api/v1/platform/schools/provisioning",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "platform",
+                "schools",
+                "provisioning"
+              ]
             },
             "description": "Read-only route template; replace placeholders with valid IDs."
           },
@@ -9537,7 +9643,17 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/platform/subscriptions/stats"
+              "raw": "{{baseUrl}}/api/v1/platform/subscriptions/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "platform",
+                "subscriptions",
+                "stats"
+              ]
             },
             "description": "Read-only route template; replace placeholders with valid IDs."
           },
@@ -9573,7 +9689,17 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/platform/subscriptions/invoices"
+              "raw": "{{baseUrl}}/api/v1/platform/subscriptions/invoices",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "platform",
+                "subscriptions",
+                "invoices"
+              ]
             },
             "description": "Read-only route template; replace placeholders with valid IDs."
           },
@@ -9662,7 +9788,17 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/platform/webhooks/summary"
+              "raw": "{{baseUrl}}/api/v1/platform/webhooks/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "platform",
+                "webhooks",
+                "summary"
+              ]
             },
             "description": "Read-only route template; replace placeholders with valid IDs."
           },
