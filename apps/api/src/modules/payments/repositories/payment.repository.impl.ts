@@ -42,8 +42,6 @@ export class PaymentRepositoryImpl extends BaseTenantRepository<PaymentEntity, P
         return this.paginate({ page, limit, where: familyPaymentsWhere(guardianId, linkedStudentIds, f), include: WITH_DETAIL, orderBy: { createdAt: "desc" } });
     }
 
-    listForInvoice(invoiceId: string) { return this.findMany({ allocations: { some: { invoiceId } } }, WITH_DETAIL, { createdAt: "desc" }); }
-
     createPayment(data: Record<string, any>) { return super.create(data, WITH_DETAIL); }
 
     // The version and the waiting status in the filter stop two people confirming the same payment at once

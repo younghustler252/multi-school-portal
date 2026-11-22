@@ -37,8 +37,6 @@ All paths below are relative to `/api/v1/payments`.
 | POST | `/` | `payments.record` | Record manual payment; cash/POS confirm immediately, other methods wait |
 | POST | `/allocation-preview` | `payments.record` | Preview invoice allocation and credit; no writes |
 | GET | `/my` | `payments.pay` | Authenticated guardian's payments: what they paid, plus CONFIRMED/REVERSED payments by others that cover their linked children (their share only) |
-| GET | `/by-invoice/:invoiceId` | `payments.view` | Payment history of one invoice: every payment applied to it with `appliedKobo` and `reversedKobo` for this invoice, totals (reversed amounts excluded), payer, method, reference, who recorded and confirmed it. Newest first; an invoice with no payments gives an empty list |
-| GET | `/my/by-invoice/:invoiceId` | `payments.pay` | The guardian's version: only CONFIRMED/REVERSED payments on a linked child's invoice; the payer sees method and reference, another payer only the child's share (`isPayer:false`, method and reference null); an unlinked invoice looks empty, never 403/404 |
 | GET | `/my/:id/receipt` | `payments.pay` | Guardian's receipt, cut down to what they may see (guardian only) |
 | POST | `/online/initialize` | `payments.pay` | Start gateway payment for linked child's invoice |
 | GET | `/online/verify/:reference` | `payments.pay` | Ask gateway to verify and confirm guardian's payment |
