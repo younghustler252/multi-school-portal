@@ -12,9 +12,11 @@ import { staffErrors } from "../domain/staff.errors";
 import { StaffActor } from "../domain/staff.types";
 import { DeactivateStaffDtoType } from "../dtos/staff.dto";
 
+import type { ITeachingAssignmentsReader } from "../../classes/services/teaching-assignments.reader";
 interface Dependencies {
     staffRepository: IStaffRepository; staffMapper: StaffMapper; staffPortalService: StaffPortalService;
     membershipService: MembershipService; accessService: AccessService; refreshTokenRepository: IRefreshTokenRepository; auditService: AuditService;
+    teachingAssignmentsReader: ITeachingAssignmentsReader;
 }
 
 /*
@@ -43,7 +45,7 @@ export class DeactivateStaffUseCase {
             if (admins.length === 1 && admins[0] === staff.userId) throw staffErrors.lastAdmin();
         }
 
-        const assignments = await activeAssignments(d.staffRepository, staff.id);
+        const assignments = await activeAssignments(d.teachingAssignmentsReader, staff.id);
         await d.staffRepository.update(id, {
             isActive: false, exitDate: dto.exitDate ? new Date(dto.exitDate) : new Date(), exitReason: dto.exitReason ?? null, updatedById: actor.userId,
         });

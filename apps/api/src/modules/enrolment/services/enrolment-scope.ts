@@ -1,5 +1,6 @@
 import type { Access } from "../../../foundation/access.service";
 
+import { rowsOfClassesLedOrTaughtBy } from "../../classes/services/teaching-access";
 /*
 | WHICH ENROLMENTS A PERSON MAY SEE (applied to every read).
 |   ALL        -> everything
@@ -17,10 +18,7 @@ export function enrolmentScopeWhere(access: Access): Record<string, unknown> {
     if (scope === "ALL") return {};
     if (scope === "BRANCH" && access.persona === "STAFF") return { class: { branchId: { in: (access.branchScope("enrolment.view") as string[] | null) ?? [] } } };
     if (scope === "ASSIGNED" && access.persona === "STAFF" && me) {
-        return { OR: [
-            { class: { classTeacherId: me } },
-            { term: { isCurrent: true }, class: { classSubjects: { some: { staffId: me, term: { isCurrent: true } } } } },
-        ] };
+        return rowsOfClassesLedOrTaughtBy(me);
     }
     if (scope === "OWN" && me) {
         if (access.persona === "STUDENT")  return { studentId: me };

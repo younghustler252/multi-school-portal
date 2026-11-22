@@ -1,5 +1,6 @@
 import type { Access } from "../../../foundation/access.service";
 
+import { studentsOfClassesLedOrTaughtBy } from "../../classes/services/teaching-access";
 /*
 | WHICH STUDENTS A PERSON MAY SEE (applied to every read).
 |   scope ALL      -> every student
@@ -17,10 +18,7 @@ export function studentScopeWhere(access: Access): Record<string, unknown> {
     if (scope === "BRANCH") return { branchId: { in: access.branchScope("students.view") as string[] } };
     if (scope === "ASSIGNED" && access.persona === "STAFF" && access.personaEntityId) {
         const me = access.personaEntityId;
-        return { enrolments: { some: { term: { isCurrent: true }, class: { OR: [
-            { classTeacherId: me },
-            { classSubjects: { some: { staffId: me, term: { isCurrent: true } } } },
-        ] } } } };
+        return studentsOfClassesLedOrTaughtBy(me);
     }
     if (scope === "OWN" && access.personaEntityId) {
         if (access.persona === "STUDENT")  return { id: access.personaEntityId };

@@ -7,12 +7,15 @@ import { staffErrors } from "../domain/staff.errors";
 import { StaffActor } from "../domain/staff.types";
 import { UpdateStaffDtoType } from "../dtos/staff.dto";
 
+import type { ITeachingAssignmentsReader } from "../../classes/services/teaching-assignments.reader";
 interface Dependencies {
     staffRepository: IStaffRepository; staffMapper: StaffMapper; staffPortalService: StaffPortalService; auditService: AuditService;
+    teachingAssignmentsReader: ITeachingAssignmentsReader;
 }
 
-// Class and subject assignments a staff member currently holds (this term's subjects + classes they are teacher of)
-export const activeAssignments = (repo: IStaffRepository, staffId: string): Promise<number> => repo.countActiveAssignments(staffId);
+// Class and subject assignments a staff member currently holds (this term's subjects + classes they are teacher of).
+// Classes owns the assignments, so Classes answers.
+export const activeAssignments = (reader: ITeachingAssignmentsReader, staffId: string): Promise<number> => reader.countActiveFor(staffId);
 
 const DATE_FIELDS = ["dateOfBirth", "joinDate"] as const;
 
@@ -33,7 +36,7 @@ export class UpdateStaffUseCase {
         if (dto.email && dto.email.toLowerCase() !== (staff.email ?? "").toLowerCase() && await d.staffRepository.findByEmail(dto.email)) throw staffErrors.emailTaken();
         if (dto.employeeId && dto.employeeId !== staff.employeeId && await d.staffRepository.findByEmployeeId(dto.employeeId)) throw staffErrors.employeeIdTaken();
         if (dto.category === "non_teaching" && staff.category === "teaching") {
-            const n = await activeAssignments(d.staffRepository, staff.id);
+            const n = await activeAssignments(d.teachingAssignmentsReader, staff.id);
             if (n > 0) throw staffErrors.hasAssignments(n);
         }
 
