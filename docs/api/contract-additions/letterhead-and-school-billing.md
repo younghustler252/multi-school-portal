@@ -25,3 +25,14 @@ Types: `packages/contracts/src/school-billing-history.ts`. Platform realm, permi
 - Reuses the existing invoice mapper; no second invoice implementation. The school's own billing screen (`/subscriptions` school realm) is unchanged.
 
 Inventory: School settings 6 -> 7; School billing and platform subscription administration 22 -> 23; total 130 -> 132 (after the bank-lookup PR).
+
+## Verification status (honest record)
+
+| Check | Status |
+|---|---|
+| Unit tests: letterhead upload (8), school billing history (7), route/contract/architecture suites | **Run and passing** (authoring sandbox, no database) |
+| `apps/api/tests/subscriptions/school-invoice-history.db.test.ts` (school isolation, status filter, pagination, empty history, unknown school) | **Added, NOT executed.** Needs `TEST_DATABASE_URL` (database name contains "test") with the public schema migrated. Skips when unset. Do not count it as passed until it has run. |
+| Supabase bucket accepts files up to 5 MB | **Outstanding.** Check the bucket's file-size limit (Supabase dashboard, or `select file_size_limit from storage.buckets`); it must be at least 5 MB or unlimited. |
+| Real multipart HTTP upload of a letterhead (incl. an over-limit file and a wrong type) | **Outstanding.** Needs the running API. |
+| Report-card PDF rendering with a large (about 5 MB) letterhead through the real renderer | **Outstanding.** Any approximation elsewhere is not evidence about the real pipeline. |
+| Real HTTP call of `GET /platform/subscriptions/schools/:schoolId/invoices` | **Outstanding.** Needs the running API and database. |
