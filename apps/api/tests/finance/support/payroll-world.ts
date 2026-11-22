@@ -171,6 +171,7 @@ export function payrollWorld() {
     // remittances
     const remittances = new Map<string, any>();
     const remittanceRepository: any = {
+        async lockLiability(_accountId: string) { /* the real one takes a transaction advisory lock; nothing to lock in memory */ },
         async findById(id: string) { const m = remittances.get(id); return m ? { ...m } : null; },
         async list() { return { data: [...remittances.values()], meta: {} }; },
         async create(data: any) { const m = { reversedAt: null, reverseReason: null, createdAt: NOW, liabilityAccountName: null, ...data }; remittances.set(m.id, m); return { ...m }; },
