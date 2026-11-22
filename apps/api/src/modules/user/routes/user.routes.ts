@@ -62,10 +62,13 @@ router.post(
     (q, s, n) => ctrl().resetSchoolAdminPassword(q, s, n),
 );
 
+// ── Platform console: list and search every account (read-only) ───────────
+router.get("/", authenticate, requirePermission("platform.users.view"), (q, s, n) => ctrl().listPlatformUsers(q, s, n));
+
 // ── Platform support: platform-wide account deactivation ──────────────────
 // Flips the public User.isActive flag, which every auth flow already checks — locks the account out
 // of EVERY school at once (independent of any school's own staff/student status). Self-action blocked.
-router.get("/:id", authenticate, requirePermission("platform.users.manage"), (q, s, n) => ctrl().getPlatformUser(q, s, n));
+router.get("/:id", authenticate, requirePermission("platform.users.view"), (q, s, n) => ctrl().getPlatformUser(q, s, n));
 router.post("/:id/deactivate", authenticate, requirePermission("platform.users.manage"), validate(DeactivateUserDto), (q, s, n) => ctrl().deactivatePlatformUser(q, s, n));
 router.post("/:id/reactivate", authenticate, requirePermission("platform.users.manage"), (q, s, n) => ctrl().reactivatePlatformUser(q, s, n));
 

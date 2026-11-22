@@ -61,7 +61,8 @@ All paths below are full paths under `/api/v1/users`.
 | `GET /me/sessions` | Authenticated; tenant ownership validation | List caller's active sessions |
 | `DELETE /me/sessions/:id` | Authenticated; tenant ownership validation | Revoke one session family |
 | `POST /schools/:schoolId/admin/reset-password` | Authenticated; `platform.users.manage`; ResetAdminPasswordDto | Reset a school administrator's password |
-| `GET /:id` | Authenticated; `platform.users.manage` | Retrieve safe platform-wide user summary |
+| `GET /` | Authenticated; `platform.users.view` | Paginated, searchable list of global accounts (see `docs/api/contract-additions/platform-users.md`) |
+| `GET /:id` | Authenticated; `platform.users.view` | Retrieve safe platform-wide user summary |
 | `POST /:id/deactivate` | Authenticated; `platform.users.manage`; DeactivateUserDto | Deactivate a global user identity |
 | `POST /:id/reactivate` | Authenticated; `platform.users.manage` | Reactivate a global user identity |
 
@@ -208,6 +209,7 @@ The module declares one sensitive platform permission:
 
 | Key | Realm | Scope | Persona | Sensitive |
 |---|---|---|---|---|
+| `platform.users.view` | PLATFORM | ALL | STAFF | No |
 | `platform.users.manage` | PLATFORM | ALL | STAFF | Yes |
 
 It guards platform user lookup, deactivation/reactivation and school-admin password reset. Personal profile, password, avatar, access and session endpoints operate only on the authenticated caller and require authentication rather than a separate permission.
@@ -247,7 +249,7 @@ No tests were found in the inspected User test directory for profile update, pas
 6. Build school/persona switchers from `GET /me/access`; use the returned school URL and current flags.
 7. Display sessions using family IDs and device labels; do not assume the current-session indicator is available if the refresh cookie is not sent.
 8. After password change, use the fresh session returned by the endpoint and the replacement HttpOnly cookies.
-9. Platform user-management screens require the platform realm and `platform.users.manage`.
+9. Platform user screens require the platform realm: reading (list and detail) needs `platform.users.view`; deactivate, reactivate and admin password reset need `platform.users.manage`.
 10. School-admin reset must handle `ADMIN_AMBIGUOUS` by letting platform support select an administrator.
 
 ## 12. Outstanding verification and decisions

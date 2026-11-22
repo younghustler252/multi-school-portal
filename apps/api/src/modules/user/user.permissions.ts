@@ -5,6 +5,16 @@
 */
 export const USER_PERMISSIONS = [
     {
+        key:         "platform.users.view",
+        realm:       "PLATFORM",
+        module:      "users",
+        scopes:      ["ALL"],
+        personas:    ["STAFF"],
+        label:       "View user accounts",
+        description: "List and search user accounts across all schools (read-only). Changing accounts needs 'Manage user accounts'.",
+        isSensitive: false,
+    },
+    {
         key:         "platform.users.manage",
         realm:       "PLATFORM",
         module:      "users",

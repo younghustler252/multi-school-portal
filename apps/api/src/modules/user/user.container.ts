@@ -11,6 +11,8 @@ import { MyPermissionsUseCase } from "./usecases/my-permissions.usecase";
 import { ManageMySessionsUseCase } from "./usecases/manage-my-sessions.usecase";
 import { ResetSchoolAdminPasswordUseCase } from "./usecases/reset-school-admin-password.usecase";
 import { ManagePlatformUsersUseCase } from "./usecases/manage-platform-users.usecase";
+import { ListPlatformUsersUseCase } from "./usecases/list-platform-users.usecase";
+import { UserDirectoryRepositoryImpl } from "./repositories/user-directory.repository.impl";
 import { UserController }       from "./controllers/user.controller";
 
 /*
@@ -30,6 +32,8 @@ export const registerUser = (container: AwilixContainer): void => {
         manageMySessionsUseCase:  asClass(ManageMySessionsUseCase).scoped(),
         resetSchoolAdminPasswordUseCase: asClass(ResetSchoolAdminPasswordUseCase).scoped(),
         managePlatformUsersUseCase: asClass(ManagePlatformUsersUseCase).scoped(),
+        userDirectoryRepository:  asClass(UserDirectoryRepositoryImpl).scoped(),
+        listPlatformUsersUseCase: asClass(ListPlatformUsersUseCase).scoped(),
         userController:           asClass(UserController).scoped(),
     });
 };
