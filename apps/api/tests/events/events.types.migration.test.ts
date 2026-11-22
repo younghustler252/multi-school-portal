@@ -33,7 +33,10 @@ describe("event types migration (static)", () => {
     });
     it("the migration sorts after every earlier one and the schema models the new table and relation", () => {
         const names = readdirSync(dir).filter(n => n !== "migration_lock.toml").sort();
-        assert.deepEqual(names.slice(-3), ["20261110090000_event_types_catalog", "20261110090100_event_types_guard_id", "20261110090200_event_types_inactive_guard"]);
+        const mine = ["20261110090000_event_types_catalog", "20261110090100_event_types_guard_id", "20261110090200_event_types_inactive_guard"];
+        const at = names.indexOf(mine[0]);
+        assert.ok(at > 0, "the first event-types migration must come after earlier migrations");
+        assert.deepEqual(names.slice(at, at + 3), mine);   // consecutive and in order; later migrations may follow
         const prisma = readFileSync(join(process.cwd(), "prisma", "tenant.prisma"), "utf8");
         assert.match(prisma, /model CalendarEventType \{/);
         assert.match(prisma, /eventType CalendarEventType\? @relation\(fields: \[eventTypeId\], references: \[id\], onDelete: Restrict\)/);

@@ -69,6 +69,7 @@ export function payrollWorld() {
     let profN = 0;
     const view = (p: any) => ({ ...p, components: p.components.map((c: any) => ({ ...c })) });
     const payProfileRepository: any = {
+        async lockStaff(_staffId: string) { /* the real one takes a row lock for the transaction; nothing to lock in memory */ },
         async findById(id: string) { const p = profiles.get(id); return p ? view(p) : null; },
         async effectiveOn(staffId: string, day: Date) { const d = dayString(day); const p = [...profiles.values()].find(x => x.staffId === staffId && dayString(x.effectiveFrom) <= d && (!x.effectiveTo || dayString(x.effectiveTo) >= d)); return p ? view(p) : null; },
         async history(staffId: string) { return [...profiles.values()].filter(p => p.staffId === staffId).sort((a, b) => +b.effectiveFrom - +a.effectiveFrom).map(view); },
