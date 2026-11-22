@@ -70,7 +70,7 @@ export class BillingEngine {
         let plan: Plan | null = null, reconciled = false;
         for (let tries = 0; tries < BillingEngine.CHECKOUT_POLL_TRIES; tries++) {
             plan = await this.planCheckout(p, reconciled);        // after one provider check, a still-pending page is offered again however old
-            if ("stale" in plan) {
+            if ("stale" in plan && typeof plan.stale === "string") {
                 reconciled = true; await this.reconcile(plan.stale);        // it may have been paid or abandoned: find out, then plan again
                 plan = null; continue;
             }
