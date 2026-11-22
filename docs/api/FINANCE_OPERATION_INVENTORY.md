@@ -8,7 +8,7 @@ This inventory covers the finance-related school API route files mounted under `
 
 | Area | Route files | Operations |
 |---|---:|---:|
-| Fees (setup, invoices, adjustments, reports/family views) | 4 | 43 |
+| Fees (setup, invoices, adjustments, reports/family views) | 4 | 45 |
 | Payments | 1 | 20 |
 | Ledger | 1 | 19 |
 | Expenses, budgets, vendors, recurring expenses | 4 | 38 |
@@ -18,7 +18,7 @@ This inventory covers the finance-related school API route files mounted under `
 | Bank reconciliation | 1 | 16 |
 | Gateway settlements | 1 | 7 |
 | Finance reports | 1 | 4 |
-| **Total** | **17** | **190** |
+| **Total** | **17** | **192** |
 
 Counts are the number of Express `router.get/post/put/patch/delete` declarations in the reviewed files. They count declarations, not unique URL strings; identical relative paths on different routers are distinct operations.
 
@@ -69,6 +69,7 @@ Feature gate: `modules.fees`.
 | POST | `/opening-balances` | `fees.invoices.issue` | `OpeningBalancesDto` |
 | POST | `/late-fees/run` | `fees.invoices.issue` | `RunLateFeesDto` |
 | GET | `/:id` | `fees.invoices.view` | — |
+| GET | `/:id/payments` | `fees.invoices.view` + `payments.view` | Confirmed payments applied to this invoice |
 | PUT | `/:id` | `fees.invoices.create` | `UpdateDraftInvoiceDto` |
 | DELETE | `/:id` | `fees.invoices.create` | — |
 | POST | `/:id/issue` | `fees.invoices.issue` | `IssueInvoiceDto` |
@@ -97,6 +98,7 @@ Feature gate: `modules.fees`.
 | GET | `/statements/:studentId` | `fees.invoices.view` | Optional date bounds |
 | GET | `/my/children` | `fees.view` | Authenticated family context |
 | GET | `/my/invoices` | `fees.view` | Optional student filter; own/linked children |
+| GET | `/my/invoices/:id/payments` | `fees.view` | Confirmed payments applied to one issued invoice of an own/linked child; others are 404 |
 | GET | `/my/statement/:studentId` | `fees.view` | Own/linked child only; optional date bounds |
 
 Key workflow constraints from the Fees guide: drafts are not journalled or family-visible; issuing assigns a number and posts through Ledger; voiding an issued invoice is restricted after payments/approved adjustments; adjustment approval may require a second approver; instalment schedules do not themselves move money.

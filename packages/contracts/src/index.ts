@@ -17,4 +17,5 @@ export * from "./report-cards";
 export * from "./me-permissions";
 export * from "./staff";
 export * from "./platform-users";
+export * from "./invoice-payments";
 export * from "./bank-lookup";

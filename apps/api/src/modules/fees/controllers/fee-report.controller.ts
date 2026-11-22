@@ -1,11 +1,13 @@
 import { Request, Response, NextFunction } from "express";
 import { AgeingReportUseCase, DefaultersReportUseCase, CollectionsReportUseCase, StatementUseCase, MyChildrenUseCase, MyInvoicesUseCase, MyStatementUseCase } from "../usecases/fee-report.usecases";
+import { InvoicePaymentsUseCase, MyInvoicePaymentsUseCase } from "../usecases/invoice-payments.usecases";
 import { sendSuccess } from "../../../shared/utils/api-response";
 import { AgeingQuery, DefaultersQuery, CollectionsQuery, StatementQuery, MyInvoicesQuery } from "../dtos/report.dto";
 
 interface Dependencies {
     ageingReportUseCase: AgeingReportUseCase; defaultersReportUseCase: DefaultersReportUseCase; collectionsReportUseCase: CollectionsReportUseCase;
     statementUseCase: StatementUseCase; myChildrenUseCase: MyChildrenUseCase; myInvoicesUseCase: MyInvoicesUseCase; myStatementUseCase: MyStatementUseCase;
+    invoicePaymentsUseCase: InvoicePaymentsUseCase; myInvoicePaymentsUseCase: MyInvoicePaymentsUseCase;
 }
 
 /* REPORT CONTROLLER (school realm, /fees/reports, /fees/statements, /fees/my). Queries are parsed here. */
@@ -31,6 +33,12 @@ export class FeeReportController {
     };
     myInvoices = async (req: Request, res: Response, next: NextFunction) => {
         try { sendSuccess(res, await this.d.myInvoicesUseCase.execute(viewerOf(req), MyInvoicesQuery.parse(req.query).studentId), "Invoices retrieved successfully"); } catch (e) { next(e); }
+    };
+    invoicePayments = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.invoicePaymentsUseCase.execute(String(req.params.id)), "Invoice payments retrieved successfully"); } catch (e) { next(e); }
+    };
+    myInvoicePayments = async (req: Request, res: Response, next: NextFunction) => {
+        try { sendSuccess(res, await this.d.myInvoicePaymentsUseCase.execute(viewerOf(req), String(req.params.id)), "Invoice payments retrieved successfully"); } catch (e) { next(e); }
     };
     myStatement = async (req: Request, res: Response, next: NextFunction) => {
         try { sendSuccess(res, await this.d.myStatementUseCase.execute(viewerOf(req), String(req.params.studentId), StatementQuery.parse(req.query)), "Statement retrieved successfully"); } catch (e) { next(e); }
