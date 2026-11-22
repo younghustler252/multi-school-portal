@@ -124,9 +124,9 @@ A reopen returns any non-draft state to draft. The implementation currently has 
 | `grades.reopen` | ALL; staff; sensitive | Reopens published/locked sheets with a reason |
 | `grades.config` | ALL; staff | Changes scales and schemes |
 
-BRANCH (viewing only; `grades.enter` and `grades.submit` never offer it) filters sheets and results by the class's `branchId`, for staff only; no branches means nothing. `mayViewSheet` needs the class's branch on the sheet owner and refuses a BRANCH viewer when it is missing (fail closed). Unsupported scope/persona combinations still resolve to an empty result. This behavior is important for frontend expectations and is recorded as a remediation item below.
+BRANCH (viewing only; `grades.enter` and `grades.submit` never offer it) filters sheets and results by the class's `branchId`, for staff only; no branches means nothing. `mayViewSheet` needs the class's branch on the sheet owner and refuses a BRANCH viewer when it is missing (fail closed). Unsupported scope/persona combinations still resolve to an empty result. Report cards follow the same class-branch rule.
 
-The route-level `grades.view` permission also protects scale/scheme reads. The route does not separately restrict those reads to staff, even though the setup is primarily an administrative capability; OWN users can therefore reach the read-only configuration endpoints if their permission is granted. No write access follows from that read permission.
+The route-level `grades.view` permission also protects scale/scheme reads. **Decision (2026-11-20, REM-005):** students and guardians may read the school's grading scales and schemes (read-only) and only their own/linked children's published grades; they hold no `grades.config`, `grades.enter` or other write permission (asserted in `tests/grades/grades-scope.test.ts`).
 
 ## Persistence and migrations
 
@@ -169,7 +169,7 @@ The tests cover scale/scheme validation, default seeding, legacy migration, shee
 2. **Approval requirement is hard-coded.** `REQUIRE_APPROVAL` is always true. Decide whether approval is always mandatory or should be backed by a school setting, and remove the misleading unused configurable policy path if it is not configurable.
 3. **No HTTP route contract tests were found in the inspected grades test folder.** Existing tests exercise policies and use cases/repositories directly. Add route-level tests for middleware, path params, validation and response envelopes.
 4. **Execute the conditional DB/migration tests and full typecheck/build** in a disposable test environment before treating the migration and transaction behavior as runtime-verified.
-5. **Review whether setup reads should be staff-only.** Student/guardian roles may have OWN `grades.view`; the current read routes expose scale/scheme configuration to any principal with that permission. Decide whether this is intentional.
+5. **(Decided)** Setup reads stay open to students/guardians read-only. Previously: review whether setup reads should be staff-only. Student/guardian roles may have OWN `grades.view`; the current read routes expose scale/scheme configuration to any principal with that permission. Decide whether this is intentional.
 6. **Audit behavior after committed writes.** Several use cases write to the database and then call the audit service outside the transaction. Confirm the intended failure semantics if audit persistence fails after the domain change has committed.
 
 ## Source paths reviewed
