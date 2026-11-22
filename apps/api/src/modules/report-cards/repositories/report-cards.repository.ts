@@ -17,7 +17,7 @@ export class ReportCardsRepository {
 
     currentTerm() { return this.db.term.findFirst({ where: { isCurrent: true }, select: { id: true } }); }
     term(id: string) { return this.db.term.findUnique({ where: { id }, select: { id: true, name: true, session: { select: { id: true, name: true } } } }); }
-    classOf(id: string) { return this.db.class.findUnique({ where: { id }, select: { id: true, name: true, level: true, classTeacherId: true } }); }
+    classOf(id: string) { return this.db.class.findUnique({ where: { id }, select: { id: true, name: true, level: true, classTeacherId: true, branchId: true } }); }
 
     /** Students on the class list for the term (withdrawn and transferred students are not on it), by name. */
     studentsOnList(classId: string, termId: string) {

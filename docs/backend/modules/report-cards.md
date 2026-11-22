@@ -34,7 +34,7 @@ All paths below are relative to `/api/v1/report-cards`.
 | GET | `/class-pdf` | `report_cards.view` + `report_cards.pdf` | Cached PDF or 202 queued job |
 | GET | `/class-pdf/status/:jobId` | `report_cards.view` | Queue status: queued, done, failed or unknown |
 | POST | `/generate` | `report_cards.generate` | Generate/rebuild draft cards |
-| POST | `/publish` | `report_cards.publish` | Publish a batch of cards and notify guardians |
+| POST | `/publish` | `report_cards.publish` (+ `report_cards.publish_incomplete` when `allowMissing=true`) | Publish a batch of cards and notify guardians |
 | POST | `/unpublish` | `report_cards.publish` | Return published/sent cards to draft with a reason |
 | GET | `/:id` | `report_cards.view` | Read one card |
 | GET | `/:id/preview` | `report_cards.view` | Render one card as HTML data |
@@ -84,14 +84,14 @@ The `generated` status remains in the type/policy as a legacy editable status. P
 - Only draft/generated cards are editable or regenerable.
 - Teacher remarks require the class teacher or an administrator with `report_cards.generate`.
 - Principal remarks require `report_cards.principal_remark`.
-- Publishing requires `report_cards.publish`, a non-stale snapshot, at least one scored subject, and no missing subjects unless `allowMissing=true`.
+- Publishing requires `report_cards.publish`, a non-stale snapshot, at least one scored subject, and no missing subjects unless `allowMissing=true`, which additionally needs the separate sensitive permission `report_cards.publish_incomplete` (ALL, staff). Without it the request is refused (403); without the flag such cards are reported as `blocked`. Every override is audited (`incompleteOverride` and the missing subjects per card). The administrator role template holds both permissions.
 - Publishing updates each eligible card individually; one card's failure does not stop other cards in the batch. The response reports per-card outcomes.
 - After publication, the card is visible to students and linked guardians.
 - Guardian notifications are dispatched using the school's `report_card.ready` message template and the channel policy/plan. Idempotency keys include card ID, publication timestamp, guardian ID and channel.
 - Successful notification dispatch marks the card `sent`. Notification failure does not undo publication; the response includes `notifyError`.
 - Unpublishing returns published/sent cards to draft, clears publication metadata and stores the reason. A later publication is a new notification event.
 
-The `allowMissing` bypass is currently supplied by the request, not read from a persisted school setting. Whether every publisher should be able to make that choice is a product/authorization decision recorded in the remediation register.
+The `allowMissing` bypass is an explicit request flag gated by `report_cards.publish_incomplete` (decision of 2026-11-20, REM-012).
 
 ## Authorization and visibility
 
