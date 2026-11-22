@@ -5,7 +5,7 @@ import { StatCard } from "@/components/ui/stat-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSchoolDashboard } from "@/features/school/hooks/use-school";
 import { useAuthStore } from "@/stores/auth.store";
-import { attendanceView } from "@/lib/school-dashboard";
+import { attendanceScopeLabel, attendanceView } from "@/lib/school-dashboard";
 
 // Not part of the dashboard pilot: only the data mapping was corrected here, to the API's real response (sections can
 // be null for a role, and the field names changed). The layout is left for its own stage.
@@ -18,7 +18,7 @@ export default function PrincipalOverviewPage() {
 		<>
 			<PageHeader
 				title={`Welcome, ${user?.firstName ?? ""}`}
-				description={dashboard ? `${dashboard.school.name} — school-wide overview` : undefined}
+				description={dashboard?.school.name}
 			/>
 
 			{isLoading ? (
@@ -35,6 +35,7 @@ export default function PrincipalOverviewPage() {
 							label="Attendance Today"
 							value={attendance.ratePercent === null ? "—" : `${attendance.ratePercent}%`}
 							accent="success"
+							hint={dashboard.attendance?.scope && dashboard.attendance.scope !== "ALL" ? attendanceScopeLabel(dashboard.attendance.scope) ?? undefined : undefined}
 						/>
 					)}
 					{dashboard.people && <StatCard label="Total Staff" value={String(dashboard.people.totalStaff)} accent="info" />}

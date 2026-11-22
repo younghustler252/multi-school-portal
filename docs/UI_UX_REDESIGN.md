@@ -126,27 +126,43 @@ Pure logic (initials, persona labels, breadcrumb building, active-nav matching) 
 ### Where every figure comes from
 | On the page | Source | Shown when |
 |---|---|---|
-| Students, Staff cards; plan capacity meters | `GET /school/dashboard` → `people` | the API sent `people` (needs `students.view` or `staff.view`) |
+| Students card, Staff card, capacity meters | `GET /school/dashboard` → `people` | the API sent `people` **and** the session holds `students.view` (Students) or `staff.view` (Staff) |
 | Attendance today card and panel | `…/dashboard` → `attendance` | `attendance.view` |
 | Fees outstanding card and Fees this term panel | `…/dashboard` → `fees` | `fees.view` |
-| Current term in the page subtitle | `…/dashboard` → `academics.currentTerm` or `fees.term` | when present |
+| Current term in the subtitle | `…/dashboard` → `academics.currentTerm`, else `fees.term` | when present |
 | Plan name, expiry badge, limits | `…/dashboard` → `plan` | always |
-| Setup checklist | `GET /school/setup-checklist` | `school.update` and the checklist is under 100% |
-| Quick-action links | `canOpenRoute()` (the same rule table as the menu and route guard) | the session may open that page |
+| Setup checklist | `GET /school/setup-checklist` | `school.update`, and under 100% |
+| Quick-action links | `canOpenRoute()` (same rule table as the menu and route guard) | the session may open that page |
 
-Nothing is computed from invented data. A section the API leaves out is not drawn, and if all four are missing the page says so.
+`academics` is not drawn on the page (only its `currentTerm` feeds the subtitle), so it is not counted when deciding whether the page has anything to show.
 
 ### Fixed: the frontend type did not match the API
-`SchoolDashboardData` (frontend) disagreed with `SchoolDashboard` (API): sections can be `null` by role, `attendance` uses `present/absent/late/excused/date` (the page read `todayPresent…`), `fees` uses `…Kobo` fields and `overdueInvoices` (the page read `totalPending`, `defaulters`), `academics` has `activeEnrolments` and `currentTerm`, and plan limits can be `null` (unlimited). The old page would have shown blanks or thrown for any role missing a section. The type now mirrors the API, and `/insights/overview` (which read the same data) got a minimal null-safe mapping fix only.
+`SchoolDashboardData` disagreed with `SchoolDashboard` in the API: sections are `null` by role, `attendance` uses `present/absent/late/excused/date`, `fees` uses `…Kobo` fields and `overdueInvoices`, `academics` has `activeEnrolments`/`currentTerm`, and plan limits can be `null` (unlimited). The type now mirrors the API. `attendance.scope` is typed **optional** because it exists only on `fix/api/attendance-summary-scope` and not yet on `refactor/web` or `refactor/modules`; the UI says nothing about coverage when it is missing.
 
 ### Display rules
-- **Attendance rate** = (present + late) / everyone marked today, shown with the count ("90 of 100 marked present or late"). With nothing marked it shows "—", never 0%. The old card used present / (present + absent); this needs your confirmation as a business definition.
+- **Attendance rate** = (present + late) / (present + late + absent). Excused is left out of the denominator and stays visible in the breakdown ("90 of 95 present or late · 20 excused not counted"). "—" when nobody is counted (nothing marked, or everyone excused), never 0%.
+- **Attendance coverage** is shown from `attendance.scope`: ALL "Whole school", BRANCH "Your branches", ASSIGNED "Your classes", OWN "Your own records". Missing or unknown: no label.
 - **Fees**: collected / invoiced for the current term; outstanding as money; overdue invoices as a count.
-- **Plan limits**: `null` limit = "no limit" (no meter); 90% or more = "close to your plan limit"; 100% = "plan limit reached"; ends within 14 days = badge.
-- Part-to-whole uses a segmented bar with 2px gaps and a legend carrying every label and value, so colour is never the only signal. No chart library was added.
+- **Plan limits**: `null` = "no limit"; 90%+ "close to your plan limit"; 100% "plan limit reached"; ends within 14 days = badge.
+- Part-to-whole uses a segmented bar with 2px gaps and a legend carrying every label and value. No chart library was added.
+
+### What is scoped on the backend (read from the code)
+Checked in `get-dashboard.usecase.ts`, `school-tenant.repository.ts` and `school.controller.ts` on `refactor/web`, `refactor/modules` and `fix/api/attendance-summary-scope`.
+
+| Section | Scoped to the viewer? | Detail |
+|---|---|---|
+| `school`, `plan` | Not applicable | School-level by definition. |
+| `attendance` | **Only on `fix/api/attendance-summary-scope`** | The controller passes `attendanceViewWhere(access)` and `scope` into the use case: ALL / BRANCH (their branches) / ASSIGNED (their classes) / OWN. On `refactor/web` and `refactor/modules` the counts are **not** filtered: any holder of `attendance.view` gets the whole school's counts. |
+| `people` | **No, on any branch** | `peopleCounts()` takes no scope: whole-school staff, student and guardian counts. |
+| `academics` | **No, on any branch** | `academicCounts()` takes no scope (not drawn by the UI). |
+| `fees` | **No, on any branch** | `termInvoiceTotals(termId, cutoff)` takes no scope: whole-school totals for the current term. |
+
+Why this is not exposed in practice today: the dashboard route needs `school.dashboard.view`, and in the shipped role templates only School Admin (grants all), Principal (`ALL`) and Bursar (`ALL` on `students.view` and `fees.view`) hold it. Branch Principal and Teacher do not. It becomes reachable if a school builds a custom role with `school.dashboard.view` plus a `BRANCH`/`ASSIGNED`/`OWN` scope on `students.view`, `staff.view` or `fees.view`: that person would receive whole-school `people`, `academics` and `fees` figures.
 
 ### Backend gaps (reported, not worked around)
-1. **No branch scope.** `GET /school/dashboard` takes no branch parameter and the counts are school-wide, so a branch-scoped user still sees school-wide figures. Needs an optional `branchId` (validated against the caller's branch scope) on the endpoint.
-2. **No time series.** There is no attendance-over-time or collections-over-time endpoint, so there are no trend charts. Needs, for example, a daily attendance series and a weekly payments series for the current term.
-3. **No actionable lists.** The contract has no pending approvals, recent activity or upcoming events for administrators, so those panels are not built.
-4. **Verification status** (`school.verificationStatus`) is in the response but its allowed values are not in the shared contract, so no banner is shown for unverified schools yet.
+1. **Unscoped sections.** `people`, `academics` and `fees` ignore the viewer's scope. Following the principle already applied to attendance ("never school-wide for someone narrower than ALL"), return those sections as `null` unless the matching permission scope is `ALL`, or add scoped counts.
+2. **`people` is returned on `students.view` OR `staff.view`.** A Bursar (`students.view`, no `staff.view`) therefore receives staff counts. The dashboard hides the Staff card and staff meter unless `staff.view` is held; the backend should split `people` instead.
+3. **`attendance.scope` is not on `refactor/web` yet** (branch `fix/api/attendance-summary-scope`). Until it merges, attendance on `refactor/web` is unscoped, as above.
+4. **No time series.** No attendance-over-time or collections-over-time endpoint, so no trend charts.
+5. **No actionable lists.** No pending approvals, recent activity or upcoming events for administrators.
+6. **`school.verificationStatus` values** are not in the shared contract, so there is no "unverified school" banner.

@@ -15,22 +15,28 @@ const percent = (part: number, whole: number): number | null =>
 // ── Attendance ───────────────────────────────────────────────────────────────
 
 export interface AttendanceView {
-	/** Students with any mark today (present + late + absent + excused). */
+	/** Everyone with any mark today (present + late + absent + excused). Zero means nothing has been marked yet. */
 	marked: number;
 	/** Present or late: they came to school. */
 	attended: number;
-	/** attended / marked, whole percent. null until at least one mark exists (never shows a fake 0%). */
+	/** Present + late + absent. Excused is left out: an excused absence is not held against attendance. */
+	counted: number;
+	excused: number;
+	/** attended / counted, whole percent. null when counted is 0 (nothing marked, or everyone excused): never a fake 0%. */
 	ratePercent: number | null;
+	/** Excused stays in the breakdown even though it is not in the rate. */
 	segments: { key: "present" | "late" | "absent" | "excused"; label: string; count: number }[];
 }
 
 export function attendanceView(a: Attendance): AttendanceView {
-	const marked = a.present + a.late + a.absent + a.excused;
 	const attended = a.present + a.late;
+	const counted = attended + a.absent;
 	return {
-		marked,
+		marked: counted + a.excused,
 		attended,
-		ratePercent: percent(attended, marked),
+		counted,
+		excused: a.excused,
+		ratePercent: percent(attended, counted),
 		segments: [
 			{ key: "present", label: "Present", count: a.present },
 			{ key: "late", label: "Late", count: a.late },
@@ -38,6 +44,21 @@ export function attendanceView(a: Attendance): AttendanceView {
 			{ key: "excused", label: "Excused", count: a.excused },
 		],
 	};
+}
+
+/**
+ * Plain-words label for which attendance the figures cover (the viewer's attendance.view scope).
+ * Returns null when the API did not say or sent something unrecognised: then the UI says nothing about coverage
+ * rather than guessing "whole school".
+ */
+export function attendanceScopeLabel(scope: string | undefined): string | null {
+	switch (scope) {
+		case "ALL": return "Whole school";
+		case "BRANCH": return "Your branches";
+		case "ASSIGNED": return "Your classes";
+		case "OWN": return "Your own records";
+		default: return null;
+	}
 }
 
 // ── Fees ─────────────────────────────────────────────────────────────────────
@@ -97,9 +118,14 @@ export function planExpiryView(expiresAt: string | null, now: Date): PlanExpiryV
 
 // ── Which sections the viewer received ───────────────────────────────────────
 
-/** True when the API sent none of the role-gated sections, so the page can say so instead of showing an empty grid. */
-export function hasNoRoleSections(d: SchoolDashboardData): boolean {
-	return !d.people && !d.academics && !d.fees && !d.attendance;
+/**
+ * True when the API sent none of the sections the dashboard actually draws (people, fees, attendance), so the page can
+ * say so instead of showing an empty grid. `academics` is deliberately not counted: it only feeds the subtitle (the
+ * current term), so counting it would hide the empty state from someone who sees no figures. If a section is added to
+ * the page, add it here.
+ */
+export function hasNothingToShow(d: SchoolDashboardData): boolean {
+	return !d.people && !d.fees && !d.attendance;
 }
 
 // ── Dates ────────────────────────────────────────────────────────────────────

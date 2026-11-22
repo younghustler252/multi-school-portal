@@ -6,8 +6,9 @@ import { planExpiryView, usageView, type UsageView } from "@/lib/school-dashboar
 
 interface Props {
 	plan: SchoolDashboardData["plan"];
-	/** Null when the role does not receive people counts: then only the plan itself is shown. */
-	people: SchoolDashboardData["people"];
+	/** Head counts for the capacity meters. null hides that row (the viewer may not see that kind of person). */
+	students: number | null;
+	staff: number | null;
 	now: Date;
 }
 
@@ -37,7 +38,7 @@ function UsageRow({ noun, usage }: { noun: string; usage: UsageView }) {
 	);
 }
 
-export function PlanPanel({ plan, people, now }: Props) {
+export function PlanPanel({ plan, students, staff, now }: Props) {
 	const expiry = planExpiryView(plan.expiresAt, now);
 
 	return (
@@ -50,10 +51,10 @@ export function PlanPanel({ plan, people, now }: Props) {
 					{expiry.state === "expired" && <Badge variant="destructive">Expired</Badge>}
 				</CardDescription>
 			</CardHeader>
-			{people && (
+			{(students !== null || staff !== null) && (
 				<CardContent className="space-y-4">
-					<UsageRow noun="Students" usage={usageView(people.totalStudents, plan.studentLimit)} />
-					<UsageRow noun="Staff" usage={usageView(people.totalStaff, plan.staffLimit)} />
+					{students !== null && <UsageRow noun="Students" usage={usageView(students, plan.studentLimit)} />}
+					{staff !== null && <UsageRow noun="Staff" usage={usageView(staff, plan.staffLimit)} />}
 				</CardContent>
 			)}
 		</Card>

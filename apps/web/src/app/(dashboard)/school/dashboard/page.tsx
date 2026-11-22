@@ -17,7 +17,7 @@ import { useAccess } from "@/lib/use-access";
 import { canOpenRoute } from "@/lib/route-access";
 import { formatNaira } from "@/lib/format-money";
 import { ROUTES } from "@/lib/routes";
-import { attendanceView, hasNoRoleSections } from "@/lib/school-dashboard";
+import { attendanceScopeLabel, attendanceView, hasNothingToShow } from "@/lib/school-dashboard";
 import { useAuthStore } from "@/stores/auth.store";
 
 /*
@@ -97,14 +97,24 @@ export default function SchoolAdminDashboardPage() {
 
 	const term = data.academics?.currentTerm ?? data.fees?.term ?? null;
 	const attendance = data.attendance ? attendanceView(data.attendance) : null;
+	// The API returns `people` to anyone who may view students OR staff, so each count is shown only to someone who may see it.
+	const canSeeStudents = !!data.people && me.can("students.view");
+	const canSeeStaff = !!data.people && me.can("staff.view");
+	const attendanceHint = (() => {
+		if (!attendance) return undefined;
+		const base = attendance.marked === 0 ? "Not marked yet" : attendance.ratePercent === null ? "All marked are excused" : `${attendance.counted} counted`;
+		const scope = data.attendance?.scope;
+		const label = scope && scope !== "ALL" ? attendanceScopeLabel(scope) : null;
+		return label ? `${base} · ${label}` : base;
+	})();
 
 	return (
 		<>
 			<PageHeader title="Dashboard" description={term ? `${data.school.name} · ${term}` : data.school.name} />
 
-			{!hasNoRoleSections(data) && (
+			{!hasNothingToShow(data) && (
 				<section aria-label="Key figures" className="mb-6 grid grid-cols-1 gap-4 min-[420px]:grid-cols-2 xl:grid-cols-4">
-					{data.people && (
+					{data.people && canSeeStudents && (
 						<StatCard
 							label="Students"
 							value={String(data.people.totalStudents)}
@@ -113,7 +123,7 @@ export default function SchoolAdminDashboardPage() {
 							accent="primary"
 						/>
 					)}
-					{data.people && (
+					{data.people && canSeeStaff && (
 						<StatCard
 							label="Staff"
 							value={String(data.people.totalStaff)}
@@ -126,7 +136,7 @@ export default function SchoolAdminDashboardPage() {
 						<StatCard
 							label="Attendance today"
 							value={attendance.ratePercent === null ? "—" : `${attendance.ratePercent}%`}
-							hint={attendance.marked === 0 ? "Not marked yet" : `${attendance.marked} marked`}
+							hint={attendanceHint}
 							icon={ClipboardCheck}
 							accent="success"
 						/>
@@ -147,10 +157,10 @@ export default function SchoolAdminDashboardPage() {
 				<div className="space-y-6 lg:col-span-2">
 					{data.attendance && <AttendancePanel data={data.attendance} href={open(ROUTES.school.attendance)} />}
 					{data.fees && <FeesPanel data={data.fees} href={open(ROUTES.school.fees.list)} />}
-					{hasNoRoleSections(data) && (
+					{hasNothingToShow(data) && (
 						<EmptyState
 							title="No figures to show for your role"
-							description="Your account doesn't include school-wide figures. Use the menu to open the pages you work in."
+							description="Your account doesn't include any dashboard figures. Use the menu to open the pages you work in."
 						/>
 					)}
 				</div>
@@ -159,7 +169,12 @@ export default function SchoolAdminDashboardPage() {
 				<div className={setupIncomplete ? "order-first space-y-6 lg:order-none" : "space-y-6"}>
 					{checklist && setupIncomplete && <SetupChecklistCard checklist={checklist} />}
 					<QuickActions actions={actions} />
-					<PlanPanel plan={data.plan} people={data.people} now={now} />
+					<PlanPanel
+						plan={data.plan}
+						students={canSeeStudents ? data.people!.totalStudents : null}
+						staff={canSeeStaff ? data.people!.totalStaff : null}
+						now={now}
+					/>
 				</div>
 			</div>
 		</>

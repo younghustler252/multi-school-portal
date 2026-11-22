@@ -124,6 +124,12 @@ export interface SchoolDashboardData {
 	attendance: {
 		/** The school's own calendar day, YYYY-MM-DD. */
 		date: string;
+		/**
+		 * Which attendance these counts cover: "ALL", "BRANCH", "ASSIGNED" or "OWN" (the viewer's attendance.view scope).
+		 * Sent by the API from fix/api/attendance-summary-scope onwards; older API builds omit it, so it is optional and
+		 * the UI must not assume "ALL" when it is missing.
+		 */
+		scope?: string;
 		present: number;
 		absent: number;
 		late: number;

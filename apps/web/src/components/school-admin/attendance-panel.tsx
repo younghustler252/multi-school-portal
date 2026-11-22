@@ -4,7 +4,7 @@ import { PanelLink } from "@/components/school-admin/panel-link";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { SegmentedBar, type SegmentTone } from "@/components/ui/segmented-bar";
 import type { SchoolDashboardData } from "@/features/school/types/school.types";
-import { attendanceView, formatSchoolDay } from "@/lib/school-dashboard";
+import { attendanceScopeLabel, attendanceView, formatSchoolDay } from "@/lib/school-dashboard";
 
 const TONE: Record<string, SegmentTone> = { present: "primary", late: "warning", absent: "danger", excused: "neutral" };
 
@@ -16,12 +16,14 @@ interface Props {
 
 export function AttendancePanel({ data, href }: Props) {
 	const view = attendanceView(data);
+	// Which attendance this covers (whole school, your branches, your classes). Nothing is claimed when the API did not say.
+	const scopeLabel = attendanceScopeLabel(data.scope);
 
 	return (
 		<Card>
 			<CardHeader>
 				<CardTitle className="text-section">Attendance today</CardTitle>
-				<CardDescription>{formatSchoolDay(data.date)}</CardDescription>
+				<CardDescription>{scopeLabel ? `${formatSchoolDay(data.date)} · ${scopeLabel}` : formatSchoolDay(data.date)}</CardDescription>
 				{href && <CardAction><PanelLink href={href}>Open attendance</PanelLink></CardAction>}
 			</CardHeader>
 			<CardContent>
@@ -34,10 +36,12 @@ export function AttendancePanel({ data, href }: Props) {
 					/>
 				) : (
 					<div className="space-y-4">
-						<div className="flex items-baseline gap-3">
-							<span className="text-figure">{view.ratePercent}%</span>
+						<div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+							<span className="text-figure">{view.ratePercent === null ? "—" : `${view.ratePercent}%`}</span>
 							<span className="text-sm text-muted-foreground">
-								{view.attended} of {view.marked} marked present or late
+								{view.ratePercent === null
+									? "Everyone marked today is excused"
+									: `${view.attended} of ${view.counted} present or late${view.excused > 0 ? ` · ${view.excused} excused not counted` : ""}`}
 							</span>
 						</div>
 						<SegmentedBar
