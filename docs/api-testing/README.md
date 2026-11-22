@@ -26,6 +26,8 @@ The local-only seed creates or resets these Greenfield accounts:
 | Staff + guardian | `multi.persona@greenfield-academy.test` |
 | Must change password | `password.change@greenfield-academy.test` |
 | Suspended membership | `restricted@greenfield-academy.test` |
+| Inactive account | `inactive@greenfield-academy.test` |
+| Active membership in both schools | `multi.school@schoolos.test` |
 
 School fixture passwords come from `TEST_FIXTURE_PASSWORD`; the platform admin password is independently controlled by `TEST_PLATFORM_ADMIN_PASSWORD`. Use disposable local-only passwords. The script never prints passwords. Keep both values in the uncommitted `.env.development` file; never commit that file or credentials.
 
@@ -95,6 +97,6 @@ Back up anything needed first. After reset, apply the public migrations, start A
 
 ## Current implementation limits / verification status
 
-This branch currently provisions the deterministic Greenfield fixture accounts and imports the refreshed Postman inventories. The seed requires the named role templates to exist in the provisioned tenant schema; it fails loudly rather than creating substitute roles. The second-school cross-tenant fixture and dedicated automated assertions for redirect, school selection, persona selection, inactive-account rejection and cross-school authorization still need to be added.
+This branch provisions Greenfield Academy and Riverside Academy through the platform provisioning workflow. The `multi.school@schoolos.test` user has an active STAFF membership in both tenant schemas. It also provisions the deterministic Greenfield persona fixtures and imports the refreshed Postman inventories. The seed requires the named role templates to exist in the provisioned tenant schema; it fails loudly rather than creating substitute roles. The second-school cross-tenant fixture and dedicated automated assertions for redirect, school selection, persona selection, inactive-account rejection and cross-school authorization still need to be added.
 
 No Prisma generation, migration, API/worker startup, database seed, idempotency run, Newman execution or runtime auth/tenant-isolation test has been performed by the GitHub connector. Run those locally and report the actual output; static file commits are not evidence of runtime success.
