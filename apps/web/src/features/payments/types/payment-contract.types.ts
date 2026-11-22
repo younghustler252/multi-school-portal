@@ -120,3 +120,36 @@ export interface FamilyReceipt {
 	/** Payer only: the part that covers other people's children, with nothing that identifies them. */
 	otherStudents: { amountKobo: string } | null;
 }
+
+// ── Online payment (a guardian pays one child's invoice through the gateway) ──
+
+/** POST /payments/online/initialize body. `amountKobo` omitted = the whole balance. */
+export interface InitializeOnlinePaymentDto {
+	invoiceId: string;
+	amountKobo?: Kobo;
+	/** Where the gateway sends the guardian back to; the reference arrives as `?reference=` (and `?trxref=`). */
+	callbackUrl?: string;
+}
+
+/** The gateway page to send the guardian to. The payment already exists, PENDING, and nothing is posted yet. */
+export interface InitializedOnlinePayment {
+	paymentId: string;
+	reference: string;
+	authorizationUrl: string;
+	amountKobo: Kobo;
+}
+
+/*
+| GET /payments/online/verify/:reference. The server asks the gateway itself (the browser's word is never used) and is safe to
+| call any number of times.
+|   confirmed  just confirmed now (receipt issued)
+|   already    was confirmed (or reversed) earlier: showing it again is fine
+|   pending    the gateway has not finished: ask again shortly
+|   failed     the gateway declined, or the payment was already marked failed
+*/
+export type OnlinePaymentState = "confirmed" | "already" | "pending" | "failed";
+
+export interface VerifiedOnlinePayment {
+	payment: PaymentDetail;
+	state: OnlinePaymentState;
+}

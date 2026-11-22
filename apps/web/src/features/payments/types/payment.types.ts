@@ -16,18 +16,6 @@ export interface PaymentResponseData {
 	createdAt: string;
 }
 
-export interface InitializePaymentDto {
-	invoiceId: string;
-	callbackUrl?: string;
-	amountKobo?: number;
-}
-
-export interface InitializePaymentResponseData {
-	authorizationUrl: string;
-	accessCode: string;
-	reference: string;
-}
-
 export interface ListPaymentsParams {
 	page?: number;
 	limit?: number;

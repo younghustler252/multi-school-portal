@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 import { Receipt } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDay } from "@/features/fees/lib/finance-labels";
 import { useFamilyChildren } from "@/features/fees/hooks/use-family-fees";
+import { PaymentReturnBanner } from "@/features/payments/components/payment-return-banner";
+import { returnReference } from "@/features/payments/lib/online-payment";
+import { ROUTES } from "@/lib/routes";
 import { FamilyReceiptDialog } from "@/features/payments/components/family-receipt-dialog";
 import { useFamilyPayments } from "@/features/payments/hooks/use-family-payments";
 import { PAYMENT_STATUS_BADGE, PAYMENT_STATUS_TEXT, paymentMethodText } from "@/features/payments/lib/payment-labels";
@@ -18,9 +22,13 @@ const LIMIT = 20;
 /*
 | A guardian's payments (GET /payments/my): what they paid, plus confirmed payments others made for their children
 | (marked "partial": only the share for their own children, no reference). Receipts open from here.
-| Paying online is separate work; it is not on this page yet.
+| It is also where the gateway sends a guardian back after paying (?reference=): the banner asks the server for the real result.
 */
-export default function GuardianPaymentsPage() {
+function GuardianPaymentsContent() {
+	const router = useRouter();
+	const searchParams = useSearchParams();
+	const [dismissed, setDismissed] = useState(false);
+	const reference = dismissed ? null : returnReference(searchParams);
 	const [page, setPage] = useState(1);
 	const [studentId, setStudentId] = useState("");
 	const kids = useFamilyChildren().data?.children ?? [];
@@ -30,6 +38,10 @@ export default function GuardianPaymentsPage() {
 	return (
 		<>
 			<PageHeader title="Payments" description="Payments for your children and their receipts." />
+
+			{reference && (
+				<PaymentReturnBanner reference={reference} onReceipt={setReceiptFor} onDismiss={() => { setDismissed(true); router.replace(ROUTES.family.payments); }} />
+			)}
 
 			{kids.length > 1 && (
 				<div className="mb-6 flex flex-wrap gap-2">
@@ -78,4 +90,8 @@ export default function GuardianPaymentsPage() {
 			<FamilyReceiptDialog paymentId={receiptFor} onClose={() => setReceiptFor(null)} />
 		</>
 	);
+}
+
+export default function GuardianPaymentsPage() {
+	return <Suspense fallback={<Skeleton className="h-40 rounded-xl" />}><GuardianPaymentsContent /></Suspense>;
 }
