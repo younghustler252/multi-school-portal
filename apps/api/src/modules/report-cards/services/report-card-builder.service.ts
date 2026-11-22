@@ -9,7 +9,7 @@ import { isVisibleSheet } from "./sheet-visibility";
 interface Dependencies { reportCardsRepository: ReportCardsRepository; gradesSheetsRepository: GradesSheetsRepository }
 
 export interface ClassContext {
-    cls: { id: string; name: string; level: string | null; classTeacherId: string | null };
+    cls: { id: string; name: string; level: string | null; classTeacherId: string | null; branchId: string };
     term: { id: string; name: string; session: { id: string; name: string } };
     students: Array<{ id: string; firstName: string; lastName: string; admissionNumber: string | null; gender: string | null }>;
     subjects: Array<MissingSubject & { published: boolean }>;
