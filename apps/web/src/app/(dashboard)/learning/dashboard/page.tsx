@@ -8,8 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthStore } from "@/stores/auth.store";
 import { useCurrentSession } from "@/features/school/hooks/use-sessions";
-import { useMyStudentProfile, useMyGrades, useMyAttendance, useMyInvoices } from "@/features/students/hooks/use-student-portal";
-import { formatNaira } from "@/lib/format-money";
+import { useMyStudentProfile, useMyGrades, useMyAttendance } from "@/features/students/hooks/use-student-portal";
+import { useFamilyChildren } from "@/features/fees/hooks/use-family-fees";
+import { formatKobo } from "@/lib/money";
 import { ROUTES } from "@/lib/routes";
 
 export default function StudentDashboardPage() {
@@ -20,7 +21,7 @@ export default function StudentDashboardPage() {
 	const { data: profile, isLoading: profileLoading } = useMyStudentProfile();
 	const { data: grades } = useMyGrades(termId);
 	const { data: attendance } = useMyAttendance(termId);
-	const { data: invoices } = useMyInvoices(termId);
+	const { data: balances } = useFamilyChildren();
 
 	const publishedGrades = grades?.filter((g) => g.isPublished) ?? [];
 	const avgTotal = publishedGrades.length > 0
@@ -30,7 +31,6 @@ export default function StudentDashboardPage() {
 	const present = attendance?.filter((a) => a.status === "present").length ?? 0;
 	const attendancePct = attendance && attendance.length > 0 ? Math.round((present / attendance.length) * 100) : null;
 
-	const totalOwed = invoices?.reduce((sum, i) => sum + i.balanceKobo, 0) ?? 0;
 
 	return (
 		<>
@@ -48,7 +48,7 @@ export default function StudentDashboardPage() {
 				<div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
 					<StatCard label="Term average" value={avgTotal !== null ? `${avgTotal}%` : "—"} accent="primary" />
 					<StatCard label="Attendance" value={attendancePct !== null ? `${attendancePct}%` : "—"} accent="success" />
-					<StatCard label="Outstanding fees" value={formatNaira(totalOwed)} accent="warning" />
+					<StatCard label="Outstanding fees" value={formatKobo(balances?.totalOwedKobo ?? 0)} accent="warning" />
 					<StatCard label="Subjects graded" value={String(publishedGrades.length)} accent="info" />
 				</div>
 			)}

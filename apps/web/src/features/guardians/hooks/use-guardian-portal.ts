@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { guardianPortalApi } from "../services/guardian-portal.api";
-import { MyChildrenParams, MyChildrenInvoicesParams } from "../types/guardian-portal.types";
+import { MyChildrenParams } from "../types/guardian-portal.types";
 
 export function useMyChildren() {
 	return useQuery({
@@ -31,17 +31,6 @@ export function useMyChildrenAttendance(params: MyChildrenParams) {
 			const res = await guardianPortalApi.getMyChildrenAttendance(params);
 			if (!res.success) throw res;
 			return res.data;
-		},
-	});
-}
-
-export function useMyChildrenInvoices(params: MyChildrenInvoicesParams) {
-	return useQuery({
-		queryKey: ["guardian-portal", "invoices", params],
-		queryFn: async () => {
-			const res = await guardianPortalApi.getMyChildrenInvoices(params);
-			if (!res.success) throw res;
-			return { invoices: res.data, meta: res.meta };
 		},
 	});
 }

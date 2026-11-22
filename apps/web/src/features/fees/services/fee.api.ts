@@ -41,13 +41,6 @@ export const feeApi = {
 	): Promise<ApiResponse<EnrichedInvoice>> =>
 		API.get(`/fees/invoices/${id}`),
 
-	/** The signed-in student's own invoices, or a guardian's child's when `studentId` is given (GET /fees/my/invoices). */
-	getMyInvoices: (params?: { studentId?: string }): Promise<ApiResponse<EnrichedInvoice[]>> =>
-		API.get("/fees/my/invoices", { params }),
-
-	getMyChildrenInvoices: (): Promise<ApiResponse<EnrichedInvoice[]>> =>
-		API.get("/fees/invoices/my-children"),
-
 	createInvoice: (
 		data: CreateInvoiceDto,
 	): Promise<ApiResponse<EnrichedInvoice>> =>

@@ -157,6 +157,7 @@ const LEARNING: RouteRule[] = [
 	family("STUDENT", ROUTES.learning.attendance, "Attendance", "attendance", "attendance.view"),
 	family("STUDENT", ROUTES.learning.grades, "Grades", "grades", "grades.view"),
 	family("STUDENT", ROUTES.learning.reportCards, "Report cards", "reportCards", "report_cards.view"),
+	family("STUDENT", ROUTES.learning.fees, "Fees", "fees", "fees.view"),
 ];
 
 /** Menu order for a school session: Home, then the rules above in array order (personas never overlap). */

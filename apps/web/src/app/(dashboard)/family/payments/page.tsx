@@ -1,74 +1,81 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
-import { Loader2, CheckCircle2, XCircle } from "lucide-react";
+import { useState } from "react";
+import { Receipt } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useVerifyPayment, useMyPayments } from "@/features/payments/hooks/use-payments";
-import { PAYMENT_METHOD_LABELS, PAYMENT_STATUS_VARIANT } from "@/features/payments/constants/payment-labels";
-import { formatNaira } from "@/lib/format-money";
+import { formatDay } from "@/features/fees/lib/finance-labels";
+import { useFamilyChildren } from "@/features/fees/hooks/use-family-fees";
+import { FamilyReceiptDialog } from "@/features/payments/components/family-receipt-dialog";
+import { useFamilyPayments } from "@/features/payments/hooks/use-family-payments";
+import { PAYMENT_STATUS_BADGE, PAYMENT_STATUS_TEXT, paymentMethodText } from "@/features/payments/lib/payment-labels";
+import { formatKobo } from "@/lib/money";
 
+const LIMIT = 20;
+
+/*
+| A guardian's payments (GET /payments/my): what they paid, plus confirmed payments others made for their children
+| (marked "partial": only the share for their own children, no reference). Receipts open from here.
+| Paying online is separate work; it is not on this page yet.
+*/
 export default function GuardianPaymentsPage() {
-	const searchParams = useSearchParams();
-	const reference = searchParams.get("reference") ?? searchParams.get("trxref");
-	const { data: payment, isLoading: verifying, isError } = useVerifyPayment(reference);
-	const { data, isLoading: historyLoading } = useMyPayments({ limit: 50 });
+	const [page, setPage] = useState(1);
+	const [studentId, setStudentId] = useState("");
+	const kids = useFamilyChildren().data?.children ?? [];
+	const { data, isLoading, isError, isFetching } = useFamilyPayments({ page, limit: LIMIT, ...(studentId ? { studentId } : {}) });
+	const [receiptFor, setReceiptFor] = useState<string | null>(null);
 
 	return (
 		<>
-			<PageHeader title="Payments" description="Your payment history." />
+			<PageHeader title="Payments" description="Payments for your children and their receipts." />
 
-			{reference && (
-				<div className="mb-6 rounded-xl border border-border bg-card/80 p-5 backdrop-blur-sm">
-					{verifying && (
-						<div className="flex items-center gap-3">
-							<Loader2 className="size-5 animate-spin text-muted-foreground" />
-							<span className="text-sm text-muted-foreground">Confirming your payment…</span>
-						</div>
-					)}
-					{isError && (
-						<div className="flex items-center gap-3 text-destructive">
-							<XCircle className="size-5" />
-							<span className="text-sm">Couldn&apos;t confirm this payment — contact the school if you were charged.</span>
-						</div>
-					)}
-					{payment && payment.status === "success" && (
-						<div className="flex items-center gap-3 text-success">
-							<CheckCircle2 className="size-5" />
-							<span className="text-sm font-medium">Payment of {formatNaira(payment.amountKobo)} confirmed</span>
-						</div>
-					)}
-					{payment && payment.status !== "success" && (
-						<div className="flex items-center gap-3 text-destructive">
-							<XCircle className="size-5" />
-							<span className="text-sm">Payment {payment.status}</span>
-						</div>
-					)}
+			{kids.length > 1 && (
+				<div className="mb-6 flex flex-wrap gap-2">
+					{[{ id: "", label: "All children" }, ...kids.map((c) => ({ id: c.studentId, label: c.studentName.split(" ")[0] }))].map((c) => (
+						<button key={c.id || "all"} type="button" onClick={() => { setStudentId(c.id); setPage(1); }}
+							className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${studentId === c.id ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:bg-muted"}`}>
+							{c.label}
+						</button>
+					))}
 				</div>
 			)}
 
 			<div className="space-y-2">
-				{historyLoading && Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-16 rounded-lg" />)}
+				{isLoading && Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-16 rounded-lg" />)}
+				{isError && <p className="text-sm text-destructive">Couldn&apos;t load your payments. Try again in a moment.</p>}
+				{data && data.data.length === 0 && <div className="rounded-xl border border-dashed border-border py-16 text-center text-muted-foreground">No payments yet.</div>}
 
-				{!historyLoading && data?.payments.length === 0 && (
-					<div className="rounded-xl border border-dashed border-border py-16 text-center text-muted-foreground">
-						No payments yet.
-					</div>
-				)}
-
-				{data?.payments.map((p) => (
-					<div key={p.id} className="flex items-center justify-between rounded-lg border border-border bg-card/60 px-4 py-3 text-sm">
-						<div>
-							<div className="font-medium">{formatNaira(p.amountKobo)}</div>
-							<div className="text-xs text-muted-foreground">
-								{PAYMENT_METHOD_LABELS[p.method]} · {new Date(p.paidAt ?? p.createdAt).toLocaleDateString()}
+				{data?.data.map((p) => (
+					<div key={p.id} className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card/60 px-4 py-3 text-sm">
+						<div className="min-w-0">
+							<div className="font-medium">{formatKobo(p.amountKobo)}{p.partial && <span className="ml-2 text-xs font-normal text-muted-foreground">your children&apos;s share</span>}</div>
+							<div className="truncate text-xs text-muted-foreground">
+								{paymentMethodText(p.method)} · {formatDay(p.paidOn ?? p.createdAt.slice(0, 10))}
+								{p.receiptNumber ? ` · ${p.receiptNumber}` : ""}
+								{p.partial && p.payerName ? ` · paid by ${p.payerName}` : ""}
 							</div>
 						</div>
-						<Badge variant={PAYMENT_STATUS_VARIANT[p.status]} className="capitalize">{p.status}</Badge>
+						<div className="flex shrink-0 items-center gap-2">
+							<Badge variant={PAYMENT_STATUS_BADGE[p.status]}>{PAYMENT_STATUS_TEXT[p.status]}</Badge>
+							{p.receiptNumber && (
+								<Button variant="outline" size="sm" className="gap-1.5" onClick={() => setReceiptFor(p.id)}><Receipt className="size-3.5" /> Receipt</Button>
+							)}
+						</div>
 					</div>
 				))}
 			</div>
+
+			{data && data.meta.totalPages > 1 && (
+				<div className="mt-4 flex items-center justify-between text-sm text-muted-foreground">
+					<Button variant="outline" size="sm" disabled={!data.meta.hasPrev || isFetching} onClick={() => setPage((p) => p - 1)}>Previous</Button>
+					<span>Page {data.meta.page} of {data.meta.totalPages}</span>
+					<Button variant="outline" size="sm" disabled={!data.meta.hasNext || isFetching} onClick={() => setPage((p) => p + 1)}>Next</Button>
+				</div>
+			)}
+
+			<FamilyReceiptDialog paymentId={receiptFor} onClose={() => setReceiptFor(null)} />
 		</>
 	);
 }

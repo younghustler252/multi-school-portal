@@ -73,8 +73,8 @@ describe("persona and scope in the menu (same rules as the route guard)", () => 
 		expect(labels(guardian)).toEqual(["Home", "My children", "Fees", "Payments", "Report cards", "Notifications"]);
 	});
 
-	it("a student gets their own menu, with no payments entry", () => {
-		expect(labels(student)).toEqual(["Home", "Dashboard", "Attendance", "Grades", "Report cards"]);
+	it("a student gets their own menu (fees, but no payments entry)", () => {
+		expect(labels(student)).toEqual(["Home", "Dashboard", "Attendance", "Grades", "Report cards", "Fees"]);
 	});
 
 	it("staff holding keys at ASSIGNED or ALL get management entries, and no family entries", () => {
