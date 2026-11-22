@@ -53,6 +53,7 @@ function world(over: any = {}) {
         assignSubject: async (d: any) => { state.created.push(d); return { id: "cs1", ...d }; },
         findClassSubjects: async () => over.taken ?? [],
         findClassSubjectsEnriched: async () => over.rows ?? [],
+        createClassSubjects: async (rows: any[]) => { for (const r of rows) state.created.push(r); return rows.length; },
     };
     const staffRepository: any = { findById: async (id: string) => staff[id] ?? null, findMany: async (w: any) => w.id.in.map((id: string) => staff[id]).filter(Boolean) };
     const userRepository: any = { findByIds: async (ids: string[]) => ids.map(id => ({ id, firstName: "Ada", lastName: id.slice(0, 4) })) };
@@ -166,7 +167,7 @@ describe("bulk assign (checks before any saving)", () => {
         const { deps, state } = world({ taken: [{ subjectId: SUBJ }, { subjectId: SUBJ2 }] });
         const out = await new BulkAssignSubjectsUseCase(deps).execute("s", CLASS, dto, actor);
         assert.deepEqual(out.assigned, []); assert.deepEqual(out.skipped.map(s => s.name), ["Maths", "English"]);
-        assert.equal(out.class.name, "JSS 1"); assert.equal(out.term?.session?.name, "2025/2026"); assert.equal(state.audits.length, 0);
+        assert.equal(out.class.name, "JSS 1"); assert.equal(out.term?.session?.name, "2025/2026"); assert.equal(state.audits.length, 0); assert.equal(state.created.length, 0);
     });
 });
 

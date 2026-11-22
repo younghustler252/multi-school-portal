@@ -69,6 +69,7 @@ export function payrollWorld() {
     let profN = 0;
     const view = (p: any) => ({ ...p, components: p.components.map((c: any) => ({ ...c })) });
     const payProfileRepository: any = {
+        async lockStaff(_staffId: string) { /* the real one takes a row lock for the transaction; nothing to lock in memory */ },
         async findById(id: string) { const p = profiles.get(id); return p ? view(p) : null; },
         async effectiveOn(staffId: string, day: Date) { const d = dayString(day); const p = [...profiles.values()].find(x => x.staffId === staffId && dayString(x.effectiveFrom) <= d && (!x.effectiveTo || dayString(x.effectiveTo) >= d)); return p ? view(p) : null; },
         async history(staffId: string) { return [...profiles.values()].filter(p => p.staffId === staffId).sort((a, b) => +b.effectiveFrom - +a.effectiveFrom).map(view); },
@@ -170,6 +171,7 @@ export function payrollWorld() {
     // remittances
     const remittances = new Map<string, any>();
     const remittanceRepository: any = {
+        async lockLiability(_accountId: string) { /* the real one takes a transaction advisory lock; nothing to lock in memory */ },
         async findById(id: string) { const m = remittances.get(id); return m ? { ...m } : null; },
         async list() { return { data: [...remittances.values()], meta: {} }; },
         async create(data: any) { const m = { reversedAt: null, reverseReason: null, createdAt: NOW, liabilityAccountName: null, ...data }; remittances.set(m.id, m); return { ...m }; },
