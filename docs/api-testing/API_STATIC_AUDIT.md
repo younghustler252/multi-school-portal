@@ -1,8 +1,9 @@
-# CORE API static audit — refreshed
+# CORE API static route inventory — imported snapshot
 
-- Source: latest `refactor/modules` (head `b71c52f9cada620d9b243061fb4ac8767f49169c`).
-- Test branch: `api-test-suite-refresh`.
+- Imported from the older `api-test-suite-refresh` branch; that branch was not merged.
+- Target implementation branch: `api-test-suite-on-refactor-api`, based on `refactor/api`.
 - API prefix: `/api/v1`.
+- This inventory is a reference snapshot, not a verified route-by-route diff against the current API source.
 - Runtime tests: **not run**.
 
 ## Scope reviewed
