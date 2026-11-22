@@ -11,6 +11,13 @@ concurrency:
 jobs:
   api:
     runs-on: ubuntu-latest
+    timeout-minutes: 20                   # a hung test run must fail visibly, not sit for the 6 hour default
+    services:
+      redis:                              # some tests reach BullMQ; without Redis ioredis retries forever and `npm test` never exits
+        image: redis:7
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 5s --health-timeout 5s --health-retries 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
