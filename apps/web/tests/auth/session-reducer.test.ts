@@ -12,6 +12,7 @@ const permissions: MyPermissions = {
 	realm: "school", persona: "STAFF", roles: ["teacher"], holdsEverything: false,
 	permissions: [{ key: "students.view", scope: "ALL" }],
 	branches: { all: [], assigned: [], schoolHasSeveral: false },
+	entitlements: null, entitlementsNotReady: null,
 };
 
 const run = (state: SessionState, ...events: SessionEvent[]) => events.reduce(sessionReducer, state);

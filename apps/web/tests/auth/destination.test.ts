@@ -6,7 +6,7 @@ import type { Profile } from "@/lib/auth/session-types";
 const base = { id: "u", email: "e@x.y", firstName: null, lastName: null, phone: null, photoUrl: null, isEmailVerified: true, lastLoginAt: null, createdAt: "" };
 const school: Profile = { ...base, session: { kind: "school", schoolId: "s", persona: "GUARDIAN", impersonating: false } };
 const platform: Profile = { ...base, session: { kind: "platform", schoolId: null, persona: null, impersonating: false } };
-const none: MyPermissions = { realm: "school", persona: null, roles: [], holdsEverything: false, permissions: [], branches: { all: [], assigned: [], schoolHasSeveral: false } };
+const none: MyPermissions = { realm: "school", persona: null, roles: [], holdsEverything: false, permissions: [], branches: { all: [], assigned: [], schoolHasSeveral: false }, entitlements: null, entitlementsNotReady: null };
 
 describe("resolveDestination", () => {
 	it("sends a platform session to the platform home and a school session to the school home", () => {

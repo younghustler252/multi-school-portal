@@ -26,6 +26,7 @@ const permissions: MyPermissions = {
 	realm: "school", persona: "STAFF", roles: [], holdsEverything: false,
 	permissions: [{ key: "students.view", scope: "ALL" }],
 	branches: { all: [], assigned: [], schoolHasSeveral: false },
+	entitlements: null, entitlementsNotReady: null,
 };
 const authenticated = (mustChangePassword = false) => ({
 	success: true as const, message: "ok",
