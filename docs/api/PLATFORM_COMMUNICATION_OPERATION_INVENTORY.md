@@ -76,7 +76,7 @@ Mount: `/users`.
 | DELETE | `/me/sessions/:id` | Authenticated; tenant ownership validation |
 | POST | `/schools/:schoolId/admin/reset-password` | Platform permission `platform.users.manage`; `ResetAdminPasswordDto` |
 | GET | `/` | Platform permission `platform.users.view`; query `ListPlatformUsersQuery` (paginated list) |
-| GET | `/:id` | Platform permission `platform.users.manage` |
+| GET | `/:id` | Platform permission `platform.users.view` |
 | POST | `/:id/deactivate` | Platform permission `platform.users.manage`; `DeactivateUserDto` |
 | POST | `/:id/reactivate` | Platform permission `platform.users.manage` |
 

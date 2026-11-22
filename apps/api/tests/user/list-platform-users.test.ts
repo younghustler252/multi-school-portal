@@ -59,8 +59,10 @@ describe("platform.users.view permission", () => {
 describe("GET /users: route guards (static check of the route file)", () => {
     const src = readFileSync("src/modules/user/routes/user.routes.ts", "utf8");
     const line = (re: RegExp) => src.split("\n").find(l => re.test(l)) ?? "";
-    it("the list needs platform.users.view; every write still needs platform.users.manage", () => {
+    it("the list and the detail need platform.users.view; every write still needs platform.users.manage", () => {
         assert.match(line(/router\.get\("\/",/), /requirePermission\("platform\.users\.view"\)/);
+        assert.match(line(/router\.get\("\/:id",/), /requirePermission\("platform\.users\.view"\)/);
+        assert.doesNotMatch(line(/router\.get\("\/:id",/), /platform\.users\.manage/);
         for (const re of [/"\/:id\/deactivate"/, /"\/:id\/reactivate"/, /admin\/reset-password/]) assert.match(src.slice(src.search(re), src.search(re) + 260), /platform\.users\.manage/);
         assert.doesNotMatch(src, /platform\.users\.view[^\n]*(deactivate|reactivate)/);
     });

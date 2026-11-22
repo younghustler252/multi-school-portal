@@ -10,7 +10,8 @@ import { z } from "zod";
 |   platform operator  staff of the platform itself (platformMember, with its platform roles). Independent of any school.
 | There are no `role` or `schoolId` fields on a user; do not look for them.
 |
-| Writes stay on platform.users.manage: POST /users/:id/deactivate, POST /users/:id/reactivate, GET /users/:id (summary).
+| Reads (GET /users and GET /users/:id, the safe summary) need platform.users.view.
+| Writes stay on platform.users.manage: POST /users/:id/deactivate, POST /users/:id/reactivate, POST /users/schools/:schoolId/admin/reset-password.
 | Errors: 400 invalid query, 401, 403 (no platform.users.view, or a school session).
 | Full contract: docs/api/contract-additions/platform-users.md
 */

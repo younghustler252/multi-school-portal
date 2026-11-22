@@ -1,6 +1,6 @@
 # Platform user list: `GET /api/v1/users`
 
-Types and query schema: `packages/contracts/src/platform-users.ts`. Platform realm only; permission **`platform.users.view`** (new, read-only, not sensitive). Writes keep `platform.users.manage` (`POST /users/:id/deactivate`, `/reactivate`, `POST /users/schools/:schoolId/admin/reset-password`). `GET /users/:id` (single summary) is unchanged and still needs `platform.users.manage`.
+Types and query schema: `packages/contracts/src/platform-users.ts`. Platform realm only; permission **`platform.users.view`** (new, read-only, not sensitive). Writes keep `platform.users.manage` (`POST /users/:id/deactivate`, `/reactivate`, `POST /users/schools/:schoolId/admin/reset-password`). `GET /users/:id` (single safe summary: `id, email, firstName, lastName, isActive, lastLoginAt`) is read-only and also needs `platform.users.view` (it was `platform.users.manage`; no other change to it).
 
 ## The data model behind it
 | Thing | Where | Listed here as |
