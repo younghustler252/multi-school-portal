@@ -88,6 +88,22 @@ export class FeeReportRepositoryImpl implements IFeeReportRepository {
         return (await this.db.studentGuardian.findMany({ where: { guardianId: personaEntityId }, select: { studentId: true } })).map(r => r.studentId);
     }
 
+    async invoiceForPayments(invoiceId: string) {
+        return this.db.feeInvoice.findUnique({ where: { id: invoiceId }, select: { id: true, studentId: true, status: true } });
+    }
+
+    async invoicePayments(invoiceId: string) {
+        const rows = await this.db.paymentAllocation.findMany({
+            where: { invoiceId, reversedAt: null, payment: { status: "CONFIRMED" } },
+            orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+            select: { amountKobo: true, createdAt: true, payment: { select: { id: true, method: true, status: true, reference: true, paidAt: true, createdAt: true, amountKobo: true, receipt: { select: { receiptNumber: true } } } } },
+        });
+        return rows.map(r => ({
+            paymentId: r.payment.id, allocatedKobo: r.amountKobo, allocatedAt: r.createdAt, method: r.payment.method, status: r.payment.status, reference: r.payment.reference,
+            paidAt: r.payment.paidAt, paymentCreatedAt: r.payment.createdAt, paymentTotalKobo: r.payment.amountKobo, receiptNumber: r.payment.receipt?.receiptNumber ?? null,
+        }));
+    }
+
     async familyInvoices(studentIds: string[], studentId?: string) {
         if (studentIds.length === 0) return [];
         const rows = await this.db.feeInvoice.findMany({
