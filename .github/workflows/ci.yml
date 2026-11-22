@@ -32,7 +32,21 @@ jobs:
       - name: Committed Prisma clients are up to date
         run: git diff --exit-code -- apps/api/src/generated
       - run: npm run typecheck -w apps/api
-      - run: npm test -w apps/api          # database tests are skipped unless TEST_DATABASE_URL is set; read the skips
+      - name: Diagnose per file (TEMPORARY)
+        shell: bash
+        working-directory: apps/api
+        run: |
+          mkdir -p /tmp/out; : > /tmp/summary.txt
+          for f in $(find tests -name '*.test.ts' | sort); do
+            timeout 100 npx tsx --import ./tests/setup/env.ts --test --test-reporter=spec "$f" > "/tmp/out/$(echo $f | tr / _).log" 2>&1; rc=$?
+            echo "$rc $f" >> /tmp/summary.txt
+          done
+          echo "=== SUMMARY (rc 0 pass, 1 fail, 124 hung)"; awk '{c[$1]++} END{for(k in c) print "rc="k": "c[k]}' /tmp/summary.txt
+          echo "=== HUNG"; grep '^124 ' /tmp/summary.txt || true
+          echo "=== FAILED"; grep '^1 ' /tmp/summary.txt || true
+          for f in $(grep -E '^(1|124) ' /tmp/summary.txt | awk '{print $2}'); do
+            echo "##### $f"; grep -E "^\s*(error:|✖|code:|message:|failureType|expected|actual)|Error:|AssertionError" "/tmp/out/$(echo $f | tr / _).log" | grep -v ECONNREFUSED | head -12 | cut -c1-240
+          done
 
   web:
     runs-on: ubuntu-latest
