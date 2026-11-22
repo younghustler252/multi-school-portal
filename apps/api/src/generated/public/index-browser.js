@@ -355,7 +355,25 @@ exports.Prisma.PaymentAttemptScalarFieldEnum = {
   providerStatus: 'providerStatus',
   failureReason: 'failureReason',
   createdAt: 'createdAt',
-  completedAt: 'completedAt'
+  completedAt: 'completedAt',
+  authorizationUrl: 'authorizationUrl',
+  checkoutKey: 'checkoutKey'
+};
+
+exports.Prisma.CapturedPaymentExceptionScalarFieldEnum = {
+  id: 'id',
+  attemptId: 'attemptId',
+  invoiceId: 'invoiceId',
+  schoolId: 'schoolId',
+  kind: 'kind',
+  reference: 'reference',
+  amountKobo: 'amountKobo',
+  detail: 'detail',
+  status: 'status',
+  resolution: 'resolution',
+  resolvedById: 'resolvedById',
+  resolvedAt: 'resolvedAt',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.PaymentMethodScalarFieldEnum = {
@@ -387,7 +405,9 @@ exports.Prisma.WebhookEventScalarFieldEnum = {
   payload: 'payload',
   receivedAt: 'receivedAt',
   processedAt: 'processedAt',
-  lastAttemptAt: 'lastAttemptAt'
+  lastAttemptAt: 'lastAttemptAt',
+  claimToken: 'claimToken',
+  claimExpiresAt: 'claimExpiresAt'
 };
 
 exports.Prisma.BillingNoticeScalarFieldEnum = {
@@ -820,8 +840,24 @@ exports.PaymentAttemptMethod = exports.$Enums.PaymentAttemptMethod = {
   manual: 'manual'
 };
 
+exports.CapturedPaymentExceptionKind = exports.$Enums.CapturedPaymentExceptionKind = {
+  paid_on_void: 'paid_on_void',
+  duplicate_payment: 'duplicate_payment',
+  amount_mismatch: 'amount_mismatch',
+  superseded: 'superseded',
+  coupon_exhausted: 'coupon_exhausted'
+};
+
+exports.CapturedPaymentExceptionStatus = exports.$Enums.CapturedPaymentExceptionStatus = {
+  open: 'open',
+  refunded: 'refunded',
+  applied_manually: 'applied_manually',
+  dismissed: 'dismissed'
+};
+
 exports.WebhookEventStatus = exports.$Enums.WebhookEventStatus = {
   received: 'received',
+  processing: 'processing',
   processed: 'processed',
   ignored: 'ignored',
   failed: 'failed'
@@ -967,6 +1003,7 @@ exports.Prisma.ModelName = {
   SubscriptionInvoice: 'SubscriptionInvoice',
   SubscriptionInvoiceItem: 'SubscriptionInvoiceItem',
   PaymentAttempt: 'PaymentAttempt',
+  CapturedPaymentException: 'CapturedPaymentException',
   PaymentMethod: 'PaymentMethod',
   WebhookEvent: 'WebhookEvent',
   BillingNotice: 'BillingNotice',

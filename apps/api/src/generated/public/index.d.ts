@@ -79,6 +79,11 @@ export type SubscriptionInvoiceItem = $Result.DefaultSelection<Prisma.$Subscript
  */
 export type PaymentAttempt = $Result.DefaultSelection<Prisma.$PaymentAttemptPayload>
 /**
+ * Model CapturedPaymentException
+ * 
+ */
+export type CapturedPaymentException = $Result.DefaultSelection<Prisma.$CapturedPaymentExceptionPayload>
+/**
  * Model PaymentMethod
  * 
  */
@@ -396,6 +401,7 @@ export type PaymentAttemptMethod = (typeof PaymentAttemptMethod)[keyof typeof Pa
 
 export const WebhookEventStatus: {
   received: 'received',
+  processing: 'processing',
   processed: 'processed',
   ignored: 'ignored',
   failed: 'failed'
@@ -533,6 +539,27 @@ export const FeedbackStatus: {
 };
 
 export type FeedbackStatus = (typeof FeedbackStatus)[keyof typeof FeedbackStatus]
+
+
+export const CapturedPaymentExceptionKind: {
+  paid_on_void: 'paid_on_void',
+  duplicate_payment: 'duplicate_payment',
+  amount_mismatch: 'amount_mismatch',
+  superseded: 'superseded',
+  coupon_exhausted: 'coupon_exhausted'
+};
+
+export type CapturedPaymentExceptionKind = (typeof CapturedPaymentExceptionKind)[keyof typeof CapturedPaymentExceptionKind]
+
+
+export const CapturedPaymentExceptionStatus: {
+  open: 'open',
+  refunded: 'refunded',
+  applied_manually: 'applied_manually',
+  dismissed: 'dismissed'
+};
+
+export type CapturedPaymentExceptionStatus = (typeof CapturedPaymentExceptionStatus)[keyof typeof CapturedPaymentExceptionStatus]
 
 
 export const LedgerAccountType: {
@@ -682,6 +709,14 @@ export const FeedbackType: typeof $Enums.FeedbackType
 export type FeedbackStatus = $Enums.FeedbackStatus
 
 export const FeedbackStatus: typeof $Enums.FeedbackStatus
+
+export type CapturedPaymentExceptionKind = $Enums.CapturedPaymentExceptionKind
+
+export const CapturedPaymentExceptionKind: typeof $Enums.CapturedPaymentExceptionKind
+
+export type CapturedPaymentExceptionStatus = $Enums.CapturedPaymentExceptionStatus
+
+export const CapturedPaymentExceptionStatus: typeof $Enums.CapturedPaymentExceptionStatus
 
 export type LedgerAccountType = $Enums.LedgerAccountType
 
@@ -937,6 +972,16 @@ export class PrismaClient<
     * ```
     */
   get paymentAttempt(): Prisma.PaymentAttemptDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.capturedPaymentException`: Exposes CRUD operations for the **CapturedPaymentException** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CapturedPaymentExceptions
+    * const capturedPaymentExceptions = await prisma.capturedPaymentException.findMany()
+    * ```
+    */
+  get capturedPaymentException(): Prisma.CapturedPaymentExceptionDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.paymentMethod`: Exposes CRUD operations for the **PaymentMethod** model.
@@ -1617,6 +1662,7 @@ export namespace Prisma {
     SubscriptionInvoice: 'SubscriptionInvoice',
     SubscriptionInvoiceItem: 'SubscriptionInvoiceItem',
     PaymentAttempt: 'PaymentAttempt',
+    CapturedPaymentException: 'CapturedPaymentException',
     PaymentMethod: 'PaymentMethod',
     WebhookEvent: 'WebhookEvent',
     BillingNotice: 'BillingNotice',
@@ -1654,7 +1700,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "school" | "schoolDocument" | "user" | "userSchool" | "otp" | "refreshToken" | "invite" | "plan" | "subscription" | "coupon" | "subscriptionInvoice" | "subscriptionInvoiceItem" | "paymentAttempt" | "paymentMethod" | "webhookEvent" | "billingNotice" | "platformSequence" | "platformRole" | "platformRolePermission" | "platformMember" | "platformMemberRole" | "permissionDefinition" | "roleTemplate" | "roleTemplatePermission" | "featureDefinition" | "planEntitlement" | "schoolEntitlementOverride" | "settingDefinition" | "messageTemplate" | "auditLog" | "platformNotification" | "platformNotificationRecipient" | "platformSettings" | "feedback" | "ledgerAccountTemplate"
+      modelProps: "school" | "schoolDocument" | "user" | "userSchool" | "otp" | "refreshToken" | "invite" | "plan" | "subscription" | "coupon" | "subscriptionInvoice" | "subscriptionInvoiceItem" | "paymentAttempt" | "capturedPaymentException" | "paymentMethod" | "webhookEvent" | "billingNotice" | "platformSequence" | "platformRole" | "platformRolePermission" | "platformMember" | "platformMemberRole" | "permissionDefinition" | "roleTemplate" | "roleTemplatePermission" | "featureDefinition" | "planEntitlement" | "schoolEntitlementOverride" | "settingDefinition" | "messageTemplate" | "auditLog" | "platformNotification" | "platformNotificationRecipient" | "platformSettings" | "feedback" | "ledgerAccountTemplate"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2617,6 +2663,80 @@ export namespace Prisma {
           count: {
             args: Prisma.PaymentAttemptCountArgs<ExtArgs>
             result: $Utils.Optional<PaymentAttemptCountAggregateOutputType> | number
+          }
+        }
+      }
+      CapturedPaymentException: {
+        payload: Prisma.$CapturedPaymentExceptionPayload<ExtArgs>
+        fields: Prisma.CapturedPaymentExceptionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CapturedPaymentExceptionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CapturedPaymentExceptionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CapturedPaymentExceptionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CapturedPaymentExceptionPayload>
+          }
+          findFirst: {
+            args: Prisma.CapturedPaymentExceptionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CapturedPaymentExceptionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CapturedPaymentExceptionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CapturedPaymentExceptionPayload>
+          }
+          findMany: {
+            args: Prisma.CapturedPaymentExceptionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CapturedPaymentExceptionPayload>[]
+          }
+          create: {
+            args: Prisma.CapturedPaymentExceptionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CapturedPaymentExceptionPayload>
+          }
+          createMany: {
+            args: Prisma.CapturedPaymentExceptionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.CapturedPaymentExceptionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CapturedPaymentExceptionPayload>[]
+          }
+          delete: {
+            args: Prisma.CapturedPaymentExceptionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CapturedPaymentExceptionPayload>
+          }
+          update: {
+            args: Prisma.CapturedPaymentExceptionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CapturedPaymentExceptionPayload>
+          }
+          deleteMany: {
+            args: Prisma.CapturedPaymentExceptionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CapturedPaymentExceptionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.CapturedPaymentExceptionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CapturedPaymentExceptionPayload>[]
+          }
+          upsert: {
+            args: Prisma.CapturedPaymentExceptionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CapturedPaymentExceptionPayload>
+          }
+          aggregate: {
+            args: Prisma.CapturedPaymentExceptionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCapturedPaymentException>
+          }
+          groupBy: {
+            args: Prisma.CapturedPaymentExceptionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CapturedPaymentExceptionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.CapturedPaymentExceptionCountArgs<ExtArgs>
+            result: $Utils.Optional<CapturedPaymentExceptionCountAggregateOutputType> | number
           }
         }
       }
@@ -4384,6 +4504,7 @@ export namespace Prisma {
     subscriptionInvoice?: SubscriptionInvoiceOmit
     subscriptionInvoiceItem?: SubscriptionInvoiceItemOmit
     paymentAttempt?: PaymentAttemptOmit
+    capturedPaymentException?: CapturedPaymentExceptionOmit
     paymentMethod?: PaymentMethodOmit
     webhookEvent?: WebhookEventOmit
     billingNotice?: BillingNoticeOmit
@@ -20358,6 +20479,8 @@ export namespace Prisma {
     failureReason: string | null
     createdAt: Date | null
     completedAt: Date | null
+    authorizationUrl: string | null
+    checkoutKey: string | null
   }
 
   export type PaymentAttemptMaxAggregateOutputType = {
@@ -20372,6 +20495,8 @@ export namespace Prisma {
     failureReason: string | null
     createdAt: Date | null
     completedAt: Date | null
+    authorizationUrl: string | null
+    checkoutKey: string | null
   }
 
   export type PaymentAttemptCountAggregateOutputType = {
@@ -20386,6 +20511,8 @@ export namespace Prisma {
     failureReason: number
     createdAt: number
     completedAt: number
+    authorizationUrl: number
+    checkoutKey: number
     _all: number
   }
 
@@ -20410,6 +20537,8 @@ export namespace Prisma {
     failureReason?: true
     createdAt?: true
     completedAt?: true
+    authorizationUrl?: true
+    checkoutKey?: true
   }
 
   export type PaymentAttemptMaxAggregateInputType = {
@@ -20424,6 +20553,8 @@ export namespace Prisma {
     failureReason?: true
     createdAt?: true
     completedAt?: true
+    authorizationUrl?: true
+    checkoutKey?: true
   }
 
   export type PaymentAttemptCountAggregateInputType = {
@@ -20438,6 +20569,8 @@ export namespace Prisma {
     failureReason?: true
     createdAt?: true
     completedAt?: true
+    authorizationUrl?: true
+    checkoutKey?: true
     _all?: true
   }
 
@@ -20539,6 +20672,8 @@ export namespace Prisma {
     failureReason: string | null
     createdAt: Date
     completedAt: Date | null
+    authorizationUrl: string | null
+    checkoutKey: string | null
     _count: PaymentAttemptCountAggregateOutputType | null
     _avg: PaymentAttemptAvgAggregateOutputType | null
     _sum: PaymentAttemptSumAggregateOutputType | null
@@ -20572,6 +20707,8 @@ export namespace Prisma {
     failureReason?: boolean
     createdAt?: boolean
     completedAt?: boolean
+    authorizationUrl?: boolean
+    checkoutKey?: boolean
     invoice?: boolean | SubscriptionInvoiceDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["paymentAttempt"]>
 
@@ -20587,6 +20724,8 @@ export namespace Prisma {
     failureReason?: boolean
     createdAt?: boolean
     completedAt?: boolean
+    authorizationUrl?: boolean
+    checkoutKey?: boolean
     invoice?: boolean | SubscriptionInvoiceDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["paymentAttempt"]>
 
@@ -20602,6 +20741,8 @@ export namespace Prisma {
     failureReason?: boolean
     createdAt?: boolean
     completedAt?: boolean
+    authorizationUrl?: boolean
+    checkoutKey?: boolean
     invoice?: boolean | SubscriptionInvoiceDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["paymentAttempt"]>
 
@@ -20617,9 +20758,11 @@ export namespace Prisma {
     failureReason?: boolean
     createdAt?: boolean
     completedAt?: boolean
+    authorizationUrl?: boolean
+    checkoutKey?: boolean
   }
 
-  export type PaymentAttemptOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "invoiceId" | "reference" | "amountKobo" | "status" | "method" | "paymentMethodId" | "providerStatus" | "failureReason" | "createdAt" | "completedAt", ExtArgs["result"]["paymentAttempt"]>
+  export type PaymentAttemptOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "invoiceId" | "reference" | "amountKobo" | "status" | "method" | "paymentMethodId" | "providerStatus" | "failureReason" | "createdAt" | "completedAt" | "authorizationUrl" | "checkoutKey", ExtArgs["result"]["paymentAttempt"]>
   export type PaymentAttemptInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     invoice?: boolean | SubscriptionInvoiceDefaultArgs<ExtArgs>
   }
@@ -20647,6 +20790,8 @@ export namespace Prisma {
       failureReason: string | null
       createdAt: Date
       completedAt: Date | null
+      authorizationUrl: string | null
+      checkoutKey: string | null
     }, ExtArgs["result"]["paymentAttempt"]>
     composites: {}
   }
@@ -21082,6 +21227,8 @@ export namespace Prisma {
     readonly failureReason: FieldRef<"PaymentAttempt", 'String'>
     readonly createdAt: FieldRef<"PaymentAttempt", 'DateTime'>
     readonly completedAt: FieldRef<"PaymentAttempt", 'DateTime'>
+    readonly authorizationUrl: FieldRef<"PaymentAttempt", 'String'>
+    readonly checkoutKey: FieldRef<"PaymentAttempt", 'String'>
   }
     
 
@@ -21498,6 +21645,1140 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: PaymentAttemptInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model CapturedPaymentException
+   */
+
+  export type AggregateCapturedPaymentException = {
+    _count: CapturedPaymentExceptionCountAggregateOutputType | null
+    _avg: CapturedPaymentExceptionAvgAggregateOutputType | null
+    _sum: CapturedPaymentExceptionSumAggregateOutputType | null
+    _min: CapturedPaymentExceptionMinAggregateOutputType | null
+    _max: CapturedPaymentExceptionMaxAggregateOutputType | null
+  }
+
+  export type CapturedPaymentExceptionAvgAggregateOutputType = {
+    amountKobo: number | null
+  }
+
+  export type CapturedPaymentExceptionSumAggregateOutputType = {
+    amountKobo: number | null
+  }
+
+  export type CapturedPaymentExceptionMinAggregateOutputType = {
+    id: string | null
+    attemptId: string | null
+    invoiceId: string | null
+    schoolId: string | null
+    kind: $Enums.CapturedPaymentExceptionKind | null
+    reference: string | null
+    amountKobo: number | null
+    status: $Enums.CapturedPaymentExceptionStatus | null
+    resolution: string | null
+    resolvedById: string | null
+    resolvedAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type CapturedPaymentExceptionMaxAggregateOutputType = {
+    id: string | null
+    attemptId: string | null
+    invoiceId: string | null
+    schoolId: string | null
+    kind: $Enums.CapturedPaymentExceptionKind | null
+    reference: string | null
+    amountKobo: number | null
+    status: $Enums.CapturedPaymentExceptionStatus | null
+    resolution: string | null
+    resolvedById: string | null
+    resolvedAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type CapturedPaymentExceptionCountAggregateOutputType = {
+    id: number
+    attemptId: number
+    invoiceId: number
+    schoolId: number
+    kind: number
+    reference: number
+    amountKobo: number
+    detail: number
+    status: number
+    resolution: number
+    resolvedById: number
+    resolvedAt: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type CapturedPaymentExceptionAvgAggregateInputType = {
+    amountKobo?: true
+  }
+
+  export type CapturedPaymentExceptionSumAggregateInputType = {
+    amountKobo?: true
+  }
+
+  export type CapturedPaymentExceptionMinAggregateInputType = {
+    id?: true
+    attemptId?: true
+    invoiceId?: true
+    schoolId?: true
+    kind?: true
+    reference?: true
+    amountKobo?: true
+    status?: true
+    resolution?: true
+    resolvedById?: true
+    resolvedAt?: true
+    createdAt?: true
+  }
+
+  export type CapturedPaymentExceptionMaxAggregateInputType = {
+    id?: true
+    attemptId?: true
+    invoiceId?: true
+    schoolId?: true
+    kind?: true
+    reference?: true
+    amountKobo?: true
+    status?: true
+    resolution?: true
+    resolvedById?: true
+    resolvedAt?: true
+    createdAt?: true
+  }
+
+  export type CapturedPaymentExceptionCountAggregateInputType = {
+    id?: true
+    attemptId?: true
+    invoiceId?: true
+    schoolId?: true
+    kind?: true
+    reference?: true
+    amountKobo?: true
+    detail?: true
+    status?: true
+    resolution?: true
+    resolvedById?: true
+    resolvedAt?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type CapturedPaymentExceptionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CapturedPaymentException to aggregate.
+     */
+    where?: CapturedPaymentExceptionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CapturedPaymentExceptions to fetch.
+     */
+    orderBy?: CapturedPaymentExceptionOrderByWithRelationInput | CapturedPaymentExceptionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CapturedPaymentExceptionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CapturedPaymentExceptions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CapturedPaymentExceptions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned CapturedPaymentExceptions
+    **/
+    _count?: true | CapturedPaymentExceptionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: CapturedPaymentExceptionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: CapturedPaymentExceptionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CapturedPaymentExceptionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CapturedPaymentExceptionMaxAggregateInputType
+  }
+
+  export type GetCapturedPaymentExceptionAggregateType<T extends CapturedPaymentExceptionAggregateArgs> = {
+        [P in keyof T & keyof AggregateCapturedPaymentException]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCapturedPaymentException[P]>
+      : GetScalarType<T[P], AggregateCapturedPaymentException[P]>
+  }
+
+
+
+
+  export type CapturedPaymentExceptionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CapturedPaymentExceptionWhereInput
+    orderBy?: CapturedPaymentExceptionOrderByWithAggregationInput | CapturedPaymentExceptionOrderByWithAggregationInput[]
+    by: CapturedPaymentExceptionScalarFieldEnum[] | CapturedPaymentExceptionScalarFieldEnum
+    having?: CapturedPaymentExceptionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CapturedPaymentExceptionCountAggregateInputType | true
+    _avg?: CapturedPaymentExceptionAvgAggregateInputType
+    _sum?: CapturedPaymentExceptionSumAggregateInputType
+    _min?: CapturedPaymentExceptionMinAggregateInputType
+    _max?: CapturedPaymentExceptionMaxAggregateInputType
+  }
+
+  export type CapturedPaymentExceptionGroupByOutputType = {
+    id: string
+    attemptId: string
+    invoiceId: string
+    schoolId: string
+    kind: $Enums.CapturedPaymentExceptionKind
+    reference: string
+    amountKobo: number
+    detail: JsonValue | null
+    status: $Enums.CapturedPaymentExceptionStatus
+    resolution: string | null
+    resolvedById: string | null
+    resolvedAt: Date | null
+    createdAt: Date
+    _count: CapturedPaymentExceptionCountAggregateOutputType | null
+    _avg: CapturedPaymentExceptionAvgAggregateOutputType | null
+    _sum: CapturedPaymentExceptionSumAggregateOutputType | null
+    _min: CapturedPaymentExceptionMinAggregateOutputType | null
+    _max: CapturedPaymentExceptionMaxAggregateOutputType | null
+  }
+
+  type GetCapturedPaymentExceptionGroupByPayload<T extends CapturedPaymentExceptionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CapturedPaymentExceptionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CapturedPaymentExceptionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CapturedPaymentExceptionGroupByOutputType[P]>
+            : GetScalarType<T[P], CapturedPaymentExceptionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CapturedPaymentExceptionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    attemptId?: boolean
+    invoiceId?: boolean
+    schoolId?: boolean
+    kind?: boolean
+    reference?: boolean
+    amountKobo?: boolean
+    detail?: boolean
+    status?: boolean
+    resolution?: boolean
+    resolvedById?: boolean
+    resolvedAt?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["capturedPaymentException"]>
+
+  export type CapturedPaymentExceptionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    attemptId?: boolean
+    invoiceId?: boolean
+    schoolId?: boolean
+    kind?: boolean
+    reference?: boolean
+    amountKobo?: boolean
+    detail?: boolean
+    status?: boolean
+    resolution?: boolean
+    resolvedById?: boolean
+    resolvedAt?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["capturedPaymentException"]>
+
+  export type CapturedPaymentExceptionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    attemptId?: boolean
+    invoiceId?: boolean
+    schoolId?: boolean
+    kind?: boolean
+    reference?: boolean
+    amountKobo?: boolean
+    detail?: boolean
+    status?: boolean
+    resolution?: boolean
+    resolvedById?: boolean
+    resolvedAt?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["capturedPaymentException"]>
+
+  export type CapturedPaymentExceptionSelectScalar = {
+    id?: boolean
+    attemptId?: boolean
+    invoiceId?: boolean
+    schoolId?: boolean
+    kind?: boolean
+    reference?: boolean
+    amountKobo?: boolean
+    detail?: boolean
+    status?: boolean
+    resolution?: boolean
+    resolvedById?: boolean
+    resolvedAt?: boolean
+    createdAt?: boolean
+  }
+
+  export type CapturedPaymentExceptionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "attemptId" | "invoiceId" | "schoolId" | "kind" | "reference" | "amountKobo" | "detail" | "status" | "resolution" | "resolvedById" | "resolvedAt" | "createdAt", ExtArgs["result"]["capturedPaymentException"]>
+
+  export type $CapturedPaymentExceptionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "CapturedPaymentException"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      attemptId: string
+      invoiceId: string
+      schoolId: string
+      kind: $Enums.CapturedPaymentExceptionKind
+      reference: string
+      amountKobo: number
+      detail: Prisma.JsonValue | null
+      status: $Enums.CapturedPaymentExceptionStatus
+      resolution: string | null
+      resolvedById: string | null
+      resolvedAt: Date | null
+      createdAt: Date
+    }, ExtArgs["result"]["capturedPaymentException"]>
+    composites: {}
+  }
+
+  type CapturedPaymentExceptionGetPayload<S extends boolean | null | undefined | CapturedPaymentExceptionDefaultArgs> = $Result.GetResult<Prisma.$CapturedPaymentExceptionPayload, S>
+
+  type CapturedPaymentExceptionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<CapturedPaymentExceptionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: CapturedPaymentExceptionCountAggregateInputType | true
+    }
+
+  export interface CapturedPaymentExceptionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CapturedPaymentException'], meta: { name: 'CapturedPaymentException' } }
+    /**
+     * Find zero or one CapturedPaymentException that matches the filter.
+     * @param {CapturedPaymentExceptionFindUniqueArgs} args - Arguments to find a CapturedPaymentException
+     * @example
+     * // Get one CapturedPaymentException
+     * const capturedPaymentException = await prisma.capturedPaymentException.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CapturedPaymentExceptionFindUniqueArgs>(args: SelectSubset<T, CapturedPaymentExceptionFindUniqueArgs<ExtArgs>>): Prisma__CapturedPaymentExceptionClient<$Result.GetResult<Prisma.$CapturedPaymentExceptionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one CapturedPaymentException that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {CapturedPaymentExceptionFindUniqueOrThrowArgs} args - Arguments to find a CapturedPaymentException
+     * @example
+     * // Get one CapturedPaymentException
+     * const capturedPaymentException = await prisma.capturedPaymentException.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CapturedPaymentExceptionFindUniqueOrThrowArgs>(args: SelectSubset<T, CapturedPaymentExceptionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CapturedPaymentExceptionClient<$Result.GetResult<Prisma.$CapturedPaymentExceptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CapturedPaymentException that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CapturedPaymentExceptionFindFirstArgs} args - Arguments to find a CapturedPaymentException
+     * @example
+     * // Get one CapturedPaymentException
+     * const capturedPaymentException = await prisma.capturedPaymentException.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CapturedPaymentExceptionFindFirstArgs>(args?: SelectSubset<T, CapturedPaymentExceptionFindFirstArgs<ExtArgs>>): Prisma__CapturedPaymentExceptionClient<$Result.GetResult<Prisma.$CapturedPaymentExceptionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CapturedPaymentException that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CapturedPaymentExceptionFindFirstOrThrowArgs} args - Arguments to find a CapturedPaymentException
+     * @example
+     * // Get one CapturedPaymentException
+     * const capturedPaymentException = await prisma.capturedPaymentException.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CapturedPaymentExceptionFindFirstOrThrowArgs>(args?: SelectSubset<T, CapturedPaymentExceptionFindFirstOrThrowArgs<ExtArgs>>): Prisma__CapturedPaymentExceptionClient<$Result.GetResult<Prisma.$CapturedPaymentExceptionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more CapturedPaymentExceptions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CapturedPaymentExceptionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all CapturedPaymentExceptions
+     * const capturedPaymentExceptions = await prisma.capturedPaymentException.findMany()
+     * 
+     * // Get first 10 CapturedPaymentExceptions
+     * const capturedPaymentExceptions = await prisma.capturedPaymentException.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const capturedPaymentExceptionWithIdOnly = await prisma.capturedPaymentException.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends CapturedPaymentExceptionFindManyArgs>(args?: SelectSubset<T, CapturedPaymentExceptionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CapturedPaymentExceptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a CapturedPaymentException.
+     * @param {CapturedPaymentExceptionCreateArgs} args - Arguments to create a CapturedPaymentException.
+     * @example
+     * // Create one CapturedPaymentException
+     * const CapturedPaymentException = await prisma.capturedPaymentException.create({
+     *   data: {
+     *     // ... data to create a CapturedPaymentException
+     *   }
+     * })
+     * 
+     */
+    create<T extends CapturedPaymentExceptionCreateArgs>(args: SelectSubset<T, CapturedPaymentExceptionCreateArgs<ExtArgs>>): Prisma__CapturedPaymentExceptionClient<$Result.GetResult<Prisma.$CapturedPaymentExceptionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many CapturedPaymentExceptions.
+     * @param {CapturedPaymentExceptionCreateManyArgs} args - Arguments to create many CapturedPaymentExceptions.
+     * @example
+     * // Create many CapturedPaymentExceptions
+     * const capturedPaymentException = await prisma.capturedPaymentException.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CapturedPaymentExceptionCreateManyArgs>(args?: SelectSubset<T, CapturedPaymentExceptionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many CapturedPaymentExceptions and returns the data saved in the database.
+     * @param {CapturedPaymentExceptionCreateManyAndReturnArgs} args - Arguments to create many CapturedPaymentExceptions.
+     * @example
+     * // Create many CapturedPaymentExceptions
+     * const capturedPaymentException = await prisma.capturedPaymentException.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many CapturedPaymentExceptions and only return the `id`
+     * const capturedPaymentExceptionWithIdOnly = await prisma.capturedPaymentException.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends CapturedPaymentExceptionCreateManyAndReturnArgs>(args?: SelectSubset<T, CapturedPaymentExceptionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CapturedPaymentExceptionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a CapturedPaymentException.
+     * @param {CapturedPaymentExceptionDeleteArgs} args - Arguments to delete one CapturedPaymentException.
+     * @example
+     * // Delete one CapturedPaymentException
+     * const CapturedPaymentException = await prisma.capturedPaymentException.delete({
+     *   where: {
+     *     // ... filter to delete one CapturedPaymentException
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CapturedPaymentExceptionDeleteArgs>(args: SelectSubset<T, CapturedPaymentExceptionDeleteArgs<ExtArgs>>): Prisma__CapturedPaymentExceptionClient<$Result.GetResult<Prisma.$CapturedPaymentExceptionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one CapturedPaymentException.
+     * @param {CapturedPaymentExceptionUpdateArgs} args - Arguments to update one CapturedPaymentException.
+     * @example
+     * // Update one CapturedPaymentException
+     * const capturedPaymentException = await prisma.capturedPaymentException.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CapturedPaymentExceptionUpdateArgs>(args: SelectSubset<T, CapturedPaymentExceptionUpdateArgs<ExtArgs>>): Prisma__CapturedPaymentExceptionClient<$Result.GetResult<Prisma.$CapturedPaymentExceptionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more CapturedPaymentExceptions.
+     * @param {CapturedPaymentExceptionDeleteManyArgs} args - Arguments to filter CapturedPaymentExceptions to delete.
+     * @example
+     * // Delete a few CapturedPaymentExceptions
+     * const { count } = await prisma.capturedPaymentException.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CapturedPaymentExceptionDeleteManyArgs>(args?: SelectSubset<T, CapturedPaymentExceptionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CapturedPaymentExceptions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CapturedPaymentExceptionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many CapturedPaymentExceptions
+     * const capturedPaymentException = await prisma.capturedPaymentException.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CapturedPaymentExceptionUpdateManyArgs>(args: SelectSubset<T, CapturedPaymentExceptionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CapturedPaymentExceptions and returns the data updated in the database.
+     * @param {CapturedPaymentExceptionUpdateManyAndReturnArgs} args - Arguments to update many CapturedPaymentExceptions.
+     * @example
+     * // Update many CapturedPaymentExceptions
+     * const capturedPaymentException = await prisma.capturedPaymentException.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more CapturedPaymentExceptions and only return the `id`
+     * const capturedPaymentExceptionWithIdOnly = await prisma.capturedPaymentException.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends CapturedPaymentExceptionUpdateManyAndReturnArgs>(args: SelectSubset<T, CapturedPaymentExceptionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CapturedPaymentExceptionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one CapturedPaymentException.
+     * @param {CapturedPaymentExceptionUpsertArgs} args - Arguments to update or create a CapturedPaymentException.
+     * @example
+     * // Update or create a CapturedPaymentException
+     * const capturedPaymentException = await prisma.capturedPaymentException.upsert({
+     *   create: {
+     *     // ... data to create a CapturedPaymentException
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the CapturedPaymentException we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CapturedPaymentExceptionUpsertArgs>(args: SelectSubset<T, CapturedPaymentExceptionUpsertArgs<ExtArgs>>): Prisma__CapturedPaymentExceptionClient<$Result.GetResult<Prisma.$CapturedPaymentExceptionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of CapturedPaymentExceptions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CapturedPaymentExceptionCountArgs} args - Arguments to filter CapturedPaymentExceptions to count.
+     * @example
+     * // Count the number of CapturedPaymentExceptions
+     * const count = await prisma.capturedPaymentException.count({
+     *   where: {
+     *     // ... the filter for the CapturedPaymentExceptions we want to count
+     *   }
+     * })
+    **/
+    count<T extends CapturedPaymentExceptionCountArgs>(
+      args?: Subset<T, CapturedPaymentExceptionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CapturedPaymentExceptionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a CapturedPaymentException.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CapturedPaymentExceptionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CapturedPaymentExceptionAggregateArgs>(args: Subset<T, CapturedPaymentExceptionAggregateArgs>): Prisma.PrismaPromise<GetCapturedPaymentExceptionAggregateType<T>>
+
+    /**
+     * Group by CapturedPaymentException.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CapturedPaymentExceptionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CapturedPaymentExceptionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CapturedPaymentExceptionGroupByArgs['orderBy'] }
+        : { orderBy?: CapturedPaymentExceptionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CapturedPaymentExceptionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCapturedPaymentExceptionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the CapturedPaymentException model
+   */
+  readonly fields: CapturedPaymentExceptionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for CapturedPaymentException.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CapturedPaymentExceptionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the CapturedPaymentException model
+   */
+  interface CapturedPaymentExceptionFieldRefs {
+    readonly id: FieldRef<"CapturedPaymentException", 'String'>
+    readonly attemptId: FieldRef<"CapturedPaymentException", 'String'>
+    readonly invoiceId: FieldRef<"CapturedPaymentException", 'String'>
+    readonly schoolId: FieldRef<"CapturedPaymentException", 'String'>
+    readonly kind: FieldRef<"CapturedPaymentException", 'CapturedPaymentExceptionKind'>
+    readonly reference: FieldRef<"CapturedPaymentException", 'String'>
+    readonly amountKobo: FieldRef<"CapturedPaymentException", 'Int'>
+    readonly detail: FieldRef<"CapturedPaymentException", 'Json'>
+    readonly status: FieldRef<"CapturedPaymentException", 'CapturedPaymentExceptionStatus'>
+    readonly resolution: FieldRef<"CapturedPaymentException", 'String'>
+    readonly resolvedById: FieldRef<"CapturedPaymentException", 'String'>
+    readonly resolvedAt: FieldRef<"CapturedPaymentException", 'DateTime'>
+    readonly createdAt: FieldRef<"CapturedPaymentException", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * CapturedPaymentException findUnique
+   */
+  export type CapturedPaymentExceptionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CapturedPaymentException
+     */
+    select?: CapturedPaymentExceptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CapturedPaymentException
+     */
+    omit?: CapturedPaymentExceptionOmit<ExtArgs> | null
+    /**
+     * Filter, which CapturedPaymentException to fetch.
+     */
+    where: CapturedPaymentExceptionWhereUniqueInput
+  }
+
+  /**
+   * CapturedPaymentException findUniqueOrThrow
+   */
+  export type CapturedPaymentExceptionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CapturedPaymentException
+     */
+    select?: CapturedPaymentExceptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CapturedPaymentException
+     */
+    omit?: CapturedPaymentExceptionOmit<ExtArgs> | null
+    /**
+     * Filter, which CapturedPaymentException to fetch.
+     */
+    where: CapturedPaymentExceptionWhereUniqueInput
+  }
+
+  /**
+   * CapturedPaymentException findFirst
+   */
+  export type CapturedPaymentExceptionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CapturedPaymentException
+     */
+    select?: CapturedPaymentExceptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CapturedPaymentException
+     */
+    omit?: CapturedPaymentExceptionOmit<ExtArgs> | null
+    /**
+     * Filter, which CapturedPaymentException to fetch.
+     */
+    where?: CapturedPaymentExceptionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CapturedPaymentExceptions to fetch.
+     */
+    orderBy?: CapturedPaymentExceptionOrderByWithRelationInput | CapturedPaymentExceptionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CapturedPaymentExceptions.
+     */
+    cursor?: CapturedPaymentExceptionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CapturedPaymentExceptions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CapturedPaymentExceptions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CapturedPaymentExceptions.
+     */
+    distinct?: CapturedPaymentExceptionScalarFieldEnum | CapturedPaymentExceptionScalarFieldEnum[]
+  }
+
+  /**
+   * CapturedPaymentException findFirstOrThrow
+   */
+  export type CapturedPaymentExceptionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CapturedPaymentException
+     */
+    select?: CapturedPaymentExceptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CapturedPaymentException
+     */
+    omit?: CapturedPaymentExceptionOmit<ExtArgs> | null
+    /**
+     * Filter, which CapturedPaymentException to fetch.
+     */
+    where?: CapturedPaymentExceptionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CapturedPaymentExceptions to fetch.
+     */
+    orderBy?: CapturedPaymentExceptionOrderByWithRelationInput | CapturedPaymentExceptionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CapturedPaymentExceptions.
+     */
+    cursor?: CapturedPaymentExceptionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CapturedPaymentExceptions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CapturedPaymentExceptions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CapturedPaymentExceptions.
+     */
+    distinct?: CapturedPaymentExceptionScalarFieldEnum | CapturedPaymentExceptionScalarFieldEnum[]
+  }
+
+  /**
+   * CapturedPaymentException findMany
+   */
+  export type CapturedPaymentExceptionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CapturedPaymentException
+     */
+    select?: CapturedPaymentExceptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CapturedPaymentException
+     */
+    omit?: CapturedPaymentExceptionOmit<ExtArgs> | null
+    /**
+     * Filter, which CapturedPaymentExceptions to fetch.
+     */
+    where?: CapturedPaymentExceptionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CapturedPaymentExceptions to fetch.
+     */
+    orderBy?: CapturedPaymentExceptionOrderByWithRelationInput | CapturedPaymentExceptionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing CapturedPaymentExceptions.
+     */
+    cursor?: CapturedPaymentExceptionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CapturedPaymentExceptions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CapturedPaymentExceptions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CapturedPaymentExceptions.
+     */
+    distinct?: CapturedPaymentExceptionScalarFieldEnum | CapturedPaymentExceptionScalarFieldEnum[]
+  }
+
+  /**
+   * CapturedPaymentException create
+   */
+  export type CapturedPaymentExceptionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CapturedPaymentException
+     */
+    select?: CapturedPaymentExceptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CapturedPaymentException
+     */
+    omit?: CapturedPaymentExceptionOmit<ExtArgs> | null
+    /**
+     * The data needed to create a CapturedPaymentException.
+     */
+    data: XOR<CapturedPaymentExceptionCreateInput, CapturedPaymentExceptionUncheckedCreateInput>
+  }
+
+  /**
+   * CapturedPaymentException createMany
+   */
+  export type CapturedPaymentExceptionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many CapturedPaymentExceptions.
+     */
+    data: CapturedPaymentExceptionCreateManyInput | CapturedPaymentExceptionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * CapturedPaymentException createManyAndReturn
+   */
+  export type CapturedPaymentExceptionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CapturedPaymentException
+     */
+    select?: CapturedPaymentExceptionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CapturedPaymentException
+     */
+    omit?: CapturedPaymentExceptionOmit<ExtArgs> | null
+    /**
+     * The data used to create many CapturedPaymentExceptions.
+     */
+    data: CapturedPaymentExceptionCreateManyInput | CapturedPaymentExceptionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * CapturedPaymentException update
+   */
+  export type CapturedPaymentExceptionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CapturedPaymentException
+     */
+    select?: CapturedPaymentExceptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CapturedPaymentException
+     */
+    omit?: CapturedPaymentExceptionOmit<ExtArgs> | null
+    /**
+     * The data needed to update a CapturedPaymentException.
+     */
+    data: XOR<CapturedPaymentExceptionUpdateInput, CapturedPaymentExceptionUncheckedUpdateInput>
+    /**
+     * Choose, which CapturedPaymentException to update.
+     */
+    where: CapturedPaymentExceptionWhereUniqueInput
+  }
+
+  /**
+   * CapturedPaymentException updateMany
+   */
+  export type CapturedPaymentExceptionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update CapturedPaymentExceptions.
+     */
+    data: XOR<CapturedPaymentExceptionUpdateManyMutationInput, CapturedPaymentExceptionUncheckedUpdateManyInput>
+    /**
+     * Filter which CapturedPaymentExceptions to update
+     */
+    where?: CapturedPaymentExceptionWhereInput
+    /**
+     * Limit how many CapturedPaymentExceptions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * CapturedPaymentException updateManyAndReturn
+   */
+  export type CapturedPaymentExceptionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CapturedPaymentException
+     */
+    select?: CapturedPaymentExceptionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CapturedPaymentException
+     */
+    omit?: CapturedPaymentExceptionOmit<ExtArgs> | null
+    /**
+     * The data used to update CapturedPaymentExceptions.
+     */
+    data: XOR<CapturedPaymentExceptionUpdateManyMutationInput, CapturedPaymentExceptionUncheckedUpdateManyInput>
+    /**
+     * Filter which CapturedPaymentExceptions to update
+     */
+    where?: CapturedPaymentExceptionWhereInput
+    /**
+     * Limit how many CapturedPaymentExceptions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * CapturedPaymentException upsert
+   */
+  export type CapturedPaymentExceptionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CapturedPaymentException
+     */
+    select?: CapturedPaymentExceptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CapturedPaymentException
+     */
+    omit?: CapturedPaymentExceptionOmit<ExtArgs> | null
+    /**
+     * The filter to search for the CapturedPaymentException to update in case it exists.
+     */
+    where: CapturedPaymentExceptionWhereUniqueInput
+    /**
+     * In case the CapturedPaymentException found by the `where` argument doesn't exist, create a new CapturedPaymentException with this data.
+     */
+    create: XOR<CapturedPaymentExceptionCreateInput, CapturedPaymentExceptionUncheckedCreateInput>
+    /**
+     * In case the CapturedPaymentException was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CapturedPaymentExceptionUpdateInput, CapturedPaymentExceptionUncheckedUpdateInput>
+  }
+
+  /**
+   * CapturedPaymentException delete
+   */
+  export type CapturedPaymentExceptionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CapturedPaymentException
+     */
+    select?: CapturedPaymentExceptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CapturedPaymentException
+     */
+    omit?: CapturedPaymentExceptionOmit<ExtArgs> | null
+    /**
+     * Filter which CapturedPaymentException to delete.
+     */
+    where: CapturedPaymentExceptionWhereUniqueInput
+  }
+
+  /**
+   * CapturedPaymentException deleteMany
+   */
+  export type CapturedPaymentExceptionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CapturedPaymentExceptions to delete
+     */
+    where?: CapturedPaymentExceptionWhereInput
+    /**
+     * Limit how many CapturedPaymentExceptions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * CapturedPaymentException without action
+   */
+  export type CapturedPaymentExceptionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CapturedPaymentException
+     */
+    select?: CapturedPaymentExceptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CapturedPaymentException
+     */
+    omit?: CapturedPaymentExceptionOmit<ExtArgs> | null
   }
 
 
@@ -22751,6 +24032,8 @@ export namespace Prisma {
     receivedAt: Date | null
     processedAt: Date | null
     lastAttemptAt: Date | null
+    claimToken: string | null
+    claimExpiresAt: Date | null
   }
 
   export type WebhookEventMaxAggregateOutputType = {
@@ -22765,6 +24048,8 @@ export namespace Prisma {
     receivedAt: Date | null
     processedAt: Date | null
     lastAttemptAt: Date | null
+    claimToken: string | null
+    claimExpiresAt: Date | null
   }
 
   export type WebhookEventCountAggregateOutputType = {
@@ -22780,6 +24065,8 @@ export namespace Prisma {
     receivedAt: number
     processedAt: number
     lastAttemptAt: number
+    claimToken: number
+    claimExpiresAt: number
     _all: number
   }
 
@@ -22804,6 +24091,8 @@ export namespace Prisma {
     receivedAt?: true
     processedAt?: true
     lastAttemptAt?: true
+    claimToken?: true
+    claimExpiresAt?: true
   }
 
   export type WebhookEventMaxAggregateInputType = {
@@ -22818,6 +24107,8 @@ export namespace Prisma {
     receivedAt?: true
     processedAt?: true
     lastAttemptAt?: true
+    claimToken?: true
+    claimExpiresAt?: true
   }
 
   export type WebhookEventCountAggregateInputType = {
@@ -22833,6 +24124,8 @@ export namespace Prisma {
     receivedAt?: true
     processedAt?: true
     lastAttemptAt?: true
+    claimToken?: true
+    claimExpiresAt?: true
     _all?: true
   }
 
@@ -22935,6 +24228,8 @@ export namespace Prisma {
     receivedAt: Date
     processedAt: Date | null
     lastAttemptAt: Date | null
+    claimToken: string | null
+    claimExpiresAt: Date | null
     _count: WebhookEventCountAggregateOutputType | null
     _avg: WebhookEventAvgAggregateOutputType | null
     _sum: WebhookEventSumAggregateOutputType | null
@@ -22969,6 +24264,8 @@ export namespace Prisma {
     receivedAt?: boolean
     processedAt?: boolean
     lastAttemptAt?: boolean
+    claimToken?: boolean
+    claimExpiresAt?: boolean
   }, ExtArgs["result"]["webhookEvent"]>
 
   export type WebhookEventSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -22984,6 +24281,8 @@ export namespace Prisma {
     receivedAt?: boolean
     processedAt?: boolean
     lastAttemptAt?: boolean
+    claimToken?: boolean
+    claimExpiresAt?: boolean
   }, ExtArgs["result"]["webhookEvent"]>
 
   export type WebhookEventSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -22999,6 +24298,8 @@ export namespace Prisma {
     receivedAt?: boolean
     processedAt?: boolean
     lastAttemptAt?: boolean
+    claimToken?: boolean
+    claimExpiresAt?: boolean
   }, ExtArgs["result"]["webhookEvent"]>
 
   export type WebhookEventSelectScalar = {
@@ -23014,9 +24315,11 @@ export namespace Prisma {
     receivedAt?: boolean
     processedAt?: boolean
     lastAttemptAt?: boolean
+    claimToken?: boolean
+    claimExpiresAt?: boolean
   }
 
-  export type WebhookEventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "provider" | "eventKey" | "eventType" | "reference" | "status" | "error" | "attempts" | "payload" | "receivedAt" | "processedAt" | "lastAttemptAt", ExtArgs["result"]["webhookEvent"]>
+  export type WebhookEventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "provider" | "eventKey" | "eventType" | "reference" | "status" | "error" | "attempts" | "payload" | "receivedAt" | "processedAt" | "lastAttemptAt" | "claimToken" | "claimExpiresAt", ExtArgs["result"]["webhookEvent"]>
 
   export type $WebhookEventPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "WebhookEvent"
@@ -23034,6 +24337,8 @@ export namespace Prisma {
       receivedAt: Date
       processedAt: Date | null
       lastAttemptAt: Date | null
+      claimToken: string | null
+      claimExpiresAt: Date | null
     }, ExtArgs["result"]["webhookEvent"]>
     composites: {}
   }
@@ -23469,6 +24774,8 @@ export namespace Prisma {
     readonly receivedAt: FieldRef<"WebhookEvent", 'DateTime'>
     readonly processedAt: FieldRef<"WebhookEvent", 'DateTime'>
     readonly lastAttemptAt: FieldRef<"WebhookEvent", 'DateTime'>
+    readonly claimToken: FieldRef<"WebhookEvent", 'String'>
+    readonly claimExpiresAt: FieldRef<"WebhookEvent", 'DateTime'>
   }
     
 
@@ -47260,10 +48567,31 @@ export namespace Prisma {
     providerStatus: 'providerStatus',
     failureReason: 'failureReason',
     createdAt: 'createdAt',
-    completedAt: 'completedAt'
+    completedAt: 'completedAt',
+    authorizationUrl: 'authorizationUrl',
+    checkoutKey: 'checkoutKey'
   };
 
   export type PaymentAttemptScalarFieldEnum = (typeof PaymentAttemptScalarFieldEnum)[keyof typeof PaymentAttemptScalarFieldEnum]
+
+
+  export const CapturedPaymentExceptionScalarFieldEnum: {
+    id: 'id',
+    attemptId: 'attemptId',
+    invoiceId: 'invoiceId',
+    schoolId: 'schoolId',
+    kind: 'kind',
+    reference: 'reference',
+    amountKobo: 'amountKobo',
+    detail: 'detail',
+    status: 'status',
+    resolution: 'resolution',
+    resolvedById: 'resolvedById',
+    resolvedAt: 'resolvedAt',
+    createdAt: 'createdAt'
+  };
+
+  export type CapturedPaymentExceptionScalarFieldEnum = (typeof CapturedPaymentExceptionScalarFieldEnum)[keyof typeof CapturedPaymentExceptionScalarFieldEnum]
 
 
   export const PaymentMethodScalarFieldEnum: {
@@ -47298,7 +48626,9 @@ export namespace Prisma {
     payload: 'payload',
     receivedAt: 'receivedAt',
     processedAt: 'processedAt',
-    lastAttemptAt: 'lastAttemptAt'
+    lastAttemptAt: 'lastAttemptAt',
+    claimToken: 'claimToken',
+    claimExpiresAt: 'claimExpiresAt'
   };
 
   export type WebhookEventScalarFieldEnum = (typeof WebhookEventScalarFieldEnum)[keyof typeof WebhookEventScalarFieldEnum]
@@ -48001,6 +49331,34 @@ export namespace Prisma {
    * Reference to a field of type 'PaymentAttemptMethod[]'
    */
   export type ListEnumPaymentAttemptMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentAttemptMethod[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'CapturedPaymentExceptionKind'
+   */
+  export type EnumCapturedPaymentExceptionKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CapturedPaymentExceptionKind'>
+    
+
+
+  /**
+   * Reference to a field of type 'CapturedPaymentExceptionKind[]'
+   */
+  export type ListEnumCapturedPaymentExceptionKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CapturedPaymentExceptionKind[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'CapturedPaymentExceptionStatus'
+   */
+  export type EnumCapturedPaymentExceptionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CapturedPaymentExceptionStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'CapturedPaymentExceptionStatus[]'
+   */
+  export type ListEnumCapturedPaymentExceptionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CapturedPaymentExceptionStatus[]'>
     
 
 
@@ -49672,6 +51030,8 @@ export namespace Prisma {
     failureReason?: StringNullableFilter<"PaymentAttempt"> | string | null
     createdAt?: DateTimeFilter<"PaymentAttempt"> | Date | string
     completedAt?: DateTimeNullableFilter<"PaymentAttempt"> | Date | string | null
+    authorizationUrl?: StringNullableFilter<"PaymentAttempt"> | string | null
+    checkoutKey?: StringNullableFilter<"PaymentAttempt"> | string | null
     invoice?: XOR<SubscriptionInvoiceScalarRelationFilter, SubscriptionInvoiceWhereInput>
   }
 
@@ -49687,6 +51047,8 @@ export namespace Prisma {
     failureReason?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     completedAt?: SortOrderInput | SortOrder
+    authorizationUrl?: SortOrderInput | SortOrder
+    checkoutKey?: SortOrderInput | SortOrder
     invoice?: SubscriptionInvoiceOrderByWithRelationInput
   }
 
@@ -49705,6 +51067,8 @@ export namespace Prisma {
     failureReason?: StringNullableFilter<"PaymentAttempt"> | string | null
     createdAt?: DateTimeFilter<"PaymentAttempt"> | Date | string
     completedAt?: DateTimeNullableFilter<"PaymentAttempt"> | Date | string | null
+    authorizationUrl?: StringNullableFilter<"PaymentAttempt"> | string | null
+    checkoutKey?: StringNullableFilter<"PaymentAttempt"> | string | null
     invoice?: XOR<SubscriptionInvoiceScalarRelationFilter, SubscriptionInvoiceWhereInput>
   }, "id" | "reference">
 
@@ -49720,6 +51084,8 @@ export namespace Prisma {
     failureReason?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     completedAt?: SortOrderInput | SortOrder
+    authorizationUrl?: SortOrderInput | SortOrder
+    checkoutKey?: SortOrderInput | SortOrder
     _count?: PaymentAttemptCountOrderByAggregateInput
     _avg?: PaymentAttemptAvgOrderByAggregateInput
     _max?: PaymentAttemptMaxOrderByAggregateInput
@@ -49742,6 +51108,102 @@ export namespace Prisma {
     failureReason?: StringNullableWithAggregatesFilter<"PaymentAttempt"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"PaymentAttempt"> | Date | string
     completedAt?: DateTimeNullableWithAggregatesFilter<"PaymentAttempt"> | Date | string | null
+    authorizationUrl?: StringNullableWithAggregatesFilter<"PaymentAttempt"> | string | null
+    checkoutKey?: StringNullableWithAggregatesFilter<"PaymentAttempt"> | string | null
+  }
+
+  export type CapturedPaymentExceptionWhereInput = {
+    AND?: CapturedPaymentExceptionWhereInput | CapturedPaymentExceptionWhereInput[]
+    OR?: CapturedPaymentExceptionWhereInput[]
+    NOT?: CapturedPaymentExceptionWhereInput | CapturedPaymentExceptionWhereInput[]
+    id?: StringFilter<"CapturedPaymentException"> | string
+    attemptId?: StringFilter<"CapturedPaymentException"> | string
+    invoiceId?: StringFilter<"CapturedPaymentException"> | string
+    schoolId?: StringFilter<"CapturedPaymentException"> | string
+    kind?: EnumCapturedPaymentExceptionKindFilter<"CapturedPaymentException"> | $Enums.CapturedPaymentExceptionKind
+    reference?: StringFilter<"CapturedPaymentException"> | string
+    amountKobo?: IntFilter<"CapturedPaymentException"> | number
+    detail?: JsonNullableFilter<"CapturedPaymentException">
+    status?: EnumCapturedPaymentExceptionStatusFilter<"CapturedPaymentException"> | $Enums.CapturedPaymentExceptionStatus
+    resolution?: StringNullableFilter<"CapturedPaymentException"> | string | null
+    resolvedById?: StringNullableFilter<"CapturedPaymentException"> | string | null
+    resolvedAt?: DateTimeNullableFilter<"CapturedPaymentException"> | Date | string | null
+    createdAt?: DateTimeFilter<"CapturedPaymentException"> | Date | string
+  }
+
+  export type CapturedPaymentExceptionOrderByWithRelationInput = {
+    id?: SortOrder
+    attemptId?: SortOrder
+    invoiceId?: SortOrder
+    schoolId?: SortOrder
+    kind?: SortOrder
+    reference?: SortOrder
+    amountKobo?: SortOrder
+    detail?: SortOrderInput | SortOrder
+    status?: SortOrder
+    resolution?: SortOrderInput | SortOrder
+    resolvedById?: SortOrderInput | SortOrder
+    resolvedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type CapturedPaymentExceptionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    attemptId?: string
+    AND?: CapturedPaymentExceptionWhereInput | CapturedPaymentExceptionWhereInput[]
+    OR?: CapturedPaymentExceptionWhereInput[]
+    NOT?: CapturedPaymentExceptionWhereInput | CapturedPaymentExceptionWhereInput[]
+    invoiceId?: StringFilter<"CapturedPaymentException"> | string
+    schoolId?: StringFilter<"CapturedPaymentException"> | string
+    kind?: EnumCapturedPaymentExceptionKindFilter<"CapturedPaymentException"> | $Enums.CapturedPaymentExceptionKind
+    reference?: StringFilter<"CapturedPaymentException"> | string
+    amountKobo?: IntFilter<"CapturedPaymentException"> | number
+    detail?: JsonNullableFilter<"CapturedPaymentException">
+    status?: EnumCapturedPaymentExceptionStatusFilter<"CapturedPaymentException"> | $Enums.CapturedPaymentExceptionStatus
+    resolution?: StringNullableFilter<"CapturedPaymentException"> | string | null
+    resolvedById?: StringNullableFilter<"CapturedPaymentException"> | string | null
+    resolvedAt?: DateTimeNullableFilter<"CapturedPaymentException"> | Date | string | null
+    createdAt?: DateTimeFilter<"CapturedPaymentException"> | Date | string
+  }, "id" | "attemptId">
+
+  export type CapturedPaymentExceptionOrderByWithAggregationInput = {
+    id?: SortOrder
+    attemptId?: SortOrder
+    invoiceId?: SortOrder
+    schoolId?: SortOrder
+    kind?: SortOrder
+    reference?: SortOrder
+    amountKobo?: SortOrder
+    detail?: SortOrderInput | SortOrder
+    status?: SortOrder
+    resolution?: SortOrderInput | SortOrder
+    resolvedById?: SortOrderInput | SortOrder
+    resolvedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: CapturedPaymentExceptionCountOrderByAggregateInput
+    _avg?: CapturedPaymentExceptionAvgOrderByAggregateInput
+    _max?: CapturedPaymentExceptionMaxOrderByAggregateInput
+    _min?: CapturedPaymentExceptionMinOrderByAggregateInput
+    _sum?: CapturedPaymentExceptionSumOrderByAggregateInput
+  }
+
+  export type CapturedPaymentExceptionScalarWhereWithAggregatesInput = {
+    AND?: CapturedPaymentExceptionScalarWhereWithAggregatesInput | CapturedPaymentExceptionScalarWhereWithAggregatesInput[]
+    OR?: CapturedPaymentExceptionScalarWhereWithAggregatesInput[]
+    NOT?: CapturedPaymentExceptionScalarWhereWithAggregatesInput | CapturedPaymentExceptionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"CapturedPaymentException"> | string
+    attemptId?: StringWithAggregatesFilter<"CapturedPaymentException"> | string
+    invoiceId?: StringWithAggregatesFilter<"CapturedPaymentException"> | string
+    schoolId?: StringWithAggregatesFilter<"CapturedPaymentException"> | string
+    kind?: EnumCapturedPaymentExceptionKindWithAggregatesFilter<"CapturedPaymentException"> | $Enums.CapturedPaymentExceptionKind
+    reference?: StringWithAggregatesFilter<"CapturedPaymentException"> | string
+    amountKobo?: IntWithAggregatesFilter<"CapturedPaymentException"> | number
+    detail?: JsonNullableWithAggregatesFilter<"CapturedPaymentException">
+    status?: EnumCapturedPaymentExceptionStatusWithAggregatesFilter<"CapturedPaymentException"> | $Enums.CapturedPaymentExceptionStatus
+    resolution?: StringNullableWithAggregatesFilter<"CapturedPaymentException"> | string | null
+    resolvedById?: StringNullableWithAggregatesFilter<"CapturedPaymentException"> | string | null
+    resolvedAt?: DateTimeNullableWithAggregatesFilter<"CapturedPaymentException"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"CapturedPaymentException"> | Date | string
   }
 
   export type PaymentMethodWhereInput = {
@@ -49863,6 +51325,8 @@ export namespace Prisma {
     receivedAt?: DateTimeFilter<"WebhookEvent"> | Date | string
     processedAt?: DateTimeNullableFilter<"WebhookEvent"> | Date | string | null
     lastAttemptAt?: DateTimeNullableFilter<"WebhookEvent"> | Date | string | null
+    claimToken?: StringNullableFilter<"WebhookEvent"> | string | null
+    claimExpiresAt?: DateTimeNullableFilter<"WebhookEvent"> | Date | string | null
   }
 
   export type WebhookEventOrderByWithRelationInput = {
@@ -49878,6 +51342,8 @@ export namespace Prisma {
     receivedAt?: SortOrder
     processedAt?: SortOrderInput | SortOrder
     lastAttemptAt?: SortOrderInput | SortOrder
+    claimToken?: SortOrderInput | SortOrder
+    claimExpiresAt?: SortOrderInput | SortOrder
   }
 
   export type WebhookEventWhereUniqueInput = Prisma.AtLeast<{
@@ -49897,6 +51363,8 @@ export namespace Prisma {
     receivedAt?: DateTimeFilter<"WebhookEvent"> | Date | string
     processedAt?: DateTimeNullableFilter<"WebhookEvent"> | Date | string | null
     lastAttemptAt?: DateTimeNullableFilter<"WebhookEvent"> | Date | string | null
+    claimToken?: StringNullableFilter<"WebhookEvent"> | string | null
+    claimExpiresAt?: DateTimeNullableFilter<"WebhookEvent"> | Date | string | null
   }, "id" | "provider_eventKey">
 
   export type WebhookEventOrderByWithAggregationInput = {
@@ -49912,6 +51380,8 @@ export namespace Prisma {
     receivedAt?: SortOrder
     processedAt?: SortOrderInput | SortOrder
     lastAttemptAt?: SortOrderInput | SortOrder
+    claimToken?: SortOrderInput | SortOrder
+    claimExpiresAt?: SortOrderInput | SortOrder
     _count?: WebhookEventCountOrderByAggregateInput
     _avg?: WebhookEventAvgOrderByAggregateInput
     _max?: WebhookEventMaxOrderByAggregateInput
@@ -49935,6 +51405,8 @@ export namespace Prisma {
     receivedAt?: DateTimeWithAggregatesFilter<"WebhookEvent"> | Date | string
     processedAt?: DateTimeNullableWithAggregatesFilter<"WebhookEvent"> | Date | string | null
     lastAttemptAt?: DateTimeNullableWithAggregatesFilter<"WebhookEvent"> | Date | string | null
+    claimToken?: StringNullableWithAggregatesFilter<"WebhookEvent"> | string | null
+    claimExpiresAt?: DateTimeNullableWithAggregatesFilter<"WebhookEvent"> | Date | string | null
   }
 
   export type BillingNoticeWhereInput = {
@@ -53365,6 +54837,8 @@ export namespace Prisma {
     failureReason?: string | null
     createdAt?: Date | string
     completedAt?: Date | string | null
+    authorizationUrl?: string | null
+    checkoutKey?: string | null
     invoice: SubscriptionInvoiceCreateNestedOneWithoutAttemptsInput
   }
 
@@ -53380,6 +54854,8 @@ export namespace Prisma {
     failureReason?: string | null
     createdAt?: Date | string
     completedAt?: Date | string | null
+    authorizationUrl?: string | null
+    checkoutKey?: string | null
   }
 
   export type PaymentAttemptUpdateInput = {
@@ -53393,6 +54869,8 @@ export namespace Prisma {
     failureReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    authorizationUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    checkoutKey?: NullableStringFieldUpdateOperationsInput | string | null
     invoice?: SubscriptionInvoiceUpdateOneRequiredWithoutAttemptsNestedInput
   }
 
@@ -53408,6 +54886,8 @@ export namespace Prisma {
     failureReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    authorizationUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    checkoutKey?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PaymentAttemptCreateManyInput = {
@@ -53422,6 +54902,8 @@ export namespace Prisma {
     failureReason?: string | null
     createdAt?: Date | string
     completedAt?: Date | string | null
+    authorizationUrl?: string | null
+    checkoutKey?: string | null
   }
 
   export type PaymentAttemptUpdateManyMutationInput = {
@@ -53435,6 +54917,8 @@ export namespace Prisma {
     failureReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    authorizationUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    checkoutKey?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PaymentAttemptUncheckedUpdateManyInput = {
@@ -53449,6 +54933,120 @@ export namespace Prisma {
     failureReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    authorizationUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    checkoutKey?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type CapturedPaymentExceptionCreateInput = {
+    id?: string
+    attemptId: string
+    invoiceId: string
+    schoolId: string
+    kind: $Enums.CapturedPaymentExceptionKind
+    reference: string
+    amountKobo: number
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    status?: $Enums.CapturedPaymentExceptionStatus
+    resolution?: string | null
+    resolvedById?: string | null
+    resolvedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type CapturedPaymentExceptionUncheckedCreateInput = {
+    id?: string
+    attemptId: string
+    invoiceId: string
+    schoolId: string
+    kind: $Enums.CapturedPaymentExceptionKind
+    reference: string
+    amountKobo: number
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    status?: $Enums.CapturedPaymentExceptionStatus
+    resolution?: string | null
+    resolvedById?: string | null
+    resolvedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type CapturedPaymentExceptionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    attemptId?: StringFieldUpdateOperationsInput | string
+    invoiceId?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    kind?: EnumCapturedPaymentExceptionKindFieldUpdateOperationsInput | $Enums.CapturedPaymentExceptionKind
+    reference?: StringFieldUpdateOperationsInput | string
+    amountKobo?: IntFieldUpdateOperationsInput | number
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    status?: EnumCapturedPaymentExceptionStatusFieldUpdateOperationsInput | $Enums.CapturedPaymentExceptionStatus
+    resolution?: NullableStringFieldUpdateOperationsInput | string | null
+    resolvedById?: NullableStringFieldUpdateOperationsInput | string | null
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CapturedPaymentExceptionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    attemptId?: StringFieldUpdateOperationsInput | string
+    invoiceId?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    kind?: EnumCapturedPaymentExceptionKindFieldUpdateOperationsInput | $Enums.CapturedPaymentExceptionKind
+    reference?: StringFieldUpdateOperationsInput | string
+    amountKobo?: IntFieldUpdateOperationsInput | number
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    status?: EnumCapturedPaymentExceptionStatusFieldUpdateOperationsInput | $Enums.CapturedPaymentExceptionStatus
+    resolution?: NullableStringFieldUpdateOperationsInput | string | null
+    resolvedById?: NullableStringFieldUpdateOperationsInput | string | null
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CapturedPaymentExceptionCreateManyInput = {
+    id?: string
+    attemptId: string
+    invoiceId: string
+    schoolId: string
+    kind: $Enums.CapturedPaymentExceptionKind
+    reference: string
+    amountKobo: number
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    status?: $Enums.CapturedPaymentExceptionStatus
+    resolution?: string | null
+    resolvedById?: string | null
+    resolvedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type CapturedPaymentExceptionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    attemptId?: StringFieldUpdateOperationsInput | string
+    invoiceId?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    kind?: EnumCapturedPaymentExceptionKindFieldUpdateOperationsInput | $Enums.CapturedPaymentExceptionKind
+    reference?: StringFieldUpdateOperationsInput | string
+    amountKobo?: IntFieldUpdateOperationsInput | number
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    status?: EnumCapturedPaymentExceptionStatusFieldUpdateOperationsInput | $Enums.CapturedPaymentExceptionStatus
+    resolution?: NullableStringFieldUpdateOperationsInput | string | null
+    resolvedById?: NullableStringFieldUpdateOperationsInput | string | null
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CapturedPaymentExceptionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    attemptId?: StringFieldUpdateOperationsInput | string
+    invoiceId?: StringFieldUpdateOperationsInput | string
+    schoolId?: StringFieldUpdateOperationsInput | string
+    kind?: EnumCapturedPaymentExceptionKindFieldUpdateOperationsInput | $Enums.CapturedPaymentExceptionKind
+    reference?: StringFieldUpdateOperationsInput | string
+    amountKobo?: IntFieldUpdateOperationsInput | number
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    status?: EnumCapturedPaymentExceptionStatusFieldUpdateOperationsInput | $Enums.CapturedPaymentExceptionStatus
+    resolution?: NullableStringFieldUpdateOperationsInput | string | null
+    resolvedById?: NullableStringFieldUpdateOperationsInput | string | null
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PaymentMethodCreateInput = {
@@ -53582,6 +55180,8 @@ export namespace Prisma {
     receivedAt?: Date | string
     processedAt?: Date | string | null
     lastAttemptAt?: Date | string | null
+    claimToken?: string | null
+    claimExpiresAt?: Date | string | null
   }
 
   export type WebhookEventUncheckedCreateInput = {
@@ -53597,6 +55197,8 @@ export namespace Prisma {
     receivedAt?: Date | string
     processedAt?: Date | string | null
     lastAttemptAt?: Date | string | null
+    claimToken?: string | null
+    claimExpiresAt?: Date | string | null
   }
 
   export type WebhookEventUpdateInput = {
@@ -53612,6 +55214,8 @@ export namespace Prisma {
     receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    claimToken?: NullableStringFieldUpdateOperationsInput | string | null
+    claimExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type WebhookEventUncheckedUpdateInput = {
@@ -53627,6 +55231,8 @@ export namespace Prisma {
     receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    claimToken?: NullableStringFieldUpdateOperationsInput | string | null
+    claimExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type WebhookEventCreateManyInput = {
@@ -53642,6 +55248,8 @@ export namespace Prisma {
     receivedAt?: Date | string
     processedAt?: Date | string | null
     lastAttemptAt?: Date | string | null
+    claimToken?: string | null
+    claimExpiresAt?: Date | string | null
   }
 
   export type WebhookEventUpdateManyMutationInput = {
@@ -53657,6 +55265,8 @@ export namespace Prisma {
     receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    claimToken?: NullableStringFieldUpdateOperationsInput | string | null
+    claimExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type WebhookEventUncheckedUpdateManyInput = {
@@ -53672,6 +55282,8 @@ export namespace Prisma {
     receivedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    claimToken?: NullableStringFieldUpdateOperationsInput | string | null
+    claimExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type BillingNoticeCreateInput = {
@@ -57151,6 +58763,8 @@ export namespace Prisma {
     failureReason?: SortOrder
     createdAt?: SortOrder
     completedAt?: SortOrder
+    authorizationUrl?: SortOrder
+    checkoutKey?: SortOrder
   }
 
   export type PaymentAttemptAvgOrderByAggregateInput = {
@@ -57169,6 +58783,8 @@ export namespace Prisma {
     failureReason?: SortOrder
     createdAt?: SortOrder
     completedAt?: SortOrder
+    authorizationUrl?: SortOrder
+    checkoutKey?: SortOrder
   }
 
   export type PaymentAttemptMinOrderByAggregateInput = {
@@ -57183,6 +58799,8 @@ export namespace Prisma {
     failureReason?: SortOrder
     createdAt?: SortOrder
     completedAt?: SortOrder
+    authorizationUrl?: SortOrder
+    checkoutKey?: SortOrder
   }
 
   export type PaymentAttemptSumOrderByAggregateInput = {
@@ -57207,6 +58825,94 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumPaymentAttemptMethodFilter<$PrismaModel>
     _max?: NestedEnumPaymentAttemptMethodFilter<$PrismaModel>
+  }
+
+  export type EnumCapturedPaymentExceptionKindFilter<$PrismaModel = never> = {
+    equals?: $Enums.CapturedPaymentExceptionKind | EnumCapturedPaymentExceptionKindFieldRefInput<$PrismaModel>
+    in?: $Enums.CapturedPaymentExceptionKind[] | ListEnumCapturedPaymentExceptionKindFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CapturedPaymentExceptionKind[] | ListEnumCapturedPaymentExceptionKindFieldRefInput<$PrismaModel>
+    not?: NestedEnumCapturedPaymentExceptionKindFilter<$PrismaModel> | $Enums.CapturedPaymentExceptionKind
+  }
+
+  export type EnumCapturedPaymentExceptionStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.CapturedPaymentExceptionStatus | EnumCapturedPaymentExceptionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.CapturedPaymentExceptionStatus[] | ListEnumCapturedPaymentExceptionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CapturedPaymentExceptionStatus[] | ListEnumCapturedPaymentExceptionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumCapturedPaymentExceptionStatusFilter<$PrismaModel> | $Enums.CapturedPaymentExceptionStatus
+  }
+
+  export type CapturedPaymentExceptionCountOrderByAggregateInput = {
+    id?: SortOrder
+    attemptId?: SortOrder
+    invoiceId?: SortOrder
+    schoolId?: SortOrder
+    kind?: SortOrder
+    reference?: SortOrder
+    amountKobo?: SortOrder
+    detail?: SortOrder
+    status?: SortOrder
+    resolution?: SortOrder
+    resolvedById?: SortOrder
+    resolvedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type CapturedPaymentExceptionAvgOrderByAggregateInput = {
+    amountKobo?: SortOrder
+  }
+
+  export type CapturedPaymentExceptionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    attemptId?: SortOrder
+    invoiceId?: SortOrder
+    schoolId?: SortOrder
+    kind?: SortOrder
+    reference?: SortOrder
+    amountKobo?: SortOrder
+    status?: SortOrder
+    resolution?: SortOrder
+    resolvedById?: SortOrder
+    resolvedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type CapturedPaymentExceptionMinOrderByAggregateInput = {
+    id?: SortOrder
+    attemptId?: SortOrder
+    invoiceId?: SortOrder
+    schoolId?: SortOrder
+    kind?: SortOrder
+    reference?: SortOrder
+    amountKobo?: SortOrder
+    status?: SortOrder
+    resolution?: SortOrder
+    resolvedById?: SortOrder
+    resolvedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type CapturedPaymentExceptionSumOrderByAggregateInput = {
+    amountKobo?: SortOrder
+  }
+
+  export type EnumCapturedPaymentExceptionKindWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.CapturedPaymentExceptionKind | EnumCapturedPaymentExceptionKindFieldRefInput<$PrismaModel>
+    in?: $Enums.CapturedPaymentExceptionKind[] | ListEnumCapturedPaymentExceptionKindFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CapturedPaymentExceptionKind[] | ListEnumCapturedPaymentExceptionKindFieldRefInput<$PrismaModel>
+    not?: NestedEnumCapturedPaymentExceptionKindWithAggregatesFilter<$PrismaModel> | $Enums.CapturedPaymentExceptionKind
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumCapturedPaymentExceptionKindFilter<$PrismaModel>
+    _max?: NestedEnumCapturedPaymentExceptionKindFilter<$PrismaModel>
+  }
+
+  export type EnumCapturedPaymentExceptionStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.CapturedPaymentExceptionStatus | EnumCapturedPaymentExceptionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.CapturedPaymentExceptionStatus[] | ListEnumCapturedPaymentExceptionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CapturedPaymentExceptionStatus[] | ListEnumCapturedPaymentExceptionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumCapturedPaymentExceptionStatusWithAggregatesFilter<$PrismaModel> | $Enums.CapturedPaymentExceptionStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumCapturedPaymentExceptionStatusFilter<$PrismaModel>
+    _max?: NestedEnumCapturedPaymentExceptionStatusFilter<$PrismaModel>
   }
 
   export type PaymentMethodSchoolIdSignatureCompoundUniqueInput = {
@@ -57300,6 +59006,8 @@ export namespace Prisma {
     receivedAt?: SortOrder
     processedAt?: SortOrder
     lastAttemptAt?: SortOrder
+    claimToken?: SortOrder
+    claimExpiresAt?: SortOrder
   }
 
   export type WebhookEventAvgOrderByAggregateInput = {
@@ -57318,6 +59026,8 @@ export namespace Prisma {
     receivedAt?: SortOrder
     processedAt?: SortOrder
     lastAttemptAt?: SortOrder
+    claimToken?: SortOrder
+    claimExpiresAt?: SortOrder
   }
 
   export type WebhookEventMinOrderByAggregateInput = {
@@ -57332,6 +59042,8 @@ export namespace Prisma {
     receivedAt?: SortOrder
     processedAt?: SortOrder
     lastAttemptAt?: SortOrder
+    claimToken?: SortOrder
+    claimExpiresAt?: SortOrder
   }
 
   export type WebhookEventSumOrderByAggregateInput = {
@@ -59998,6 +61710,14 @@ export namespace Prisma {
     update?: XOR<XOR<SubscriptionInvoiceUpdateToOneWithWhereWithoutAttemptsInput, SubscriptionInvoiceUpdateWithoutAttemptsInput>, SubscriptionInvoiceUncheckedUpdateWithoutAttemptsInput>
   }
 
+  export type EnumCapturedPaymentExceptionKindFieldUpdateOperationsInput = {
+    set?: $Enums.CapturedPaymentExceptionKind
+  }
+
+  export type EnumCapturedPaymentExceptionStatusFieldUpdateOperationsInput = {
+    set?: $Enums.CapturedPaymentExceptionStatus
+  }
+
   export type SchoolCreateNestedOneWithoutPaymentMethodsInput = {
     create?: XOR<SchoolCreateWithoutPaymentMethodsInput, SchoolUncheckedCreateWithoutPaymentMethodsInput>
     connectOrCreate?: SchoolCreateOrConnectWithoutPaymentMethodsInput
@@ -61229,6 +62949,40 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumPaymentAttemptMethodFilter<$PrismaModel>
     _max?: NestedEnumPaymentAttemptMethodFilter<$PrismaModel>
+  }
+
+  export type NestedEnumCapturedPaymentExceptionKindFilter<$PrismaModel = never> = {
+    equals?: $Enums.CapturedPaymentExceptionKind | EnumCapturedPaymentExceptionKindFieldRefInput<$PrismaModel>
+    in?: $Enums.CapturedPaymentExceptionKind[] | ListEnumCapturedPaymentExceptionKindFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CapturedPaymentExceptionKind[] | ListEnumCapturedPaymentExceptionKindFieldRefInput<$PrismaModel>
+    not?: NestedEnumCapturedPaymentExceptionKindFilter<$PrismaModel> | $Enums.CapturedPaymentExceptionKind
+  }
+
+  export type NestedEnumCapturedPaymentExceptionStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.CapturedPaymentExceptionStatus | EnumCapturedPaymentExceptionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.CapturedPaymentExceptionStatus[] | ListEnumCapturedPaymentExceptionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CapturedPaymentExceptionStatus[] | ListEnumCapturedPaymentExceptionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumCapturedPaymentExceptionStatusFilter<$PrismaModel> | $Enums.CapturedPaymentExceptionStatus
+  }
+
+  export type NestedEnumCapturedPaymentExceptionKindWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.CapturedPaymentExceptionKind | EnumCapturedPaymentExceptionKindFieldRefInput<$PrismaModel>
+    in?: $Enums.CapturedPaymentExceptionKind[] | ListEnumCapturedPaymentExceptionKindFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CapturedPaymentExceptionKind[] | ListEnumCapturedPaymentExceptionKindFieldRefInput<$PrismaModel>
+    not?: NestedEnumCapturedPaymentExceptionKindWithAggregatesFilter<$PrismaModel> | $Enums.CapturedPaymentExceptionKind
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumCapturedPaymentExceptionKindFilter<$PrismaModel>
+    _max?: NestedEnumCapturedPaymentExceptionKindFilter<$PrismaModel>
+  }
+
+  export type NestedEnumCapturedPaymentExceptionStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.CapturedPaymentExceptionStatus | EnumCapturedPaymentExceptionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.CapturedPaymentExceptionStatus[] | ListEnumCapturedPaymentExceptionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CapturedPaymentExceptionStatus[] | ListEnumCapturedPaymentExceptionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumCapturedPaymentExceptionStatusWithAggregatesFilter<$PrismaModel> | $Enums.CapturedPaymentExceptionStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumCapturedPaymentExceptionStatusFilter<$PrismaModel>
+    _max?: NestedEnumCapturedPaymentExceptionStatusFilter<$PrismaModel>
   }
 
   export type NestedEnumWebhookEventStatusFilter<$PrismaModel = never> = {
@@ -64546,6 +66300,8 @@ export namespace Prisma {
     failureReason?: string | null
     createdAt?: Date | string
     completedAt?: Date | string | null
+    authorizationUrl?: string | null
+    checkoutKey?: string | null
   }
 
   export type PaymentAttemptUncheckedCreateWithoutInvoiceInput = {
@@ -64559,6 +66315,8 @@ export namespace Prisma {
     failureReason?: string | null
     createdAt?: Date | string
     completedAt?: Date | string | null
+    authorizationUrl?: string | null
+    checkoutKey?: string | null
   }
 
   export type PaymentAttemptCreateOrConnectWithoutInvoiceInput = {
@@ -64839,6 +66597,8 @@ export namespace Prisma {
     failureReason?: StringNullableFilter<"PaymentAttempt"> | string | null
     createdAt?: DateTimeFilter<"PaymentAttempt"> | Date | string
     completedAt?: DateTimeNullableFilter<"PaymentAttempt"> | Date | string | null
+    authorizationUrl?: StringNullableFilter<"PaymentAttempt"> | string | null
+    checkoutKey?: StringNullableFilter<"PaymentAttempt"> | string | null
   }
 
   export type SubscriptionInvoiceCreateWithoutItemsInput = {
@@ -68887,6 +70647,8 @@ export namespace Prisma {
     failureReason?: string | null
     createdAt?: Date | string
     completedAt?: Date | string | null
+    authorizationUrl?: string | null
+    checkoutKey?: string | null
   }
 
   export type SubscriptionInvoiceItemUpdateWithoutInvoiceInput = {
@@ -68924,6 +70686,8 @@ export namespace Prisma {
     failureReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    authorizationUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    checkoutKey?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PaymentAttemptUncheckedUpdateWithoutInvoiceInput = {
@@ -68937,6 +70701,8 @@ export namespace Prisma {
     failureReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    authorizationUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    checkoutKey?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PaymentAttemptUncheckedUpdateManyWithoutInvoiceInput = {
@@ -68950,6 +70716,8 @@ export namespace Prisma {
     failureReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    authorizationUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    checkoutKey?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PlatformRolePermissionCreateManyRoleInput = {

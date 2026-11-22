@@ -2409,3 +2409,17 @@ model GradeScore {
 
   @@unique([gradeId, position])
 }
+
+// Audit events waiting to be copied to the public AuditLog. Written in the same transaction as the change they
+// record (REM-077); the relay job delivers and deletes them. `id` becomes the AuditLog id, which makes delivery idempotent.
+model AuditOutbox {
+  id             String    @id
+  payload        Json
+  createdAt      DateTime  @default(now())
+  claimToken     String?
+  claimExpiresAt DateTime?
+  attempts       Int       @default(0)
+  lastError      String?
+
+  @@index([createdAt])
+}

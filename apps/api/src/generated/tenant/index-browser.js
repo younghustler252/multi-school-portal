@@ -1387,6 +1387,16 @@ exports.Prisma.GradeScoreScalarFieldEnum = {
   isAbsent: 'isAbsent'
 };
 
+exports.Prisma.AuditOutboxScalarFieldEnum = {
+  id: 'id',
+  payload: 'payload',
+  createdAt: 'createdAt',
+  claimToken: 'claimToken',
+  claimExpiresAt: 'claimExpiresAt',
+  attempts: 'attempts',
+  lastError: 'lastError'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1907,7 +1917,8 @@ exports.Prisma.ModelName = {
   AssessmentScheme: 'AssessmentScheme',
   AssessmentComponent: 'AssessmentComponent',
   ResultSheet: 'ResultSheet',
-  GradeScore: 'GradeScore'
+  GradeScore: 'GradeScore',
+  AuditOutbox: 'AuditOutbox'
 };
 
 /**
