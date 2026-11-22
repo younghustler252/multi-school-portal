@@ -149,6 +149,7 @@ enum PaymentAttemptMethod {
 
 enum WebhookEventStatus {
   received
+  processing
   processed
   ignored
   failed
@@ -611,22 +612,63 @@ model SubscriptionInvoiceItem {
 }
 
 model PaymentAttempt {
-  id              String               @id @default(uuid())
-  invoiceId       String
-  reference       String               @unique
-  amountKobo      Int
-  status          PaymentAttemptStatus @default(pending)
-  method          PaymentAttemptMethod
-  paymentMethodId String?
-  providerStatus  String?
-  failureReason   String?
-  createdAt       DateTime             @default(now())
-  completedAt     DateTime?
+  id               String               @id @default(uuid())
+  invoiceId        String
+  reference        String               @unique
+  amountKobo       Int
+  status           PaymentAttemptStatus @default(pending)
+  method           PaymentAttemptMethod
+  paymentMethodId  String?
+  providerStatus   String?
+  failureReason    String?
+  createdAt        DateTime             @default(now())
+  completedAt      DateTime?
+  // The checkout page the school was sent to, kept so a repeated "pay" request returns the SAME link (REM-066)
+  authorizationUrl String?
+  // = invoiceId on a NEW checkout attempt. A partial unique index (PaymentAttempt_one_pending_checkout, only while status = pending, only where set)
+  // allows one live checkout per invoice. Declared in the migration; Prisma cannot express a partial index.
+  checkoutKey      String?
 
   invoice SubscriptionInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 
   @@index([invoiceId])
   @@index([status, createdAt])
+}
+
+// Money the provider captured that the billing engine could NOT apply to an invoice (REM-070). Never silently lost:
+// each one waits here, open, until a platform person refunds it, applies it by hand, or dismisses it with a reason.
+enum CapturedPaymentExceptionKind {
+  paid_on_void
+  duplicate_payment
+  amount_mismatch
+  superseded
+  coupon_exhausted
+}
+
+enum CapturedPaymentExceptionStatus {
+  open
+  refunded
+  applied_manually
+  dismissed
+}
+
+model CapturedPaymentException {
+  id           String                         @id @default(uuid())
+  attemptId    String                         @unique
+  invoiceId    String
+  schoolId     String
+  kind         CapturedPaymentExceptionKind
+  reference    String
+  amountKobo   Int
+  detail       Json?
+  status       CapturedPaymentExceptionStatus @default(open)
+  resolution   String?
+  resolvedById String?
+  resolvedAt   DateTime?
+  createdAt    DateTime                       @default(now())
+
+  @@index([status, createdAt])
+  @@index([schoolId])
 }
 
 // Saved payment methods.
@@ -655,18 +697,21 @@ model PaymentMethod {
 
 // Idempotent provider webhook-event log.
 model WebhookEvent {
-  id            String             @id @default(uuid())
-  provider      String
-  eventKey      String
-  eventType     String
-  reference     String?
-  status        WebhookEventStatus @default(received)
-  error         String?
-  attempts      Int                @default(0)
-  payload       Json?
-  receivedAt    DateTime           @default(now())
-  processedAt   DateTime?
-  lastAttemptAt DateTime?
+  id             String             @id @default(uuid())
+  provider       String
+  eventKey       String
+  eventType      String
+  reference      String?
+  status         WebhookEventStatus @default(received)
+  error          String?
+  attempts       Int                @default(0)
+  payload        Json?
+  receivedAt     DateTime           @default(now())
+  processedAt    DateTime?
+  lastAttemptAt  DateTime?
+  // Who is processing it right now, and until when (REM-102). A finisher whose token no longer matches has lost the lease.
+  claimToken     String?
+  claimExpiresAt DateTime?
 
   @@unique([provider, eventKey])
   @@index([status, receivedAt])
