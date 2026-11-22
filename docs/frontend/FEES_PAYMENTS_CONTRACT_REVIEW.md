@@ -1,6 +1,6 @@
 # Fees and payments contract review (web ↔ backend)
 
-Status: review only, no implementation. Sources: `docs/backend/modules/fees.md`, `payments.md`, and the DTOs/mappers on `refactor/api` (read 2026-11-21); web code on `refactor/web`. Route matching and shape verification are kept apart. Nothing was run against a live API. Backend PR #51 (payments applied to one invoice, open, not merged into `refactor/api`) is noted where relevant; payments.md already lists `by-invoice` routes, so confirm whether they are on `refactor/api` before building on them.
+Status: review only, no implementation. Sources: `docs/backend/modules/fees.md`, `payments.md`, and the DTOs/mappers on `refactor/api` (read 2026-11-21); web code on `refactor/web`. Route matching and shape verification are kept apart. Nothing was run against a live API. Backend PR #51 (payments applied to one invoice) is **merged** into `refactor/api` (2026-11-22). Its routes are `GET /fees/invoices/:id/payments` (staff) and `GET /fees/my/invoices/:id/payments` (family); an earlier draft of this review named `/payments/by-invoice/:id` and `/payments/my/by-invoice/:id`, which do **not** exist in the merged code.
 
 ## 1. Verdict
 
@@ -21,7 +21,7 @@ Fee calls (`features/fees/services/fee.api.ts`):
 | `PUT/DELETE /fees/invoice-items/:id` | **missing**. Items are replaced as a whole list on a draft edit |
 | `POST /fees/invoices/:id/record-payment` | **missing**. Payments are recorded at `POST /payments` |
 | `PATCH /fees/invoices/:id/waive` | **missing**. A waiver is an adjustment request that needs approval (`POST /fees/adjustments`) |
-| `GET /fees/invoices/:id/payments` | **missing** in `fees`; the history route is `GET /payments/by-invoice/:invoiceId` (staff) and `/payments/my/by-invoice/:invoiceId` (guardian) |
+| `GET /fees/invoices/:id/payments` | **exists now** (backend #51, `fees.invoices.view` + `payments.view`): returns `[{paymentId, receiptNumber, method, status, reference, paidOn, recordedAt, allocatedKobo, paymentTotalKobo}]`, confirmed payments only. The family twin is `GET /fees/my/invoices/:id/payments` (`fees.view`): `[{paymentId, receiptNumber, method, status, paidOn, allocatedKobo}]`, no payer, reference or payment total |
 | `GET /fees/defaulters`, `POST /fees/defaulters/ping` | defaulters moved to `GET /fees/reports/defaulters` (`fees.reports.view`); **ping has no backend route** |
 
 Payment calls (`features/payments/services/payment.api.ts`):
@@ -63,6 +63,7 @@ Permissions: `fees.setup.view`, `fees.types.manage`, `fees.structures.manage`, `
 - **Payment row:** `{id,status,method,payerType,guardianId,payerName,amountKobo,unallocatedKobo,reference,branchId,paidOn,receiptNumber,createdAt}`; detail adds `allocations[{invoiceId,invoiceNumber,studentId,studentName,amountKobo,isCredit,reversed}]`, confirm/record metadata, `version`. There is **no `feeInvoiceId`**, `channel`, `webhookVerified` or `receiptUrl`.
 - **Receipts:** frozen snapshot at `GET /payments/:id/receipt` (staff) and `/payments/my/:id/receipt` (guardian, reduced). No receipt URL; render from the snapshot.
 - **Online (guardian, `payments.pay`):** `POST /payments/online/initialize {invoiceId, callbackUrl?, amountKobo?}` returns `{paymentId, reference, authorizationUrl, amountKobo}` (no `accessCode`); `GET /payments/online/verify/:reference`. The backend verifies with the gateway itself; the browser result is never trusted. Overpayment becomes credit. Amounts above the safe-integer range are refused.
+- **Invoice payment history** (backend #51, merged): see the table in section 2. Only the part of each payment that went to this invoice (`allocatedKobo`); an invoice that is not the viewer's child's, or is draft/void, answers 404, never 403.
 - **Guardian lists:** `/payments/my` and `/payments/my/by-invoice/:invoiceId`; a guardian may see a payment made by someone else for their child as a **partial share** (`isPayer:false`, `partial:true`, reference/method hidden). The UI must not assume `reference` is present.
 - **Credit and refunds:** `GET /payments/credit/:studentId`, `POST /payments/credit/apply`, `/payments/refunds` (request, approve (maybe two approvers), reject, pay). Not in the web.
 - **Retired:** `POST /payments/online/settlements` returns 410; settlements live in the finance module (out of this review).
@@ -92,9 +93,10 @@ Use `useAccess().can(key)`; hide, do not disable, what a role can never do (the 
 
 ## 8. Contract gaps / questions for the backend
 
-- **F1.** Family statement and `/fees/my/children` money fields: the repository returns raw `bigint` in places (`adjustments[].amountKobo`, `openBalanceKobo`, `creditKobo`). Confirm they pass through `koboOut` in the controller/mapper, i.e. number-or-string, before the web types them.
+- **F1. RESOLVED (traced 2026-11-22).** Every money field of `/fees/my/children`, `/fees/my/invoices`, `/fees/my/invoices/:id/payments`, `/fees/my/statement/:studentId`, `/fees/statements/:studentId`, the three reports and `/payments/my` goes through `koboOut` (number, or a digit string past 2^53) in the use case or mapper; the raw-`bigint` fields in the repository are internal and never serialised. **One deliberate exception:** a receipt snapshot (`/payments/my/:id/receipt`, `/payments/:id/receipt`) carries all money as digit strings. No endpoint leaks a raw BigInt.
 - **F2.** Invoice list rows carry ids only (`classId`, `termId`, no names). Fine if the web joins; confirm no `className` is planned.
-- **F3.** Is `GET /payments/by-invoice/:invoiceId` on `refactor/api` today, or only in the open PR #51?
+- **F3. RESOLVED.** Merged in backend PR #51 as `GET /fees/invoices/:id/payments` and `GET /fees/my/invoices/:id/payments` (not under `/payments`).
+- **F9.** There is no family route for an invoice's **line items** (the family list row has no items, and `GET /fees/invoices/:id` is staff-only). Is an items route planned, or is the row the intended family view?
 - **F4.** Defaulter "ping" (reminder to guardians): is a route planned, or is that moved into the automation/notifications modules?
 - **F5.** Fee structures response shape (item list, `studentType`, status) to be read from the structure mapper during slice 2; no gap found yet.
 - **F6.** The finance timezone is not exposed to the client. Confirm the paid-on "today" rule can follow Africa/Lagos until it is.
@@ -110,4 +112,4 @@ Use `useAccess().can(key)`; hide, do not disable, what a role can never do (the 
 5. **Staff payments:** record with allocation preview, confirm/reject/reverse, credit, refunds; needs F8.
 6. **Reports:** ageing, defaulters, collections, statements; finance dashboard.
 
-Slices 1–3 need no backend answers beyond F1; 4–6 can start on the confirmed contract and pick up F3, F5, F8 as they arrive.
+Slices 1–2 are built (PRs #67, #68). Slice 3 needs the verify response shape. Slices 4–6 can start on the confirmed contract and pick up F3, F5, F8 as they arrive.
