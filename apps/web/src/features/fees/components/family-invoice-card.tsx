@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronUp, Receipt } from "lucide-react";
+import { ChevronDown, ChevronUp, CreditCard, Receipt } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { paymentMethodText } from "@/features/payments/lib/payment-labels";
-import { formatKobo } from "@/lib/money";
+import { formatKobo, isPositiveKobo } from "@/lib/money";
 import { useFamilyInvoicePayments } from "../hooks/use-family-fees";
 import { formatDay, INVOICE_STATUS_BADGE, INVOICE_STATUS_TEXT, INVOICE_TYPE_TEXT } from "../lib/finance-labels";
 import { isOverdue } from "../lib/family-fees";
@@ -18,13 +18,16 @@ interface Props {
 	today: string;
 	/** Only a guardian may open receipts (payments.pay is guardian-only); a student sees the payment lines without one. */
 	onOpenReceipt?: (paymentId: string) => void;
+	/** Only a guardian can pay (payments.pay is guardian-only), so a student page leaves this out. */
+	onPay?: (invoice: FamilyInvoice) => void;
 }
 
 /** One issued invoice of a child, with its payment history loaded when opened (GET /fees/my/invoices/:id/payments). */
-export function FamilyInvoiceCard({ invoice, today, onOpenReceipt }: Props) {
+export function FamilyInvoiceCard({ invoice, today, onOpenReceipt, onPay }: Props) {
 	const [open, setOpen] = useState(false);
 	const payments = useFamilyInvoicePayments(invoice.id, open);
 	const overdue = isOverdue(invoice, today);
+	const payable = !!onPay && (invoice.status === "unpaid" || invoice.status === "partial") && isPositiveKobo(invoice.balanceKobo);
 
 	return (
 		<div className="rounded-xl border border-border bg-card/80 p-5 backdrop-blur-sm">
@@ -49,6 +52,10 @@ export function FamilyInvoiceCard({ invoice, today, onOpenReceipt }: Props) {
 				<div className="flex justify-between py-2"><dt className="text-muted-foreground">Paid to date</dt><dd>{formatKobo(invoice.paidKobo)}</dd></div>
 				<div className="flex justify-between py-2 text-lg font-semibold"><dt>Balance</dt><dd>{formatKobo(invoice.balanceKobo)}</dd></div>
 			</dl>
+
+			{payable && (
+				<Button className="mt-3 w-full gap-2" onClick={() => onPay?.(invoice)}><CreditCard className="size-4" /> Pay online</Button>
+			)}
 
 			<div className="mt-2 border-t border-border pt-2">
 				<Button variant="ghost" size="sm" className="gap-1.5" onClick={() => setOpen((v) => !v)} aria-expanded={open}>

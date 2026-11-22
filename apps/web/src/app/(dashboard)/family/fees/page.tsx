@@ -10,6 +10,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { FamilyInvoiceCard } from "@/features/fees/components/family-invoice-card";
 import { useFamilyChildren, useFamilyInvoices } from "@/features/fees/hooks/use-family-fees";
 import { invoiceTotals, invoicesFor } from "@/features/fees/lib/family-fees";
+import { PayOnlineDialog } from "@/features/payments/components/pay-online-dialog";
+import type { FamilyInvoice } from "@/features/fees/types/finance.types";
 import { FamilyReceiptDialog } from "@/features/payments/components/family-receipt-dialog";
 import { formatKobo, isPositiveKobo } from "@/lib/money";
 import { ROUTES } from "@/lib/routes";
@@ -24,6 +26,7 @@ export default function GuardianFeesPage() {
 	const invoices = useFamilyInvoices();
 	const [scope, setScope] = useState<string>("all");
 	const [receiptFor, setReceiptFor] = useState<string | null>(null);
+	const [paying, setPaying] = useState<FamilyInvoice | null>(null);
 
 	const shown = invoicesFor(invoices.data ?? [], scope);
 	const totals = invoiceTotals(shown);
@@ -66,9 +69,10 @@ export default function GuardianFeesPage() {
 				{!invoices.isLoading && !invoices.isError && shown.length === 0 && (
 					<div className="rounded-xl border border-dashed border-border py-16 text-center text-muted-foreground">No invoices yet. The school will notify you when fees are issued.</div>
 				)}
-				{shown.map((inv) => <FamilyInvoiceCard key={inv.id} invoice={inv} today={today} onOpenReceipt={setReceiptFor} />)}
+				{shown.map((inv) => <FamilyInvoiceCard key={inv.id} invoice={inv} today={today} onOpenReceipt={setReceiptFor} onPay={setPaying} />)}
 			</div>
 
+			<PayOnlineDialog invoice={paying} onClose={() => setPaying(null)} />
 			<FamilyReceiptDialog paymentId={receiptFor} onClose={() => setReceiptFor(null)} />
 		</>
 	);
