@@ -11,11 +11,12 @@ import { BillingEngine } from "../../services/billing-engine.service";
 import { BillingLifecycleService } from "../../services/billing-lifecycle.service";
 import { BillingNotifier } from "../../services/billing-notifier.service";
 import { billingMessages } from "../../services/billing.messages";
+import { NotFoundError } from "../../../../shared/errors/domain.errors";
 import { billingErrors } from "../../domain/subscription.errors";
 import { addCycle, addDays, monthlyEquivalent, Cycle } from "../../domain/billing.calendar";
 import { LIVE_STATUSES } from "../../domain/billing.policy";
 import {
-    ListPaymentExceptionsQueryType, ResolvePaymentExceptionDtoType, ListSubscriptionsQueryType, PlatformChangePlanDtoType, ExtendPeriodDtoType, VoidInvoiceDtoType, MarkInvoicePaidDtoType, ListPlatformInvoicesQueryType,
+    ListPaymentExceptionsQueryType, ResolvePaymentExceptionDtoType, ListSubscriptionsQueryType, PlatformChangePlanDtoType, ExtendPeriodDtoType, VoidInvoiceDtoType, MarkInvoicePaidDtoType, ListPlatformInvoicesQueryType, ListSchoolInvoicesQueryType,
 } from "../../dtos/subscription.dto";
 
 interface Dependencies {
@@ -133,6 +134,24 @@ export class PlatformInvoicesUseCase {
         const totalPages = Math.max(1, Math.ceil(total / q.limit));
         return {
             data: rows.map(r => ({ ...this.d.subscriptionMapper.invoiceToResponse(toInvoice(r)), schoolId: r.schoolId, schoolName: r.school.name, schoolSubdomain: r.school.subdomain })),
+            meta: { total, page: q.page, limit: q.limit, totalPages, hasNext: q.page < totalPages, hasPrev: q.page > 1 },
+        };
+    }
+
+    /* One school's billing history, newest due date first (the all-schools list is oldest first, for chasing payment). */
+    async listForSchool(schoolId: string, q: ListSchoolInvoicesQueryType) {
+        const school = await this.d.prismaClient.school.findUnique({ where: { id: schoolId }, select: { id: true } });
+        if (!school) throw new NotFoundError("School");
+        const where = { schoolId, ...(q.status ? { status: q.status } : {}) };
+        const [total, rows] = await Promise.all([
+            this.d.prismaClient.subscriptionInvoice.count({ where: where as never }),
+            this.d.prismaClient.subscriptionInvoice.findMany({
+                where: where as never, orderBy: [{ dueDate: "desc" }, { id: "asc" }], skip: (q.page - 1) * q.limit, take: q.limit, include: { items: true },
+            }),
+        ]);
+        const totalPages = Math.max(1, Math.ceil(total / q.limit));
+        return {
+            data: rows.map(r => this.d.subscriptionMapper.invoiceToResponse(toInvoice(r))),
             meta: { total, page: q.page, limit: q.limit, totalPages, hasNext: q.page < totalPages, hasPrev: q.page > 1 },
         };
     }
