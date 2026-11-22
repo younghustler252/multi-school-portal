@@ -166,3 +166,47 @@ Why this is not exposed in practice today: the dashboard route needs `school.das
 4. **No time series.** No attendance-over-time or collections-over-time endpoint, so no trend charts.
 5. **No actionable lists.** No pending approvals, recent activity or upcoming events for administrators.
 6. **`school.verificationStatus` values** are not in the shared contract, so there is no "unverified school" banner.
+
+---
+
+## 5. Accessibility check (computed, not estimated)
+
+WCAG contrast ratios computed from the OKLCH tokens in `globals.css` (script: composite of tint over card, sRGB). Targets: text 4.5:1, UI controls and graphics 3:1.
+
+| Pair | Light | Dark |
+|---|---|---|
+| Body text on background | 17.1 | 16.9 |
+| Muted text on card | 6.8 | 7.2 |
+| Primary button label on primary | 5.5 | 8.1 |
+| Primary text (links) on card | 5.7 | 7.6 |
+| Success / info text on own tint (badges) | 4.9 / 5.2 | 5.3 / 5.1 |
+| Destructive text on card | 5.9 | 5.7 |
+| Sidebar nav text, smallest group heading (11px) | 8.7, 5.3 | 5.6 (heading) |
+| Form-control border on card | 3.1 | 3.6 |
+
+All pass. A first pass of the segmented bar did **not**: the amber segment was 1.9:1 and the neutral segment 2.0:1 on the card. Fixed with two data-ink tokens, `--data-warning` and `--data-neutral` (3.4:1 and 3.6:1 light; 9.4:1 and 5.8:1 dark). Approved palette tokens are unchanged. Not computed: hover/pressed states, focus ring against every surface, the dark-mode tints of every badge.
+
+---
+
+## 6. What remains before the redesign is complete
+
+**Status:** Stages 0, 1 and 2 approved. Stage 3 (admin dashboard pilot) is in review in PR #63. Stages 4 and 5 are not started; Stage 4 waits for the pilot to be approved.
+
+### Stage 1 components in the brief that do not exist yet
+Form-field wrapper (label, helper, error wiring for react-hook-form), password input with show/hide, searchable select (combobox), date picker, radio group, alert, data table (sorting, filters, pagination, mobile card layout), avatar group, role badge, school/branch badge. Already present and restyled by tokens: dialog, alert-dialog, sheet (drawer), dropdown, popover, command, tabs, switch, checkbox, textarea, select, skeleton, toast (sonner).
+
+### Stage 4: adoption (nothing outside the pilot has been migrated)
+- Other dashboards: Principal overview (`/insights/overview`, only a data-mapping fix so far), teacher, bursar/finance, family (guardian and student), platform admin.
+- List and form pages across modules (students, staff, guardians, classes, enrolment, fees, payments, attendance, grades). Most hand-roll tables; only 7 files use `MobileCard`.
+- Auth, onboarding and marketing pages (these still use the `bg-hero-radial` gradient the direction rules out for app screens).
+- Notifications inbox, account settings, feedback.
+- Replace ad-hoc font sizes and raw colours with the typography classes and tokens (count not yet measured).
+
+### Stage 5: verification (none of this has been done)
+- Browser checks at desktop, tablet and phone widths, with screenshots: nothing has been rendered from this environment.
+- Dark mode visual review; keyboard and focus order, dialog focus trapping, skip link, screen-reader pass.
+- Horizontal-overflow check at 360px; touch-target check on real touch input.
+- Real `vitest`, lint and full typecheck on the final branch (the author of the request ran typecheck on Stages 1-2; Stage 3 and the review fixes are unconfirmed outside the pure modules).
+
+### Code I could not run and so treat as unverified
+`Tooltip` with a Next `Link` as trigger, the mobile sheet's custom close button, `PersonAvatar` image-failure fallback, command palette keyboard behaviour, the sidebar collapse persistence, and every React component's rendering. They follow the repo's existing Base UI patterns and were proofread, nothing more.

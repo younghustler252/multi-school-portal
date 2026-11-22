@@ -13,10 +13,10 @@ export type SegmentTone = "primary" | "warning" | "danger" | "info" | "neutral";
 
 const FILL: Record<SegmentTone, string> = {
 	primary: "bg-primary",
-	warning: "bg-warning",
+	warning: "bg-data-warning",
 	danger: "bg-destructive",
 	info: "bg-info",
-	neutral: "bg-muted-foreground/45",
+	neutral: "bg-data-neutral",
 };
 
 export interface Segment {

@@ -4,7 +4,7 @@ type MeterTone = "primary" | "warning" | "danger";
 
 const FILL: Record<MeterTone, string> = {
 	primary: "bg-primary",
-	warning: "bg-warning",
+	warning: "bg-data-warning",
 	danger: "bg-destructive",
 };
 

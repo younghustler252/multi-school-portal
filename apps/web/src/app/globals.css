@@ -62,6 +62,9 @@
 	--color-chart-4: var(--chart-4);
 	--color-chart-5: var(--chart-5);
 
+	--color-data-warning: var(--data-warning);
+	--color-data-neutral: var(--data-neutral);
+
 	--color-sidebar: var(--sidebar);
 	--color-sidebar-foreground: var(--sidebar-foreground);
 	--color-sidebar-border: var(--sidebar-border);
@@ -146,6 +149,11 @@
 	--chart-4: oklch(0.58 0.15 25);
 	--chart-5: oklch(0.55 0.09 305);
 
+	/* Data ink for bars and meters. Darker than --warning and --muted-foreground so a filled segment reaches 3:1 on a white
+	   card (WCAG 1.4.11); --warning stays the light fill used behind text in badges. */
+	--data-warning: oklch(0.64 0.14 78);
+	--data-neutral: oklch(0.62 0.012 160);
+
 	/* Sidebar: deep ink green, light text. Muted text in the sidebar is sidebar-foreground at 70%. */
 	--sidebar: oklch(0.24 0.035 165);
 	--sidebar-foreground: oklch(0.96 0.01 150);
@@ -203,6 +211,9 @@
 	--chart-3: oklch(0.8 0.13 78);
 	--chart-4: oklch(0.7 0.15 25);
 	--chart-5: oklch(0.7 0.1 305);
+
+	--data-warning: oklch(0.8 0.13 78);
+	--data-neutral: oklch(0.66 0.012 160);
 
 	--sidebar: oklch(0.14 0.016 165);
 	--sidebar-foreground: oklch(0.955 0.006 150);
