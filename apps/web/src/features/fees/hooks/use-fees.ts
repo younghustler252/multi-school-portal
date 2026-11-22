@@ -100,23 +100,6 @@ export function useInvoice(id: string) {
 	});
 }
 
-export function useMyChildrenInvoices() {
-	return useQuery({
-		queryKey: ["fees", "invoices", "my-children"],
-
-		queryFn: async () => {
-			const res = await feeApi.getMyChildrenInvoices();
-
-			if (!res.success) {
-				throw res;
-			}
-
-			return res.data;
-		},
-	});
-}
-
-
 // ── Create Invoice ────────────────────────────────────────────────────────
 
 export function useCreateInvoice() {

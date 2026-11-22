@@ -7,11 +7,13 @@ import { StatCard } from "@/components/ui/stat-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useMyChildren, useMyChildrenAttendance, useMyChildrenInvoices } from "@/features/guardians/hooks/use-guardian-portal";
+import { useMyChildren, useMyChildrenAttendance } from "@/features/guardians/hooks/use-guardian-portal";
+import { useFamilyChildren } from "@/features/fees/hooks/use-family-fees";
+import { balanceOf } from "@/features/fees/lib/family-fees";
 import { useCurrentSession } from "@/features/school/hooks/use-sessions";
 import { useAuthStore } from "@/stores/auth.store";
 import { GUARDIAN_RELATION_LABELS } from "@/features/guardians/constants/guardian-relation-labels";
-import { formatNaira } from "@/lib/format-money";
+import { formatKobo, isPositiveKobo } from "@/lib/money";
 import { ROUTES } from "@/lib/routes";
 
 export default function MyChildrenPage() {
@@ -21,10 +23,7 @@ export default function MyChildrenPage() {
 	const termId = currentSession?.currentTerm?.id;
 
 	const { data: attendance } = useMyChildrenAttendance({ termId });
-	const { data: invoiceData } = useMyChildrenInvoices({ termId });
-
-	const totalOwed = invoiceData?.invoices.reduce((sum, i) => sum + i.balanceKobo, 0) ?? 0;
-	const totalPaid = invoiceData?.invoices.reduce((sum, i) => sum + i.paidKobo, 0) ?? 0;
+	const { data: balances } = useFamilyChildren();
 
 	function attendancePctFor(studentId: string) {
 		const records = attendance?.filter((a) => a.studentId === studentId) ?? [];
@@ -33,9 +32,6 @@ export default function MyChildrenPage() {
 		return Math.round((present / records.length) * 100);
 	}
 
-	function balanceFor(studentId: string) {
-		return invoiceData?.invoices.filter((i) => i.studentId === studentId).reduce((sum, i) => sum + i.balanceKobo, 0) ?? 0;
-	}
 
 	return (
 		<>
@@ -43,7 +39,7 @@ export default function MyChildrenPage() {
 				title={`Hello, ${user?.firstName ?? ""}`}
 				description={children ? `Guardian of ${children.length} child${children.length !== 1 ? "ren" : ""}` : undefined}
 				actions={
-					totalOwed > 0
+					isPositiveKobo(balances?.totalOwedKobo)
 						? <Button nativeButton={false} render={<Link href={ROUTES.family.fees}>Pay fees</Link>} />
 						: undefined
 				}
@@ -59,8 +55,8 @@ export default function MyChildrenPage() {
 				<>
 					<div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
 						<StatCard label="Children" value={String(children.length)} accent="primary" />
-						<StatCard label="Outstanding" value={formatNaira(totalOwed)} accent="warning" />
-						<StatCard label="Paid this term" value={formatNaira(totalPaid)} accent="success" />
+						<StatCard label="Outstanding" value={formatKobo(balances?.totalOwedKobo ?? 0)} accent="warning" />
+						<StatCard label="Credit held" value={formatKobo(balances?.totalCreditKobo ?? 0)} accent="success" />
 						<StatCard
 							label="Avg. attendance"
 							value={(() => {
@@ -73,7 +69,7 @@ export default function MyChildrenPage() {
 
 					<div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
 						{children.map((child) => {
-							const balance = balanceFor(child.studentId);
+							const owed = balanceOf(balances?.children, child.studentId)?.owedKobo;
 							const pct = attendancePctFor(child.studentId);
 
 							return (
@@ -105,8 +101,8 @@ export default function MyChildrenPage() {
 											<div className="text-[10px] text-muted-foreground">Attendance</div>
 										</div>
 										<div className="rounded-lg bg-muted/50 p-2">
-											<div className={`text-sm font-semibold ${balance > 0 ? "text-warning-foreground" : ""}`}>
-												{balance > 0 ? formatNaira(balance) : "Cleared"}
+											<div className={`text-sm font-semibold ${isPositiveKobo(owed) ? "text-warning-foreground" : ""}`}>
+												{isPositiveKobo(owed) ? formatKobo(owed) : "Cleared"}
 											</div>
 											<div className="text-[10px] text-muted-foreground">Fees</div>
 										</div>

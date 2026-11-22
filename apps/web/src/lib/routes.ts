@@ -99,6 +99,7 @@ export const ROUTES = {
 	family: {
 		children: { list: "/family/children", detail: (id: Id) => join("/family/children", id) },
 		fees: "/family/fees",
+		statement: "/family/fees/statement",
 		payments: "/family/payments",
 		reportCards: "/family/report-cards",
 		notifications: "/family/notifications",
@@ -108,6 +109,7 @@ export const ROUTES = {
 		dashboard: "/learning/dashboard",
 		attendance: "/learning/attendance",
 		grades: "/learning/grades",
+		fees: "/learning/fees",
 		reportCards: "/learning/report-cards",
 	},
 

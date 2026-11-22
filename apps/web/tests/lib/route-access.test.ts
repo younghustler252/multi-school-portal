@@ -72,7 +72,7 @@ describe("guardian and student pages", () => {
 	});
 
 	it("a student session can open the student pages", () => {
-		for (const p of [ROUTES.learning.attendance, ROUTES.learning.grades, ROUTES.learning.reportCards]) expect(canOpenRoute(p, student)).toBe(true);
+		for (const p of [ROUTES.learning.attendance, ROUTES.learning.grades, ROUTES.learning.reportCards, ROUTES.learning.fees]) expect(canOpenRoute(p, student)).toBe(true);
 	});
 
 	it("persona must match: guardian pages are not for a student session and the reverse, even with the same keys at OWN", () => {
@@ -80,6 +80,13 @@ describe("guardian and student pages", () => {
 		expect(canOpenRoute(ROUTES.family.fees, student)).toBe(false);
 		expect(canOpenRoute(ROUTES.family.payments, student)).toBe(false);
 		expect(canOpenRoute(ROUTES.learning.reportCards, guardian)).toBe(false);
+		expect(canOpenRoute(ROUTES.learning.fees, guardian)).toBe(false);
+	});
+
+	it("the statement page follows the fees page rule, and payments stay guardian-only", () => {
+		expect(canOpenRoute(ROUTES.family.statement, guardian)).toBe(true);
+		expect(canOpenRoute(ROUTES.family.statement, student)).toBe(false);
+		expect(canOpenRoute(ROUTES.family.payments, student)).toBe(false);
 	});
 
 	it("a STAFF session never gets the self-service pages, whatever scope it holds", () => {

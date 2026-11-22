@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { studentApi } from "@/features/students/services/student.api";
 import { gradeApi } from "@/features/grades/services/grade.api";
 import { attendanceApi } from "@/features/attendance/services/attendance.api";
-import { feeApi } from "@/features/fees/services/fee.api";
 
 export function useMyStudentProfile() {
 	return useQuery({
@@ -37,14 +36,3 @@ export function useMyAttendance(termId?: string) {
 	});
 }
 
-export function useMyInvoices(termId?: string) {
-	return useQuery({
-		queryKey: ["student-portal", "invoices", termId],
-		queryFn: async () => {
-			const res = await feeApi.getMyInvoices();
-			if (!res.success) throw res;
-			// The API lists all of the student's invoices; the term filter is applied here.
-			return termId ? res.data.filter((i) => i.termId === termId) : res.data;
-		},
-	});
-}
