@@ -22,21 +22,30 @@ jobs:
           JS
           cd base && npm ci && node /tmp/spec.cjs | tee /tmp/before.txt
       - name: Update lockfile for the new constraints
+        shell: bash
         run: |
-          npm install --package-lock-only
-          npm update mongoose --package-lock-only -w apps/api
+          set -eo pipefail
+          npm update effect glob minimatch
+          npm update mongoose -w apps/api
           npm install
           npm ls effect glob minimatch next mongoose eslint-config-next 2>&1 | grep -E "effect@|glob@|minimatch@|next@|mongoose@|eslint-config-next@" | sort -u | tee /tmp/versions.txt
+          ! grep -q invalid /tmp/versions.txt
       - name: Spec on upgraded glob/minimatch must match baseline
         run: |
           node /tmp/spec.cjs | tee /tmp/after.txt
           test "$(sed 's/ glob.*//' /tmp/before.txt)" = "$(sed 's/ glob.*//' /tmp/after.txt)"
       - name: Production audit
-        run: npm audit --omit=dev --audit-level=high | tee /tmp/audit.txt
+        shell: bash
+        run: npm audit --omit=dev --audit-level=high 2>&1 | tee /tmp/audit.txt
       - name: Prisma still generates identically
         run: |
           PUBLIC_DATABASE_URL=postgresql://ci:ci@localhost:5432/ci TENANT_DATABASE_URL=postgresql://ci:ci@localhost:5432/ci npm run prisma:generate -w apps/api
           git diff --stat -- apps/api/src/generated | tail -1
+      - name: Print the lockfile change (the artifact host is unreachable from the authoring sandbox)
+        if: always()
+        run: |
+          echo "LOCKDIFF-BEGIN"; git diff -- package-lock.json; echo "LOCKDIFF-END"
+          git diff --stat -- package.json apps/*/package.json package-lock.json | tail -5
       - if: always()
         uses: actions/upload-artifact@v4
         with:
