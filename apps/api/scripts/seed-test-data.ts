@@ -5,7 +5,7 @@
  *   ALLOW_LOCAL_TEST_ADMIN_BOOTSTRAP=true \
  *   TEST_PLATFORM_ADMIN_EMAIL=platform.admin@example.test \
  *   TEST_PLATFORM_ADMIN_PASSWORD='ChangeThis!234' \
- *   PLATFORM_BASE_URL=http://admin.localhost:4000 \
+ *   PLATFORM_BASE_URL=http://admin.localhost:5000 \
  *   npx tsx scripts/seed-test-data.ts
  *
  * Optional:
@@ -24,9 +24,12 @@
  * database hostname (for example 172.18.0.2) in .env.development. This is an
  * explicit per-environment opt-in; private-network hosts are not trusted by default.
  */
-import "dotenv/config";
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.development" });
+dotenv.config();
 import bcrypt from "bcrypt";
-import { prisma, disconnectPrisma } from "../src/infrastructure/database/prisma/prisma.client";
+import { prisma, disconnectPrisma, getTenantClient } from "../src/infrastructure/database/prisma/prisma.client";
+import { TenantContext } from "../src/infrastructure/database/prisma/tenant.context";
 
 const API_PREFIX = "/api/v1";
 const ROLE_NAME = "Local Test Platform Admin";
@@ -58,7 +61,7 @@ function assertLocalOnly(): URL {
     );
   }
 
-  const api = new URL(process.env.PLATFORM_BASE_URL || "http://admin.localhost:4000");
+  const api = new URL(process.env.PLATFORM_BASE_URL || "http://admin.localhost:5000");
   const localApiHost = api.hostname === "localhost" || api.hostname === "127.0.0.1" ||
     api.hostname === "::1" || api.hostname.endsWith(".localhost");
   if (!localApiHost) throw new Error(`Refusing to call non-local API host: ${api.hostname}`);
@@ -225,10 +228,251 @@ async function waitForSchoolProvisioning(base: URL, token: string, subdomain: st
   );
 }
 
+
+const FIXTURES = [
+  { email: "admin2@greenfield-academy.test", first: "Second", last: "Admin", persona: "STAFF", roleKey: "school_admin" },
+  { email: "teacher@greenfield-academy.test", first: "Test", last: "Teacher", persona: "STAFF", roleKey: "teacher" },
+  { email: "bursar@greenfield-academy.test", first: "Test", last: "Bursar", persona: "STAFF", roleKey: "bursar" },
+  { email: "guardian@greenfield-academy.test", first: "Test", last: "Guardian", persona: "GUARDIAN" },
+  { email: "student@greenfield-academy.test", first: "Test", last: "Student", persona: "STUDENT" },
+  { email: "multi.persona@greenfield-academy.test", first: "Multi", last: "Persona", persona: "BOTH" },
+  { email: "password.change@greenfield-academy.test", first: "Password", last: "Change", persona: "STAFF", roleKey: "teacher", mustChangePassword: true },
+  { email: "restricted@greenfield-academy.test", first: "Restricted", last: "Account", persona: "STAFF", roleKey: "teacher", suspended: true },
+] as const;
+
+async function upsertFixtureUser(email: string, firstName: string, lastName: string, passwordHash: string, mustChangePassword = false) {
+  return prisma.user.upsert({
+    where: { email },
+    update: {
+      passwordHash, firstName, lastName, isActive: true, isEmailVerified: true,
+      emailVerifiedAt: new Date(), mustChangePassword, failedLoginCount: 0, lockedUntil: null,
+    },
+    create: {
+      email, passwordHash, firstName, lastName, isActive: true, isEmailVerified: true,
+      emailVerifiedAt: new Date(), mustChangePassword, failedLoginCount: 0,
+    },
+  });
+}
+
+async function seedGreenfieldAccounts(schoolId: string, schemaName: string, password: string) {
+  if (!schemaName) throw new Error("Greenfield provisioning completed without a tenant schema name.");
+  const passwordHash = await bcrypt.hash(password, 12);
+  await TenantContext.run({ tenantSchema: schemaName, schoolId }, async () => {
+    const db = getTenantClient();
+    const branch = await db.branch.findFirst({ where: { isMain: true, deletedAt: null } });
+    if (!branch) throw new Error("Greenfield has no active main branch; provisioning did not finish correctly.");
+
+    // Inactive account fixture: password remains valid, but login must be rejected by account state.
+    await prisma.user.upsert({
+      where: { email: "inactive@greenfield-academy.test" },
+      update: {
+        passwordHash, firstName: "Inactive", lastName: "Account", isActive: false,
+        isEmailVerified: true, emailVerifiedAt: new Date(), mustChangePassword: false,
+        failedLoginCount: 0, lockedUntil: null,
+      },
+      create: {
+        email: "inactive@greenfield-academy.test", passwordHash, firstName: "Inactive",
+        lastName: "Account", isActive: false, isEmailVerified: true,
+        emailVerifiedAt: new Date(), mustChangePassword: false,
+      },
+    });
+
+    // The founding admin is created by the provisioning worker. Only set its local fixture password here.
+    const schoolAdmin = await prisma.user.findUnique({ where: { email: TEST_SCHOOL.adminEmail } });
+    if (!schoolAdmin) throw new Error("Provisioning did not create the Greenfield school-admin user.");
+    await prisma.user.update({ where: { id: schoolAdmin.id }, data: {
+      passwordHash, isActive: true, isEmailVerified: true, emailVerifiedAt: new Date(),
+      mustChangePassword: false, failedLoginCount: 0, lockedUntil: null,
+    }});
+
+    const ensureRole = async (persona: "STAFF" | "STUDENT" | "GUARDIAN", keys: string[]) => {
+      const role = await db.schoolRole.findFirst({
+        where: { persona, deletedAt: null, OR: keys.flatMap(key => [{ sourceTemplateKey: key }, { name: { equals: key, mode: "insensitive" as const } }]) },
+        select: { id: true },
+      });
+      if (!role) throw new Error(`Missing provisioned ${persona} role template (expected one of: ${keys.join(", ")}).`);
+      return role.id;
+    };
+    const roleIds = {
+      admin: await ensureRole("STAFF", ["school_admin", "admin"]),
+      teacher: await ensureRole("STAFF", ["teacher"]),
+      bursar: await ensureRole("STAFF", ["bursar", "accountant"]),
+      guardian: await ensureRole("GUARDIAN", ["guardian"]),
+      student: await ensureRole("STUDENT", ["student"]),
+    };
+
+    const ensureMembership = async (userId: string, persona: "STAFF" | "STUDENT" | "GUARDIAN", entityId: string, roleId: string, status: "active" | "suspended" = "active") => {
+      const membership = await db.membership.upsert({
+        where: { userId_persona: { userId, persona } },
+        update: { personaEntityId: entityId, status },
+        create: { userId, persona, personaEntityId: entityId, status },
+      });
+      await db.membershipRole.upsert({
+        where: { membershipId_roleId: { membershipId: membership.id, roleId } },
+        update: {},
+        create: { membershipId: membership.id, roleId },
+      });
+      await prisma.userSchool.upsert({
+        where: { userId_schoolId: { userId, schoolId } },
+        update: {},
+        create: { userId, schoolId },
+      });
+      return membership;
+    };
+
+    // Link the provisioning-created school admin to the actual seeded school-admin role.
+    const adminStaff = await db.staff.findUnique({ where: { userId: schoolAdmin.id } });
+    if (!adminStaff) throw new Error("Provisioning did not create the school-admin Staff record.");
+    const adminMembership = await db.membership.findUnique({ where: { userId_persona: { userId: schoolAdmin.id, persona: "STAFF" } } });
+    if (!adminMembership) throw new Error("Provisioning did not create the school-admin STAFF membership.");
+    await db.membershipRole.upsert({
+      where: { membershipId_roleId: { membershipId: adminMembership.id, roleId: roleIds.admin } },
+      update: {}, create: { membershipId: adminMembership.id, roleId: roleIds.admin },
+    });
+    await prisma.userSchool.upsert({
+      where: { userId_schoolId: { userId: schoolAdmin.id, schoolId } },
+      update: {}, create: { userId: schoolAdmin.id, schoolId },
+    });
+
+    let linkedStudentId: string | null = null;
+    let linkedGuardianId: string | null = null;
+    for (const fixture of FIXTURES) {
+      const user = await upsertFixtureUser(fixture.email, fixture.first, fixture.last, passwordHash, "mustChangePassword" in fixture ? fixture.mustChangePassword : false);
+      const createStaff = async (roleId: string, status: "active" | "suspended" = "active") => {
+        const staff = await db.staff.upsert({
+          where: { userId: user.id },
+          update: { firstName: fixture.first, lastName: fixture.last, email: fixture.email, isActive: status === "active", deletedAt: null },
+          create: { userId: user.id, firstName: fixture.first, lastName: fixture.last, email: fixture.email, category: "non_teaching", employmentType: "full_time" },
+        });
+        await db.staffBranch.upsert({ where: { staffId_branchId: { staffId: staff.id, branchId: branch.id } }, update: { isPrimary: true }, create: { staffId: staff.id, branchId: branch.id, isPrimary: true } });
+        await ensureMembership(user.id, "STAFF", staff.id, roleId, status);
+      };
+      const createGuardian = async () => {
+        const guardian = await db.guardian.upsert({
+          where: { userId: user.id },
+          update: { firstName: fixture.first, lastName: fixture.last, email: fixture.email, isActive: true },
+          create: { userId: user.id, firstName: fixture.first, lastName: fixture.last, email: fixture.email },
+        });
+        linkedGuardianId = guardian.id;
+        await ensureMembership(user.id, "GUARDIAN", guardian.id, roleIds.guardian);
+      };
+      if (fixture.persona === "STAFF") {
+        const roleId = fixture.roleKey === "school_admin" ? roleIds.admin : fixture.roleKey === "bursar" ? roleIds.bursar : roleIds.teacher;
+        await createStaff(roleId, "suspended" in fixture && fixture.suspended ? "suspended" : "active");
+      } else if (fixture.persona === "GUARDIAN") {
+        await createGuardian();
+      } else if (fixture.persona === "STUDENT") {
+        const student = await db.student.upsert({
+          where: { userId: user.id },
+          update: { firstName: fixture.first, lastName: fixture.last, branchId: branch.id, isActive: true },
+          create: { userId: user.id, firstName: fixture.first, lastName: fixture.last, admissionNumber: "TEST-STUDENT-001", branchId: branch.id, admittedAt: new Date() },
+        });
+        linkedStudentId = student.id;
+        await ensureMembership(user.id, "STUDENT", student.id, roleIds.student);
+      } else {
+        await createStaff(roleIds.teacher);
+        await createGuardian();
+      }
+    }
+
+    if (linkedGuardianId && linkedStudentId) {
+      await db.studentGuardian.upsert({
+        where: { studentId_guardianId: { studentId: linkedStudentId, guardianId: linkedGuardianId } },
+        update: { relation: "guardian", isPrimary: true },
+        create: { studentId: linkedStudentId, guardianId: linkedGuardianId, relation: "guardian", isPrimary: true },
+      });
+    }
+  });
+  console.log("✓ Greenfield fixture accounts and memberships are ready (passwords are not logged).");
+}
+
+
+
+const SECOND_SCHOOL = {
+  name: "Riverside Academy",
+  subdomain: "riverside-academy",
+  email: "school@riverside-academy.test",
+  adminEmail: "riverside.admin@riverside-academy.test",
+};
+
+async function seedCrossSchoolMembership(schoolId: string, schemaName: string, userId: string) {
+  await TenantContext.run({ tenantSchema: schemaName, schoolId }, async () => {
+    const db = getTenantClient();
+    const branch = await db.branch.findFirst({ where: { isMain: true, deletedAt: null } });
+    if (!branch) throw new Error(`No main branch found in ${schemaName}.`);
+    const role = await db.schoolRole.findFirst({
+      where: { persona: "STAFF", deletedAt: null, OR: [{ sourceTemplateKey: "teacher" }, { name: { equals: "teacher", mode: "insensitive" } }] },
+      select: { id: true },
+    });
+    if (!role) throw new Error(`No seeded teacher role found in ${schemaName}.`);
+    const staff = await db.staff.upsert({
+      where: { userId },
+      update: { firstName: "Multi", lastName: "School", email: "multi.school@schoolos.test", isActive: true, deletedAt: null },
+      create: { userId, firstName: "Multi", lastName: "School", email: "multi.school@schoolos.test", category: "teaching", employmentType: "full_time" },
+    });
+    await db.staffBranch.upsert({
+      where: { staffId_branchId: { staffId: staff.id, branchId: branch.id } },
+      update: { isPrimary: true },
+      create: { staffId: staff.id, branchId: branch.id, isPrimary: true },
+    });
+    const membership = await db.membership.upsert({
+      where: { userId_persona: { userId, persona: "STAFF" } },
+      update: { personaEntityId: staff.id, status: "active" },
+      create: { userId, persona: "STAFF", personaEntityId: staff.id, status: "active" },
+    });
+    await db.membershipRole.upsert({
+      where: { membershipId_roleId: { membershipId: membership.id, roleId: role.id } },
+      update: {}, create: { membershipId: membership.id, roleId: role.id },
+    });
+    await prisma.userSchool.upsert({
+      where: { userId_schoolId: { userId, schoolId } },
+      update: {}, create: { userId, schoolId },
+    });
+  });
+}
+
+async function provisionSecondSchool(base: URL, token: string, fixturePassword: string) {
+  let school = await prisma.school.findUnique({ where: { subdomain: SECOND_SCHOOL.subdomain } });
+  if (!school) {
+    await requestJson(base, "/platform/schools", {
+      method: "POST", token,
+      body: {
+        name: SECOND_SCHOOL.name, subdomain: SECOND_SCHOOL.subdomain,
+        email: SECOND_SCHOOL.email, phone: "+2348000000010",
+        schoolCategory: "primary_secondary", schoolOwnership: "private",
+        admin: { firstName: "Riverside", lastName: "Admin", email: SECOND_SCHOOL.adminEmail, phone: "+2348000000011" },
+      },
+    });
+  } else {
+    await resumeProvisioning(base, token, school);
+  }
+  school = await waitForSchoolProvisioning(base, token, SECOND_SCHOOL.subdomain);
+  const passwordHash = await bcrypt.hash(fixturePassword, 12);
+  const user = await prisma.user.upsert({
+    where: { email: "multi.school@schoolos.test" },
+    update: {
+      passwordHash, firstName: "Multi", lastName: "School", isActive: true,
+      isEmailVerified: true, emailVerifiedAt: new Date(), mustChangePassword: false,
+      failedLoginCount: 0, lockedUntil: null,
+    },
+    create: {
+      email: "multi.school@schoolos.test", passwordHash, firstName: "Multi", lastName: "School",
+      isActive: true, isEmailVerified: true, emailVerifiedAt: new Date(), mustChangePassword: false,
+    },
+  });
+  await seedCrossSchoolMembership(school.id, school.schemaName!, user.id);
+  const greenfield = await prisma.school.findUnique({ where: { subdomain: TEST_SCHOOL.subdomain } });
+  if (!greenfield?.schemaName) throw new Error("Greenfield tenant schema missing while creating cross-school fixture.");
+  await seedCrossSchoolMembership(greenfield.id, greenfield.schemaName, user.id);
+  console.log("✓ Riverside Academy provisioned and multi-school fixture membership linked.");
+}
+
+
 async function main() {
   const apiBase = assertLocalOnly();
   const platformEmail = required("TEST_PLATFORM_ADMIN_EMAIL").toLowerCase();
   const platformPassword = required("TEST_PLATFORM_ADMIN_PASSWORD");
+  const fixturePassword = required("TEST_FIXTURE_PASSWORD");
   console.log("CORE local test-data bootstrap");
   console.log(`API: ${apiBase.origin}`);
   console.log(`Database host: ${new URL(required("DATABASE_URL")).hostname}`);
@@ -295,7 +539,9 @@ async function main() {
 
   console.log(`  Subdomain: ${TEST_SCHOOL.subdomain}`);
   console.log(`  Admin email: ${TEST_SCHOOL.adminEmail}`);
-  await waitForSchoolProvisioning(apiBase, accessToken, TEST_SCHOOL.subdomain);
+  const provisionedSchool = await waitForSchoolProvisioning(apiBase, accessToken, TEST_SCHOOL.subdomain);
+  await seedGreenfieldAccounts(provisionedSchool.id, provisionedSchool.schemaName!, fixturePassword);
+  await provisionSecondSchool(apiBase, accessToken, fixturePassword);
 
   const registrationPassword = process.env.REGISTER_TEST_PASSWORD?.trim();
   if (registrationPassword) {

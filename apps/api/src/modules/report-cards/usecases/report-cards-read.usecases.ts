@@ -2,7 +2,7 @@ import type { Access } from "../../../foundation/access.service";
 import { buildPaginationMeta } from "../../../shared/utils/pagination";
 import type { ReportCardsRepository } from "../repositories/report-cards.repository";
 import { CARD_INCLUDE, CardWithRefs, snapshotOf } from "../repositories/card-table";
-import type { ReportCardBuilder } from "../services/report-card-builder.service";
+import type { ClassContext, ReportCardBuilder } from "../services/report-card-builder.service";
 import { cardsViewWhere, isFamily, mayViewClass, mayWorkOnClass } from "../services/report-card-scope";
 import { reportCardErrors } from "../domain/report-cards.errors";
 import { isEditableCard, isVisibleCard, nextCardStatus, staleness } from "../domain/report-card.policy";
@@ -97,7 +97,7 @@ export class ClassOverviewUseCase {
         const repo = this.d.reportCardsRepository;
         const termId = query.termId ?? (await repo.currentTerm())?.id;
         if (!termId) throw reportCardErrors.termNotFound();
-        const ctx = await this.d.reportCardBuilder.loadClass(query.classId, termId);
+        const ctx: ClassContext | null = await this.d.reportCardBuilder.loadClass(query.classId, termId);
         if (!ctx) throw reportCardErrors.classNotFound();
         if (!mayViewClass(access, ctx.cls.classTeacherId, ctx.cls.branchId)) throw reportCardErrors.cannotSee();
 
