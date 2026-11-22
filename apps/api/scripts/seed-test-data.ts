@@ -461,6 +461,9 @@ async function provisionSecondSchool(base: URL, token: string, fixturePassword: 
     },
   });
   await seedCrossSchoolMembership(school.id, school.schemaName!, user.id);
+  const greenfield = await prisma.school.findUnique({ where: { subdomain: TEST_SCHOOL.subdomain } });
+  if (!greenfield?.schemaName) throw new Error("Greenfield tenant schema missing while creating cross-school fixture.");
+  await seedCrossSchoolMembership(greenfield.id, greenfield.schemaName, user.id);
   console.log("✓ Riverside Academy provisioned and multi-school fixture membership linked.");
 }
 
