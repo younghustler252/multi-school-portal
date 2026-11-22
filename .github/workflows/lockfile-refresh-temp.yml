@@ -11,15 +11,16 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version-file: .nvmrc }
-      - name: Baseline spec (current lockfile)
+      - uses: actions/checkout@v4
+        with: { ref: refactor/api, path: base }
+      - name: Baseline spec (refactor/api as it is today)
         run: |
-          npm ci
           cat > /tmp/spec.cjs <<'JS'
           const sj = require(require.resolve("swagger-jsdoc", { paths: [process.cwd() + "/apps/api"] }));
           const s = sj({ definition: { openapi: "3.0.0", info: { title: "t", version: "1" } }, apis: ["./apps/api/src/modules/**/routes/*.routes.ts"] });
           console.log("PATHS", Object.keys(s.paths || {}).length, "glob", require("glob/package.json").version);
           JS
-          node /tmp/spec.cjs | tee /tmp/before.txt
+          cd base && npm ci && node /tmp/spec.cjs | tee /tmp/before.txt
       - name: Update lockfile for the new constraints
         run: |
           npm install --package-lock-only
