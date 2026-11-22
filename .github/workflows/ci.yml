@@ -38,7 +38,7 @@ jobs:
         run: |
           mkdir -p /tmp/out; : > /tmp/summary.txt
           for f in $(find tests -name '*.test.ts' | sort); do
-            timeout 100 npx tsx --import ./tests/setup/env.ts --test --test-reporter=spec "$f" > "/tmp/out/$(echo $f | tr / _).log" 2>&1; rc=$?
+            timeout 100 npx tsx --import ./tests/setup/env.ts --test --test-reporter=spec "$f" > "/tmp/out/$(echo $f | tr / _).log" 2>&1 && rc=0 || rc=$?
             echo "$rc $f" >> /tmp/summary.txt
           done
           echo "=== SUMMARY (rc 0 pass, 1 fail, 124 hung)"; awk '{c[$1]++} END{for(k in c) print "rc="k": "c[k]}' /tmp/summary.txt
