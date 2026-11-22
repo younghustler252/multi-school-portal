@@ -4,6 +4,8 @@ import {
     NextFunction,
 }                                from "express";
 
+import { validated } from "../../../infrastructure/middleware/validate.middleware";
+import type { ListFeedbackDtoType } from "../dtos/feedback.dto";
 import { SubmitFeedbackUseCase }       from "../usecases/submit-feedback.usecase";
 import { GetFeedbackUseCase }          from "../usecases/get-feedback.usecase";
 import { ListFeedbackUseCase }         from "../usecases/list-feedback.usecase";
@@ -92,7 +94,7 @@ export class FeedbackController {
     ): Promise<void> => {
         try {
             const result = await this.listFeedbackUseCase.execute(
-                req.query as any,
+                validated<ListFeedbackDtoType>(res, "query", req.query),
             );
 
             sendPaginated(

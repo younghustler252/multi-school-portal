@@ -145,3 +145,22 @@ test("notifier: when no channel is allowed nobody is told and nothing is dispatc
     const r = await n.notifyPublished("sch", "p1", [{ id: "k1", studentId: "a", publishedAt: NOW, snapshot: {} as any }]);
     assert.deepEqual(r, { told: [], created: 0, duplicates: 0 }); assert.equal(called, false);
 });
+
+/* REM-012: publishing with subjects missing is its own permission, explicit and audited */
+test("allowMissing needs report_cards.publish_incomplete; publish alone cannot override", async () => {
+    const s = await setup(partial());
+    const publisher = access({ can: ["report_cards.view", "report_cards.publish"] });   // publish, but not the override
+    await assert.rejects(s.pubUc.execute({ ids: s.rows.map(x => x.id), allowMissing: true }, "sch", publisher, { userId: "p1" }, NOW), /not allowed|publish report cards with unpublished/i);
+    // without the flag the card is blocked, not published
+    const r = await s.pubUc.execute({ ids: s.rows.map(x => x.id) }, "sch", publisher, { userId: "p1" }, NOW);
+    assert.equal(r.published, 0); assert.ok(r.results.every(x => x.reason === "blocked"));
+});
+
+test("an override is audited with the subjects that were missing", async () => {
+    const s = await setup(partial());
+    const r = await s.pubUc.execute({ ids: s.rows.map(x => x.id), allowMissing: true }, "sch", admin(), { userId: "p1" }, NOW);
+    assert.ok(r.published > 0);
+    const log = s.audit.at(-1).newValue;
+    assert.equal(log.incompleteOverride, true);
+    assert.ok(log.overridden.length > 0 && log.overridden[0].missing.length > 0);
+});

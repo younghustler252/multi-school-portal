@@ -6,7 +6,7 @@ import { BUCKETS, buildAgeing, buildCollections, buildStatement, defaultersOf } 
 import { AgeingReport, BucketTotals, Statement } from "../domain/report.entity";
 import { AgeingQueryType, CollectionsQueryType, DefaultersQueryType, StatementQueryType } from "../dtos/report.dto";
 
-interface Dependencies { feeReportRepository: IFeeReportRepository }
+export interface Dependencies { feeReportRepository: IFeeReportRepository }
 export interface ReportOptions { now?: () => Date }
 
 const bucketsOut = (b: BucketTotals) => Object.fromEntries(BUCKETS.map(k => [k, koboOut(b[k])]));
@@ -74,7 +74,7 @@ export class StatementUseCase {
 export interface Viewer { persona: string | null; personaEntityId: string | null }
 
 /* WHAT A FAMILY LOGIN MAY SEE: a guardian's linked children, or the student themselves. Anyone else sees nobody. */
-async function myStudentIds(d: Dependencies, v: Viewer): Promise<string[]> {
+export async function myStudentIds(d: Dependencies, v: Viewer): Promise<string[]> {
     if ((v.persona === "GUARDIAN" || v.persona === "STUDENT") && v.personaEntityId) return d.feeReportRepository.childIdsOf(v.persona, v.personaEntityId);
     return [];
 }
