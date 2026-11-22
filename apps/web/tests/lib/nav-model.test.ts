@@ -7,6 +7,7 @@ function me(keys: string[], realm: "school" | "platform" = "school"): MyPermissi
 		realm, persona: realm === "school" ? "STAFF" : null, roles: [], holdsEverything: false,
 		permissions: keys.map((key) => ({ key, scope: "ALL" as const })),
 		branches: { all: [], assigned: [], schoolHasSeveral: false },
+		entitlements: null, entitlementsNotReady: null,
 	};
 }
 const labels = (p: MyPermissions | null) => visibleNav(p).map((e) => e.label);

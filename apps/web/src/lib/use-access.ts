@@ -9,6 +9,8 @@ const NOTHING: MyPermissions = {
 	holdsEverything: false,
 	permissions: [],
 	branches: { all: [], assigned: [], schoolHasSeveral: false },
+	entitlements: null,
+	entitlementsNotReady: null,
 };
 
 /*

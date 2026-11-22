@@ -22,6 +22,7 @@ function me(overrides: Partial<MyPermissions> = {}): MyPermissions {
 			{ key: "payroll.payslips.view", scope: "OWN" },
 		],
 		branches: { all: [main, north], assigned: [north], schoolHasSeveral: true },
+		entitlements: null, entitlementsNotReady: null,
 		...overrides,
 	};
 }
