@@ -24,7 +24,9 @@
  * database hostname (for example 172.18.0.2) in .env.development. This is an
  * explicit per-environment opt-in; private-network hosts are not trusted by default.
  */
-import "dotenv/config";
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.development" });
+dotenv.config();
 import bcrypt from "bcrypt";
 import { prisma, disconnectPrisma, getTenantClient } from "../src/infrastructure/database/prisma/prisma.client";
 import { TenantContext } from "../src/infrastructure/database/prisma/tenant.context";
@@ -259,6 +261,21 @@ async function seedGreenfieldAccounts(schoolId: string, schemaName: string, pass
     const db = getTenantClient();
     const branch = await db.branch.findFirst({ where: { isMain: true, deletedAt: null } });
     if (!branch) throw new Error("Greenfield has no active main branch; provisioning did not finish correctly.");
+
+    // Inactive account fixture: password remains valid, but login must be rejected by account state.
+    await prisma.user.upsert({
+      where: { email: "inactive@greenfield-academy.test" },
+      update: {
+        passwordHash, firstName: "Inactive", lastName: "Account", isActive: false,
+        isEmailVerified: true, emailVerifiedAt: new Date(), mustChangePassword: false,
+        failedLoginCount: 0, lockedUntil: null,
+      },
+      create: {
+        email: "inactive@greenfield-academy.test", passwordHash, firstName: "Inactive",
+        lastName: "Account", isActive: false, isEmailVerified: true,
+        emailVerifiedAt: new Date(), mustChangePassword: false,
+      },
+    });
 
     // The founding admin is created by the provisioning worker. Only set its local fixture password here.
     const schoolAdmin = await prisma.user.findUnique({ where: { email: TEST_SCHOOL.adminEmail } });
