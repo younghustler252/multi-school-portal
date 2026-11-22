@@ -387,6 +387,84 @@ async function seedGreenfieldAccounts(schoolId: string, schemaName: string, pass
 }
 
 
+
+const SECOND_SCHOOL = {
+  name: "Riverside Academy",
+  subdomain: "riverside-academy",
+  email: "school@riverside-academy.test",
+  adminEmail: "riverside.admin@riverside-academy.test",
+};
+
+async function seedCrossSchoolMembership(schoolId: string, schemaName: string, userId: string) {
+  await TenantContext.run({ tenantSchema: schemaName, schoolId }, async () => {
+    const db = getTenantClient();
+    const branch = await db.branch.findFirst({ where: { isMain: true, deletedAt: null } });
+    if (!branch) throw new Error(`No main branch found in ${schemaName}.`);
+    const role = await db.schoolRole.findFirst({
+      where: { persona: "STAFF", deletedAt: null, OR: [{ sourceTemplateKey: "teacher" }, { name: { equals: "teacher", mode: "insensitive" } }] },
+      select: { id: true },
+    });
+    if (!role) throw new Error(`No seeded teacher role found in ${schemaName}.`);
+    const staff = await db.staff.upsert({
+      where: { userId },
+      update: { firstName: "Multi", lastName: "School", email: "multi.school@schoolos.test", isActive: true, deletedAt: null },
+      create: { userId, firstName: "Multi", lastName: "School", email: "multi.school@schoolos.test", category: "teaching", employmentType: "full_time" },
+    });
+    await db.staffBranch.upsert({
+      where: { staffId_branchId: { staffId: staff.id, branchId: branch.id } },
+      update: { isPrimary: true },
+      create: { staffId: staff.id, branchId: branch.id, isPrimary: true },
+    });
+    const membership = await db.membership.upsert({
+      where: { userId_persona: { userId, persona: "STAFF" } },
+      update: { personaEntityId: staff.id, status: "active" },
+      create: { userId, persona: "STAFF", personaEntityId: staff.id, status: "active" },
+    });
+    await db.membershipRole.upsert({
+      where: { membershipId_roleId: { membershipId: membership.id, roleId: role.id } },
+      update: {}, create: { membershipId: membership.id, roleId: role.id },
+    });
+    await prisma.userSchool.upsert({
+      where: { userId_schoolId: { userId, schoolId } },
+      update: {}, create: { userId, schoolId },
+    });
+  });
+}
+
+async function provisionSecondSchool(base: URL, token: string, fixturePassword: string) {
+  let school = await prisma.school.findUnique({ where: { subdomain: SECOND_SCHOOL.subdomain } });
+  if (!school) {
+    await requestJson(base, "/platform/schools", {
+      method: "POST", token,
+      body: {
+        name: SECOND_SCHOOL.name, subdomain: SECOND_SCHOOL.subdomain,
+        email: SECOND_SCHOOL.email, phone: "+2348000000010",
+        schoolCategory: "primary_secondary", schoolOwnership: "private",
+        admin: { firstName: "Riverside", lastName: "Admin", email: SECOND_SCHOOL.adminEmail, phone: "+2348000000011" },
+      },
+    });
+  } else {
+    await resumeProvisioning(base, token, school);
+  }
+  school = await waitForSchoolProvisioning(base, token, SECOND_SCHOOL.subdomain);
+  const passwordHash = await bcrypt.hash(fixturePassword, 12);
+  const user = await prisma.user.upsert({
+    where: { email: "multi.school@schoolos.test" },
+    update: {
+      passwordHash, firstName: "Multi", lastName: "School", isActive: true,
+      isEmailVerified: true, emailVerifiedAt: new Date(), mustChangePassword: false,
+      failedLoginCount: 0, lockedUntil: null,
+    },
+    create: {
+      email: "multi.school@schoolos.test", passwordHash, firstName: "Multi", lastName: "School",
+      isActive: true, isEmailVerified: true, emailVerifiedAt: new Date(), mustChangePassword: false,
+    },
+  });
+  await seedCrossSchoolMembership(school.id, school.schemaName!, user.id);
+  console.log("✓ Riverside Academy provisioned and multi-school fixture membership linked.");
+}
+
+
 async function main() {
   const apiBase = assertLocalOnly();
   const platformEmail = required("TEST_PLATFORM_ADMIN_EMAIL").toLowerCase();
@@ -460,6 +538,7 @@ async function main() {
   console.log(`  Admin email: ${TEST_SCHOOL.adminEmail}`);
   const provisionedSchool = await waitForSchoolProvisioning(apiBase, accessToken, TEST_SCHOOL.subdomain);
   await seedGreenfieldAccounts(provisionedSchool.id, provisionedSchool.schemaName!, fixturePassword);
+  await provisionSecondSchool(apiBase, accessToken, fixturePassword);
 
   const registrationPassword = process.env.REGISTER_TEST_PASSWORD?.trim();
   if (registrationPassword) {
