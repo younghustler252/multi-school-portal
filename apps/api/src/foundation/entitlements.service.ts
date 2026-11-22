@@ -106,8 +106,9 @@ export class EntitlementsService {
     /**
      * Every known feature as the signed-in school's user may see it, with school overrides applied.
      * - A key is ALWAYS present (registry keys plus any the platform console added), so the screen never guesses from absence.
-     * - Features the platform has marked inactive (not offered yet) are reported as not available, even though the server does not enforce them.
-     * - Everything else mirrors checkFeature(): what the screen shows is what the server will allow.
+     * - Features marked inactive (defined, not switched on yet) are reported as not available so the screen does not offer them. This is a
+     *   READINESS answer: the server does NOT enforce them (checkFeature allows them), so false there is not a 403. See notReadyFeatures().
+     * - Every active feature mirrors checkFeature(): a false is a plan decision and the gated route answers 403.
      */
     async effectiveFlags(schoolId: string): Promise<Record<string, EntitlementFlag>> {
         const defs = await this.getDefs();
@@ -125,6 +126,17 @@ export class EntitlementsService {
             out[key] = { allowed, limit: value ? value.limit : 0 };
         }
         return out;
+    }
+
+    /**
+     * Keys of features that exist but are not switched on yet (isActive = false). The server does not enforce these (checkFeature
+     * lets them through), so for them a `false` in effectiveFlags() means "do not offer this yet", NOT "the route will answer 403".
+     * Keys are sorted. Plan names, prices and usage are not part of this.
+     */
+    async notReadyFeatures(): Promise<string[]> {
+        const defs = await this.getDefs();
+        const keys = new Set<string>([...FEATURE_REGISTRY.map(f => f.key), ...defs.keys()]);
+        return [...keys].filter(k => defs.get(k) ? !defs.get(k)!.isActive : false).sort();
     }
 
     /** `adding` is how many records the caller is about to create (bulk imports pass the batch size). */

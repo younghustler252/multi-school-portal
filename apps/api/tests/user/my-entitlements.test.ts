@@ -77,22 +77,45 @@ describe("effective entitlement flags", () => {
 });
 
 const staff = new Access("school", "u1", "m1", "STAFF", null, new Set(["x"]), true, new Map());
+describe("readiness is reported separately from plan entitlement", () => {
+    it("notReadyFeatures lists exactly the inactive features, sorted, and follows the console definition", async () => {
+        const fromCode = FEATURE_REGISTRY.filter(f => f.isActive === false).map(f => f.key).sort();
+        assert.deepEqual(await service().notReadyFeatures(), fromCode);
+        const changed = await service({ defs: defs({ "security.two_factor": { isActive: true }, "modules.fees": { isActive: false } }) }).notReadyFeatures();
+        assert.ok(changed.includes("modules.fees")); assert.ok(!changed.includes("security.two_factor"));
+    });
+    it("the documented difference is real: an inactive feature is false here but the server gate still allows it; an active one the plan lacks is false and denied", async () => {
+        const s = service({ plan: [plan("security.two_factor", { boolValue: true })] });
+        assert.equal((await s.effectiveFlags("s1"))["security.two_factor"], false);
+        assert.equal((await s.checkFeature("s1", "security.two_factor")).allowed, true);      // readiness, not a 403
+        assert.equal((await s.effectiveFlags("s1"))["grading.custom"], false);
+        assert.equal((await s.checkFeature("s1", "grading.custom")).allowed, false);         // plan entitlement: 403
+        assert.ok(!(await s.notReadyFeatures()).includes("grading.custom"));
+    });
+    it("every key that is false because it is not ready is in the list, and nothing active is", async () => {
+        const s = service({ plan: FEATURE_REGISTRY.map(f => plan(f.key, { boolValue: true, limitValue: 10 })) });
+        const flags = await s.effectiveFlags("s1"); const notReady = new Set(await s.notReadyFeatures());
+        for (const [k, v] of Object.entries(flags)) { const on = typeof v === "object" ? v.allowed : v; assert.equal(!on, notReady.has(k), k); }
+    });
+});
+
 describe("GET /users/me/permissions carries entitlements", () => {
     it("a school session gets the flags for its own school", async () => {
         let asked = "";
-        const out = await new MyPermissionsUseCase({}, async () => [], async (id) => { asked = id; return { "modules.fees": true }; }).execute(staff, "s1");
+        const out = await new MyPermissionsUseCase({}, async () => [], async (id) => { asked = id; return { "modules.fees": true }; }, async () => ["api.access"]).execute(staff, "s1");
         assert.equal(asked, "s1");
         assert.deepEqual(out.entitlements, { "modules.fees": true });
+        assert.deepEqual(out.entitlementsNotReady, ["api.access"]);
     });
     it("a platform session has none and reads none", async () => {
         const a = new Access("platform", "u9", "pm1", null, null, new Set(["super_admin"]), false, new Map());
         let asked = false;
         const out = await new MyPermissionsUseCase({}, async () => [], async () => { asked = true; return {}; }).execute(a);
-        assert.equal(out.entitlements, null); assert.equal(asked, false);
+        assert.equal(out.entitlements, null); assert.equal(out.entitlementsNotReady, null); assert.equal(asked, false);
     });
     it("the helper reads boolean and limit flags", () => {
         const me = accessOf({ realm: "school", persona: "STAFF", roles: [], holdsEverything: false, permissions: [], branches: { all: [], assigned: [], schoolHasSeveral: false },
-            entitlements: { "modules.fees": true, "grading.custom": false, "students.max": { allowed: true, limit: 10 }, "staff.max": { allowed: false, limit: 0 } } } as MyPermissions);
+            entitlementsNotReady: [], entitlements: { "modules.fees": true, "grading.custom": false, "students.max": { allowed: true, limit: 10 }, "staff.max": { allowed: false, limit: 0 } } } as MyPermissions);
         assert.deepEqual(["modules.fees", "grading.custom", "students.max", "staff.max", "nope"].map(me.hasFeature), [true, false, true, false, false]);
     });
 });

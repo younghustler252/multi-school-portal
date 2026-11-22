@@ -25,11 +25,14 @@ export interface MyPermissions {
     };
     /**
      * What the school's plan (plus any platform override) lets it use, by feature key, e.g. entitlements["modules.fees"] === true.
-     * Every known feature is present (a missing key never means "maybe"); features the platform has not switched on yet are false.
-     * It mirrors the server's own check, so a false here is a 403 FEATURE_NOT_AVAILABLE there. No usage, prices or plan names.
-     * null in a platform session.
+     * Every known feature is present (a missing key never means "maybe"). true = the plan grants it AND it is switched on.
+     * false has two causes: the plan does not grant it (the server answers 403 FEATURE_NOT_AVAILABLE on a gated route),
+     * or the feature is not switched on yet (listed in `entitlementsNotReady`; the server does NOT enforce those, so do not
+     * read false as a 403 for them; just do not offer the feature). No usage, prices or plan names. null in a platform session.
      */
     entitlements: Record<string, EntitlementFlag> | null;
+    /** Feature keys that exist but are not switched on yet; always false in `entitlements`. null in a platform session. */
+    entitlementsNotReady: string[] | null;
 }
 
 const RANK: Record<Scope, number> = { OWN: 1, ASSIGNED: 2, BRANCH: 3, ALL: 4 };
