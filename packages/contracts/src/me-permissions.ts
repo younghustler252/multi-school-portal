@@ -5,6 +5,9 @@
 export type Scope = "ALL" | "BRANCH" | "ASSIGNED" | "OWN";
 export interface BranchRef { id: string; name: string; isMain: boolean }
 
+/** Yes/no features are true/false. Limit and quota features are { allowed, limit }: limit null = unlimited, 0 = not granted. */
+export type EntitlementFlag = boolean | { allowed: boolean; limit: number | null };
+
 export interface MyPermissions {
     realm: "school" | "platform";
     persona: "STAFF" | "STUDENT" | "GUARDIAN" | null;
@@ -20,6 +23,18 @@ export interface MyPermissions {
         /** false = the school has one branch: hide every branch picker. */
         schoolHasSeveral: boolean;
     };
+    /**
+     * What the school's plan (plus any platform override) lets it use, by feature key, e.g. entitlements["modules.fees"] === true.
+     * Every known feature is present (a missing key never means "maybe"). true = the school may use it: it is switched on AND
+     * the server's gate lets it through. That is NOT always "the plan lists it": a feature whose enforcement is WARN is let through
+     * (and only flagged server-side) even when the plan does not grant it, so it shows true. Do not read true as "included in the plan".
+     * false has two causes: the plan does not grant it (the server answers 403 FEATURE_NOT_AVAILABLE on a gated route),
+     * or the feature is not switched on yet (listed in `entitlementsNotReady`; the server does NOT enforce those, so do not
+     * read false as a 403 for them; just do not offer the feature). No usage, prices or plan names. null in a platform session.
+     */
+    entitlements: Record<string, EntitlementFlag> | null;
+    /** Feature keys that exist but are not switched on yet; always false in `entitlements`. null in a platform session. */
+    entitlementsNotReady: string[] | null;
 }
 
 const RANK: Record<Scope, number> = { OWN: 1, ASSIGNED: 2, BRANCH: 3, ALL: 4 };
@@ -42,5 +57,7 @@ export function accessOf(p: MyPermissions) {
         },
         /** Is any of these held? (for a menu entry that several permissions can open) */
         canAny: (...keys: string[]): boolean => keys.some(k => scopes.has(k)),
+        /** Is this plan feature available to the school? (limit features count as available when allowed) */
+        hasFeature: (key: string): boolean => { const f = p.entitlements?.[key]; return typeof f === "object" && f !== null ? f.allowed : f === true; },
     };
 }

@@ -6,6 +6,7 @@ import { authenticate } from "../../../infrastructure/middleware/auth.middleware
 import { requireTenant } from "../../../infrastructure/middleware/tenant-resolver.middleware";
 import { requirePermission } from "../../../infrastructure/middleware/rbac.middleware";
 import { requireFeature } from "../../../infrastructure/middleware/feature-gate.middleware";
+import { FeeReportController } from "../controllers/fee-report.controller";
 import { InvoiceExtrasController } from "../controllers/invoice-extras.controller";
 import { SaveInstalmentPlanDto, OpeningBalancesDto, RunLateFeesDto } from "../dtos/instalment.dto";
 import { GenerateInvoicesDto, CreateInvoiceDto, UpdateDraftInvoiceDto, IssueInvoiceDto, BulkIssueDto, VoidInvoiceDto } from "../dtos/invoice.dto";
@@ -17,6 +18,7 @@ import { GenerateInvoicesDto, CreateInvoiceDto, UpdateDraftInvoiceDto, IssueInvo
 |   POST   /generate         fees.invoices.create   drafts for a term's students from the structures
 |   POST   /issue            fees.invoices.issue    issue many drafts
 |   GET    /:id              fees.invoices.view
+|   GET    /:id/payments     fees.invoices.view + payments.view   confirmed payments applied to this invoice
 |   PUT    /:id, DELETE /:id fees.invoices.create   drafts only
 |   POST   /:id/issue        fees.invoices.issue    numbers it and posts it to the books
 |   POST   /:id/void         fees.invoices.void     before any payment or adjustment
@@ -26,6 +28,7 @@ import { GenerateInvoicesDto, CreateInvoiceDto, UpdateDraftInvoiceDto, IssueInvo
 */
 const router = Router();
 const ctrl = () => container.resolve<FeeInvoiceController>("feeInvoiceController");
+const reports = () => container.resolve<FeeReportController>("feeReportController");
 const extras = () => container.resolve<InvoiceExtrasController>("invoiceExtrasController");
 const guard = (permission: string) => [authenticate, requireTenant, requirePermission(permission), requireFeature("modules.fees")] as const;
 
@@ -36,6 +39,7 @@ router.post("/issue", ...guard("fees.invoices.issue"), validate(BulkIssueDto), (
 router.post("/opening-balances", ...guard("fees.invoices.issue"), validate(OpeningBalancesDto), (q, s, n) => extras().openingBalances(q, s, n));
 router.post("/late-fees/run", ...guard("fees.invoices.issue"), validate(RunLateFeesDto), (q, s, n) => extras().lateFees(q, s, n));
 router.get("/:id", ...guard("fees.invoices.view"), (q, s, n) => ctrl().get(q, s, n));
+router.get("/:id/payments", ...guard("fees.invoices.view"), requirePermission("payments.view"), (q, s, n) => reports().invoicePayments(q, s, n));
 router.put("/:id", ...guard("fees.invoices.create"), validate(UpdateDraftInvoiceDto), (q, s, n) => ctrl().update(q, s, n));
 router.delete("/:id", ...guard("fees.invoices.create"), (q, s, n) => ctrl().remove(q, s, n));
 router.post("/:id/issue", ...guard("fees.invoices.issue"), validate(IssueInvoiceDto), (q, s, n) => ctrl().issue(q, s, n));
