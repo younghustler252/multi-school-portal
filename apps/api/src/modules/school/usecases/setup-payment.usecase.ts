@@ -9,14 +9,13 @@ import { AuthMessageService } from "../../auth/services/auth-message.service";
 import { AuditService } from "../../audit/services/audit.service";
 import { schoolErrors } from "../domain/school.errors";
 import { SetupPaymentDtoType } from "../dtos/school.dto";
+import { accountNameMatchesSchool as namesMatch } from "../domain/account-name";
 
 interface Dependencies {
     schoolRepository: ISchoolRepository; userRepository: IUserRepository; schoolMapper: SchoolMapper;
     paymentProvider: PaystackProvider; encryptionService: EncryptionService; passwordService: PasswordService;
     loginAttemptService: LoginAttemptService; authMessageService: AuthMessageService; auditService: AuditService;
 }
-
-const words = (s: string) => s.toLowerCase().replace(/[^a-z0-9 ]/g, " ").split(/\s+/).filter(w => w.length > 2);
 
 /*
 |--------------------------------------------------------------------------
@@ -61,8 +60,7 @@ export class SetupPaymentUseCase {
             accountName = (await d.paymentProvider.verifyAccountNumber(dto.accountNumber, dto.bankCode)).accountName;
         } catch { throw schoolErrors.bankNotVerified(); }
 
-        const schoolWords = new Set(words(school.name));
-        const accountNameMatchesSchool = words(accountName).some(w => schoolWords.has(w));
+        const accountNameMatchesSchool = namesMatch(school.name, accountName);
 
         const subaccount = await d.paymentProvider.createSubaccount({
             businessName: school.name, bankCode: dto.bankCode, accountNumber: dto.accountNumber,

@@ -58,15 +58,10 @@ Other Prisma/database errors are treated as unexpected 500 and reported to Sentr
 
 ## Zod validation
 
-There are two current paths:
+The validate middleware hands a failure to the global error handler, so every validation error is the same:
+`400 { success:false, message:"Validation failed", code:"VALIDATION_ERROR", errors:{ "field.path": "message" } }` (one string per field). A ZodError thrown later by a controller/use case gives the identical response. (REM-114; the earlier middleware answered by itself without a code and with arrays per field.)
 
-1. validate middleware calls schema.safeParse(req[part]). For body, parsed data replaces req.body. For query/params, parsed output is not applied to the request. On failure it responds immediately with HTTP 400:
-   { success:false, message:"Validation failed", errors: fieldErrors }
-   This response omits code=VALIDATION_ERROR and does not use the global handler.
-
-2. A ZodError thrown later by a use case/controller reaches the global error handler. It returns HTTP 400 with code=VALIDATION_ERROR and flattens issues into a field map.
-
-The two responses differ in shape and sometimes in error value shape (flattened arrays vs single string). See REM-113 and REM-114. Standardize on a single validation response contract and ensure query/params parsed output is passed downstream.
+The parsed result (defaults, coercion, transforms, unknown keys stripped) is stored for the controller: body -> `req.body`, params -> `req.params`, query -> `res.locals.validated.query`, read with `validated(res, "query", req.query)` (Express 5's `req.query` is a getter and stays the raw strings). Controllers that parse `req.query` themselves with the schema keep working. (REM-113)
 
 ## Authentication and CORS errors
 
@@ -76,13 +71,9 @@ CORS callback throws "Not allowed by CORS"; global handler returns 403 CORS_FORB
 
 ## 404 and rate-limit responses
 
-Unknown route currently returns:
-{ success:false, message:"Route METHOD URL not found" }
-It omits a stable code such as ROUTE_NOT_FOUND and does not use the common error handler. Avoid putting sensitive query strings into the response.
+Unknown route: `404 { success:false, message:"Route METHOD URL not found", code:"ROUTE_NOT_FOUND" }`.
 
-express-rate-limit uses its own message body:
-{ success:false, message:"Too many requests..." }
-It does not include code=RATE_LIMITED. The webhook limiter has a separate default response shape. See REM-114.
+The rate limiters (global, auth, OTP, upload, bank verify and bank list) answer `429 { success:false, code:"RATE_LIMITED", message }`. The webhook limiter keeps its own default response because providers, not browsers, call it. (REM-114)
 
 ## Error handling rules for new code
 

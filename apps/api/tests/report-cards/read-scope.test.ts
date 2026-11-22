@@ -12,7 +12,9 @@ test("who sees which cards: all, the classes I lead, my own (published only), my
     assert.deepEqual(cardsViewWhere(access({ persona: "GUARDIAN", me: "g1", can: ["report_cards.view"], scopes: { "report_cards.view": "OWN" } })),
         { student: { guardianLinks: { some: { guardianId: "g1" } } }, status: { in: ["published", "sent"] } });
     assert.deepEqual(cardsViewWhere(access({ can: [] })), { id: { in: [] } });
-    assert.deepEqual(cardsViewWhere(access({ can: ["report_cards.view"], scopes: { "report_cards.view": "BRANCH" } })), { id: { in: [] } });
+    // BRANCH = the classes of my branches; no branches = nobody
+    assert.deepEqual(cardsViewWhere(access({ can: ["report_cards.view"], scopes: { "report_cards.view": "BRANCH" }, branches: ["b1", "b2"] })), { class: { branchId: { in: ["b1", "b2"] } } });
+    assert.deepEqual(cardsViewWhere(access({ can: ["report_cards.view"], scopes: { "report_cards.view": "BRANCH" } })), { class: { branchId: { in: [] } } });
     assert.deepEqual(cardsViewWhere(access({ persona: "GUARDIAN", me: null, can: ["report_cards.view"], scopes: { "report_cards.view": "OWN" } })), { id: { in: [] } });
 });
 
@@ -20,6 +22,11 @@ test("class screens: administrators and the class teacher only; families never",
     assert.equal(mayViewClass(admin(), "t1"), true);
     assert.equal(mayViewClass(classTeacher("t1"), "t1"), true);
     assert.equal(mayViewClass(classTeacher("t2"), "t1"), false);
+    const branch = (b: string[]) => access({ can: ["report_cards.view"], scopes: { "report_cards.view": "BRANCH" }, branches: b });
+    assert.equal(mayViewClass(branch(["b1"]), "t9", "b1"), true);
+    assert.equal(mayViewClass(branch(["b2"]), "t9", "b1"), false);     // another branch's class
+    assert.equal(mayViewClass(branch(["b1"]), "t9"), false);           // class branch unknown: refused
+    assert.equal(mayViewClass(branch([]), "t9", "b1"), false);
     assert.equal(mayViewClass(access({ persona: "GUARDIAN", me: "g1", can: ["report_cards.view"], scopes: { "report_cards.view": "OWN" } }), "t1"), false);
     assert.equal(mayWorkOnClass(classTeacher("t1"), "t1"), true);
     assert.equal(mayWorkOnClass(classTeacher("t1"), null), false);
@@ -36,7 +43,7 @@ test("overview: live position for everyone, card status and staleness per studen
     assert.deepEqual(r.students.map(s => s.live.position), [1, 2, 3]);
     assert.equal(r.students[0].card?.status, "draft"); assert.equal(r.students[0].card?.stale, false); assert.equal(r.students[1].card, null);
     assert.deepEqual(r.counts, { students: 3, noCard: 2, draft: 1, published: 0, stale: 0 });
-    assert.deepEqual(r.can, { generate: true, publish: true });
+    assert.deepEqual(r.can, { generate: true, publish: true, publishIncomplete: true });
     await assert.rejects(uc.execute({ classId: "c1" }, classTeacher("t9")), /cannot see this class/);
     await assert.rejects(uc.execute({ classId: "c1" }, access({ persona: "GUARDIAN", me: "g1", can: ["report_cards.view"], scopes: { "report_cards.view": "OWN" } })), /cannot see/);
 });

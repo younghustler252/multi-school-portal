@@ -14,6 +14,7 @@ import { UploadLogoUseCase } from "./usecases/upload-logo.usecase";
 import { UploadDocumentUseCase } from "./usecases/upload-document.usecase";
 import { GetDocumentsUseCase } from "./usecases/get-documents.usecase";
 import { SetupPaymentUseCase } from "./usecases/setup-payment.usecase";
+import { ListBanksUseCase, VerifyBankAccountUseCase } from "./usecases/bank-lookup.usecases";
 import { GetDashboardUseCase } from "./usecases/get-dashboard.usecase";
 import { GetSetupChecklistUseCase } from "./usecases/get-setup-checklist.usecase";
 import { GetPublicSchoolInfoUseCase } from "./usecases/get-public-school-info.usecase";
@@ -58,6 +59,8 @@ export const registerSchool = (container: AwilixContainer): void => {
         uploadDocumentUseCase:     asClass(UploadDocumentUseCase).scoped(),
         getDocumentsUseCase:       asClass(GetDocumentsUseCase).scoped(),
         setupPaymentUseCase:       asClass(SetupPaymentUseCase).scoped(),
+        listBanksUseCase:          asClass(ListBanksUseCase).scoped(),
+        verifyBankAccountUseCase:  asClass(VerifyBankAccountUseCase).scoped(),
         getDashboardUseCase:       asClass(GetDashboardUseCase).scoped(),
         getSetupChecklistUseCase:  asClass(GetSetupChecklistUseCase).scoped(),
         getPublicSchoolInfoUseCase: asClass(GetPublicSchoolInfoUseCase).scoped(),

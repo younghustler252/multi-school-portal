@@ -1,4 +1,4 @@
-import rateLimit from "express-rate-limit";
+import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import { Redis } from "ioredis";
 import { RedisRateLimitStore } from "./redis-rate-limit.store";
 
@@ -26,6 +26,7 @@ export const globalLimiter = rateLimit({
     max:             100,
     message: {
         success: false,
+        code: "RATE_LIMITED",
         message: "Too many requests, please try again later",
     },
     standardHeaders: true,
@@ -40,6 +41,7 @@ export const authLimiter = rateLimit({
     max:             10,
     message: {
         success: false,
+        code: "RATE_LIMITED",
         message: "Too many authentication attempts. Please try again in 15 minutes.",
     },
     standardHeaders: true,
@@ -55,6 +57,7 @@ export const otpLimiter = rateLimit({
     max:             5,
     message: {
         success: false,
+        code: "RATE_LIMITED",
         message: "Too many OTP requests. Please wait 15 minutes before trying again.",
     },
     standardHeaders: true,
@@ -76,8 +79,35 @@ export const uploadLimiter = rateLimit({
     max:      20,
     message: {
         success: false,
+        code: "RATE_LIMITED",
         message: "Too many file uploads. Please try again later.",
     },
+    standardHeaders: true,
+    legacyHeaders:   false,
+});
+
+// ── Bank lookups (school payment setup) — keyed by the signed-in user, not the IP ─────────────
+// Place AFTER authenticate. Each lookup is a paid-for call to the payment provider; the numbers are
+// 20 account verifications and 60 bank-list reads per user per minute.
+export const perUserKey = (req: { auth?: { userId?: string }; ip?: string }): string =>
+    req.auth?.userId ? `user:${req.auth.userId}` : ipKeyGenerator(req.ip ?? "0.0.0.0");
+
+export const bankVerifyLimiter = rateLimit({
+    ...storeFor("bankVerifyLimiter"),
+    windowMs: 60 * 1000,
+    max:      20,
+    keyGenerator: perUserKey as any,
+    message: { success: false, code: "RATE_LIMITED", message: "Too many bank verification attempts. Please wait a minute and try again." },
+    standardHeaders: true,
+    legacyHeaders:   false,
+});
+
+export const bankListLimiter = rateLimit({
+    ...storeFor("bankListLimiter"),
+    windowMs: 60 * 1000,
+    max:      60,
+    keyGenerator: perUserKey as any,
+    message: { success: false, code: "RATE_LIMITED", message: "Too many requests. Please wait a minute and try again." },
     standardHeaders: true,
     legacyHeaders:   false,
 });
