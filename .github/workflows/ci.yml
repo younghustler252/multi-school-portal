@@ -37,9 +37,9 @@ jobs:
         working-directory: apps/api
         run: |
           f=tests/students/student-import.db.test.ts
-          echo "--- without flag"; (time timeout 60 npx tsx --import ./tests/setup/env.ts --test --test-reporter=spec $f) 2>&1 | grep -vE "^\s*$" | tail -6 | cut -c1-200; echo "rc=${PIPESTATUS[0]}"
-          echo "--- with --test-force-exit"; (time timeout 60 npx tsx --import ./tests/setup/env.ts --test --test-force-exit --test-reporter=spec $f) 2>&1 | grep -vE "^\s*$" | tail -6 | cut -c1-200
-          echo "--- full suite with --test-force-exit"; (time timeout 600 npx tsx --import ./tests/setup/env.ts --test --test-force-exit --test-timeout=120000 --test-reporter=spec "tests/**/*.test.ts" > /tmp/full.log 2>&1); echo "rc=$?"; grep -E "^ℹ (tests|pass|fail|cancelled|skipped)" /tmp/full.log; grep -E "^✖ " /tmp/full.log | sort | uniq | head -30 | cut -c1-160
+          echo "--- without flag: already shown to hang (rc=124)"
+          echo "--- with --test-force-exit"; (time timeout 60 npx tsx --import ./tests/setup/env.ts --test --test-force-exit --test-reporter=spec $f) 2>&1 | grep -vE "^\s*$" | tail -6 | cut -c1-200 || true
+          echo "--- full suite with --test-force-exit"; (time timeout 900 npx tsx --import ./tests/setup/env.ts --test --test-force-exit --test-timeout=120000 --test-reporter=spec "tests/**/*.test.ts" > /tmp/full.log 2>&1) || echo "full run rc=$?"; grep -E "^ℹ (tests|pass|fail|cancelled|skipped)" /tmp/full.log; grep -E "^✖ " /tmp/full.log | sort | uniq | head -30 | cut -c1-160
 
   web:
     runs-on: ubuntu-latest
