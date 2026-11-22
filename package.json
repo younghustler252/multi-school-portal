@@ -32,5 +32,10 @@
     "esbuild": true,
     "msgpackr-extract": true,
     "unrs-resolver@1.12.2": true
+  },
+  "overrides": {
+    "effect": ">=3.22.1 <4",
+    "glob": ">=14.0.2",
+    "minimatch": ">=11.0.1"
   }
 }
